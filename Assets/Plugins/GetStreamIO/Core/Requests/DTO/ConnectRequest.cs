@@ -1,0 +1,19 @@
+﻿using Newtonsoft.Json;
+
+namespace Plugins.GetStreamIO.Core.Requests.DTO
+{
+    public class ConnectRequest
+    {
+        [JsonProperty("Json")]
+        public string Json { get; set; }
+
+        [JsonProperty("api_key")]
+        public string ApiKey { get; set; }
+
+        [JsonProperty("authorization")]
+        public string UserToken { get; set; }
+
+        [JsonProperty("stream-auth-type")]
+        public string StreamAuthType { get; set; }
+    }
+}
