@@ -35,6 +35,9 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             Client.SendMessage(_messageInput.text);
 
             _messageInput.text = "";
+
+            _messageInput.Select();
+            _messageInput.ActivateInputField();
         }
     }
 }

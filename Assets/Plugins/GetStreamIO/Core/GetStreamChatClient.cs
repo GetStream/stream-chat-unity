@@ -56,7 +56,8 @@ namespace Plugins.GetStreamIO.Core
             var httpClient = new HttpClientAdapter();
             var serializer = new NewtonsoftJsonSerializer();
             var timeService = new UnityTime();
-            var getStreamClient = new GetStreamChatClient(authData, websocketClient, httpClient, serializer, timeService, unityLogs);
+            var getStreamClient = new GetStreamChatClient(authData, websocketClient, httpClient, serializer,
+                timeService, unityLogs);
 
             return getStreamClient;
         }
@@ -73,8 +74,10 @@ namespace Plugins.GetStreamIO.Core
 
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
 
-            _serverEventsMapping.Register<HealthCheckEvent>(EventType.HealthCheck, msg => Parse<HealthCheckEvent>(msg, Handle));
-            _serverEventsMapping.Register<MessageNewEvent>(EventType.MessageNew, msg => Parse<MessageNewEvent>(msg, Handle));
+            _serverEventsMapping.Register<HealthCheckEvent>(EventType.HealthCheck,
+                msg => Parse<HealthCheckEvent>(msg, Handle));
+            _serverEventsMapping.Register<MessageNewEvent>(EventType.MessageNew,
+                msg => Parse<MessageNewEvent>(msg, Handle));
 
             _httpClient.SetDefaultAuthenticationHeader(authData.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
@@ -86,6 +89,7 @@ namespace Plugins.GetStreamIO.Core
             {
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
+
             var connectionUri = _requestUriFactory.CreateConnectionUri();
 
             _logs.Info($"Connect with uri: " + connectionUri);
@@ -94,13 +98,15 @@ namespace Plugins.GetStreamIO.Core
             _websocketClient.ConnectAsync(connectionUri).ContinueWith(_ => _logs.Exception(_.Exception),
                 TaskContinuationOptions.OnlyOnFaulted);
 
+            //Todo: reset health check timers
+
             _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient.Connected += OnWebsocketsConnected;
         }
 
         public void Update(float deltaTime)
         {
-            MonitorConnection();
+            UpdateHealthCheck();
 
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
@@ -135,6 +141,9 @@ namespace Plugins.GetStreamIO.Core
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
 
+        //Todo: is it uniformly defined for all SDK's?
+        private const int HealthCheckSendInterval = 25;
+
         private readonly IWebsocketClient _websocketClient;
         private readonly ISerializer _serializer;
         private readonly ILogs _logs;
@@ -144,16 +153,19 @@ namespace Plugins.GetStreamIO.Core
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
 
+        //Todo: remove -> LLC stateless
         private readonly List<Channel> _channels = new List<Channel>();
 
         private string _connectionId;
         private float _lastHealthCheckReceivedTime;
+        private float _lastHealthCheckSendTime;
         private Channel _activeChannel;
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
         private void OnConnectionConfirmed()
-            => GetChannelsAsync().ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
+            => GetChannelsAsync()
+                .ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
 
         private void Reconnect()
         {
@@ -182,12 +194,20 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
-        private void MonitorConnection()
+        private void UpdateHealthCheck()
         {
             if (ConnectionState != ConnectionState.Connected)
             {
                 return;
             }
+
+            var timeSinceLastHealthCheckSent = _timeService.Time - _lastHealthCheckSendTime;
+
+            if (timeSinceLastHealthCheckSent > HealthCheckSendInterval)
+            {
+                PingHealthCheck();
+            }
+
             var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
 
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
@@ -195,6 +215,20 @@ namespace Plugins.GetStreamIO.Core
                 _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
                 Reconnect();
             }
+        }
+
+        private void PingHealthCheck()
+        {
+            var msg = new HealthCheckRequest
+            {
+                Type = EventType.HealthCheck,
+
+                //TOdo: is this valid? for react SDK was `leia_organa--ce260d55-c24e-4963-887a-3b90a30a6175`
+                ClientId = _authData.UserId
+            };
+            _websocketClient.Send(_serializer.Serialize(msg));
+
+            _lastHealthCheckSendTime = _timeService.Time;
         }
 
         private async Task SendMessageAsync(string message)
@@ -209,7 +243,7 @@ namespace Plugins.GetStreamIO.Core
 
             var messagePayload = new MessageRequest
             {
-                Message = new SendMessage()
+                Message = new SendMessage
                 {
                     Id = _authData.UserId + "-" + Guid.NewGuid(),
                     Text = message
@@ -274,6 +308,19 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
-        private void Handle(MessageNewEvent messageNewEvent) => _logs.Info("New message event received");
+        private void Handle(MessageNewEvent messageNewEvent)
+        {
+            _logs.Info("New message event received");
+
+            var channel = _channels.FirstOrDefault(_ => _.Details.Id == messageNewEvent.ChannelId);
+
+            if (channel == null)
+            {
+                _logs.Error("Failed to find channel with id: " + messageNewEvent.ChannelId);
+                return;
+            }
+
+            channel.AppendMessage(messageNewEvent.Message);
+        }
     }
 }

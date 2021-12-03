@@ -484,7 +484,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3286842537752146231, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_Size
-      value: 1
+      value: 0.99999994
       objectReference: {fileID: 0}
     - target: {fileID: 3286842537752146231, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_Value
@@ -907,7 +907,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8090220119038640879, guid: 7c6239b49c8b04342a536025edd61366, type: 3}
       propertyPath: m_Size
-      value: 1
+      value: 0.9999999
       objectReference: {fileID: 0}
     - target: {fileID: 8090220119038640879, guid: 7c6239b49c8b04342a536025edd61366, type: 3}
       propertyPath: m_Value
@@ -955,6 +955,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3859440365551572142}
     m_Modifications:
+    - target: {fileID: 749993249027069916, guid: 52e5878015a478a48b3dee2946655058, type: 3}
+      propertyPath: m_fontSize
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 749993249027069916, guid: 52e5878015a478a48b3dee2946655058, type: 3}
+      propertyPath: m_fontColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 749993249027069916, guid: 52e5878015a478a48b3dee2946655058, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.56339693
+      objectReference: {fileID: 0}
+    - target: {fileID: 749993249027069916, guid: 52e5878015a478a48b3dee2946655058, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 749993249027069916, guid: 52e5878015a478a48b3dee2946655058, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 749993249027069916, guid: 52e5878015a478a48b3dee2946655058, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4294938624
+      objectReference: {fileID: 0}
     - target: {fileID: 2620233721520906948, guid: 52e5878015a478a48b3dee2946655058, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

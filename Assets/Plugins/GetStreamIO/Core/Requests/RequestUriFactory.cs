@@ -82,6 +82,5 @@ namespace Plugins.GetStreamIO.Core.Requests
 
             return uriParams.ToQueryParams();
         }
-
     }
 }

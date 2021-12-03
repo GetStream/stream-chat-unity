@@ -19,7 +19,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         protected override void OnDisposing()
         {
             Client.ChannelsUpdated -= OnChannelsUpdated;
-            DestroyAll();
+            ClearAll();
 
             base.OnDisposing();
         }
@@ -34,7 +34,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         private void OnChannelsUpdated()
         {
-            DestroyAll();
+            ClearAll();
 
             foreach (var c in Client.Channels)
             {
@@ -47,7 +47,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         private void OnChannelClicked(Channel channel) => Client.OpenChannel(channel);
 
-        private void DestroyAll()
+        private void ClearAll()
         {
             foreach (var c in _channels)
             {
