@@ -223,13 +223,15 @@ namespace Plugins.GetStreamIO.Core
             {
                 Type = EventType.HealthCheck,
 
-                //TOdo: is this valid? for react SDK was `leia_organa--ce260d55-c24e-4963-887a-3b90a30a6175`
+                //TOdo: is this valid? Seems to work, but for react SDK was `leia_organa--ce260d55-c24e-4963-887a-3b90a30a6175`
                 ClientId = _authData.UserId
             };
             _websocketClient.Send(_serializer.Serialize(msg));
 
             _lastHealthCheckSendTime = _timeService.Time;
         }
+
+        //Todo: refactor SendMessageAsync & GetChannelsAsync
 
         private async Task SendMessageAsync(string message)
         {
@@ -250,8 +252,7 @@ namespace Plugins.GetStreamIO.Core
                 }
             };
 
-            var content = new StringContent(_serializer.Serialize(messagePayload));
-
+            var content = _serializer.Serialize(messagePayload);
             var response = await _httpClient.PostAsync(uri, content);
 
             if (!response.IsSuccessStatusCode)
@@ -263,9 +264,8 @@ namespace Plugins.GetStreamIO.Core
 
         private async Task GetChannelsAsync()
         {
-            var content =
-                new StringContent(
-                    "{\"filter_conditions\":{},\"sort\":[{\"field\":\"last_message_at\",\"direction\":-1}],\"state\":true,\"watch\":true,\"presence\":false,\"limit\":30,\"offset\":0}");
+            var queryOptions = QueryChannelsOptions.Default.SortBy(SortFieldId.LastMessageAt, SortDirection.Descending);
+            var content = _serializer.Serialize(queryOptions);
 
             var uri = _requestUriFactory.CreateChannelsUri();
 

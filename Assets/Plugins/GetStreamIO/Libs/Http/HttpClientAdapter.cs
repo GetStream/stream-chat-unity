@@ -21,7 +21,11 @@ namespace Plugins.GetStreamIO.Libs.Http
         public void AddDefaultCustomHeader(string key, string value)
             => _httpClient.DefaultRequestHeaders.Add(key, value);
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content) => _httpClient.PostAsync(uri, content);
+        public Task<HttpResponseMessage> PostAsync(Uri uri, string content)
+            => _httpClient.PostAsync(uri, new StringContent(content));
+
+        public Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content)
+            => _httpClient.PostAsync(uri, content);
 
         private readonly HttpClient _httpClient;
     }

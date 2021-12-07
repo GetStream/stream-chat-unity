@@ -142,9 +142,9 @@ namespace Plugins.GetStreamIO.Libs.Websockets
             var ms = new MemoryStream();
             var bufferSegment = new ArraySegment<byte>(readBuffer);
 
-            WebSocketReceiveResult chunkResult;
             if (_client.State == WebSocketState.Open)
             {
+                WebSocketReceiveResult chunkResult;
                 do
                 {
                     chunkResult = await _client.ReceiveAsync(bufferSegment, CancellationToken.None);

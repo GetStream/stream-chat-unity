@@ -15,5 +15,7 @@ namespace Plugins.GetStreamIO.Libs.Http
         void AddDefaultCustomHeader(string key, string value);
 
         Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content);
+
+        Task<HttpResponseMessage> PostAsync(Uri uri, string content);
     }
 }

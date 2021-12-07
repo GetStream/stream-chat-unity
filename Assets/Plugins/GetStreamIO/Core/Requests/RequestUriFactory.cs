@@ -6,7 +6,6 @@ using Plugins.GetStreamIO.Core.Requests.DTO;
 using Plugins.GetStreamIO.Libs.Serialization;
 using Plugins.GetStreamIO.Libs.Utils;
 
-
 namespace Plugins.GetStreamIO.Core.Requests
 {
     /// <summary>

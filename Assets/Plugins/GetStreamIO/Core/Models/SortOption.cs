@@ -1,0 +1,23 @@
+using Newtonsoft.Json;
+
+namespace Plugins.GetStreamIO.Core.Models
+{
+    /// <summary>
+    ///
+    /// </summary>
+    public class SortOption
+    {
+        [JsonProperty("field")]
+        public string Field { get; set; }
+
+        [JsonProperty("direction")]
+        public SortDirection Direction { get; set; }
+
+        public static SortOption Create(SortFieldId field, SortDirection direction) =>
+            new SortOption
+            {
+                Field = ApiMapper.SortFields[field],
+                Direction = direction
+            };
+    }
+}
