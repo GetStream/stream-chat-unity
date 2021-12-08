@@ -62,7 +62,7 @@ namespace Plugins.GetStreamIO.Tests
         [Test]
         public void when_get_stream_client_factory_called_expect_no_exceptions()
         {
-            Assert.DoesNotThrow(() => GetStreamChatClient.Factory(_authData));
+            Assert.DoesNotThrow(() => GetStreamChatClient.CreateDefaultClient(_authData));
         }
 
         [Test]
@@ -148,8 +148,9 @@ namespace Plugins.GetStreamIO.Tests
         }
 
         private IGetStreamChatClient _client;
-        private IWebsocketClient _mockWebsocketClient;
         private AuthData _authData;
+
+        private IWebsocketClient _mockWebsocketClient;
         private ILogs _mockLogs;
         private ISerializer _mockSerializer;
         private ITimeService _mockTimeService;

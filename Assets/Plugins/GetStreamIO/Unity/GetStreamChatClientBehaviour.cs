@@ -15,7 +15,7 @@ namespace Plugins.GetStreamIO.Unity
         {
             var authData = new AuthData(new Uri(_serverUri), _userToken, _apiKey, _userId);
 
-            _client = GetStreamChatClient.Factory(authData);
+            _client = GetStreamChatClient.CreateDefaultClient(authData);
             _client.Start();
 
             _rootView.Init(_client);

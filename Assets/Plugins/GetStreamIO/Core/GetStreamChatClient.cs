@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events;
@@ -49,7 +48,7 @@ namespace Plugins.GetStreamIO.Core
         /// Use this method to create the main client instance
         /// </summary>
         /// <param name="authData">Authorization data with Server Url, ApiKey, UserToken and UserId</param>
-        public static IGetStreamChatClient Factory(AuthData authData)
+        public static IGetStreamChatClient CreateDefaultClient(AuthData authData)
         {
             var unityLogs = new UnityLogs();
             var websocketClient = new WebsocketClient(unityLogs);
@@ -104,6 +103,7 @@ namespace Plugins.GetStreamIO.Core
             _websocketClient.Connected += OnWebsocketsConnected;
         }
 
+        //TOdo: replace with our inner coroutine?
         public void Update(float deltaTime)
         {
             UpdateHealthCheck();
