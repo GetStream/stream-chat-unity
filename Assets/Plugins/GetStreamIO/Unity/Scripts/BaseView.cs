@@ -13,10 +13,14 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         {
             Client = client ?? throw new ArgumentNullException(nameof(client));
 
+            //Todo: inject?
+            ImageLoader = new UnityImageWebLoader();
+
             OnInited();
         }
 
         protected IGetStreamChatClient Client { get; private set; }
+        protected IImageLoader ImageLoader { get; private set; }
 
         protected void OnDestroy() => OnDisposing();
 

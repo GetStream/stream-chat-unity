@@ -11,9 +11,6 @@ namespace Plugins.GetStreamIO.Core.Models
         public const int DefaultOffset = 0;
         public const int DefaultLimit = 30;
 
-        //Todo: We could implement filter builder with fluent pattern
-        //https://getstream.io/chat/docs/other-rest/query_channels/?language=kotlin#channel-queryable-built-in-fields
-
         [JsonProperty("filter_conditions")]
         public IDictionary<string, object> Filter { get; } = new Dictionary<string, object>();
 
@@ -36,7 +33,7 @@ namespace Plugins.GetStreamIO.Core.Models
     }
 
     /// <summary>
-    /// Fluent builder for <see cref="QueryChannelsOptions"/>
+    /// Fluent builder extensions for <see cref="QueryChannelsOptions"/>
     /// </summary>
     public static class QueryChannelsOptionsBuilder
     {

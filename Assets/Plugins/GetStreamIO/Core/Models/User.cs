@@ -13,6 +13,9 @@ namespace Plugins.GetStreamIO.Core.Models
         [JsonProperty("name")]
         public string Name;
 
+        [JsonProperty("image")]
+        public string Image;
+
         [JsonProperty("image_url")]
         public string ImageUrl;
     }

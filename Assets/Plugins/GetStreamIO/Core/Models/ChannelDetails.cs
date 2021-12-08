@@ -12,6 +12,10 @@ namespace Plugins.GetStreamIO.Core.Models
         [JsonProperty("id")]
         public string Id;
 
+        //Todo: parse to enum?
+        [JsonProperty("type")]
+        public string Type;
+
         [JsonProperty("name")]
         public string Name;
 

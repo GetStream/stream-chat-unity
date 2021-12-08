@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Models;
 using UnityEngine;
 using UnityEngine.UI;
@@ -73,10 +74,11 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         {
             ClearAll();
 
-            foreach (var m in channel.Messages)
+            var imageLoader = new UnityImageWebLoader();
+            foreach (var message in channel.Messages)
             {
                 var messageView = Instantiate(_messageViewPrefab, _messagesContainer);
-                messageView.Init(m);
+                messageView.Init(message, imageLoader);
                 _messages.Add(messageView);
             }
 

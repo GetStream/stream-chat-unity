@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Plugins.GetStreamIO.Unity.Scripts
+﻿namespace Plugins.GetStreamIO.Unity.Scripts
 {
     /// <summary>
     /// Root view
@@ -11,22 +9,15 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         {
             base.OnInited();
 
-            _channelsListView.Init(Client);
-            _chatView.Init(Client);
-            _createMessageView.Init(Client);
-            _consoleView.Init(Client);
+            foreach (var childView in GetComponentsInChildren<BaseView>())
+            {
+                if (childView == this)
+                {
+                    continue;
+                }
+
+                childView.Init(Client);
+            }
         }
-
-        [SerializeField]
-        private ChannelsListView _channelsListView;
-
-        [SerializeField]
-        private ChatView _chatView;
-
-        [SerializeField]
-        private CreateMessageView _createMessageView;
-
-        [SerializeField]
-        private ConsoleView _consoleView;
     }
 }

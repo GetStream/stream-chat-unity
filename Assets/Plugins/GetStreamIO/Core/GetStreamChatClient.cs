@@ -55,20 +55,22 @@ namespace Plugins.GetStreamIO.Core
             var httpClient = new HttpClientAdapter();
             var serializer = new NewtonsoftJsonSerializer();
             var timeService = new UnityTime();
+            var imageWebLoader = new UnityImageWebLoader();
             var getStreamClient = new GetStreamChatClient(authData, websocketClient, httpClient, serializer,
-                timeService, unityLogs);
+                timeService, imageWebLoader, unityLogs);
 
             return getStreamClient;
         }
 
         public GetStreamChatClient(AuthData authData, IWebsocketClient websocketClient, IHttpClient httpClient,
-            ISerializer serializer, ITimeService timeService, ILogs logs)
+            ISerializer serializer, ITimeService timeService, IImageLoader imageLoader, ILogs logs)
         {
             _authData = authData;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
+            _imageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
@@ -160,6 +162,7 @@ namespace Plugins.GetStreamIO.Core
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
         private Channel _activeChannel;
+        private readonly IImageLoader _imageLoader;
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
