@@ -9,7 +9,11 @@ namespace Plugins.GetStreamIO.Libs.Serialization
     public class NewtonsoftJsonSerializer : ISerializer
     {
         public string Serialize<TType>(TType obj)
-            => JsonConvert.SerializeObject(obj);
+            => JsonConvert.SerializeObject(obj, Formatting.None,
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
 
         public TType Deserialize<TType>(string serializedObj)
             => JsonConvert.DeserializeObject<TType>(serializedObj);

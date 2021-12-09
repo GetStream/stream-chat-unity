@@ -33,14 +33,14 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         private void OnEventReceived(string obj)
         {
-            _records.Add(obj);
+            _records.Insert(0, obj);
 
             if (_records.Count > MaxRecords)
             {
                 _records.RemoveRange(0, _records.Count - MaxRecords);
             }
 
-            _text.text = string.Join("<br>", _records);
+            _text.text = "Received events:" + "<br>" + string.Join("<br>", _records);
         }
     }
 }

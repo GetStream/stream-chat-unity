@@ -20,17 +20,24 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
             _text.text = $"{_message.Text}<br>{_message.User.Name}";
 
-            ShowAvatarAsync(_message.User.ImageUrl, imageLoader)
+            ShowAvatarAsync(_message.User.Image, imageLoader)
                 .ContinueWith(_ => Debug.LogError(_.Exception), TaskContinuationOptions.OnlyOnFaulted); //Todo: create extension LogIfFailed
         }
 
+        protected void OnDestroy()
+        {
+            _isDestroyed = true;
+        }
+
         private Message _message;
+        private bool _isDestroyed;
 
         [SerializeField]
         private TMP_Text _text;
 
         [SerializeField]
         private Image _avatar;
+
 
         private async Task ShowAvatarAsync(string url, IImageLoader imageLoader)
         {
@@ -41,6 +48,11 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
             Debug.Log("ShowAvatarAsync " + url);
             var texture = await imageLoader.LoadImageAsync(url);
+
+            if (_isDestroyed)
+            {
+                return;
+            }
 
             _avatar.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
         }

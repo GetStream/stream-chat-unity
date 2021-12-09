@@ -16,6 +16,7 @@ namespace Plugins.GetStreamIO.Core.Models
         [JsonProperty("image")]
         public string Image;
 
+        //Todo: why is there Image and ImageUrl?
         [JsonProperty("image_url")]
         public string ImageUrl;
     }

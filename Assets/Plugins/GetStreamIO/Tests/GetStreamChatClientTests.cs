@@ -27,7 +27,7 @@ namespace Plugins.GetStreamIO.Tests
             _mockTimeService = Substitute.For<ITimeService>();
             _mockLogs = Substitute.For<ILogs>();
             _client = new GetStreamChatClient(_authData, _mockWebsocketClient, _mockHttpClient, _mockSerializer,
-                _mockTimeService, _mockImageLoader, _mockLogs);
+                _mockTimeService, _mockLogs);
         }
 
         [TearDown]
@@ -69,25 +69,23 @@ namespace Plugins.GetStreamIO.Tests
         public void when_get_stream_client_passed_null_arg_expect_argument_null_exception()
         {
             Assert.Throws<ArgumentNullException>(() => new GetStreamChatClient(_authData, websocketClient: null, httpClient: _mockHttpClient, serializer: _mockSerializer,
-                timeService: _mockTimeService, imageLoader: _mockImageLoader, logs: _mockLogs));
+                timeService: _mockTimeService, logs: _mockLogs));
 
             Assert.Throws<ArgumentNullException>(() => new GetStreamChatClient(_authData,
                 websocketClient: _mockWebsocketClient, httpClient: null, serializer: _mockSerializer,
-                timeService: _mockTimeService, imageLoader: _mockImageLoader, logs: _mockLogs));
+                timeService: _mockTimeService, logs: _mockLogs));
 
             Assert.Throws<ArgumentNullException>(() => new GetStreamChatClient(_authData,
                 websocketClient: _mockWebsocketClient, httpClient: _mockHttpClient, serializer: null,
-                timeService: _mockTimeService, imageLoader: _mockImageLoader, logs: _mockLogs));
+                timeService: _mockTimeService, logs: _mockLogs));
 
             Assert.Throws<ArgumentNullException>(() => new GetStreamChatClient(_authData,
                 websocketClient: _mockWebsocketClient, httpClient: _mockHttpClient, serializer: _mockSerializer,
-                timeService: null, imageLoader: _mockImageLoader, logs: _mockLogs));
+                timeService: null, logs: _mockLogs));
 
             Assert.Throws<ArgumentNullException>(() => new GetStreamChatClient(_authData,
                 websocketClient: _mockWebsocketClient, httpClient: _mockHttpClient, serializer: _mockSerializer,
-                timeService: _mockTimeService, imageLoader: _mockImageLoader, logs: null));
-
-            //Todo: test for null _mockImageWebLoader
+                timeService: _mockTimeService, logs: null));
         }
 
         [Test]
@@ -100,7 +98,7 @@ namespace Plugins.GetStreamIO.Tests
         public void when_get_stream_client_received_first_health_check_event_expect_connected_state()
         {
             var client = new GetStreamChatClient(_authData, _mockWebsocketClient, _mockHttpClient,
-                new NewtonsoftJsonSerializer(), _mockTimeService, _mockImageLoader, _mockLogs);
+                new NewtonsoftJsonSerializer(), _mockTimeService, _mockLogs);
 
             var connectCallsCounter = 0;
             _mockWebsocketClient.ConnectAsync(Arg.Any<Uri>()).Returns(_ =>
@@ -125,7 +123,7 @@ namespace Plugins.GetStreamIO.Tests
         public void when_get_stream_client_health_check_timeout_detected_expect_client_disconnected()
         {
             var client = new GetStreamChatClient(_authData, _mockWebsocketClient, _mockHttpClient,
-                new NewtonsoftJsonSerializer(), _mockTimeService, _mockImageLoader, _mockLogs);
+                new NewtonsoftJsonSerializer(), _mockTimeService, _mockLogs);
 
             var connectCallsCounter = 0;
             _mockWebsocketClient.ConnectAsync(Arg.Any<Uri>()).Returns(_ =>
@@ -156,6 +154,5 @@ namespace Plugins.GetStreamIO.Tests
         private ISerializer _mockSerializer;
         private ITimeService _mockTimeService;
         private IHttpClient _mockHttpClient;
-        private IImageLoader _mockImageLoader;
     }
 }

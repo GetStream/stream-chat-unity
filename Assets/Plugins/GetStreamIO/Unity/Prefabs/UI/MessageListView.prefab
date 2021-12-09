@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 5721179312304561766}
   - component: {fileID: 1719230380841013447}
   m_Layer: 5
-  m_Name: ChatView
+  m_Name: MessageListView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -277,6 +277,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _messagesContainer: {fileID: 249695966492087952}
   _messageViewPrefab: {fileID: -3921630580214947134, guid: c0553e1bbb26d89429859cd6552c0194, type: 3}
+  _localUserMessageViewPrefab: {fileID: 6165304251737862070, guid: 192799abdb2cebd458f95f96e28a25c7, type: 3}
 --- !u!1 &5764201377665119041
 GameObject:
   m_ObjectHideFlags: 0

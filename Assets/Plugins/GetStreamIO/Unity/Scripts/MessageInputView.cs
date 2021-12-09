@@ -4,7 +4,10 @@ using UnityEngine.UI;
 
 namespace Plugins.GetStreamIO.Unity.Scripts
 {
-    public class CreateMessageView : BaseView
+    /// <summary>
+    /// Message input view
+    /// </summary>
+    public class MessageInputView : BaseView
     {
         protected void Awake()
         {

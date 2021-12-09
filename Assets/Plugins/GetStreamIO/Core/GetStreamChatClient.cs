@@ -55,22 +55,20 @@ namespace Plugins.GetStreamIO.Core
             var httpClient = new HttpClientAdapter();
             var serializer = new NewtonsoftJsonSerializer();
             var timeService = new UnityTime();
-            var imageWebLoader = new UnityImageWebLoader();
             var getStreamClient = new GetStreamChatClient(authData, websocketClient, httpClient, serializer,
-                timeService, imageWebLoader, unityLogs);
+                timeService, unityLogs);
 
             return getStreamClient;
         }
 
         public GetStreamChatClient(AuthData authData, IWebsocketClient websocketClient, IHttpClient httpClient,
-            ISerializer serializer, ITimeService timeService, IImageLoader imageLoader, ILogs logs)
+            ISerializer serializer, ITimeService timeService, ILogs logs)
         {
             _authData = authData;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
-            _imageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
@@ -127,6 +125,9 @@ namespace Plugins.GetStreamIO.Core
                 .ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
         }
 
+        public bool IsLocalUser(User user)
+            => user.Id == _authData.UserId;
+
         public void Dispose()
         {
             _websocketClient.Connected -= OnWebsocketsConnected;
@@ -143,7 +144,7 @@ namespace Plugins.GetStreamIO.Core
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
 
-        //Todo: is it uniformly defined for all SDK's?
+        //Todo: is it uniformly defined for all SDKs?
         private const int HealthCheckSendInterval = 25;
 
         private readonly IWebsocketClient _websocketClient;
@@ -162,7 +163,6 @@ namespace Plugins.GetStreamIO.Core
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
         private Channel _activeChannel;
-        private readonly IImageLoader _imageLoader;
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
@@ -188,11 +188,12 @@ namespace Plugins.GetStreamIO.Core
                 return;
             }
 
-            EventReceived?.Invoke($"{DateTime.Now.TimeOfDay} - Event received: <b>{type}</b>");
+            var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
+            EventReceived?.Invoke($"{time} - Event received: <b>{type}</b>");
 
             if (!_serverEventsMapping.TryHandleEvent(type, msg))
             {
-                _logs.Error($"No message handler registered for `{type}`. Message not handled: " + msg);
+                _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
                 return;
             }
         }

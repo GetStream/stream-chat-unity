@@ -8,9 +8,9 @@ using UnityEngine.UI;
 namespace Plugins.GetStreamIO.Unity.Scripts
 {
     /// <summary>
-    /// Chat view with messages
+    /// Channel message list view
     /// </summary>
-    public class ChatView : BaseView
+    public class MessageListView : BaseView
     {
         protected override void OnInited()
         {
@@ -34,6 +34,9 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         [SerializeField]
         private MessageView _messageViewPrefab;
+
+        [SerializeField]
+        private MessageView _localUserMessageViewPrefab;
 
         private Channel _activeChannel;
 
@@ -69,7 +72,6 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             _messages.Clear();
         }
 
-        //Todo: we should append last msg, not rebuild whole view
         private void RebuildMessages(Channel channel)
         {
             ClearAll();
@@ -77,17 +79,25 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             var imageLoader = new UnityImageWebLoader();
             foreach (var message in channel.Messages)
             {
-                var messageView = Instantiate(_messageViewPrefab, _messagesContainer);
+                var messageView = CreateMessageView(message);
                 messageView.Init(message, imageLoader);
                 _messages.Add(messageView);
             }
 
-            //Todo: move this dependency elsewhere - we need to wait for render resize before we scroll the view
             StartCoroutine(ScrollToBottomAfterResized());
         }
 
-        IEnumerator ScrollToBottomAfterResized()
+        //Todo: extract to ViewFactory
+        private MessageView CreateMessageView(Message message)
         {
+            var isLocal = Client.IsLocalUser(message.User);
+            var prefab = isLocal ? _localUserMessageViewPrefab : _messageViewPrefab;
+            return Instantiate(prefab, _messagesContainer);
+        }
+
+        private IEnumerator ScrollToBottomAfterResized()
+        {
+            //wait 1 frame for renderer to update
             yield return new WaitForEndOfFrame();
             GetComponent<ScrollRect>().verticalNormalizedPosition = 0;
         }

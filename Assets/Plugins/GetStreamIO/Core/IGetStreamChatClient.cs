@@ -26,5 +26,7 @@ namespace Plugins.GetStreamIO.Core
         void SendMessage(string text);
 
         event Action<string> EventReceived;
+
+        bool IsLocalUser(User user);
     }
 }
