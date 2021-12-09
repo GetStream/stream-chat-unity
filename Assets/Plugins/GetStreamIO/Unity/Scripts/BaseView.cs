@@ -9,18 +9,16 @@ namespace Plugins.GetStreamIO.Unity.Scripts
     /// </summary>
     public abstract class BaseView : MonoBehaviour
     {
-        public void Init(IGetStreamChatClient client)
+        public void Init(IChatViewContext viewContext)
         {
-            Client = client ?? throw new ArgumentNullException(nameof(client));
-
-            //Todo: inject?
-            ImageLoader = new UnityImageWebLoader();
+            ViewContext = viewContext ?? throw new ArgumentNullException(nameof(viewContext));
 
             OnInited();
         }
 
-        protected IGetStreamChatClient Client { get; private set; }
-        protected IImageLoader ImageLoader { get; private set; }
+        protected IGetStreamChatClient Client => ViewContext.Client;
+        protected IImageLoader ImageLoader => ViewContext.ImageLoader;
+        protected IChatViewContext ViewContext { get; private set; }
 
         protected void OnDestroy() => OnDisposing();
 

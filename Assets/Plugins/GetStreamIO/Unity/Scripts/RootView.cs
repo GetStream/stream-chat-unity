@@ -16,7 +16,7 @@
                     continue;
                 }
 
-                childView.Init(Client);
+                childView.Init(ViewContext);
             }
         }
     }

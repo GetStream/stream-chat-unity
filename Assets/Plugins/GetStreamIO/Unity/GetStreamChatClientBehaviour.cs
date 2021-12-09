@@ -18,7 +18,9 @@ namespace Plugins.GetStreamIO.Unity
             _client = GetStreamChatClient.CreateDefaultClient(authData);
             _client.Start();
 
-            _rootView.Init(_client);
+            var viewContext = new ChatViewContext(_client, new UnityImageWebLoader());
+
+            _rootView.Init(viewContext);
         }
 
         protected void Update() => _client?.Update(Time.deltaTime);
