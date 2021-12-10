@@ -47,14 +47,14 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             }
 
             Debug.Log("ShowAvatarAsync " + url);
-            var texture = await imageLoader.LoadImageAsync(url);
+            var sprite = await imageLoader.LoadImageAsync(url);
 
-            if (_isDestroyed)
+            if (_isDestroyed || sprite == null)
             {
                 return;
             }
 
-            _avatar.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+            _avatar.sprite = sprite;
         }
     }
 }

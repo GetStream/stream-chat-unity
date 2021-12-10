@@ -128,6 +128,9 @@ namespace Plugins.GetStreamIO.Core
         public bool IsLocalUser(User user)
             => user.Id == _authData.UserId;
 
+        public bool IsLocalUser(Member member)
+            => member.User.Id == _authData.UserId;
+
         public void Dispose()
         {
             _websocketClient.Connected -= OnWebsocketsConnected;
@@ -283,10 +286,10 @@ namespace Plugins.GetStreamIO.Core
 
             var responseText = await response.Content.ReadAsStringAsync();
 
-            var channels = _serializer.Deserialize<ChannelsResponse>(responseText);
+            var channelsResponse = _serializer.Deserialize<ChannelsResponse>(responseText);
 
             _channels.Clear();
-            _channels.AddRange(channels.Channels.OrderBy(_ => _.Details.UpdatedAt));
+            _channels.AddRange(channelsResponse.Channels);
 
             OpenChannel(_channels.FirstOrDefault());
 

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Libs.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,11 +16,15 @@ namespace Plugins.GetStreamIO.Unity.Scripts
     {
         public event Action<Channel> Clicked;
 
-        public void Init(Channel channel)
+        public void Init(Channel channel, IChatViewContext context)
         {
             _channel = channel ?? throw new ArgumentNullException(nameof(channel));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
 
-            _text.text = $"<b>{channel.Details.Name}</b> (Members: {channel.Details.MemberCount}) <br> Last update: {channel.Details.UpdatedAt}";
+            _isDirectMessage = channel.IsDirectMessage;
+
+            UpdateMessagePreview();
+            UpdateImageAsync().LogIfFailed();
         }
 
         protected void Awake()
@@ -25,14 +32,92 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             _button.onClick.AddListener(OnClicked);
         }
 
+        private const int PreviewMessageLenght = 30;
+
         private Channel _channel;
+        private bool _isDirectMessage;
 
         [SerializeField]
-        private TMP_Text _text;
+        private TMP_Text _headerText;
+
+        [SerializeField]
+        private TMP_Text _messagePreviewText;
+
+        [SerializeField]
+        private Image _avatar;
+
+        [SerializeField]
+        private TMP_Text _avatarAbbreviation;
 
         [SerializeField]
         private Button _button;
 
+        private IChatViewContext _context;
+
         private void OnClicked() => Clicked?.Invoke(_channel);
+
+        private void UpdateMessagePreview()
+        {
+            var channelCreator = _channel.Details.CreatedBy;
+            var channelCreatorName = channelCreator.Name.IsNullOrEmpty() ? channelCreator.Id : channelCreator.Name;
+
+            var name = _isDirectMessage ? channelCreatorName : _channel.Name;
+
+            _headerText.text = name;
+            _messagePreviewText.text = GetLastMessagePreview();
+
+            var abbreviationSource = name.IsNullOrEmpty()
+                ? _channel.Details.CreatedBy.Name
+                : name;
+
+            var abbreviation = abbreviationSource.Length > 0
+                ? abbreviationSource.Substring(0, 1).ToUpper()
+                : string.Empty;
+
+            _avatarAbbreviation.text = abbreviation;
+        }
+
+        private string GetLastMessagePreview()
+        {
+            var lastMessage = _channel.Messages.LastOrDefault();
+
+            if (lastMessage == null)
+            {
+                return string.Empty;
+            }
+
+            if (lastMessage.Text.Length <= PreviewMessageLenght)
+            {
+                return lastMessage.Text;
+            }
+
+            return lastMessage.Text.Substring(0, PreviewMessageLenght) + " ...";
+        }
+
+        private async Task UpdateImageAsync()
+        {
+            _avatar.gameObject.SetActive(false);
+
+            if (!_isDirectMessage)
+            {
+                return;
+            }
+
+            var otherMember = _channel.Members.FirstOrDefault(_ => !_context.Client.IsLocalUser(_));
+
+            if (otherMember == null || otherMember.User.Image.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            var sprite = await _context.ImageLoader.LoadImageAsync(otherMember.User.Image);
+
+            if (sprite != null)
+            {
+                _avatar.gameObject.SetActive(true);
+                _avatar.sprite = sprite;
+                _avatarAbbreviation.text = string.Empty;
+            }
+        }
     }
 }

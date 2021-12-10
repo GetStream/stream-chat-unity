@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Plugins.GetStreamIO.Libs.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -11,7 +12,7 @@ namespace Plugins.GetStreamIO.Core
     /// </summary>
     public class UnityImageWebLoader : IImageLoader
     {
-        public async Task<Texture2D> LoadImageAsync(string url)
+        public async Task<Sprite> LoadImageAsync(string url)
         {
             //Todo: validate url
 
@@ -22,18 +23,19 @@ namespace Plugins.GetStreamIO.Core
 
             if (_pendingRequests.Contains(url))
             {
-                var tcs = new TaskCompletionSource<Texture2D>();
+                var tcs = new TaskCompletionSource<Sprite>();
 
-                if (!_activeRequests.ContainsKey(url))
+                if (!_subscribers.ContainsKey(url))
                 {
-                    _activeRequests[url] = new List<TaskCompletionSource<Texture2D>>();
+                    _subscribers[url] = new List<TaskCompletionSource<Sprite>>();
                 }
 
-                _activeRequests[url].Add(tcs);
+                _subscribers[url].Add(tcs);
                 return await tcs.Task;
             }
 
             using (var webRequest = UnityWebRequestTexture.GetTexture(url))
+            using (new TimeLogScope($"Download avatar `{url}`", Debug.Log))
             {
                 var requestAsyncHandler = webRequest.SendWebRequest();
                 _pendingRequests.Add(url);
@@ -43,36 +45,43 @@ namespace Plugins.GetStreamIO.Core
                     await Task.Delay(1);
                 }
 
+                _pendingRequests.Remove(url);
+
                 var request = requestAsyncHandler.webRequest;
 
                 if (request.result != UnityWebRequest.Result.Success)
                 {
+                    if (request.responseCode == 404)
+                    {
+                        Debug.LogWarning($"Tried to download `{url}`, but resource is missing with 404 response code");
+                        return null;
+                    }
+
                     throw new Exception($"Failed to download image from `{url}` with error: `{request.error}`");
                 }
 
-                _pendingRequests.Remove(url);
-
                 var texture = DownloadHandlerTexture.GetContent(request);
+                var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
 
-                if (_activeRequests.ContainsKey(url))
+                if (_subscribers.ContainsKey(url))
                 {
-                    foreach (var tcs in _activeRequests[url])
+                    foreach (var tcs in _subscribers[url])
                     {
-                        tcs.SetResult(texture);
+                        tcs.SetResult(sprite);
                     }
 
-                    _activeRequests.Clear();
+                    _subscribers.Clear();
                 }
 
-                return _cachedImages[url] = texture;
+                return _cachedImages[url] = sprite;
             }
         }
 
         private static readonly HashSet<string> _pendingRequests = new HashSet<string>();
 
-        private static readonly Dictionary<string, List<TaskCompletionSource<Texture2D>>> _activeRequests =
-            new Dictionary<string, List<TaskCompletionSource<Texture2D>>>();
+        private static readonly Dictionary<string, List<TaskCompletionSource<Sprite>>> _subscribers =
+            new Dictionary<string, List<TaskCompletionSource<Sprite>>>();
 
-        private static readonly Dictionary<string, Texture2D> _cachedImages = new Dictionary<string, Texture2D>();
+        private static readonly Dictionary<string, Sprite> _cachedImages = new Dictionary<string, Sprite>();
     }
 }

@@ -28,5 +28,7 @@ namespace Plugins.GetStreamIO.Core
         event Action<string> EventReceived;
 
         bool IsLocalUser(User user);
+
+        bool IsLocalUser(Member member);
     }
 }

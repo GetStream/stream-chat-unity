@@ -28,6 +28,7 @@ namespace Plugins.GetStreamIO.Core.Models
         [JsonProperty("created_by")]
         public User CreatedBy;
 
+        [JsonProperty("messages")]
         public List<Message> Messages = new List<Message>();
     }
 }

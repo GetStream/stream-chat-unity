@@ -38,8 +38,9 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
             foreach (var c in Client.Channels)
             {
+                //Todo: move to ViewFactory
                 var channelView = Instantiate(_channelViewPrefab, _listContainer);
-                channelView.Init(c);
+                channelView.Init(c, ViewContext);
                 channelView.Clicked += OnChannelClicked;
                 _channels.Add(channelView);
             }

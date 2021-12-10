@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Plugins.GetStreamIO.Core.Models
@@ -17,11 +18,24 @@ namespace Plugins.GetStreamIO.Core.Models
         [JsonProperty("messages")]
         public List<Message> Messages = new List<Message>();
 
+        [JsonProperty("watcher_count")]
+        public int WatcherCount;
+
+        [JsonProperty("read")]
+        public List<User> Read = new List<User>();
+
+        [JsonProperty("members")]
+        public List<Member> Members = new List<Member>();
+
+        public string Name => Details.Name;
+
         public void AppendMessage(Message message)
         {
             Messages.Add(message);
             Updated?.Invoke(this);
         }
+
+        public bool IsDirectMessage => Details.MemberCount == 2 && Members.Any(_ => _.User.Id == Details.CreatedBy.Id);
     }
 
     //Todo: probably better to have models not polluted with json details

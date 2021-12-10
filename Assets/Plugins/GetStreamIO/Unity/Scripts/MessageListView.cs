@@ -97,7 +97,8 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         private IEnumerator ScrollToBottomAfterResized()
         {
-            //wait 1 frame for renderer to update
+            //wait for renderer to update
+            yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
             GetComponent<ScrollRect>().verticalNormalizedPosition = 0;
         }

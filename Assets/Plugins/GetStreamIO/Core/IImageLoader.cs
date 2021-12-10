@@ -8,6 +8,6 @@ namespace Plugins.GetStreamIO.Core
     /// </summary>
     public interface IImageLoader
     {
-        Task<Texture2D> LoadImageAsync(string url);
+        Task<Sprite> LoadImageAsync(string url);
     }
 }
