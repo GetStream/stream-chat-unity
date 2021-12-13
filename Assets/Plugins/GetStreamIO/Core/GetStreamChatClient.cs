@@ -261,34 +261,38 @@ namespace Plugins.GetStreamIO.Core
                 }
             };
 
-            var content = _serializer.Serialize(messagePayload);
-            var response = await _httpClient.PostAsync(uri, content);
+            var requestContent = _serializer.Serialize(messagePayload);
+
+            var response = await _httpClient.PostAsync(uri, requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            LogRestCall(uri, requestContent, responseContent);
 
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                _logs.Error("Failed to send message. Response: " + error);
+                _logs.Error("Failed to send message. Response: " + responseContent);
             }
         }
 
         private async Task GetChannelsAsync()
         {
             var queryOptions = QueryChannelsOptions.Default.SortBy(SortFieldId.LastMessageAt, SortDirection.Descending);
-            var content = _serializer.Serialize(queryOptions);
+            var requestContent = _serializer.Serialize(queryOptions);
 
             var uri = _requestUriFactory.CreateChannelsUri();
 
-            var response = await _httpClient.PostAsync(uri, content);
+            var response = await _httpClient.PostAsync(uri, requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            LogRestCall(uri, requestContent, responseContent);
 
             if (!response.IsSuccessStatusCode)
             {
-                _logs.Error("Failed to get channels response");
+                _logs.Error("Failed to get channels Response: " + responseContent);
                 return;
             }
 
-            var responseText = await response.Content.ReadAsStringAsync();
-
-            var channelsResponse = _serializer.Deserialize<ChannelsResponse>(responseText);
+            var channelsResponse = _serializer.Deserialize<ChannelsResponse>(responseContent);
 
             _channels.Clear();
             _channels.AddRange(channelsResponse.Channels);
@@ -330,6 +334,11 @@ namespace Plugins.GetStreamIO.Core
             }
 
             channel.AppendMessage(messageNewEvent.Message);
+        }
+
+        private void LogRestCall(Uri uri, string request, string response)
+        {
+            _logs.Info($"REST API Call: {uri}\n\n{request}\n\n{response}\n\n\n");
         }
     }
 }

@@ -59,7 +59,7 @@ namespace Plugins.GetStreamIO.Core.Requests
 
         public Uri CreateSendMessageUri(Channel channel)
         {
-            var path = $"/channels/messaging/{channel.Details.Id}/message";
+            var path = $"/channels/{channel.Details.Type}/{channel.Details.Id}/message";
             var uriBuilder = new UriBuilder(_connectionProvider.ServerUri)
                 {Path = path, Scheme = "https", Query = GetDefaultParamsQuery()};
 
