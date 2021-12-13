@@ -13,9 +13,7 @@ namespace Plugins.GetStreamIO.Unity
     {
         protected void Awake()
         {
-            var authData = new AuthData(new Uri(_serverUri), _userToken, _apiKey, _userId);
-
-            _client = GetStreamChatClient.CreateDefaultClient(authData);
+            _client = GetStreamChatClient.CreateDefaultClient(_authCredentials.Data);
             _client.Start();
 
             var viewContext = new ChatViewContext(_client, new UnityImageWebLoader());
@@ -32,17 +30,7 @@ namespace Plugins.GetStreamIO.Unity
         [SerializeField]
         private RootView _rootView;
 
-        [Header("Authorization Data:")]
         [SerializeField]
-        private string _serverUri;
-
-        [SerializeField]
-        private string _userToken;
-
-        [SerializeField]
-        private string _apiKey;
-
-        [SerializeField]
-        private string _userId;
+        private AuthCredentials _authCredentials;
     }
 }

@@ -209,10 +209,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rootView: {fileID: 5577065971412910734}
-  _serverUri: wss://chat-us-east-1.stream-io-api.com
-  _userToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoibGVpYV9vcmdhbmEifQ.IzwBuaYwX5dRvnDDnJN2AyW3wwfYwgQm3w-1RD4BLPU
-  _apiKey: 8br4watad788
-  _userId: leia_organa
+  _authCredentials: {fileID: 11400000, guid: 36072d95c2b911944bc4f04ec53898a5, type: 2}
 --- !u!1 &7002968776139178785
 GameObject:
   m_ObjectHideFlags: 0

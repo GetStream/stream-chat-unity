@@ -21,6 +21,8 @@ namespace Plugins.GetStreamIO.Core
     /// </summary>
     public class GetStreamChatClient : IGetStreamChatClient
     {
+        public const string MenuPrefix = "GetStream/";
+
         public event Action ChannelsUpdated;
         public event Action<Channel> ActiveChanelChanged;
         public event Action<string> EventReceived;

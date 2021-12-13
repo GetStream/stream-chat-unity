@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace Plugins.GetStreamIO.Core
 {
     /// <summary>
-    /// Maps typed field key to string name
+    /// Maps typed field key to a string name
     /// </summary>
-    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TKey">Key type</typeparam>
     public class FieldMapper<TKey>
     {
         public string this[TKey key]

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 namespace Plugins.GetStreamIO.Core.Models
 {
     /// <summary>
-    ///
+    /// Allows to sort field <see cref="SortFieldId"/> in <see cref="SortDirection"/>
     /// </summary>
     public class SortOption
     {

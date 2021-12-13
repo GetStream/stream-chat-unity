@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 
 namespace Plugins.GetStreamIO.Core.Models
 {
+    //Todo: extract DTOs - probably better to have models not polluted with json details
     /// <summary>
     /// Channel model
     /// </summary>
@@ -37,6 +38,4 @@ namespace Plugins.GetStreamIO.Core.Models
 
         public bool IsDirectMessage => Details.MemberCount == 2 && Members.Any(_ => _.User.Id == Details.CreatedBy.Id);
     }
-
-    //Todo: probably better to have models not polluted with json details
 }
