@@ -1,5 +1,4 @@
-﻿using System;
-using Plugins.GetStreamIO.Core;
+﻿using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Unity.Scripts;
 using UnityEngine;
@@ -17,6 +16,7 @@ namespace Plugins.GetStreamIO.Unity
             _client.Start();
 
             var viewContext = new ChatViewContext(_client, new UnityImageWebLoader());
+            var viewFactory = new ViewFactory(viewContext, _viewFactoryConfig, _popupsContainer);
 
             _rootView.Init(viewContext);
         }
@@ -32,5 +32,11 @@ namespace Plugins.GetStreamIO.Unity
 
         [SerializeField]
         private AuthCredentials _authCredentials;
+
+        [SerializeField]
+        private ViewFactoryConfig _viewFactoryConfig;
+
+        [SerializeField]
+        private Transform _popupsContainer;
     }
 }

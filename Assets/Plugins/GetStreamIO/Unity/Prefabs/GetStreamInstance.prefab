@@ -78,7 +78,7 @@ GameObject:
   - component: {fileID: 1842747053255351426}
   - component: {fileID: 5577065971412910734}
   m_Layer: 5
-  m_Name: Popup
+  m_Name: ChatRootView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -97,6 +97,7 @@ RectTransform:
   m_Children:
   - {fileID: 8637037942456780671}
   - {fileID: 3859440365551572142}
+  - {fileID: 5034016418571902947}
   m_Father: {fileID: 2740502489586438664}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -163,6 +164,41 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!1 &4998208916118754995
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5034016418571902947}
+  m_Layer: 5
+  m_Name: Popups
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5034016418571902947
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4998208916118754995}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2399418190667376220}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5948539855776943770
 GameObject:
   m_ObjectHideFlags: 0
@@ -210,6 +246,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rootView: {fileID: 5577065971412910734}
   _authCredentials: {fileID: 11400000, guid: 36072d95c2b911944bc4f04ec53898a5, type: 2}
+  _viewFactoryConfig: {fileID: 11400000, guid: 68e2e69f7cb34ef478eac352e97fca3a, type: 2}
+  _popupsContainer: {fileID: 5034016418571902947}
 --- !u!1 &7002968776139178785
 GameObject:
   m_ObjectHideFlags: 0
@@ -322,7 +360,7 @@ GameObject:
   - component: {fileID: 4500435321222652065}
   - component: {fileID: 6826724546153246355}
   m_Layer: 5
-  m_Name: RightSection
+  m_Name: RightColumn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -485,7 +523,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3286842537752146231, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_Value
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4003089251862257243, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_SizeDelta.y
@@ -509,7 +547,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7442690870633380500, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8002402951019127743, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_AnchorMax.y
@@ -617,14 +655,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
---- !u!1 &1390955526517171451 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2043474341236294699, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
-  m_PrefabInstance: {fileID: 1087139616411082960}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &8637037942456780671 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8703953431445563311, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
+  m_PrefabInstance: {fileID: 1087139616411082960}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1390955526517171451 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2043474341236294699, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
   m_PrefabInstance: {fileID: 1087139616411082960}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3251107133100512128
@@ -720,7 +758,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8614300746687108393, guid: a8ff724b108472b41ae3441105023981, type: 3}
       propertyPath: m_Name
-      value: CreateMessageView
+      value: MessageInputView
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a8ff724b108472b41ae3441105023981, type: 3}
@@ -878,7 +916,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6470936066495146080, guid: 7c6239b49c8b04342a536025edd61366, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8090220119038640879, guid: 7c6239b49c8b04342a536025edd61366, type: 3}
       propertyPath: m_Size
