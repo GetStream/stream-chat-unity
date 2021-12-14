@@ -1,20 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Plugins.GetStreamIO.Unity.Scripts.Popups
 {
-    /// <summary>
-    /// Option entry for <see cref="MessageOptionsPopup"/>
-    /// </summary>
-    public readonly struct OptionEntry
-    {
-        public readonly string Name;
-        public readonly Action OnClick;
-    }
-
     /// <summary>
     /// Context menu for message
     /// </summary>
@@ -22,17 +13,19 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
     {
         public readonly struct Args : IPopupArgs
         {
-            public bool HideOnMouseExit { get; }
-            public IReadOnlyList<OptionEntry> Options => _options;
+            public bool HideOnPointerExit { get; }
+            public IReadOnlyList<MenuOptionEntry> Options => _options;
 
-            public Args(bool hideOnMouseExit, IEnumerable<OptionEntry> options)
+            public Args(bool hideOnPointerExit, IEnumerable<MenuOptionEntry> options)
             {
-                HideOnMouseExit = hideOnMouseExit;
+                HideOnPointerExit = hideOnPointerExit;
                 _options = options.ToList();
             }
 
-            private readonly List<OptionEntry> _options;
+            private readonly List<MenuOptionEntry> _options;
         }
+
+        public bool IsPointerOver { get; private set; }
 
         protected override void OnShow(Args args)
         {
@@ -46,7 +39,10 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
                 _buttons.Add(instance);
 
                 instance.onClick.AddListener(() => option.OnClick());
+                instance.GetComponentInChildren<TextMeshProUGUI>().text = option.Name;
             }
+
+            IsPointerOver = true;
         }
 
         private readonly IList<Button> _buttons = new List<Button>();

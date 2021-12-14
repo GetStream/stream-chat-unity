@@ -155,5 +155,6 @@ PrefabInstance:
       propertyPath: m_HorizontalAlignment
       value: 4
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8766831049010896269, guid: c0553e1bbb26d89429859cd6552c0194, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: c0553e1bbb26d89429859cd6552c0194, type: 3}

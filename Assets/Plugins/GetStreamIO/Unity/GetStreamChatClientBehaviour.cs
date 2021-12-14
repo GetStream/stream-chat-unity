@@ -15,8 +15,9 @@ namespace Plugins.GetStreamIO.Unity
             _client = GetStreamChatClient.CreateDefaultClient(_authCredentials.Data);
             _client.Start();
 
-            var viewContext = new ChatViewContext(_client, new UnityImageWebLoader());
-            var viewFactory = new ViewFactory(viewContext, _viewFactoryConfig, _popupsContainer);
+            var viewFactory = new ViewFactory(_client, _viewFactoryConfig, _popupsContainer);
+            var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory);
+            viewFactory.Init(viewContext);
 
             _rootView.Init(viewContext);
         }

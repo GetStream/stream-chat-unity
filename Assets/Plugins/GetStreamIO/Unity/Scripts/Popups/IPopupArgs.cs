@@ -5,6 +5,6 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
     /// </summary>
     public interface IPopupArgs
     {
-        bool HideOnMouseExit { get; }
+        bool HideOnPointerExit { get; }
     }
 }

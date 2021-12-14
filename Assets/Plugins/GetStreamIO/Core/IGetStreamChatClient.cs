@@ -30,5 +30,7 @@ namespace Plugins.GetStreamIO.Core
         bool IsLocalUser(User user);
 
         bool IsLocalUser(Member member);
+
+        void DeleteMessage(string id);
     }
 }

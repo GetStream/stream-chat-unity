@@ -1,4 +1,5 @@
 ﻿using Plugins.GetStreamIO.Core;
+using Plugins.GetStreamIO.Unity.Scripts;
 
 namespace Plugins.GetStreamIO.Unity
 {
@@ -9,5 +10,6 @@ namespace Plugins.GetStreamIO.Unity
     {
         IGetStreamChatClient Client { get; }
         IImageLoader ImageLoader { get; }
+        ViewFactory Factory { get; }
     }
 }

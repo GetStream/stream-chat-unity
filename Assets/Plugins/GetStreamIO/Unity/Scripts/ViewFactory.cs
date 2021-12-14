@@ -1,5 +1,6 @@
 ﻿using System;
-using Plugins.GetStreamIO.Core.Models;
+using System.Collections.Generic;
+using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Unity.Scripts.Popups;
 using UnityEngine;
 
@@ -10,36 +11,54 @@ namespace Plugins.GetStreamIO.Unity.Scripts
     /// </summary>
     public class ViewFactory : IViewFactory
     {
-        public ViewFactory(IChatViewContext context, IViewFactoryConfig config, Transform popupsContainer)
+        public ViewFactory(IGetStreamChatClient client, IViewFactoryConfig config, Transform popupsContainer)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _client = client ?? throw new ArgumentNullException(nameof(client));
             _config = config ?? throw new ArgumentNullException(nameof(config));
-            _popupsContainer = popupsContainer ? popupsContainer : throw new ArgumentNullException(nameof(popupsContainer));
+            _popupsContainer =
+                popupsContainer ? popupsContainer : throw new ArgumentNullException(nameof(popupsContainer));
         }
 
-        public MessageOptionsPopup CreateMessageOptionsPopup(Message message)
+        public void Init(IChatViewContext viewContext)
         {
-            var isSelfMessage = _context.Client.IsLocalUser(message.User);
+            _viewContext = viewContext ?? throw new ArgumentNullException(nameof(viewContext));
+        }
 
-            var popup = GameObject.Instantiate(_config.MessageOptionsPopupPrefab);
+        public MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView)
+        {
+            var message = messageView.Message;
+            var isSelfMessage = _client.IsLocalUser(message.User);
 
-            //reply
-            //pin
+            var popup = GameObject.Instantiate(_config.MessageOptionsPopupPrefab, _popupsContainer);
+            popup.Init(_viewContext);
+
+            var options = new List<MenuOptionEntry>
+            {
+                new MenuOptionEntry("Reply", () => throw new NotImplementedException("Reply")),
+                new MenuOptionEntry("Pin", () => throw new NotImplementedException("Pin")),
+
+            };
 
             if (!isSelfMessage)
             {
-                //flag
-                // mute/unmute
+                options.Add(new MenuOptionEntry("Flag", () => throw new NotImplementedException("Flag")));
+
+                //Todo: muted ? => show unmute instead
+                options.Add(new MenuOptionEntry("Mute", () => throw new NotImplementedException("Mute")));
             }
 
-            //edit
-            //delete
+            options.Add(new MenuOptionEntry("Edit", () => throw new NotImplementedException("Edit")));
+            options.Add(new MenuOptionEntry("Delete", () => _client.DeleteMessage(message.Id)));
 
-            return null;
+            var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, options);
+            popup.Show(args);
+
+            return popup;
         }
 
-        private readonly IChatViewContext _context;
+        private readonly IGetStreamChatClient _client;
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
+        private IChatViewContext _viewContext;
     }
 }

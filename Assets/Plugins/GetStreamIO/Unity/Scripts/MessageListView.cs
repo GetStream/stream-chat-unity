@@ -80,7 +80,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             foreach (var message in channel.Messages)
             {
                 var messageView = CreateMessageView(message);
-                messageView.Init(message, imageLoader);
+                messageView.UpdateData(message, imageLoader);
                 _messages.Add(messageView);
             }
 
@@ -92,7 +92,9 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         {
             var isLocal = Client.IsLocalUser(message.User);
             var prefab = isLocal ? _localUserMessageViewPrefab : _messageViewPrefab;
-            return Instantiate(prefab, _messagesContainer);
+            var view = Instantiate(prefab, _messagesContainer);
+            view.Init(ViewContext);
+            return view;
         }
 
         private IEnumerator ScrollToBottomAfterResized()

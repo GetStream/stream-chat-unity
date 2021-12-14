@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Libs.Utils;
+using Plugins.GetStreamIO.Unity.Scripts.Popups;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Plugins.GetStreamIO.Unity.Scripts
@@ -11,33 +15,45 @@ namespace Plugins.GetStreamIO.Unity.Scripts
     /// <summary>
     /// Message view
     /// </summary>
-    public class MessageView : MonoBehaviour
+    public class MessageView : BaseView, IPointerDownHandler
     {
-        public void Init(Message message, IImageLoader imageLoader)
+        public Message Message { get; private set; }
+
+        public void UpdateData(Message message, IImageLoader imageLoader)
         {
             imageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
-            _message = message ?? throw new ArgumentNullException(nameof(message));
+            Message = message ?? throw new ArgumentNullException(nameof(message));
 
-            _text.text = $"{_message.Text}<br>{_message.User.Name}";
+            _text.text = $"{Message.Text}<br>{Message.User.Name}";
 
-            ShowAvatarAsync(_message.User.Image, imageLoader)
-                .ContinueWith(_ => Debug.LogError(_.Exception), TaskContinuationOptions.OnlyOnFaulted); //Todo: create extension LogIfFailed
+            ShowAvatarAsync(Message.User.Image, imageLoader).LogIfFailed();
         }
 
-        protected void OnDestroy()
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (!Input.GetMouseButton(1))
+            {
+                return;
+            }
+
+            SetOptionsMenuActive(true);
+        }
+
+        protected override void OnDisposing()
         {
             _isDestroyed = true;
+
+            base.OnDisposing();
         }
 
-        private Message _message;
         private bool _isDestroyed;
+        private MessageOptionsPopup _activePopup;
 
         [SerializeField]
         private TMP_Text _text;
 
         [SerializeField]
         private Image _avatar;
-
 
         private async Task ShowAvatarAsync(string url, IImageLoader imageLoader)
         {
@@ -55,6 +71,24 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             }
 
             _avatar.sprite = sprite;
+        }
+
+        private void SetOptionsMenuActive(bool active)
+        {
+            if (_activePopup != null)
+            {
+                Destroy(_activePopup.gameObject);
+                _activePopup = null;
+            }
+
+            if (active)
+            {
+                var mousePosition = Input.mousePosition;
+
+                _activePopup = Factory.CreateMessageOptionsPopup(this);
+
+                ((RectTransform)_activePopup.transform).position = mousePosition;
+            }
         }
     }
 }

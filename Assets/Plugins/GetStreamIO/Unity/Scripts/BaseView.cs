@@ -18,6 +18,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         protected IGetStreamChatClient Client => ViewContext.Client;
         protected IImageLoader ImageLoader => ViewContext.ImageLoader;
+        protected IViewFactory Factory => ViewContext.Factory;
         protected IChatViewContext ViewContext { get; private set; }
 
         protected void OnDestroy() => OnDisposing();

@@ -12,6 +12,7 @@ using Plugins.GetStreamIO.Libs.Http;
 using Plugins.GetStreamIO.Libs.Logs;
 using Plugins.GetStreamIO.Libs.Serialization;
 using Plugins.GetStreamIO.Libs.Time;
+using Plugins.GetStreamIO.Libs.Utils;
 using Plugins.GetStreamIO.Libs.Websockets;
 
 namespace Plugins.GetStreamIO.Core
@@ -122,9 +123,16 @@ namespace Plugins.GetStreamIO.Core
         }
 
         public void SendMessage(string message)
+            => SendMessageAsync(message).LogIfFailed();
+
+        public void DeleteMessage(string id)
         {
-            SendMessageAsync(message)
-                .ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
+
+        }
+
+        public void UpdateMessage()
+        {
+
         }
 
         public bool IsLocalUser(User user)
@@ -338,7 +346,7 @@ namespace Plugins.GetStreamIO.Core
 
         private void LogRestCall(Uri uri, string request, string response)
         {
-            _logs.Info($"REST API Call: {uri}\n\n{request}\n\n{response}\n\n\n");
+            _logs.Info($"REST API Call: {uri}\n\nRequest:\n{request}\n\nResponse:\n{response}\n\n\n");
         }
     }
 }

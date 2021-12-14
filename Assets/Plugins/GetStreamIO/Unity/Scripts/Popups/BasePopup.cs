@@ -1,17 +1,33 @@
+using UnityEngine.EventSystems;
+
 namespace Plugins.GetStreamIO.Unity.Scripts.Popups
 {
     /// <summary>
     /// Popup window base
     /// </summary>
-    public abstract class BasePopup<TArgs> : BaseView
+    public abstract class BasePopup<TArgs> : BaseView, IPointerExitHandler
         where TArgs : struct, IPopupArgs
     {
-        public bool HideOnMouseExit { get; private set; }
+        public bool HideOnPointerExit { get; private set; }
 
         public void Show(TArgs args)
         {
             _args = args;
+
+            HideOnPointerExit = args.HideOnPointerExit;
+
             OnShow(args);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (!HideOnPointerExit)
+            {
+                return;
+            }
+
+            OnHide(_args);
+            gameObject.SetActive(false);
         }
 
         protected virtual void OnShow(TArgs args)
@@ -22,17 +38,6 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
         protected virtual void OnHide(TArgs args)
         {
 
-        }
-
-        protected void OnMouseExit()
-        {
-            if (!HideOnMouseExit)
-            {
-                return;
-            }
-
-            OnHide(_args);
-            gameObject.SetActive(false);
         }
 
         private TArgs _args;
