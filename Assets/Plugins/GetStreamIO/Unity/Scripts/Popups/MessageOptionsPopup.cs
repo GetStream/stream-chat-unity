@@ -14,11 +14,13 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
         public readonly struct Args : IPopupArgs
         {
             public bool HideOnPointerExit { get; }
+            public bool HideOnButtonClicked { get; }
             public IReadOnlyList<MenuOptionEntry> Options => _options;
 
-            public Args(bool hideOnPointerExit, IEnumerable<MenuOptionEntry> options)
+            public Args(bool hideOnPointerExit, bool hideOnButtonClicked, IEnumerable<MenuOptionEntry> options)
             {
                 HideOnPointerExit = hideOnPointerExit;
+                HideOnButtonClicked = hideOnButtonClicked;
                 _options = options.ToList();
             }
 
@@ -38,11 +40,23 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
                 var instance = Instantiate(_buttonPrefab, _buttonsContainer);
                 _buttons.Add(instance);
 
-                instance.onClick.AddListener(() => option.OnClick());
+                instance.onClick.AddListener(() =>
+                {
+                    TryHide();
+                    option.OnClick();
+                });
                 instance.GetComponentInChildren<TextMeshProUGUI>().text = option.Name;
             }
 
             IsPointerOver = true;
+        }
+
+        private void TryHide()
+        {
+            if (SelfArgs.HideOnButtonClicked)
+            {
+                Hide();
+            }
         }
 
         private readonly IList<Button> _buttons = new List<Button>();

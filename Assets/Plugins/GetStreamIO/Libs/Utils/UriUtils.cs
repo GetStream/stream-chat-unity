@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Plugins.GetStreamIO.Libs.Utils
 {
@@ -7,14 +9,23 @@ namespace Plugins.GetStreamIO.Libs.Utils
     /// </summary>
     public static class UriUtils
     {
-        public static string ToQueryParams(this IDictionary<string, string> dict)
+        public static string ToQueryParameters(this IDictionary<string, string> dict)
         {
-            var list = new List<string>();
+            var sb = new StringBuilder();
+
             foreach(var item in dict)
             {
-                list.Add(item.Key + "=" + item.Value);
+                if (sb.Length > 0)
+                {
+                    sb.Append("&");
+                }
+
+                sb.Append(item.Key);
+                sb.Append("=");
+                sb.Append(item.Value); //Todo: Uri.EscapeDataString ?
             }
-            return string.Join("&", list);
+
+            return sb.ToString();
         }
     }
 }

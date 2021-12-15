@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using Plugins.GetStreamIO.Libs.Utils;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 

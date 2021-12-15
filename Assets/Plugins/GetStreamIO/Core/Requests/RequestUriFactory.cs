@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Models;
@@ -13,7 +14,8 @@ namespace Plugins.GetStreamIO.Core.Requests
     /// </summary>
     public class RequestUriFactory : IRequestUriFactory
     {
-        public RequestUriFactory(IAuthProvider authProvider, IConnectionProvider connectionProvider, ISerializer serializer)
+        public RequestUriFactory(IAuthProvider authProvider, IConnectionProvider connectionProvider,
+            ISerializer serializer)
         {
             _authProvider = authProvider ?? throw new ArgumentNullException(nameof(authProvider));
             _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
@@ -37,49 +39,64 @@ namespace Plugins.GetStreamIO.Core.Requests
 
             var uriParams = new Dictionary<string, string>
             {
-                {"json", Uri.EscapeDataString(serializedPayload)},
-                {"api_key", _authProvider.ApiKey},
-                {"authorization", _authProvider.UserToken},
-                {"stream-auth-type", _authProvider.StreamAuthType},
+                { "json", Uri.EscapeDataString(serializedPayload) },
+                { "api_key", _authProvider.ApiKey },
+                { "authorization", _authProvider.UserToken },
+                { "stream-auth-type", _authProvider.StreamAuthType },
             };
 
             var uriBuilder = new UriBuilder(_connectionProvider.ServerUri)
-                {Path = "connect", Query = uriParams.ToQueryParams()};
+                { Path = "connect", Query = uriParams.ToQueryParameters() };
 
             return uriBuilder.Uri;
         }
 
-        public Uri CreateChannelsUri()
+        public Uri CreateGetChannelsUri()
         {
-            var uriBuilder = new UriBuilder(_connectionProvider.ServerUri)
-                {Path = "channels", Scheme = "https", Query = GetDefaultParamsQuery()};
-
-            return uriBuilder.Uri;
+            var endPoint = "/channels";
+            return CreateRequestUri(endPoint, GetDefaultParameters());
         }
 
         public Uri CreateSendMessageUri(Channel channel)
         {
-            var path = $"/channels/{channel.Details.Type}/{channel.Details.Id}/message";
-            var uriBuilder = new UriBuilder(_connectionProvider.ServerUri)
-                {Path = path, Scheme = "https", Query = GetDefaultParamsQuery()};
+            var endPoint = $"/channels/{channel.Details.Type}/{channel.Details.Id}/message";
+            return CreateRequestUri(endPoint, GetDefaultParameters());
+        }
 
-            return uriBuilder.Uri;
+        public Uri CreateDeleteMessageUri(Message message, bool? isHardDelete)
+        {
+            var endPoint = $"/messages/{message.Id}";
+            var parameters = GetDefaultParameters();
+
+            if (isHardDelete.HasValue)
+            {
+                parameters.Add("hard", isHardDelete.Value.ToString());
+            }
+
+            return CreateRequestUri(endPoint, parameters);
         }
 
         private readonly IAuthProvider _authProvider;
         private readonly ISerializer _serializer;
         private readonly IConnectionProvider _connectionProvider;
 
-        private string GetDefaultParamsQuery()
-        {
-            var uriParams = new Dictionary<string, string>
+        private Dictionary<string, string> GetDefaultParameters() =>
+            new Dictionary<string, string>
             {
-                {"user_id", _authProvider.UserId},
-                {"api_key", _authProvider.ApiKey},
-                {"connection_id", _connectionProvider.ConnectionId},
+                { "user_id", _authProvider.UserId },
+                { "api_key", _authProvider.ApiKey },
+                { "connection_id", _connectionProvider.ConnectionId },
             };
 
-            return uriParams.ToQueryParams();
+        private Uri CreateRequestUri(string endPoint, IDictionary<string, string> parameters)
+            => CreateRequestUri(endPoint, parameters.ToQueryParameters());
+
+        private Uri CreateRequestUri(string endPoint, string query)
+        {
+            var uriBuilder = new UriBuilder(_connectionProvider.ServerUri)
+                { Path = endPoint, Scheme = "https", Query = query };
+
+            return uriBuilder.Uri;
         }
     }
 }

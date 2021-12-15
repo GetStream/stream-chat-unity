@@ -97,10 +97,7 @@ namespace Plugins.GetStreamIO.Core
             _logs.Info($"Connect with uri: " + connectionUri);
 
             ConnectionState = ConnectionState.Connecting;
-            _websocketClient.ConnectAsync(connectionUri).ContinueWith(_ => _logs.Exception(_.Exception),
-                TaskContinuationOptions.OnlyOnFaulted);
-
-            //Todo: reset health check timers
+            _websocketClient.ConnectAsync(connectionUri).LogIfFailed();
 
             _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient.Connected += OnWebsocketsConnected;
@@ -113,7 +110,7 @@ namespace Plugins.GetStreamIO.Core
 
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
-                OnMessageReceived(msg);
+                OnServerMessageReceived(msg);
             }
         }
 
@@ -125,14 +122,60 @@ namespace Plugins.GetStreamIO.Core
         public void SendMessage(string message)
             => SendMessageAsync(message).LogIfFailed();
 
-        public void DeleteMessage(string id)
+        public Task SendMessageAsync(string message)
         {
+            if (ActiveChannel == null)
+            {
+                _logs.Error("Tried to send message, but no channel is active");
+                return Task.CompletedTask;
+            }
 
+            return SendMessageAsync(ActiveChannel, message);
+        }
+
+        public async Task SendMessageAsync(Channel channel, string message)
+        {
+            var uri = _requestUriFactory.CreateSendMessageUri(ActiveChannel);
+
+            var messagePayload = new MessageRequest
+            {
+                Message = new SendMessage
+                {
+                    Id = _authData.UserId + "-" + Guid.NewGuid(),
+                    Text = message
+                }
+            };
+
+            var requestContent = _serializer.Serialize(messagePayload);
+
+            var response = await _httpClient.PostAsync(uri, requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            LogRestCall(uri, requestContent, responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logs.Error("Failed to send message. Response: " + responseContent);
+            }
+        }
+
+        public async Task DeleteMessage(Message message, bool hard)
+        {
+            var uri = _requestUriFactory.CreateDeleteMessageUri(message, hard);
+
+            var response = await _httpClient.DeleteAsync(uri);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            LogRestCall(uri, responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logs.Error("Failed to send message. Response: " + responseContent);
+            }
         }
 
         public void UpdateMessage()
         {
-
         }
 
         public bool IsLocalUser(User user)
@@ -189,7 +232,7 @@ namespace Plugins.GetStreamIO.Core
             Start();
         }
 
-        private void OnMessageReceived(string msg)
+        private void OnServerMessageReceived(string msg)
         {
             _logs.Info("Message received: " + msg);
 
@@ -250,44 +293,12 @@ namespace Plugins.GetStreamIO.Core
 
         //Todo: refactor SendMessageAsync & GetChannelsAsync
 
-        private async Task SendMessageAsync(string message)
-        {
-            if (ActiveChannel == null)
-            {
-                _logs.Error("Tried to send message, but no channel is active");
-                return;
-            }
-
-            var uri = _requestUriFactory.CreateSendMessageUri(ActiveChannel);
-
-            var messagePayload = new MessageRequest
-            {
-                Message = new SendMessage
-                {
-                    Id = _authData.UserId + "-" + Guid.NewGuid(),
-                    Text = message
-                }
-            };
-
-            var requestContent = _serializer.Serialize(messagePayload);
-
-            var response = await _httpClient.PostAsync(uri, requestContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            LogRestCall(uri, requestContent, responseContent);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logs.Error("Failed to send message. Response: " + responseContent);
-            }
-        }
-
         private async Task GetChannelsAsync()
         {
             var queryOptions = QueryChannelsOptions.Default.SortBy(SortFieldId.LastMessageAt, SortDirection.Descending);
             var requestContent = _serializer.Serialize(queryOptions);
 
-            var uri = _requestUriFactory.CreateChannelsUri();
+            var uri = _requestUriFactory.CreateGetChannelsUri();
 
             var response = await _httpClient.PostAsync(uri, requestContent);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -347,6 +358,11 @@ namespace Plugins.GetStreamIO.Core
         private void LogRestCall(Uri uri, string request, string response)
         {
             _logs.Info($"REST API Call: {uri}\n\nRequest:\n{request}\n\nResponse:\n{response}\n\n\n");
+        }
+
+        private void LogRestCall(Uri uri, string response)
+        {
+            _logs.Info($"REST API Call: {uri}\n\nResponse:\n{response}\n\n\n");
         }
     }
 }

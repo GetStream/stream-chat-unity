@@ -12,34 +12,37 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
 
         public void Show(TArgs args)
         {
-            _args = args;
+            SelfArgs = args;
 
             HideOnPointerExit = args.HideOnPointerExit;
 
             OnShow(args);
         }
 
-        public void OnPointerExit(PointerEventData eventData)
+        public void Hide()
+        {
+            OnHide(SelfArgs);
+            gameObject.SetActive(false);
+        }
+
+        void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
         {
             if (!HideOnPointerExit)
             {
                 return;
             }
 
-            OnHide(_args);
-            gameObject.SetActive(false);
+            Hide();
         }
+
+        protected TArgs SelfArgs { get; private set; }
 
         protected virtual void OnShow(TArgs args)
         {
-
         }
 
         protected virtual void OnHide(TArgs args)
         {
-
         }
-
-        private TArgs _args;
     }
 }

@@ -10,8 +10,10 @@ namespace Plugins.GetStreamIO.Core.Requests
     {
         Uri CreateConnectionUri();
 
-        Uri CreateChannelsUri();
+        Uri CreateGetChannelsUri();
 
         Uri CreateSendMessageUri(Channel channel);
+
+        Uri CreateDeleteMessageUri(Message message, bool? isHardDelete);
     }
 }

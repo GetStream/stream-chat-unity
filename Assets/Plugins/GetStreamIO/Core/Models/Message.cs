@@ -13,6 +13,9 @@ namespace Plugins.GetStreamIO.Core.Models
         [JsonProperty("text")]
         public string Text;
 
+        [JsonProperty("type")]
+        public MessageType Type;
+
         [JsonProperty("user")]
         public User User;
     }

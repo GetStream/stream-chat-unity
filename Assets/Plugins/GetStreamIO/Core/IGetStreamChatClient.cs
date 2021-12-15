@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Models;
 
@@ -31,6 +32,10 @@ namespace Plugins.GetStreamIO.Core
 
         bool IsLocalUser(Member member);
 
-        void DeleteMessage(string id);
+        Task SendMessageAsync(string message);
+
+        Task SendMessageAsync(Channel channel, string message);
+
+        Task DeleteMessage(Message message, bool hard);
     }
 }

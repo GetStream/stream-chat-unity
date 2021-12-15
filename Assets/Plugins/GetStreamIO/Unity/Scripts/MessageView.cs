@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Models;
@@ -24,7 +23,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             imageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
             Message = message ?? throw new ArgumentNullException(nameof(message));
 
-            _text.text = $"{Message.Text}<br>{Message.User.Name}";
+            _text.text = $"{GetMessageText(message)}<br>{Message.User.Name}";
 
             ShowAvatarAsync(Message.User.Image, imageLoader).LogIfFailed();
         }
@@ -90,5 +89,8 @@ namespace Plugins.GetStreamIO.Unity.Scripts
                 ((RectTransform)_activePopup.transform).position = mousePosition;
             }
         }
+
+        private static string GetMessageText(Message message)
+            => message.Type == MessageType.Deleted ? "This message was deleted..." : message.Text;
     }
 }

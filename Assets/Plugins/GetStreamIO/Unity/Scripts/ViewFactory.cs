@@ -48,9 +48,9 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             }
 
             options.Add(new MenuOptionEntry("Edit", () => throw new NotImplementedException("Edit")));
-            options.Add(new MenuOptionEntry("Delete", () => _client.DeleteMessage(message.Id)));
+            options.Add(new MenuOptionEntry("Delete", () => _client.DeleteMessage(message, hard: false)));
 
-            var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, options);
+            var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options);
             popup.Show(args);
 
             return popup;
