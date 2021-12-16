@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
+using Plugins.GetStreamIO.Core.Events.DTO;
 using Plugins.GetStreamIO.Core.Models;
 
 namespace Plugins.GetStreamIO.Core
@@ -11,31 +12,24 @@ namespace Plugins.GetStreamIO.Core
     /// </summary>
     public interface IGetStreamChatClient : IAuthProvider, IConnectionProvider, IDisposable
     {
-        event Action ChannelsUpdated;
+        event Action Connected;
+        event Action<string> EventReceived;
+        event Action<NewMessageEvent> MessageReceived;
 
-        event Action<Channel> ActiveChanelChanged;
-
-        IReadOnlyList<Channel> Channels { get; }
         ConnectionState ConnectionState { get; }
 
         void Update(float deltaTime);
 
-        void Start();
-
-        void OpenChannel(Channel channel);
-
-        void SendMessage(string text);
-
-        event Action<string> EventReceived;
+        void Connect();
 
         bool IsLocalUser(User user);
 
         bool IsLocalUser(Member member);
 
-        Task SendMessageAsync(string message);
-
         Task SendMessageAsync(Channel channel, string message);
 
         Task DeleteMessage(Message message, bool hard);
+
+        Task<IEnumerable<Channel>> GetChannelsAsync(QueryChannelsOptions options = null);
     }
 }

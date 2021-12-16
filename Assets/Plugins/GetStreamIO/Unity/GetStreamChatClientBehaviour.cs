@@ -13,7 +13,7 @@ namespace Plugins.GetStreamIO.Unity
         protected void Awake()
         {
             _client = GetStreamChatClient.CreateDefaultClient(_authCredentials.Data);
-            _client.Start();
+            _client.Connect();
 
             var viewFactory = new ViewFactory(_client, _viewFactoryConfig, _popupsContainer);
             var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory);

@@ -36,7 +36,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
                 return;
             }
 
-            Client.SendMessage(_messageInput.text);
+            Client.SendMessageAsync(ViewContext.State.ActiveChannel, _messageInput.text).LogIfFailed();
 
             _messageInput.text = "";
 

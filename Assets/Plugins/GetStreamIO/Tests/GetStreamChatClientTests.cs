@@ -45,7 +45,7 @@ namespace Plugins.GetStreamIO.Tests
         [Test]
         public void when_stream_client_start_expect_websockets_connect()
         {
-            _client.Start();
+            _client.Connect();
             _mockWebsocketClient.ReceivedWithAnyArgs().ConnectAsync(default);
         }
 
@@ -55,7 +55,7 @@ namespace Plugins.GetStreamIO.Tests
             _mockWebsocketClient.ConnectAsync(default)
                 .ReturnsForAnyArgs(_ => Task.FromException<Exception>(new Exception("failed to connect")));
 
-            _client.Start();
+            _client.Connect();
             _mockWebsocketClient.ReceivedWithAnyArgs().ConnectAsync(default);
         }
 
@@ -113,7 +113,7 @@ namespace Plugins.GetStreamIO.Tests
                 return true;
             }, arg => false);
 
-            client.Start();
+            client.Connect();
             client.Update(deltaTime: 0.2f);
 
             Assert.IsTrue(client.ConnectionState == ConnectionState.Connected);
@@ -138,7 +138,7 @@ namespace Plugins.GetStreamIO.Tests
                 return true;
             }, arg => false);
 
-            client.Start();
+            client.Connect();
             client.Update(deltaTime: 0.2f);
             _mockTimeService.Time.Returns(31);
             client.Update(0.2f);

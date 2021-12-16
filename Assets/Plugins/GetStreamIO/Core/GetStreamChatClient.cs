@@ -24,26 +24,11 @@ namespace Plugins.GetStreamIO.Core
     {
         public const string MenuPrefix = "GetStream/";
 
-        public event Action ChannelsUpdated;
-        public event Action<Channel> ActiveChanelChanged;
+        public event Action Connected;
+
         public event Action<string> EventReceived;
 
-        public IReadOnlyList<Channel> Channels => _channels;
-
-        public Channel ActiveChannel
-        {
-            get => _activeChannel;
-            private set
-            {
-                var prevValue = _activeChannel;
-                _activeChannel = value;
-
-                if (prevValue != value)
-                {
-                    ActiveChanelChanged?.Invoke(_activeChannel);
-                }
-            }
-        }
+        public event Action<NewMessageEvent> MessageReceived;
 
         public ConnectionState ConnectionState { get; private set; }
 
@@ -78,14 +63,14 @@ namespace Plugins.GetStreamIO.Core
 
             _serverEventsMapping.Register<HealthCheckEvent>(EventType.HealthCheck,
                 msg => Parse<HealthCheckEvent>(msg, Handle));
-            _serverEventsMapping.Register<MessageNewEvent>(EventType.MessageNew,
-                msg => Parse<MessageNewEvent>(msg, Handle));
+            _serverEventsMapping.Register<NewMessageEvent>(EventType.MessageNew,
+                msg => Parse<NewMessageEvent>(msg, Handle));
 
             _httpClient.SetDefaultAuthenticationHeader(authData.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
         }
 
-        public void Start()
+        public void Connect()
         {
             if (!ConnectionState.IsValidToConnect())
             {
@@ -103,39 +88,41 @@ namespace Plugins.GetStreamIO.Core
             _websocketClient.Connected += OnWebsocketsConnected;
         }
 
-        //TOdo: replace with our inner coroutine?
         public void Update(float deltaTime)
         {
             UpdateHealthCheck();
 
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
-                OnServerMessageReceived(msg);
+                HandleNewWebsocketMessage(msg);
             }
         }
 
-        public void OpenChannel(Channel channel)
+        public async Task<IEnumerable<Channel>> GetChannelsAsync(QueryChannelsOptions options = null)
         {
-            ActiveChannel = channel;
-        }
+            options ??= QueryChannelsOptions.Default.SortBy(SortFieldId.LastMessageAt, SortDirection.Descending);
+            var requestContent = _serializer.Serialize(options);
 
-        public void SendMessage(string message)
-            => SendMessageAsync(message).LogIfFailed();
+            var uri = _requestUriFactory.CreateGetChannelsUri();
 
-        public Task SendMessageAsync(string message)
-        {
-            if (ActiveChannel == null)
+            var response = await _httpClient.PostAsync(uri, requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            LogRestCall(uri, requestContent, responseContent);
+
+            if (!response.IsSuccessStatusCode)
             {
-                _logs.Error("Tried to send message, but no channel is active");
-                return Task.CompletedTask;
+                throw new Exception("Failed to get channels Response: " + responseContent);
             }
 
-            return SendMessageAsync(ActiveChannel, message);
+            var channelsResponse = _serializer.Deserialize<ChannelsResponse>(responseContent);
+
+            return channelsResponse.Channels;
         }
 
         public async Task SendMessageAsync(Channel channel, string message)
         {
-            var uri = _requestUriFactory.CreateSendMessageUri(ActiveChannel);
+            var uri = _requestUriFactory.CreateSendMessageUri(channel);
 
             var messagePayload = new MessageRequest
             {
@@ -212,27 +199,21 @@ namespace Plugins.GetStreamIO.Core
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
 
-        //Todo: remove -> LLC stateless
-        private readonly List<Channel> _channels = new List<Channel>();
-
         private string _connectionId;
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
-        private Channel _activeChannel;
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
-        private void OnConnectionConfirmed()
-            => GetChannelsAsync()
-                .ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
+        private void OnConnectionConfirmed() => Connected?.Invoke();
 
         private void Reconnect()
         {
             ConnectionState = ConnectionState.Reconnecting;
-            Start();
+            Connect();
         }
 
-        private void OnServerMessageReceived(string msg)
+        private void HandleNewWebsocketMessage(string msg)
         {
             _logs.Info("Message received: " + msg);
 
@@ -291,36 +272,6 @@ namespace Plugins.GetStreamIO.Core
             _lastHealthCheckSendTime = _timeService.Time;
         }
 
-        //Todo: refactor SendMessageAsync & GetChannelsAsync
-
-        private async Task GetChannelsAsync()
-        {
-            var queryOptions = QueryChannelsOptions.Default.SortBy(SortFieldId.LastMessageAt, SortDirection.Descending);
-            var requestContent = _serializer.Serialize(queryOptions);
-
-            var uri = _requestUriFactory.CreateGetChannelsUri();
-
-            var response = await _httpClient.PostAsync(uri, requestContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            LogRestCall(uri, requestContent, responseContent);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logs.Error("Failed to get channels Response: " + responseContent);
-                return;
-            }
-
-            var channelsResponse = _serializer.Deserialize<ChannelsResponse>(responseContent);
-
-            _channels.Clear();
-            _channels.AddRange(channelsResponse.Channels);
-
-            OpenChannel(_channels.FirstOrDefault());
-
-            ChannelsUpdated?.Invoke();
-        }
-
         private void Parse<TType>(string msg, Action<TType> handler)
         {
             var parsed = _serializer.Deserialize<TType>(msg);
@@ -340,19 +291,11 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
-        private void Handle(MessageNewEvent messageNewEvent)
+        private void Handle(NewMessageEvent newMessageEvent)
         {
             _logs.Info("New message event received");
 
-            var channel = _channels.FirstOrDefault(_ => _.Details.Id == messageNewEvent.ChannelId);
-
-            if (channel == null)
-            {
-                _logs.Error("Failed to find channel with id: " + messageNewEvent.ChannelId);
-                return;
-            }
-
-            channel.AppendMessage(messageNewEvent.Message);
+            MessageReceived?.Invoke(newMessageEvent);
         }
 
         private void LogRestCall(Uri uri, string request, string response)

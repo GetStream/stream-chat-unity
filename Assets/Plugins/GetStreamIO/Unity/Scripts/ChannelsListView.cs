@@ -13,12 +13,12 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         {
             base.OnInited();
 
-            Client.ChannelsUpdated += OnChannelsUpdated;
+            State.ChannelsUpdated += OnChannelsUpdated;
         }
 
         protected override void OnDisposing()
         {
-            Client.ChannelsUpdated -= OnChannelsUpdated;
+            State.ChannelsUpdated -= OnChannelsUpdated;
             ClearAll();
 
             base.OnDisposing();
@@ -36,7 +36,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         {
             ClearAll();
 
-            foreach (var c in Client.Channels)
+            foreach (var c in State.Channels)
             {
                 //Todo: move to ViewFactory
                 var channelView = Instantiate(_channelViewPrefab, _listContainer);
@@ -46,7 +46,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             }
         }
 
-        private void OnChannelClicked(Channel channel) => Client.OpenChannel(channel);
+        private void OnChannelClicked(Channel channel) => State.OpenChannel(channel);
 
         private void ClearAll()
         {

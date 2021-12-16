@@ -16,12 +16,12 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         {
             base.OnInited();
 
-            Client.ActiveChanelChanged += OnActiveChannelChanged;
+            State.ActiveChanelChanged += OnActiveChannelChanged;
         }
 
         protected override void OnDisposing()
         {
-            Client.ActiveChanelChanged -= OnActiveChannelChanged;
+            State.ActiveChanelChanged -= OnActiveChannelChanged;
             ClearAll();
 
             base.OnDisposing();

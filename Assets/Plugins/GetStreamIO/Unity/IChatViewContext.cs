@@ -11,5 +11,6 @@ namespace Plugins.GetStreamIO.Unity
         IGetStreamChatClient Client { get; }
         IImageLoader ImageLoader { get; }
         ViewFactory Factory { get; }
+        IChatState State { get; }
     }
 }

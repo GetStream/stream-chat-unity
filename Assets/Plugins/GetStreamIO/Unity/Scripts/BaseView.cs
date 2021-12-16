@@ -20,6 +20,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         protected IImageLoader ImageLoader => ViewContext.ImageLoader;
         protected IViewFactory Factory => ViewContext.Factory;
         protected IChatViewContext ViewContext { get; private set; }
+        protected IChatState State => ViewContext.State;
 
         protected void OnDestroy() => OnDisposing();
 

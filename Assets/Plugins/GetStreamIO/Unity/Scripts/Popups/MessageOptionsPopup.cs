@@ -51,14 +51,6 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
             IsPointerOver = true;
         }
 
-        private void TryHide()
-        {
-            if (SelfArgs.HideOnButtonClicked)
-            {
-                Hide();
-            }
-        }
-
         private readonly IList<Button> _buttons = new List<Button>();
 
         [SerializeField]
@@ -76,6 +68,14 @@ namespace Plugins.GetStreamIO.Unity.Scripts.Popups
             }
 
             _buttons.Clear();
+        }
+
+        private void TryHide()
+        {
+            if (SelfArgs.HideOnButtonClicked)
+            {
+                Hide();
+            }
         }
     }
 }
