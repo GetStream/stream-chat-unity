@@ -21,6 +21,12 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         protected override void OnDisposing()
         {
+            if (_activeChannel != null)
+            {
+                _activeChannel.Updated -= OnUpdated;
+                _activeChannel = null;
+            }
+
             State.ActiveChanelChanged -= OnActiveChannelChanged;
             ClearAll();
 

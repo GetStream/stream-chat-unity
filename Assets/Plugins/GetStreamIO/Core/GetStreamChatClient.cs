@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Dynamic;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events;
@@ -28,7 +28,8 @@ namespace Plugins.GetStreamIO.Core
 
         public event Action<string> EventReceived;
 
-        public event Action<NewMessageEvent> MessageReceived;
+        public event Action<MessageNewEvent> MessageReceived;
+        public event Action<MessageDeletedEvent> MessageDeleted;
 
         public ConnectionState ConnectionState { get; private set; }
 
@@ -63,8 +64,10 @@ namespace Plugins.GetStreamIO.Core
 
             _serverEventsMapping.Register<HealthCheckEvent>(EventType.HealthCheck,
                 msg => Parse<HealthCheckEvent>(msg, Handle));
-            _serverEventsMapping.Register<NewMessageEvent>(EventType.MessageNew,
-                msg => Parse<NewMessageEvent>(msg, Handle));
+            _serverEventsMapping.Register<MessageNewEvent>(EventType.MessageNew,
+                msg => Parse<MessageNewEvent>(msg, Handle));
+            _serverEventsMapping.Register<MessageDeletedEvent>(EventType.MessageDeleted,
+                msg => Parse<MessageDeletedEvent>(msg, Handle));
 
             _httpClient.SetDefaultAuthenticationHeader(authData.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
@@ -146,6 +149,30 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
+        public async Task UpdateMessageAsync(Message message)
+        {
+            var uri = _requestUriFactory.CreateUpdateMessageUri(message);
+
+            dynamic messageObj = new ExpandoObject();
+            messageObj.id = message.Id;
+            messageObj.text = message.Text;
+
+            dynamic payload = new ExpandoObject();
+            payload.message = messageObj;
+
+            var requestContent = _serializer.Serialize(payload);
+
+            var response = await _httpClient.PostAsync(uri, requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            LogRestCall(uri, requestContent, responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logs.Error("Failed to send message. Response: " + responseContent);
+            }
+        }
+
         public async Task DeleteMessage(Message message, bool hard)
         {
             var uri = _requestUriFactory.CreateDeleteMessageUri(message, hard);
@@ -161,8 +188,26 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
-        public void UpdateMessage()
+        public async Task Mute(User user)
         {
+            var uri = _requestUriFactory.CreateMuteUserUri();
+
+            var payload = new MuteUser()
+            {
+                Id = user.Id
+            };
+
+            var requestContent = _serializer.Serialize(payload);
+
+            var response = await _httpClient.PostAsync(uri, requestContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            LogRestCall(uri, requestContent, responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logs.Error("Failed to send message. Response: " + responseContent);
+            }
         }
 
         public bool IsLocalUser(User user)
@@ -291,11 +336,18 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
-        private void Handle(NewMessageEvent newMessageEvent)
+        private void Handle(MessageNewEvent messageNewEvent)
         {
             _logs.Info("New message event received");
 
-            MessageReceived?.Invoke(newMessageEvent);
+            MessageReceived?.Invoke(messageNewEvent);
+        }
+
+        private void Handle(MessageDeletedEvent messageDeletedEvent)
+        {
+            _logs.Info("New deleted event received");
+
+            MessageDeleted?.Invoke(messageDeletedEvent);
         }
 
         private void LogRestCall(Uri uri, string request, string response)

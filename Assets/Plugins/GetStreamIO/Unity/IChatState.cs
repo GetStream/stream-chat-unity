@@ -17,5 +17,9 @@ namespace Plugins.GetStreamIO.Unity
 
 
         void OpenChannel(Channel channel);
+
+        void EditMessage(Message message);
+
+        event Action<Message> MessageEditRequested;
     }
 }

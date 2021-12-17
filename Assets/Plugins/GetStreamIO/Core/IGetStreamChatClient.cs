@@ -14,7 +14,8 @@ namespace Plugins.GetStreamIO.Core
     {
         event Action Connected;
         event Action<string> EventReceived;
-        event Action<NewMessageEvent> MessageReceived;
+        event Action<MessageNewEvent> MessageReceived;
+        event Action<MessageDeletedEvent> MessageDeleted;
 
         ConnectionState ConnectionState { get; }
 
@@ -28,8 +29,12 @@ namespace Plugins.GetStreamIO.Core
 
         Task SendMessageAsync(Channel channel, string message);
 
+        Task UpdateMessageAsync(Message message);
+
         Task DeleteMessage(Message message, bool hard);
 
         Task<IEnumerable<Channel>> GetChannelsAsync(QueryChannelsOptions options = null);
+
+        Task Mute(User user);
     }
 }

@@ -15,5 +15,9 @@ namespace Plugins.GetStreamIO.Core.Requests
         Uri CreateSendMessageUri(Channel channel);
 
         Uri CreateDeleteMessageUri(Message message, bool? isHardDelete);
+
+        Uri CreateMuteUserUri();
+
+        Uri CreateUpdateMessageUri(Message message);
     }
 }

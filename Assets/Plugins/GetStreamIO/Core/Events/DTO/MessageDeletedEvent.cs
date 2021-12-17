@@ -6,7 +6,7 @@ namespace Plugins.GetStreamIO.Core.Events.DTO
     /// <summary>
     /// New message vent
     /// </summary>
-    public class NewMessageEvent : BaseEvent
+    public class MessageDeletedEvent : BaseEvent
     {
         [JsonProperty("channel_id")]
         public string ChannelId;

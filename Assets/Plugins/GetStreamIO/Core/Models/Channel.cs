@@ -36,6 +36,11 @@ namespace Plugins.GetStreamIO.Core.Models
             Updated?.Invoke(this);
         }
 
+        public void DeleteMessage(Message message, bool hard)
+        {
+
+        }
+
         public bool IsDirectMessage => Details.MemberCount == 2 && Members.Any(_ => _.User.Id == Details.CreatedBy.Id);
     }
 }

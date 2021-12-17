@@ -91,6 +91,6 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         }
 
         private static string GetMessageText(Message message)
-            => message.Type == MessageType.Deleted ? "This message was deleted..." : message.Text;
+            => message.Type == MessageType.Deleted ? ChatState.MessageDeletedInfo : message.Text;
     }
 }

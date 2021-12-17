@@ -4,7 +4,7 @@ using Plugins.GetStreamIO.Unity.Scripts;
 namespace Plugins.GetStreamIO.Unity
 {
     /// <summary>
-    /// Context for view
+    /// Context for view with state and common services
     /// </summary>
     public interface IChatViewContext
     {

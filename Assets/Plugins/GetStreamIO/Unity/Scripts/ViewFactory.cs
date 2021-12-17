@@ -39,15 +39,19 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
             };
 
-            if (!isSelfMessage)
+            if (isSelfMessage)
+            {
+                options.Add(new MenuOptionEntry("Edit", () => _viewContext.State.EditMessage(message)));
+            }
+            else
             {
                 options.Add(new MenuOptionEntry("Flag", () => throw new NotImplementedException("Flag")));
 
                 //Todo: muted ? => show unmute instead
-                options.Add(new MenuOptionEntry("Mute", () => throw new NotImplementedException("Mute")));
+                var user = message.User;
+                options.Add(new MenuOptionEntry("Mute", () => _client.Mute(user)));
             }
 
-            options.Add(new MenuOptionEntry("Edit", () => throw new NotImplementedException("Edit")));
             options.Add(new MenuOptionEntry("Delete", () => _client.DeleteMessage(message, hard: false)));
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options);
@@ -59,6 +63,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         private readonly IGetStreamChatClient _client;
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
+
         private IChatViewContext _viewContext;
     }
 }

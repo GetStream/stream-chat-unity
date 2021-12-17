@@ -63,6 +63,12 @@ namespace Plugins.GetStreamIO.Core.Requests
             return CreateRequestUri(endPoint, GetDefaultParameters());
         }
 
+        public Uri CreateUpdateMessageUri(Message message)
+        {
+            var endPoint = $"/messages/{message.Id}";
+            return CreateRequestUri(endPoint, GetDefaultParameters());
+        }
+
         public Uri CreateDeleteMessageUri(Message message, bool? isHardDelete)
         {
             var endPoint = $"/messages/{message.Id}";
@@ -74,6 +80,12 @@ namespace Plugins.GetStreamIO.Core.Requests
             }
 
             return CreateRequestUri(endPoint, parameters);
+        }
+
+        public Uri CreateMuteUserUri()
+        {
+            var endPoint = "/moderation/mute";
+            return CreateRequestUri(endPoint, GetDefaultParameters());
         }
 
         private readonly IAuthProvider _authProvider;
