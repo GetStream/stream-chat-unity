@@ -43,6 +43,9 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             _currentEditMessage = message;
             _mode = Mode.Edit;
             _messageInput.text = message.Text;
+
+            _messageInput.Select();
+            _messageInput.ActivateInputField();
         }
 
         private enum Mode

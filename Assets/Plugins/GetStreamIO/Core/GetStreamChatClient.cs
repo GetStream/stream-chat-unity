@@ -30,6 +30,7 @@ namespace Plugins.GetStreamIO.Core
 
         public event Action<MessageNewEvent> MessageReceived;
         public event Action<MessageDeletedEvent> MessageDeleted;
+        public event Action<MessageUpdated> MessageUpdated;
 
         public ConnectionState ConnectionState { get; private set; }
 
@@ -68,6 +69,8 @@ namespace Plugins.GetStreamIO.Core
                 msg => Parse<MessageNewEvent>(msg, Handle));
             _serverEventsMapping.Register<MessageDeletedEvent>(EventType.MessageDeleted,
                 msg => Parse<MessageDeletedEvent>(msg, Handle));
+            _serverEventsMapping.Register<MessageUpdated>(EventType.MessageUpdated,
+                msg => Parse<MessageUpdated>(msg, Handle));
 
             _httpClient.SetDefaultAuthenticationHeader(authData.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
@@ -348,6 +351,13 @@ namespace Plugins.GetStreamIO.Core
             _logs.Info("New deleted event received");
 
             MessageDeleted?.Invoke(messageDeletedEvent);
+        }
+
+        private void Handle(MessageUpdated messageUpdatedEvent)
+        {
+            _logs.Info("New deleted event received");
+
+            MessageUpdated?.Invoke(messageUpdatedEvent);
         }
 
         private void LogRestCall(Uri uri, string request, string response)

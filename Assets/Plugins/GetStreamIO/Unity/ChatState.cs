@@ -43,6 +43,7 @@ namespace Plugins.GetStreamIO.Unity
             _client.Connected += OnClientConnected;
             _client.MessageReceived += OnMessageReceived;
             _client.MessageDeleted += OnMessageDeleted;
+            _client.MessageUpdated += OnMessageUpdated;
         }
 
         public void Dispose()
@@ -50,6 +51,7 @@ namespace Plugins.GetStreamIO.Unity
             _client.Connected -= OnClientConnected;
             _client.MessageReceived -= OnMessageReceived;
             _client.MessageDeleted -= OnMessageDeleted;
+            _client.MessageUpdated -= OnMessageUpdated;
 
             _client.Dispose();
         }
@@ -91,6 +93,12 @@ namespace Plugins.GetStreamIO.Unity
             message.Text = MessageDeletedInfo;
 
             ActiveChanelChanged?.Invoke(ActiveChannel);
+        }
+
+        private void OnMessageUpdated(MessageUpdated messageUpdatedEvent)
+        {
+            var channel = _channels.First(_ => _.Details.Id == messageUpdatedEvent.Channel_id);
+            ActiveChanelChanged?.Invoke(channel);
         }
     }
 }

@@ -354,6 +354,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2197509342077532661, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2369047764378762783, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -522,6 +526,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5547574210029051943, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5948539855776943770, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
       propertyPath: m_Name
       value: GetStreamInstance
@@ -534,6 +542,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7678271290476806811, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
+      propertyPath: _authCredentials
+      value: 
+      objectReference: {fileID: 11400000, guid: 36072d95c2b911944bc4f04ec53898a5, type: 2}
     - target: {fileID: 8637037942456780671, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

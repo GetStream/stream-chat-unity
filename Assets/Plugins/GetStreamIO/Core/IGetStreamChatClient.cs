@@ -16,6 +16,7 @@ namespace Plugins.GetStreamIO.Core
         event Action<string> EventReceived;
         event Action<MessageNewEvent> MessageReceived;
         event Action<MessageDeletedEvent> MessageDeleted;
+        event Action<MessageUpdated> MessageUpdated;
 
         ConnectionState ConnectionState { get; }
 
