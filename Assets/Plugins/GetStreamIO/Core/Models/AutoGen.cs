@@ -43,7 +43,7 @@ namespace TestNamespace
         /// Additional error info
         /// </summary>
         [Newtonsoft.Json.JsonProperty("exception_fields", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> Exception_fields { get; set; }
+        public System.Collections.Generic.IDictionary<string, string> ExceptionFields { get; set; }
 
         /// <summary>
         /// Message describing an error
@@ -55,7 +55,7 @@ namespace TestNamespace
         /// URL with additional information
         /// </summary>
         [Newtonsoft.Json.JsonProperty("more_info", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string More_info { get; set; }
+        public string MoreInfo { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -72,10 +72,10 @@ namespace TestNamespace
     public partial class APNConfigFields
     {
         [Newtonsoft.Json.JsonProperty("auth_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Auth_type { get; set; }
+        public string AuthType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("bundle_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Bundle_id { get; set; }
+        public string BundleId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("development", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Development { get; set; }
@@ -87,13 +87,13 @@ namespace TestNamespace
         public string Host { get; set; }
 
         [Newtonsoft.Json.JsonProperty("key_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Key_id { get; set; }
+        public string KeyId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("notification_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Notification_template { get; set; }
+        public string NotificationTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("team_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Team_id { get; set; }
+        public string TeamId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -110,14 +110,14 @@ namespace TestNamespace
     public partial class APNConfigRequest
     {
         [Newtonsoft.Json.JsonProperty("auth_key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Auth_key { get; set; }
+        public string AuthKey { get; set; }
 
         [Newtonsoft.Json.JsonProperty("auth_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public APNConfigRequestAuth_type Auth_type { get; set; }
+        public APNConfigRequestAuthType AuthType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("bundle_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Bundle_id { get; set; }
+        public string BundleId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("development", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Development { get; set; }
@@ -126,16 +126,16 @@ namespace TestNamespace
         public string Host { get; set; }
 
         [Newtonsoft.Json.JsonProperty("key_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Key_id { get; set; }
+        public string KeyId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("notification_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Notification_template { get; set; }
+        public string NotificationTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("p12_cert", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string P12_cert { get; set; }
+        public string P12Cert { get; set; }
 
         [Newtonsoft.Json.JsonProperty("team_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Team_id { get; set; }
+        public string TeamId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -210,49 +210,49 @@ namespace TestNamespace
     public partial class App
     {
         [Newtonsoft.Json.JsonProperty("async_url_enrich_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Async_url_enrich_enabled { get; set; }
+        public bool AsyncUrlEnrichEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("auto_translation_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Auto_translation_enabled { get; set; }
+        public bool AutoTranslationEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("before_message_send_hook_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Before_message_send_hook_url { get; set; }
+        public string BeforeMessageSendHookUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("campaign_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Campaign_enabled { get; set; }
+        public bool CampaignEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_configs", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, ChannelConfig> Channel_configs { get; set; }
+        public System.Collections.Generic.IDictionary<string, ChannelConfig> ChannelConfigs { get; set; }
 
         [Newtonsoft.Json.JsonProperty("custom_action_handler_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Custom_action_handler_url { get; set; }
+        public string CustomActionHandlerUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disable_auth_checks", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Disable_auth_checks { get; set; }
+        public bool DisableAuthChecks { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disable_permissions_checks", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Disable_permissions_checks { get; set; }
+        public bool DisablePermissionsChecks { get; set; }
 
         [Newtonsoft.Json.JsonProperty("enforce_unique_usernames", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Enforce_unique_usernames { get; set; }
+        public string EnforceUniqueUsernames { get; set; }
 
         [Newtonsoft.Json.JsonProperty("file_upload_config", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public FileUploadConfig File_upload_config { get; set; }
+        public FileUploadConfig FileUploadConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Image_moderation_enabled { get; set; }
+        public bool ImageModerationEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_labels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Image_moderation_labels { get; set; }
+        public System.Collections.Generic.ICollection<string> ImageModerationLabels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_upload_config", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public FileUploadConfig Image_upload_config { get; set; }
+        public FileUploadConfig ImageUploadConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("multi_tenant_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Multi_tenant_enabled { get; set; }
+        public bool MultiTenantEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
@@ -261,43 +261,43 @@ namespace TestNamespace
         public string Organization { get; set; }
 
         [Newtonsoft.Json.JsonProperty("permission_version", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Permission_version { get; set; }
+        public string PermissionVersion { get; set; }
 
         [Newtonsoft.Json.JsonProperty("policies", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<Policy>> Policies { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushNotificationFields Push_notifications { get; set; }
+        public PushNotificationFields PushNotifications { get; set; }
 
         [Newtonsoft.Json.JsonProperty("revoke_tokens_issued_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Revoke_tokens_issued_before { get; set; }
+        public System.DateTimeOffset RevokeTokensIssuedBefore { get; set; }
 
         [Newtonsoft.Json.JsonProperty("search_backend", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Search_backend { get; set; }
+        public string SearchBackend { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sqs_key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_key { get; set; }
+        public string SqsKey { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sqs_secret", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_secret { get; set; }
+        public string SqsSecret { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sqs_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_url { get; set; }
+        public string SqsUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("suspended", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Suspended { get; set; }
 
         [Newtonsoft.Json.JsonProperty("suspended_explanation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Suspended_explanation { get; set; }
+        public string SuspendedExplanation { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_search_disallowed_roles", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> User_search_disallowed_roles { get; set; }
+        public System.Collections.Generic.ICollection<string> UserSearchDisallowedRoles { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Webhook_events { get; set; }
+        public System.Collections.Generic.ICollection<string> WebhookEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Webhook_url { get; set; }
+        public string WebhookUrl { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -317,16 +317,16 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<Action> Actions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("asset_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Asset_url { get; set; }
+        public string AssetUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_icon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_icon { get; set; }
+        public string AuthorIcon { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_link", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_link { get; set; }
+        public string AuthorLink { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_name { get; set; }
+        public string AuthorName { get; set; }
 
         [Newtonsoft.Json.JsonProperty("color", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Color { get; set; }
@@ -341,16 +341,16 @@ namespace TestNamespace
         public string Footer { get; set; }
 
         [Newtonsoft.Json.JsonProperty("footer_icon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Footer_icon { get; set; }
+        public string FooterIcon { get; set; }
 
         [Newtonsoft.Json.JsonProperty("giphy", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Images Giphy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Image_url { get; set; }
+        public string ImageUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("og_scrape_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Og_scrape_url { get; set; }
+        public string OgScrapeUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("pretext", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Pretext { get; set; }
@@ -359,13 +359,13 @@ namespace TestNamespace
         public string Text { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thumb_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Thumb_url { get; set; }
+        public string ThumbUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("title", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Title { get; set; }
 
         [Newtonsoft.Json.JsonProperty("title_link", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Title_link { get; set; }
+        public string TitleLink { get; set; }
 
         /// <summary>
         /// Attachment type (e.g. image, video, url)
@@ -391,16 +391,16 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<ActionRequest> Actions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("asset_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Asset_url { get; set; }
+        public string AssetUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_icon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_icon { get; set; }
+        public string AuthorIcon { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_link", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_link { get; set; }
+        public string AuthorLink { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_name { get; set; }
+        public string AuthorName { get; set; }
 
         [Newtonsoft.Json.JsonProperty("color", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Color { get; set; }
@@ -415,16 +415,16 @@ namespace TestNamespace
         public string Footer { get; set; }
 
         [Newtonsoft.Json.JsonProperty("footer_icon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Footer_icon { get; set; }
+        public string FooterIcon { get; set; }
 
         [Newtonsoft.Json.JsonProperty("giphy", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ImagesRequest Giphy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Image_url { get; set; }
+        public string ImageUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("og_scrape_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Og_scrape_url { get; set; }
+        public string OgScrapeUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("pretext", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Pretext { get; set; }
@@ -433,13 +433,13 @@ namespace TestNamespace
         public string Text { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thumb_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Thumb_url { get; set; }
+        public string ThumbUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("title", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Title { get; set; }
 
         [Newtonsoft.Json.JsonProperty("title_link", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Title_link { get; set; }
+        public string TitleLink { get; set; }
 
         /// <summary>
         /// Attachment type (e.g. image, video, url)
@@ -465,13 +465,13 @@ namespace TestNamespace
         /// User who issued a ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("banned_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequest Banned_by { get; set; }
+        public UserObjectRequest BannedBy { get; set; }
 
         /// <summary>
         /// User ID who issued a ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("banned_by_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Banned_by_id { get; set; }
+        public string BannedById { get; set; }
 
         /// <summary>
         /// Channel ID to ban user in
@@ -483,7 +483,7 @@ namespace TestNamespace
         /// Whether to perform IP ban or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ip_ban", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Ip_ban { get; set; }
+        public bool IpBan { get; set; }
 
         /// <summary>
         /// Ban reason
@@ -501,7 +501,7 @@ namespace TestNamespace
         /// ID of user to ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Target_user_id { get; set; }
+        public string TargetUserId { get; set; }
 
         /// <summary>
         /// Timeout of ban in minutes. User will be unbanned after this period of time
@@ -525,7 +525,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -542,13 +542,13 @@ namespace TestNamespace
     public partial class BanResponse
     {
         [Newtonsoft.Json.JsonProperty("banned_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Banned_by { get; set; }
+        public UserObject BannedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset Expires { get; set; }
@@ -583,7 +583,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Block list name
@@ -595,7 +595,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// List of words to block
@@ -621,25 +621,25 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<Attachment> Attachments { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("completed_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Completed_at { get; set; }
+        public System.DateTimeOffset CompletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("defaults", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, string> Defaults { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Description { get; set; }
 
         [Newtonsoft.Json.JsonProperty("failed_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Failed_at { get; set; }
+        public System.DateTimeOffset FailedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("filter", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public SegmentFilter Filter { get; set; }
@@ -654,31 +654,31 @@ namespace TestNamespace
         public double Progress { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         [Newtonsoft.Json.JsonProperty("resumed_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Resumed_at { get; set; }
+        public System.DateTimeOffset ResumedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("scheduled_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Scheduled_at { get; set; }
+        public System.DateTimeOffset ScheduledAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("segment_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Segment_id { get; set; }
+        public string SegmentId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sender_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sender_id { get; set; }
+        public string SenderId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Status { get; set; }
 
         [Newtonsoft.Json.JsonProperty("stopped_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Stopped_at { get; set; }
+        public System.DateTimeOffset StoppedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("text", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -698,7 +698,7 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<AttachmentRequest> Attachments { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("defaults", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, string> Defaults { get; set; }
@@ -713,13 +713,13 @@ namespace TestNamespace
         public string Name { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         [Newtonsoft.Json.JsonProperty("segment_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Segment_id { get; set; }
+        public string SegmentId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sender_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sender_id { get; set; }
+        public string SenderId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("text", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }
@@ -742,7 +742,7 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<AttachmentRequest> Attachments { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("defaults", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, string> Defaults { get; set; }
@@ -754,13 +754,13 @@ namespace TestNamespace
         public string Name { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         [Newtonsoft.Json.JsonProperty("segment_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Segment_id { get; set; }
+        public string SegmentId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sender_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sender_id { get; set; }
+        public string SenderId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("text", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }
@@ -791,10 +791,10 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelConfigAutomod_behavior Automod_behavior { get; set; }
+        public ChannelConfigAutomodBehavior AutomodBehavior { get; set; }
 
         [Newtonsoft.Json.JsonProperty("automod_thresholds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Thresholds Automod_thresholds { get; set; }
+        public Thresholds AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -807,7 +807,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelConfigBlocklist_behavior Blocklist_behavior { get; set; }
+        public ChannelConfigBlocklistBehavior BlocklistBehavior { get; set; }
 
         /// <summary>
         /// List of commands that channel supports
@@ -819,31 +819,31 @@ namespace TestNamespace
         /// Connect events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Connect_events { get; set; }
+        public bool ConnectEvents { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Enables custom events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Custom_events { get; set; }
+        public bool CustomEvents { get; set; }
 
         /// <summary>
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_retention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_retention { get; set; }
+        public string MessageRetention { get; set; }
 
         /// <summary>
         /// Enables mutes
@@ -861,7 +861,7 @@ namespace TestNamespace
         /// Enables push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         /// <summary>
         /// Enables message quotes
@@ -879,7 +879,7 @@ namespace TestNamespace
         /// Read events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Read_events { get; set; }
+        public bool ReadEvents { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)
@@ -897,13 +897,13 @@ namespace TestNamespace
         /// Typing events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Enables file uploads
@@ -915,7 +915,7 @@ namespace TestNamespace
         /// Enables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -939,7 +939,7 @@ namespace TestNamespace
 
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelConfigRequestBlocklist_behavior Blocklist_behavior { get; set; }
+        public ChannelConfigRequestBlocklistBehavior BlocklistBehavior { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
@@ -948,7 +948,7 @@ namespace TestNamespace
         /// Overrides max message length
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Enables message quotes
@@ -972,7 +972,7 @@ namespace TestNamespace
         /// Enables or disables typing events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Enables or disables file uploads
@@ -984,7 +984,7 @@ namespace TestNamespace
         /// Enables or disables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -1012,10 +1012,10 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelConfigWithInfoAutomod_behavior Automod_behavior { get; set; }
+        public ChannelConfigWithInfoAutomodBehavior AutomodBehavior { get; set; }
 
         [Newtonsoft.Json.JsonProperty("automod_thresholds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Thresholds Automod_thresholds { get; set; }
+        public Thresholds AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -1028,7 +1028,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelConfigWithInfoBlocklist_behavior Blocklist_behavior { get; set; }
+        public ChannelConfigWithInfoBlocklistBehavior BlocklistBehavior { get; set; }
 
         /// <summary>
         /// List of commands that channel supports
@@ -1040,19 +1040,19 @@ namespace TestNamespace
         /// Connect events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Connect_events { get; set; }
+        public bool ConnectEvents { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Enables custom events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Custom_events { get; set; }
+        public bool CustomEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
@@ -1061,13 +1061,13 @@ namespace TestNamespace
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_retention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_retention { get; set; }
+        public string MessageRetention { get; set; }
 
         /// <summary>
         /// Enables mutes
@@ -1085,7 +1085,7 @@ namespace TestNamespace
         /// Enables push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         /// <summary>
         /// Enables message quotes
@@ -1103,7 +1103,7 @@ namespace TestNamespace
         /// Read events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Read_events { get; set; }
+        public bool ReadEvents { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)
@@ -1121,13 +1121,13 @@ namespace TestNamespace
         /// Typing events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Enables file uploads
@@ -1139,7 +1139,7 @@ namespace TestNamespace
         /// Enables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -1167,10 +1167,10 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelConfigWithInfoRequestAutomod_behavior Automod_behavior { get; set; }
+        public ChannelConfigWithInfoRequestAutomodBehavior AutomodBehavior { get; set; }
 
         [Newtonsoft.Json.JsonProperty("automod_thresholds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ThresholdsRequest Automod_thresholds { get; set; }
+        public ThresholdsRequest AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -1183,7 +1183,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelConfigWithInfoRequestBlocklist_behavior Blocklist_behavior { get; set; }
+        public ChannelConfigWithInfoRequestBlocklistBehavior BlocklistBehavior { get; set; }
 
         /// <summary>
         /// List of commands that channel supports
@@ -1195,19 +1195,19 @@ namespace TestNamespace
         /// Connect events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Connect_events { get; set; }
+        public bool ConnectEvents { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Enables custom events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Custom_events { get; set; }
+        public bool CustomEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
@@ -1216,13 +1216,13 @@ namespace TestNamespace
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_retention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_retention { get; set; }
+        public string MessageRetention { get; set; }
 
         /// <summary>
         /// Enables mutes
@@ -1240,7 +1240,7 @@ namespace TestNamespace
         /// Enables push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         /// <summary>
         /// Enables message quotes
@@ -1258,7 +1258,7 @@ namespace TestNamespace
         /// Read events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Read_events { get; set; }
+        public bool ReadEvents { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)
@@ -1276,13 +1276,13 @@ namespace TestNamespace
         /// Typing events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Enables file uploads
@@ -1294,7 +1294,7 @@ namespace TestNamespace
         /// Enables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -1320,13 +1320,13 @@ namespace TestNamespace
         /// Date to export messages since
         /// </summary>
         [Newtonsoft.Json.JsonProperty("messages_since", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Messages_since { get; set; }
+        public System.DateTimeOffset MessagesSince { get; set; }
 
         /// <summary>
         /// Date to export messages until
         /// </summary>
         [Newtonsoft.Json.JsonProperty("messages_until", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Messages_until { get; set; }
+        public System.DateTimeOffset MessagesUntil { get; set; }
 
         /// <summary>
         /// Channel type
@@ -1352,7 +1352,7 @@ namespace TestNamespace
         /// Websocket connection ID to interact with. You can pass it as body or URL parameter
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Connection_id { get; set; }
+        public string ConnectionId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelRequest Data { get; set; }
@@ -1402,7 +1402,7 @@ namespace TestNamespace
         /// Expiration date of the ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ban_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Ban_expires { get; set; }
+        public System.DateTimeOffset BanExpires { get; set; }
 
         /// <summary>
         /// Whether member is banned this channel or not
@@ -1414,28 +1414,28 @@ namespace TestNamespace
         /// Role of the member in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_role", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_role { get; set; }
+        public string ChannelRole { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         /// <summary>
         /// Date when invite was accepted
         /// </summary>
         [Newtonsoft.Json.JsonProperty("invite_accepted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Invite_accepted_at { get; set; }
+        public System.DateTimeOffset InviteAcceptedAt { get; set; }
 
         /// <summary>
         /// Date when invite was rejected
         /// </summary>
         [Newtonsoft.Json.JsonProperty("invite_rejected_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Invite_rejected_at { get; set; }
+        public System.DateTimeOffset InviteRejectedAt { get; set; }
 
         /// <summary>
         /// Whether member was invited or not
@@ -1447,7 +1447,7 @@ namespace TestNamespace
         /// Whether member is channel moderator or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("is_moderator", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Is_moderator { get; set; }
+        public bool IsModerator { get; set; }
 
         /// <summary>
         /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)
@@ -1460,19 +1460,19 @@ namespace TestNamespace
         /// Whether member is shadow banned in this channel or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("shadow_banned", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Shadow_banned { get; set; }
+        public bool ShadowBanned { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObject User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -1492,7 +1492,7 @@ namespace TestNamespace
         /// Expiration date of the ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ban_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Ban_expires { get; set; }
+        public System.DateTimeOffset BanExpires { get; set; }
 
         /// <summary>
         /// Whether member is banned this channel or not
@@ -1504,28 +1504,28 @@ namespace TestNamespace
         /// Role of the member in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_role", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_role { get; set; }
+        public string ChannelRole { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         /// <summary>
         /// Date when invite was accepted
         /// </summary>
         [Newtonsoft.Json.JsonProperty("invite_accepted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Invite_accepted_at { get; set; }
+        public System.DateTimeOffset InviteAcceptedAt { get; set; }
 
         /// <summary>
         /// Date when invite was rejected
         /// </summary>
         [Newtonsoft.Json.JsonProperty("invite_rejected_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Invite_rejected_at { get; set; }
+        public System.DateTimeOffset InviteRejectedAt { get; set; }
 
         /// <summary>
         /// Whether member was invited or not
@@ -1537,7 +1537,7 @@ namespace TestNamespace
         /// Whether member is channel moderator or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("is_moderator", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Is_moderator { get; set; }
+        public bool IsModerator { get; set; }
 
         /// <summary>
         /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)
@@ -1550,19 +1550,19 @@ namespace TestNamespace
         /// Whether member is shadow banned in this channel or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("shadow_banned", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Shadow_banned { get; set; }
+        public bool ShadowBanned { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectRequest User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -1585,7 +1585,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date/time of mute expiration
@@ -1597,7 +1597,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Owner of channel mute
@@ -1626,7 +1626,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date/time of mute expiration
@@ -1638,7 +1638,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Owner of channel mute
@@ -1664,19 +1664,19 @@ namespace TestNamespace
         /// Enable or disable auto translation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("auto_translation_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Auto_translation_enabled { get; set; }
+        public bool AutoTranslationEnabled { get; set; }
 
         /// <summary>
         /// Switch auto translation language
         /// </summary>
         [Newtonsoft.Json.JsonProperty("auto_translation_language", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Auto_translation_language { get; set; }
+        public string AutoTranslationLanguage { get; set; }
 
         [Newtonsoft.Json.JsonProperty("config_overrides", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ChannelConfigRequest Config_overrides { get; set; }
+        public ChannelConfigRequest ConfigOverrides { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequest Created_by { get; set; }
+        public UserObjectRequest CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Disabled { get; set; }
@@ -1691,7 +1691,7 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<ChannelMemberRequest> Members { get; set; }
 
         [Newtonsoft.Json.JsonProperty("own_capabilities", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<double> Own_capabilities { get; set; }
+        public System.Collections.Generic.ICollection<double> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (if multi-tenant mode is enabled)
@@ -1720,13 +1720,13 @@ namespace TestNamespace
         /// Whether auto translation is enabled or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("auto_translation_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Auto_translation_enabled { get; set; }
+        public bool AutoTranslationEnabled { get; set; }
 
         /// <summary>
         /// Language to translate to when auto translation is active
         /// </summary>
         [Newtonsoft.Json.JsonProperty("auto_translation_language", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Auto_translation_language { get; set; }
+        public string AutoTranslationLanguage { get; set; }
 
         /// <summary>
         /// Channel CID (&lt;type&gt;:&lt;id&gt;)
@@ -1750,19 +1750,19 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Creator of the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Created_by { get; set; }
+        public UserObject CreatedBy { get; set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Disabled { get; set; }
@@ -1783,7 +1783,7 @@ namespace TestNamespace
         /// Date since when the message history is accessible
         /// </summary>
         [Newtonsoft.Json.JsonProperty("hide_messages_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Hide_messages_before { get; set; }
+        public System.DateTimeOffset HideMessagesBefore { get; set; }
 
         /// <summary>
         /// Channel unique ID
@@ -1795,13 +1795,13 @@ namespace TestNamespace
         /// Date of the last message sent
         /// </summary>
         [Newtonsoft.Json.JsonProperty("last_message_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Last_message_at { get; set; }
+        public System.DateTimeOffset LastMessageAt { get; set; }
 
         /// <summary>
         /// Number of members in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("member_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Member_count { get; set; }
+        public double MemberCount { get; set; }
 
         /// <summary>
         /// List of channel members (max 100)
@@ -1813,7 +1813,7 @@ namespace TestNamespace
         /// Date of mute expiration
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mute_expires_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Mute_expires_at { get; set; }
+        public System.DateTimeOffset MuteExpiresAt { get; set; }
 
         /// <summary>
         /// Whether this channel is muted or not
@@ -1825,7 +1825,7 @@ namespace TestNamespace
         /// List of channel capabilities of authenticated user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_capabilities", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Own_capabilities { get; set; }
+        public System.Collections.Generic.ICollection<string> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (multi-tenant only)
@@ -1834,7 +1834,7 @@ namespace TestNamespace
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("truncated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Truncated_at { get; set; }
+        public System.DateTimeOffset TruncatedAt { get; set; }
 
         /// <summary>
         /// Type of the channel
@@ -1846,7 +1846,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -1869,13 +1869,13 @@ namespace TestNamespace
         /// Whether auto translation is enabled or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("auto_translation_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Auto_translation_enabled { get; set; }
+        public bool AutoTranslationEnabled { get; set; }
 
         /// <summary>
         /// Language to translate to when auto translation is active
         /// </summary>
         [Newtonsoft.Json.JsonProperty("auto_translation_language", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Auto_translation_language { get; set; }
+        public string AutoTranslationLanguage { get; set; }
 
         /// <summary>
         /// Channel CID (&lt;type&gt;:&lt;id&gt;)
@@ -1899,19 +1899,19 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Creator of the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequest Created_by { get; set; }
+        public UserObjectRequest CreatedBy { get; set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Disabled { get; set; }
@@ -1932,7 +1932,7 @@ namespace TestNamespace
         /// Date since when the message history is accessible
         /// </summary>
         [Newtonsoft.Json.JsonProperty("hide_messages_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Hide_messages_before { get; set; }
+        public System.DateTimeOffset HideMessagesBefore { get; set; }
 
         /// <summary>
         /// Channel unique ID
@@ -1944,13 +1944,13 @@ namespace TestNamespace
         /// Date of the last message sent
         /// </summary>
         [Newtonsoft.Json.JsonProperty("last_message_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Last_message_at { get; set; }
+        public System.DateTimeOffset LastMessageAt { get; set; }
 
         /// <summary>
         /// Number of members in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("member_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Member_count { get; set; }
+        public double MemberCount { get; set; }
 
         /// <summary>
         /// List of channel members (max 100)
@@ -1962,7 +1962,7 @@ namespace TestNamespace
         /// Date of mute expiration
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mute_expires_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Mute_expires_at { get; set; }
+        public System.DateTimeOffset MuteExpiresAt { get; set; }
 
         /// <summary>
         /// Whether this channel is muted or not
@@ -1974,7 +1974,7 @@ namespace TestNamespace
         /// List of channel capabilities of authenticated user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_capabilities", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Own_capabilities { get; set; }
+        public System.Collections.Generic.ICollection<string> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (multi-tenant only)
@@ -1983,7 +1983,7 @@ namespace TestNamespace
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("truncated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Truncated_at { get; set; }
+        public System.DateTimeOffset TruncatedAt { get; set; }
 
         /// <summary>
         /// Type of the channel
@@ -1995,7 +1995,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2030,7 +2030,7 @@ namespace TestNamespace
         /// Messages before this date are hidden from the user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("hide_messages_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Hide_messages_before { get; set; }
+        public System.DateTimeOffset HideMessagesBefore { get; set; }
 
         /// <summary>
         /// List of channel members
@@ -2054,7 +2054,7 @@ namespace TestNamespace
         /// List of pinned messages in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_messages", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Message> Pinned_messages { get; set; }
+        public System.Collections.Generic.ICollection<Message> PinnedMessages { get; set; }
 
         /// <summary>
         /// List of read states
@@ -2066,7 +2066,7 @@ namespace TestNamespace
         /// Number of channel watchers
         /// </summary>
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Watcher_count { get; set; }
+        public double WatcherCount { get; set; }
 
         /// <summary>
         /// List of user who is watching the channel
@@ -2101,7 +2101,7 @@ namespace TestNamespace
         /// Messages before this date are hidden from the user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("hide_messages_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Hide_messages_before { get; set; }
+        public System.DateTimeOffset HideMessagesBefore { get; set; }
 
         /// <summary>
         /// List of channel members
@@ -2125,7 +2125,7 @@ namespace TestNamespace
         /// List of pinned messages in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_messages", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Message> Pinned_messages { get; set; }
+        public System.Collections.Generic.ICollection<Message> PinnedMessages { get; set; }
 
         /// <summary>
         /// List of read states
@@ -2137,7 +2137,7 @@ namespace TestNamespace
         /// Number of channel watchers
         /// </summary>
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Watcher_count { get; set; }
+        public double WatcherCount { get; set; }
 
         /// <summary>
         /// List of user who is watching the channel
@@ -2163,7 +2163,7 @@ namespace TestNamespace
         /// Websocket connection ID to interact with. You can pass it as body or URL parameter
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Connection_id { get; set; }
+        public string ConnectionId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2191,10 +2191,10 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelTypeConfigAutomod_behavior Automod_behavior { get; set; }
+        public ChannelTypeConfigAutomodBehavior AutomodBehavior { get; set; }
 
         [Newtonsoft.Json.JsonProperty("automod_thresholds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Thresholds Automod_thresholds { get; set; }
+        public Thresholds AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -2207,7 +2207,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelTypeConfigBlocklist_behavior Blocklist_behavior { get; set; }
+        public ChannelTypeConfigBlocklistBehavior BlocklistBehavior { get; set; }
 
         /// <summary>
         /// List of commands that channel supports
@@ -2219,19 +2219,19 @@ namespace TestNamespace
         /// Connect events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Connect_events { get; set; }
+        public bool ConnectEvents { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Enables custom events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Custom_events { get; set; }
+        public bool CustomEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
@@ -2240,13 +2240,13 @@ namespace TestNamespace
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_retention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_retention { get; set; }
+        public string MessageRetention { get; set; }
 
         /// <summary>
         /// Enables mutes
@@ -2267,7 +2267,7 @@ namespace TestNamespace
         /// Enables push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         /// <summary>
         /// Enables message quotes
@@ -2285,7 +2285,7 @@ namespace TestNamespace
         /// Read events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Read_events { get; set; }
+        public bool ReadEvents { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)
@@ -2303,13 +2303,13 @@ namespace TestNamespace
         /// Typing events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Enables file uploads
@@ -2321,7 +2321,7 @@ namespace TestNamespace
         /// Enables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2367,31 +2367,31 @@ namespace TestNamespace
         /// Push message template for APN
         /// </summary>
         [Newtonsoft.Json.JsonProperty("apn_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Apn_template { get; set; }
+        public string ApnTemplate { get; set; }
 
         /// <summary>
         /// Push message data template for Firebase
         /// </summary>
         [Newtonsoft.Json.JsonProperty("firebase_data_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Firebase_data_template { get; set; }
+        public string FirebaseDataTemplate { get; set; }
 
         /// <summary>
         /// Push message template for Firebase
         /// </summary>
         [Newtonsoft.Json.JsonProperty("firebase_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Firebase_template { get; set; }
+        public string FirebaseTemplate { get; set; }
 
         /// <summary>
         /// Message ID to send push notification for
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_id { get; set; }
+        public string MessageId { get; set; }
 
         /// <summary>
         /// Don't require existing devices to render templates
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_devices", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_devices { get; set; }
+        public bool SkipDevices { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -2403,7 +2403,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2423,7 +2423,7 @@ namespace TestNamespace
         /// Object with device errors
         /// </summary>
         [Newtonsoft.Json.JsonProperty("device_errors", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, DeviceErrorInfo> Device_errors { get; set; }
+        public System.Collections.Generic.IDictionary<string, DeviceErrorInfo> DeviceErrors { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -2435,22 +2435,22 @@ namespace TestNamespace
         /// List of general errors
         /// </summary>
         [Newtonsoft.Json.JsonProperty("general_errors", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> General_errors { get; set; }
+        public System.Collections.Generic.ICollection<string> GeneralErrors { get; set; }
 
         [Newtonsoft.Json.JsonProperty("rendered_apn_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Rendered_apn_template { get; set; }
+        public string RenderedApnTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("rendered_firebase_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Rendered_firebase_template { get; set; }
+        public string RenderedFirebaseTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("rendered_message", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> Rendered_message { get; set; }
+        public System.Collections.Generic.IDictionary<string, string> RenderedMessage { get; set; }
 
         /// <summary>
         /// Don't require existing devices to render templates
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_devices", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_devices { get; set; }
+        public bool SkipDevices { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2470,19 +2470,19 @@ namespace TestNamespace
         /// AWS SQS access key
         /// </summary>
         [Newtonsoft.Json.JsonProperty("sqs_key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_key { get; set; }
+        public string SqsKey { get; set; }
 
         /// <summary>
         /// AWS SQS key secret
         /// </summary>
         [Newtonsoft.Json.JsonProperty("sqs_secret", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_secret { get; set; }
+        public string SqsSecret { get; set; }
 
         /// <summary>
         /// AWS SQS endpoint URL
         /// </summary>
         [Newtonsoft.Json.JsonProperty("sqs_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_url { get; set; }
+        public string SqsUrl { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2550,7 +2550,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Description, shown in commands auto-completion
@@ -2574,7 +2574,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2635,7 +2635,7 @@ namespace TestNamespace
         public DeviceFields Device { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_details", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject User_details { get; set; } = new UserObject();
+        public UserObject UserDetails { get; set; } = new UserObject();
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2732,7 +2732,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public CreateChannelTypeRequestAutomod_behavior Automod_behavior { get; set; }
+        public CreateChannelTypeRequestAutomodBehavior AutomodBehavior { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -2745,7 +2745,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public CreateChannelTypeRequestBlocklist_behavior Blocklist_behavior { get; set; }
+        public CreateChannelTypeRequestBlocklistBehavior BlocklistBehavior { get; set; }
 
         /// <summary>
         /// List of commands that channel supports
@@ -2757,13 +2757,13 @@ namespace TestNamespace
         /// Connect events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Connect_events { get; set; }
+        public bool ConnectEvents { get; set; }
 
         /// <summary>
         /// Enables custom events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Custom_events { get; set; }
+        public bool CustomEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
@@ -2772,13 +2772,13 @@ namespace TestNamespace
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_retention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_retention { get; set; }
+        public string MessageRetention { get; set; }
 
         /// <summary>
         /// Enables mutes
@@ -2802,7 +2802,7 @@ namespace TestNamespace
         /// Enables push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         /// <summary>
         /// Enables message reactions
@@ -2814,7 +2814,7 @@ namespace TestNamespace
         /// Read events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Read_events { get; set; }
+        public bool ReadEvents { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)
@@ -2832,7 +2832,7 @@ namespace TestNamespace
         /// Typing events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Enables file uploads
@@ -2844,7 +2844,7 @@ namespace TestNamespace
         /// Enables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2872,10 +2872,10 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public CreateChannelTypeResponseAutomod_behavior Automod_behavior { get; set; }
+        public CreateChannelTypeResponseAutomodBehavior AutomodBehavior { get; set; }
 
         [Newtonsoft.Json.JsonProperty("automod_thresholds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Thresholds Automod_thresholds { get; set; }
+        public Thresholds AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -2888,7 +2888,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public CreateChannelTypeResponseBlocklist_behavior Blocklist_behavior { get; set; }
+        public CreateChannelTypeResponseBlocklistBehavior BlocklistBehavior { get; set; }
 
         /// <summary>
         /// List of commands that channel supports
@@ -2900,19 +2900,19 @@ namespace TestNamespace
         /// Connect events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Connect_events { get; set; }
+        public bool ConnectEvents { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Enables custom events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Custom_events { get; set; }
+        public bool CustomEvents { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -2927,13 +2927,13 @@ namespace TestNamespace
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_retention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_retention { get; set; }
+        public string MessageRetention { get; set; }
 
         /// <summary>
         /// Enables mutes
@@ -2954,7 +2954,7 @@ namespace TestNamespace
         /// Enables push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         /// <summary>
         /// Enables message quotes
@@ -2972,7 +2972,7 @@ namespace TestNamespace
         /// Read events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Read_events { get; set; }
+        public bool ReadEvents { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)
@@ -2990,13 +2990,13 @@ namespace TestNamespace
         /// Typing events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Enables file uploads
@@ -3008,7 +3008,7 @@ namespace TestNamespace
         /// Enables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3093,7 +3093,7 @@ namespace TestNamespace
 
         [Newtonsoft.Json.JsonProperty("push_provider", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public CreateDeviceRequestPush_provider Push_provider { get; set; }
+        public CreateDeviceRequestPushProvider PushProvider { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -3105,7 +3105,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3208,16 +3208,16 @@ namespace TestNamespace
         /// **Server-side only**. ID of user who deactivated the user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Created_by_id { get; set; }
+        public string CreatedById { get; set; }
 
         /// <summary>
         /// Makes messages appear to be deleted
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mark_messages_deleted", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Mark_messages_deleted { get; set; }
+        public bool MarkMessagesDeleted { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3303,7 +3303,7 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<string> Cids { get; set; }
 
         [Newtonsoft.Json.JsonProperty("hard_delete", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Hard_delete { get; set; }
+        public bool HardDelete { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3329,7 +3329,7 @@ namespace TestNamespace
         public System.Collections.Generic.IDictionary<string, DeleteChannelsResult> Result { get; set; }
 
         [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Task_id { get; set; }
+        public string TaskId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3440,14 +3440,14 @@ namespace TestNamespace
         public DeleteUsersRequestMessages Messages { get; set; }
 
         [Newtonsoft.Json.JsonProperty("new_channel_owner_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string New_channel_owner_id { get; set; }
+        public string NewChannelOwnerId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public DeleteUsersRequestUser User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_ids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> User_ids { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.ICollection<string> UserIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3470,7 +3470,7 @@ namespace TestNamespace
         public string Duration { get; set; }
 
         [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Task_id { get; set; }
+        public string TaskId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3490,7 +3490,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Whether device is disabled or not
@@ -3502,7 +3502,7 @@ namespace TestNamespace
         /// Reason explaining why device had been disabled
         /// </summary>
         [Newtonsoft.Json.JsonProperty("disabled_reason", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Disabled_reason { get; set; }
+        public string DisabledReason { get; set; }
 
         /// <summary>
         /// Device ID
@@ -3512,10 +3512,10 @@ namespace TestNamespace
 
         [Newtonsoft.Json.JsonProperty("push_provider", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public DevicePush_provider Push_provider { get; set; }
+        public DevicePushProvider PushProvider { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3532,7 +3532,7 @@ namespace TestNamespace
     public partial class DeviceErrorInfo
     {
         [Newtonsoft.Json.JsonProperty("error_message", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Error_message { get; set; }
+        public string ErrorMessage { get; set; }
 
         [Newtonsoft.Json.JsonProperty("provider", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Provider { get; set; }
@@ -3559,7 +3559,7 @@ namespace TestNamespace
 
         [Newtonsoft.Json.JsonProperty("push_provider", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public DeviceFieldsPush_provider Push_provider { get; set; }
+        public DeviceFieldsPushProvider PushProvider { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3579,7 +3579,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Whether device is disabled or not
@@ -3591,7 +3591,7 @@ namespace TestNamespace
         /// Reason explaining why device had been disabled
         /// </summary>
         [Newtonsoft.Json.JsonProperty("disabled_reason", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Disabled_reason { get; set; }
+        public string DisabledReason { get; set; }
 
         /// <summary>
         /// Device ID
@@ -3601,10 +3601,10 @@ namespace TestNamespace
 
         [Newtonsoft.Json.JsonProperty("push_provider", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public DeviceRequestPush_provider Push_provider { get; set; }
+        public DeviceRequestPushProvider PushProvider { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3659,16 +3659,16 @@ namespace TestNamespace
         /// Only applicable to `message.flagged` event.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automoderation_scores", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ModerationResponse Automoderation_scores { get; set; }
+        public ModerationResponse AutomoderationScores { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         /// <summary>
         /// Channel CID (&lt;type&gt;:&lt;id&gt;)
@@ -3680,19 +3680,19 @@ namespace TestNamespace
         /// Only applicable to `health.check` event
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Connection_id { get; set; }
+        public string ConnectionId { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// User who issued moderation action. Only applicable to moderation-related events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Created_by { get; set; }
+        public UserObject CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("me", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public OwnUser Me { get; set; }
@@ -3707,7 +3707,7 @@ namespace TestNamespace
         /// ID of thread. Used in typing events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Parent_id { get; set; }
+        public string ParentId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("reaction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Reaction Reaction { get; set; }
@@ -3731,13 +3731,13 @@ namespace TestNamespace
         public UserObject User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         /// <summary>
         /// Number of watchers who received this event
         /// </summary>
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Watcher_count { get; set; }
+        public double WatcherCount { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3766,16 +3766,16 @@ namespace TestNamespace
         /// Only applicable to `message.flagged` event.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automoderation_scores", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ModerationResponseRequest Automoderation_scores { get; set; }
+        public ModerationResponseRequest AutomoderationScores { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelResponseRequest Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         /// <summary>
         /// Channel CID (&lt;type&gt;:&lt;id&gt;)
@@ -3787,19 +3787,19 @@ namespace TestNamespace
         /// Only applicable to `health.check` event
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Connection_id { get; set; }
+        public string ConnectionId { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// User who issued moderation action. Only applicable to moderation-related events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequest Created_by { get; set; }
+        public UserObjectRequest CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("me", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public OwnUserRequest Me { get; set; }
@@ -3814,7 +3814,7 @@ namespace TestNamespace
         /// ID of thread. Used in typing events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Parent_id { get; set; }
+        public string ParentId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("reaction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ReactionRequest Reaction { get; set; }
@@ -3838,13 +3838,13 @@ namespace TestNamespace
         public UserObjectRequest User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         /// <summary>
         /// Number of watchers who received this event
         /// </summary>
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Watcher_count { get; set; }
+        public double WatcherCount { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3893,13 +3893,13 @@ namespace TestNamespace
         /// Set if deleted message text should be cleared
         /// </summary>
         [Newtonsoft.Json.JsonProperty("clear_deleted_message_text", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Clear_deleted_message_text { get; set; }
+        public bool ClearDeletedMessageText { get; set; }
 
         /// <summary>
         /// Set if you want to include truncated messages
         /// </summary>
         [Newtonsoft.Json.JsonProperty("include_truncated_messages", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Include_truncated_messages { get; set; }
+        public bool IncludeTruncatedMessages { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3922,7 +3922,7 @@ namespace TestNamespace
         public string Duration { get; set; }
 
         [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Task_id { get; set; }
+        public string TaskId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -3948,7 +3948,7 @@ namespace TestNamespace
         /// S3 bucket name result
         /// </summary>
         [Newtonsoft.Json.JsonProperty("s3_bucket_name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string S3_bucket_name { get; set; }
+        public string S3BucketName { get; set; }
 
         /// <summary>
         /// URL of result
@@ -4066,16 +4066,16 @@ namespace TestNamespace
     public partial class FileUploadConfig
     {
         [Newtonsoft.Json.JsonProperty("allowed_file_extensions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Allowed_file_extensions { get; set; }
+        public System.Collections.Generic.ICollection<string> AllowedFileExtensions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("allowed_mime_types", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Allowed_mime_types { get; set; }
+        public System.Collections.Generic.ICollection<string> AllowedMimeTypes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("blocked_file_extensions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Blocked_file_extensions { get; set; }
+        public System.Collections.Generic.ICollection<string> BlockedFileExtensions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("blocked_mime_types", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Blocked_mime_types { get; set; }
+        public System.Collections.Generic.ICollection<string> BlockedMimeTypes { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -4092,16 +4092,16 @@ namespace TestNamespace
     public partial class FileUploadConfigRequest
     {
         [Newtonsoft.Json.JsonProperty("allowed_file_extensions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Allowed_file_extensions { get; set; }
+        public System.Collections.Generic.ICollection<string> AllowedFileExtensions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("allowed_mime_types", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Allowed_mime_types { get; set; }
+        public System.Collections.Generic.ICollection<string> AllowedMimeTypes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("blocked_file_extensions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Blocked_file_extensions { get; set; }
+        public System.Collections.Generic.ICollection<string> BlockedFileExtensions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("blocked_mime_types", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Blocked_mime_types { get; set; }
+        public System.Collections.Generic.ICollection<string> BlockedMimeTypes { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -4161,13 +4161,13 @@ namespace TestNamespace
     public partial class FirebaseConfigFields
     {
         [Newtonsoft.Json.JsonProperty("data_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Data_template { get; set; }
+        public string DataTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Enabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("notification_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Notification_template { get; set; }
+        public string NotificationTemplate { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -4184,16 +4184,16 @@ namespace TestNamespace
     public partial class FirebaseConfigRequest
     {
         [Newtonsoft.Json.JsonProperty("credentials_json", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Credentials_json { get; set; }
+        public string CredentialsJson { get; set; }
 
         [Newtonsoft.Json.JsonProperty("data_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Data_template { get; set; }
+        public string DataTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("notification_template", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Notification_template { get; set; }
+        public string NotificationTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("server_key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Server_key { get; set; }
+        public string ServerKey { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -4216,55 +4216,55 @@ namespace TestNamespace
         /// Date of the approval
         /// </summary>
         [Newtonsoft.Json.JsonProperty("approved_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Approved_at { get; set; }
+        public System.DateTimeOffset ApprovedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_cid { get; set; }
+        public string ChannelCid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_team", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_team { get; set; }
+        public string ChannelTeam { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by_automod", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Created_by_automod { get; set; }
+        public bool CreatedByAutomod { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message_user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_user_id { get; set; }
+        public string MessageUserId { get; set; }
 
         /// <summary>
         /// Date of the rejection
         /// </summary>
         [Newtonsoft.Json.JsonProperty("rejected_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Rejected_at { get; set; }
+        public System.DateTimeOffset RejectedAt { get; set; }
 
         /// <summary>
         /// Date of the review
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reviewed_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Reviewed_at { get; set; }
+        public System.DateTimeOffset ReviewedAt { get; set; }
 
         /// <summary>
         /// ID of flagged message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Target_message_id { get; set; }
+        public string TargetMessageId { get; set; }
 
         /// <summary>
         /// Flagged user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Target_user { get; set; }
+        public UserObject TargetUser { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// User who flagged a message or a user
@@ -4290,13 +4290,13 @@ namespace TestNamespace
         /// ID of the message when reporting a message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Target_message_id { get; set; }
+        public string TargetMessageId { get; set; }
 
         /// <summary>
         /// ID of the user when reporting a user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Target_user_id { get; set; }
+        public string TargetUserId { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -4308,7 +4308,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -4426,7 +4426,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Description, shown in commands auto-completion
@@ -4456,7 +4456,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -4499,7 +4499,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -4527,13 +4527,13 @@ namespace TestNamespace
         public GetExportChannelsStatusResponseStatus Status { get; set; }
 
         [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Task_id { get; set; }
+        public string TaskId { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -4579,16 +4579,16 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<Action> Actions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("asset_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Asset_url { get; set; }
+        public string AssetUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_icon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_icon { get; set; }
+        public string AuthorIcon { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_link", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_link { get; set; }
+        public string AuthorLink { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Author_name { get; set; }
+        public string AuthorName { get; set; }
 
         [Newtonsoft.Json.JsonProperty("color", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Color { get; set; }
@@ -4609,16 +4609,16 @@ namespace TestNamespace
         public string Footer { get; set; }
 
         [Newtonsoft.Json.JsonProperty("footer_icon", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Footer_icon { get; set; }
+        public string FooterIcon { get; set; }
 
         [Newtonsoft.Json.JsonProperty("giphy", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Images Giphy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Image_url { get; set; }
+        public string ImageUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("og_scrape_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Og_scrape_url { get; set; }
+        public string OgScrapeUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("pretext", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Pretext { get; set; }
@@ -4627,13 +4627,13 @@ namespace TestNamespace
         public string Text { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thumb_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Thumb_url { get; set; }
+        public string ThumbUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("title", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Title { get; set; }
 
         [Newtonsoft.Json.JsonProperty("title_link", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Title_link { get; set; }
+        public string TitleLink { get; set; }
 
         /// <summary>
         /// Attachment type (e.g. image, video, url)
@@ -4677,7 +4677,7 @@ namespace TestNamespace
         /// Map of endpoint rate limits for the server-side platform
         /// </summary>
         [Newtonsoft.Json.JsonProperty("server_side", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, LimitInfo> Server_side { get; set; }
+        public System.Collections.Generic.IDictionary<string, LimitInfo> ServerSide { get; set; }
 
         /// <summary>
         /// Map of endpoint rate limits for the web platform
@@ -4778,7 +4778,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -4806,13 +4806,13 @@ namespace TestNamespace
         public GetTaskResponseStatus Status { get; set; }
 
         [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Task_id { get; set; }
+        public string TaskId { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -4849,7 +4849,7 @@ namespace TestNamespace
         /// Authentication token to use for guest user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("access_token", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Access_token { get; set; }
+        public string AccessToken { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -4881,7 +4881,7 @@ namespace TestNamespace
         /// Whether to clear message history of the channel or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("clear_history", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Clear_history { get; set; }
+        public bool ClearHistory { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -4893,7 +4893,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -5114,7 +5114,7 @@ namespace TestNamespace
         /// multipart/form-data field with JSON-encoded array of image size configurations
         /// </summary>
         [Newtonsoft.Json.JsonProperty("upload_sizes", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ImageSizeRequest> Upload_sizes { get; set; }
+        public System.Collections.Generic.ICollection<ImageSizeRequest> UploadSizes { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -5140,7 +5140,7 @@ namespace TestNamespace
         public string File { get; set; }
 
         [Newtonsoft.Json.JsonProperty("upload_sizes", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ImageSize> Upload_sizes { get; set; }
+        public System.Collections.Generic.ICollection<ImageSize> UploadSizes { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -5157,22 +5157,22 @@ namespace TestNamespace
     public partial class Images
     {
         [Newtonsoft.Json.JsonProperty("fixed_height", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageData Fixed_height { get; set; }
+        public ImageData FixedHeight { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_height_downsampled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageData Fixed_height_downsampled { get; set; }
+        public ImageData FixedHeightDownsampled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_height_still", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageData Fixed_height_still { get; set; }
+        public ImageData FixedHeightStill { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_width", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageData Fixed_width { get; set; }
+        public ImageData FixedWidth { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_width_downsampled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageData Fixed_width_downsampled { get; set; }
+        public ImageData FixedWidthDownsampled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_width_still", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageData Fixed_width_still { get; set; }
+        public ImageData FixedWidthStill { get; set; }
 
         [Newtonsoft.Json.JsonProperty("original", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ImageData Original { get; set; }
@@ -5192,22 +5192,22 @@ namespace TestNamespace
     public partial class ImagesRequest
     {
         [Newtonsoft.Json.JsonProperty("fixed_height", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataRequest Fixed_height { get; set; }
+        public ImageDataRequest FixedHeight { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_height_downsampled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataRequest Fixed_height_downsampled { get; set; }
+        public ImageDataRequest FixedHeightDownsampled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_height_still", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataRequest Fixed_height_still { get; set; }
+        public ImageDataRequest FixedHeightStill { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_width", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataRequest Fixed_width { get; set; }
+        public ImageDataRequest FixedWidth { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_width_downsampled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataRequest Fixed_width_downsampled { get; set; }
+        public ImageDataRequest FixedWidthDownsampled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fixed_width_still", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataRequest Fixed_width_still { get; set; }
+        public ImageDataRequest FixedWidthStill { get; set; }
 
         [Newtonsoft.Json.JsonProperty("original", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ImageDataRequest Original { get; set; }
@@ -5360,7 +5360,7 @@ namespace TestNamespace
         /// Object with all channel types
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_types", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, ChannelTypeConfig> Channel_types { get; set; }
+        public System.Collections.Generic.IDictionary<string, ChannelTypeConfig> ChannelTypes { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -5504,7 +5504,7 @@ namespace TestNamespace
         /// Map which binds a CID to a message ID that is considered last read by client. If message ID is empty, the whole channel will be considered as read
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_by_channel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> Read_by_channel { get; set; }
+        public System.Collections.Generic.IDictionary<string, string> ReadByChannel { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -5516,7 +5516,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -5536,7 +5536,7 @@ namespace TestNamespace
         /// ID of the message that is considered last read by client
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_id { get; set; }
+        public string MessageId { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -5548,7 +5548,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -5629,7 +5629,7 @@ namespace TestNamespace
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
         /// </summary>
         [Newtonsoft.Json.JsonProperty("before_message_send_failed", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Before_message_send_failed { get; set; }
+        public bool BeforeMessageSendFailed { get; set; }
 
         /// <summary>
         /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
@@ -5647,13 +5647,13 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -5677,19 +5677,19 @@ namespace TestNamespace
         /// Contains image moderation information
         /// </summary>
         [Newtonsoft.Json.JsonProperty("image_labels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Image_labels { get; set; }
+        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> ImageLabels { get; set; }
 
         /// <summary>
         /// List of 10 latest reactions to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("latest_reactions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Reaction> Latest_reactions { get; set; }
+        public System.Collections.Generic.ICollection<Reaction> LatestReactions { get; set; }
 
         /// <summary>
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Mentioned_users { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -5701,19 +5701,19 @@ namespace TestNamespace
         /// List of 10 latest reactions of authenticated user to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_reactions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Reaction> Own_reactions { get; set; }
+        public System.Collections.Generic.ICollection<Reaction> OwnReactions { get; set; }
 
         /// <summary>
         /// ID of parent message (thread)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Parent_id { get; set; }
+        public string ParentId { get; set; }
 
         /// <summary>
         /// Date when pinned message expires
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pin_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Pin_expires { get; set; }
+        public System.DateTimeOffset PinExpires { get; set; }
 
         /// <summary>
         /// Whether message is pinned or not
@@ -5725,40 +5725,40 @@ namespace TestNamespace
         /// Date when message got pinned
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Pinned_at { get; set; }
+        public System.DateTimeOffset PinnedAt { get; set; }
 
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Pinned_by { get; set; }
+        public UserObject PinnedBy { get; set; }
 
         /// <summary>
         /// Contains quoted message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("quoted_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Message Quoted_message { get; set; }
+        public Message QuotedMessage { get; set; }
 
         [Newtonsoft.Json.JsonProperty("quoted_message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Quoted_message_id { get; set; }
+        public string QuotedMessageId { get; set; }
 
         /// <summary>
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, double> Reaction_counts { get; set; }
+        public System.Collections.Generic.IDictionary<string, double> ReactionCounts { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, double> Reaction_scores { get; set; }
+        public System.Collections.Generic.IDictionary<string, double> ReactionScores { get; set; }
 
         /// <summary>
         /// Number of replies to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reply_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Reply_count { get; set; }
+        public double ReplyCount { get; set; }
 
         /// <summary>
         /// Whether the message was shadowed or not
@@ -5770,7 +5770,7 @@ namespace TestNamespace
         /// Whether thread reply should be shown in the channel as well
         /// </summary>
         [Newtonsoft.Json.JsonProperty("show_in_channel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Show_in_channel { get; set; }
+        public bool ShowInChannel { get; set; }
 
         /// <summary>
         /// Whether message is silent or not
@@ -5788,7 +5788,7 @@ namespace TestNamespace
         /// List of users who participate in thread
         /// </summary>
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> ThreadParticipants { get; set; }
 
         /// <summary>
         /// Contains type of the message
@@ -5801,7 +5801,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Sender of the message. Required when using server-side API
@@ -5827,7 +5827,7 @@ namespace TestNamespace
         /// Data to execute command with
         /// </summary>
         [Newtonsoft.Json.JsonProperty("form_data", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> Form_data { get; set; } = new System.Collections.Generic.Dictionary<string, string>();
+        public System.Collections.Generic.IDictionary<string, string> FormData { get; set; } = new System.Collections.Generic.Dictionary<string, string>();
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -5839,7 +5839,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -5856,31 +5856,31 @@ namespace TestNamespace
     public partial class MessageFlag
     {
         [Newtonsoft.Json.JsonProperty("approved_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Approved_at { get; set; }
+        public System.DateTimeOffset ApprovedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by_automod", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Created_by_automod { get; set; }
+        public bool CreatedByAutomod { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
 
         [Newtonsoft.Json.JsonProperty("moderation_result", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageModerationResult Moderation_result { get; set; }
+        public MessageModerationResult ModerationResult { get; set; }
 
         [Newtonsoft.Json.JsonProperty("rejected_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Rejected_at { get; set; }
+        public System.DateTimeOffset RejectedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("reviewed_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Reviewed_at { get; set; }
+        public System.DateTimeOffset ReviewedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("reviewed_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Reviewed_by { get; set; }
+        public UserObject ReviewedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObject User { get; set; }
@@ -5903,34 +5903,34 @@ namespace TestNamespace
         public string Action { get; set; }
 
         [Newtonsoft.Json.JsonProperty("ai_moderation_response", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ModerationResponse Ai_moderation_response { get; set; }
+        public ModerationResponse AiModerationResponse { get; set; }
 
         [Newtonsoft.Json.JsonProperty("blocked_word", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Blocked_word { get; set; }
+        public string BlockedWord { get; set; }
 
         [Newtonsoft.Json.JsonProperty("blocklist_name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Blocklist_name { get; set; }
+        public string BlocklistName { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_id { get; set; }
+        public string MessageId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("moderated_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Moderated_by { get; set; }
+        public string ModeratedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("moderation_thresholds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Thresholds Moderation_thresholds { get; set; }
+        public Thresholds ModerationThresholds { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_bad_karma", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool User_bad_karma { get; set; }
+        public bool UserBadKarma { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_karma", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float User_karma { get; set; }
+        public float UserKarma { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -5947,34 +5947,34 @@ namespace TestNamespace
     public partial class MessagePaginationParamsRequest
     {
         [Newtonsoft.Json.JsonProperty("created_at_after", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_after { get; set; }
+        public System.DateTimeOffset CreatedAtAfter { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_after_or_equal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_after_or_equal { get; set; }
+        public System.DateTimeOffset CreatedAtAfterOrEqual { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_around", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_around { get; set; }
+        public System.DateTimeOffset CreatedAtAround { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_before { get; set; }
+        public System.DateTimeOffset CreatedAtBefore { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_before_or_equal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_before_or_equal { get; set; }
+        public System.DateTimeOffset CreatedAtBeforeOrEqual { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id_around", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_around { get; set; }
+        public string IdAround { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id_gt", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_gt { get; set; }
+        public string IdGt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id_gte", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_gte { get; set; }
+        public string IdGte { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id_lt", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_lt { get; set; }
+        public string IdLt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id_lte", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_lte { get; set; }
+        public string IdLte { get; set; }
 
         [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Limit { get; set; }
@@ -6027,7 +6027,7 @@ namespace TestNamespace
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Mentioned_users { get; set; }
+        public System.Collections.Generic.ICollection<string> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -6039,13 +6039,13 @@ namespace TestNamespace
         /// ID of parent message (thread)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Parent_id { get; set; }
+        public string ParentId { get; set; }
 
         /// <summary>
         /// Date when pinned message expires
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pin_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Pin_expires { get; set; }
+        public System.DateTimeOffset PinExpires { get; set; }
 
         /// <summary>
         /// Whether message is pinned or not
@@ -6057,28 +6057,28 @@ namespace TestNamespace
         /// Date when message got pinned
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<double> Pinned_at { get; set; }
+        public System.Collections.Generic.ICollection<double> PinnedAt { get; set; }
 
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<double> Pinned_by { get; set; }
+        public System.Collections.Generic.ICollection<double> PinnedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("quoted_message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Quoted_message_id { get; set; }
+        public string QuotedMessageId { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<double> Reaction_scores { get; set; }
+        public System.Collections.Generic.ICollection<double> ReactionScores { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well
         /// </summary>
         [Newtonsoft.Json.JsonProperty("show_in_channel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Show_in_channel { get; set; }
+        public bool ShowInChannel { get; set; }
 
         /// <summary>
         /// Whether message is silent or not
@@ -6099,7 +6099,7 @@ namespace TestNamespace
         public UserObjectRequest User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6128,7 +6128,7 @@ namespace TestNamespace
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
         /// </summary>
         [Newtonsoft.Json.JsonProperty("before_message_send_failed", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Before_message_send_failed { get; set; }
+        public bool BeforeMessageSendFailed { get; set; }
 
         /// <summary>
         /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
@@ -6146,13 +6146,13 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -6176,19 +6176,19 @@ namespace TestNamespace
         /// Contains image moderation information
         /// </summary>
         [Newtonsoft.Json.JsonProperty("image_labels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Image_labels { get; set; }
+        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> ImageLabels { get; set; }
 
         /// <summary>
         /// List of 10 latest reactions to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("latest_reactions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ReactionRequest> Latest_reactions { get; set; }
+        public System.Collections.Generic.ICollection<ReactionRequest> LatestReactions { get; set; }
 
         /// <summary>
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObjectRequest> Mentioned_users { get; set; }
+        public System.Collections.Generic.ICollection<UserObjectRequest> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -6200,19 +6200,19 @@ namespace TestNamespace
         /// List of 10 latest reactions of authenticated user to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_reactions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ReactionRequest> Own_reactions { get; set; }
+        public System.Collections.Generic.ICollection<ReactionRequest> OwnReactions { get; set; }
 
         /// <summary>
         /// ID of parent message (thread)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Parent_id { get; set; }
+        public string ParentId { get; set; }
 
         /// <summary>
         /// Date when pinned message expires
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pin_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Pin_expires { get; set; }
+        public System.DateTimeOffset PinExpires { get; set; }
 
         /// <summary>
         /// Whether message is pinned or not
@@ -6224,40 +6224,40 @@ namespace TestNamespace
         /// Date when message got pinned
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Pinned_at { get; set; }
+        public System.DateTimeOffset PinnedAt { get; set; }
 
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequest Pinned_by { get; set; }
+        public UserObjectRequest PinnedBy { get; set; }
 
         /// <summary>
         /// Contains quoted message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("quoted_message", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageRequest_1 Quoted_message { get; set; }
+        public MessageRequest_1 QuotedMessage { get; set; }
 
         [Newtonsoft.Json.JsonProperty("quoted_message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Quoted_message_id { get; set; }
+        public string QuotedMessageId { get; set; }
 
         /// <summary>
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, double> Reaction_counts { get; set; }
+        public System.Collections.Generic.IDictionary<string, double> ReactionCounts { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, double> Reaction_scores { get; set; }
+        public System.Collections.Generic.IDictionary<string, double> ReactionScores { get; set; }
 
         /// <summary>
         /// Number of replies to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reply_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Reply_count { get; set; }
+        public double ReplyCount { get; set; }
 
         /// <summary>
         /// Whether the message was shadowed or not
@@ -6269,7 +6269,7 @@ namespace TestNamespace
         /// Whether thread reply should be shown in the channel as well
         /// </summary>
         [Newtonsoft.Json.JsonProperty("show_in_channel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Show_in_channel { get; set; }
+        public bool ShowInChannel { get; set; }
 
         /// <summary>
         /// Whether message is silent or not
@@ -6287,7 +6287,7 @@ namespace TestNamespace
         /// List of users who participate in thread
         /// </summary>
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObjectRequest> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObjectRequest> ThreadParticipants { get; set; }
 
         /// <summary>
         /// Contains type of the message
@@ -6300,7 +6300,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Sender of the message. Required when using server-side API
@@ -6395,7 +6395,7 @@ namespace TestNamespace
         /// Channel CIDs to mute (if multiple channels)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Channel_cids { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.ICollection<string> ChannelCids { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         /// <summary>
         /// Duration of mute in milliseconds
@@ -6413,7 +6413,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6433,13 +6433,13 @@ namespace TestNamespace
         /// Object with channel mute (if one channel was muted)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_mute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ChannelMute Channel_mute { get; set; }
+        public ChannelMute ChannelMute { get; set; }
 
         /// <summary>
         /// Object with mutes (if multiple channels were muted)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_mutes", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMute> Channel_mutes { get; set; }
+        public System.Collections.Generic.ICollection<ChannelMute> ChannelMutes { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -6451,7 +6451,7 @@ namespace TestNamespace
         /// Authorized user object with fresh mutes information
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public OwnUser Own_user { get; set; }
+        public OwnUser OwnUser { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6471,7 +6471,7 @@ namespace TestNamespace
         /// User IDs to mute (if multiple users)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_ids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Target_ids { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.ICollection<string> TargetIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         /// <summary>
         /// Duration of mute in minutes
@@ -6489,7 +6489,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6527,7 +6527,7 @@ namespace TestNamespace
         /// Authorized user object with fresh mutes information
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public OwnUser Own_user { get; set; }
+        public OwnUser OwnUser { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6547,16 +6547,16 @@ namespace TestNamespace
         public bool Banned { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_mutes", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMute> Channel_mutes { get; set; }
+        public System.Collections.Generic.ICollection<ChannelMute> ChannelMutes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deactivated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deactivated_at { get; set; }
+        public System.DateTimeOffset DeactivatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("devices", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Device> Devices { get; set; }
@@ -6571,10 +6571,10 @@ namespace TestNamespace
         public string Language { get; set; }
 
         [Newtonsoft.Json.JsonProperty("last_active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Last_active { get; set; }
+        public System.DateTimeOffset LastActive { get; set; }
 
         [Newtonsoft.Json.JsonProperty("latest_hidden_channels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Latest_hidden_channels { get; set; }
+        public System.Collections.Generic.ICollection<string> LatestHiddenChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("mutes", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<UserMute> Mutes { get; set; }
@@ -6583,7 +6583,7 @@ namespace TestNamespace
         public bool Online { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushNotificationSettings Push_notifications { get; set; }
+        public PushNotificationSettings PushNotifications { get; set; }
 
         [Newtonsoft.Json.JsonProperty("role", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Role { get; set; }
@@ -6592,16 +6592,16 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<string> Teams { get; set; }
 
         [Newtonsoft.Json.JsonProperty("total_unread_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Total_unread_count { get; set; }
+        public double TotalUnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_channels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Unread_channels { get; set; }
+        public double UnreadChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Unread_count { get; set; }
+        public double UnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6621,16 +6621,16 @@ namespace TestNamespace
         public bool Banned { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_mutes", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMuteRequest> Channel_mutes { get; set; }
+        public System.Collections.Generic.ICollection<ChannelMuteRequest> ChannelMutes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deactivated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deactivated_at { get; set; }
+        public System.DateTimeOffset DeactivatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("devices", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<DeviceRequest> Devices { get; set; }
@@ -6645,10 +6645,10 @@ namespace TestNamespace
         public string Language { get; set; }
 
         [Newtonsoft.Json.JsonProperty("last_active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Last_active { get; set; }
+        public System.DateTimeOffset LastActive { get; set; }
 
         [Newtonsoft.Json.JsonProperty("latest_hidden_channels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Latest_hidden_channels { get; set; }
+        public System.Collections.Generic.ICollection<string> LatestHiddenChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("mutes", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<UserMuteRequest> Mutes { get; set; }
@@ -6657,7 +6657,7 @@ namespace TestNamespace
         public bool Online { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushNotificationSettingsRequest Push_notifications { get; set; }
+        public PushNotificationSettingsRequest PushNotifications { get; set; }
 
         [Newtonsoft.Json.JsonProperty("role", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Role { get; set; }
@@ -6666,16 +6666,16 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<string> Teams { get; set; }
 
         [Newtonsoft.Json.JsonProperty("total_unread_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Total_unread_count { get; set; }
+        public double TotalUnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_channels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Unread_channels { get; set; }
+        public double UnreadChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Unread_count { get; set; }
+        public double UnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6692,16 +6692,16 @@ namespace TestNamespace
     public partial class PaginationParamsRequest
     {
         [Newtonsoft.Json.JsonProperty("id_gt", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Id_gt { get; set; }
+        public double IdGt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id_gte", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Id_gte { get; set; }
+        public double IdGte { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id_lt", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Id_lt { get; set; }
+        public double IdLt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id_lte", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Id_lte { get; set; }
+        public double IdLte { get; set; }
 
         [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Limit { get; set; }
@@ -6776,7 +6776,7 @@ namespace TestNamespace
         /// Whether this permission applies to teammates (multi-tenancy mode only)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("same_team", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Same_team { get; set; }
+        public bool SameTeam { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6796,7 +6796,7 @@ namespace TestNamespace
         public double Action { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
@@ -6814,7 +6814,7 @@ namespace TestNamespace
         public System.Collections.Generic.ICollection<string> Roles { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6974,7 +6974,7 @@ namespace TestNamespace
         public bool Disabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disabled_until", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Disabled_until { get; set; }
+        public System.DateTimeOffset DisabledUntil { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -6994,7 +6994,7 @@ namespace TestNamespace
         public bool Disabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disabled_until", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Disabled_until { get; set; }
+        public System.DateTimeOffset DisabledUntil { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7011,19 +7011,19 @@ namespace TestNamespace
     public partial class QueryBannedUsersRequest
     {
         [Newtonsoft.Json.JsonProperty("created_at_after", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_after { get; set; }
+        public System.DateTimeOffset CreatedAtAfter { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_after_or_equal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_after_or_equal { get; set; }
+        public System.DateTimeOffset CreatedAtAfterOrEqual { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_before { get; set; }
+        public System.DateTimeOffset CreatedAtBefore { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_before_or_equal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_before_or_equal { get; set; }
+        public System.DateTimeOffset CreatedAtBeforeOrEqual { get; set; }
 
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> Filter_conditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Limit { get; set; }
@@ -7044,7 +7044,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7087,10 +7087,10 @@ namespace TestNamespace
         /// Websocket connection ID to interact with. You can pass it as body or URL parameter
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Connection_id { get; set; }
+        public string ConnectionId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> Filter_conditions { get; set; }
+        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; }
 
         /// <summary>
         /// Number of channels to limit
@@ -7102,13 +7102,13 @@ namespace TestNamespace
         /// Number of members to limit
         /// </summary>
         [Newtonsoft.Json.JsonProperty("member_limit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Member_limit { get; set; }
+        public double MemberLimit { get; set; }
 
         /// <summary>
         /// Number of messages to limit
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_limit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Message_limit { get; set; }
+        public double MessageLimit { get; set; }
 
         /// <summary>
         /// Channel pagination offset
@@ -7141,7 +7141,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         /// <summary>
         /// Whether to start watching found channels or not
@@ -7164,22 +7164,22 @@ namespace TestNamespace
     public partial class QueryMembersRequest
     {
         [Newtonsoft.Json.JsonProperty("created_at_after", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_after { get; set; }
+        public System.DateTimeOffset CreatedAtAfter { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_after_or_equal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_after_or_equal { get; set; }
+        public System.DateTimeOffset CreatedAtAfterOrEqual { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_before { get; set; }
+        public System.DateTimeOffset CreatedAtBefore { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at_before_or_equal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at_before_or_equal { get; set; }
+        public System.DateTimeOffset CreatedAtBeforeOrEqual { get; set; }
 
         /// <summary>
         /// Filter to apply to members
         /// </summary>
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> Filter_conditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         /// <summary>
         /// Channel ID to interact with
@@ -7221,19 +7221,19 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id_gt", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id_gt { get; set; }
+        public string UserIdGt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id_gte", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id_gte { get; set; }
+        public string UserIdGte { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id_lt", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id_lt { get; set; }
+        public string UserIdLt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id_lte", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id_lte { get; set; }
+        public string UserIdLte { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7250,7 +7250,7 @@ namespace TestNamespace
     public partial class QueryMessageFlagsRequest
     {
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> Filter_conditions { get; set; }
+        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Limit { get; set; }
@@ -7268,7 +7268,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7311,37 +7311,37 @@ namespace TestNamespace
         /// Websocket connection ID to interact with. You can pass it as body or URL parameter
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Connection_id { get; set; }
+        public string ConnectionId { get; set; }
 
         /// <summary>
         /// User filters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> Filter_conditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         /// <summary>
         /// Matches IDs that are greater than the specified ID
         /// </summary>
         [Newtonsoft.Json.JsonProperty("id_gt", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_gt { get; set; }
+        public string IdGt { get; set; }
 
         /// <summary>
         /// Matches IDs that are greater than or equal to the specified ID
         /// </summary>
         [Newtonsoft.Json.JsonProperty("id_gte", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_gte { get; set; }
+        public string IdGte { get; set; }
 
         /// <summary>
         /// Matches IDs that are less than the specified ID
         /// </summary>
         [Newtonsoft.Json.JsonProperty("id_lt", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_lt { get; set; }
+        public string IdLt { get; set; }
 
         /// <summary>
         /// Matches IDs that are less than or equal to the specified ID
         /// </summary>
         [Newtonsoft.Json.JsonProperty("id_lte", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id_lte { get; set; }
+        public string IdLte { get; set; }
 
         /// <summary>
         /// Number of records to return
@@ -7377,7 +7377,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7400,13 +7400,13 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// ID of a message user reacted to
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_id { get; set; }
+        public string MessageId { get; set; }
 
         /// <summary>
         /// Reaction score. If not specified reaction has score of 1
@@ -7424,7 +7424,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObject User { get; set; }
@@ -7433,7 +7433,7 @@ namespace TestNamespace
         /// ID of a user who reacted to a message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7482,7 +7482,7 @@ namespace TestNamespace
         /// ID of a message user reacted to
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_id { get; set; }
+        public string MessageId { get; set; }
 
         /// <summary>
         /// Reaction score. If not specified reaction has score of 1
@@ -7503,7 +7503,7 @@ namespace TestNamespace
         /// ID of a user who reacted to a message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7549,7 +7549,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID who's reactivating the user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Created_by_id { get; set; }
+        public string CreatedById { get; set; }
 
         /// <summary>
         /// Set this field to put new name for the user
@@ -7561,10 +7561,10 @@ namespace TestNamespace
         /// Restore previously deleted messages
         /// </summary>
         [Newtonsoft.Json.JsonProperty("restore_messages", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Restore_messages { get; set; }
+        public bool RestoreMessages { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7604,10 +7604,10 @@ namespace TestNamespace
     public partial class Read
     {
         [Newtonsoft.Json.JsonProperty("last_read", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Last_read { get; set; }
+        public System.DateTimeOffset LastRead { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_messages", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Unread_messages { get; set; }
+        public double UnreadMessages { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObject User { get; set; }
@@ -7688,7 +7688,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Whether this is a custom role or built-in
@@ -7712,7 +7712,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7729,7 +7729,7 @@ namespace TestNamespace
     public partial class ScheduleCampaignRequest
     {
         [Newtonsoft.Json.JsonProperty("send_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Send_at { get; set; }
+        public double SendAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7772,7 +7772,7 @@ namespace TestNamespace
         /// Channel filter conditions
         /// </summary>
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> Filter_conditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         /// <summary>
         /// Number of messages to return
@@ -7784,7 +7784,7 @@ namespace TestNamespace
         /// Message filter conditions
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_filter_conditions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> Message_filter_conditions { get; set; }
+        public System.Collections.Generic.IDictionary<string, object> MessageFilterConditions { get; set; }
 
         /// <summary>
         /// Pagination parameter. Cannot be used with non-zero offset.
@@ -7852,7 +7852,7 @@ namespace TestNamespace
         /// Warning about the search results
         /// </summary>
         [Newtonsoft.Json.JsonProperty("results_warning", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public SearchWarning Results_warning { get; set; }
+        public SearchWarning ResultsWarning { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -7898,7 +7898,7 @@ namespace TestNamespace
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
         /// </summary>
         [Newtonsoft.Json.JsonProperty("before_message_send_failed", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Before_message_send_failed { get; set; }
+        public bool BeforeMessageSendFailed { get; set; }
 
         /// <summary>
         /// Channel object
@@ -7922,13 +7922,13 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -7952,19 +7952,19 @@ namespace TestNamespace
         /// Contains image moderation information
         /// </summary>
         [Newtonsoft.Json.JsonProperty("image_labels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Image_labels { get; set; }
+        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> ImageLabels { get; set; }
 
         /// <summary>
         /// List of 10 latest reactions to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("latest_reactions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Reaction> Latest_reactions { get; set; }
+        public System.Collections.Generic.ICollection<Reaction> LatestReactions { get; set; }
 
         /// <summary>
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Mentioned_users { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -7976,19 +7976,19 @@ namespace TestNamespace
         /// List of 10 latest reactions of authenticated user to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_reactions", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Reaction> Own_reactions { get; set; }
+        public System.Collections.Generic.ICollection<Reaction> OwnReactions { get; set; }
 
         /// <summary>
         /// ID of parent message (thread)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Parent_id { get; set; }
+        public string ParentId { get; set; }
 
         /// <summary>
         /// Date when pinned message expires
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pin_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Pin_expires { get; set; }
+        public System.DateTimeOffset PinExpires { get; set; }
 
         /// <summary>
         /// Whether message is pinned or not
@@ -8000,40 +8000,40 @@ namespace TestNamespace
         /// Date when message got pinned
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Pinned_at { get; set; }
+        public System.DateTimeOffset PinnedAt { get; set; }
 
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Pinned_by { get; set; }
+        public UserObject PinnedBy { get; set; }
 
         /// <summary>
         /// Contains quoted message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("quoted_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Message Quoted_message { get; set; }
+        public Message QuotedMessage { get; set; }
 
         [Newtonsoft.Json.JsonProperty("quoted_message_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Quoted_message_id { get; set; }
+        public string QuotedMessageId { get; set; }
 
         /// <summary>
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, double> Reaction_counts { get; set; }
+        public System.Collections.Generic.IDictionary<string, double> ReactionCounts { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, double> Reaction_scores { get; set; }
+        public System.Collections.Generic.IDictionary<string, double> ReactionScores { get; set; }
 
         /// <summary>
         /// Number of replies to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reply_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Reply_count { get; set; }
+        public double ReplyCount { get; set; }
 
         /// <summary>
         /// Whether the message was shadowed or not
@@ -8045,7 +8045,7 @@ namespace TestNamespace
         /// Whether thread reply should be shown in the channel as well
         /// </summary>
         [Newtonsoft.Json.JsonProperty("show_in_channel", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Show_in_channel { get; set; }
+        public bool ShowInChannel { get; set; }
 
         /// <summary>
         /// Whether message is silent or not
@@ -8063,7 +8063,7 @@ namespace TestNamespace
         /// List of users who participate in thread
         /// </summary>
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> ThreadParticipants { get; set; }
 
         /// <summary>
         /// Contains type of the message
@@ -8076,7 +8076,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Sender of the message. Required when using server-side API
@@ -8102,25 +8102,25 @@ namespace TestNamespace
         /// Channel CIDs for the searched channels
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_search_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Channel_search_cids { get; set; }
+        public System.Collections.Generic.ICollection<string> ChannelSearchCids { get; set; }
 
         /// <summary>
         /// Number of channels searched
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_search_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Channel_search_count { get; set; }
+        public double ChannelSearchCount { get; set; }
 
         /// <summary>
         /// Code corresponding to the warning
         /// </summary>
         [Newtonsoft.Json.JsonProperty("warning_code", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Warning_code { get; set; }
+        public double WarningCode { get; set; }
 
         /// <summary>
         /// Description of the warning
         /// </summary>
         [Newtonsoft.Json.JsonProperty("warning_description", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Warning_description { get; set; }
+        public string WarningDescription { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8137,13 +8137,13 @@ namespace TestNamespace
     public partial class Segment
     {
         [Newtonsoft.Json.JsonProperty("channel_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Channel_count { get; set; }
+        public double ChannelCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Description { get; set; }
@@ -8161,10 +8161,10 @@ namespace TestNamespace
         public string Status { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double User_count { get; set; }
+        public double UserCount { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8293,13 +8293,13 @@ namespace TestNamespace
         /// Do not try to enrich the links within message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_enrich_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_enrich_url { get; set; }
+        public bool SkipEnrichUrl { get; set; }
 
         /// <summary>
         /// Disables all push notifications for this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_push { get; set; }
+        public bool SkipPush { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8319,7 +8319,7 @@ namespace TestNamespace
         /// Whether to replace all existing user reactions
         /// </summary>
         [Newtonsoft.Json.JsonProperty("enforce_unique", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Enforce_unique { get; set; }
+        public bool EnforceUnique { get; set; }
 
         [Newtonsoft.Json.JsonProperty("reaction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ReactionRequest Reaction { get; set; }
@@ -8328,7 +8328,7 @@ namespace TestNamespace
         /// Skips any mobile push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_push { get; set; }
+        public bool SkipPush { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8371,7 +8371,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8509,13 +8509,13 @@ namespace TestNamespace
         /// List of channel CIDs to sync
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Channel_cids { get; set; }
+        public System.Collections.Generic.ICollection<string> ChannelCids { get; set; }
 
         /// <summary>
         /// Date from which synchronization should happen
         /// </summary>
         [Newtonsoft.Json.JsonProperty("last_sync_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Last_sync_at { get; set; }
+        public System.DateTimeOffset LastSyncAt { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -8527,13 +8527,13 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         /// <summary>
         /// If set to true this will add 'inaccessible_cids' to response type
         /// </summary>
         [Newtonsoft.Json.JsonProperty("with_inaccessible_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool With_inaccessible_cids { get; set; }
+        public bool WithInaccessibleCids { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8565,7 +8565,7 @@ namespace TestNamespace
         /// List of CIDs that user can't access
         /// </summary>
         [Newtonsoft.Json.JsonProperty("inaccessible_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Inaccessible_cids { get; set; }
+        public System.Collections.Generic.ICollection<string> InaccessibleCids { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8713,16 +8713,16 @@ namespace TestNamespace
     public partial class TruncateChannelRequest
     {
         [Newtonsoft.Json.JsonProperty("hard_delete", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Hard_delete { get; set; }
+        public bool HardDelete { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageRequest Message { get; set; }
 
         [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_push { get; set; }
+        public bool SkipPush { get; set; }
 
         [Newtonsoft.Json.JsonProperty("truncated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Truncated_at { get; set; }
+        public System.DateTimeOffset TruncatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8768,7 +8768,7 @@ namespace TestNamespace
         /// Channel CIDs to mute (if multiple channels)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Channel_cids { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.ICollection<string> ChannelCids { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         /// <summary>
         /// Duration of mute in milliseconds
@@ -8786,7 +8786,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8826,7 +8826,7 @@ namespace TestNamespace
         /// User IDs to mute (if multiple users)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_ids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Target_ids { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.ICollection<string> TargetIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         /// <summary>
         /// Duration of mute in minutes
@@ -8844,7 +8844,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -8861,87 +8861,87 @@ namespace TestNamespace
     public partial class UpdateAppRequest
     {
         [Newtonsoft.Json.JsonProperty("apn_config", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public APNConfigRequest Apn_config { get; set; }
+        public APNConfigRequest ApnConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("async_url_enrich_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Async_url_enrich_enabled { get; set; }
+        public bool AsyncUrlEnrichEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("auto_translation_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Auto_translation_enabled { get; set; }
+        public bool AutoTranslationEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("before_message_send_hook_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Before_message_send_hook_url { get; set; }
+        public string BeforeMessageSendHookUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_hide_members_only", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Channel_hide_members_only { get; set; }
+        public bool ChannelHideMembersOnly { get; set; }
 
         [Newtonsoft.Json.JsonProperty("custom_action_handler_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Custom_action_handler_url { get; set; }
+        public string CustomActionHandlerUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disable_auth_checks", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Disable_auth_checks { get; set; }
+        public bool DisableAuthChecks { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disable_permissions_checks", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Disable_permissions_checks { get; set; }
+        public bool DisablePermissionsChecks { get; set; }
 
         [Newtonsoft.Json.JsonProperty("enforce_unique_usernames", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public UpdateAppRequestEnforce_unique_usernames Enforce_unique_usernames { get; set; }
+        public UpdateAppRequestEnforceUniqueUsernames EnforceUniqueUsernames { get; set; }
 
         [Newtonsoft.Json.JsonProperty("file_upload_config", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public FileUploadConfigRequest File_upload_config { get; set; }
+        public FileUploadConfigRequest FileUploadConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("firebase_config", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public FirebaseConfigRequest Firebase_config { get; set; }
+        public FirebaseConfigRequest FirebaseConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("huawei_config", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public HuaweiConfigRequest Huawei_config { get; set; }
+        public HuaweiConfigRequest HuaweiConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Image_moderation_enabled { get; set; }
+        public bool ImageModerationEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_labels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Image_moderation_labels { get; set; }
+        public System.Collections.Generic.ICollection<string> ImageModerationLabels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_upload_config", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public FileUploadConfigRequest Image_upload_config { get; set; }
+        public FileUploadConfigRequest ImageUploadConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("migrate_permissions_to_v2", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Migrate_permissions_to_v2 { get; set; }
+        public bool MigratePermissionsToV2 { get; set; }
 
         [Newtonsoft.Json.JsonProperty("multi_tenant_enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Multi_tenant_enabled { get; set; }
+        public bool MultiTenantEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("permission_version", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public UpdateAppRequestPermission_version Permission_version { get; set; }
+        public UpdateAppRequestPermissionVersion PermissionVersion { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_config", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushConfigRequest Push_config { get; set; }
+        public PushConfigRequest PushConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("revoke_tokens_issued_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Revoke_tokens_issued_before { get; set; }
+        public System.DateTimeOffset RevokeTokensIssuedBefore { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sqs_key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_key { get; set; }
+        public string SqsKey { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sqs_secret", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_secret { get; set; }
+        public string SqsSecret { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sqs_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sqs_url { get; set; }
+        public string SqsUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_search_disallowed_roles", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> User_search_disallowed_roles { get; set; }
+        public System.Collections.Generic.ICollection<string> UserSearchDisallowedRoles { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Webhook_events { get; set; }
+        public System.Collections.Generic.ICollection<string> WebhookEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Webhook_url { get; set; }
+        public string WebhookUrl { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -9036,7 +9036,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -9082,25 +9082,25 @@ namespace TestNamespace
         /// Set to `true` to accept the invite
         /// </summary>
         [Newtonsoft.Json.JsonProperty("accept_invite", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Accept_invite { get; set; }
+        public bool AcceptInvite { get; set; }
 
         /// <summary>
         /// List of user IDs to add to the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("add_members", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMemberRequest> Add_members { get; set; }
+        public System.Collections.Generic.ICollection<ChannelMemberRequest> AddMembers { get; set; }
 
         /// <summary>
         /// List of user IDs to make channel moderators
         /// </summary>
         [Newtonsoft.Json.JsonProperty("add_moderators", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Add_moderators { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.ICollection<string> AddModerators { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         /// <summary>
         /// List of channel member role assignments. If any specified user is not part of the channel, the request will fail
         /// </summary>
         [Newtonsoft.Json.JsonProperty("assign_roles", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMemberRequest> Assign_roles { get; set; }
+        public System.Collections.Generic.ICollection<ChannelMemberRequest> AssignRoles { get; set; }
 
         /// <summary>
         /// Sets cool down period for the channel in seconds
@@ -9118,13 +9118,13 @@ namespace TestNamespace
         /// List of user IDs to take away moderators status from
         /// </summary>
         [Newtonsoft.Json.JsonProperty("demote_moderators", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Demote_moderators { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.ICollection<string> DemoteModerators { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         /// <summary>
         /// Set to `true` to hide channel's history when adding new members
         /// </summary>
         [Newtonsoft.Json.JsonProperty("hide_history", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Hide_history { get; set; }
+        public bool HideHistory { get; set; }
 
         /// <summary>
         /// List of user IDs to invite to the channel
@@ -9142,19 +9142,19 @@ namespace TestNamespace
         /// Set to `true` to reject the invite
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reject_invite", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Reject_invite { get; set; }
+        public bool RejectInvite { get; set; }
 
         /// <summary>
         /// List of user IDs to remove from the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("remove_members", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Remove_members { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.ICollection<string> RemoveMembers { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         /// <summary>
         /// When `message` is set disables all push notifications for it
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_push { get; set; }
+        public bool SkipPush { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -9166,7 +9166,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -9223,10 +9223,10 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public UpdateChannelTypeRequestAutomod_behavior Automod_behavior { get; set; }
+        public UpdateChannelTypeRequestAutomodBehavior AutomodBehavior { get; set; }
 
         [Newtonsoft.Json.JsonProperty("automod_thresholds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ThresholdsRequest Automod_thresholds { get; set; }
+        public ThresholdsRequest AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -9239,7 +9239,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public UpdateChannelTypeRequestBlocklist_behavior Blocklist_behavior { get; set; }
+        public UpdateChannelTypeRequestBlocklistBehavior BlocklistBehavior { get; set; }
 
         /// <summary>
         /// List of commands that channel supports
@@ -9251,13 +9251,13 @@ namespace TestNamespace
         /// Connect events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Connect_events { get; set; }
+        public bool ConnectEvents { get; set; }
 
         /// <summary>
         /// Enables custom events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Custom_events { get; set; }
+        public bool CustomEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
@@ -9266,13 +9266,13 @@ namespace TestNamespace
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_retention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_retention { get; set; }
+        public string MessageRetention { get; set; }
 
         /// <summary>
         /// Enables mutes
@@ -9287,7 +9287,7 @@ namespace TestNamespace
         /// Enables push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         /// <summary>
         /// Enables message quotes
@@ -9305,7 +9305,7 @@ namespace TestNamespace
         /// Read events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Read_events { get; set; }
+        public bool ReadEvents { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)
@@ -9323,7 +9323,7 @@ namespace TestNamespace
         /// Typing events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Enables file uploads
@@ -9335,7 +9335,7 @@ namespace TestNamespace
         /// Enables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -9363,10 +9363,10 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public UpdateChannelTypeResponseAutomod_behavior Automod_behavior { get; set; }
+        public UpdateChannelTypeResponseAutomodBehavior AutomodBehavior { get; set; }
 
         [Newtonsoft.Json.JsonProperty("automod_thresholds", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Thresholds Automod_thresholds { get; set; }
+        public Thresholds AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -9379,7 +9379,7 @@ namespace TestNamespace
         /// </summary>
         [Newtonsoft.Json.JsonProperty("blocklist_behavior", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public UpdateChannelTypeResponseBlocklist_behavior Blocklist_behavior { get; set; }
+        public UpdateChannelTypeResponseBlocklistBehavior BlocklistBehavior { get; set; }
 
         /// <summary>
         /// List of commands that channel supports
@@ -9391,19 +9391,19 @@ namespace TestNamespace
         /// Connect events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Connect_events { get; set; }
+        public bool ConnectEvents { get; set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Enables custom events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Custom_events { get; set; }
+        public bool CustomEvents { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -9418,13 +9418,13 @@ namespace TestNamespace
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Max_message_length { get; set; }
+        public double MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_retention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Message_retention { get; set; }
+        public string MessageRetention { get; set; }
 
         /// <summary>
         /// Enables mutes
@@ -9445,7 +9445,7 @@ namespace TestNamespace
         /// Enables push notifications
         /// </summary>
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Push_notifications { get; set; }
+        public bool PushNotifications { get; set; }
 
         /// <summary>
         /// Enables message quotes
@@ -9463,7 +9463,7 @@ namespace TestNamespace
         /// Read events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Read_events { get; set; }
+        public bool ReadEvents { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)
@@ -9481,13 +9481,13 @@ namespace TestNamespace
         /// Typing events support
         /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Typing_events { get; set; }
+        public bool TypingEvents { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Enables file uploads
@@ -9499,7 +9499,7 @@ namespace TestNamespace
         /// Enables URL enrichment
         /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Url_enrichment { get; set; }
+        public bool UrlEnrichment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -9583,7 +9583,7 @@ namespace TestNamespace
         /// Do not try to enrich the links within message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_enrich_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_enrich_url { get; set; }
+        public bool SkipEnrichUrl { get; set; }
 
         /// <summary>
         /// Array of field names to unset
@@ -9601,7 +9601,7 @@ namespace TestNamespace
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User_id { get; set; }
+        public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -9627,7 +9627,7 @@ namespace TestNamespace
         /// Do not try to enrich the links within message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_enrich_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Skip_enrich_url { get; set; }
+        public bool SkipEnrichUrl { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -9762,7 +9762,7 @@ namespace TestNamespace
     public partial class UserCustomEventRequest
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -9785,7 +9785,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date/time of mute expiration
@@ -9803,7 +9803,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Owner of channel mute
@@ -9829,7 +9829,7 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date/time of mute expiration
@@ -9847,7 +9847,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Owner of channel mute
@@ -9876,7 +9876,7 @@ namespace TestNamespace
         /// Expiration date of the ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ban_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Ban_expires { get; set; }
+        public System.DateTimeOffset BanExpires { get; set; }
 
         /// <summary>
         /// Whether a user is banned or not
@@ -9888,19 +9888,19 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date of deactivation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deactivated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deactivated_at { get; set; }
+        public System.DateTimeOffset DeactivatedAt { get; set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         /// <summary>
         /// Unique user identifier
@@ -9921,7 +9921,7 @@ namespace TestNamespace
         /// Date of last activity
         /// </summary>
         [Newtonsoft.Json.JsonProperty("last_active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Last_active { get; set; }
+        public System.DateTimeOffset LastActive { get; set; }
 
         /// <summary>
         /// Whether a user online or not
@@ -9930,13 +9930,13 @@ namespace TestNamespace
         public bool Online { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushNotificationSettings Push_notifications { get; set; }
+        public PushNotificationSettings PushNotifications { get; set; }
 
         /// <summary>
         /// Revocation date for tokens
         /// </summary>
         [Newtonsoft.Json.JsonProperty("revoke_tokens_issued_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Revoke_tokens_issued_before { get; set; }
+        public System.DateTimeOffset RevokeTokensIssuedBefore { get; set; }
 
         /// <summary>
         /// Determines the set of user permissions
@@ -9954,7 +9954,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -9977,7 +9977,7 @@ namespace TestNamespace
         /// Expiration date of the ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ban_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Ban_expires { get; set; }
+        public System.DateTimeOffset BanExpires { get; set; }
 
         /// <summary>
         /// Whether a user is banned or not
@@ -10001,13 +10001,13 @@ namespace TestNamespace
         public string Language { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushNotificationSettingsRequest Push_notifications { get; set; }
+        public PushNotificationSettingsRequest PushNotifications { get; set; }
 
         /// <summary>
         /// Revocation date for tokens
         /// </summary>
         [Newtonsoft.Json.JsonProperty("revoke_tokens_issued_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Revoke_tokens_issued_before { get; set; }
+        public System.DateTimeOffset RevokeTokensIssuedBefore { get; set; }
 
         /// <summary>
         /// Determines the set of user permissions
@@ -10039,7 +10039,7 @@ namespace TestNamespace
         /// Expiration date of the ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ban_expires", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Ban_expires { get; set; }
+        public System.DateTimeOffset BanExpires { get; set; }
 
         /// <summary>
         /// Whether a user is banned or not
@@ -10051,19 +10051,19 @@ namespace TestNamespace
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date of deactivation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deactivated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deactivated_at { get; set; }
+        public System.DateTimeOffset DeactivatedAt { get; set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Deleted_at { get; set; }
+        public System.DateTimeOffset DeletedAt { get; set; }
 
         /// <summary>
         /// Unique user identifier
@@ -10084,7 +10084,7 @@ namespace TestNamespace
         /// Date of last activity
         /// </summary>
         [Newtonsoft.Json.JsonProperty("last_active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Last_active { get; set; }
+        public System.DateTimeOffset LastActive { get; set; }
 
         /// <summary>
         /// Whether a user online or not
@@ -10093,13 +10093,13 @@ namespace TestNamespace
         public bool Online { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushNotificationSettings Push_notifications { get; set; }
+        public PushNotificationSettings PushNotifications { get; set; }
 
         /// <summary>
         /// Revocation date for tokens
         /// </summary>
         [Newtonsoft.Json.JsonProperty("revoke_tokens_issued_before", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Revoke_tokens_issued_before { get; set; }
+        public System.DateTimeOffset RevokeTokensIssuedBefore { get; set; }
 
         /// <summary>
         /// Determines the set of user permissions
@@ -10111,7 +10111,7 @@ namespace TestNamespace
         /// Whether user is shadow banned or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("shadow_banned", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Shadow_banned { get; set; }
+        public bool ShadowBanned { get; set; }
 
         /// <summary>
         /// List of teams user is a part of
@@ -10123,7 +10123,7 @@ namespace TestNamespace
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Updated_at { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -10166,7 +10166,7 @@ namespace TestNamespace
     public partial class OfAny
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10186,7 +10186,7 @@ namespace TestNamespace
     public partial class OfCustom
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10206,7 +10206,7 @@ namespace TestNamespace
     public partial class Created
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10229,16 +10229,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("team", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Team { get; set; }
@@ -10261,16 +10261,16 @@ namespace TestNamespace
     public partial class Frozen
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10293,19 +10293,19 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("clear_history", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Clear_history { get; set; }
+        public bool ClearHistory { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10331,16 +10331,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10360,7 +10360,7 @@ namespace TestNamespace
     public partial class Muted
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10383,16 +10383,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10412,16 +10412,16 @@ namespace TestNamespace
     public partial class Unfrozen
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10441,7 +10441,7 @@ namespace TestNamespace
     public partial class Unmuted
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10464,16 +10464,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
@@ -10502,16 +10502,16 @@ namespace TestNamespace
     public partial class Visible
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10537,7 +10537,7 @@ namespace TestNamespace
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("me", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public OwnUser Me { get; set; }
@@ -10560,16 +10560,16 @@ namespace TestNamespace
     public partial class Added
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("member", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelMember Member { get; set; }
@@ -10598,16 +10598,16 @@ namespace TestNamespace
     public partial class Removed
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("member", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelMember Member { get; set; }
@@ -10633,16 +10633,16 @@ namespace TestNamespace
     public partial class Updated2
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("member", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelMember Member { get; set; }
@@ -10671,19 +10671,19 @@ namespace TestNamespace
     public partial class Deleted2
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("hard_delete", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Hard_delete { get; set; }
+        public bool HardDelete { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
@@ -10692,7 +10692,7 @@ namespace TestNamespace
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> ThreadParticipants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10718,13 +10718,13 @@ namespace TestNamespace
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> ThreadParticipants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10747,16 +10747,16 @@ namespace TestNamespace
     public partial class New
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
@@ -10765,7 +10765,7 @@ namespace TestNamespace
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> ThreadParticipants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10774,7 +10774,7 @@ namespace TestNamespace
         public UserObject User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Watcher_count { get; set; }
+        public double WatcherCount { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -10791,16 +10791,16 @@ namespace TestNamespace
     public partial class Read2
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("team", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Team { get; set; }
@@ -10826,16 +10826,16 @@ namespace TestNamespace
     public partial class Updated3
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
@@ -10844,7 +10844,7 @@ namespace TestNamespace
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> ThreadParticipants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10870,16 +10870,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("member", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelMember Member { get; set; }
@@ -10905,16 +10905,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("team", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Team { get; set; }
@@ -10937,7 +10937,7 @@ namespace TestNamespace
     public partial class Channel_mutes_updated
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("me", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public OwnUser Me { get; set; }
@@ -10963,16 +10963,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -10995,16 +10995,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("member", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelMember Member { get; set; }
@@ -11033,16 +11033,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("member", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelMember Member { get; set; }
@@ -11071,16 +11071,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("member", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelMember Member { get; set; }
@@ -11109,31 +11109,31 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("team", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("total_unread_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Total_unread_count { get; set; }
+        public double TotalUnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_channels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Unread_channels { get; set; }
+        public double UnreadChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Unread_count { get; set; }
+        public double UnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObject User { get; set; }
@@ -11156,16 +11156,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
@@ -11191,7 +11191,7 @@ namespace TestNamespace
     public partial class Mutes_updated
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("me", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public OwnUser Me { get; set; }
@@ -11217,16 +11217,16 @@ namespace TestNamespace
         public ChannelResponse Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("member", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelMember Member { get; set; }
@@ -11252,16 +11252,16 @@ namespace TestNamespace
     public partial class Deleted3
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
@@ -11273,7 +11273,7 @@ namespace TestNamespace
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> ThreadParticipants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11296,16 +11296,16 @@ namespace TestNamespace
     public partial class New2
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
@@ -11317,7 +11317,7 @@ namespace TestNamespace
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObject> Thread_participants { get; set; }
+        public System.Collections.Generic.ICollection<UserObject> ThreadParticipants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11340,16 +11340,16 @@ namespace TestNamespace
     public partial class Updated4
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Message Message { get; set; }
@@ -11381,19 +11381,19 @@ namespace TestNamespace
     public partial class Start
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Parent_id { get; set; }
+        public string ParentId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11416,19 +11416,19 @@ namespace TestNamespace
     public partial class Stop
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Parent_id { get; set; }
+        public string ParentId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11451,19 +11451,19 @@ namespace TestNamespace
     public partial class Banned
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Created_by { get; set; }
+        public UserObject CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("expiration", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset Expiration { get; set; }
@@ -11498,10 +11498,10 @@ namespace TestNamespace
     public partial class Deactivated
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObject Created_by { get; set; }
+        public UserObject CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11524,16 +11524,16 @@ namespace TestNamespace
     public partial class Deleted4
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("delete_conversation_channels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Delete_conversation_channels { get; set; }
+        public bool DeleteConversationChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("hard_delete", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Hard_delete { get; set; }
+        public bool HardDelete { get; set; }
 
         [Newtonsoft.Json.JsonProperty("mark_messages_deleted", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Mark_messages_deleted { get; set; }
+        public bool MarkMessagesDeleted { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11556,13 +11556,13 @@ namespace TestNamespace
     public partial class Flagged2
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("target_user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Target_user { get; set; }
+        public string TargetUser { get; set; }
 
         [Newtonsoft.Json.JsonProperty("target_users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Target_users { get; set; }
+        public System.Collections.Generic.ICollection<string> TargetUsers { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11585,13 +11585,13 @@ namespace TestNamespace
     public partial class Muted2
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("target_user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Target_user { get; set; }
+        public string TargetUser { get; set; }
 
         [Newtonsoft.Json.JsonProperty("target_users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Target_users { get; set; }
+        public System.Collections.Generic.ICollection<string> TargetUsers { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11614,7 +11614,7 @@ namespace TestNamespace
     public partial class Changed
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11637,7 +11637,7 @@ namespace TestNamespace
     public partial class Reactivated
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11660,16 +11660,16 @@ namespace TestNamespace
     public partial class Unbanned
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("shadow", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Shadow { get; set; }
@@ -11698,13 +11698,13 @@ namespace TestNamespace
     public partial class Unmuted2
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("target_user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Target_user { get; set; }
+        public string TargetUser { get; set; }
 
         [Newtonsoft.Json.JsonProperty("target_users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Target_users { get; set; }
+        public System.Collections.Generic.ICollection<string> TargetUsers { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11727,7 +11727,7 @@ namespace TestNamespace
     public partial class Updated5
     {
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11750,16 +11750,16 @@ namespace TestNamespace
     public partial class Start2
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("team", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Team { get; set; }
@@ -11771,7 +11771,7 @@ namespace TestNamespace
         public UserObject User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Watcher_count { get; set; }
+        public double WatcherCount { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -11788,16 +11788,16 @@ namespace TestNamespace
     public partial class Stop2
     {
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_id { get; set; }
+        public string ChannelId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Channel_type { get; set; }
+        public string ChannelType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Created_at { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
@@ -11806,7 +11806,7 @@ namespace TestNamespace
         public UserObject User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Watcher_count { get; set; }
+        public double WatcherCount { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -11820,7 +11820,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum APNConfigRequestAuth_type
+    public enum APNConfigRequestAuthType
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"certificate")]
@@ -11847,7 +11847,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelConfigAutomod_behavior
+    public enum ChannelConfigAutomodBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -11859,7 +11859,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelConfigBlocklist_behavior
+    public enum ChannelConfigBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -11871,7 +11871,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelConfigRequestBlocklist_behavior
+    public enum ChannelConfigRequestBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -11898,7 +11898,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelConfigWithInfoAutomod_behavior
+    public enum ChannelConfigWithInfoAutomodBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -11910,7 +11910,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelConfigWithInfoBlocklist_behavior
+    public enum ChannelConfigWithInfoBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -11937,7 +11937,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelConfigWithInfoRequestAutomod_behavior
+    public enum ChannelConfigWithInfoRequestAutomodBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -11949,7 +11949,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelConfigWithInfoRequestBlocklist_behavior
+    public enum ChannelConfigWithInfoRequestBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12012,7 +12012,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelTypeConfigAutomod_behavior
+    public enum ChannelTypeConfigAutomodBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12024,7 +12024,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum ChannelTypeConfigBlocklist_behavior
+    public enum ChannelTypeConfigBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12063,7 +12063,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum CreateChannelTypeRequestAutomod_behavior
+    public enum CreateChannelTypeRequestAutomodBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12075,7 +12075,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum CreateChannelTypeRequestBlocklist_behavior
+    public enum CreateChannelTypeRequestBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12102,7 +12102,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum CreateChannelTypeResponseAutomod_behavior
+    public enum CreateChannelTypeResponseAutomodBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12114,7 +12114,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum CreateChannelTypeResponseBlocklist_behavior
+    public enum CreateChannelTypeResponseBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12126,7 +12126,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum CreateDeviceRequestPush_provider
+    public enum CreateDeviceRequestPushProvider
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"firebase")]
@@ -12183,7 +12183,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum DevicePush_provider
+    public enum DevicePushProvider
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"firebase")]
@@ -12198,7 +12198,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum DeviceFieldsPush_provider
+    public enum DeviceFieldsPushProvider
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"firebase")]
@@ -12213,7 +12213,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum DeviceRequestPush_provider
+    public enum DeviceRequestPushProvider
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"firebase")]
@@ -12639,7 +12639,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum UpdateAppRequestEnforce_unique_usernames
+    public enum UpdateAppRequestEnforceUniqueUsernames
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"no")]
@@ -12654,7 +12654,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum UpdateAppRequestPermission_version
+    public enum UpdateAppRequestPermissionVersion
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"v1")]
@@ -12681,7 +12681,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum UpdateChannelTypeRequestAutomod_behavior
+    public enum UpdateChannelTypeRequestAutomodBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12693,7 +12693,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum UpdateChannelTypeRequestBlocklist_behavior
+    public enum UpdateChannelTypeRequestBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12720,7 +12720,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum UpdateChannelTypeResponseAutomod_behavior
+    public enum UpdateChannelTypeResponseAutomodBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
@@ -12732,7 +12732,7 @@ namespace TestNamespace
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public enum UpdateChannelTypeResponseBlocklist_behavior
+    public enum UpdateChannelTypeResponseBlocklistBehavior
     {
 
         [System.Runtime.Serialization.EnumMember(Value = @"flag")]
