@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using GetStreamIO.Core.DTO.Models;
+using Newtonsoft.Json;
 
 namespace Plugins.GetStreamIO.Core.Models
 {
