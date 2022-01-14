@@ -19,8 +19,8 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// Whether to replace all existing user reactions
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("enforce_unique", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool EnforceUnique { get; set; }
+        [Newtonsoft.Json.JsonProperty("enforce_unique", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? EnforceUnique { get; set; }
 
         [Newtonsoft.Json.JsonProperty("reaction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ReactionRequestDTO Reaction { get; set; }
@@ -28,8 +28,8 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// Skips any mobile push notifications
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool SkipPush { get; set; }
+        [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? SkipPush { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

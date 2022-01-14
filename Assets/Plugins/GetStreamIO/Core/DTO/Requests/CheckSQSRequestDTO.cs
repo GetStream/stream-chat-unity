@@ -19,19 +19,19 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// AWS SQS access key
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("sqs_key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("sqs_key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SqsKey { get; set; }
 
         /// <summary>
         /// AWS SQS key secret
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("sqs_secret", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("sqs_secret", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SqsSecret { get; set; }
 
         /// <summary>
         /// AWS SQS endpoint URL
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("sqs_url", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("sqs_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SqsUrl { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();

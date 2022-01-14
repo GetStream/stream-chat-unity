@@ -19,14 +19,14 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// All channels that should be deleted
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("cids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> Cids { get; set; }
 
         /// <summary>
         /// Specify if channels and all ressources should be hard deleted
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("hard_delete", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool HardDelete { get; set; }
+        [Newtonsoft.Json.JsonProperty("hard_delete", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? HardDelete { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

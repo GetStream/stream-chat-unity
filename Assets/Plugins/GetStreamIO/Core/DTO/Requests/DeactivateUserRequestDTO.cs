@@ -19,16 +19,16 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// **Server-side only**. ID of user who deactivated the user
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("created_by_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("created_by_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CreatedById { get; set; }
 
         /// <summary>
         /// Makes messages appear to be deleted
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("mark_messages_deleted", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool MarkMessagesDeleted { get; set; }
+        [Newtonsoft.Json.JsonProperty("mark_messages_deleted", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? MarkMessagesDeleted { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();

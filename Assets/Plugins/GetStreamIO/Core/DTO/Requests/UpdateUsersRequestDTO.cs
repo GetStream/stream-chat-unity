@@ -19,7 +19,7 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// Object containing users
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.IDictionary<string, UserObjectRequestDTO> Users { get; set; } = new System.Collections.Generic.Dictionary<string, UserObjectRequestDTO>();
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();

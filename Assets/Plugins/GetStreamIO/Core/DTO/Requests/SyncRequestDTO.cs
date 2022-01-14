@@ -19,32 +19,32 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// List of channel CIDs to sync
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("channel_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("channel_cids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> ChannelCids { get; set; }
 
         /// <summary>
         /// Date from which synchronization should happen
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("last_sync_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("last_sync_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset LastSyncAt { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectRequestDTO User { get; set; }
 
         /// <summary>
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 
         /// <summary>
         /// If set to true this will add 'inaccessible_cids' to response type
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("with_inaccessible_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool WithInaccessibleCids { get; set; }
+        [Newtonsoft.Json.JsonProperty("with_inaccessible_cids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? WithInaccessibleCids { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

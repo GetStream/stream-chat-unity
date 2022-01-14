@@ -19,7 +19,7 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// Language to translate message to
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("language", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("language", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public TranslateMessageRequestLanguage Language { get; set; }
 

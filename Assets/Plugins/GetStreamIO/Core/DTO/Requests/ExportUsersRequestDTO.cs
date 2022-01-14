@@ -6,24 +6,18 @@
 
 
 using GetStreamIO.Core.DTO.Responses;
-using GetStreamIO.Core.DTO.Requests;
+using GetStreamIO.Core.DTO.Events;
 using GetStreamIO.Core.DTO.Models;
 
-namespace GetStreamIO.Core.DTO.Events
+namespace GetStreamIO.Core.DTO.Requests
 {
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class EventResponseDTO
+    public partial class ExportUsersRequestDTO
     {
-        /// <summary>
-        /// Duration of the request in human-readable format
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Duration { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("event", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public EventDTO Event { get; set; }
+        [Newtonsoft.Json.JsonProperty("user_ids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<string> UserIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

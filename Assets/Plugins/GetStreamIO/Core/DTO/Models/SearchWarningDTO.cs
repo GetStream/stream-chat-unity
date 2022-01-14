@@ -19,25 +19,25 @@ namespace GetStreamIO.Core.DTO.Models
         /// <summary>
         /// Channel CIDs for the searched channels
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("channel_search_cids", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("channel_search_cids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> ChannelSearchCids { get; set; }
 
         /// <summary>
         /// Number of channels searched
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("channel_search_count", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double ChannelSearchCount { get; set; }
+        [Newtonsoft.Json.JsonProperty("channel_search_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? ChannelSearchCount { get; set; }
 
         /// <summary>
         /// Code corresponding to the warning
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("warning_code", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double WarningCode { get; set; }
+        [Newtonsoft.Json.JsonProperty("warning_code", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? WarningCode { get; set; }
 
         /// <summary>
         /// Description of the warning
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("warning_description", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("warning_description", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string WarningDescription { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();

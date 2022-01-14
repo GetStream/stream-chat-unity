@@ -19,14 +19,14 @@ namespace GetStreamIO.Core.DTO.Models
         /// <summary>
         /// Threshold for automatic message block
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("block", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float Block { get; set; }
+        [Newtonsoft.Json.JsonProperty("block", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public float? Block { get; set; }
 
         /// <summary>
         /// Threshold for automatic message flag
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("flag", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float Flag { get; set; }
+        [Newtonsoft.Json.JsonProperty("flag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public float? Flag { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

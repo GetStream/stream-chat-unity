@@ -19,23 +19,23 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// Permanently delete channel data (messages, reactions, etc.)
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("hard_delete", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool HardDelete { get; set; }
+        [Newtonsoft.Json.JsonProperty("hard_delete", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? HardDelete { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageRequestDTO Message { get; set; }
 
         /// <summary>
         /// When `message` is set disables all push notifications for it
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool SkipPush { get; set; }
+        [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? SkipPush { get; set; }
 
         /// <summary>
         /// Truncate channel data up to `truncated_at`. The system message (if provided) creation time is always greater than `truncated_at`
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("truncated_at", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset TruncatedAt { get; set; }
+        [Newtonsoft.Json.JsonProperty("truncated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? TruncatedAt { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

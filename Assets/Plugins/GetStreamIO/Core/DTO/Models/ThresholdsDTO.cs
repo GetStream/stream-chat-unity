@@ -22,19 +22,19 @@ namespace GetStreamIO.Core.DTO.Models
         /// <summary>
         /// Thresholds for explicit messages
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("explicit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("explicit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LabelThresholdsDTO Explicit { get; set; }
 
         /// <summary>
         /// Thresholds for spam
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("spam", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("spam", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LabelThresholdsDTO Spam { get; set; }
 
         /// <summary>
         /// Thresholds for toxic messages
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("toxic", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("toxic", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LabelThresholdsDTO Toxic { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();

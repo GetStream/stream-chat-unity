@@ -19,25 +19,25 @@ namespace GetStreamIO.Core.DTO.Requests
         /// <summary>
         /// Export options for channels
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("channels", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<ChannelExportRequestDTO> Channels { get; set; }
 
         /// <summary>
         /// Set if deleted message text should be cleared
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("clear_deleted_message_text", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool ClearDeletedMessageText { get; set; }
+        [Newtonsoft.Json.JsonProperty("clear_deleted_message_text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? ClearDeletedMessageText { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("export_users", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool ExportUsers { get; set; }
+        [Newtonsoft.Json.JsonProperty("export_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? ExportUsers { get; set; }
 
         /// <summary>
         /// Set if you want to include truncated messages
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("include_truncated_messages", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool IncludeTruncatedMessages { get; set; }
+        [Newtonsoft.Json.JsonProperty("include_truncated_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IncludeTruncatedMessages { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("version", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("version", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Version { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();

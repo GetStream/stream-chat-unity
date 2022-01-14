@@ -5,25 +5,25 @@
 //----------------------
 
 
-using GetStreamIO.Core.DTO.Responses;
+using GetStreamIO.Core.DTO.Requests;
 using GetStreamIO.Core.DTO.Events;
 using GetStreamIO.Core.DTO.Models;
 
-namespace GetStreamIO.Core.DTO.Requests
+namespace GetStreamIO.Core.DTO.Responses
 {
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class ModerationResponseRequestDTO
+    public partial class ExportUsersResponseDTO
     {
-        [Newtonsoft.Json.JsonProperty("explicit", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float Explicit { get; set; }
+        /// <summary>
+        /// Duration of the request in human-readable format
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Duration { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("spam", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float Spam { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("toxic", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float Toxic { get; set; }
+        [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string TaskId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
