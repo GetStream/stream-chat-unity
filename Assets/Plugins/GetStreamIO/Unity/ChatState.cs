@@ -4,6 +4,9 @@ using System.Linq;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Events.DTO;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
+using Plugins.GetStreamIO.Core.Requests.V2;
+using UnityEngine;
 
 namespace Plugins.GetStreamIO.Unity
 {
@@ -14,12 +17,12 @@ namespace Plugins.GetStreamIO.Unity
     {
         public const string MessageDeletedInfo = "This message was deleted...";
 
-        public event Action<Channel> ActiveChanelChanged;
+        public event Action<ChannelState> ActiveChanelChanged;
         public event Action ChannelsUpdated;
 
         public event Action<Message> MessageEditRequested;
 
-        public Channel ActiveChannel
+        public ChannelState ActiveChannelDeprecated
         {
             get => _activeChannel;
             private set
@@ -34,7 +37,7 @@ namespace Plugins.GetStreamIO.Unity
             }
         }
 
-        public IReadOnlyList<Channel> Channels => _channels;
+        public IReadOnlyList<ChannelState> Channels => _channels;
 
         public ChatState(IGetStreamChatClient client)
         {
@@ -56,25 +59,48 @@ namespace Plugins.GetStreamIO.Unity
             _client.Dispose();
         }
 
-        public void OpenChannel(Channel channel) => ActiveChannel = channel;
+        public void OpenChannel(ChannelState channel) => ActiveChannelDeprecated = channel;
 
         public void EditMessage(Message message) => MessageEditRequested?.Invoke(message);
 
         private readonly IGetStreamChatClient _client;
-        private readonly List<Channel> _channels = new List<Channel>();
+        private readonly List<ChannelState> _channels = new List<ChannelState>();
 
-        private Channel _activeChannel;
+        private ChannelState _activeChannel;
 
         private async void OnClientConnected()
         {
-            var channels = await _client.GetChannelsAsync();
-
-            _channels.Clear();
-            _channels.AddRange(channels);
-
-            if (ActiveChannel == null && _channels.Count > 0)
+            var request = new QueryChannelsRequest
             {
-                ActiveChannel = _channels.First();
+                Sort = new List<SortParamRequest>
+                {
+                    new SortParamRequest
+                    {
+                        Field = nameof(Message.CreatedAt),
+                        Direction = -1,
+                    }
+                }
+            };
+
+            try
+            {
+                var response = await _client.QueryChannelsAsync(request);
+
+                _channels.Clear();
+                _channels.AddRange(response.Channels);
+            }
+            catch (StreamApiException e)
+            {
+                e.LogStreamApiExceptionDetails();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
+            if (ActiveChannelDeprecated == null && _channels.Count > 0)
+            {
+                ActiveChannelDeprecated = _channels.First();
             }
 
             ChannelsUpdated?.Invoke();
@@ -82,22 +108,22 @@ namespace Plugins.GetStreamIO.Unity
 
         private void OnMessageReceived(MessageNewEvent messageNewEvent)
         {
-            var channel = _channels.First(_ => _.Details.Id == messageNewEvent.ChannelId);
-            channel.AppendMessage(messageNewEvent.Message);
+            var channel = _channels.First(_ => _.Channel.Id == messageNewEvent.ChannelId);
+            channel.AddMessage(messageNewEvent.Message);
         }
 
         private void OnMessageDeleted(MessageDeletedEvent messageDeletedEvent)
         {
-            var channel = _channels.First(_ => _.Details.Id == messageDeletedEvent.ChannelId);
+            var channel = _channels.First(_ => _.Channel.Id == messageDeletedEvent.ChannelId);
             var message = channel.Messages.First(_ => _.Id == messageDeletedEvent.Message.Id);
             message.Text = MessageDeletedInfo;
 
-            ActiveChanelChanged?.Invoke(ActiveChannel);
+            ActiveChanelChanged?.Invoke(ActiveChannelDeprecated);
         }
 
         private void OnMessageUpdated(MessageUpdated messageUpdatedEvent)
         {
-            var channel = _channels.First(_ => _.Details.Id == messageUpdatedEvent.Channel_id);
+            var channel = _channels.First(_ => _.Channel.Id == messageUpdatedEvent.Channel_id);
             ActiveChanelChanged?.Invoke(channel);
         }
     }

@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading.Tasks;
+using GetStreamIO.Core.DTO.Models;
+using GetStreamIO.Core.DTO.Requests;
+using GetStreamIO.Core.DTO.Responses;
+using Plugins.GetStreamIO.Core.API;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events;
 using Plugins.GetStreamIO.Core.Events.DTO;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
 using Plugins.GetStreamIO.Core.Requests;
 using Plugins.GetStreamIO.Core.Requests.DTO;
+using Plugins.GetStreamIO.Core.Requests.V2;
+using Plugins.GetStreamIO.Core.Responses;
 using Plugins.GetStreamIO.Libs.Http;
 using Plugins.GetStreamIO.Libs.Logs;
 using Plugins.GetStreamIO.Libs.Serialization;
@@ -17,6 +24,7 @@ using Plugins.GetStreamIO.Libs.Websockets;
 
 namespace Plugins.GetStreamIO.Core
 {
+    //Todo: rename to StreamChatClient + fix namespace -> StreamChat.Core etc. without Plugins
     /// <summary>
     /// GetStream.io main client
     /// </summary>
@@ -104,54 +112,69 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
-        public async Task<IEnumerable<Channel>> GetChannelsAsync(QueryChannelsOptions options = null)
+        //Todo: move to ChannelApi
+        public Task<ChannelsResponse> QueryChannelsAsync(QueryChannelsRequest queryChannelsRequest)
         {
-            options ??= QueryChannelsOptions.Default.SortBy(SortFieldId.LastMessageAt, SortDirection.Descending);
-            var requestContent = _serializer.Serialize(options);
+            var endpoint = ChannelEndpoints.QueryChannels();
 
-            var uri = _requestUriFactory.CreateGetChannelsUri();
-
-            var response = await _httpClient.PostAsync(uri, requestContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            LogRestCall(uri, requestContent, responseContent);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception("Failed to get channels Response: " + responseContent);
-            }
-
-            var channelsResponse = _serializer.Deserialize<ChannelsResponse>(responseContent);
-
-            return channelsResponse.Channels;
+            return Post<QueryChannelsRequest, QueryChannelsRequestDTO, ChannelsResponse, ChannelsResponseDTO>(endpoint,
+                queryChannelsRequest);
         }
 
-        public async Task SendMessageAsync(Channel channel, string message)
+        //Todo: move to MessageApi
+        public Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId, SendMessageRequest sendMessageRequest)
         {
-            var uri = _requestUriFactory.CreateSendMessageUri(channel);
+            var endpoint = MessageEndpoints.SendMessage(channelType, channelId);
 
-            var messagePayload = new MessageRequest
-            {
-                Message = new SendMessage
-                {
-                    Id = _authData.UserId + "-" + Guid.NewGuid(),
-                    Text = message
-                }
-            };
-
-            var requestContent = _serializer.Serialize(messagePayload);
-
-            var response = await _httpClient.PostAsync(uri, requestContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            LogRestCall(uri, requestContent, responseContent);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logs.Error("Failed to send message. Response: " + responseContent);
-            }
+            return Post<SendMessageRequest, SendMessageRequestDTO, MessageResponse, MessageResponseDTO>(endpoint,
+                sendMessageRequest);
         }
 
+        private async Task<TResponse> Get<TResponse, TResponseDto>(string url)
+            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        {
+            var uri = _requestUriFactory.CreateDefaultEndpointUri(url);
+
+            var httpResponse = await _httpClient.GetAsync(uri);
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                throw new StreamApiException(apiError);
+            }
+
+            var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+            var response = new TResponse();
+            response.LoadFromDto(responseDto);
+
+            return response;
+        }
+
+        private async Task<TResponse> Post<TRequest, TRequestDto, TResponse, TResponseDto>(string url, TRequest request)
+            where TRequest : ISavableTo<TRequestDto>
+            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        {
+            var uri = _requestUriFactory.CreateDefaultEndpointUri(url);
+            var requestContent = _serializer.Serialize(request.SaveToDto());
+
+            var httpResponse = await _httpClient.PostAsync(uri, requestContent);
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                throw new StreamApiException(apiError);
+            }
+
+            var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+            var response = new TResponse();
+            response.LoadFromDto(responseDto);
+
+            return response;
+        }
+
+        [Obsolete]
         public async Task UpdateMessageAsync(Message message)
         {
             var uri = _requestUriFactory.CreateUpdateMessageUri(message);
@@ -176,6 +199,7 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
+        [Obsolete]
         public async Task DeleteMessage(Message message, bool hard)
         {
             var uri = _requestUriFactory.CreateDeleteMessageUri(message, hard);
@@ -191,11 +215,12 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
+        [Obsolete]
         public async Task Mute(User user)
         {
             var uri = _requestUriFactory.CreateMuteUserUri();
 
-            var payload = new MuteUser()
+            var payload = new MuteUserObsolete()
             {
                 Id = user.Id
             };
@@ -216,8 +241,8 @@ namespace Plugins.GetStreamIO.Core
         public bool IsLocalUser(User user)
             => user.Id == _authData.UserId;
 
-        public bool IsLocalUser(Member member)
-            => member.User.Id == _authData.UserId;
+        public bool IsLocalUser(ChannelMember channelMember)
+            => channelMember.User.Id == _authData.UserId;
 
         public void Dispose()
         {
@@ -308,7 +333,7 @@ namespace Plugins.GetStreamIO.Core
 
         private void PingHealthCheck()
         {
-            var msg = new HealthCheckRequest
+            var msg = new HealthCheckRequestObsolete
             {
                 Type = EventType.HealthCheck,
 

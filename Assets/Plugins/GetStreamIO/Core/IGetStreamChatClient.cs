@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events.DTO;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
+using Plugins.GetStreamIO.Core.Requests.V2;
+using Plugins.GetStreamIO.Core.Responses;
 
 namespace Plugins.GetStreamIO.Core
 {
@@ -26,16 +29,16 @@ namespace Plugins.GetStreamIO.Core
 
         bool IsLocalUser(User user);
 
-        bool IsLocalUser(Member member);
-
-        Task SendMessageAsync(Channel channel, string message);
+        bool IsLocalUser(ChannelMember channelMember);
 
         Task UpdateMessageAsync(Message message);
 
         Task DeleteMessage(Message message, bool hard);
 
-        Task<IEnumerable<Channel>> GetChannelsAsync(QueryChannelsOptions options = null);
-
         Task Mute(User user);
+
+        Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId, SendMessageRequest sendMessageRequest);
+
+        Task<ChannelsResponse> QueryChannelsAsync(QueryChannelsRequest queryChannelsRequest);
     }
 }

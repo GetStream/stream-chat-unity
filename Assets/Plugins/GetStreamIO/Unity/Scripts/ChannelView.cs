@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
 using Plugins.GetStreamIO.Libs.Utils;
 using TMPro;
 using UnityEngine;
@@ -14,11 +15,11 @@ namespace Plugins.GetStreamIO.Unity.Scripts
     /// </summary>
     public class ChannelView : MonoBehaviour
     {
-        public event Action<Channel> Clicked;
+        public event Action<ChannelState> Clicked;
 
-        public void Init(Channel channel, IChatViewContext context)
+        public void Init(ChannelState channel, IChatViewContext context)
         {
-            _channel = channel ?? throw new ArgumentNullException(nameof(channel));
+            _channelState = channel ?? throw new ArgumentNullException(nameof(channel));
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
             _isDirectMessage = channel.IsDirectMessage;
@@ -34,7 +35,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         private const int PreviewMessageLenght = 30;
 
-        private Channel _channel;
+        private ChannelState _channelState;
         private bool _isDirectMessage;
 
         [SerializeField]
@@ -54,20 +55,20 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         private IChatViewContext _context;
 
-        private void OnClicked() => Clicked?.Invoke(_channel);
+        private void OnClicked() => Clicked?.Invoke(_channelState);
 
         private void UpdateMessagePreview()
         {
-            var channelCreator = _channel.Details.CreatedBy;
+            var channelCreator = _channelState.Channel.CreatedBy;
             var channelCreatorName = channelCreator.Name.IsNullOrEmpty() ? channelCreator.Id : channelCreator.Name;
 
-            var name = _isDirectMessage ? channelCreatorName : _channel.Name;
+            var name = _isDirectMessage ? channelCreatorName : _channelState.Channel.Name;
 
             _headerText.text = name;
             _messagePreviewText.text = GetLastMessagePreview();
 
             var abbreviationSource = name.IsNullOrEmpty()
-                ? _channel.Details.CreatedBy.Name
+                ? _channelState.Channel.CreatedBy.Name
                 : name;
 
             var abbreviation = abbreviationSource.Length > 0
@@ -79,7 +80,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
         private string GetLastMessagePreview()
         {
-            var lastMessage = _channel.Messages.LastOrDefault();
+            var lastMessage = _channelState.Messages.LastOrDefault();
 
             if (lastMessage == null)
             {
@@ -103,7 +104,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
                 return;
             }
 
-            var otherMember = _channel.Members.FirstOrDefault(_ => !_context.Client.IsLocalUser(_));
+            var otherMember = _channelState.Members.FirstOrDefault(_ => !_context.Client.IsLocalUser(_));
 
             if (otherMember == null || otherMember.User.Image.IsNullOrEmpty())
             {

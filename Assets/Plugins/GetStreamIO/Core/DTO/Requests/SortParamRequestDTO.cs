@@ -17,7 +17,7 @@ namespace GetStreamIO.Core.DTO.Requests
     public partial class SortParamRequestDTO
     {
         [Newtonsoft.Json.JsonProperty("direction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Direction { get; set; }
+        public int? Direction { get; set; }
 
         [Newtonsoft.Json.JsonProperty("field", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Field { get; set; }

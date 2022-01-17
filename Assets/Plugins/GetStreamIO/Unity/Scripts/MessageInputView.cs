@@ -1,5 +1,8 @@
 ﻿using System;
+using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
+using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Libs.Utils;
 using TMPro;
 using UnityEngine;
@@ -73,17 +76,29 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             switch (_mode)
             {
                 case Mode.Create:
-                    Client.SendMessageAsync(ViewContext.State.ActiveChannel, _messageInput.text).LogIfFailed();
+
+                    var request = new SendMessageRequest
+                    {
+                        Message = new MessageRequest
+                        {
+                            Text = _messageInput.text
+                        }
+                    };
+                    var channel = ViewContext.State.ActiveChannelDeprecated;
+
+                    Client.SendNewMessageAsync(channel.Channel.Type, channel.Channel.Id, request)
+                        .LogStreamExceptionIfFailed();
                     break;
+
                 case Mode.Edit:
+
                     _currentEditMessage.Text = _messageInput.text;
-                    Client.UpdateMessageAsync(_currentEditMessage).LogIfFailed();
+                    Client.UpdateMessageAsync(_currentEditMessage).LogStreamExceptionIfFailed();
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-
 
             _messageInput.text = "";
 

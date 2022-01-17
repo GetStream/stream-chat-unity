@@ -1,0 +1,151 @@
+﻿using GetStreamIO.Core.DTO.Responses;
+
+namespace Plugins.GetStreamIO.Core.Models.V2
+{
+    public partial class Channel : ModelBase, ILoadableFrom<ChannelResponseDTO, Channel>
+    {
+        /// <summary>
+        /// Whether auto translation is enabled or not
+        /// </summary>
+        public bool? AutoTranslationEnabled { get; set; }
+
+        /// <summary>
+        /// Language to translate to when auto translation is active
+        /// </summary>
+        public string AutoTranslationLanguage { get; set; }
+
+        /// <summary>
+        /// Channel CID (&lt;type&gt;:&lt;id&gt;)
+        /// </summary>
+        public string Cid { get; set; }
+
+        /// <summary>
+        /// Channel configuration
+        /// </summary>
+        public ChannelConfig Config { get; set; }
+
+        /// <summary>
+        /// Cooldown period after sending each message
+        /// </summary>
+        public double? Cooldown { get; set; }
+
+        /// <summary>
+        /// Date/time of creation
+        /// </summary>
+        public System.DateTimeOffset? CreatedAt { get; set; }
+
+        /// <summary>
+        /// Creator of the channel
+        /// </summary>
+        public User CreatedBy { get; set; }
+
+        /// <summary>
+        /// Date/time of deletion
+        /// </summary>
+        public System.DateTimeOffset? DeletedAt { get; set; }
+
+        public bool? Disabled { get; set; }
+
+        /// <summary>
+        /// Whether channel is frozen or not
+        /// </summary>
+        public bool? Frozen { get; set; }
+
+        /// <summary>
+        /// Whether this channel is hidden by current user or not
+        /// </summary>
+        public bool? Hidden { get; set; }
+
+        /// <summary>
+        /// Date since when the message history is accessible
+        /// </summary>
+        public System.DateTimeOffset? HideMessagesBefore { get; set; }
+
+        /// <summary>
+        /// Channel unique ID
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Date of the last message sent
+        /// </summary>
+        public System.DateTimeOffset? LastMessageAt { get; set; }
+
+        /// <summary>
+        /// Number of members in the channel
+        /// </summary>
+        public double? MemberCount { get; set; }
+
+        /// <summary>
+        /// List of channel members (max 100)
+        /// </summary>
+        public System.Collections.Generic.ICollection<ChannelMember> Members { get; set; }
+
+        /// <summary>
+        /// Date of mute expiration
+        /// </summary>
+        public System.DateTimeOffset? MuteExpiresAt { get; set; }
+
+        /// <summary>
+        /// Whether this channel is muted or not
+        /// </summary>
+        public bool? Muted { get; set; }
+
+        /// <summary>
+        /// List of channel capabilities of authenticated user
+        /// </summary>
+        public System.Collections.Generic.ICollection<string> OwnCapabilities { get; set; }
+
+        /// <summary>
+        /// Team the channel belongs to (multi-tenant only)
+        /// </summary>
+        public string Team { get; set; }
+
+        public System.DateTimeOffset? TruncatedAt { get; set; }
+
+        /// <summary>
+        /// Type of the channel
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Date/time of the last update
+        /// </summary>
+        public System.DateTimeOffset? UpdatedAt { get; set; }
+
+        public string Name { get; set; }
+
+        public Channel LoadFromDto(ChannelResponseDTO dto)
+        {
+            AutoTranslationEnabled = dto.AutoTranslationEnabled;
+            AutoTranslationLanguage = dto.AutoTranslationLanguage;
+            Cid = dto.Cid;
+            Config = Config.TryLoadFromDto(dto.Config);
+            Cooldown = dto.Cooldown;
+            CreatedAt = dto.CreatedAt;
+            CreatedBy = CreatedBy.TryLoadFromDto(dto.CreatedBy);
+            DeletedAt = dto.DeletedAt;
+            Disabled = dto.Disabled;
+            Frozen = dto.Frozen;
+            Hidden = dto.Hidden;
+            HideMessagesBefore = dto.HideMessagesBefore;
+            Id = dto.Id;
+            LastMessageAt = dto.LastMessageAt;
+            MemberCount = dto.MemberCount;
+            Members = Members.TryLoadFromDtoCollection(dto.Members);
+            MuteExpiresAt = dto.MuteExpiresAt;
+            Muted = dto.Muted;
+            OwnCapabilities = dto.OwnCapabilities;
+            Team = dto.Team;
+            TruncatedAt = dto.TruncatedAt;
+            Type = dto.Type;
+            UpdatedAt = dto.UpdatedAt;
+            AdditionalProperties = dto.AdditionalProperties;
+
+            //Not in API spec
+            Name = dto.Name;
+
+            return this;
+        }
+    }
+}

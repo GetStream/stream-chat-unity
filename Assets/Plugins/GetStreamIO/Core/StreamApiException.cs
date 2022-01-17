@@ -1,0 +1,101 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using GetStreamIO.Core.DTO.Models;
+using UnityEngine;
+
+namespace Plugins.GetStreamIO.Core
+{
+    /// <summary>
+    /// Exception thrown when API request failed
+    /// </summary>
+    public class StreamApiException : Exception
+    {
+        public double? StatusCode { get; }
+        public double? Code { get;  }
+        public string Duration { get;  }
+        public string Message { get;  }
+        public string MoreInfo { get;  }
+
+        public IReadOnlyDictionary<string, string> ExceptionFields => _exceptionFields;
+
+        public StreamApiException(APIErrorDTO apiError)
+        {
+            StatusCode = apiError.StatusCode;
+            Code = apiError.Code;
+            Duration = apiError.Duration;
+            Message = apiError.Message;
+            MoreInfo = apiError.MoreInfo;
+
+            if (apiError.ExceptionFields != null && apiError.ExceptionFields.Count > 0)
+            {
+                _exceptionFields = new Dictionary<string, string>(apiError.ExceptionFields);
+            }
+        }
+
+        private readonly Dictionary<string, string> _exceptionFields;
+    }
+
+    /// <summary>
+    /// Extensions for <see cref="StreamApiException"/>
+    /// </summary>
+    public static class StreamApiExceptionExt
+    {
+        public static void LogStreamExceptionIfFailed(this Task t) => t.ContinueWith(_ =>
+        {
+            if (_.Exception.InnerException is StreamApiException streamApiException)
+            {
+                streamApiException.LogStreamApiExceptionDetails();
+            }
+
+            Debug.LogException(_.Exception);
+        }, TaskContinuationOptions.OnlyOnFaulted);
+
+        public static void LogStreamApiExceptionDetails(this StreamApiException exception)
+        {
+            _sb.Append(nameof(StreamApiException));
+            _sb.Append(":");
+            _sb.Append(Environment.NewLine);
+
+            if (exception.StatusCode.HasValue)
+            {
+                AppendLine(nameof(exception.StatusCode), exception.StatusCode.Value.ToString());
+            }
+
+            if (exception.Code.HasValue)
+            {
+                AppendLine(nameof(exception.Code), exception.Code.Value.ToString());
+            }
+
+            AppendLine(nameof(exception.Duration), exception.Duration);
+            AppendLine(nameof(exception.Message), exception.Message);
+            AppendLine(nameof(exception.MoreInfo), exception.MoreInfo);
+
+            if (exception.ExceptionFields != null)
+            {
+                _sb.Append(nameof(exception.ExceptionFields));
+                _sb.Append(":");
+                _sb.Append(Environment.NewLine);
+
+                foreach (var item in exception.ExceptionFields)
+                {
+                    AppendLine(item.Key, item.Value);
+                }
+            }
+
+            Debug.LogException(new Exception(_sb.ToString(), exception));
+        }
+
+        private static readonly StringBuilder _sb = new StringBuilder();
+
+        private static void AppendLine(string name, string value)
+        {
+            _sb.Append(name);
+            _sb.Append(": ");
+            _sb.Append(value);
+            _sb.Append(Environment.NewLine);
+        }
+    }
+}

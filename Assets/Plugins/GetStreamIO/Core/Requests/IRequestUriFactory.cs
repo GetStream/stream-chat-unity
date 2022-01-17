@@ -1,5 +1,6 @@
 ﻿using System;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
 
 namespace Plugins.GetStreamIO.Core.Requests
 {
@@ -10,14 +11,12 @@ namespace Plugins.GetStreamIO.Core.Requests
     {
         Uri CreateConnectionUri();
 
-        Uri CreateGetChannelsUri();
-
-        Uri CreateSendMessageUri(Channel channel);
-
         Uri CreateDeleteMessageUri(Message message, bool? isHardDelete);
 
         Uri CreateMuteUserUri();
 
         Uri CreateUpdateMessageUri(Message message);
+
+        Uri CreateDefaultEndpointUri(string endpoint);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
 using Plugins.GetStreamIO.Core.Requests.DTO;
 using Plugins.GetStreamIO.Libs.Serialization;
 using Plugins.GetStreamIO.Libs.Utils;
@@ -51,17 +52,9 @@ namespace Plugins.GetStreamIO.Core.Requests
             return uriBuilder.Uri;
         }
 
-        public Uri CreateGetChannelsUri()
-        {
-            var endPoint = "/channels";
-            return CreateRequestUri(endPoint, GetDefaultParameters());
-        }
+        public Uri CreateDefaultEndpointUri(string endpoint)
+            => CreateRequestUri(endpoint, GetDefaultParameters());
 
-        public Uri CreateSendMessageUri(Channel channel)
-        {
-            var endPoint = $"/channels/{channel.Details.Type}/{channel.Details.Id}/message";
-            return CreateRequestUri(endPoint, GetDefaultParameters());
-        }
 
         public Uri CreateUpdateMessageUri(Message message)
         {

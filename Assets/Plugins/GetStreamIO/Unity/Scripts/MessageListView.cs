@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,7 +24,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         {
             if (_activeChannel != null)
             {
-                _activeChannel.Updated -= OnUpdated;
+                _activeChannel.NewMessageAdded -= OnUpdated;
                 _activeChannel = null;
             }
 
@@ -44,13 +45,13 @@ namespace Plugins.GetStreamIO.Unity.Scripts
         [SerializeField]
         private MessageView _localUserMessageViewPrefab;
 
-        private Channel _activeChannel;
+        private ChannelState _activeChannel;
 
-        private void OnActiveChannelChanged(Channel channel)
+        private void OnActiveChannelChanged(ChannelState channel)
         {
             if (_activeChannel != null)
             {
-                _activeChannel.Updated -= OnUpdated;
+                _activeChannel.NewMessageAdded -= OnUpdated;
                 _activeChannel = null;
             }
 
@@ -62,10 +63,10 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             RebuildMessages(channel);
 
             _activeChannel = channel;
-            channel.Updated += OnUpdated;
+            channel.NewMessageAdded += OnUpdated;
         }
 
-        private void OnUpdated(Channel channel)
+        private void OnUpdated(ChannelState channel, Message message)
             => RebuildMessages(channel);
 
         private void ClearAll()
@@ -78,7 +79,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             _messages.Clear();
         }
 
-        private void RebuildMessages(Channel channel)
+        private void RebuildMessages(ChannelState channel)
         {
             ClearAll();
 

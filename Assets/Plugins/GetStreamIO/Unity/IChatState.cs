@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Models.V2;
 
 namespace Plugins.GetStreamIO.Unity
 {
@@ -9,14 +10,14 @@ namespace Plugins.GetStreamIO.Unity
     /// </summary>
     public interface IChatState : IDisposable
     {
-        event Action<Channel> ActiveChanelChanged;
+        event Action<ChannelState> ActiveChanelChanged;
         event Action ChannelsUpdated;
 
-        Channel ActiveChannel { get; }
-        IReadOnlyList<Channel> Channels { get; }
+        ChannelState ActiveChannelDeprecated { get; }
+        IReadOnlyList<ChannelState> Channels { get; }
 
 
-        void OpenChannel(Channel channel);
+        void OpenChannel(ChannelState channel);
 
         void EditMessage(Message message);
 
