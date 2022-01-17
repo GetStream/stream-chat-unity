@@ -1,7 +1,6 @@
 ﻿using System;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Models.V2;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Libs.Utils;
 using TMPro;

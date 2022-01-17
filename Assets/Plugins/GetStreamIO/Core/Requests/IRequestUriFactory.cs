@@ -1,6 +1,5 @@
 ﻿using System;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Models.V2;
 
 namespace Plugins.GetStreamIO.Core.Requests
 {

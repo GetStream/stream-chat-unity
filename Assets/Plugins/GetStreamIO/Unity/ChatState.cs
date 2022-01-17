@@ -4,7 +4,6 @@ using System.Linq;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Events.DTO;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Models.V2;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using UnityEngine;
 

@@ -1,7 +1,7 @@
 ﻿using GetStreamIO.Core.DTO.Models;
 using Plugins.GetStreamIO.Core.Responses;
 
-namespace Plugins.GetStreamIO.Core.Models.V2
+namespace Plugins.GetStreamIO.Core.Models
 {
     /// <summary>
     /// Represents user reaction to a message

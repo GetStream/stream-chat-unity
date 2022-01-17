@@ -1,6 +1,6 @@
 ﻿using GetStreamIO.Core.DTO.Models;
 
-namespace Plugins.GetStreamIO.Core.Models.V2
+namespace Plugins.GetStreamIO.Core.Models
 {
     public partial class Attachment : ModelBase, ILoadableFrom<AttachmentDTO, Attachment>
     {

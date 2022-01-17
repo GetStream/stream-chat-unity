@@ -1,4 +1,4 @@
-namespace Plugins.GetStreamIO.Core.Models.V2
+namespace Plugins.GetStreamIO.Core.Models
 {
     public abstract class ModelBase
     {

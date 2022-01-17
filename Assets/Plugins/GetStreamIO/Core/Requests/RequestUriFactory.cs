@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Models.V2;
 using Plugins.GetStreamIO.Core.Requests.DTO;
 using Plugins.GetStreamIO.Libs.Serialization;
 using Plugins.GetStreamIO.Libs.Utils;

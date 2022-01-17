@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Models.V2;
 using Plugins.GetStreamIO.Libs.Utils;
 using TMPro;
 using UnityEngine;

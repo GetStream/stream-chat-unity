@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Models.V2;
 
 namespace Plugins.GetStreamIO.Unity
 {

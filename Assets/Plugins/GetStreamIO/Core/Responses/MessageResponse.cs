@@ -1,5 +1,5 @@
 ﻿using GetStreamIO.Core.DTO.Responses;
-using Plugins.GetStreamIO.Core.Models.V2;
+using Plugins.GetStreamIO.Core.Models;
 
 namespace Plugins.GetStreamIO.Core.Responses
 {

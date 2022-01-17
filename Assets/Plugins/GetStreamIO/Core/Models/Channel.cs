@@ -1,6 +1,6 @@
 ﻿using GetStreamIO.Core.DTO.Responses;
 
-namespace Plugins.GetStreamIO.Core.Models.V2
+namespace Plugins.GetStreamIO.Core.Models
 {
     public partial class Channel : ModelBase, ILoadableFrom<ChannelResponseDTO, Channel>
     {

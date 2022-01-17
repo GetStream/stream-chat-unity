@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events.DTO;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Models.V2;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Core.Responses;
 
