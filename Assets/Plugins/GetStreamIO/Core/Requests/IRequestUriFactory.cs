@@ -1,5 +1,5 @@
 ﻿using System;
-using Plugins.GetStreamIO.Core.Models;
+using System.Collections.Generic;
 
 namespace Plugins.GetStreamIO.Core.Requests
 {
@@ -10,12 +10,8 @@ namespace Plugins.GetStreamIO.Core.Requests
     {
         Uri CreateConnectionUri();
 
-        Uri CreateDeleteMessageUri(Message message, bool? isHardDelete);
-
         Uri CreateMuteUserUri();
 
-        Uri CreateUpdateMessageUri(Message message);
-
-        Uri CreateDefaultEndpointUri(string endpoint);
+        Uri CreateEndpointUri(string endpoint, Dictionary<string, string> parameters = null);
     }
 }

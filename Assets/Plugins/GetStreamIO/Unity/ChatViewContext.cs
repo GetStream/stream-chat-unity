@@ -1,5 +1,6 @@
 ﻿using System;
 using Plugins.GetStreamIO.Core;
+using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Unity.Scripts;
 
 namespace Plugins.GetStreamIO.Unity

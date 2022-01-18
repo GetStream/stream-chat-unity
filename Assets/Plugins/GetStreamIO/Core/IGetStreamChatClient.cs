@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events.DTO;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Core.Responses;
+using Action = System.Action;
 
 namespace Plugins.GetStreamIO.Core
 {
@@ -30,14 +30,14 @@ namespace Plugins.GetStreamIO.Core
 
         bool IsLocalUser(ChannelMember channelMember);
 
-        Task UpdateMessageAsync(Message message);
-
-        Task DeleteMessage(Message message, bool hard);
-
-        Task Mute(User user);
-
         Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId, SendMessageRequest sendMessageRequest);
 
         Task<ChannelsResponse> QueryChannelsAsync(QueryChannelsRequest queryChannelsRequest);
+
+        Task<MessageResponse> UpdateMessageAsync(UpdateMessageRequest updateMessageRequest);
+
+        Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard);
+
+        Task<MuteUserResponse> MuteUserAsync(MuteUserRequest muteUserRequest);
     }
 }

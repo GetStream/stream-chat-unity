@@ -67,6 +67,9 @@ namespace Plugins.GetStreamIO.Unity
 
         private ChannelState _activeChannel;
 
+        //Todo: get it initially from health check event
+        private OwnUser _localUser;
+
         private async void OnClientConnected()
         {
             var request = new QueryChannelsRequest

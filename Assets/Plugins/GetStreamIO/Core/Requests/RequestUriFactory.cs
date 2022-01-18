@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Models;
@@ -51,27 +50,19 @@ namespace Plugins.GetStreamIO.Core.Requests
             return uriBuilder.Uri;
         }
 
-        public Uri CreateDefaultEndpointUri(string endpoint)
-            => CreateRequestUri(endpoint, GetDefaultParameters());
-
-
-        public Uri CreateUpdateMessageUri(Message message)
+        public Uri CreateEndpointUri(string endpoint, Dictionary<string, string> parameters = null)
         {
-            var endPoint = $"/messages/{message.Id}";
-            return CreateRequestUri(endPoint, GetDefaultParameters());
-        }
+            var requestParameters = GetDefaultParameters();
 
-        public Uri CreateDeleteMessageUri(Message message, bool? isHardDelete)
-        {
-            var endPoint = $"/messages/{message.Id}";
-            var parameters = GetDefaultParameters();
-
-            if (isHardDelete.HasValue)
+            if (parameters != null)
             {
-                parameters.Add("hard", isHardDelete.Value.ToString());
+                foreach (var p in parameters.Keys)
+                {
+                    requestParameters[p] = parameters[p];
+                }
             }
 
-            return CreateRequestUri(endPoint, parameters);
+            return CreateRequestUri(endpoint, requestParameters);
         }
 
         public Uri CreateMuteUserUri()
@@ -101,6 +92,23 @@ namespace Plugins.GetStreamIO.Core.Requests
                 { Path = endPoint, Scheme = "https", Query = query };
 
             return uriBuilder.Uri;
+        }
+    }
+
+    public class QueryParameters : Dictionary<string, string>
+    {
+        public static QueryParameters Create() => new QueryParameters();
+    }
+
+    public static class QueryParametersExt
+    {
+        public static QueryParameters Append(this QueryParameters queryParameters, string key, bool value)
+            => Append(queryParameters, key, value.ToString());
+
+        public static QueryParameters Append(this QueryParameters queryParameters, string key, string value)
+        {
+            queryParameters[key] = value;
+            return queryParameters;
         }
     }
 }

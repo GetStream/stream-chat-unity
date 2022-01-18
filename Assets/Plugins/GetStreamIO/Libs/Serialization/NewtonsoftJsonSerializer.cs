@@ -12,7 +12,8 @@ namespace Plugins.GetStreamIO.Libs.Serialization
             => JsonConvert.SerializeObject(obj, Formatting.None,
                 new JsonSerializerSettings
                 {
-                    NullValueHandling = NullValueHandling.Ignore
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore,
                 });
 
         public TType Deserialize<TType>(string serializedObj)

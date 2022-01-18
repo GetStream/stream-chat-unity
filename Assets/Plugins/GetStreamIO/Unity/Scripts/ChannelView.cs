@@ -70,11 +70,12 @@ namespace Plugins.GetStreamIO.Unity.Scripts
                 ? _channelState.Channel.CreatedBy.Name
                 : name;
 
-            var abbreviation = abbreviationSource.Length > 0
+            //Todo: this breaks when instead of a regular character we have an emoji
+            var abbreviation = abbreviationSource.Length > 0 && char.IsLetterOrDigit(abbreviationSource.First())
                 ? abbreviationSource.Substring(0, 1).ToUpper()
                 : string.Empty;
 
-            _avatarAbbreviation.text = abbreviation;
+             _avatarAbbreviation.text = abbreviation;
         }
 
         private string GetLastMessagePreview()

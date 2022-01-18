@@ -76,7 +76,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             {
                 case Mode.Create:
 
-                    var request = new SendMessageRequest
+                    var sendMessageRequest = new SendMessageRequest
                     {
                         Message = new MessageRequest
                         {
@@ -85,14 +85,24 @@ namespace Plugins.GetStreamIO.Unity.Scripts
                     };
                     var channel = ViewContext.State.ActiveChannelDeprecated;
 
-                    Client.SendNewMessageAsync(channel.Channel.Type, channel.Channel.Id, request)
+                    Client.SendNewMessageAsync(channel.Channel.Type, channel.Channel.Id, sendMessageRequest)
                         .LogStreamExceptionIfFailed();
                     break;
 
                 case Mode.Edit:
 
                     _currentEditMessage.Text = _messageInput.text;
-                    Client.UpdateMessageAsync(_currentEditMessage).LogStreamExceptionIfFailed();
+
+                    var updateMessageRequest = new UpdateMessageRequest
+                    {
+                        Message = new MessageRequest
+                        {
+                            Id = _currentEditMessage.Id,
+                            Text = _messageInput.text
+                        }
+                    };
+
+                    Client.UpdateMessageAsync(updateMessageRequest).LogStreamExceptionIfFailed();
                     break;
 
                 default:

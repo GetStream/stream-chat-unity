@@ -48,11 +48,6 @@ namespace Plugins.GetStreamIO.Core.Models
         public bool? IsModerator { get; set; }
 
         /// <summary>
-        /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)
-        /// </summary>
-        public ChannelMemberRoleType? Role { get; set; }
-
-        /// <summary>
         /// Whether member is shadow banned in this channel or not
         /// </summary>
         public bool? ShadowBanned { get; set; }
@@ -77,7 +72,6 @@ namespace Plugins.GetStreamIO.Core.Models
             InviteRejectedAt = dto.InviteRejectedAt;
             Invited = dto.Invited;
             IsModerator = dto.IsModerator;
-            Role = dto.Role;
             ShadowBanned = dto.ShadowBanned;
             UpdatedAt = dto.UpdatedAt;
             User = User.TryLoadFromDto(dto.User);

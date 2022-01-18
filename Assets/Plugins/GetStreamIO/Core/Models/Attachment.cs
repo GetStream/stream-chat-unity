@@ -4,7 +4,7 @@ namespace Plugins.GetStreamIO.Core.Models
 {
     public partial class Attachment : ModelBase, ILoadableFrom<AttachmentDTO, Attachment>
     {
-        public System.Collections.Generic.ICollection<ActionDTO> Actions { get; set; }
+        public System.Collections.Generic.ICollection<ActionDTO> Actions { get; set; } //Todo: DTO -> Model
 
         public string AssetUrl { get; set; }
 
@@ -18,7 +18,7 @@ namespace Plugins.GetStreamIO.Core.Models
 
         public string Fallback { get; set; }
 
-        public System.Collections.Generic.ICollection<FieldDTO> Fields { get; set; }
+        public System.Collections.Generic.ICollection<FieldDTO> Fields { get; set; } //Todo: DTO -> Model
 
         public string Footer { get; set; }
 

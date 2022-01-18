@@ -68,13 +68,6 @@ namespace GetStreamIO.Core.DTO.Models
         public bool? IsModerator { get; set; }
 
         /// <summary>
-        /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("role", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ChannelMemberRoleType? Role { get; set; }
-
-        /// <summary>
         /// Whether member is shadow banned in this channel or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("shadow_banned", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

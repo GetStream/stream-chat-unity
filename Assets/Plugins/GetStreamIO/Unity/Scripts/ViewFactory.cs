@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core;
+using Plugins.GetStreamIO.Core.Requests.V2;
+using Plugins.GetStreamIO.Libs.Utils;
 using Plugins.GetStreamIO.Unity.Scripts.Popups;
 using UnityEngine;
 
@@ -49,10 +51,19 @@ namespace Plugins.GetStreamIO.Unity.Scripts
 
                 //Todo: muted ? => show unmute instead
                 var user = message.User;
-                options.Add(new MenuOptionEntry("Mute", () => _client.Mute(user)));
+                options.Add(new MenuOptionEntry("Mute", () =>
+                {
+                    var muteUserRequest = new MuteUserRequest
+                    {
+                        TargetIds = new List<string>().AddFluent(user.Id)
+                    };
+
+                    //Todo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
+                    _client.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
+                }));
             }
 
-            options.Add(new MenuOptionEntry("Delete", () => _client.DeleteMessage(message, hard: false)));
+            options.Add(new MenuOptionEntry("Delete", () => _client.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options);
             popup.Show(args);
