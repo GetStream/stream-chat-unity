@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Plugins.GetStreamIO.Core;
-using Plugins.GetStreamIO.Core.Events.DTO;
+using Plugins.GetStreamIO.Core.Events.V2;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using UnityEngine;
@@ -110,13 +110,13 @@ namespace Plugins.GetStreamIO.Unity
             ChannelsUpdated?.Invoke();
         }
 
-        private void OnMessageReceived(MessageNewEvent messageNewEvent)
+        private void OnMessageReceived(EventMessageNew messageNewEvent)
         {
             var channel = _channels.First(_ => _.Channel.Id == messageNewEvent.ChannelId);
             channel.AddMessage(messageNewEvent.Message);
         }
 
-        private void OnMessageDeleted(MessageDeletedEvent messageDeletedEvent)
+        private void OnMessageDeleted(EventMessageDeleted messageDeletedEvent)
         {
             var channel = _channels.First(_ => _.Channel.Id == messageDeletedEvent.ChannelId);
             var message = channel.Messages.First(_ => _.Id == messageDeletedEvent.Message.Id);
@@ -125,9 +125,9 @@ namespace Plugins.GetStreamIO.Unity
             ActiveChanelChanged?.Invoke(ActiveChannelDeprecated);
         }
 
-        private void OnMessageUpdated(MessageUpdated messageUpdatedEvent)
+        private void OnMessageUpdated(EventMessageUpdated messageUpdatedEvent)
         {
-            var channel = _channels.First(_ => _.Channel.Id == messageUpdatedEvent.Channel_id);
+            var channel = _channels.First(_ => _.Channel.Id == messageUpdatedEvent.ChannelId);
             ActiveChanelChanged?.Invoke(channel);
         }
     }

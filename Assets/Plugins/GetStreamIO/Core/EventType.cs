@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Core.Events
+﻿namespace Plugins.GetStreamIO.Core
 {
     /// <summary>
     /// Event types that can be received from server

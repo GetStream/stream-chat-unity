@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
-using Plugins.GetStreamIO.Core.Events.DTO;
+using Plugins.GetStreamIO.Core.Events.V2;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Core.Responses;
@@ -16,9 +16,9 @@ namespace Plugins.GetStreamIO.Core
     {
         event Action Connected;
         event Action<string> EventReceived;
-        event Action<MessageNewEvent> MessageReceived;
-        event Action<MessageDeletedEvent> MessageDeleted;
-        event Action<MessageUpdated> MessageUpdated;
+        event Action<EventMessageNew> MessageReceived;
+        event Action<EventMessageDeleted> MessageDeleted;
+        event Action<EventMessageUpdated> MessageUpdated;
 
         ConnectionState ConnectionState { get; }
 

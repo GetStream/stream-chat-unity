@@ -7,11 +7,9 @@ using GetStreamIO.Core.DTO.Requests;
 using GetStreamIO.Core.DTO.Responses;
 using Plugins.GetStreamIO.Core.API;
 using Plugins.GetStreamIO.Core.Auth;
-using Plugins.GetStreamIO.Core.Events;
-using Plugins.GetStreamIO.Core.Events.DTO;
+using Plugins.GetStreamIO.Core.Events.V2;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests;
-using Plugins.GetStreamIO.Core.Requests.DTO;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Core.Responses;
 using Plugins.GetStreamIO.Libs.Http;
@@ -35,9 +33,9 @@ namespace Plugins.GetStreamIO.Core
 
         public event Action<string> EventReceived;
 
-        public event Action<MessageNewEvent> MessageReceived;
-        public event Action<MessageDeletedEvent> MessageDeleted;
-        public event Action<MessageUpdated> MessageUpdated;
+        public event Action<EventMessageNew> MessageReceived;
+        public event Action<EventMessageDeleted> MessageDeleted;
+        public event Action<EventMessageUpdated> MessageUpdated;
 
         public ConnectionState ConnectionState { get; private set; }
 
@@ -70,18 +68,10 @@ namespace Plugins.GetStreamIO.Core
 
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
 
-            //Todo: we should not pass the type twice, perhaps it should not only be mapping but eventsListener that covers parsing internally and we subscribe handlers only
-            _serverEventsMapping.Register<HealthCheckEvent>(EventType.HealthCheck,
-                msg => Parse<HealthCheckEvent>(msg, Handle));
-            _serverEventsMapping.Register<MessageNewEvent>(EventType.MessageNew,
-                msg => Parse<MessageNewEvent>(msg, Handle));
-            _serverEventsMapping.Register<MessageDeletedEvent>(EventType.MessageDeleted,
-                msg => Parse<MessageDeletedEvent>(msg, Handle));
-            _serverEventsMapping.Register<MessageUpdated>(EventType.MessageUpdated,
-                msg => Parse<MessageUpdated>(msg, Handle));
-
             _httpClient.SetDefaultAuthenticationHeader(authData.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
+
+            RegisterEventHandlers();
         }
 
         public void Connect()
@@ -188,9 +178,10 @@ namespace Plugins.GetStreamIO.Core
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
         private readonly AuthData _authData;
-        private readonly IEventHandlersRepository _serverEventsMapping = new EventHandlersRepository();
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
+
+        private readonly Dictionary<string, Action<string>> _eventKeyToHandler = new Dictionary<string, Action<string>>();
 
         private string _connectionId;
         private float _lastHealthCheckReceivedTime;
@@ -200,10 +191,50 @@ namespace Plugins.GetStreamIO.Core
 
         private void OnConnectionConfirmed() => Connected?.Invoke();
 
+        private void RegisterEventHandlers()
+        {
+            RegisterEventType<EventHealthCheckDTO, EventHealthCheck>(EventType.HealthCheck, Handle);
+
+            RegisterEventType<EventMessageNewDTO, EventMessageNew>(EventType.MessageNew, Handle);
+            RegisterEventType<EventMessageDeletedDTO, EventMessageDeleted>(EventType.MessageDeleted, Handle);
+            RegisterEventType<EventMessageUpdatedDTO, EventMessageUpdated>(EventType.MessageUpdated, Handle);
+        }
+
         private void Reconnect()
         {
             ConnectionState = ConnectionState.Reconnecting;
             Connect();
+        }
+
+        private void RegisterEventType<TDto, TEvent>(string key,
+            Action<TEvent> handler)
+            where TEvent : ILoadableFrom<TDto, TEvent>, new()
+        {
+            _eventKeyToHandler.Add(key, content =>
+            {
+                var eventObj = DeserializeEvent<TDto, TEvent>(content);
+                handler(eventObj);
+            });
+        }
+
+        private TEvent DeserializeEvent<TDto, TEvent>(string content)
+            where TEvent : ILoadableFrom<TDto, TEvent>, new()
+        {
+            TDto responseDto;
+
+            try
+            {
+                responseDto = _serializer.Deserialize<TDto>(content);
+            }
+            catch (Exception e)
+            {
+                throw new StreamDeserializationException(content, typeof(TDto), e);
+            }
+
+            var response = new TEvent();
+            response.LoadFromDto(responseDto);
+
+            return response;
         }
 
         private void HandleNewWebsocketMessage(string msg)
@@ -221,11 +252,13 @@ namespace Plugins.GetStreamIO.Core
             var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
             EventReceived?.Invoke($"{time} - Event received: <b>{type}</b>");
 
-            if (!_serverEventsMapping.TryHandleEvent(type, msg))
+            if(!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
                 _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
                 return;
             }
+
+            handler(msg);
         }
 
         private void UpdateHealthCheck()
@@ -253,7 +286,7 @@ namespace Plugins.GetStreamIO.Core
 
         private void PingHealthCheck()
         {
-            //Todo: react demo also includes `client_id` but health check seems to work without it
+            //Todo: react demo also includes `client_id` but it's not in spec and health check seems to work without it
             var healthCheck = new EventHealthCheck
             {
                 Type = EventType.HealthCheck
@@ -264,13 +297,7 @@ namespace Plugins.GetStreamIO.Core
             _lastHealthCheckSendTime = _timeService.Time;
         }
 
-        private void Parse<TType>(string msg, Action<TType> handler)
-        {
-            var parsed = _serializer.Deserialize<TType>(msg);
-            handler(parsed);
-        }
-
-        private void Handle(HealthCheckEvent healthCheckEvent)
+        private void Handle(EventHealthCheck healthCheckEvent)
         {
             _lastHealthCheckReceivedTime = _timeService.Time;
             if (ConnectionState == ConnectionState.Connecting)
@@ -283,21 +310,21 @@ namespace Plugins.GetStreamIO.Core
             }
         }
 
-        private void Handle(MessageNewEvent messageNewEvent)
+        private void Handle(EventMessageNew messageNewEvent)
         {
             _logs.Info("New message event received");
 
             MessageReceived?.Invoke(messageNewEvent);
         }
 
-        private void Handle(MessageDeletedEvent messageDeletedEvent)
+        private void Handle(EventMessageDeleted messageDeletedEvent)
         {
             _logs.Info("New deleted event received");
 
             MessageDeleted?.Invoke(messageDeletedEvent);
         }
 
-        private void Handle(MessageUpdated messageUpdatedEvent)
+        private void Handle(EventMessageUpdated messageUpdatedEvent)
         {
             _logs.Info("New deleted event received");
 
