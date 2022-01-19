@@ -1,5 +1,6 @@
 ﻿using GetStreamIO.Core.DTO.Events;
 using GetStreamIO.Core.DTO.Models;
+using Plugins.GetStreamIO.Core.Helpers;
 using Plugins.GetStreamIO.Core.Models;
 
 namespace Plugins.GetStreamIO.Core.Events

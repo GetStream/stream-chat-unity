@@ -6,7 +6,7 @@ using Plugins.GetStreamIO.Core.Requests.DTO;
 using Plugins.GetStreamIO.Libs.Serialization;
 using Plugins.GetStreamIO.Libs.Utils;
 
-namespace Plugins.GetStreamIO.Core.Requests
+namespace Plugins.GetStreamIO.Core.Requests.Factories
 {
     /// <summary>
     /// Requests Uri Factory
@@ -65,12 +65,6 @@ namespace Plugins.GetStreamIO.Core.Requests
             return CreateRequestUri(endpoint, requestParameters);
         }
 
-        public Uri CreateMuteUserUri()
-        {
-            var endPoint = "/moderation/mute";
-            return CreateRequestUri(endPoint, GetDefaultParameters());
-        }
-
         private readonly IAuthProvider _authProvider;
         private readonly ISerializer _serializer;
         private readonly IConnectionProvider _connectionProvider;
@@ -92,23 +86,6 @@ namespace Plugins.GetStreamIO.Core.Requests
                 { Path = endPoint, Scheme = "https", Query = query };
 
             return uriBuilder.Uri;
-        }
-    }
-
-    public class QueryParameters : Dictionary<string, string>
-    {
-        public static QueryParameters Create() => new QueryParameters();
-    }
-
-    public static class QueryParametersExt
-    {
-        public static QueryParameters Append(this QueryParameters queryParameters, string key, bool value)
-            => Append(queryParameters, key, value.ToString());
-
-        public static QueryParameters Append(this QueryParameters queryParameters, string key, string value)
-        {
-            queryParameters[key] = value;
-            return queryParameters;
         }
     }
 }

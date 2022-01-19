@@ -1,5 +1,6 @@
 ﻿using System;
 using Plugins.GetStreamIO.Core;
+using Plugins.GetStreamIO.Core.Exceptions;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Libs.Utils;

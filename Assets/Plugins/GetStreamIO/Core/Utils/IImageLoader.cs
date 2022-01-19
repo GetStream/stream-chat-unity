@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Core
+namespace Plugins.GetStreamIO.Core.Utils
 {
     /// <summary>
     /// Loads images from web

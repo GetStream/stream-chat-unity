@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using GetStreamIO.Core.DTO.Models;
+using Plugins.GetStreamIO.Core.Helpers;
+using Plugins.GetStreamIO.Core.Utils;
 
 namespace Plugins.GetStreamIO.Core.Models
 {

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using GetStreamIO.Core.DTO.Models;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Utils;
 using Plugins.GetStreamIO.Libs.Utils;
 using Plugins.GetStreamIO.Unity.Scripts.Popups;
 using TMPro;

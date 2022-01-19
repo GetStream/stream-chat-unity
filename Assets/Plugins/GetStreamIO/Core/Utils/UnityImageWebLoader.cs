@@ -5,7 +5,7 @@ using Plugins.GetStreamIO.Libs.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Plugins.GetStreamIO.Core
+namespace Plugins.GetStreamIO.Core.Utils
 {
     /// <summary>
     /// Unity <see cref="IImageLoader"/>

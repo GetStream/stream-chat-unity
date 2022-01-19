@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Events;
+using Plugins.GetStreamIO.Core.Exceptions;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using UnityEngine;

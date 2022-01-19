@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core;
+using Plugins.GetStreamIO.Core.Exceptions;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Libs.Utils;
 using Plugins.GetStreamIO.Unity.Scripts.Popups;

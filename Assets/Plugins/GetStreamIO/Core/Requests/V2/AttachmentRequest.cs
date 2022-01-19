@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using GetStreamIO.Core.DTO.Requests;
+using Plugins.GetStreamIO.Core.Helpers;
+using Plugins.GetStreamIO.Core.Utils;
 
 namespace Plugins.GetStreamIO.Core.Requests.V2
 {

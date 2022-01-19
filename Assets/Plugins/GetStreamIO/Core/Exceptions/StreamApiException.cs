@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using GetStreamIO.Core.DTO.Models;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Core
+namespace Plugins.GetStreamIO.Core.Exceptions
 {
     /// <summary>
     /// Exception thrown when API request failed

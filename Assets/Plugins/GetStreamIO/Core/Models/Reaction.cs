@@ -1,4 +1,5 @@
 ﻿using GetStreamIO.Core.DTO.Models;
+using Plugins.GetStreamIO.Core.Helpers;
 using Plugins.GetStreamIO.Core.Responses;
 
 namespace Plugins.GetStreamIO.Core.Models

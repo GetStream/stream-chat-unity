@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Core.Requests
+namespace Plugins.GetStreamIO.Core.Requests.Factories
 {
     /// <summary>
     /// Requests Uri Factory
@@ -9,8 +9,6 @@ namespace Plugins.GetStreamIO.Core.Requests
     public interface IRequestUriFactory
     {
         Uri CreateConnectionUri();
-
-        Uri CreateMuteUserUri();
 
         Uri CreateEndpointUri(string endpoint, Dictionary<string, string> parameters = null);
     }

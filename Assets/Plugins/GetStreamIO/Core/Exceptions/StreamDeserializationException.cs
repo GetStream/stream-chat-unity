@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plugins.GetStreamIO.Core
+namespace Plugins.GetStreamIO.Core.Exceptions
 {
     /// <summary>
     /// Thrown when deserialization fails

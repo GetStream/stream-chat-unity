@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Plugins.GetStreamIO.Core;
 using Plugins.GetStreamIO.Core.Models;
+using Plugins.GetStreamIO.Core.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
