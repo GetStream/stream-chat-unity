@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
-using Plugins.GetStreamIO.Core.Events.V2;
+using Plugins.GetStreamIO.Core.Events;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Core.Responses;

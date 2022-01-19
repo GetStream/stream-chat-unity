@@ -1,9 +1,9 @@
 ﻿using GetStreamIO.Core.DTO.Events;
 using Plugins.GetStreamIO.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Events.V2
+namespace Plugins.GetStreamIO.Core.Events
 {
-    public partial class EventMemberUpdated : EventBase, ILoadableFrom<EventMemberUpdatedDTO, EventMemberUpdated>
+    public partial class EventMessageUpdated : EventBase, ILoadableFrom<EventMessageUpdatedDTO, EventMessageUpdated>
     {
         public string ChannelId { get; set; }
 
@@ -13,22 +13,25 @@ namespace Plugins.GetStreamIO.Core.Events.V2
 
         public System.DateTimeOffset? CreatedAt { get; set; }
 
-        public ChannelMember Member { get; set; }
+        public Message Message { get; set; }
 
         public string Team { get; set; }
+
+        public System.Collections.Generic.ICollection<User> ThreadParticipants { get; set; }
 
         public string Type { get; set; }
 
         public User User { get; set; }
 
-        public EventMemberUpdated LoadFromDto(EventMemberUpdatedDTO dto)
+        public EventMessageUpdated LoadFromDto(EventMessageUpdatedDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Member = Member.TryLoadFromDto(dto.Member);
+            Message = Message.TryLoadFromDto(dto.Message);
             Team = dto.Team;
+            ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             User = User.TryLoadFromDto(dto.User);
             AdditionalProperties = dto.AdditionalProperties;

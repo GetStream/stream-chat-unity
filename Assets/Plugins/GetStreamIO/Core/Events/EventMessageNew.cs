@@ -1,9 +1,9 @@
 ﻿using GetStreamIO.Core.DTO.Events;
 using Plugins.GetStreamIO.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Events.V2
+namespace Plugins.GetStreamIO.Core.Events
 {
-    public partial class EventMessageUpdated : EventBase, ILoadableFrom<EventMessageUpdatedDTO, EventMessageUpdated>
+    public partial class EventMessageNew : EventBase, ILoadableFrom<EventMessageNewDTO, EventMessageNew>
     {
         public string ChannelId { get; set; }
 
@@ -23,7 +23,9 @@ namespace Plugins.GetStreamIO.Core.Events.V2
 
         public User User { get; set; }
 
-        public EventMessageUpdated LoadFromDto(EventMessageUpdatedDTO dto)
+        public double? WatcherCount { get; set; }
+
+        public EventMessageNew LoadFromDto(EventMessageNewDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
@@ -34,6 +36,7 @@ namespace Plugins.GetStreamIO.Core.Events.V2
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             User = User.TryLoadFromDto(dto.User);
+            WatcherCount = dto.WatcherCount;
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

@@ -2,7 +2,7 @@
 using GetStreamIO.Core.DTO.Models;
 using Plugins.GetStreamIO.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Events.V2
+namespace Plugins.GetStreamIO.Core.Events
 {
     public partial class EventHealthCheck : EventBase, ILoadableFrom<EventHealthCheckDTO, EventHealthCheck>
     {

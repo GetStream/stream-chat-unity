@@ -7,7 +7,7 @@ using GetStreamIO.Core.DTO.Requests;
 using GetStreamIO.Core.DTO.Responses;
 using Plugins.GetStreamIO.Core.API;
 using Plugins.GetStreamIO.Core.Auth;
-using Plugins.GetStreamIO.Core.Events.V2;
+using Plugins.GetStreamIO.Core.Events;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests;
 using Plugins.GetStreamIO.Core.Requests.V2;
