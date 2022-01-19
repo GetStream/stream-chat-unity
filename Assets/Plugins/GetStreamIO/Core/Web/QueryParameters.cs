@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Core.Requests.Factories
+namespace Plugins.GetStreamIO.Core.Web
 {
     public class QueryParameters : Dictionary<string, string>
     {

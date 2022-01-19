@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Core.Requests.Factories
+namespace Plugins.GetStreamIO.Core.Web
 {
     /// <summary>
     /// Requests Uri Factory

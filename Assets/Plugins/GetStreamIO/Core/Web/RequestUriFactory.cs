@@ -6,7 +6,7 @@ using Plugins.GetStreamIO.Core.Requests.DTO;
 using Plugins.GetStreamIO.Libs.Serialization;
 using Plugins.GetStreamIO.Libs.Utils;
 
-namespace Plugins.GetStreamIO.Core.Requests.Factories
+namespace Plugins.GetStreamIO.Core.Web
 {
     /// <summary>
     /// Requests Uri Factory

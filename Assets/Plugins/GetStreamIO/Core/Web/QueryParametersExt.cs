@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Core.Requests.Factories
+﻿namespace Plugins.GetStreamIO.Core.Web
 {
     public static class QueryParametersExt
     {
