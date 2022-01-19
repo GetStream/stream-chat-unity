@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Requests.V2;
+using Plugins.GetStreamIO.Core.Requests;
 using Plugins.GetStreamIO.Core.Responses;
 using Action = System.Action;
 

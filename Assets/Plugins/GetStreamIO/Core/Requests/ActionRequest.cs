@@ -1,7 +1,6 @@
 ﻿using GetStreamIO.Core.DTO.Requests;
-using UnityEngine;
 
-namespace Plugins.GetStreamIO.Core.Requests.V2
+namespace Plugins.GetStreamIO.Core.Requests
 {
     public class ActionRequest : RequestObjectBase, ISavableTo<ActionRequestDTO>
     {

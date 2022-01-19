@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Core.Requests.V2
+namespace Plugins.GetStreamIO.Core.Requests
 {
     public abstract class RequestObjectBase
     {

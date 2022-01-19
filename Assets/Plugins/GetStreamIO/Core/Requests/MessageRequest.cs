@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using GetStreamIO.Core.DTO.Requests;
 using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Utils;
 
-namespace Plugins.GetStreamIO.Core.Requests.V2
+namespace Plugins.GetStreamIO.Core.Requests
 {
     /// <summary>
     /// Represents any chat message

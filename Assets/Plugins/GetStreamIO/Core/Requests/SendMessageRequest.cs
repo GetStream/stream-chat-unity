@@ -1,7 +1,7 @@
 ﻿using GetStreamIO.Core.DTO.Requests;
 using Plugins.GetStreamIO.Core.Helpers;
 
-namespace Plugins.GetStreamIO.Core.Requests.V2
+namespace Plugins.GetStreamIO.Core.Requests
 {
     /// <summary>
     /// Contains all information needed to send new message

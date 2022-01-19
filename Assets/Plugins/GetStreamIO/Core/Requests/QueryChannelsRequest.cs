@@ -1,8 +1,7 @@
 ﻿using GetStreamIO.Core.DTO.Requests;
 using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Utils;
 
-namespace Plugins.GetStreamIO.Core.Requests.V2
+namespace Plugins.GetStreamIO.Core.Requests
 {
     public partial class QueryChannelsRequest : RequestObjectBase, ISavableTo<QueryChannelsRequestDTO>
     {

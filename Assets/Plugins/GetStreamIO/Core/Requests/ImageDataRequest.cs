@@ -1,6 +1,6 @@
 ﻿using GetStreamIO.Core.DTO.Requests;
 
-namespace Plugins.GetStreamIO.Core.Requests.V2
+namespace Plugins.GetStreamIO.Core.Requests
 {
     public class ImageDataRequest : RequestObjectBase, ISavableTo<ImageDataRequestDTO>
     {

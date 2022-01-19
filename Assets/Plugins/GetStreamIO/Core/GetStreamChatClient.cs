@@ -12,7 +12,6 @@ using Plugins.GetStreamIO.Core.Exceptions;
 using Plugins.GetStreamIO.Core.Models;
 using Plugins.GetStreamIO.Core.Requests;
 using Plugins.GetStreamIO.Core.Requests.Factories;
-using Plugins.GetStreamIO.Core.Requests.V2;
 using Plugins.GetStreamIO.Core.Responses;
 using Plugins.GetStreamIO.Libs.Http;
 using Plugins.GetStreamIO.Libs.Logs;
