@@ -12,12 +12,12 @@ namespace Plugins.GetStreamIO.Core.Requests.V2
         /// <summary>
         /// Do not try to enrich the links within message
         /// </summary>
-        public bool SkipEnrichUrl { get; set; }
+        public bool? SkipEnrichUrl { get; set; }
 
         /// <summary>
         /// Disables all push notifications for this message
         /// </summary>
-        public bool SkipPush { get; set; }
+        public bool? SkipPush { get; set; }
 
         public SendMessageRequestDTO SaveToDto() =>
             new SendMessageRequestDTO

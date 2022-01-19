@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GetStreamIO.Core.DTO.Events;
 using GetStreamIO.Core.DTO.Models;
 using GetStreamIO.Core.DTO.Requests;
 using GetStreamIO.Core.DTO.Responses;
@@ -121,7 +122,8 @@ namespace Plugins.GetStreamIO.Core
         }
 
         //Todo: move to MessageApi
-        public Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId, SendMessageRequest sendMessageRequest)
+        public Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId,
+            SendMessageRequest sendMessageRequest)
         {
             var endpoint = MessageEndpoints.SendMessage(channelType, channelId);
 
@@ -152,7 +154,8 @@ namespace Plugins.GetStreamIO.Core
         {
             var endpoint = ModerationEndpoints.MuteUser();
 
-            return Post<MuteUserRequest, MuteUserRequestDTO, MuteUserResponse, MuteUserResponseDTO>(endpoint, muteUserRequest);
+            return Post<MuteUserRequest, MuteUserRequestDTO, MuteUserResponse, MuteUserResponseDTO>(endpoint,
+                muteUserRequest);
         }
 
         public bool IsLocalUser(User user)
@@ -250,14 +253,13 @@ namespace Plugins.GetStreamIO.Core
 
         private void PingHealthCheck()
         {
-            var msg = new HealthCheckRequestObsolete
+            //Todo: react demo also includes `client_id` but health check seems to work without it
+            var healthCheck = new EventHealthCheck
             {
-                Type = EventType.HealthCheck,
-
-                //TOdo: is this valid? Seems to work, but for react SDK was `leia_organa--ce260d55-c24e-4963-887a-3b90a30a6175`
-                ClientId = _authData.UserId
+                Type = EventType.HealthCheck
             };
-            _websocketClient.Send(_serializer.Serialize(msg));
+
+            _websocketClient.Send(_serializer.Serialize(healthCheck));
 
             _lastHealthCheckSendTime = _timeService.Time;
         }
@@ -302,7 +304,7 @@ namespace Plugins.GetStreamIO.Core
             MessageUpdated?.Invoke(messageUpdatedEvent);
         }
 
-                private async Task<TResponse> Get<TResponse, TResponseDto>(string url)
+        private async Task<TResponse> Get<TResponse, TResponseDto>(string url)
             where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
         {
             var uri = _requestUriFactory.CreateEndpointUri(url);
@@ -350,13 +352,16 @@ namespace Plugins.GetStreamIO.Core
                 throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
             }
 
+            LogRestCall(uri, requestContent, responseContent);
+
             var response = new TResponse();
             response.LoadFromDto(responseDto);
 
             return response;
         }
 
-        private async Task<TResponse> Delete<TResponse, TResponseDto>(string endpoint, Dictionary<string, string> parameters = null)
+        private async Task<TResponse> Delete<TResponse, TResponseDto>(string endpoint,
+            Dictionary<string, string> parameters = null)
             where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
@@ -376,5 +381,11 @@ namespace Plugins.GetStreamIO.Core
 
             return response;
         }
+
+        private void LogRestCall(Uri uri, string request, string response)
+            => _logs.Info($"REST API Call: {uri}\n\nRequest:\n{request}\n\nResponse:\n{response}\n\n\n");
+
+        private void LogRestCall(Uri uri, string response)
+            => _logs.Info($"REST API Call: {uri}\n\nResponse:\n{response}\n\n\n");
     }
 }

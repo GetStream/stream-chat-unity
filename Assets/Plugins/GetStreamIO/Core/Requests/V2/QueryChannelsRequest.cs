@@ -42,7 +42,7 @@ namespace Plugins.GetStreamIO.Core.Requests.V2
         /// <summary>
         /// Whether to update channel state or not
         /// </summary>
-        public bool? State { get; set; }
+        public bool? State { get; set; } = true;
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -57,7 +57,7 @@ namespace Plugins.GetStreamIO.Core.Requests.V2
         /// <summary>
         /// Whether to start watching found channels or not
         /// </summary>
-        public bool? Watch { get; set; }
+        public bool? Watch { get; set; } = true;
 
         public QueryChannelsRequestDTO SaveToDto() =>
             new QueryChannelsRequestDTO

@@ -81,7 +81,9 @@ namespace Plugins.GetStreamIO.Unity
                         Field = nameof(Message.CreatedAt),
                         Direction = -1,
                     }
-                }
+                },
+                State = true,
+                Watch = true,
             };
 
             try
