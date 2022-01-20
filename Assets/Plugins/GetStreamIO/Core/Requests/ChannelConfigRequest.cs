@@ -1,0 +1,65 @@
+﻿using GetStreamIO.Core.DTO.Models;
+using GetStreamIO.Core.DTO.Requests;
+
+namespace Plugins.GetStreamIO.Core.Requests
+{
+    public partial class ChannelConfigRequest : RequestObjectBase, ISavableTo<ChannelConfigRequestDTO>
+    {
+        public string Blocklist { get; set; }
+
+        public AutomodBehaviourType? BlocklistBehavior { get; set; }
+
+        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
+
+        /// <summary>
+        /// Overrides max message length
+        /// </summary>
+        public double? MaxMessageLength { get; set; }
+
+        /// <summary>
+        /// Enables message quotes
+        /// </summary>
+        public bool? Quotes { get; set; }
+
+        /// <summary>
+        /// Enables or disables reactions
+        /// </summary>
+        public bool? Reactions { get; set; }
+
+        /// <summary>
+        /// Enables message replies (threads)
+        /// </summary>
+        public bool? Replies { get; set; }
+
+        /// <summary>
+        /// Enables or disables typing events
+        /// </summary>
+        public bool? TypingEvents { get; set; }
+
+        /// <summary>
+        /// Enables or disables file uploads
+        /// </summary>
+        public bool? Uploads { get; set; }
+
+        /// <summary>
+        /// Enables or disables URL enrichment
+        /// </summary>
+        public bool? UrlEnrichment { get; set; }
+
+        public ChannelConfigRequestDTO SaveToDto() =>
+            new ChannelConfigRequestDTO
+            {
+                Blocklist = Blocklist,
+                BlocklistBehavior = BlocklistBehavior,
+                Grants = Grants,
+                MaxMessageLength = MaxMessageLength,
+                Quotes = Quotes,
+                Reactions = Reactions,
+                Replies = Replies,
+                TypingEvents = TypingEvents,
+                Uploads = Uploads,
+                UrlEnrichment = UrlEnrichment,
+                AdditionalProperties = AdditionalProperties
+            };
+    }
+}

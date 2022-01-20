@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using GetStreamIO.Core.DTO.Responses;
 using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Utils;
 
 namespace Plugins.GetStreamIO.Core.Models
 {
-    public partial class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsDTO, ChannelState>
+    public partial class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsDTO, ChannelState>, ILoadableFrom<ChannelStateResponseDTO, ChannelState>
     {
         public event Action<ChannelState, Message> NewMessageAdded;
 
@@ -67,6 +66,23 @@ namespace Plugins.GetStreamIO.Core.Models
         }
 
         public ChannelState LoadFromDto(ChannelStateResponseFieldsDTO dto)
+        {
+            Channel = Channel.TryLoadFromDto(dto.Channel);
+            Hidden = dto.Hidden;
+            HideMessagesBefore = dto.HideMessagesBefore;
+            Members = Members.TryLoadFromDtoCollection(dto.Members);
+            Membership = Membership.TryLoadFromDto(dto.Membership);
+            _messages = _messages.TryLoadFromDtoCollection(dto.Messages);
+            PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);
+            Read = Read.TryLoadFromDtoCollection(dto.Read);
+            WatcherCount = dto.WatcherCount;
+            Watchers = Watchers.TryLoadFromDtoCollection(dto.Watchers);
+            AdditionalProperties = dto.AdditionalProperties;
+
+            return this;
+        }
+
+        public ChannelState LoadFromDto(ChannelStateResponseDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Hidden = dto.Hidden;

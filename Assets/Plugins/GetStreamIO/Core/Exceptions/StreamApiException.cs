@@ -15,7 +15,7 @@ namespace Plugins.GetStreamIO.Core.Exceptions
         public double? StatusCode { get; }
         public double? Code { get;  }
         public string Duration { get;  }
-        public string Message { get;  }
+        public string ErrorMessage { get;  }
         public string MoreInfo { get;  }
 
         public IReadOnlyDictionary<string, string> ExceptionFields => _exceptionFields;
@@ -25,7 +25,7 @@ namespace Plugins.GetStreamIO.Core.Exceptions
             StatusCode = apiError.StatusCode;
             Code = apiError.Code;
             Duration = apiError.Duration;
-            Message = apiError.Message;
+            ErrorMessage = apiError.Message;
             MoreInfo = apiError.MoreInfo;
 
             if (apiError.ExceptionFields != null && apiError.ExceptionFields.Count > 0)
@@ -69,7 +69,7 @@ namespace Plugins.GetStreamIO.Core.Exceptions
             }
 
             AppendLine(nameof(exception.Duration), exception.Duration);
-            AppendLine(nameof(exception.Message), exception.Message);
+            AppendLine(nameof(exception.ErrorMessage), exception.ErrorMessage);
             AppendLine(nameof(exception.MoreInfo), exception.MoreInfo);
 
             if (exception.ExceptionFields != null)

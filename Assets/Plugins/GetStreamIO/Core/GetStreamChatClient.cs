@@ -112,6 +112,25 @@ namespace Plugins.GetStreamIO.Core
                 queryChannelsRequest);
         }
 
+        //Todo: move to ChannelApi
+        public Task<ChannelState> GetOrCreateChannelAsync(string channelType, ChannelGetOrCreateRequest getOrCreateRequest)
+        {
+            var endpoint = ChannelEndpoints.GetOrCreateAsync(channelType);
+
+            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(endpoint,
+                getOrCreateRequest);
+        }
+
+        //Todo: move to ChannelApi
+        public Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId, ChannelGetOrCreateRequest getOrCreateRequest)
+        {
+            var endpoint = ChannelEndpoints.GetOrCreateAsync(channelType, channelId);
+
+            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(endpoint,
+                getOrCreateRequest);
+        }
+
+
         //Todo: move to MessageApi
         public Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId,
             SendMessageRequest sendMessageRequest)
