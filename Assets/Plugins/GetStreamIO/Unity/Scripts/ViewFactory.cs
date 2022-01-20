@@ -60,11 +60,11 @@ namespace Plugins.GetStreamIO.Unity.Scripts
                     };
 
                     //Todo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
-                    _client.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
+                    _client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
                 }));
             }
 
-            options.Add(new MenuOptionEntry("Delete", () => _client.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
+            options.Add(new MenuOptionEntry("Delete", () => _client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options);
             popup.Show(args);

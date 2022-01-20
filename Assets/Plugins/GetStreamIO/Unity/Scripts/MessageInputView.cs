@@ -86,7 +86,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
                     };
                     var channel = ViewContext.State.ActiveChannelDeprecated;
 
-                    Client.SendNewMessageAsync(channel.Channel.Type, channel.Channel.Id, sendMessageRequest)
+                    Client.MessageApi.SendNewMessageAsync(channel.Channel.Type, channel.Channel.Id, sendMessageRequest)
                         .LogStreamExceptionIfFailed();
                     break;
 
@@ -103,7 +103,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
                         }
                     };
 
-                    Client.UpdateMessageAsync(updateMessageRequest).LogStreamExceptionIfFailed();
+                    Client.MessageApi.UpdateMessageAsync(updateMessageRequest).LogStreamExceptionIfFailed();
                     break;
 
                 default:

@@ -89,7 +89,7 @@ namespace Plugins.GetStreamIO.Unity
 
             try
             {
-                var response = await _client.QueryChannelsAsync(request);
+                var response = await _client.ChannelApi.QueryChannelsAsync(request);
 
                 _channels.Clear();
                 _channels.AddRange(response.Channels);

@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using GetStreamIO.Core.DTO.Events;
-using GetStreamIO.Core.DTO.Models;
-using GetStreamIO.Core.DTO.Requests;
-using GetStreamIO.Core.DTO.Responses;
 using Plugins.GetStreamIO.Core.API;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events;
 using Plugins.GetStreamIO.Core.Exceptions;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Requests;
-using Plugins.GetStreamIO.Core.Responses;
 using Plugins.GetStreamIO.Core.Web;
 using Plugins.GetStreamIO.Libs.Http;
 using Plugins.GetStreamIO.Libs.Logs;
@@ -37,6 +31,10 @@ namespace Plugins.GetStreamIO.Core
         public event Action<EventMessageNew> MessageReceived;
         public event Action<EventMessageDeleted> MessageDeleted;
         public event Action<EventMessageUpdated> MessageUpdated;
+
+        public IChannelApi ChannelApi { get; }
+        public IMessageApi MessageApi { get; }
+        public IModerationApi ModerationApi { get; }
 
         public ConnectionState ConnectionState { get; private set; }
 
@@ -72,6 +70,11 @@ namespace Plugins.GetStreamIO.Core
             _httpClient.SetDefaultAuthenticationHeader(authData.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
 
+            //Todo: move to factory
+            ChannelApi = new ChannelApi(httpClient, serializer, logs, _requestUriFactory);
+            MessageApi = new MessageApi(httpClient, serializer, logs, _requestUriFactory);
+            ModerationApi = new ModerationApi(httpClient, serializer, logs, _requestUriFactory);
+
             RegisterEventHandlers();
         }
 
@@ -101,89 +104,6 @@ namespace Plugins.GetStreamIO.Core
             {
                 HandleNewWebsocketMessage(msg);
             }
-        }
-
-        //Todo: move to ChannelApi
-        public Task<ChannelsResponse> QueryChannelsAsync(QueryChannelsRequest queryChannelsRequest)
-        {
-            var endpoint = ChannelEndpoints.QueryChannels();
-
-            return Post<QueryChannelsRequest, QueryChannelsRequestDTO, ChannelsResponse, ChannelsResponseDTO>(endpoint,
-                queryChannelsRequest);
-        }
-
-        //Todo: move to ChannelApi
-        public Task<ChannelState> GetOrCreateChannelAsync(string channelType, ChannelGetOrCreateRequest getOrCreateRequest)
-        {
-            var endpoint = ChannelEndpoints.GetOrCreateAsync(channelType);
-
-            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(endpoint,
-                getOrCreateRequest);
-        }
-
-        //Todo: move to ChannelApi
-        public Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId, ChannelGetOrCreateRequest getOrCreateRequest)
-        {
-            var endpoint = ChannelEndpoints.GetOrCreateAsync(channelType, channelId);
-
-            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(endpoint,
-                getOrCreateRequest);
-        }
-
-        //Todo: move to ChannelApi
-        public Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId, UpdateChannelRequest updateChannelRequest)
-        {
-            var endpoint = ChannelEndpoints.Update(channelType, channelId);
-
-            return Post<UpdateChannelRequest, UpdateChannelRequestDTO, UpdateChannelResponse, UpdateChannelResponseDTO>(endpoint,
-                updateChannelRequest);
-        }
-
-        //Todo: move to ChannelApi
-        public Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId, UpdateChannelPartialRequest updateChannelPartialRequest)
-        {
-            var endpoint = ChannelEndpoints.UpdatePartial(channelType, channelId);
-
-            return Patch<UpdateChannelPartialRequest, UpdateChannelPartialRequestDTO, UpdateChannelPartialResponse, UpdateChannelPartialResponseDTO>(endpoint,
-                updateChannelPartialRequest);
-        }
-
-
-        //Todo: move to MessageApi
-        public Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId,
-            SendMessageRequest sendMessageRequest)
-        {
-            var endpoint = MessageEndpoints.SendMessage(channelType, channelId);
-
-            return Post<SendMessageRequest, SendMessageRequestDTO, MessageResponse, MessageResponseDTO>(endpoint,
-                sendMessageRequest);
-        }
-
-        //Todo: move to MessageApi
-        public Task<MessageResponse> UpdateMessageAsync(UpdateMessageRequest updateMessageRequest)
-        {
-            var endpoint = MessageEndpoints.UpdateMessage(updateMessageRequest.Message.Id);
-
-            return Post<UpdateMessageRequest, UpdateMessageRequestDTO, MessageResponse, MessageResponseDTO>(endpoint,
-                updateMessageRequest);
-        }
-
-        //Todo: move to MessageApi
-        public Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard)
-        {
-            var endpoint = MessageEndpoints.DeleteMessage(messageId);
-            var parameters = QueryParameters.Create().Append("hard", hard);
-
-            return Delete<MessageResponse, MessageResponseDTO>(endpoint, parameters);
-        }
-
-        //Todo: move to ModerationApi
-        public Task<MuteUserResponse> MuteUserAsync(MuteUserRequest muteUserRequest)
-        {
-            var endpoint = ModerationEndpoints.MuteUser();
-
-            return Post<MuteUserRequest, MuteUserRequestDTO, MuteUserResponse, MuteUserResponseDTO>(endpoint,
-                muteUserRequest);
         }
 
         public bool IsLocalUser(User user)
@@ -368,126 +288,5 @@ namespace Plugins.GetStreamIO.Core
 
             MessageUpdated?.Invoke(messageUpdatedEvent);
         }
-
-        private async Task<TResponse> Get<TResponse, TResponseDto>(string url)
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
-        {
-            var uri = _requestUriFactory.CreateEndpointUri(url);
-
-            var httpResponse = await _httpClient.GetAsync(uri);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
-
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
-                throw new StreamApiException(apiError);
-            }
-
-            var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
-        }
-
-        private async Task<TResponse> Post<TRequest, TRequestDto, TResponse, TResponseDto>(string url, TRequest request)
-            where TRequest : ISavableTo<TRequestDto>
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
-        {
-            var uri = _requestUriFactory.CreateEndpointUri(url);
-            var requestContent = _serializer.Serialize(request.SaveToDto());
-
-            var httpResponse = await _httpClient.PostAsync(uri, requestContent);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
-
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
-                throw new StreamApiException(apiError);
-            }
-
-            TResponseDto responseDto;
-
-            try
-            {
-                responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
-            }
-            catch (Exception e)
-            {
-                throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
-            }
-
-            LogRestCall(uri, requestContent, responseContent);
-
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
-        }
-
-        //Todo: refactor methods to remove duplication
-        //Probably best to use HttpClient.SendAsync only with optional content instead specialized methods that share common logic
-        private async Task<TResponse> Patch<TRequest, TRequestDto, TResponse, TResponseDto>(string url, TRequest request)
-            where TRequest : ISavableTo<TRequestDto>
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
-        {
-            var uri = _requestUriFactory.CreateEndpointUri(url);
-            var requestContent = _serializer.Serialize(request.SaveToDto());
-
-            var httpResponse = await _httpClient.PatchAsync(uri, requestContent);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
-
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
-                throw new StreamApiException(apiError);
-            }
-
-            TResponseDto responseDto;
-
-            try
-            {
-                responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
-            }
-            catch (Exception e)
-            {
-                throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
-            }
-
-            LogRestCall(uri, requestContent, responseContent);
-
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
-        }
-
-        private async Task<TResponse> Delete<TResponse, TResponseDto>(string endpoint,
-            Dictionary<string, string> parameters = null)
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
-        {
-            var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
-
-            var httpResponse = await _httpClient.DeleteAsync(uri);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
-
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
-                throw new StreamApiException(apiError);
-            }
-
-            var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
-        }
-
-        private void LogRestCall(Uri uri, string request, string response)
-            => _logs.Info($"REST API Call: {uri}\n\nRequest:\n{request}\n\nResponse:\n{response}\n\n\n");
-
-        private void LogRestCall(Uri uri, string response)
-            => _logs.Info($"REST API Call: {uri}\n\nResponse:\n{response}\n\n\n");
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Threading.Tasks;
+using Plugins.GetStreamIO.Core.API;
 using Plugins.GetStreamIO.Core.Auth;
 using Plugins.GetStreamIO.Core.Events;
 using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Requests;
-using Plugins.GetStreamIO.Core.Responses;
 using Action = System.Action;
 
 namespace Plugins.GetStreamIO.Core
@@ -21,6 +19,9 @@ namespace Plugins.GetStreamIO.Core
         event Action<EventMessageUpdated> MessageUpdated;
 
         ConnectionState ConnectionState { get; }
+        IChannelApi ChannelApi { get; }
+        IMessageApi MessageApi { get; }
+        IModerationApi ModerationApi { get; }
 
         void Update(float deltaTime);
 
@@ -29,23 +30,5 @@ namespace Plugins.GetStreamIO.Core
         bool IsLocalUser(User user);
 
         bool IsLocalUser(ChannelMember channelMember);
-
-        Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId, SendMessageRequest sendMessageRequest);
-
-        Task<ChannelsResponse> QueryChannelsAsync(QueryChannelsRequest queryChannelsRequest);
-
-        Task<MessageResponse> UpdateMessageAsync(UpdateMessageRequest updateMessageRequest);
-
-        Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard);
-
-        Task<MuteUserResponse> MuteUserAsync(MuteUserRequest muteUserRequest);
-
-        Task<ChannelState> GetOrCreateChannelAsync(string channelType, ChannelGetOrCreateRequest getOrCreateRequest);
-
-        Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId, ChannelGetOrCreateRequest getOrCreateRequest);
-
-        Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId, UpdateChannelRequest updateChannelRequest);
-
-        Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId, UpdateChannelPartialRequest updateChannelPartialRequest);
     }
 }
