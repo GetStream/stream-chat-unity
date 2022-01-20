@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Plugins.GetStreamIO.Unity.Scripts
+namespace StreamChat.Unity.Scripts
 {
     /// <summary>
     /// Single channel entry view

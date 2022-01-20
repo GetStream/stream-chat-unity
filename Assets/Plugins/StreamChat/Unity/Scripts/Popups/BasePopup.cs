@@ -1,6 +1,6 @@
 using UnityEngine.EventSystems;
 
-namespace Plugins.GetStreamIO.Unity.Scripts.Popups
+namespace StreamChat.Unity.Scripts.Popups
 {
     /// <summary>
     /// Popup window base

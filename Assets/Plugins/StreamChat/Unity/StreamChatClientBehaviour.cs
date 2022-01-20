@@ -1,10 +1,10 @@
 ﻿using StreamChat.Core;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Utils;
-using Plugins.GetStreamIO.Unity.Scripts;
+using StreamChat.Unity.Scripts;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Unity
+namespace StreamChat.Unity
 {
     /// <summary>
     /// GetStream chat client MonoBehaviour

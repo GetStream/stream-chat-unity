@@ -1,8 +1,8 @@
 ﻿using StreamChat.Core;
-using Plugins.GetStreamIO.Unity.Scripts.Popups;
+using StreamChat.Unity.Scripts.Popups;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Unity.Scripts
+namespace StreamChat.Unity.Scripts
 {
     /// <summary>
     /// Asset to keep <see cref="IViewFactory"/> config

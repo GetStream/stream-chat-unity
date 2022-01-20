@@ -3,7 +3,7 @@ using StreamChat.Core;
 using StreamChat.Core.Utils;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Unity.Scripts
+namespace StreamChat.Unity.Scripts
 {
     /// <summary>
     /// Base class for view

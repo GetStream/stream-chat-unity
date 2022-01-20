@@ -3,7 +3,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Unity.Scripts
+namespace StreamChat.Unity.Scripts
 {
     /// <summary>
     /// Console view

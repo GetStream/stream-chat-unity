@@ -16,7 +16,6 @@ using StreamChat.Core.Web;
 
 namespace StreamChat.Core
 {
-    //Todo: rename to StreamChatClient + fix namespace -> StreamChat.Core etc. without Plugins
     /// <summary>
     /// GetStream.io main client
     /// </summary>

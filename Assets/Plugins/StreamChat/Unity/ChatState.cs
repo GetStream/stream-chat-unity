@@ -8,7 +8,7 @@ using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Unity
+namespace StreamChat.Unity
 {
     /// <summary>
     /// Implementation of <see cref="IChatState"/>

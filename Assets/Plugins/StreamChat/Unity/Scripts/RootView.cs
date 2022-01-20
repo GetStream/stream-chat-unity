@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Unity.Scripts
+﻿namespace StreamChat.Unity.Scripts
 {
     /// <summary>
     /// Root view

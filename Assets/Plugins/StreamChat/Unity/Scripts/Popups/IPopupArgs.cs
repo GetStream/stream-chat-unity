@@ -1,4 +1,4 @@
-namespace Plugins.GetStreamIO.Unity.Scripts.Popups
+namespace StreamChat.Unity.Scripts.Popups
 {
     /// <summary>
     /// Args for <see cref="BasePopup{T}"/>

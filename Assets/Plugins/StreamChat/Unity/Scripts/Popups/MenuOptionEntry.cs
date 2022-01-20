@@ -1,6 +1,6 @@
 using System;
 
-namespace Plugins.GetStreamIO.Unity.Scripts.Popups
+namespace StreamChat.Unity.Scripts.Popups
 {
     /// <summary>
     /// Option entry for <see cref="MessageOptionsPopup"/>

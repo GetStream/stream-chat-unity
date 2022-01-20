@@ -5,13 +5,13 @@ using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Utils;
 using StreamChat.Libs.Utils;
-using Plugins.GetStreamIO.Unity.Scripts.Popups;
+using StreamChat.Unity.Scripts.Popups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Plugins.GetStreamIO.Unity.Scripts
+namespace StreamChat.Unity.Scripts
 {
     /// <summary>
     /// Message view

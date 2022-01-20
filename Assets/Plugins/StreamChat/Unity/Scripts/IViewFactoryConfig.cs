@@ -1,6 +1,6 @@
-﻿using Plugins.GetStreamIO.Unity.Scripts.Popups;
+﻿using StreamChat.Unity.Scripts.Popups;
 
-namespace Plugins.GetStreamIO.Unity.Scripts
+namespace StreamChat.Unity.Scripts
 {
     /// <summary>
     /// Config for <see cref="IViewFactory"/>

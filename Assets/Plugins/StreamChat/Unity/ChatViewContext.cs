@@ -2,9 +2,9 @@
 using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Utils;
-using Plugins.GetStreamIO.Unity.Scripts;
+using StreamChat.Unity.Scripts;
 
-namespace Plugins.GetStreamIO.Unity
+namespace StreamChat.Unity
 {
     /// <summary>
     /// Default implementation of <see cref="IChatViewContext"/>
