@@ -3,7 +3,7 @@
 namespace StreamChat.Core
 {
     /// <summary>
-    /// <see cref="IGetStreamChatClient"/> connection state
+    /// <see cref="IStreamChatClient"/> connection state
     /// </summary>
     public enum ConnectionState
     {

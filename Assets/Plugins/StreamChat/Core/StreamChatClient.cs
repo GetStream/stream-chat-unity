@@ -20,7 +20,7 @@ namespace StreamChat.Core
     /// <summary>
     /// GetStream.io main client
     /// </summary>
-    public class GetStreamChatClient : IGetStreamChatClient
+    public class StreamChatClient : IStreamChatClient
     {
         public const string MenuPrefix = "GetStream/";
 
@@ -42,20 +42,20 @@ namespace StreamChat.Core
         /// Use this method to create the main client instance
         /// </summary>
         /// <param name="authData">Authorization data with Server Url, ApiKey, UserToken and UserId</param>
-        public static IGetStreamChatClient CreateDefaultClient(AuthData authData)
+        public static IStreamChatClient CreateDefaultClient(AuthData authData)
         {
             var unityLogs = new UnityLogs();
             var websocketClient = new WebsocketClient(unityLogs);
             var httpClient = new HttpClientAdapter();
             var serializer = new NewtonsoftJsonSerializer();
             var timeService = new UnityTime();
-            var getStreamClient = new GetStreamChatClient(authData, websocketClient, httpClient, serializer,
+            var getStreamClient = new StreamChatClient(authData, websocketClient, httpClient, serializer,
                 timeService, unityLogs);
 
             return getStreamClient;
         }
 
-        public GetStreamChatClient(AuthData authData, IWebsocketClient websocketClient, IHttpClient httpClient,
+        public StreamChatClient(AuthData authData, IWebsocketClient websocketClient, IHttpClient httpClient,
             ISerializer serializer, ITimeService timeService, ILogs logs)
         {
             _authData = authData;

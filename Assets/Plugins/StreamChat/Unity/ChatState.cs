@@ -39,7 +39,7 @@ namespace Plugins.GetStreamIO.Unity
 
         public IReadOnlyList<ChannelState> Channels => _channels;
 
-        public ChatState(IGetStreamChatClient client)
+        public ChatState(IStreamChatClient client)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
 
@@ -63,7 +63,7 @@ namespace Plugins.GetStreamIO.Unity
 
         public void EditMessage(Message message) => MessageEditRequested?.Invoke(message);
 
-        private readonly IGetStreamChatClient _client;
+        private readonly IStreamChatClient _client;
         private readonly List<ChannelState> _channels = new List<ChannelState>();
 
         private ChannelState _activeChannel;

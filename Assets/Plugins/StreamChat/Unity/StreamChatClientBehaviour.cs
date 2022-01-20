@@ -9,11 +9,11 @@ namespace Plugins.GetStreamIO.Unity
     /// <summary>
     /// GetStream chat client MonoBehaviour
     /// </summary>
-    public class GetStreamChatClientBehaviour : MonoBehaviour
+    public class StreamChatClientBehaviour : MonoBehaviour
     {
         protected void Awake()
         {
-            _client = GetStreamChatClient.CreateDefaultClient(_authCredentials.Data);
+            _client = StreamChatClient.CreateDefaultClient(_authCredentials.Data);
             _client.Connect();
 
             var viewFactory = new ViewFactory(_client, _viewFactoryConfig, _popupsContainer);
@@ -27,7 +27,7 @@ namespace Plugins.GetStreamIO.Unity
 
         protected void OnDestroy() => _client?.Dispose();
 
-        private IGetStreamChatClient _client;
+        private IStreamChatClient _client;
 
         [SerializeField]
         private RootView _rootView;

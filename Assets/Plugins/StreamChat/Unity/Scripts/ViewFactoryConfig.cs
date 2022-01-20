@@ -7,7 +7,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
     /// <summary>
     /// Asset to keep <see cref="IViewFactory"/> config
     /// </summary>
-    [CreateAssetMenu(fileName = "ViewFactoryConfig", menuName = GetStreamChatClient.MenuPrefix + "View/Create view factory config asset", order = 1)]
+    [CreateAssetMenu(fileName = "ViewFactoryConfig", menuName = StreamChatClient.MenuPrefix + "View/Create view factory config asset", order = 1)]
     public class ViewFactoryConfig : ScriptableObject, IViewFactoryConfig
     {
         public MessageOptionsPopup MessageOptionsPopupPrefab => _messageOptionsPopupPrefab;

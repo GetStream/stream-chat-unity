@@ -9,7 +9,7 @@ namespace Plugins.GetStreamIO.Unity
     /// </summary>
     public interface IChatViewContext
     {
-        IGetStreamChatClient Client { get; }
+        IStreamChatClient Client { get; }
         IImageLoader ImageLoader { get; }
         ViewFactory Factory { get; }
         IChatState State { get; }

@@ -10,7 +10,7 @@ namespace StreamChat.Core
     /// <summary>
     /// GetStream.io main client
     /// </summary>
-    public interface IGetStreamChatClient : IAuthProvider, IConnectionProvider, IDisposable
+    public interface IStreamChatClient : IAuthProvider, IConnectionProvider, IDisposable
     {
         event Action Connected;
         event Action<string> EventReceived;

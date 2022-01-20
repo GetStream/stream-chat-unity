@@ -532,7 +532,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5948539855776943770, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
       propertyPath: m_Name
-      value: GetStreamInstance
+      value: StreamChatInstance
       objectReference: {fileID: 0}
     - target: {fileID: 6094013085879873945, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
       propertyPath: m_AnchorMax.x

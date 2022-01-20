@@ -14,7 +14,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
     /// </summary>
     public class ViewFactory : IViewFactory
     {
-        public ViewFactory(IGetStreamChatClient client, IViewFactoryConfig config, Transform popupsContainer)
+        public ViewFactory(IStreamChatClient client, IViewFactoryConfig config, Transform popupsContainer)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -72,7 +72,7 @@ namespace Plugins.GetStreamIO.Unity.Scripts
             return popup;
         }
 
-        private readonly IGetStreamChatClient _client;
+        private readonly IStreamChatClient _client;
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
 

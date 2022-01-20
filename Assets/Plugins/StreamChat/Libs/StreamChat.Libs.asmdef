@@ -1,9 +1,7 @@
 {
-    "name": "GetStream.Core",
+    "name": "StreamChat.Libs",
     "rootNamespace": "",
-    "references": [
-        "GUID:45f99e6948181224abd5a0b0ca925d1b"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
