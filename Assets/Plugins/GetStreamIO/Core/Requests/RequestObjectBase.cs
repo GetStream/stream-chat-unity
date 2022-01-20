@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Core.Requests
+namespace StreamChat.Core.Requests
 {
     public abstract class RequestObjectBase
     {

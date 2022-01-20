@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Core.Auth
+﻿namespace StreamChat.Core.Auth
 {
     /// <summary>
     /// Provides authorization details

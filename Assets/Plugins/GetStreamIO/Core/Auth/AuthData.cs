@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plugins.GetStreamIO.Core.Auth
+namespace StreamChat.Core.Auth
 {
     /// <summary>
     /// Wraps authorization data

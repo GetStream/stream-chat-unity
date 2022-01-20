@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using GetStreamIO.Core.DTO.Models;
+using StreamChat.Core.DTO.Models;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Core.Exceptions
+namespace StreamChat.Core.Exceptions
 {
     /// <summary>
     /// Exception thrown when API request failed

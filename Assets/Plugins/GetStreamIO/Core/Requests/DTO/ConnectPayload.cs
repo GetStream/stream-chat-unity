@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Plugins.GetStreamIO.Core.Models;
+using StreamChat.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Requests.DTO
+namespace StreamChat.Core.Requests.DTO
 {
     public class ConnectPayload
     {

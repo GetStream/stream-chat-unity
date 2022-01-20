@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plugins.GetStreamIO.Libs.Logs
+namespace StreamChat.Libs.Logs
 {
     /// <summary>
     /// Handles logs

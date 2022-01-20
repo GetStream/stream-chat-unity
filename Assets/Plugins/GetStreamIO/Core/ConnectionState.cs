@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plugins.GetStreamIO.Core
+namespace StreamChat.Core
 {
     /// <summary>
     /// <see cref="IGetStreamChatClient"/> connection state

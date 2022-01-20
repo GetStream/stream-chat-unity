@@ -1,4 +1,4 @@
-namespace Plugins.GetStreamIO.Core.Events
+namespace StreamChat.Core.Events
 {
     public abstract class EventBase
     {

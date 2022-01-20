@@ -1,7 +1,7 @@
-﻿namespace Plugins.GetStreamIO.Core.Helpers
+﻿namespace StreamChat.Core.Helpers
 {
     /// <summary>
-    /// Extensions for <see cref="ISavableTo"/>
+    /// Extensions for <see cref="ISavableTo{TDto}"/>
     /// </summary>
     public static class ISavableToExt
     {

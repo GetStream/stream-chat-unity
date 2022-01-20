@@ -1,10 +1,10 @@
-﻿using GetStreamIO.Core.DTO.Models;
-using GetStreamIO.Core.DTO.Responses;
-using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Utils;
+﻿using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Utils;
+using StreamChat.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Responses
+namespace StreamChat.Core.Responses
 {
     public partial class MuteUserResponse : ResponseObjectBase, ILoadableFrom<MuteUserResponseDTO, MuteUserResponse>
     {

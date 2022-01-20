@@ -1,7 +1,7 @@
-﻿namespace Plugins.GetStreamIO.Core.Helpers
+﻿namespace StreamChat.Core.Helpers
 {
     /// <summary>
-    /// Extensions for <see cref="ILoadableFrom"/>
+    /// Extensions for <see cref="ILoadableFrom{TDto,TDomain}"/>
     /// </summary>
     public static class ILoadableFromExt
     {

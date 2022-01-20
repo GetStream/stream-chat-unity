@@ -1,7 +1,7 @@
-﻿using GetStreamIO.Core.DTO.Models;
-using GetStreamIO.Core.DTO.Requests;
+﻿using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Requests;
 
-namespace Plugins.GetStreamIO.Core.Requests
+namespace StreamChat.Core.Requests
 {
     public partial class ChannelConfigRequest : RequestObjectBase, ISavableTo<ChannelConfigRequestDTO>
     {

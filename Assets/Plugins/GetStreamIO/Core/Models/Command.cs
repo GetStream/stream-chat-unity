@@ -1,6 +1,6 @@
-﻿using GetStreamIO.Core.DTO.Models;
+﻿using StreamChat.Core.DTO.Models;
 
-namespace Plugins.GetStreamIO.Core.Models
+namespace StreamChat.Core.Models
 {
     public partial class Command : ModelBase, ILoadableFrom<CommandDTO, Command>
     {

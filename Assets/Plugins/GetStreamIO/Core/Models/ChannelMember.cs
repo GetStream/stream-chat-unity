@@ -1,8 +1,8 @@
 ﻿using System;
-using GetStreamIO.Core.DTO.Models;
-using Plugins.GetStreamIO.Core.Helpers;
+using StreamChat.Core.DTO.Models;
+using StreamChat.Core.Helpers;
 
-namespace Plugins.GetStreamIO.Core.Models
+namespace StreamChat.Core.Models
 {
     public partial class ChannelMember : ModelBase, ILoadableFrom<ChannelMemberDTO, ChannelMember>
     {

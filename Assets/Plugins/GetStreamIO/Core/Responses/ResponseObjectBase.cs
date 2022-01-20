@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Core.Responses
+﻿namespace StreamChat.Core.Responses
 {
     public abstract class ResponseObjectBase
     {

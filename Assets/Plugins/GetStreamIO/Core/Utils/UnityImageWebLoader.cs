@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Plugins.GetStreamIO.Libs.Utils;
+using StreamChat.Libs.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Plugins.GetStreamIO.Core.Utils
+namespace StreamChat.Core.Utils
 {
     /// <summary>
     /// Unity <see cref="IImageLoader"/>

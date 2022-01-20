@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace Plugins.GetStreamIO.Libs.Utils
+namespace StreamChat.Libs.Utils
 {
     public static class CommunicationUtils
     {

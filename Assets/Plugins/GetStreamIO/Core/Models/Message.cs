@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using GetStreamIO.Core.DTO.Models;
-using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Utils;
+using StreamChat.Core.DTO.Models;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Utils;
 
-namespace Plugins.GetStreamIO.Core.Models
+namespace StreamChat.Core.Models
 {
     public class Message : ModelBase, ILoadableFrom<MessageDTO, Message>
     {

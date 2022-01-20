@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Libs.Coroutines
+namespace StreamChat.Libs.Coroutines
 {
     /// <summary>
     /// Unity implementation for <see cref="ICoroutineRunner"/>

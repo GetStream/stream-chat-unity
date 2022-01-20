@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Plugins.GetStreamIO.Libs.Serialization
+namespace StreamChat.Libs.Serialization
 {
     /// <summary>
     /// https://www.newtonsoft.com/ Json implementation of <see cref="ISerializer"/>

@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Core
+﻿namespace StreamChat.Core
 {
     /// <summary>
     /// Supports loading object from DTO of a given type

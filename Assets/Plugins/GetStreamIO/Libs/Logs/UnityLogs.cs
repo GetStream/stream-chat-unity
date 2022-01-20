@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Libs.Logs
+namespace StreamChat.Libs.Logs
 {
     /// <summary>
     /// Unity <see cref="ILogs"/>

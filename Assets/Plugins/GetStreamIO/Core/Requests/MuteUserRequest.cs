@@ -1,6 +1,6 @@
-﻿using GetStreamIO.Core.DTO.Requests;
+﻿using StreamChat.Core.DTO.Requests;
 
-namespace Plugins.GetStreamIO.Core.Requests
+namespace StreamChat.Core.Requests
 {
     public partial class MuteUserRequest : RequestObjectBase, ISavableTo<MuteUserRequestDTO>
     {

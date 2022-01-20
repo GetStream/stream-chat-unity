@@ -1,4 +1,4 @@
-namespace Plugins.GetStreamIO.Core.API
+namespace StreamChat.Core.API
 {
     /// <summary>
     ///

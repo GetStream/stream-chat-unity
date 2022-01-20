@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Plugins.GetStreamIO.Core.Requests.DTO
+namespace StreamChat.Core.Requests.DTO
 {
     public class ConnectRequest
     {

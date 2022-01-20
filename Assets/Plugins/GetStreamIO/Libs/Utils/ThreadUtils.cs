@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Libs.Utils
+namespace StreamChat.Libs.Utils
 {
     public static class ThreadUtils
     {

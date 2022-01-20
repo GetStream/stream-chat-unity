@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Core.Helpers
+namespace StreamChat.Core.Helpers
 {
     /// <summary>
     /// <see cref="ICollection"/> extensions

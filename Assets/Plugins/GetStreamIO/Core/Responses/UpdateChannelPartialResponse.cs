@@ -1,8 +1,8 @@
-﻿using GetStreamIO.Core.DTO.Responses;
-using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Models;
+﻿using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Responses
+namespace StreamChat.Core.Responses
 {
     public partial class UpdateChannelPartialResponse : ResponseObjectBase, ILoadableFrom<UpdateChannelPartialResponseDTO, UpdateChannelPartialResponse>
     {
@@ -21,7 +21,7 @@ namespace Plugins.GetStreamIO.Core.Responses
             Duration = dto.Duration;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
             AdditionalProperties = dto.AdditionalProperties;
-            
+
             return this;
         }
     }

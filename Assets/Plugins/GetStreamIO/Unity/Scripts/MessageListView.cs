@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Plugins.GetStreamIO.Core;
-using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Utils;
+using StreamChat.Core;
+using StreamChat.Core.Models;
+using StreamChat.Core.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 

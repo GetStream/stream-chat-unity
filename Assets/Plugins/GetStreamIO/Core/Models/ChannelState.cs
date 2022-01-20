@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GetStreamIO.Core.DTO.Responses;
-using Plugins.GetStreamIO.Core.Helpers;
+using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Helpers;
 
-namespace Plugins.GetStreamIO.Core.Models
+namespace StreamChat.Core.Models
 {
     public partial class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsDTO, ChannelState>,
         ILoadableFrom<ChannelStateResponseDTO, ChannelState>

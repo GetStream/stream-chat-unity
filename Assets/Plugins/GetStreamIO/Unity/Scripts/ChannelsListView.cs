@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Plugins.GetStreamIO.Core.Models;
+using StreamChat.Core.Models;
 using UnityEngine;
 
 namespace Plugins.GetStreamIO.Unity.Scripts

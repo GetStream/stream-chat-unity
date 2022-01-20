@@ -1,8 +1,8 @@
-﻿using GetStreamIO.Core.DTO.Responses;
-using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Models;
+﻿using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Responses
+namespace StreamChat.Core.Responses
 {
     public partial class ChannelsResponse : ResponseObjectBase, ILoadableFrom<ChannelsResponseDTO, ChannelsResponse>
     {

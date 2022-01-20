@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace Plugins.GetStreamIO.Libs.Http
+namespace StreamChat.Libs.Http
 {
     /// <summary>
     /// .NET http client adapter

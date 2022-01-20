@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Libs.Utils
+namespace StreamChat.Libs.Utils
 {
     public static class ICollectionExt
     {

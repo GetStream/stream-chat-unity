@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
-using GetStreamIO.Core.DTO.Requests;
-using GetStreamIO.Core.DTO.Responses;
-using Plugins.GetStreamIO.Core.Requests;
-using Plugins.GetStreamIO.Core.Responses;
-using Plugins.GetStreamIO.Core.Web;
-using Plugins.GetStreamIO.Libs.Http;
-using Plugins.GetStreamIO.Libs.Logs;
-using Plugins.GetStreamIO.Libs.Serialization;
+using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.DTO.Responses;
+using StreamChat.Libs.Http;
+using StreamChat.Libs.Logs;
+using StreamChat.Libs.Serialization;
+using StreamChat.Core.Requests;
+using StreamChat.Core.Responses;
+using StreamChat.Core.Web;
 
-namespace Plugins.GetStreamIO.Core.API
+namespace StreamChat.Core.API
 {
     public class ModerationApi : ApiClientBase, IModerationApi
     {

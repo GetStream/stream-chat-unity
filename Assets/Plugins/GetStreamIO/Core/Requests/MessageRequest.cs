@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using GetStreamIO.Core.DTO.Requests;
-using Plugins.GetStreamIO.Core.Helpers;
+using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.Helpers;
 
-namespace Plugins.GetStreamIO.Core.Requests
+namespace StreamChat.Core.Requests
 {
     /// <summary>
     /// Represents any chat message

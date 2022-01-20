@@ -5,10 +5,10 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Plugins.GetStreamIO.Libs.Logs;
-using Plugins.GetStreamIO.Libs.Utils;
+using StreamChat.Libs.Logs;
+using StreamChat.Libs.Utils;
 
-namespace Plugins.GetStreamIO.Libs.Websockets
+namespace StreamChat.Libs.Websockets
 {
     /// <summary>
     /// Implementation of <see cref="IWebsocketClient"/>

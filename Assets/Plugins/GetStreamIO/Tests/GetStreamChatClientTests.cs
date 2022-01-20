@@ -2,15 +2,15 @@
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
-using Plugins.GetStreamIO.Core;
-using Plugins.GetStreamIO.Core.Auth;
-using Plugins.GetStreamIO.Libs.Http;
-using Plugins.GetStreamIO.Libs.Logs;
-using Plugins.GetStreamIO.Libs.Serialization;
-using Plugins.GetStreamIO.Libs.Time;
-using Plugins.GetStreamIO.Libs.Websockets;
+using StreamChat.Core;
+using StreamChat.Core.Auth;
+using StreamChat.Libs.Http;
+using StreamChat.Libs.Logs;
+using StreamChat.Libs.Serialization;
+using StreamChat.Libs.Time;
+using StreamChat.Libs.Websockets;
 
-namespace Plugins.GetStreamIO.Tests
+namespace StreamChat.Tests
 {
     /// <summary>
     /// tests for <see cref="GetStreamChatClient"/>

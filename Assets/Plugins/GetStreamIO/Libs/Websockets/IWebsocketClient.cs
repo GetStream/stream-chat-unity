@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Plugins.GetStreamIO.Libs.Websockets
+namespace StreamChat.Libs.Websockets
 {
     /// <summary>
     /// Client that communicates with server using websockets protocol

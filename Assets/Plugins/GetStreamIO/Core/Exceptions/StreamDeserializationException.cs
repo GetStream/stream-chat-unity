@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plugins.GetStreamIO.Core.Exceptions
+namespace StreamChat.Core.Exceptions
 {
     /// <summary>
     /// Thrown when deserialization fails

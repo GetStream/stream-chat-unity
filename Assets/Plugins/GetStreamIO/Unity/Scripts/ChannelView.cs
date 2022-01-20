@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Libs.Utils;
+using StreamChat.Core.Models;
+using StreamChat.Libs.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

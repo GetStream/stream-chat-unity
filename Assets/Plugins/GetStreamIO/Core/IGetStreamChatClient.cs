@@ -1,11 +1,11 @@
 ﻿using System;
-using Plugins.GetStreamIO.Core.API;
-using Plugins.GetStreamIO.Core.Auth;
-using Plugins.GetStreamIO.Core.Events;
-using Plugins.GetStreamIO.Core.Models;
+using StreamChat.Core.API;
+using StreamChat.Core.Auth;
+using StreamChat.Core.Events;
+using StreamChat.Core.Models;
 using Action = System.Action;
 
-namespace Plugins.GetStreamIO.Core
+namespace StreamChat.Core
 {
     /// <summary>
     /// GetStream.io main client

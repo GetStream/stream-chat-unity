@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Libs.Time
+﻿namespace StreamChat.Libs.Time
 {
     /// <summary>
     /// Provides time information

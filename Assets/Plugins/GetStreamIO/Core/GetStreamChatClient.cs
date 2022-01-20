@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using GetStreamIO.Core.DTO.Events;
-using Plugins.GetStreamIO.Core.API;
-using Plugins.GetStreamIO.Core.Auth;
-using Plugins.GetStreamIO.Core.Events;
-using Plugins.GetStreamIO.Core.Exceptions;
-using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Web;
-using Plugins.GetStreamIO.Libs.Http;
-using Plugins.GetStreamIO.Libs.Logs;
-using Plugins.GetStreamIO.Libs.Serialization;
-using Plugins.GetStreamIO.Libs.Time;
-using Plugins.GetStreamIO.Libs.Utils;
-using Plugins.GetStreamIO.Libs.Websockets;
+using StreamChat.Core.DTO.Events;
+using StreamChat.Libs.Http;
+using StreamChat.Libs.Logs;
+using StreamChat.Libs.Serialization;
+using StreamChat.Libs.Time;
+using StreamChat.Libs.Utils;
+using StreamChat.Libs.Websockets;
+using StreamChat.Core.API;
+using StreamChat.Core.Auth;
+using StreamChat.Core.Events;
+using StreamChat.Core.Exceptions;
+using StreamChat.Core.Models;
+using StreamChat.Core.Web;
 
-namespace Plugins.GetStreamIO.Core
+namespace StreamChat.Core
 {
     //Todo: rename to StreamChatClient + fix namespace -> StreamChat.Core etc. without Plugins
     /// <summary>

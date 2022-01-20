@@ -1,8 +1,8 @@
-﻿using GetStreamIO.Core.DTO.Models;
-using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Responses;
+﻿using StreamChat.Core.DTO.Models;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Responses;
 
-namespace Plugins.GetStreamIO.Core.Models
+namespace StreamChat.Core.Models
 {
     /// <summary>
     /// Represents user reaction to a message

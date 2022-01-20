@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Libs.Serialization
+﻿namespace StreamChat.Libs.Serialization
 {
     /// <summary>
     /// Serializes objects to string and reverse

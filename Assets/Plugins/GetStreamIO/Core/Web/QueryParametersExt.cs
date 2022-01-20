@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Core.Web
+﻿namespace StreamChat.Core.Web
 {
     public static class QueryParametersExt
     {

@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Core
+﻿namespace StreamChat.Core
 {
     /// <summary>
     /// Supports saving object to DTO of a given type

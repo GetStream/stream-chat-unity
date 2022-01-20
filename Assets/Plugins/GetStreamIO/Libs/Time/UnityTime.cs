@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Libs.Time
+﻿namespace StreamChat.Libs.Time
 {
     /// <summary>
     /// <see cref="ITimeService"/> based on <see cref="UnityEngine.Time"/>

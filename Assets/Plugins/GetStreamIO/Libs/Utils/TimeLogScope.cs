@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Plugins.GetStreamIO.Libs.Utils
+namespace StreamChat.Libs.Utils
 {
     /// <summary>
     /// Measures real time elapsed during scope and prints to logger

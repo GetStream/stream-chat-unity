@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using GetStreamIO.Core.DTO.Models;
-using Plugins.GetStreamIO.Core.Exceptions;
-using Plugins.GetStreamIO.Core.Web;
-using Plugins.GetStreamIO.Libs.Http;
-using Plugins.GetStreamIO.Libs.Logs;
-using Plugins.GetStreamIO.Libs.Serialization;
+using StreamChat.Core.DTO.Models;
+using StreamChat.Libs.Http;
+using StreamChat.Libs.Logs;
+using StreamChat.Libs.Serialization;
+using StreamChat.Core.Exceptions;
+using StreamChat.Core.Web;
 
-namespace Plugins.GetStreamIO.Core.API
+namespace StreamChat.Core.API
 {
     /// <summary>
     /// Base Api client

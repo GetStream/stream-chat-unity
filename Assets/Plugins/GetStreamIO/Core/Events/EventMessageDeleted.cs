@@ -1,9 +1,9 @@
-﻿using GetStreamIO.Core.DTO.Events;
-using GetStreamIO.Core.DTO.Models;
-using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Models;
+﻿using StreamChat.Core.DTO.Events;
+using StreamChat.Core.DTO.Models;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Events
+namespace StreamChat.Core.Events
 {
     public partial class EventMessageDeleted : EventBase, ILoadableFrom<EventMessageDeletedDTO, EventMessageDeleted>
     {

@@ -1,9 +1,9 @@
-﻿using GetStreamIO.Core.DTO.Events;
-using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Utils;
+﻿using StreamChat.Core.DTO.Events;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Utils;
+using StreamChat.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Events
+namespace StreamChat.Core.Events
 {
     public partial class EventMessageNew : EventBase, ILoadableFrom<EventMessageNewDTO, EventMessageNew>
     {

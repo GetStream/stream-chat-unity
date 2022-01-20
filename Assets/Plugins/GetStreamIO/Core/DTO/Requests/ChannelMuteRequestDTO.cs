@@ -5,11 +5,11 @@
 //----------------------
 
 
-using GetStreamIO.Core.DTO.Responses;
-using GetStreamIO.Core.DTO.Events;
-using GetStreamIO.Core.DTO.Models;
+using StreamChat.Core.DTO.Events;
+using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Responses;
 
-namespace GetStreamIO.Core.DTO.Requests
+namespace StreamChat.Core.DTO.Requests
 {
     using System = global::System;
 

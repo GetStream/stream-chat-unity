@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Plugins.GetStreamIO.Libs.Utils
+namespace StreamChat.Libs.Utils
 {
     /// <summary>
     /// Uri utility methods

@@ -1,4 +1,4 @@
-﻿using Plugins.GetStreamIO.Core;
+﻿using StreamChat.Core;
 using Plugins.GetStreamIO.Unity.Scripts.Popups;
 using UnityEngine;
 

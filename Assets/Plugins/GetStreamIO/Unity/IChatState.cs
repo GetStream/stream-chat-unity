@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Plugins.GetStreamIO.Core.Models;
+using StreamChat.Core.Models;
 
 namespace Plugins.GetStreamIO.Unity
 {

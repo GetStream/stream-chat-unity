@@ -1,6 +1,6 @@
 ﻿using System;
-using Plugins.GetStreamIO.Core;
-using Plugins.GetStreamIO.Core.Utils;
+using StreamChat.Core;
+using StreamChat.Core.Utils;
 using UnityEngine;
 
 namespace Plugins.GetStreamIO.Unity.Scripts

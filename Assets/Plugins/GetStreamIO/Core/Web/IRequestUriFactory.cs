@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Core.Web
+namespace StreamChat.Core.Web
 {
     /// <summary>
     /// Requests Uri Factory

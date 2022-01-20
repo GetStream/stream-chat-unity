@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Core.Auth
+namespace StreamChat.Core.Auth
 {
     /// <summary>
     /// Asset to keep auth credentials

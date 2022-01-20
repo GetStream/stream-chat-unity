@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Plugins.GetStreamIO.Core.Web
+namespace StreamChat.Core.Web
 {
     public class QueryParameters : Dictionary<string, string>
     {

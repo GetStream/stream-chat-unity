@@ -1,4 +1,4 @@
-namespace Plugins.GetStreamIO.Core.Models
+namespace StreamChat.Core.Models
 {
     public abstract class ModelBase
     {

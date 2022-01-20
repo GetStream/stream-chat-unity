@@ -1,4 +1,4 @@
-﻿namespace GetStreamIO.Core.DTO.Responses
+﻿namespace StreamChat.Core.DTO.Responses
 {
     /// <summary>
     /// Extra fields not defined in API spec

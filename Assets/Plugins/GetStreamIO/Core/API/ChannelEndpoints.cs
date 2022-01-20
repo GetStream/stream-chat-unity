@@ -1,6 +1,6 @@
-﻿using Plugins.GetStreamIO.Core.Models;
+﻿using StreamChat.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.API
+namespace StreamChat.Core.API
 {
     /// <summary>
     /// <see cref="Channel"/> endpoints

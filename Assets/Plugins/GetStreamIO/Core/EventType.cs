@@ -1,4 +1,4 @@
-﻿namespace Plugins.GetStreamIO.Core
+﻿namespace StreamChat.Core
 {
     /// <summary>
     /// Event types that can be received from server

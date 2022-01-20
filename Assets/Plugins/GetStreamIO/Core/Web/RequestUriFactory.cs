@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Plugins.GetStreamIO.Core.Auth;
-using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Requests.DTO;
-using Plugins.GetStreamIO.Libs.Serialization;
-using Plugins.GetStreamIO.Libs.Utils;
+using StreamChat.Libs.Serialization;
+using StreamChat.Libs.Utils;
+using StreamChat.Core.Auth;
+using StreamChat.Core.Models;
+using StreamChat.Core.Requests.DTO;
 
-namespace Plugins.GetStreamIO.Core.Web
+namespace StreamChat.Core.Web
 {
     /// <summary>
     /// Requests Uri Factory

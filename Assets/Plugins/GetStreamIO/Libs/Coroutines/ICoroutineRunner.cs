@@ -3,7 +3,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Plugins.GetStreamIO.Libs.Coroutines
+namespace StreamChat.Libs.Coroutines
 {
     /// <summary>
     /// Runs coroutines

@@ -1,9 +1,9 @@
-﻿using GetStreamIO.Core.DTO.Responses;
-using Plugins.GetStreamIO.Core.Helpers;
-using Plugins.GetStreamIO.Core.Models;
-using Plugins.GetStreamIO.Core.Requests;
+﻿using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Requests;
+using StreamChat.Core.Models;
 
-namespace Plugins.GetStreamIO.Core.Responses
+namespace StreamChat.Core.Responses
 {
     public partial class UpdateChannelResponse : ResponseObjectBase, ILoadableFrom<UpdateChannelResponseDTO, UpdateChannelResponse>
     {

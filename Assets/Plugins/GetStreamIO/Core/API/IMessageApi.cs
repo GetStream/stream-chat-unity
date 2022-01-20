@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Plugins.GetStreamIO.Core.Requests;
-using Plugins.GetStreamIO.Core.Responses;
+using StreamChat.Core.Requests;
+using StreamChat.Core.Responses;
 
-namespace Plugins.GetStreamIO.Core.API
+namespace StreamChat.Core.API
 {
     public interface IMessageApi
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plugins.GetStreamIO.Core
+namespace StreamChat.Core
 {
     /// <summary>
     /// Provides connection id
