@@ -6,7 +6,8 @@ using Plugins.GetStreamIO.Core.Helpers;
 
 namespace Plugins.GetStreamIO.Core.Models
 {
-    public partial class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsDTO, ChannelState>, ILoadableFrom<ChannelStateResponseDTO, ChannelState>
+    public partial class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsDTO, ChannelState>,
+        ILoadableFrom<ChannelStateResponseDTO, ChannelState>
     {
         public event Action<ChannelState, Message> NewMessageAdded;
 

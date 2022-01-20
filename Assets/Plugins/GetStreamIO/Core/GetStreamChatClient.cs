@@ -130,6 +130,24 @@ namespace Plugins.GetStreamIO.Core
                 getOrCreateRequest);
         }
 
+        //Todo: move to ChannelApi
+        public Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId, UpdateChannelRequest updateChannelRequest)
+        {
+            var endpoint = ChannelEndpoints.Update(channelType, channelId);
+
+            return Post<UpdateChannelRequest, UpdateChannelRequestDTO, UpdateChannelResponse, UpdateChannelResponseDTO>(endpoint,
+                updateChannelRequest);
+        }
+
+        //Todo: move to ChannelApi
+        public Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId, UpdateChannelPartialRequest updateChannelPartialRequest)
+        {
+            var endpoint = ChannelEndpoints.UpdatePartial(channelType, channelId);
+
+            return Patch<UpdateChannelPartialRequest, UpdateChannelPartialRequestDTO, UpdateChannelPartialResponse, UpdateChannelPartialResponseDTO>(endpoint,
+                updateChannelPartialRequest);
+        }
+
 
         //Todo: move to MessageApi
         public Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId,
@@ -380,6 +398,43 @@ namespace Plugins.GetStreamIO.Core
             var requestContent = _serializer.Serialize(request.SaveToDto());
 
             var httpResponse = await _httpClient.PostAsync(uri, requestContent);
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                throw new StreamApiException(apiError);
+            }
+
+            TResponseDto responseDto;
+
+            try
+            {
+                responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+            }
+            catch (Exception e)
+            {
+                throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
+            }
+
+            LogRestCall(uri, requestContent, responseContent);
+
+            var response = new TResponse();
+            response.LoadFromDto(responseDto);
+
+            return response;
+        }
+
+        //Todo: refactor methods to remove duplication
+        //Probably best to use HttpClient.SendAsync only with optional content instead specialized methods that share common logic
+        private async Task<TResponse> Patch<TRequest, TRequestDto, TResponse, TResponseDto>(string url, TRequest request)
+            where TRequest : ISavableTo<TRequestDto>
+            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        {
+            var uri = _requestUriFactory.CreateEndpointUri(url);
+            var requestContent = _serializer.Serialize(request.SaveToDto());
+
+            var httpResponse = await _httpClient.PatchAsync(uri, requestContent);
             var responseContent = await httpResponse.Content.ReadAsStringAsync();
 
             if (!httpResponse.IsSuccessStatusCode)

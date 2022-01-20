@@ -21,5 +21,7 @@ namespace Plugins.GetStreamIO.Libs.Http
         Task<HttpResponseMessage> DeleteAsync(Uri uri);
 
         Task<HttpResponseMessage> GetAsync(Uri uri);
+
+        Task<HttpResponseMessage> PatchAsync(Uri uri, string content);
     }
 }

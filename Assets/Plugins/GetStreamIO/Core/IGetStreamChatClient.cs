@@ -39,5 +39,13 @@ namespace Plugins.GetStreamIO.Core
         Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard);
 
         Task<MuteUserResponse> MuteUserAsync(MuteUserRequest muteUserRequest);
+
+        Task<ChannelState> GetOrCreateChannelAsync(string channelType, ChannelGetOrCreateRequest getOrCreateRequest);
+
+        Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId, ChannelGetOrCreateRequest getOrCreateRequest);
+
+        Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId, UpdateChannelRequest updateChannelRequest);
+
+        Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId, UpdateChannelPartialRequest updateChannelPartialRequest);
     }
 }

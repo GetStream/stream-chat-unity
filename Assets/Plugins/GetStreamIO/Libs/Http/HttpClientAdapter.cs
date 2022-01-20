@@ -30,10 +30,13 @@ namespace Plugins.GetStreamIO.Libs.Http
         public Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content)
             => _httpClient.PostAsync(uri, content);
 
+        public Task<HttpResponseMessage> PatchAsync(Uri uri, string content)
+            => _httpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), uri)
+                { Content = new StringContent(content) });
+
         public Task<HttpResponseMessage> DeleteAsync(Uri uri)
             => _httpClient.DeleteAsync(uri);
 
         private readonly HttpClient _httpClient;
-
     }
 }
