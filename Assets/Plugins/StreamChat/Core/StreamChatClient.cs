@@ -37,6 +37,8 @@ namespace StreamChat.Core
 
         public ConnectionState ConnectionState { get; private set; }
 
+        public static readonly Version SDKVersion = new Version(1, 0, 0);
+
         /// <summary>
         /// Use this method to create the main client instance
         /// </summary>
@@ -68,6 +70,7 @@ namespace StreamChat.Core
 
             _httpClient.SetDefaultAuthenticationHeader(authData.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
+            _httpClient.AddDefaultCustomHeader("X-Stream-Client", $"stream-chat-unity-client-{SDKVersion}");
 
             //Todo: move to factory
             ChannelApi = new ChannelApi(httpClient, serializer, logs, _requestUriFactory);
