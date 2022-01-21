@@ -5,9 +5,9 @@
 //----------------------
 
 
+using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Events;
-using StreamChat.Core.DTO.Responses;
 
 namespace StreamChat.Core.DTO.Models
 {
