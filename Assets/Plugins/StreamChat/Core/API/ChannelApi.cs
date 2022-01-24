@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Plugins.StreamChat.Core.Requests;
+using Plugins.StreamChat.Core.Responses;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Libs.Http;
@@ -58,5 +60,29 @@ namespace StreamChat.Core.API
             return Patch<UpdateChannelPartialRequest, UpdateChannelPartialRequestDTO, UpdateChannelPartialResponse, UpdateChannelPartialResponseDTO>(endpoint,
                 updateChannelPartialRequest);
         }
+
+        public Task<DeleteChannelsResponse> DeleteChannelsAsync(DeleteChannelsRequest deleteChannelsRequest)
+        {
+            var endpoint = ChannelEndpoints.DeleteChannels();
+
+            return Post<DeleteChannelsRequest, DeleteChannelsRequestDTO, DeleteChannelsResponse, DeleteChannelsResponseDTO>(endpoint,
+                deleteChannelsRequest);
+        }
+
+        public Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId)
+        {
+            var endpoint = ChannelEndpoints.DeleteChannel(channelType, channelId);
+
+            return Delete<DeleteChannelResponse, DeleteChannelResponseDTO>(endpoint);
+        }
+
+        public Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId, TruncateChannelRequest truncateChannelRequest)
+        {
+            var endpoint = ChannelEndpoints.TruncateChannel(channelType, channelId);
+
+            return Post<TruncateChannelRequest, TruncateChannelRequestDTO, TruncateChannelResponse, TruncateChannelResponseDTO>(endpoint,
+                truncateChannelRequest);
+        }
+
     }
 }

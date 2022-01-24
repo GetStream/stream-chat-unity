@@ -26,7 +26,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? Frozen { get; set; }
 
-        public System.Collections.Generic.ICollection<ChannelMemberRequestDTO> Members { get; set; }
+        public System.Collections.Generic.ICollection<ChannelMemberRequest> Members { get; set; }
 
         public System.Collections.Generic.ICollection<double> OwnCapabilities { get; set; }
 
@@ -44,7 +44,7 @@ namespace StreamChat.Core.Requests
                 CreatedBy = CreatedBy.TrySaveToDto(),
                 Disabled = Disabled,
                 Frozen = Frozen,
-                Members = Members,
+                Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),
                 OwnCapabilities = OwnCapabilities,
                 Team = Team,
                 AdditionalProperties = AdditionalProperties,

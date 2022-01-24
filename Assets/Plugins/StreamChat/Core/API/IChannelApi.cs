@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Plugins.StreamChat.Core.Requests;
+using Plugins.StreamChat.Core.Responses;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
@@ -16,5 +18,11 @@ namespace StreamChat.Core.API
         Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId, UpdateChannelRequest updateChannelRequest);
 
         Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId, UpdateChannelPartialRequest updateChannelPartialRequest);
+
+        Task<DeleteChannelsResponse> DeleteChannelsAsync(DeleteChannelsRequest deleteChannelsRequest);
+
+        Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId);
+
+        Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId, TruncateChannelRequest truncateChannelRequest);
     }
 }

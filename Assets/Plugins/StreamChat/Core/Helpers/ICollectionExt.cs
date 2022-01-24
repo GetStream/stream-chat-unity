@@ -26,7 +26,8 @@ namespace StreamChat.Core.Helpers
             return dtos;
         }
 
-        public static List<TSource> TryLoadFromDtoCollection<TDto, TSource>(this ICollection<TSource> _, ICollection<TDto> dtos)
+        public static List<TSource> TryLoadFromDtoCollection<TDto, TSource>(this ICollection<TSource> _,
+            ICollection<TDto> dtos)
             where TSource : ILoadableFrom<TDto, TSource>, new()
         {
             if (dtos == null)
