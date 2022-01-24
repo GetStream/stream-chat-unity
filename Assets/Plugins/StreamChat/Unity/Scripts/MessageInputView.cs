@@ -84,7 +84,7 @@ namespace StreamChat.Unity.Scripts
                             Text = _messageInput.text
                         }
                     };
-                    var channel = ViewContext.State.ActiveChannelDeprecated;
+                    var channel = ViewContext.State.ActiveChannel;
 
                     Client.MessageApi.SendNewMessageAsync(channel.Channel.Type, channel.Channel.Id, sendMessageRequest)
                         .LogStreamExceptionIfFailed();

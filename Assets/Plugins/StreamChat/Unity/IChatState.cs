@@ -12,7 +12,7 @@ namespace StreamChat.Unity
         event Action<ChannelState> ActiveChanelChanged;
         event Action ChannelsUpdated;
 
-        ChannelState ActiveChannelDeprecated { get; }
+        ChannelState ActiveChannel { get; }
         IReadOnlyList<ChannelState> Channels { get; }
 
 

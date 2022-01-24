@@ -22,7 +22,7 @@ namespace StreamChat.Unity
 
         public event Action<Message> MessageEditRequested;
 
-        public ChannelState ActiveChannelDeprecated
+        public ChannelState ActiveChannel
         {
             get => _activeChannel;
             private set
@@ -59,7 +59,7 @@ namespace StreamChat.Unity
             _client.Dispose();
         }
 
-        public void OpenChannel(ChannelState channel) => ActiveChannelDeprecated = channel;
+        public void OpenChannel(ChannelState channel) => ActiveChannel = channel;
 
         public void EditMessage(Message message) => MessageEditRequested?.Invoke(message);
 
@@ -103,9 +103,9 @@ namespace StreamChat.Unity
                 Debug.LogException(e);
             }
 
-            if (ActiveChannelDeprecated == null && _channels.Count > 0)
+            if (ActiveChannel == null && _channels.Count > 0)
             {
-                ActiveChannelDeprecated = _channels.First();
+                ActiveChannel = _channels.First();
             }
 
             ChannelsUpdated?.Invoke();
@@ -123,7 +123,7 @@ namespace StreamChat.Unity
             var message = channel.Messages.First(_ => _.Id == messageDeletedEvent.Message.Id);
             message.Text = MessageDeletedInfo;
 
-            ActiveChanelChanged?.Invoke(ActiveChannelDeprecated);
+            ActiveChanelChanged?.Invoke(ActiveChannel);
         }
 
         private void OnMessageUpdated(EventMessageUpdated messageUpdatedEvent)
