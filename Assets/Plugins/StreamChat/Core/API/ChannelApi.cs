@@ -29,35 +29,43 @@ namespace StreamChat.Core.API
                 queryChannelsRequest);
         }
 
-        public Task<ChannelState> GetOrCreateChannelAsync(string channelType, ChannelGetOrCreateRequest getOrCreateRequest)
+        public Task<ChannelState> GetOrCreateChannelAsync(string channelType,
+            ChannelGetOrCreateRequest getOrCreateRequest)
         {
             var endpoint = ChannelEndpoints.GetOrCreateAsync(channelType);
 
-            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(endpoint,
+            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(
+                endpoint,
                 getOrCreateRequest);
         }
 
-        public Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId, ChannelGetOrCreateRequest getOrCreateRequest)
+        public Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId,
+            ChannelGetOrCreateRequest getOrCreateRequest)
         {
             var endpoint = ChannelEndpoints.GetOrCreateAsync(channelType, channelId);
 
-            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(endpoint,
+            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(
+                endpoint,
                 getOrCreateRequest);
         }
 
-        public Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId, UpdateChannelRequest updateChannelRequest)
+        public Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId,
+            UpdateChannelRequest updateChannelRequest)
         {
             var endpoint = ChannelEndpoints.Update(channelType, channelId);
 
-            return Post<UpdateChannelRequest, UpdateChannelRequestDTO, UpdateChannelResponse, UpdateChannelResponseDTO>(endpoint,
+            return Post<UpdateChannelRequest, UpdateChannelRequestDTO, UpdateChannelResponse, UpdateChannelResponseDTO>(
+                endpoint,
                 updateChannelRequest);
         }
 
-        public Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId, UpdateChannelPartialRequest updateChannelPartialRequest)
+        public Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId,
+            UpdateChannelPartialRequest updateChannelPartialRequest)
         {
             var endpoint = ChannelEndpoints.UpdatePartial(channelType, channelId);
 
-            return Patch<UpdateChannelPartialRequest, UpdateChannelPartialRequestDTO, UpdateChannelPartialResponse, UpdateChannelPartialResponseDTO>(endpoint,
+            return Patch<UpdateChannelPartialRequest, UpdateChannelPartialRequestDTO, UpdateChannelPartialResponse,
+                UpdateChannelPartialResponseDTO>(endpoint,
                 updateChannelPartialRequest);
         }
 
@@ -65,7 +73,8 @@ namespace StreamChat.Core.API
         {
             var endpoint = ChannelEndpoints.DeleteChannels();
 
-            return Post<DeleteChannelsRequest, DeleteChannelsRequestDTO, DeleteChannelsResponse, DeleteChannelsResponseDTO>(endpoint,
+            return Post<DeleteChannelsRequest, DeleteChannelsRequestDTO, DeleteChannelsResponse,
+                DeleteChannelsResponseDTO>(endpoint,
                 deleteChannelsRequest);
         }
 
@@ -76,13 +85,32 @@ namespace StreamChat.Core.API
             return Delete<DeleteChannelResponse, DeleteChannelResponseDTO>(endpoint);
         }
 
-        public Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId, TruncateChannelRequest truncateChannelRequest)
+        public Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId,
+            TruncateChannelRequest truncateChannelRequest)
         {
             var endpoint = ChannelEndpoints.TruncateChannel(channelType, channelId);
 
-            return Post<TruncateChannelRequest, TruncateChannelRequestDTO, TruncateChannelResponse, TruncateChannelResponseDTO>(endpoint,
+            return Post<TruncateChannelRequest, TruncateChannelRequestDTO, TruncateChannelResponse,
+                TruncateChannelResponseDTO>(endpoint,
                 truncateChannelRequest);
         }
 
+        public Task<MuteChannelResponse> MuteChannelAsync(MuteChannelRequest muteChannelRequest)
+        {
+            var endpoint = ChannelEndpoints.MuteChannel();
+
+            return Post<MuteChannelRequest, MuteChannelRequestDTO, MuteChannelResponse, MuteChannelResponseDTO>(
+                endpoint,
+                muteChannelRequest);
+        }
+
+        public Task<UnmuteResponse> UnmuteChannelAsync(UnmuteChannelRequest unmuteChannelRequest)
+        {
+            var endpoint = ChannelEndpoints.UnmuteChannel();
+
+            return Post<UnmuteChannelRequest, UnmuteChannelRequestDTO, UnmuteResponse, UnmuteResponseDTO>(
+                endpoint,
+                unmuteChannelRequest);
+        }
     }
 }

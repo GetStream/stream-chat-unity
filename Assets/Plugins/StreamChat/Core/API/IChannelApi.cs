@@ -24,5 +24,9 @@ namespace StreamChat.Core.API
         Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId);
 
         Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId, TruncateChannelRequest truncateChannelRequest);
+
+        Task<MuteChannelResponse> MuteChannelAsync(MuteChannelRequest muteChannelRequest);
+
+        Task<UnmuteResponse> UnmuteChannelAsync(UnmuteChannelRequest unmuteChannelRequest);
     }
 }

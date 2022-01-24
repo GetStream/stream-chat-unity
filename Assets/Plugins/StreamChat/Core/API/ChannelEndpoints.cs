@@ -22,5 +22,8 @@ namespace StreamChat.Core.API
         public static string DeleteChannels() => "channels/delete";
 
         public static string TruncateChannel(string type, string id) => $"/channels/{type}/{id}/truncate";
+
+        public static string MuteChannel() => $"/moderation/mute/channel";
+        public static string UnmuteChannel() => $"/moderation/unmute/channel";
     }
 }
