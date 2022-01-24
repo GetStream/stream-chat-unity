@@ -25,5 +25,11 @@ namespace StreamChat.Core.API
 
         public static string MuteChannel() => $"/moderation/mute/channel";
         public static string UnmuteChannel() => $"/moderation/unmute/channel";
+
+        public static string ShowChannel(string type, string id) => $"/channels/{type}/{id}/show";
+
+        public static string HideChannel(string type, string id) => $"/channels/{type}/{id}/hide";
+
+
     }
 }

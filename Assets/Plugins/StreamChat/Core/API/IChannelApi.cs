@@ -28,5 +28,9 @@ namespace StreamChat.Core.API
         Task<MuteChannelResponse> MuteChannelAsync(MuteChannelRequest muteChannelRequest);
 
         Task<UnmuteResponse> UnmuteChannelAsync(UnmuteChannelRequest unmuteChannelRequest);
+
+        Task<ShowChannelResponse> ShowChannelAsync(string channelType, string channelId, ShowChannelRequest showChannelRequest);
+
+        Task<HideChannelResponse> HideChannelAsync(string channelType, string channelId, HideChannelRequest hideChannelRequest);
     }
 }

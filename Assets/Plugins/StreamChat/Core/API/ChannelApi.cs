@@ -112,5 +112,25 @@ namespace StreamChat.Core.API
                 endpoint,
                 unmuteChannelRequest);
         }
+
+        public Task<ShowChannelResponse> ShowChannelAsync(string channelType, string channelId,
+            ShowChannelRequest showChannelRequest)
+        {
+            var endpoint = ChannelEndpoints.ShowChannel(channelType, channelId);
+
+            return Post<ShowChannelRequest, ShowChannelRequestDTO, ShowChannelResponse, ShowChannelResponseDTO>(
+                endpoint,
+                showChannelRequest);
+        }
+
+        public Task<HideChannelResponse> HideChannelAsync(string channelType, string channelId,
+            HideChannelRequest hideChannelRequest)
+        {
+            var endpoint = ChannelEndpoints.HideChannel(channelType, channelId);
+
+            return Post<HideChannelRequest, HideChannelRequestDTO, HideChannelResponse, HideChannelResponseDTO>(
+                endpoint,
+                hideChannelRequest);
+        }
     }
 }
