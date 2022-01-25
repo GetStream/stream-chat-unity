@@ -130,8 +130,7 @@ namespace StreamChat.Core
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
 
-        //Todo: is it uniformly defined for all SDKs?
-        private const int HealthCheckSendInterval = 25;
+        private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime;
 
         private readonly IWebsocketClient _websocketClient;
         private readonly ISerializer _serializer;
@@ -141,7 +140,8 @@ namespace StreamChat.Core
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
 
-        private readonly Dictionary<string, Action<string>> _eventKeyToHandler = new Dictionary<string, Action<string>>();
+        private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
+            new Dictionary<string, Action<string>>();
 
         private string _connectionId;
         private float _lastHealthCheckReceivedTime;
@@ -153,11 +153,14 @@ namespace StreamChat.Core
 
         private void RegisterEventHandlers()
         {
-            RegisterEventType<EventHealthCheckDTO, EventHealthCheck>(EventType.HealthCheck, Handle);
+            RegisterEventType<EventHealthCheckDTO, EventHealthCheck>(EventType.HealthCheck, HandleHealthCheckEvent);
 
-            RegisterEventType<EventMessageNewDTO, EventMessageNew>(EventType.MessageNew, Handle);
-            RegisterEventType<EventMessageDeletedDTO, EventMessageDeleted>(EventType.MessageDeleted, Handle);
-            RegisterEventType<EventMessageUpdatedDTO, EventMessageUpdated>(EventType.MessageUpdated, Handle);
+            RegisterEventType<EventMessageNewDTO, EventMessageNew>(EventType.MessageNew,
+                e => MessageReceived?.Invoke(e));
+            RegisterEventType<EventMessageDeletedDTO, EventMessageDeleted>(EventType.MessageDeleted,
+                e => MessageDeleted?.Invoke(e));
+            RegisterEventType<EventMessageUpdatedDTO, EventMessageUpdated>(EventType.MessageUpdated,
+                e => MessageUpdated?.Invoke(e));
         }
 
         private void Reconnect()
@@ -173,7 +176,7 @@ namespace StreamChat.Core
             _eventKeyToHandler.Add(key, content =>
             {
                 var eventObj = DeserializeEvent<TDto, TEvent>(content);
-                handler(eventObj);
+                handler?.Invoke(eventObj);
             });
         }
 
@@ -212,7 +215,7 @@ namespace StreamChat.Core
             var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
             EventReceived?.Invoke($"{time} - Event received: <b>{type}</b>");
 
-            if(!_eventKeyToHandler.TryGetValue(type, out var handler))
+            if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
                 _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
                 return;
@@ -257,7 +260,7 @@ namespace StreamChat.Core
             _lastHealthCheckSendTime = _timeService.Time;
         }
 
-        private void Handle(EventHealthCheck healthCheckEvent)
+        private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent)
         {
             _lastHealthCheckReceivedTime = _timeService.Time;
             if (ConnectionState == ConnectionState.Connecting)
@@ -268,27 +271,6 @@ namespace StreamChat.Core
                 _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
                 OnConnectionConfirmed();
             }
-        }
-
-        private void Handle(EventMessageNew messageNewEvent)
-        {
-            _logs.Info("New message event received");
-
-            MessageReceived?.Invoke(messageNewEvent);
-        }
-
-        private void Handle(EventMessageDeleted messageDeletedEvent)
-        {
-            _logs.Info("New deleted event received");
-
-            MessageDeleted?.Invoke(messageDeletedEvent);
-        }
-
-        private void Handle(EventMessageUpdated messageUpdatedEvent)
-        {
-            _logs.Info("New deleted event received");
-
-            MessageUpdated?.Invoke(messageUpdatedEvent);
         }
     }
 }

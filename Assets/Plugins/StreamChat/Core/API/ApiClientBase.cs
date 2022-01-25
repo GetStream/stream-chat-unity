@@ -10,6 +10,10 @@ using StreamChat.Core.Web;
 
 namespace StreamChat.Core.API
 {
+    //Todo: refactor methods to remove duplication
+    //Probably best to use HttpClient.SendAsync only with optional content instead specialized methods that have common logic
+    //We could also not pass TRequestDto TResponseDto but have it registered in a map so that calls are not bloated with so many types
+
     /// <summary>
     /// Base Api client
     /// </summary>
@@ -81,8 +85,6 @@ namespace StreamChat.Core.API
             return response;
         }
 
-        //Todo: refactor methods to remove duplication
-        //Probably best to use HttpClient.SendAsync only with optional content instead specialized methods that share common logic
         protected async Task<TResponse> Patch<TRequest, TRequestDto, TResponse, TResponseDto>(string url,
             TRequest request)
             where TRequest : ISavableTo<TRequestDto>
