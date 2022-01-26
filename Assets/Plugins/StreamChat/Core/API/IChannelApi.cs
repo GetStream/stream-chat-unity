@@ -34,5 +34,8 @@ namespace StreamChat.Core.API
         Task<HideChannelResponse> HideChannelAsync(string channelType, string channelId, HideChannelRequest hideChannelRequest);
 
         Task<MembersResponse> QueryMembersAsync(QueryMembersRequest queryMembersRequest);
+
+        Task<StopWatchingResponse> StopWatchingChannelAsync(string channelType, string channelId,
+            ChannelStopWatchingRequest channelStopWatchingRequest);
     }
 }

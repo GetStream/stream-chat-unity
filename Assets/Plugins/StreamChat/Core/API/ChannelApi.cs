@@ -137,5 +137,11 @@ namespace StreamChat.Core.API
             Get<MembersResponse, MembersResponseDTO, QueryMembersRequest, QueryMembersRequestDTO>(
                 "/members",
                 queryMembersRequest);
+
+        public Task<StopWatchingResponse> StopWatchingChannelAsync(string channelType, string channelId,
+            ChannelStopWatchingRequest channelStopWatchingRequest) =>
+            Post<ChannelStopWatchingRequest, ChannelStopWatchingRequestDTO, StopWatchingResponse,
+                StopWatchingResponseDTO>($"/channels/{channelType}/{channelId}/stop-watching",
+                channelStopWatchingRequest);
     }
 }

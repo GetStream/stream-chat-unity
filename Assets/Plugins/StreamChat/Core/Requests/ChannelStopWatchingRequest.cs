@@ -11,14 +11,11 @@ namespace Plugins.StreamChat.Core.Requests
         /// </summary>
         public string ConnectionId { get; set; }
 
-
-        public ChannelStopWatchingRequestDTO SaveToDto()
-        {
-            return new ChannelStopWatchingRequestDTO
+        public ChannelStopWatchingRequestDTO SaveToDto() =>
+            new ChannelStopWatchingRequestDTO
             {
                 ConnectionId = ConnectionId,
                 AdditionalProperties = AdditionalProperties,
             };
-        }
     }
 }

@@ -16,6 +16,4 @@ namespace StreamChat.Core.Requests
                 AdditionalProperties = AdditionalProperties
             };
     }
-
-    //Todo: duplication with SortParamRequest
 }
