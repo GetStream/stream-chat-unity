@@ -1,7 +1,7 @@
-﻿using StreamChat.Core;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
-using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.Requests
 {
@@ -15,7 +15,7 @@ namespace StreamChat.Core.Requests
 
         public DeletionType? User { get; set; }
 
-        public System.Collections.Generic.ICollection<string> UserIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public ICollection<string> UserIds { get; set; } = new Collection<string>();
 
         public DeleteUsersRequestDTO SaveToDto() =>
             new DeleteUsersRequestDTO

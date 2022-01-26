@@ -1,8 +1,7 @@
-﻿using StreamChat.Core;
+﻿using System.Collections.Generic;
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
-using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Responses
 {
@@ -16,7 +15,7 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// List of found users
         /// </summary>
-        public System.Collections.Generic.ICollection<User> Users { get; set; }
+        public ICollection<User> Users { get; set; }
 
         public UsersResponse LoadFromDto(UsersResponseDTO dto)
         {

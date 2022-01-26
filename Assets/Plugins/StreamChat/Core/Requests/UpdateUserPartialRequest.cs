@@ -1,6 +1,6 @@
-﻿using StreamChat.Core;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using StreamChat.Core.DTO.Requests;
-using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.Requests
 {
@@ -14,12 +14,12 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Sets new field values
         /// </summary>
-        public System.Collections.Generic.IDictionary<string, object> Set { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public IDictionary<string, object> Set { get; set; } = new Dictionary<string, object>();
 
         /// <summary>
         /// Array of field names to unset
         /// </summary>
-        public System.Collections.Generic.ICollection<string> Unset { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public ICollection<string> Unset { get; set; } = new Collection<string>();
 
         public UpdateUserPartialRequestDTO SaveToDto()
         {
