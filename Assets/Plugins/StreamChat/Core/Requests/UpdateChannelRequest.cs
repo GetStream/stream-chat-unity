@@ -70,17 +70,6 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? SkipPush { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
-        public UserObjectRequest User { get; set; }
-
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
-        public string UserId { get; set; }
-
-
         public UpdateChannelRequestDTO SaveToDto() =>
             new UpdateChannelRequestDTO
             {
@@ -97,8 +86,6 @@ namespace StreamChat.Core.Requests
                 RejectInvite = RejectInvite,
                 RemoveMembers = RemoveMembers,
                 SkipPush = SkipPush,
-                User = User.TrySaveToDto(),
-                UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };
     }

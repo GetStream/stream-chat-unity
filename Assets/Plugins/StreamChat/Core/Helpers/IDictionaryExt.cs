@@ -8,6 +8,24 @@ namespace Plugins.StreamChat.Core.Helpers
     /// </summary>
     public static class IDictionaryExt
     {
+        public static IDictionary<TKey, TDto> TrySaveToDtoDictionary<TDto, TSource, TKey>(this IDictionary<TKey, TSource> source)
+            where TSource : ISavableTo<TDto>
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
+            var dict = new Dictionary<TKey, TDto>();
+
+            foreach (var sourceKeyValue in source)
+            {
+                dict.Add(sourceKeyValue.Key, sourceKeyValue.Value.SaveToDto());
+            }
+
+            return dict;
+        }
+
         public static IDictionary<TKey, TSource> TryLoadFromDtoDictionary<TDto, TSource, TKey>(
             this IDictionary<TKey, TSource> _, IDictionary<TKey, TDto> dtos)
             where TSource : ILoadableFrom<TDto, TSource>, new()

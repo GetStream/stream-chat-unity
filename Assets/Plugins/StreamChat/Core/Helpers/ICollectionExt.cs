@@ -8,17 +8,17 @@ namespace StreamChat.Core.Helpers
     /// </summary>
     public static class ICollectionExt
     {
-        public static ICollection<TDto> TrySaveToDtoCollection<TSource, TDto>(this ICollection<TSource> collection)
+        public static ICollection<TDto> TrySaveToDtoCollection<TSource, TDto>(this ICollection<TSource> source)
             where TSource : ISavableTo<TDto>
         {
-            if (collection == null)
+            if (source == null)
             {
                 return null;
             }
 
-            var dtos = new List<TDto>(collection.Count);
+            var dtos = new List<TDto>(source.Count);
 
-            foreach (var item in collection)
+            foreach (var item in source)
             {
                 dtos.Add(item.SaveToDto());
             }

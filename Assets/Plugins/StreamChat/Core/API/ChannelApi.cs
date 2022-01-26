@@ -132,5 +132,10 @@ namespace StreamChat.Core.API
                 endpoint,
                 hideChannelRequest);
         }
+
+        public Task<MembersResponse> QueryMembersAsync(QueryMembersRequest queryMembersRequest) =>
+            Get<MembersResponse, MembersResponseDTO, QueryMembersRequest, QueryMembersRequestDTO>(
+                "/members",
+                queryMembersRequest);
     }
 }

@@ -1,8 +1,9 @@
 ﻿using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Responses;
 
 namespace StreamChat.Core.Models
 {
-    public partial class User : ModelBase, ILoadableFrom<UserObjectDTO, User>
+    public partial class User : ModelBase, ILoadableFrom<UserObjectDTO, User>, ILoadableFrom<UserResponseDTO, User>, ISavableTo<UserObjectDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -102,5 +103,54 @@ namespace StreamChat.Core.Models
 
             return this;
         }
+
+        public User LoadFromDto(UserResponseDTO dto)
+        {
+            AdditionalProperties = dto.AdditionalProperties;
+            BanExpires = dto.BanExpires;
+            Banned = dto.Banned;
+            CreatedAt = dto.CreatedAt;
+            DeactivatedAt = dto.DeactivatedAt;
+            DeletedAt = dto.DeletedAt;
+            Id = dto.Id;
+            Invisible = dto.Invisible;
+            Language = dto.Language;
+            LastActive = dto.LastActive;
+            Online = dto.Online;
+            PushNotifications = dto.PushNotifications;
+            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
+            Role = dto.Role;
+            Teams = dto.Teams;
+            UpdatedAt = dto.UpdatedAt;
+
+            //Not in API spec
+            Name = dto.Name;
+            Image = dto.Image;
+
+            return this;
+        }
+
+        public UserObjectDTO SaveToDto() =>
+            new UserObjectDTO
+            {
+                BanExpires = BanExpires,
+                Banned = Banned,
+                CreatedAt = CreatedAt,
+                DeactivatedAt = DeactivatedAt,
+                DeletedAt = DeletedAt,
+                Id = Id,
+                Invisible = Invisible,
+                Language = Language,
+                LastActive = LastActive,
+                Online = Online,
+                PushNotifications = PushNotifications,
+                RevokeTokensIssuedBefore = RevokeTokensIssuedBefore,
+                Role = Role,
+                Teams = Teams,
+                UpdatedAt = UpdatedAt,
+                AdditionalProperties = AdditionalProperties,
+                Name = Name,
+                Image = Image,
+            };
     }
 }

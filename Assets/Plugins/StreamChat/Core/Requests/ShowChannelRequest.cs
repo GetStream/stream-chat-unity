@@ -6,8 +6,6 @@ namespace Plugins.StreamChat.Core.Requests
 {
     public partial class ShowChannelRequest : RequestObjectBase, ISavableTo<ShowChannelRequestDTO>
     {
-
-
         public ShowChannelRequestDTO SaveToDto() =>
             new ShowChannelRequestDTO
             {

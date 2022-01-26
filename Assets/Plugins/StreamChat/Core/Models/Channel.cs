@@ -1,4 +1,5 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Utils;
 
@@ -125,7 +126,7 @@ namespace StreamChat.Core.Models
             Config = Config.TryLoadFromDto(dto.Config);
             Cooldown = dto.Cooldown;
             CreatedAt = dto.CreatedAt;
-            CreatedBy = CreatedBy.TryLoadFromDto(dto.CreatedBy);
+            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectDTO, User>(dto.CreatedBy);
             DeletedAt = dto.DeletedAt;
             Disabled = dto.Disabled;
             Frozen = dto.Frozen;

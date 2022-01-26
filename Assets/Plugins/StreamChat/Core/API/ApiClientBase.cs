@@ -28,10 +28,36 @@ namespace StreamChat.Core.API
             _requestUriFactory = requestUriFactory ?? throw new ArgumentNullException(nameof(requestUriFactory));
         }
 
-        protected async Task<TResponse> Get<TResponse, TResponseDto>(string url)
+        protected async Task<TResponse> Get<TResponse, TResponseDto>(string endpoint,
+            Dictionary<string, string> parameters = null)
             where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
         {
-            var uri = _requestUriFactory.CreateEndpointUri(url);
+            var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
+
+            var httpResponse = await _httpClient.GetAsync(uri);
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                throw new StreamApiException(apiError);
+            }
+
+            var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+            var response = new TResponse();
+            response.LoadFromDto(responseDto);
+
+            return response;
+        }
+
+        protected async Task<TResponse> Get<TResponse, TResponseDto, TPayload, TPayloadDTO>(string endpoint, TPayload payload)
+            where TPayload : ISavableTo<TPayloadDTO>
+            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        {
+            var payloadContent = _serializer.Serialize(payload.SaveToDto());
+            var parameters = QueryParameters.Default.Append("payload", payloadContent);
+
+            var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
 
             var httpResponse = await _httpClient.GetAsync(uri);
             var responseContent = await httpResponse.Content.ReadAsStringAsync();
@@ -85,12 +111,12 @@ namespace StreamChat.Core.API
             return response;
         }
 
-        protected async Task<TResponse> Patch<TRequest, TRequestDto, TResponse, TResponseDto>(string url,
+        protected async Task<TResponse> Patch<TRequest, TRequestDto, TResponse, TResponseDto>(string endpoint,
             TRequest request)
             where TRequest : ISavableTo<TRequestDto>
             where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
         {
-            var uri = _requestUriFactory.CreateEndpointUri(url);
+            var uri = _requestUriFactory.CreateEndpointUri(endpoint);
             var requestContent = _serializer.Serialize(request.SaveToDto());
 
             var httpResponse = await _httpClient.PatchAsync(uri, requestContent);

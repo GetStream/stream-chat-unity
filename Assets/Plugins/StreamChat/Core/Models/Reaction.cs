@@ -49,7 +49,7 @@ namespace StreamChat.Core.Models
             Score = dto.Score;
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto(dto.User);
+            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
             UserId = dto.UserId;
 
             return this;

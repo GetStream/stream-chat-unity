@@ -33,7 +33,7 @@ namespace StreamChat.Core.Models
             CreatedAt = dto.CreatedAt;
             Expires = dto.Expires;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto(dto.User);
+            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

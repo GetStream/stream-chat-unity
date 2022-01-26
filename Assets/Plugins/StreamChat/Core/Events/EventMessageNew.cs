@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core.DTO.Events;
+using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Utils;
 using StreamChat.Core.Models;
@@ -37,7 +38,7 @@ namespace StreamChat.Core.Events
             Team = dto.Team;
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
-            User = User.TryLoadFromDto(dto.User);
+            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
             WatcherCount = dto.WatcherCount;
             AdditionalProperties = dto.AdditionalProperties;
 

@@ -15,7 +15,7 @@ namespace StreamChat.Core.Models
         {
             LastRead = dto.LastRead;
             UnreadMessages = dto.UnreadMessages;
-            User = User.TryLoadFromDto(dto.User);
+            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

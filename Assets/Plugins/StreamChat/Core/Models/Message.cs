@@ -186,7 +186,7 @@ namespace StreamChat.Core.Models
             PinExpires = dto.PinExpires;
             Pinned = dto.Pinned;
             PinnedAt = dto.PinnedAt;
-            PinnedBy = PinnedBy.TryLoadFromDto(dto.PinnedBy);
+            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectDTO, User>(dto.PinnedBy);
             QuotedMessage = QuotedMessage.TryLoadFromDto(dto.QuotedMessage);
             QuotedMessageId = dto.QuotedMessageId;
             ReactionCounts = dto.ReactionCounts;
@@ -199,7 +199,7 @@ namespace StreamChat.Core.Models
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto(dto.User);
+            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
 
             return this;
         }

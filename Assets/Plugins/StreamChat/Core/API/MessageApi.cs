@@ -38,7 +38,7 @@ namespace StreamChat.Core.API
         public Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard)
         {
             var endpoint = MessageEndpoints.DeleteMessage(messageId);
-            var parameters = QueryParameters.Create().Append("hard", hard);
+            var parameters = QueryParameters.Default.Append("hard", hard);
 
             return Delete<MessageResponse, MessageResponseDTO>(endpoint, parameters);
         }
