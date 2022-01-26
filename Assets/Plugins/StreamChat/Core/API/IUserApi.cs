@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
-using StreamChat.Core.Plugins.StreamChat.Core.Requests.DTO;
-using StreamChat.Core.Plugins.StreamChat.Core.Responses;
+using StreamChat.Core.Requests.DTO;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 
-namespace Plugins.StreamChat.Core.API
+namespace StreamChat.Core.API
 {
     public interface IUserApi
     {

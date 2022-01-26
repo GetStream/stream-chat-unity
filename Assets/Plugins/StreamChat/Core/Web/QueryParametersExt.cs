@@ -1,4 +1,4 @@
-﻿using StreamChat.Core.Plugins.StreamChat.Core.Web;
+﻿using StreamChat.Core.Web;
 
 namespace StreamChat.Core.Web
 {

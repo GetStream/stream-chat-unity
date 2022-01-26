@@ -1,7 +1,6 @@
-using StreamChat.Core.Plugins.StreamChat.Core.Web;
 using StreamChat.Core.Web;
 
-namespace StreamChat.Core.Plugins.StreamChat.Core.Requests.DTO
+namespace StreamChat.Core.Requests.DTO
 {
     public partial class DeleteUserRequestParameters : IAppendableQueryParameters
     {

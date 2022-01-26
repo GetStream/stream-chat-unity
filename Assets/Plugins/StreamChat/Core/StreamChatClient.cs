@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Plugins.StreamChat.Core.API;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;

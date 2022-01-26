@@ -1,9 +1,7 @@
 ﻿using System.Threading.Tasks;
-using StreamChat.Core.API;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
-using StreamChat.Core.Plugins.StreamChat.Core.Requests.DTO;
-using StreamChat.Core.Plugins.StreamChat.Core.Responses;
+using StreamChat.Core.Requests.DTO;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 using StreamChat.Core.Web;
@@ -11,7 +9,7 @@ using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
 
-namespace Plugins.StreamChat.Core.API
+namespace StreamChat.Core.API
 {
     public class UserApi : ApiClientBase, IUserApi
     {

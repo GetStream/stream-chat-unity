@@ -1,5 +1,4 @@
 ﻿using System;
-using Plugins.StreamChat.Core.API;
 using StreamChat.Core.API;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
