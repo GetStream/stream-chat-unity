@@ -17,7 +17,6 @@ namespace StreamChat.Libs.Websockets
     {
         public event Action Connected;
         public event Action ConnectionFailed;
-        public event Action Disconnected;
 
         public bool IsRunning { get; private set; }
 
@@ -53,9 +52,9 @@ namespace StreamChat.Libs.Websockets
             IsRunning = true;
 
             Task.Factory.StartNew(SendMessages, _connectionCts.Token, TaskCreationOptions.LongRunning,
-                TaskScheduler.Default);
+                TaskScheduler.Default).LogIfFailed();
             Task.Factory.StartNew(ReceiveMessages, _connectionCts.Token, TaskCreationOptions.LongRunning,
-                TaskScheduler.Default);
+                TaskScheduler.Default).LogIfFailed();
 
             Connected?.Invoke();
         }
@@ -88,7 +87,6 @@ namespace StreamChat.Libs.Websockets
         }
 
         private static Encoding DefaultEncoding { get; } = Encoding.UTF8;
-        private static float ReconnectTimeout = 5;
 
         private readonly ConcurrentQueue<string> _receiveQueue = new ConcurrentQueue<string>();
 
