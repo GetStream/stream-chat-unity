@@ -3,7 +3,7 @@ using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
 
-namespace Plugins.StreamChat.Core.Requests
+namespace StreamChat.Core.Requests
 {
     public partial class GuestRequest : RequestObjectBase, ISavableTo<GuestRequestDTO>
     {

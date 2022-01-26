@@ -1,11 +1,11 @@
-﻿using Plugins.StreamChat.Core.Models;
-using StreamChat.Core;
+﻿using StreamChat.Core;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 
-namespace Plugins.StreamChat.Core.Requests
+namespace StreamChat.Core.Requests
 {
     public partial class QueryUsersRequest : RequestObjectBase, ISavableTo<QueryUsersRequestDTO>
     {

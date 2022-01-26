@@ -17,11 +17,11 @@ using StreamChat.Core.Web;
 namespace StreamChat.Core
 {
     /// <summary>
-    /// GetStream.io main client
+    /// Stream Chat Client
     /// </summary>
     public class StreamChatClient : IStreamChatClient
     {
-        public const string MenuPrefix = "GetStream/";
+        public const string MenuPrefix = "Stream/";
 
         public event Action Connected;
 
@@ -50,10 +50,10 @@ namespace StreamChat.Core
             var httpClient = new HttpClientAdapter();
             var serializer = new NewtonsoftJsonSerializer();
             var timeService = new UnityTime();
-            var getStreamClient = new StreamChatClient(authData, websocketClient, httpClient, serializer,
+            var streamChatClient = new StreamChatClient(authData, websocketClient, httpClient, serializer,
                 timeService, unityLogs);
 
-            return getStreamClient;
+            return streamChatClient;
         }
 
         public StreamChatClient(AuthData authData, IWebsocketClient websocketClient, IHttpClient httpClient,

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using StreamChat.Core;
 
-namespace Plugins.StreamChat.Core.Helpers
+namespace StreamChat.Core.Helpers
 {
     /// <summary>
     /// Extensions for <see cref="IDictionary{TKey,TValue}"/>

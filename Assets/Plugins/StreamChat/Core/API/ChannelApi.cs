@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Plugins.StreamChat.Core.Requests;
-using Plugins.StreamChat.Core.Responses;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Libs.Http;

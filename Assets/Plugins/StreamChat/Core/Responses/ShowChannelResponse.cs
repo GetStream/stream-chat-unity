@@ -2,7 +2,7 @@
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Responses;
 
-namespace Plugins.StreamChat.Core.Responses
+namespace StreamChat.Core.Responses
 {
     public partial class ShowChannelResponse : ResponseObjectBase,
         ILoadableFrom<ShowChannelResponseDTO, ShowChannelResponse>

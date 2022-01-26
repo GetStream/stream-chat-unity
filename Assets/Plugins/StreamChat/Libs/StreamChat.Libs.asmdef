@@ -1,6 +1,6 @@
 {
     "name": "StreamChat.Libs",
-    "rootNamespace": "",
+    "rootNamespace": "StreamChat.Libs",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

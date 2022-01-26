@@ -231,7 +231,7 @@ GameObject:
   - component: {fileID: 5251248261986067130}
   - component: {fileID: 7678271290476806811}
   m_Layer: 0
-  m_Name: GetStreamInstance
+  m_Name: StreamChatInstance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -568,7 +568,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7442690870633380500, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8002402951019127743, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_AnchorMax.y
@@ -937,7 +937,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6470936066495146080, guid: 7c6239b49c8b04342a536025edd61366, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8090220119038640879, guid: 7c6239b49c8b04342a536025edd61366, type: 3}
       propertyPath: m_Size

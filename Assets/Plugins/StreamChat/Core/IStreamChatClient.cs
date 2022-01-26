@@ -8,7 +8,7 @@ using Action = System.Action;
 namespace StreamChat.Core
 {
     /// <summary>
-    /// GetStream.io main client
+    /// Stream Chat Client
     /// </summary>
     public interface IStreamChatClient : IAuthProvider, IConnectionProvider, IDisposable
     {

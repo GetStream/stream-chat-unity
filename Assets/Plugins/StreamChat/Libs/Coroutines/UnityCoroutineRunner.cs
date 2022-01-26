@@ -36,7 +36,7 @@ namespace StreamChat.Libs.Coroutines
         protected void Awake()
         {
             DontDestroyOnLoad(this);
-            name = "GetStreamClient - Coroutine Runner";
+            name = "StreamChatClient - Coroutine Runner";
         }
 
         private readonly GameObject _coroutineRunnerGameObject;

@@ -2,7 +2,7 @@
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Requests;
 
-namespace Plugins.StreamChat.Core.Models
+namespace StreamChat.Core.Models
 {
     public partial class SortParam : RequestObjectBase, ISavableTo<SortParamDTO>
     {

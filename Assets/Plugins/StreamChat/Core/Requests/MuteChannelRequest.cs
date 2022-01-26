@@ -2,7 +2,7 @@
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Responses;
 
-namespace Plugins.StreamChat.Core.Requests
+namespace StreamChat.Core.Requests
 {
     public partial class MuteChannelRequest : ResponseObjectBase, ISavableTo<MuteChannelRequestDTO>
     {

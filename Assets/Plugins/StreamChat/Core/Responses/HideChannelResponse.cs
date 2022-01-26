@@ -1,8 +1,6 @@
-﻿using StreamChat.Core;
-using StreamChat.Core.DTO.Responses;
-using StreamChat.Core.Responses;
+﻿using StreamChat.Core.DTO.Responses;
 
-namespace Plugins.StreamChat.Core.Responses
+namespace StreamChat.Core.Responses
 {
     public partial class HideChannelResponse : ResponseObjectBase,
         ILoadableFrom<HideChannelResponseDTO, HideChannelResponse>

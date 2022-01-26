@@ -7,7 +7,7 @@ using UnityEngine;
 namespace StreamChat.Unity
 {
     /// <summary>
-    /// GetStream chat client MonoBehaviour
+    /// Stream Chat Client MonoBehaviour
     /// </summary>
     public class StreamChatClientBehaviour : MonoBehaviour
     {
