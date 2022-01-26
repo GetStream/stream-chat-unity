@@ -132,7 +132,7 @@ namespace StreamChat.Core.API
         }
 
         public Task<MembersResponse> QueryMembersAsync(QueryMembersRequest queryMembersRequest) =>
-            Get<MembersResponse, MembersResponseDTO, QueryMembersRequest, QueryMembersRequestDTO>(
+            Get<QueryMembersRequest, QueryMembersRequestDTO, MembersResponse, MembersResponseDTO>(
                 "/members",
                 queryMembersRequest);
 

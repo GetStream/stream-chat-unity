@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Plugins.StreamChat.Core.API;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -34,6 +35,7 @@ namespace StreamChat.Core
         public IChannelApi ChannelApi { get; }
         public IMessageApi MessageApi { get; }
         public IModerationApi ModerationApi { get; }
+        public IUserApi UserApi { get; }
 
         public ConnectionState ConnectionState { get; private set; }
 
@@ -76,6 +78,7 @@ namespace StreamChat.Core
             ChannelApi = new ChannelApi(httpClient, serializer, logs, _requestUriFactory);
             MessageApi = new MessageApi(httpClient, serializer, logs, _requestUriFactory);
             ModerationApi = new ModerationApi(httpClient, serializer, logs, _requestUriFactory);
+            UserApi = new UserApi(httpClient, serializer, logs, _requestUriFactory);
 
             RegisterEventHandlers();
         }

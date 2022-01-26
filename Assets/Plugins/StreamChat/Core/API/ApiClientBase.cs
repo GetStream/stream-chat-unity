@@ -50,7 +50,7 @@ namespace StreamChat.Core.API
             return response;
         }
 
-        protected async Task<TResponse> Get<TResponse, TResponseDto, TPayload, TPayloadDTO>(string endpoint, TPayload payload)
+        protected async Task<TResponse> Get<TPayload, TPayloadDTO, TResponse, TResponseDto>(string endpoint, TPayload payload)
             where TPayload : ISavableTo<TPayloadDTO>
             where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
         {

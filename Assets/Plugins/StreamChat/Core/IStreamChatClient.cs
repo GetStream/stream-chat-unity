@@ -1,4 +1,5 @@
 ﻿using System;
+using Plugins.StreamChat.Core.API;
 using StreamChat.Core.API;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
@@ -22,6 +23,7 @@ namespace StreamChat.Core
         IChannelApi ChannelApi { get; }
         IMessageApi MessageApi { get; }
         IModerationApi ModerationApi { get; }
+        IUserApi UserApi { get; }
 
         void Update(float deltaTime);
 
