@@ -50,7 +50,7 @@ namespace StreamChat.Tests
         }
 
         [Test]
-        public void when_get_stream_client_connection_failed_expect_reconnect()
+        public void when_stream_client_connection_failed_expect_reconnect()
         {
             _mockWebsocketClient.ConnectAsync(default)
                 .ReturnsForAnyArgs(_ => Task.FromException<Exception>(new Exception("failed to connect")));
@@ -60,13 +60,13 @@ namespace StreamChat.Tests
         }
 
         [Test]
-        public void when_get_stream_client_factory_called_expect_no_exceptions()
+        public void when_stream_client_factory_called_expect_no_exceptions()
         {
             Assert.DoesNotThrow(() => StreamChatClient.CreateDefaultClient(_authData));
         }
 
         [Test]
-        public void when_get_stream_client_passed_null_arg_expect_argument_null_exception()
+        public void when_stream_client_passed_null_arg_expect_argument_null_exception()
         {
             Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authData, websocketClient: null, httpClient: _mockHttpClient, serializer: _mockSerializer,
                 timeService: _mockTimeService, logs: _mockLogs));
@@ -89,13 +89,13 @@ namespace StreamChat.Tests
         }
 
         [Test]
-        public void when_get_stream_client_created_expect_disconnected_state()
+        public void when_stream_client_created_expect_disconnected_state()
         {
             Assert.IsTrue(_client.ConnectionState == ConnectionState.Disconnected);
         }
 
         [Test]
-        public void when_get_stream_client_received_first_health_check_event_expect_connected_state()
+        public void when_stream_client_received_first_health_check_event_expect_connected_state()
         {
             var client = new StreamChatClient(_authData, _mockWebsocketClient, _mockHttpClient,
                 new NewtonsoftJsonSerializer(), _mockTimeService, _mockLogs);
@@ -120,7 +120,7 @@ namespace StreamChat.Tests
         }
 
         [Test]
-        public void when_get_stream_client_health_check_timeout_detected_expect_client_disconnected()
+        public void when_stream_client_health_check_timeout_detected_expect_client_disconnected()
         {
             var client = new StreamChatClient(_authData, _mockWebsocketClient, _mockHttpClient,
                 new NewtonsoftJsonSerializer(), _mockTimeService, _mockLogs);
