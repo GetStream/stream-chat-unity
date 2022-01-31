@@ -1,12 +1,13 @@
 ﻿using System;
-using StreamChat.Core;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
-using StreamChat.Libs.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace StreamChat.Unity.Scripts
 {
@@ -22,9 +23,16 @@ namespace StreamChat.Unity.Scripts
 
         protected void Update()
         {
+#if ENABLE_LEGACY_INPUT_MANAGER
             if (Input.GetKey(KeyCode.KeypadEnter) || Input.GetKey("return"))
+#elif ENABLE_INPUT_SYSTEM
+            //This requires StreamChat.Unity assembly definition to have a reference to UnityEngine.InputSystem package
+            if (Keyboard.current.enterKey.wasPressedThisFrame)
+#endif
             {
+#if ENABLE_LEGACY_INPUT_MANAGER || ENABLE_INPUT_SYSTEM
                 OnSendButtonClicked();
+#endif
             }
         }
 
