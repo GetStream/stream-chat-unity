@@ -9,9 +9,9 @@ namespace StreamChat.Core.API
     {
         public static string QueryChannels() => "/channels";
 
-        public static string GetOrCreateAsync(string type, string id) => $"channels/{type}/{id}/query";
+        public static string GetOrCreate(string type, string id) => $"channels/{type}/{id}/query";
 
-        public static string GetOrCreateAsync(string type) => $"channels/{type}/query";
+        public static string GetOrCreate(string type) => $"channels/{type}/query";
 
         public static string Update(string type, string id) => $"channels/{type}/{id}";
 

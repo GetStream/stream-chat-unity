@@ -30,7 +30,7 @@ namespace StreamChat.Core.API
         public Task<ChannelState> GetOrCreateChannelAsync(string channelType,
             ChannelGetOrCreateRequest getOrCreateRequest)
         {
-            var endpoint = ChannelEndpoints.GetOrCreateAsync(channelType);
+            var endpoint = ChannelEndpoints.GetOrCreate(channelType);
 
             return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(
                 endpoint,
@@ -40,7 +40,7 @@ namespace StreamChat.Core.API
         public Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId,
             ChannelGetOrCreateRequest getOrCreateRequest)
         {
-            var endpoint = ChannelEndpoints.GetOrCreateAsync(channelType, channelId);
+            var endpoint = ChannelEndpoints.GetOrCreate(channelType, channelId);
 
             return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(
                 endpoint,
