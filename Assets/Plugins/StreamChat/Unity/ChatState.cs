@@ -79,12 +79,10 @@ namespace StreamChat.Unity
                 {
                     new SortParamRequest
                     {
-                        Field = nameof(Message.CreatedAt),
+                        Field = "created_at",
                         Direction = -1,
                     }
                 },
-                State = true,
-                Watch = true,
             };
 
             try
@@ -113,23 +111,32 @@ namespace StreamChat.Unity
 
         private void OnMessageReceived(EventMessageNew messageNewEvent)
         {
-            var channel = _channels.First(_ => _.Channel.Id == messageNewEvent.ChannelId);
+            var channel = GetChannel(messageNewEvent.ChannelId);
             channel.AddMessage(messageNewEvent.Message);
         }
 
         private void OnMessageDeleted(EventMessageDeleted messageDeletedEvent)
         {
-            var channel = _channels.First(_ => _.Channel.Id == messageDeletedEvent.ChannelId);
+            var channel = GetChannel(messageDeletedEvent.ChannelId);
             var message = channel.Messages.First(_ => _.Id == messageDeletedEvent.Message.Id);
             message.Text = MessageDeletedInfo;
 
-            ActiveChanelChanged?.Invoke(ActiveChannel);
+            if (channel == ActiveChannel)
+            {
+                ActiveChanelChanged?.Invoke(ActiveChannel);
+            }
         }
 
         private void OnMessageUpdated(EventMessageUpdated messageUpdatedEvent)
         {
-            var channel = _channels.First(_ => _.Channel.Id == messageUpdatedEvent.ChannelId);
-            ActiveChanelChanged?.Invoke(channel);
+            var channel = GetChannel(messageUpdatedEvent.ChannelId);
+
+            if (channel == ActiveChannel)
+            {
+                ActiveChanelChanged?.Invoke(ActiveChannel);
+            }
         }
+
+        private ChannelState GetChannel(string id) => _channels.First(_ => _.Channel.Id == id);
     }
 }
