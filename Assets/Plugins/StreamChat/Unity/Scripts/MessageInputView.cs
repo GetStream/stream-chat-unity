@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
+//This requires StreamChat.Unity assembly definition to have a reference to UnityEngine.InputSystem package
 using UnityEngine.InputSystem;
 #endif
 

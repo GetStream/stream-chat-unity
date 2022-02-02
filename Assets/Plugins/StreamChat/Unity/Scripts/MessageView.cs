@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
-using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Utils;
 using StreamChat.Libs.Utils;
@@ -10,6 +9,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+//This requires StreamChat.Unity assembly definition to have a reference to UnityEngine.InputSystem package
+using UnityEngine.InputSystem;
+#endif
 
 namespace StreamChat.Unity.Scripts
 {
@@ -32,7 +35,12 @@ namespace StreamChat.Unity.Scripts
 
         public void OnPointerDown(PointerEventData eventData)
         {
+#if ENABLE_LEGACY_INPUT_MANAGER
             if (!Input.GetMouseButton(1))
+#elif ENABLE_INPUT_SYSTEM
+            //This requires StreamChat.Unity assembly definition to have a reference to UnityEngine.InputSystem package
+            if (!Mouse.current.rightButton.wasPressedThisFrame)
+#endif
             {
                 return;
             }
