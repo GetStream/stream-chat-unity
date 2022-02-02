@@ -40,6 +40,8 @@ namespace StreamChat.Core
 
         public static readonly Version SDKVersion = new Version(1, 0, 0);
 
+        public string LocalUserId => _authData.UserId;
+
         /// <summary>
         /// Use this method to create the main client instance
         /// </summary>
