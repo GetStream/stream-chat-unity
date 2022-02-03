@@ -52,9 +52,9 @@ namespace StreamChat.Libs.Websockets
             IsRunning = true;
 
             Task.Factory.StartNew(SendMessages, _connectionCts.Token, TaskCreationOptions.LongRunning,
-                TaskScheduler.Default).LogIfFailed();
+                TaskScheduler.Default).ConfigureAwait(false);
             Task.Factory.StartNew(ReceiveMessages, _connectionCts.Token, TaskCreationOptions.LongRunning,
-                TaskScheduler.Default).LogIfFailed();
+                TaskScheduler.Default).ConfigureAwait(false);
 
             Connected?.Invoke();
         }

@@ -23,7 +23,6 @@ namespace StreamChat.Core
         IMessageApi MessageApi { get; }
         IModerationApi ModerationApi { get; }
         IUserApi UserApi { get; }
-        string LocalUserId { get; }
 
         void Update(float deltaTime);
 

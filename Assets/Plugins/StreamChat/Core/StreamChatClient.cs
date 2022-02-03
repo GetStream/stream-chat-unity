@@ -23,6 +23,8 @@ namespace StreamChat.Core
     {
         public const string MenuPrefix = "Stream/";
 
+        public static readonly Uri ServerBaseUrl = new Uri("wss://chat.stream-io-api.com");
+
         public event Action Connected;
 
         public event Action<string> EventReceived;
@@ -39,8 +41,6 @@ namespace StreamChat.Core
         public ConnectionState ConnectionState { get; private set; }
 
         public static readonly Version SDKVersion = new Version(1, 0, 0);
-
-        public string LocalUserId => _authData.UserId;
 
         /// <summary>
         /// Use this method to create the main client instance
@@ -129,7 +129,7 @@ namespace StreamChat.Core
         string IAuthProvider.UserId => _authData.UserId;
         string IAuthProvider.StreamAuthType => DefaultStreamAuthType;
         string IConnectionProvider.ConnectionId => _connectionId;
-        Uri IConnectionProvider.ServerUri => _authData.ServerUri;
+        Uri IConnectionProvider.ServerUri => ServerBaseUrl;
 
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;

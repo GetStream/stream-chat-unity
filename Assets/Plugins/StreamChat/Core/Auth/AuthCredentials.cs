@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace StreamChat.Core.Auth
@@ -9,11 +8,7 @@ namespace StreamChat.Core.Auth
     [CreateAssetMenu(fileName = "AuthCredentials", menuName = StreamChatClient.MenuPrefix + "Config/Create auth credentials asset", order = 1)]
     public class AuthCredentials : ScriptableObject
     {
-        public AuthData Data => new AuthData(new Uri(_serverUri), _userToken, _apiKey, _userId);
-
-        [SerializeField]
-        private string _serverUri;
-
+        public AuthData Data => new AuthData(_userToken, _apiKey, _userId);
         [SerializeField]
         private string _userToken;
 

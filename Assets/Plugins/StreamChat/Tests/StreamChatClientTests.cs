@@ -20,7 +20,7 @@ namespace StreamChat.Tests
         [SetUp]
         public void Up()
         {
-            _authData = new AuthData(new Uri("wss://test.com"), "token123", "api123", "user123");
+            _authData = new AuthData("token123", "api123", "user123");
             _mockWebsocketClient = Substitute.For<IWebsocketClient>();
             _mockHttpClient = Substitute.For<IHttpClient>();
             _mockSerializer = Substitute.For<ISerializer>();
