@@ -56,6 +56,15 @@ For Unity's new Input System please:
 1. Make sure that the UnityEngine.InputSystem package is available in the project
 2. Add **UnityEngine.InputSystem package** reference to the **StreamChat.Unity** assembly definition asset
 
+## Dependencies
+
+- **TextMeshPro** StreamChat/SampleProject requires a TextMeshPro package
+- **Newtonsoft.Json** SDK uses Newtonsoft Json Library for serialization.
+
+:warning: In case you already have the Newtonsoft Json dll or package in your project and encounter the following error:<br>
+`Multiple precompiled assemblies with the same name Newtonsoft.Json.dll included or the current platform. Only one assembly with the same name is allowed per platform.`
+<br>you can remove the `StreamChat\Libs\Serialization\Newtonsoft.Json.dll`
+
 ---
 
 ## We are hiring
