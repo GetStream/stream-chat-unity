@@ -45,24 +45,24 @@ namespace StreamChat.Core
         /// <summary>
         /// Use this method to create the main client instance
         /// </summary>
-        /// <param name="authData">Authorization data with Server Url, ApiKey, UserToken and UserId</param>
-        public static IStreamChatClient CreateDefaultClient(AuthData authData)
+        /// <param name="authCredentials">Authorization data with ApiKey, UserToken and UserId</param>
+        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials)
         {
             var unityLogs = new UnityLogs();
             var websocketClient = new WebsocketClient(unityLogs);
             var httpClient = new HttpClientAdapter();
             var serializer = new NewtonsoftJsonSerializer();
             var timeService = new UnityTime();
-            var streamChatClient = new StreamChatClient(authData, websocketClient, httpClient, serializer,
+            var streamChatClient = new StreamChatClient(authCredentials, websocketClient, httpClient, serializer,
                 timeService, unityLogs);
 
             return streamChatClient;
         }
 
-        public StreamChatClient(AuthData authData, IWebsocketClient websocketClient, IHttpClient httpClient,
+        public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient, IHttpClient httpClient,
             ISerializer serializer, ITimeService timeService, ILogs logs)
         {
-            _authData = authData;
+            _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
@@ -71,7 +71,7 @@ namespace StreamChat.Core
 
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
 
-            _httpClient.SetDefaultAuthenticationHeader(authData.UserToken);
+            _httpClient.SetDefaultAuthenticationHeader(authCredentials.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
             _httpClient.AddDefaultCustomHeader("X-Stream-Client", $"stream-chat-unity-client-{SDKVersion}");
 
@@ -113,10 +113,10 @@ namespace StreamChat.Core
         }
 
         public bool IsLocalUser(User user)
-            => user.Id == _authData.UserId;
+            => user.Id == _authCredentials.UserId;
 
         public bool IsLocalUser(ChannelMember channelMember)
-            => channelMember.User.Id == _authData.UserId;
+            => channelMember.User.Id == _authCredentials.UserId;
 
         public void Dispose()
         {
@@ -124,9 +124,9 @@ namespace StreamChat.Core
             _websocketClient?.Dispose();
         }
 
-        string IAuthProvider.ApiKey => _authData.ApiKey;
-        string IAuthProvider.UserToken => _authData.UserToken;
-        string IAuthProvider.UserId => _authData.UserId;
+        string IAuthProvider.ApiKey => _authCredentials.ApiKey;
+        string IAuthProvider.UserToken => _authCredentials.UserToken;
+        string IAuthProvider.UserId => _authCredentials.UserId;
         string IAuthProvider.StreamAuthType => DefaultStreamAuthType;
         string IConnectionProvider.ConnectionId => _connectionId;
         Uri IConnectionProvider.ServerUri => ServerBaseUrl;
@@ -140,7 +140,7 @@ namespace StreamChat.Core
         private readonly ISerializer _serializer;
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
-        private readonly AuthData _authData;
+        private readonly AuthCredentials _authCredentials;
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
 

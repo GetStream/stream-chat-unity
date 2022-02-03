@@ -1,21 +1,29 @@
-using UnityEngine;
-
-namespace StreamChat.Core.Auth
+﻿namespace StreamChat.Core.Auth
 {
     /// <summary>
-    /// Asset to keep auth credentials
+    /// Wraps authorization data
     /// </summary>
-    [CreateAssetMenu(fileName = "AuthCredentials", menuName = StreamChatClient.MenuPrefix + "Config/Create auth credentials asset", order = 1)]
-    public class AuthCredentials : ScriptableObject
+    public readonly struct AuthCredentials
     {
-        public AuthData Data => new AuthData(_userToken, _apiKey, _userId);
-        [SerializeField]
-        private string _userToken;
+        public readonly string UserToken;
+        public readonly string ApiKey;
+        public readonly string UserId;
 
-        [SerializeField]
-        private string _apiKey;
+        public AuthCredentials(string apiKey, string userToken, string userId)
+        {
+            ApiKey = apiKey;
+            UserToken = userToken;
+            UserId = userId;
+        }
+    }
 
-        [SerializeField]
-        private string _userId;
+    /// <summary>
+    /// Extensions for <see cref="AuthCredentials"/>
+    /// </summary>
+    public static class AuthCredentialsExt
+    {
+        public static AuthCredentials WithUserCredentials(this AuthCredentials authCredentials, string userToken,
+            string userId)
+            => new AuthCredentials(authCredentials.ApiKey, userToken, userId);
     }
 }

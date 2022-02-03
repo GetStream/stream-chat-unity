@@ -13,7 +13,7 @@ namespace StreamChat.SampleProject
     {
         protected void Awake()
         {
-            _client = StreamChatClient.CreateDefaultClient(_authCredentials.Data);
+            _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
             _client.Connect();
 
             var viewFactory = new ViewFactory(_client, _viewFactoryConfig, _popupsContainer);
@@ -33,7 +33,7 @@ namespace StreamChat.SampleProject
         private RootView _rootView;
 
         [SerializeField]
-        private AuthCredentials _authCredentials;
+        private AuthCredentialsAsset _authCredentialsAsset;
 
         [SerializeField]
         private ViewFactoryConfig _viewFactoryConfig;
