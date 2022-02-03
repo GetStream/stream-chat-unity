@@ -4,7 +4,7 @@ using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Models;
 using StreamChat.Core.Utils;
 using StreamChat.Libs.Utils;
-using StreamChat.Unity.Scripts.Popups;
+using StreamChat.SampleProject.Popups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,7 +14,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 #endif
 
-namespace StreamChat.Unity.Scripts
+namespace StreamChat.SampleProject.Views
 {
     /// <summary>
     /// Message view

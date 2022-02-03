@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace StreamChat.Unity.Scripts.Popups
+namespace StreamChat.SampleProject.Popups
 {
     /// <summary>
     /// Context menu for message

@@ -1,10 +1,9 @@
 ﻿using System;
 using StreamChat.Core;
-using StreamChat.Core.Models;
 using StreamChat.Core.Utils;
-using StreamChat.Unity.Scripts;
+using StreamChat.SampleProject.Views;
 
-namespace StreamChat.Unity
+namespace StreamChat.SampleProject
 {
     /// <summary>
     /// Default implementation of <see cref="IChatViewContext"/>

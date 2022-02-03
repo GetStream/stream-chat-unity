@@ -1,8 +1,8 @@
 ﻿using StreamChat.Core;
 using StreamChat.Core.Utils;
-using StreamChat.Unity.Scripts;
+using StreamChat.SampleProject.Views;
 
-namespace StreamChat.Unity
+namespace StreamChat.SampleProject
 {
     /// <summary>
     /// Context for view with state and common services

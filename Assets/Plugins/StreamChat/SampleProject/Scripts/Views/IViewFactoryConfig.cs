@@ -1,6 +1,6 @@
-﻿using StreamChat.Unity.Scripts.Popups;
+﻿using StreamChat.SampleProject.Popups;
 
-namespace StreamChat.Unity.Scripts
+namespace StreamChat.SampleProject.Views
 {
     /// <summary>
     /// Config for <see cref="IViewFactory"/>

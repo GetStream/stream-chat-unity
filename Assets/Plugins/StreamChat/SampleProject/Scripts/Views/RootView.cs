@@ -1,4 +1,4 @@
-﻿namespace StreamChat.Unity.Scripts
+﻿namespace StreamChat.SampleProject.Views
 {
     /// <summary>
     /// Root view

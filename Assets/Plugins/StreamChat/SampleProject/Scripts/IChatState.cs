@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using StreamChat.Core.Models;
 
-namespace StreamChat.Unity
+namespace StreamChat.SampleProject
 {
     /// <summary>
     /// Keep chat state

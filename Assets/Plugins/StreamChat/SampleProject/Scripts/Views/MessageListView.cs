@@ -1,12 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace StreamChat.Unity.Scripts
+namespace StreamChat.SampleProject.Views
 {
     /// <summary>
     /// Channel message list view

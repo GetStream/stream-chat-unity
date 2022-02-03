@@ -4,10 +4,10 @@ using StreamChat.Core;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Requests;
 using StreamChat.Libs.Utils;
-using StreamChat.Unity.Scripts.Popups;
+using StreamChat.SampleProject.Popups;
 using UnityEngine;
 
-namespace StreamChat.Unity.Scripts
+namespace StreamChat.SampleProject.Views
 {
     /// <summary>
     /// Default implementation of <see cref="IViewFactory"/>

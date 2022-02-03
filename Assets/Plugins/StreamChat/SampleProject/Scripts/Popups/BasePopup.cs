@@ -1,6 +1,7 @@
+using StreamChat.SampleProject.Views;
 using UnityEngine.EventSystems;
 
-namespace StreamChat.Unity.Scripts.Popups
+namespace StreamChat.SampleProject.Popups
 {
     /// <summary>
     /// Popup window base

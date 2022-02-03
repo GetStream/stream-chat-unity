@@ -1,4 +1,4 @@
-namespace StreamChat.Unity.Scripts.Popups
+namespace StreamChat.SampleProject.Popups
 {
     /// <summary>
     /// Args for <see cref="BasePopup{T}"/>

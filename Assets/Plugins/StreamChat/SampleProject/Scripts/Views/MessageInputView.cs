@@ -10,7 +10,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 #endif
 
-namespace StreamChat.Unity.Scripts
+namespace StreamChat.SampleProject.Views
 {
     /// <summary>
     /// Message input view

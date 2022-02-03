@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rootView: {fileID: 5577065971412910734}
-  _authCredentials: {fileID: 11400000, guid: 36072d95c2b911944bc4f04ec53898a5, type: 2}
+  _authCredentials: {fileID: 11400000, guid: 0b08ddaef6283734185d71ce00304d5d, type: 2}
   _viewFactoryConfig: {fileID: 11400000, guid: 68e2e69f7cb34ef478eac352e97fca3a, type: 2}
   _popupsContainer: {fileID: 5034016418571902947}
 --- !u!1 &7002968776139178785
@@ -540,7 +540,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3286842537752146231, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_Size
-      value: 1
+      value: 0.99999994
       objectReference: {fileID: 0}
     - target: {fileID: 3286842537752146231, guid: c061e6feee4e05548b6ba0598494cb4c, type: 3}
       propertyPath: m_Value
