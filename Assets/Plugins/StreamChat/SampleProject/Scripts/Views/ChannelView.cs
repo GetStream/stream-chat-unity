@@ -67,7 +67,7 @@ namespace StreamChat.SampleProject.Views
             _messagePreviewText.text = GetLastMessagePreview();
 
             var abbreviationSource = name.IsNullOrEmpty()
-                ? _channelState.Channel.CreatedBy.Name
+                ? channelCreatorName
                 : name;
 
             //Todo: this breaks when instead of a regular character we have an emoji

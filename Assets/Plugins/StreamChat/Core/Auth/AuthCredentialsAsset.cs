@@ -8,7 +8,7 @@ namespace StreamChat.Core.Auth
     [CreateAssetMenu(fileName = "AuthCredentials", menuName = StreamChatClient.MenuPrefix + "Config/Create auth credentials asset", order = 1)]
     public class AuthCredentialsAsset : ScriptableObject
     {
-        public AuthCredentials Credentials => new AuthCredentials(_apiKey, _testUserToken, _testUserId);
+        public AuthCredentials Credentials => new AuthCredentials(_apiKey, _testUserId, _testUserToken);
 
         [Header("Your `Api Key`")]
         [Tooltip("You can find it in Stream Dashboard")]
@@ -16,9 +16,9 @@ namespace StreamChat.Core.Auth
         private string _apiKey;
 
         [SerializeField]
-        private string _testUserToken;
+        private string _testUserId;
 
         [SerializeField]
-        private string _testUserId;
+        private string _testUserToken;
     }
 }

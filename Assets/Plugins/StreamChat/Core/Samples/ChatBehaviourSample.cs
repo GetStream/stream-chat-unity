@@ -15,8 +15,8 @@ namespace StreamChat.Core.Plugins.StreamChat.Core.Samples
             //Create AuthCredentials or optionally you can set them in asset and use _authCredentialsAsset.Credentials
             var authCredentials = new AuthCredentials(
                 apiKey: "STREAM_CHAT_API_KEY",
-                userToken: "USER_TOKEN",
-                userId: "USER_ID");
+                userId: "USER_ID",
+                userToken: "USER_TOKEN");
 
             Client = StreamChatClient.CreateDefaultClient(authCredentials);
 

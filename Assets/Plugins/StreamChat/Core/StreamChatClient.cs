@@ -62,6 +62,11 @@ namespace StreamChat.Core
         public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient, IHttpClient httpClient,
             ISerializer serializer, ITimeService timeService, ILogs logs)
         {
+            if (authCredentials.IsAnyEmpty())
+            {
+                throw new Exception("Stream Chat: Please provide valid non empty credentials: `Api Key`, 'User id`, `User token`");
+            }
+
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
