@@ -8,6 +8,8 @@ namespace StreamChat.Core.Plugins.StreamChat.Core.Samples
     /// </summary>
     public class ChatBehaviourSample : MonoBehaviour
     {
+        public IStreamChatClient Client { get; private set; }
+
         protected void Awake()
         {
             //Create AuthCredentials or optionally you can set them in asset and use _authCredentialsAsset.Credentials
@@ -16,19 +18,17 @@ namespace StreamChat.Core.Plugins.StreamChat.Core.Samples
                 userToken: "USER_TOKEN",
                 userId: "USER_ID");
 
-            _client = StreamChatClient.CreateDefaultClient(authCredentials);
+            Client = StreamChatClient.CreateDefaultClient(authCredentials);
 
             //Initialize connection with the Stream Chat server
-            _client.Connect();
+            Client.Connect();
         }
 
         //Client needs to updated per frame in order to maintain websockets connection
-        protected void Update() => _client?.Update(Time.deltaTime);
+        protected void Update() => Client?.Update(Time.deltaTime);
 
         //Client needs to be disposed once its no longer needed in order to close the connection
-        protected void OnDestroy() => _client?.Dispose();
-
-        private IStreamChatClient _client;
+        protected void OnDestroy() => Client?.Dispose();
 
         //Optionally you can use this asset to store credentials
         [SerializeField]

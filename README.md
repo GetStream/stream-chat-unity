@@ -20,10 +20,11 @@
 
 The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://getstream.io/chat/sdk/unity/), a service for building chat and messaging games and applications.
 
-- **Fully open-source implementation:** You have access to the complete source code of the SDK here on GitHub.
+
 - **Unity Engine 2020.x:** Supports the latest version of Unity Engine.
 - **Realtime events** using websockets.
 - **Supports querying channels and members** with optional filtering and sorting.
+- **Fully open-source implementation:** You have access to the complete source code of the SDK here on GitHub.
 
 ## Main features
 
@@ -54,7 +55,7 @@ It is created with Unity's uGUI UI system and supports both legacy and the new U
 
 For Unity's new Input System please:
 1. Make sure that the UnityEngine.InputSystem package is available in the project
-2. Add **UnityEngine.InputSystem package** reference to the **StreamChat.Unity** assembly definition asset
+2. Add **UnityEngine.InputSystem** dll reference to the **StreamChat.Unity** assembly definition asset
 
 ## Dependencies
 
