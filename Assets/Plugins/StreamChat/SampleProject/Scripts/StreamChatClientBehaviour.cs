@@ -1,4 +1,5 @@
-﻿using StreamChat.Core;
+﻿using System;
+using StreamChat.Core;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Utils;
 using StreamChat.SampleProject.Views;
@@ -13,14 +14,21 @@ namespace StreamChat.SampleProject
     {
         protected void Awake()
         {
-            _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
-            _client.Connect();
+            try
+            {
+                _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
+                _client.Connect();
 
-            var viewFactory = new ViewFactory(_client, _viewFactoryConfig, _popupsContainer);
-            var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory);
-            viewFactory.Init(viewContext);
+                var viewFactory = new ViewFactory(_client, _viewFactoryConfig, _popupsContainer);
+                var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory);
+                viewFactory.Init(viewContext);
 
-            _rootView.Init(viewContext);
+                _rootView.Init(viewContext);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         protected void Update() => _client?.Update(Time.deltaTime);
