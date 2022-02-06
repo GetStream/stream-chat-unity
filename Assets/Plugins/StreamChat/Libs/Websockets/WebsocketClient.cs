@@ -51,10 +51,12 @@ namespace StreamChat.Libs.Websockets
 
             IsRunning = true;
 
+#pragma warning disable 4014
             Task.Factory.StartNew(SendMessages, _connectionCts.Token, TaskCreationOptions.LongRunning,
-                TaskScheduler.Default).ConfigureAwait(false);
+                TaskScheduler.Default);
             Task.Factory.StartNew(ReceiveMessages, _connectionCts.Token, TaskCreationOptions.LongRunning,
-                TaskScheduler.Default).ConfigureAwait(false);
+                TaskScheduler.Default);
+#pragma warning restore 4014
 
             Connected?.Invoke();
         }
