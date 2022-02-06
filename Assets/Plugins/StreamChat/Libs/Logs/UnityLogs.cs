@@ -8,11 +8,13 @@ namespace StreamChat.Libs.Logs
     /// </summary>
     public class UnityLogs : ILogs
     {
-        public void Info(string message) => Debug.Log(message);
+        public string Prefix { get; set; }
 
-        public void Warning(string message) => Debug.LogWarning(message);
+        public void Info(string message) => Debug.Log(Prefix + message);
 
-        public void Error(string message) => Debug.LogError(message);
+        public void Warning(string message) => Debug.LogWarning(Prefix + message);
+
+        public void Error(string message) => Debug.LogError(Prefix + message);
 
         public void Exception(Exception exception) => Debug.LogException(exception);
     }

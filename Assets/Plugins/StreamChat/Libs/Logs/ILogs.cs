@@ -14,5 +14,7 @@ namespace StreamChat.Libs.Logs
         void Error(string message);
 
         void Exception(Exception exception);
+
+        string Prefix { get; set; }
     }
 }

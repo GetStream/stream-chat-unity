@@ -64,7 +64,7 @@ namespace StreamChat.Core
         {
             if (authCredentials.IsAnyEmpty())
             {
-                throw new Exception("Stream Chat: Please provide valid non empty credentials: `Api Key`, 'User id`, `User token`");
+                throw new Exception("Please provide valid non empty credentials: `Api Key`, 'User id`, `User token`");
             }
 
             _authCredentials = authCredentials;
@@ -73,6 +73,8 @@ namespace StreamChat.Core
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
+
+            _logs.Prefix = "Stream Chat: ";
 
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
 
@@ -98,7 +100,7 @@ namespace StreamChat.Core
 
             var connectionUri = _requestUriFactory.CreateConnectionUri();
 
-            _logs.Info($"Connect with uri: " + connectionUri);
+            _logs.Info($"Attempt to connect");
 
             ConnectionState = ConnectionState.Connecting;
             _websocketClient.ConnectAsync(connectionUri).LogIfFailed();
@@ -211,8 +213,6 @@ namespace StreamChat.Core
 
         private void HandleNewWebsocketMessage(string msg)
         {
-            _logs.Info("Message received: " + msg);
-
             const string TypeKey = "type";
 
             if (!_serializer.TryPeekValue<string>(msg, TypeKey, out var type))
@@ -226,7 +226,7 @@ namespace StreamChat.Core
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
-                _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
+                //_logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
                 return;
             }
 
@@ -271,6 +271,7 @@ namespace StreamChat.Core
 
         private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent)
         {
+            _lastHealthCheckReceivedTime = _timeService.Time;
             _lastHealthCheckReceivedTime = _timeService.Time;
             if (ConnectionState == ConnectionState.Connecting)
             {
