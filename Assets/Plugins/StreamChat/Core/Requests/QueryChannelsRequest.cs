@@ -15,22 +15,22 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Number of channels to limit
         /// </summary>
-        public double? Limit { get; set; }
+        public int? Limit { get; set; }
 
         /// <summary>
         /// Number of members to limit
         /// </summary>
-        public double? MemberLimit { get; set; }
+        public int? MemberLimit { get; set; }
 
         /// <summary>
         /// Number of messages to limit
         /// </summary>
-        public double? MessageLimit { get; set; }
+        public int? MessageLimit { get; set; }
 
         /// <summary>
         /// Channel pagination offset
         /// </summary>
-        public double? Offset { get; set; }
+        public int? Offset { get; set; }
 
         public bool? Presence { get; set; }
 
