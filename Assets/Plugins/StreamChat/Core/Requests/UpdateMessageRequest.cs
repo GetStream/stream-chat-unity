@@ -12,7 +12,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? SkipEnrichUrl { get; set; }
 
-        public UpdateMessageRequestDTO SaveToDto() =>
+        UpdateMessageRequestDTO ISavableTo<UpdateMessageRequestDTO>.SaveToDto() =>
             new UpdateMessageRequestDTO
             {
                 Message = Message.TrySaveToDto(),

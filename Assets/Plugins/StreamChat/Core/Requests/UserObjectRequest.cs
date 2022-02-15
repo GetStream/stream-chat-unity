@@ -49,7 +49,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public ICollection<string> Teams { get; set; }
 
-        public UserObjectRequestDTO SaveToDto() =>
+        UserObjectRequestDTO ISavableTo<UserObjectRequestDTO>.SaveToDto() =>
             new UserObjectRequestDTO
             {
                 BanExpires = BanExpires,

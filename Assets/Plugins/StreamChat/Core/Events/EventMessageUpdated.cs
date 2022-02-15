@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.DTO.Events;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Utils;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
@@ -26,7 +25,7 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-        public EventMessageUpdated LoadFromDto(EventMessageUpdatedDTO dto)
+        EventMessageUpdated ILoadableFrom<EventMessageUpdatedDTO, EventMessageUpdated>.LoadFromDto(EventMessageUpdatedDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;

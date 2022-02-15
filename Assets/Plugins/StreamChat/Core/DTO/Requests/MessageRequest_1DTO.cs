@@ -17,7 +17,7 @@ namespace StreamChat.Core.DTO.Requests
     /// Represents any chat message
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class MessageRequest_1DTO
+    internal partial class MessageRequest_1DTO
     {
         /// <summary>
         /// Array of message attachments

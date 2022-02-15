@@ -16,7 +16,7 @@ namespace StreamChat.Core.Responses
 
         public string TaskId { get; set; }
 
-        public DeleteChannelsResponse LoadFromDto(DeleteChannelsResponseDTO dto)
+        DeleteChannelsResponse ILoadableFrom<DeleteChannelsResponseDTO, DeleteChannelsResponse>.LoadFromDto(DeleteChannelsResponseDTO dto)
         {
             Duration = dto.Duration;
             Result = Result.TryLoadFromDtoDictionary(dto.Result);

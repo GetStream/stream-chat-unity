@@ -14,7 +14,7 @@ namespace StreamChat.Core.Requests
 
         public string Width { get; set; }
 
-        public ImageDataRequestDTO SaveToDto()
+        ImageDataRequestDTO ISavableTo<ImageDataRequestDTO>.SaveToDto()
         {
             return new ImageDataRequestDTO
             {

@@ -47,7 +47,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Type { get; set; }
 
-        public AttachmentRequestDTO SaveToDto() =>
+        AttachmentRequestDTO ISavableTo<AttachmentRequestDTO>.SaveToDto() =>
             new AttachmentRequestDTO
             {
                 Actions = Actions.TrySaveToDtoCollection<ActionRequest, ActionRequestDTO>(),

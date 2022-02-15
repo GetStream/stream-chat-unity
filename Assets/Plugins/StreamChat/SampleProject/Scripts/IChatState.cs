@@ -11,6 +11,7 @@ namespace StreamChat.SampleProject
     {
         event Action<ChannelState> ActiveChanelChanged;
         event Action ChannelsUpdated;
+        event Action<Message> MessageEditRequested;
 
         ChannelState ActiveChannel { get; }
         IReadOnlyList<ChannelState> Channels { get; }
@@ -19,7 +20,5 @@ namespace StreamChat.SampleProject
         void OpenChannel(ChannelState channel);
 
         void EditMessage(Message message);
-
-        event Action<Message> MessageEditRequested;
     }
 }

@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Models;
-using StreamChat.Core.Utils;
 using StreamChat.Libs.Utils;
+using StreamChat.SampleProject.Scripts.Utils;
 using StreamChat.SampleProject.Popups;
 using TMPro;
 using UnityEngine;

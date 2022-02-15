@@ -17,7 +17,7 @@ namespace StreamChat.Core.Responses
 
         public Message Message { get; set; }
 
-        public TruncateChannelResponse LoadFromDto(TruncateChannelResponseDTO dto)
+        TruncateChannelResponse ILoadableFrom<TruncateChannelResponseDTO, TruncateChannelResponse>.LoadFromDto(TruncateChannelResponseDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;

@@ -17,7 +17,7 @@ namespace StreamChat.Core.DTO.Requests
     /// Contains all information needed to send new message
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class SendMessageRequestDTO
+    internal partial class SendMessageRequestDTO
     {
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageRequestDTO Message { get; set; } = new MessageRequestDTO();

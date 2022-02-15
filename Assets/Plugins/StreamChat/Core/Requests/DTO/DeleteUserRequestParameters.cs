@@ -2,7 +2,7 @@ using StreamChat.Core.Web;
 
 namespace StreamChat.Core.Requests.DTO
 {
-    public partial class DeleteUserRequestParameters : IAppendableQueryParameters
+    public class DeleteUserRequestParameters : IAppendableQueryParameters
     {
         [Newtonsoft.Json.JsonProperty("mark_messages_deleted", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool MarkMessagesDeleted { get; set; }
@@ -13,7 +13,7 @@ namespace StreamChat.Core.Requests.DTO
         [Newtonsoft.Json.JsonProperty("delete_conversation_channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool DeleteConversationChannels { get; set; }
 
-        public void AppendQueryParameters(QueryParameters queryParameters)
+        void IAppendableQueryParameters.AppendQueryParameters(QueryParameters queryParameters)
         {
             queryParameters["mark_messages_deleted"] = MarkMessagesDeleted.ToString();
             queryParameters["hard_delete"] = HardDelete.ToString();

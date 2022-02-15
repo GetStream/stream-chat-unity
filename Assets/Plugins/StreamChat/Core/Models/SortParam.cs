@@ -4,13 +4,13 @@ using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.Models
 {
-    public partial class SortParam : RequestObjectBase, ISavableTo<SortParamDTO>
+    public class SortParam : RequestObjectBase, ISavableTo<SortParamDTO>
     {
         public int? Direction { get; set; }
 
         public string Field { get; set; }
 
-        public SortParamDTO SaveToDto() =>
+        SortParamDTO ISavableTo<SortParamDTO>.SaveToDto() =>
             new SortParamDTO
             {
                 Direction = Direction,

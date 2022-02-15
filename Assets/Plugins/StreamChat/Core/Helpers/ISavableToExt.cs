@@ -3,7 +3,7 @@
     /// <summary>
     /// Extensions for <see cref="ISavableTo{TDto}"/>
     /// </summary>
-    public static class ISavableToExt
+    internal static class ISavableToExt
     {
         public static TDto TrySaveToDto<TDto>(this ISavableTo<TDto> source)
             where TDto : class

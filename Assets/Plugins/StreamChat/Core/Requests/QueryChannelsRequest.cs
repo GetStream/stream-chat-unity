@@ -60,7 +60,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? Watch { get; set; } = true;
 
-        public QueryChannelsRequestDTO SaveToDto() =>
+        QueryChannelsRequestDTO ISavableTo<QueryChannelsRequestDTO>.SaveToDto() =>
             new QueryChannelsRequestDTO
             {
                 ConnectionId = ConnectionId,

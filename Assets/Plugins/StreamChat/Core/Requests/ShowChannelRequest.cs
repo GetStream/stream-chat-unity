@@ -6,7 +6,7 @@ namespace StreamChat.Core.Requests
 {
     public partial class ShowChannelRequest : RequestObjectBase, ISavableTo<ShowChannelRequestDTO>
     {
-        public ShowChannelRequestDTO SaveToDto() =>
+        ShowChannelRequestDTO ISavableTo<ShowChannelRequestDTO>.SaveToDto() =>
             new ShowChannelRequestDTO
             {
                 AdditionalProperties = AdditionalProperties,

@@ -6,7 +6,7 @@ namespace StreamChat.Core.Helpers
     /// <summary>
     /// <see cref="ICollection"/> extensions
     /// </summary>
-    public static class ICollectionExt
+    internal static class ICollectionExt
     {
         public static ICollection<TDto> TrySaveToDtoCollection<TSource, TDto>(this ICollection<TSource> source)
             where TSource : ISavableTo<TDto>

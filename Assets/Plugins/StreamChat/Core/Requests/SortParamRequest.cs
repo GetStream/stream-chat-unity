@@ -8,7 +8,7 @@ namespace StreamChat.Core.Requests
 
         public string Field { get; set; }
 
-        public SortParamRequestDTO SaveToDto() =>
+        SortParamRequestDTO ISavableTo<SortParamRequestDTO>.SaveToDto() =>
             new SortParamRequestDTO
             {
                 Direction = Direction,

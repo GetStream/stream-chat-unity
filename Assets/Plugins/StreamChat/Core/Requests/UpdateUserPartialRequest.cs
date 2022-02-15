@@ -21,7 +21,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public ICollection<string> Unset { get; set; } = new Collection<string>();
 
-        public UpdateUserPartialRequestDTO SaveToDto()
+        UpdateUserPartialRequestDTO ISavableTo<UpdateUserPartialRequestDTO>.SaveToDto()
         {
             return new UpdateUserPartialRequestDTO
             {

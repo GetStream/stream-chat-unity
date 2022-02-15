@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Web
 {
-    public class QueryParameters : Dictionary<string, string>
+    internal class QueryParameters : Dictionary<string, string>
     {
         public static QueryParameters Default => new QueryParameters();
     }

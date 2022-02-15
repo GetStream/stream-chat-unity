@@ -10,7 +10,7 @@ namespace StreamChat.Core.Requests
 
         public string Value { get; set; }
 
-        public FieldRequestDTO SaveToDto() =>
+        FieldRequestDTO ISavableTo<FieldRequestDTO>.SaveToDto() =>
             new FieldRequestDTO
             {
                 Short = Short,

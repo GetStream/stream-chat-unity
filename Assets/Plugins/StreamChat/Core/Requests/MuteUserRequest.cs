@@ -14,7 +14,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public double? Timeout { get; set; }
 
-        public MuteUserRequestDTO SaveToDto() =>
+        MuteUserRequestDTO ISavableTo<MuteUserRequestDTO>.SaveToDto() =>
             new MuteUserRequestDTO
             {
                 AdditionalProperties = AdditionalProperties,

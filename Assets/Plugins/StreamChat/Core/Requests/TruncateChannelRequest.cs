@@ -1,5 +1,6 @@
 ﻿using StreamChat.Core;
 using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Requests
@@ -11,7 +12,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? HardDelete { get; set; }
 
-        public MessageRequestDTO Message { get; set; }
+        public MessageRequest Message { get; set; }
 
         /// <summary>
         /// When `message` is set disables all push notifications for it
@@ -24,11 +25,11 @@ namespace StreamChat.Core.Requests
         public System.DateTimeOffset? TruncatedAt { get; set; }
 
 
-        public TruncateChannelRequestDTO SaveToDto() =>
+        TruncateChannelRequestDTO ISavableTo<TruncateChannelRequestDTO>.SaveToDto() =>
             new TruncateChannelRequestDTO
             {
                 HardDelete = HardDelete,
-                Message = Message,
+                Message = Message.TrySaveToDto(),
                 SkipPush = SkipPush,
                 TruncatedAt = TruncatedAt,
                 AdditionalProperties = AdditionalProperties,

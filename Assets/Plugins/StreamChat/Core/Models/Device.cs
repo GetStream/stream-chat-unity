@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Models
 {
-    public partial class Device : ModelBase, ILoadableFrom<DeviceDTO, Device>
+    public class Device : ModelBase, ILoadableFrom<DeviceDTO, Device>
     {
         /// <summary>
         /// Date/time of creation
@@ -29,7 +29,7 @@ namespace StreamChat.Core.Models
         public string UserId { get; set; }
 
 
-        public Device LoadFromDto(DeviceDTO dto)
+        Device ILoadableFrom<DeviceDTO, Device>.LoadFromDto(DeviceDTO dto)
         {
             CreatedAt = dto.CreatedAt;
             Disabled = dto.Disabled;

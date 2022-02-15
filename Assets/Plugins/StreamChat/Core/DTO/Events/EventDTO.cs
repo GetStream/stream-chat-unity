@@ -17,7 +17,7 @@ namespace StreamChat.Core.DTO.Events
     /// Represents an event that happened in Stream Chat
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class EventDTO
+    internal partial class EventDTO
     {
         /// <summary>
         /// Only applicable to `message.flagged` event.

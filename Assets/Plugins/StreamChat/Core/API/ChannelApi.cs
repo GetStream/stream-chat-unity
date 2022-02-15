@@ -11,7 +11,7 @@ using StreamChat.Core.Web;
 
 namespace StreamChat.Core.API
 {
-    public class ChannelApi : ApiClientBase, IChannelApi
+    internal class ChannelApi : ApiClientBase, IChannelApi
     {
         public ChannelApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)

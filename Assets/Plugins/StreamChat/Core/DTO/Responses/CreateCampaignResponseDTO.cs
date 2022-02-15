@@ -14,7 +14,7 @@ namespace StreamChat.Core.DTO.Responses
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class CreateCampaignResponseDTO
+    internal partial class CreateCampaignResponseDTO
     {
         [Newtonsoft.Json.JsonProperty("campaign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public CampaignDTO Campaign { get; set; }

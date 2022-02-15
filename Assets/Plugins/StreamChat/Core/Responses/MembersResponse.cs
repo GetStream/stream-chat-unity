@@ -19,7 +19,7 @@ namespace StreamChat.Core.Responses
         public System.Collections.Generic.ICollection<ChannelMember> Members { get; set; }
 
 
-        public MembersResponse LoadFromDto(MembersResponseDTO dto)
+        MembersResponse ILoadableFrom<MembersResponseDTO, MembersResponse>.LoadFromDto(MembersResponseDTO dto)
         {
             Duration = dto.Duration;
             Members = Members.TryLoadFromDtoCollection(dto.Members);

@@ -23,7 +23,7 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-        public EventMemberUpdated LoadFromDto(EventMemberUpdatedDTO dto)
+        EventMemberUpdated ILoadableFrom<EventMemberUpdatedDTO, EventMemberUpdated>.LoadFromDto(EventMemberUpdatedDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;

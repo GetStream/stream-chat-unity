@@ -21,13 +21,13 @@ namespace StreamChat.Core.Events
 
         public string Team { get; set; }
 
-        public System.Collections.Generic.ICollection<UserObjectDTO> ThreadParticipants { get; set; }
+        public System.Collections.Generic.ICollection<User> ThreadParticipants { get; set; }
 
         public string Type { get; set; }
 
         public User User { get; set; }
 
-        public EventMessageDeleted LoadFromDto(EventMessageDeletedDTO dto)
+        EventMessageDeleted ILoadableFrom<EventMessageDeletedDTO, EventMessageDeleted>.LoadFromDto(EventMessageDeletedDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
@@ -36,7 +36,7 @@ namespace StreamChat.Core.Events
             HardDelete = dto.HardDelete;
             Message = Message.TryLoadFromDto(dto.Message);
             Team = dto.Team;
-            ThreadParticipants = dto.ThreadParticipants;
+            ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;

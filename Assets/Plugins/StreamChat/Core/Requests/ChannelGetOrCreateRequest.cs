@@ -33,7 +33,7 @@ namespace StreamChat.Core.Requests
 
         public PaginationParamsRequest Watchers { get; set; }
 
-        public ChannelGetOrCreateRequestDTO SaveToDto()
+        ChannelGetOrCreateRequestDTO ISavableTo<ChannelGetOrCreateRequestDTO>.SaveToDto()
         {
             return new ChannelGetOrCreateRequestDTO
             {

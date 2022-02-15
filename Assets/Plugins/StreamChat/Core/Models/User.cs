@@ -1,9 +1,11 @@
 ﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Models
 {
-    public partial class User : ModelBase, ILoadableFrom<UserObjectDTO, User>, ILoadableFrom<UserResponseDTO, User>, ISavableTo<UserObjectDTO>
+    public class User : ModelBase, ILoadableFrom<UserObjectDTO, User>, ILoadableFrom<UserResponseDTO, User>, ISavableTo<UserObjectDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -52,7 +54,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public bool? Online { get; set; }
 
-        public PushNotificationSettingsDTO PushNotifications { get; set; } //Todo: DTO -> Model
+        public PushNotificationSettings PushNotifications { get; set; } //Todo: DTO -> Model
 
         /// <summary>
         /// Revocation date for tokens
@@ -78,7 +80,7 @@ namespace StreamChat.Core.Models
         public string Name;
         public string Image;
 
-        public User LoadFromDto(UserObjectDTO dto)
+        User ILoadableFrom<UserObjectDTO, User>.LoadFromDto(UserObjectDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;
@@ -91,7 +93,7 @@ namespace StreamChat.Core.Models
             Language = dto.Language;
             LastActive = dto.LastActive;
             Online = dto.Online;
-            PushNotifications = dto.PushNotifications;
+            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications);
             RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
             Role = dto.Role;
             Teams = dto.Teams;
@@ -104,7 +106,7 @@ namespace StreamChat.Core.Models
             return this;
         }
 
-        public User LoadFromDto(UserResponseDTO dto)
+        User ILoadableFrom<UserResponseDTO, User>.LoadFromDto(UserResponseDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;
@@ -117,7 +119,7 @@ namespace StreamChat.Core.Models
             Language = dto.Language;
             LastActive = dto.LastActive;
             Online = dto.Online;
-            PushNotifications = dto.PushNotifications;
+            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications);
             RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
             Role = dto.Role;
             Teams = dto.Teams;
@@ -130,7 +132,7 @@ namespace StreamChat.Core.Models
             return this;
         }
 
-        public UserObjectDTO SaveToDto() =>
+        UserObjectDTO ISavableTo<UserObjectDTO>.SaveToDto() =>
             new UserObjectDTO
             {
                 BanExpires = BanExpires,
@@ -143,7 +145,7 @@ namespace StreamChat.Core.Models
                 Language = Language,
                 LastActive = LastActive,
                 Online = Online,
-                PushNotifications = PushNotifications,
+                PushNotifications = PushNotifications.TrySaveToDto(),
                 RevokeTokensIssuedBefore = RevokeTokensIssuedBefore,
                 Role = Role,
                 Teams = Teams,

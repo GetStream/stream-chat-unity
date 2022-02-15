@@ -1,5 +1,5 @@
 ﻿using StreamChat.Core;
-using StreamChat.Core.Utils;
+using StreamChat.SampleProject.Scripts.Utils;
 using StreamChat.SampleProject.Views;
 
 namespace StreamChat.SampleProject

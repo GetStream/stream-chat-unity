@@ -11,7 +11,7 @@ namespace StreamChat.Core.Web
     /// <summary>
     /// Requests Uri Factory
     /// </summary>
-    public class RequestUriFactory : IRequestUriFactory
+    internal class RequestUriFactory : IRequestUriFactory
     {
         public RequestUriFactory(IAuthProvider authProvider, IConnectionProvider connectionProvider,
             ISerializer serializer)

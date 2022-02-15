@@ -1,11 +1,10 @@
 ﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Utils;
 
 namespace StreamChat.Core.Models
 {
-    public partial class Channel : ModelBase, ILoadableFrom<ChannelResponseDTO, Channel>
+    public class Channel : ModelBase, ILoadableFrom<ChannelResponseDTO, Channel>
     {
         /// <summary>
         /// Whether auto translation is enabled or not
@@ -118,7 +117,7 @@ namespace StreamChat.Core.Models
 
         public string Name { get; set; }
 
-        public Channel LoadFromDto(ChannelResponseDTO dto)
+        Channel ILoadableFrom<ChannelResponseDTO, Channel>.LoadFromDto(ChannelResponseDTO dto)
         {
             AutoTranslationEnabled = dto.AutoTranslationEnabled;
             AutoTranslationLanguage = dto.AutoTranslationLanguage;

@@ -5,7 +5,7 @@ namespace StreamChat.Core.API
     /// <summary>
     /// <see cref="Channel"/> endpoints
     /// </summary>
-    public static class ChannelEndpoints
+    internal static class ChannelEndpoints
     {
         public static string QueryChannels() => "/channels";
 

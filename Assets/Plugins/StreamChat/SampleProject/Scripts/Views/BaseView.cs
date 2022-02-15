@@ -1,6 +1,6 @@
 ﻿using System;
 using StreamChat.Core;
-using StreamChat.Core.Utils;
+using StreamChat.SampleProject.Scripts.Utils;
 using UnityEngine;
 
 namespace StreamChat.SampleProject.Views

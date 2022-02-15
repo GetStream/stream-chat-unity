@@ -5,7 +5,7 @@ using StreamChat.Libs.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace StreamChat.Core.Utils
+namespace StreamChat.SampleProject.Scripts.Utils
 {
     /// <summary>
     /// Unity <see cref="IImageLoader"/>

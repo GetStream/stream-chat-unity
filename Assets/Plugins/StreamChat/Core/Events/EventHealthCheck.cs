@@ -18,7 +18,7 @@ namespace StreamChat.Core.Events
         //Not in OpenAPI syntax but mentioned in docs
         public string ConnectionId { get; set; }
 
-        public EventHealthCheck LoadFromDto(EventHealthCheckDTO dto)
+        EventHealthCheck ILoadableFrom<EventHealthCheckDTO, EventHealthCheck>.LoadFromDto(EventHealthCheckDTO dto)
         {
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
@@ -35,7 +35,7 @@ namespace StreamChat.Core.Events
 
 namespace StreamChat.Core.DTO.Events
 {
-    public partial class EventHealthCheckDTO
+    internal partial class EventHealthCheckDTO
     {
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.Default,
             NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

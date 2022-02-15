@@ -1,10 +1,11 @@
 ﻿using StreamChat.Core.DTO.Models;
+using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public partial class Attachment : ModelBase, ILoadableFrom<AttachmentDTO, Attachment>
+    public class Attachment : ModelBase, ILoadableFrom<AttachmentDTO, Attachment>
     {
-        public System.Collections.Generic.ICollection<ActionDTO> Actions { get; set; } //Todo: DTO -> Model
+        public System.Collections.Generic.ICollection<AttachmentAction> Actions { get; set; }
 
         public string AssetUrl { get; set; }
 
@@ -18,13 +19,13 @@ namespace StreamChat.Core.Models
 
         public string Fallback { get; set; }
 
-        public System.Collections.Generic.ICollection<FieldDTO> Fields { get; set; } //Todo: DTO -> Model
+        public System.Collections.Generic.ICollection<Field> Fields { get; set; }
 
         public string Footer { get; set; }
 
         public string FooterIcon { get; set; }
 
-        public ImagesDTO Giphy { get; set; }
+        public Images Giphy { get; set; }
 
         public string ImageUrl { get; set; }
 
@@ -45,20 +46,20 @@ namespace StreamChat.Core.Models
         /// </summary>
         public string Type { get; set; }
 
-        public Attachment LoadFromDto(AttachmentDTO dto)
+        Attachment ILoadableFrom<AttachmentDTO, Attachment>.LoadFromDto(AttachmentDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
-            Actions = dto.Actions;
+            Actions = Actions.TryLoadFromDtoCollection(dto.Actions);
             AssetUrl = dto.AssetUrl;
             AuthorIcon = dto.AuthorIcon;
             AuthorLink = dto.AuthorLink;
             AuthorName = dto.AuthorName;
             Color = dto.Color;
             Fallback = dto.Fallback;
-            Fields = dto.Fields;
+            Fields = Fields.TryLoadFromDtoCollection(dto.Fields);
             Footer = dto.Footer;
             FooterIcon = dto.FooterIcon;
-            Giphy = dto.Giphy;
+            Giphy = Giphy.TryLoadFromDto(dto.Giphy);
             ImageUrl = dto.ImageUrl;
             OgScrapeUrl = dto.OgScrapeUrl;
             Pretext = dto.Pretext;

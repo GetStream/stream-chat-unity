@@ -6,7 +6,7 @@ namespace StreamChat.Core.Web
     /// <summary>
     /// Requests Uri Factory
     /// </summary>
-    public interface IRequestUriFactory
+    internal interface IRequestUriFactory
     {
         Uri CreateConnectionUri();
 

@@ -9,7 +9,7 @@ namespace StreamChat.Core.Requests
 
         public DateTimeOffset DisabledUntil { get; set; }
 
-        public PushNotificationSettingsRequestDTO SaveToDto() =>
+        PushNotificationSettingsRequestDTO ISavableTo<PushNotificationSettingsRequestDTO>.SaveToDto() =>
             new PushNotificationSettingsRequestDTO
             {
                 Disabled = Disabled,

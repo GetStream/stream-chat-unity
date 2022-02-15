@@ -16,7 +16,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public double? Expiration { get; set; }
 
-        public MuteChannelRequestDTO SaveToDto() =>
+        MuteChannelRequestDTO ISavableTo<MuteChannelRequestDTO>.SaveToDto() =>
             new MuteChannelRequestDTO
             {
                 ChannelCids = ChannelCids,

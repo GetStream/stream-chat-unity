@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Models
 {
-    public partial class Command : ModelBase, ILoadableFrom<CommandDTO, Command>
+    public class Command : ModelBase, ILoadableFrom<CommandDTO, Command>
     {
         /// <summary>
         /// Arguments help text, shown in commands auto-completion
@@ -34,7 +34,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public System.DateTimeOffset? UpdatedAt { get; set; }
 
-        public Command LoadFromDto(CommandDTO dto)
+        Command ILoadableFrom<CommandDTO, Command>.LoadFromDto(CommandDTO dto)
         {
             Args = dto.Args;
             CreatedAt = dto.CreatedAt;

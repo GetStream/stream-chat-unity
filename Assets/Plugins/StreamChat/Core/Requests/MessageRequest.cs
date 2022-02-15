@@ -96,7 +96,7 @@ namespace StreamChat.Core.Requests
 
         public string UserId { get; set; }
 
-        public MessageRequestDTO SaveToDto() =>
+        MessageRequestDTO ISavableTo<MessageRequestDTO>.SaveToDto() =>
             new MessageRequestDTO
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<AttachmentRequest, AttachmentRequestDTO>(),

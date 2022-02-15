@@ -14,7 +14,7 @@ namespace StreamChat.Core.DTO.Requests
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class MarkChannelsReadRequestDTO
+    internal partial class MarkChannelsReadRequestDTO
     {
         /// <summary>
         /// Map which binds a CID to a message ID that is considered last read by client. If message ID is empty, the whole channel will be considered as read

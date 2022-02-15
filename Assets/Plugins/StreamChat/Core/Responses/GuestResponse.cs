@@ -24,7 +24,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public User User { get; set; }
 
-        public GuestResponse LoadFromDto(GuestResponseDTO dto)
+        GuestResponse ILoadableFrom<GuestResponseDTO, GuestResponse>.LoadFromDto(GuestResponseDTO dto)
         {
             AccessToken = dto.AccessToken;
             Duration = dto.Duration;
