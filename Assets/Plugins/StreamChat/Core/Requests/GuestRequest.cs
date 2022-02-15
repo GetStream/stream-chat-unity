@@ -9,7 +9,7 @@ namespace StreamChat.Core.Requests
     {
         public UserObjectRequest User { get; set; } = new UserObjectRequest();
 
-        public GuestRequestDTO SaveToDto() =>
+        GuestRequestDTO ISavableTo<GuestRequestDTO>.SaveToDto() =>
             new GuestRequestDTO
             {
                 User = User.TrySaveToDto(),

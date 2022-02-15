@@ -14,7 +14,7 @@ namespace StreamChat.Core.DTO.Models
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class ReadDTO
+    internal partial class ReadDTO
     {
         [Newtonsoft.Json.JsonProperty("last_read", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? LastRead { get; set; }

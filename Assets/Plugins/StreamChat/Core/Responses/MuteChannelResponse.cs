@@ -30,7 +30,7 @@ namespace StreamChat.Core.Responses
         public OwnUser OwnUser { get; set; }
 
 
-        public MuteChannelResponse LoadFromDto(MuteChannelResponseDTO dto)
+        MuteChannelResponse ILoadableFrom<MuteChannelResponseDTO, MuteChannelResponse>.LoadFromDto(MuteChannelResponseDTO dto)
         {
             ChannelMute = ChannelMute.TryLoadFromDto(dto.ChannelMute);
             ChannelMutes = ChannelMutes.TryLoadFromDtoCollection(dto.ChannelMutes);

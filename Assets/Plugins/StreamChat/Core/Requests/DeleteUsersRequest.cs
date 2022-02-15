@@ -17,7 +17,7 @@ namespace StreamChat.Core.Requests
 
         public ICollection<string> UserIds { get; set; } = new Collection<string>();
 
-        public DeleteUsersRequestDTO SaveToDto() =>
+        DeleteUsersRequestDTO ISavableTo<DeleteUsersRequestDTO>.SaveToDto() =>
             new DeleteUsersRequestDTO
             {
                 Conversations = Conversations,

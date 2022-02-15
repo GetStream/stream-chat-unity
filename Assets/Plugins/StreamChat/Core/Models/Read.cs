@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public partial class Read : ModelBase, ILoadableFrom<ReadDTO, Read>
+    public class Read : ModelBase, ILoadableFrom<ReadDTO, Read>
     {
         public System.DateTimeOffset? LastRead { get; set; }
 
@@ -11,7 +11,7 @@ namespace StreamChat.Core.Models
 
         public User User { get; set; }
 
-        public Read LoadFromDto(ReadDTO dto)
+        Read ILoadableFrom<ReadDTO, Read>.LoadFromDto(ReadDTO dto)
         {
             LastRead = dto.LastRead;
             UnreadMessages = dto.UnreadMessages;

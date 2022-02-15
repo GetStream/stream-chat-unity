@@ -5,7 +5,7 @@ namespace StreamChat.Core.API
     /// <summary>
     ///
     /// </summary>
-    public static class MessageEndpoints
+    internal static class MessageEndpoints
     {
         public static string SendMessage(string channelType, string channelId) => $"/channels/{channelType}/{channelId}/message";
 

@@ -70,7 +70,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? SkipPush { get; set; }
 
-        public UpdateChannelRequestDTO SaveToDto() =>
+        UpdateChannelRequestDTO ISavableTo<UpdateChannelRequestDTO>.SaveToDto() =>
             new UpdateChannelRequestDTO
             {
                 AcceptInvite = AcceptInvite,

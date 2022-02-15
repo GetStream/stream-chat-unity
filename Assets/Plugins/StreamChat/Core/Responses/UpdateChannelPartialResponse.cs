@@ -15,7 +15,7 @@ namespace StreamChat.Core.Responses
 
         public System.Collections.Generic.ICollection<ChannelMember> Members { get; set; }
 
-        public UpdateChannelPartialResponse LoadFromDto(UpdateChannelPartialResponseDTO dto)
+        UpdateChannelPartialResponse ILoadableFrom<UpdateChannelPartialResponseDTO, UpdateChannelPartialResponse>.LoadFromDto(UpdateChannelPartialResponseDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;

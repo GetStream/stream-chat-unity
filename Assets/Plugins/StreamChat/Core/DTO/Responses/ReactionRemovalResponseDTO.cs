@@ -14,7 +14,7 @@ namespace StreamChat.Core.DTO.Responses
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class ReactionRemovalResponseDTO
+    internal partial class ReactionRemovalResponseDTO
     {
         /// <summary>
         /// Duration of the request in human-readable format

@@ -17,7 +17,7 @@ namespace StreamChat.Core.DTO.Responses
     /// Represents channel in chat
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class ChannelResponseDTO
+    internal partial class ChannelResponseDTO
     {
         /// <summary>
         /// Whether auto translation is enabled or not

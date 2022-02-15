@@ -13,7 +13,7 @@ namespace StreamChat.Core.Responses
 
         public Message Message { get; set; }
 
-        public MessageResponse LoadFromDto(MessageResponseDTO dto)
+        MessageResponse ILoadableFrom<MessageResponseDTO, MessageResponse>.LoadFromDto(MessageResponseDTO dto)
         {
             Duration = dto.Duration;
             Message = Message.TryLoadFromDto(dto.Message);

@@ -46,7 +46,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? UrlEnrichment { get; set; }
 
-        public ChannelConfigRequestDTO SaveToDto() =>
+        ChannelConfigRequestDTO ISavableTo<ChannelConfigRequestDTO>.SaveToDto() =>
             new ChannelConfigRequestDTO
             {
                 Blocklist = Blocklist,

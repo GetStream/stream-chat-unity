@@ -15,8 +15,7 @@ namespace StreamChat.Core.API
 
         Task<UpdateUsersResponse> UpdateUserPartialAsync(UpdateUserPartialRequest updateUserPartialRequest);
 
-        Task<DeleteUserResponse>
-            DeleteUserAsync(string userId, DeleteUserRequestParameters deleteUserRequestParameters);
+        Task<DeleteUserResponse> DeleteUserAsync(string userId, DeleteUserRequestParameters deleteUserRequestParameters);
 
         Task<DeleteUsersResponse> DeleteUsersAsync(DeleteUsersRequest deleteUsersRequest);
     }

@@ -20,7 +20,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? SkipPush { get; set; }
 
-        public SendMessageRequestDTO SaveToDto() =>
+        SendMessageRequestDTO ISavableTo<SendMessageRequestDTO>.SaveToDto() =>
             new SendMessageRequestDTO
             {
                 Message = Message.TrySaveToDto(),

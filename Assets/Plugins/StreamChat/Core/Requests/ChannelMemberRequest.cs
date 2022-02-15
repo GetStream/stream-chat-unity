@@ -67,7 +67,7 @@ namespace StreamChat.Core.Requests
 
         public string UserId { get; set; }
 
-        public ChannelMemberRequestDTO SaveToDto() =>
+        ChannelMemberRequestDTO ISavableTo<ChannelMemberRequestDTO>.SaveToDto() =>
             new ChannelMemberRequestDTO
             {
                 BanExpires = BanExpires,

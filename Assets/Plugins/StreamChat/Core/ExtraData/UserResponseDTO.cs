@@ -3,7 +3,7 @@
     /// <summary>
     /// Extra fields not defined in API spec
     /// </summary>
-    public partial class UserResponseDTO
+    internal partial class UserResponseDTO
     {
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }

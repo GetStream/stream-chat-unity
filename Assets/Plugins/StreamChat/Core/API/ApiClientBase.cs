@@ -17,7 +17,7 @@ namespace StreamChat.Core.API
     /// <summary>
     /// Base Api client
     /// </summary>
-    public abstract class ApiClientBase
+    internal abstract class ApiClientBase
     {
         protected ApiClientBase(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)

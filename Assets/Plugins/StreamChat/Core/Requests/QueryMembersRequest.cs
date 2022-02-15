@@ -54,7 +54,7 @@ namespace StreamChat.Core.Requests
 
         public string UserIdLte { get; set; }
 
-        public QueryMembersRequestDTO SaveToDto() =>
+        QueryMembersRequestDTO ISavableTo<QueryMembersRequestDTO>.SaveToDto() =>
             new QueryMembersRequestDTO
             {
                 CreatedAtAfter = CreatedAtAfter,

@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Utils;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
@@ -28,7 +27,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public OwnUser OwnUser { get; set; }
 
-        public MuteUserResponse LoadFromDto(MuteUserResponseDTO dto)
+        MuteUserResponse ILoadableFrom<MuteUserResponseDTO, MuteUserResponse>.LoadFromDto(MuteUserResponseDTO dto)
         {
             Duration = dto.Duration;
             Mute = Mute.TryLoadFromDto(dto.Mute);

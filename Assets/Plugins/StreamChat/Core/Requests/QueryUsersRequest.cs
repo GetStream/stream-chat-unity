@@ -59,7 +59,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public System.Collections.Generic.ICollection<SortParam> Sort { get; set; } = new System.Collections.ObjectModel.Collection<SortParam>();
 
-        public QueryUsersRequestDTO SaveToDto()
+        QueryUsersRequestDTO ISavableTo<QueryUsersRequestDTO>.SaveToDto()
         {
             return new QueryUsersRequestDTO
             {

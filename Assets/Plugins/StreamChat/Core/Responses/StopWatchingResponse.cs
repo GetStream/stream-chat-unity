@@ -12,7 +12,7 @@ namespace StreamChat.Core.Responses
         public string Duration { get; set; }
 
 
-        public StopWatchingResponse LoadFromDto(StopWatchingResponseDTO dto)
+        StopWatchingResponse ILoadableFrom<StopWatchingResponseDTO, StopWatchingResponse>.LoadFromDto(StopWatchingResponseDTO dto)
         {
             Duration = dto.Duration;
             AdditionalProperties = dto.AdditionalProperties;

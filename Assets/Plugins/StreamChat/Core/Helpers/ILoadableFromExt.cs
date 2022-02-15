@@ -3,7 +3,7 @@
     /// <summary>
     /// Extensions for <see cref="ILoadableFrom{TDto,TDomain}"/>
     /// </summary>
-    public static class ILoadableFromExt
+    internal static class ILoadableFromExt
     {
         public static TDomain TryLoadFromDto<TDto, TDomain>(this ILoadableFrom<TDto, TDomain> loadable, TDto dto)
             where TDomain : class, ILoadableFrom<TDto, TDomain>, new()

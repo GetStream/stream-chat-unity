@@ -17,7 +17,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public ICollection<User> Users { get; set; }
 
-        public UsersResponse LoadFromDto(UsersResponseDTO dto)
+        UsersResponse ILoadableFrom<UsersResponseDTO, UsersResponse>.LoadFromDto(UsersResponseDTO dto)
         {
             Duration = dto.Duration;
             Users = Users.TryLoadFromDtoCollection<UserResponseDTO, User>(dto.Users);

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace StreamChat.Core.Utils
+namespace StreamChat.SampleProject.Scripts.Utils
 {
     /// <summary>
     /// Loads images from web

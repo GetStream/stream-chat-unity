@@ -15,7 +15,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public string Duration { get; set; }
 
-        public DeleteChannelResponse LoadFromDto(DeleteChannelResponseDTO dto)
+        DeleteChannelResponse ILoadableFrom<DeleteChannelResponseDTO, DeleteChannelResponse>.LoadFromDto(DeleteChannelResponseDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;

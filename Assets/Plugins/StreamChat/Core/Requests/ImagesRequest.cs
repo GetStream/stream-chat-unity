@@ -19,7 +19,7 @@ namespace StreamChat.Core.Requests
 
         public ImageDataRequest Original { get; set; }
 
-        public ImagesRequestDTO SaveToDto() =>
+        ImagesRequestDTO ISavableTo<ImagesRequestDTO>.SaveToDto() =>
             new ImagesRequestDTO
             {
                 FixedHeight = FixedHeight.TrySaveToDto(),

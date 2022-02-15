@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Utils;
 
 namespace StreamChat.Core.Models
 {
@@ -165,7 +164,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public User User { get; set; }
 
-        public Message LoadFromDto(MessageDTO dto)
+        Message ILoadableFrom<MessageDTO, Message>.LoadFromDto(MessageDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);

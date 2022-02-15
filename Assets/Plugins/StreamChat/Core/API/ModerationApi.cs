@@ -10,7 +10,7 @@ using StreamChat.Core.Web;
 
 namespace StreamChat.Core.API
 {
-    public class ModerationApi : ApiClientBase, IModerationApi
+    internal class ModerationApi : ApiClientBase, IModerationApi
     {
         public ModerationApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)

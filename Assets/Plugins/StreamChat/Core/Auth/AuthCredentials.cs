@@ -24,7 +24,7 @@ namespace StreamChat.Core.Auth
     /// <summary>
     /// Extensions for <see cref="AuthCredentials"/>
     /// </summary>
-    public static class AuthCredentialsExt
+    internal static class AuthCredentialsExt
     {
         public static AuthCredentials WithUserCredentials(this AuthCredentials authCredentials, string userId,
             string userToken)

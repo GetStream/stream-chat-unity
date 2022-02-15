@@ -14,7 +14,7 @@ namespace StreamChat.Core.Requests
 
         public string Value { get; set; }
 
-        public ActionRequestDTO SaveToDto() =>
+        ActionRequestDTO ISavableTo<ActionRequestDTO>.SaveToDto() =>
             new ActionRequestDTO
             {
                 Name = Name,

@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Requests.DTO
 {
-    public class ConnectRequest
+    internal class ConnectRequest
     {
         [JsonProperty("Json")]
         public string Json { get; set; }

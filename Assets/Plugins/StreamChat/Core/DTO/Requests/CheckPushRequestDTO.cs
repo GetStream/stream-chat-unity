@@ -14,7 +14,7 @@ namespace StreamChat.Core.DTO.Requests
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class CheckPushRequestDTO
+    internal partial class CheckPushRequestDTO
     {
         /// <summary>
         /// Push message template for APN

@@ -1,5 +1,6 @@
 ﻿using StreamChat.Core;
 using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Requests
@@ -19,19 +20,19 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// **Server-side only**. User object which server acts upon
         /// </summary>
-        public UserObjectRequestDTO User { get; set; }
+        public UserObjectRequest User { get; set; }
 
         /// <summary>
         /// **Server-side only**. User ID which server acts upon
         /// </summary>
         public string UserId { get; set; }
 
-        public UnmuteChannelRequestDTO SaveToDto() =>
+        UnmuteChannelRequestDTO ISavableTo<UnmuteChannelRequestDTO>.SaveToDto() =>
             new UnmuteChannelRequestDTO
             {
                 ChannelCids = ChannelCids,
                 Expiration = Expiration,
-                User = User,
+                User = User.TrySaveToDto(),
                 UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };

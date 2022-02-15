@@ -1,10 +1,10 @@
 ﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Utils;
+using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Models
 {
-    public partial class  ChannelConfig : ModelBase, ILoadableFrom<ChannelConfigWithInfoDTO, ChannelConfig>
+    public class  ChannelConfig : ModelBase, ILoadableFrom<ChannelConfigWithInfoDTO, ChannelConfig>
     {
         /// <summary>
         /// Enables automatic message moderation
@@ -16,7 +16,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public AutomodBehaviourType? AutomodBehavior { get; set; }
 
-        public ThresholdsDTO AutomodThresholds { get; set; } //Todo: DTO -> Model
+        public Thresholds AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -120,11 +120,11 @@ namespace StreamChat.Core.Models
         /// </summary>
         public bool? UrlEnrichment { get; set; }
 
-        public ChannelConfig LoadFromDto(ChannelConfigWithInfoDTO dto)
+        ChannelConfig ILoadableFrom<ChannelConfigWithInfoDTO, ChannelConfig>.LoadFromDto(ChannelConfigWithInfoDTO dto)
         {
             Automod = dto.Automod;
             AutomodBehavior = dto.AutomodBehavior;
-            AutomodThresholds = dto.AutomodThresholds;
+            AutomodThresholds = AutomodThresholds.TryLoadFromDto(dto.AutomodThresholds);
             Blocklist = dto.Blocklist;
             BlocklistBehavior = dto.BlocklistBehavior;
             Commands = Commands.TryLoadFromDtoCollection(dto.Commands);

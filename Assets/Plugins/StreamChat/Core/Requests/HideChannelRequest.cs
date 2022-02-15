@@ -11,7 +11,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? ClearHistory { get; set; }
 
-        public HideChannelRequestDTO SaveToDto() =>
+        HideChannelRequestDTO ISavableTo<HideChannelRequestDTO>.SaveToDto() =>
             new HideChannelRequestDTO
             {
                 ClearHistory = ClearHistory,

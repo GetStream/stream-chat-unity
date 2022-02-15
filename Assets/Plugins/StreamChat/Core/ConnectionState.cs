@@ -16,7 +16,7 @@ namespace StreamChat.Core
     /// <summary>
     /// Extensions for <see cref="ConnectionState"/>
     /// </summary>
-    public static class ConnectionStateExt
+    internal static class ConnectionStateExt
     {
         public static bool IsValidToConnect(this ConnectionState state)
         {

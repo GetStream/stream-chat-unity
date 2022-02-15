@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.DTO.Events;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Utils;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
@@ -28,7 +27,7 @@ namespace StreamChat.Core.Events
 
         public double? WatcherCount { get; set; }
 
-        public EventMessageNew LoadFromDto(EventMessageNewDTO dto)
+        EventMessageNew ILoadableFrom<EventMessageNewDTO, EventMessageNew>.LoadFromDto(EventMessageNewDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;

@@ -7,7 +7,7 @@ namespace StreamChat.Core.Models
     /// <summary>
     /// Represents user reaction to a message
     /// </summary>
-    public partial class Reaction : ResponseObjectBase, ILoadableFrom<ReactionDTO, Reaction>
+    public class Reaction : ResponseObjectBase, ILoadableFrom<ReactionDTO, Reaction>
     {
         /// <summary>
         /// Date/time of creation
@@ -41,7 +41,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public string UserId { get; set; }
 
-        public Reaction LoadFromDto(ReactionDTO dto)
+        Reaction ILoadableFrom<ReactionDTO, Reaction>.LoadFromDto(ReactionDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             CreatedAt = dto.CreatedAt;

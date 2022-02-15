@@ -12,7 +12,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public string Duration { get; set; }
 
-        public ShowChannelResponse LoadFromDto(ShowChannelResponseDTO dto)
+        ShowChannelResponse ILoadableFrom<ShowChannelResponseDTO, ShowChannelResponse>.LoadFromDto(ShowChannelResponseDTO dto)
         {
             Duration = dto.Duration;
 

@@ -17,7 +17,7 @@ namespace StreamChat.Core.DTO.Models
     /// Sets thresholds for AI moderation
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class ThresholdsDTO
+    internal partial class ThresholdsDTO
     {
         /// <summary>
         /// Thresholds for explicit messages

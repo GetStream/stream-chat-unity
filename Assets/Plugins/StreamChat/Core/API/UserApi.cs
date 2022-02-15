@@ -11,7 +11,7 @@ using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.API
 {
-    public class UserApi : ApiClientBase, IUserApi
+    internal class UserApi : ApiClientBase, IUserApi
     {
         public UserApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)

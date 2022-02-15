@@ -1,12 +1,13 @@
 ﻿using System;
 using StreamChat.Core;
 using StreamChat.Core.Auth;
-using StreamChat.Core.Utils;
+using StreamChat.SampleProject.Scripts.Utils;
 using StreamChat.SampleProject.Views;
 using UnityEngine;
 
 namespace StreamChat.SampleProject
 {
+
     /// <summary>
     /// Stream Chat Client MonoBehaviour
     /// </summary>

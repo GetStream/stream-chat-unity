@@ -10,7 +10,7 @@ namespace StreamChat.Core.Responses
 
         public string Status { get; set; }
 
-        public DeleteChannelsResult LoadFromDto(DeleteChannelsResultDTO dto)
+        DeleteChannelsResult ILoadableFrom<DeleteChannelsResultDTO, DeleteChannelsResult>.LoadFromDto(DeleteChannelsResultDTO dto)
         {
             Error = dto.Error;
             Status = dto.Status;

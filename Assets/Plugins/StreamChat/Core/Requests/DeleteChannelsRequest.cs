@@ -16,12 +16,13 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? HardDelete { get; set; }
 
-        public DeleteChannelsRequestDTO SaveToDto() =>
+        DeleteChannelsRequestDTO ISavableTo<DeleteChannelsRequestDTO>.SaveToDto() =>
             new DeleteChannelsRequestDTO
             {
                 Cids = Cids,
                 HardDelete = HardDelete,
                 AdditionalProperties = AdditionalProperties,
             };
+
     }
 }

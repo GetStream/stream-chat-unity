@@ -3,7 +3,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests.DTO
 {
-    public class ConnectPayload
+    internal class ConnectPayload
     {
         [JsonProperty("user_id")]
         public string UserId;

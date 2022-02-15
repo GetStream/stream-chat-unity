@@ -25,7 +25,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string UserId { get; set; }
 
-        public UpdateChannelPartialRequestDTO SaveToDto() =>
+        UpdateChannelPartialRequestDTO ISavableTo<UpdateChannelPartialRequestDTO>.SaveToDto() =>
             new UpdateChannelPartialRequestDTO
             {
                 Set = Set,

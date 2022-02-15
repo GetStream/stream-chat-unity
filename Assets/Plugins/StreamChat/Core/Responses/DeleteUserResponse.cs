@@ -15,7 +15,7 @@ namespace StreamChat.Core.Responses
 
         public User User { get; set; }
 
-        public DeleteUserResponse LoadFromDto(DeleteUserResponseDTO dto)
+        DeleteUserResponse ILoadableFrom<DeleteUserResponseDTO, DeleteUserResponse>.LoadFromDto(DeleteUserResponseDTO dto)
         {
             Duration = dto.Duration;
             User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);

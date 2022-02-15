@@ -13,7 +13,7 @@ namespace StreamChat.Core.Responses
 
         public string TaskId { get; set; }
 
-        public DeleteUsersResponse LoadFromDto(DeleteUsersResponseDTO dto)
+        DeleteUsersResponse ILoadableFrom<DeleteUsersResponseDTO, DeleteUsersResponse>.LoadFromDto(DeleteUsersResponseDTO dto)
         {
             Duration = dto.Duration;
             TaskId = dto.TaskId;

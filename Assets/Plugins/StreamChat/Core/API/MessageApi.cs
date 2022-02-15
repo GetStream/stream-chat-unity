@@ -10,7 +10,7 @@ using StreamChat.Core.Web;
 
 namespace StreamChat.Core.API
 {
-    public class MessageApi : ApiClientBase, IMessageApi
+    internal class MessageApi : ApiClientBase, IMessageApi
     {
         public MessageApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)

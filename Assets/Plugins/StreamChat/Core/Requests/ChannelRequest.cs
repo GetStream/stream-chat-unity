@@ -35,7 +35,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Team { get; set; }
 
-        public ChannelRequestDTO SaveToDto() =>
+        ChannelRequestDTO ISavableTo<ChannelRequestDTO>.SaveToDto() =>
             new ChannelRequestDTO
             {
                 AutoTranslationEnabled = AutoTranslationEnabled,

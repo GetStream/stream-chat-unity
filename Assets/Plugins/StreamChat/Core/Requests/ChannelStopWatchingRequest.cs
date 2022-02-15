@@ -11,7 +11,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string ConnectionId { get; set; }
 
-        public ChannelStopWatchingRequestDTO SaveToDto() =>
+        ChannelStopWatchingRequestDTO ISavableTo<ChannelStopWatchingRequestDTO>.SaveToDto() =>
             new ChannelStopWatchingRequestDTO
             {
                 ConnectionId = ConnectionId,

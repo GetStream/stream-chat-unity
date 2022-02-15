@@ -6,7 +6,7 @@ namespace StreamChat.Core.Helpers
     /// <summary>
     /// Extensions for <see cref="IDictionary{TKey,TValue}"/>
     /// </summary>
-    public static class IDictionaryExt
+    internal static class IDictionaryExt
     {
         public static IDictionary<TKey, TDto> TrySaveToDtoDictionary<TDto, TSource, TKey>(this IDictionary<TKey, TSource> source)
             where TSource : ISavableTo<TDto>

@@ -17,7 +17,7 @@ namespace StreamChat.Core.DTO.Models
     /// Represents custom chat command
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    public partial class CommandDTO
+    internal partial class CommandDTO
     {
         /// <summary>
         /// Arguments help text, shown in commands auto-completion

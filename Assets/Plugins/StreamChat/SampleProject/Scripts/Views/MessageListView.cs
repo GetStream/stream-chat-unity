@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using StreamChat.Core.Models;
-using StreamChat.Core.Utils;
+using StreamChat.SampleProject.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 

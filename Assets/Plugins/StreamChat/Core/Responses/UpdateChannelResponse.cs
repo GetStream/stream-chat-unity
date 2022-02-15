@@ -18,12 +18,12 @@ namespace StreamChat.Core.Responses
 
         public Message Message { get; set; }
 
-        public UpdateChannelResponse LoadFromDto(UpdateChannelResponseDTO dto)
+        UpdateChannelResponse ILoadableFrom<UpdateChannelResponseDTO, UpdateChannelResponse>.LoadFromDto(UpdateChannelResponseDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
-            Message = Message.LoadFromDto(dto.Message);
+            Message = Message.TryLoadFromDto(dto.Message);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

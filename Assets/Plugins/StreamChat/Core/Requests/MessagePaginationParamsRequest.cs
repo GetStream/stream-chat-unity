@@ -28,7 +28,7 @@ namespace StreamChat.Core.Requests
 
         public double? Offset { get; set; }
 
-        public MessagePaginationParamsRequestDTO SaveToDto() =>
+        MessagePaginationParamsRequestDTO ISavableTo<MessagePaginationParamsRequestDTO>.SaveToDto() =>
             new MessagePaginationParamsRequestDTO
             {
                 AdditionalProperties = AdditionalProperties,
