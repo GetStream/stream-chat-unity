@@ -1,3 +1,5 @@
+using System;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -10,7 +12,7 @@ namespace StreamChat.SampleProject.Inputs
 #if ENABLE_INPUT_SYSTEM
     public class UnityPreviewInputSystem : IInputSystem
     {
-        public Vector2 ScreenPosition => Mouse.current.position.ReadValue();
+        public Vector2 MousePosition => Mouse.current.position.ReadValue();
 
         public bool WasEnteredPressedThisFrame => Keyboard.current.enterKey.wasPressedThisFrame;
 
