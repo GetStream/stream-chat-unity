@@ -9,10 +9,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-#if ENABLE_INPUT_SYSTEM
-//This requires StreamChat.Unity assembly definition to have a reference to UnityEngine.InputSystem package
-using UnityEngine.InputSystem;
-#endif
 
 namespace StreamChat.SampleProject.Views
 {
@@ -35,12 +31,7 @@ namespace StreamChat.SampleProject.Views
 
         public void OnPointerDown(PointerEventData eventData)
         {
-#if ENABLE_LEGACY_INPUT_MANAGER
-            if (!Input.GetMouseButton(1))
-#elif ENABLE_INPUT_SYSTEM
-            //This requires StreamChat.Unity assembly definition to have a reference to UnityEngine.InputSystem package
-            if (!Mouse.current.rightButton.wasPressedThisFrame)
-#endif
+            if (!InputSystem.GetMouseButton(1))
             {
                 return;
             }
@@ -92,7 +83,7 @@ namespace StreamChat.SampleProject.Views
 
             if (active)
             {
-                var mousePosition = Input.mousePosition;
+                var mousePosition = InputSystem.MousePosition;
 
                 _activePopup = Factory.CreateMessageOptionsPopup(this);
 
