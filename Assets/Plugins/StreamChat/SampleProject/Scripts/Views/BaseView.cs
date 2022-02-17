@@ -1,5 +1,6 @@
 ﻿using System;
 using StreamChat.Core;
+using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Scripts.Utils;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ namespace StreamChat.SampleProject.Views
         protected IViewFactory Factory => ViewContext.Factory;
         protected IChatViewContext ViewContext { get; private set; }
         protected IChatState State => ViewContext.State;
+        protected IInputSystem InputSystem => ViewContext.InputSystem;
 
         protected void OnDestroy() => OnDisposing();
 

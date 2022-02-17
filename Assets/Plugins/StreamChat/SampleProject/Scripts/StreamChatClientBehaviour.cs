@@ -1,6 +1,7 @@
 ﻿using System;
 using StreamChat.Core;
 using StreamChat.Core.Auth;
+using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Scripts.Utils;
 using StreamChat.SampleProject.Views;
 using UnityEngine;
@@ -20,8 +21,10 @@ namespace StreamChat.SampleProject
                 _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
                 _client.Connect();
 
+                var inputSystemFactory = new InputSystemFactory();
+                var defaultInputSystem = inputSystemFactory.CreateDefault();
                 var viewFactory = new ViewFactory(_client, _viewFactoryConfig, _popupsContainer);
-                var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory);
+                var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem);
                 viewFactory.Init(viewContext);
 
                 _rootView.Init(viewContext);
