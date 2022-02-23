@@ -1,6 +1,6 @@
 ﻿using StreamChat.Core;
 using StreamChat.SampleProject.Inputs;
-using StreamChat.SampleProject.Scripts.Utils;
+using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
 
 namespace StreamChat.SampleProject
