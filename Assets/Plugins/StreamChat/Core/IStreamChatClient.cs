@@ -18,6 +18,10 @@ namespace StreamChat.Core
         event Action<EventMessageDeleted> MessageDeleted;
         event Action<EventMessageUpdated> MessageUpdated;
 
+        event Action<EventReactionNew> ReactionReceived;
+        event Action<EventReactionUpdated> ReactionUpdated;
+        event Action<EventReactionDeleted> ReactionDeleted;
+
         ConnectionState ConnectionState { get; }
         IChannelApi ChannelApi { get; }
         IMessageApi MessageApi { get; }

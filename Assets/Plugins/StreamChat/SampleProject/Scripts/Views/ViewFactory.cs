@@ -39,7 +39,6 @@ namespace StreamChat.SampleProject.Views
             {
                 new MenuOptionEntry("Reply", () => throw new NotImplementedException("Reply")),
                 new MenuOptionEntry("Pin", () => throw new NotImplementedException("Pin")),
-
             };
 
             if (isSelfMessage)
@@ -56,15 +55,43 @@ namespace StreamChat.SampleProject.Views
                 {
                     var muteUserRequest = new MuteUserRequest
                     {
-                        TargetIds = new List<string>().AddFluent(user.Id)
+                        TargetIds = new List<string> { user.Id }
                     };
 
                     //Todo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
                     _client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
                 }));
+
+                var reactionCounts = message.ReactionCounts;
+
+                const string likeReactionKey = "like";
+
+                var isLiked = reactionCounts.TryGetValue(likeReactionKey, out var likeCount) && likeCount > 0;
+
+                if (isLiked)
+                {
+                    options.Add(new MenuOptionEntry("Unlike", () =>
+                    {
+                        _client.MessageApi.DeleteReactionAsync(message.Id, likeReactionKey);
+                    }));
+                }
+                else
+                {
+                    options.Add(new MenuOptionEntry("Like", () =>
+                    {
+                        _client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
+                        {
+                            Reaction = new ReactionRequest
+                            {
+                                Type = likeReactionKey,
+                            }
+                        });
+                    }));
+                }
             }
 
-            options.Add(new MenuOptionEntry("Delete", () => _client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
+            options.Add(new MenuOptionEntry("Delete",
+                () => _client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options);
             popup.Show(args);

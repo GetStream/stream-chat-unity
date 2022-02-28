@@ -47,6 +47,9 @@ namespace StreamChat.SampleProject
             _client.MessageReceived += OnMessageReceived;
             _client.MessageDeleted += OnMessageDeleted;
             _client.MessageUpdated += OnMessageUpdated;
+            _client.ReactionReceived += OnReactionReceived;
+            _client.ReactionUpdated += OnReactionUpdated;
+            _client.ReactionDeleted += OnReactionDeleted;
         }
 
         public void Dispose()
@@ -55,6 +58,9 @@ namespace StreamChat.SampleProject
             _client.MessageReceived -= OnMessageReceived;
             _client.MessageDeleted -= OnMessageDeleted;
             _client.MessageUpdated -= OnMessageUpdated;
+            _client.ReactionReceived -= OnReactionReceived;
+            _client.ReactionUpdated -= OnReactionUpdated;
+            _client.ReactionDeleted -= OnReactionDeleted;
 
             _client.Dispose();
         }
@@ -100,10 +106,10 @@ namespace StreamChat.SampleProject
 
             try
             {
-                var response = await _client.ChannelApi.QueryChannelsAsync(request);
+                var queryChannelsResponse = await _client.ChannelApi.QueryChannelsAsync(request);
 
                 _channels.Clear();
-                _channels.AddRange(response.Channels);
+                _channels.AddRange(queryChannelsResponse.Channels);
             }
             catch (StreamApiException e)
             {
@@ -150,6 +156,29 @@ namespace StreamChat.SampleProject
             }
         }
 
+        private void OnReactionReceived(EventReactionNew eventReactionNew) =>
+            UpdateChannelMessage(eventReactionNew.Message);
+
+        private void OnReactionDeleted(EventReactionDeleted eventReactionDeleted) =>
+            UpdateChannelMessage(eventReactionDeleted.Message);
+
+        private void OnReactionUpdated(EventReactionUpdated eventReactionUpdated) =>
+            UpdateChannelMessage(eventReactionUpdated.Message);
+
         private ChannelState GetChannel(string id) => _channels.First(_ => _.Channel.Id == id);
+
+        private void UpdateChannelMessage(Message message)
+        {
+            var channelCid = message.Cid;
+
+            var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == channelCid);
+
+            if (channel == null)
+            {
+                return;
+            }
+
+            //Todo: update channel messages
+        }
     }
 }

@@ -3,7 +3,7 @@
 namespace StreamChat.Core.API
 {
     /// <summary>
-    ///
+    /// Messages API Endpoints
     /// </summary>
     internal static class MessageEndpoints
     {
@@ -13,5 +13,7 @@ namespace StreamChat.Core.API
 
         public static string UpdateMessage(string messageId) => $"/messages/{messageId}";
         public static string DeleteMessage(string messageId) => $"/messages/{messageId}";
+        public static string SendReaction(string messageId) => $"/messages/{messageId}/reaction";
+        public static string DeleteReaction(string messageId, string reactionType) => $"/messages/{messageId}/reaction/{reactionType}";
     }
 }

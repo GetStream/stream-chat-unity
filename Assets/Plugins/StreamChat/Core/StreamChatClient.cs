@@ -33,6 +33,10 @@ namespace StreamChat.Core
         public event Action<EventMessageDeleted> MessageDeleted;
         public event Action<EventMessageUpdated> MessageUpdated;
 
+        public event Action<EventReactionNew> ReactionReceived;
+        public event Action<EventReactionUpdated> ReactionUpdated;
+        public event Action<EventReactionDeleted> ReactionDeleted;
+
         public IChannelApi ChannelApi { get; }
         public IMessageApi MessageApi { get; }
         public IModerationApi ModerationApi { get; }
@@ -172,6 +176,13 @@ namespace StreamChat.Core
                 e => MessageDeleted?.Invoke(e));
             RegisterEventType<EventMessageUpdatedDTO, EventMessageUpdated>(EventType.MessageUpdated,
                 e => MessageUpdated?.Invoke(e));
+
+            RegisterEventType<EventReactionNewDTO, EventReactionNew>(EventType.MessageUpdated,
+                e => ReactionReceived?.Invoke(e));
+            RegisterEventType<EventReactionUpdatedDTO, EventReactionUpdated>(EventType.MessageUpdated,
+                e => ReactionUpdated?.Invoke(e));
+            RegisterEventType<EventReactionDeletedDTO, EventReactionDeleted>(EventType.MessageUpdated,
+                e => ReactionDeleted?.Invoke(e));
         }
 
         private void Reconnect()
@@ -272,7 +283,7 @@ namespace StreamChat.Core
         private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent)
         {
             _lastHealthCheckReceivedTime = _timeService.Time;
-            _lastHealthCheckReceivedTime = _timeService.Time;
+
             if (ConnectionState == ConnectionState.Connecting)
             {
                 ConnectionState = ConnectionState.Connected;
