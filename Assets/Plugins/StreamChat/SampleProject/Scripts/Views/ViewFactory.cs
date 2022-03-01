@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using StreamChat.Core;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Requests;
-using StreamChat.Libs.Utils;
+using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Popups;
 using StreamChat.SampleProject.Popups;
 using UnityEngine;
 
@@ -14,6 +14,8 @@ namespace StreamChat.SampleProject.Views
     /// </summary>
     public class ViewFactory : IViewFactory
     {
+        public RectTransform PopupsContainer => (RectTransform)_popupsContainer;
+
         public ViewFactory(IStreamChatClient client, IViewFactoryConfig config, Transform popupsContainer)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -93,7 +95,23 @@ namespace StreamChat.SampleProject.Views
             options.Add(new MenuOptionEntry("Delete",
                 () => _client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
 
-            var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options);
+            var emojis = new List<EmojiOptionEntry>();
+
+            foreach (var emoji in _config.EmojiConfig.Emojis)
+            {
+                emojis.Add(new EmojiOptionEntry(emoji.Key, emoji.Value, () =>
+                {
+                    _client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
+                    {
+                        Reaction = new ReactionRequest
+                        {
+                            Type = emoji.Key,
+                        }
+                    });
+                }));
+            }
+
+            var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options, emojis);
             popup.Show(args);
 
             return popup;

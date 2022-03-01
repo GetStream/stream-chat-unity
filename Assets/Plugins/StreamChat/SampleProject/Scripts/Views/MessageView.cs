@@ -87,7 +87,9 @@ namespace StreamChat.SampleProject.Views
 
                 _activePopup = Factory.CreateMessageOptionsPopup(this);
 
-                ((RectTransform)_activePopup.transform).position = mousePosition;
+                var rectTransform = ((RectTransform)_activePopup.transform);
+
+                rectTransform.position = mousePosition + new Vector2(-10, 10);
             }
         }
 

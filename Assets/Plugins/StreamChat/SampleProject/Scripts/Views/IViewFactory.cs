@@ -1,4 +1,5 @@
 ﻿using StreamChat.SampleProject.Popups;
+using UnityEngine;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -8,5 +9,7 @@ namespace StreamChat.SampleProject.Views
     public interface IViewFactory
     {
         MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView);
+
+        RectTransform PopupsContainer { get; }
     }
 }

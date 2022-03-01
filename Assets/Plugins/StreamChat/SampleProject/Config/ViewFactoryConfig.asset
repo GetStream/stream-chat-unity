@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: ViewFactoryConfig
   m_EditorClassIdentifier: 
   _messageOptionsPopupPrefab: {fileID: 5378343205483587087, guid: 53e67c14181e3584193d5c627106bd94, type: 3}
+  _emojiConfig: {fileID: 11400000, guid: 964e9bb5916fddf4cacf722cd54dc11d, type: 2}

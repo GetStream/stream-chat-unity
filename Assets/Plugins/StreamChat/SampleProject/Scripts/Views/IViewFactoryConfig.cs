@@ -1,4 +1,5 @@
-﻿using StreamChat.SampleProject.Popups;
+﻿using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Configs;
+using StreamChat.SampleProject.Popups;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -8,5 +9,6 @@ namespace StreamChat.SampleProject.Views
     public interface IViewFactoryConfig
     {
         MessageOptionsPopup MessageOptionsPopupPrefab { get; }
+        IEmojiConfig EmojiConfig { get; }
     }
 }

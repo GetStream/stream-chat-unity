@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Popups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,15 +17,18 @@ namespace StreamChat.SampleProject.Popups
             public bool HideOnPointerExit { get; }
             public bool HideOnButtonClicked { get; }
             public IReadOnlyList<MenuOptionEntry> Options => _options;
+            public IReadOnlyList<EmojiOptionEntry> Emojis => _emojis;
 
-            public Args(bool hideOnPointerExit, bool hideOnButtonClicked, IEnumerable<MenuOptionEntry> options)
+            public Args(bool hideOnPointerExit, bool hideOnButtonClicked, IEnumerable<MenuOptionEntry> options, IEnumerable<EmojiOptionEntry> emojis)
             {
                 HideOnPointerExit = hideOnPointerExit;
                 HideOnButtonClicked = hideOnButtonClicked;
                 _options = options.ToList();
+                _emojis = emojis.ToList();
             }
 
             private readonly List<MenuOptionEntry> _options;
+            private readonly List<EmojiOptionEntry> _emojis;
         }
 
         public bool IsPointerOver { get; private set; }
@@ -48,6 +52,20 @@ namespace StreamChat.SampleProject.Popups
                 instance.GetComponentInChildren<TextMeshProUGUI>().text = option.Name;
             }
 
+            foreach (var emoji in args.Emojis)
+            {
+                var instance = Instantiate(_emojiButtonPrefab, _emojiButtonsContainer);
+                _buttons.Add(instance);
+
+                instance.GetComponent<Image>().sprite = emoji.Sprite;
+
+                instance.onClick.AddListener(() =>
+                {
+                    TryHide();
+                    emoji.OnClick();
+                });
+            }
+
             IsPointerOver = true;
         }
 
@@ -57,7 +75,13 @@ namespace StreamChat.SampleProject.Popups
         private Transform _buttonsContainer;
 
         [SerializeField]
+        private Transform _emojiButtonsContainer;
+
+        [SerializeField]
         private Button _buttonPrefab;
+
+        [SerializeField]
+        private Button _emojiButtonPrefab;
 
         private void ClearAllButtons()
         {

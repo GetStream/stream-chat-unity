@@ -178,7 +178,27 @@ namespace StreamChat.SampleProject
                 return;
             }
 
-            //Todo: update channel messages
+            if (channel.Messages is IList<Message> channelMessages)
+            {
+                for (var i = channelMessages.Count - 1; i >= 0; i--)
+                {
+                    if (channelMessages[i].Id == message.Id)
+                    {
+                        channelMessages.RemoveAt(i);
+                        channelMessages.Insert(i, message);
+                        break;
+                    }
+                }
+
+                if (channel == ActiveChannel)
+                {
+                    ActiveChanelChanged?.Invoke(ActiveChannel);
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed to update channel message");
+            }
         }
     }
 }

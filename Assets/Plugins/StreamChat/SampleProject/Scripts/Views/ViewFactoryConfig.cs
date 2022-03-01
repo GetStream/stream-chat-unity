@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core;
+using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Configs;
 using StreamChat.SampleProject.Popups;
 using UnityEngine;
 
@@ -11,8 +12,12 @@ namespace StreamChat.SampleProject.Views
     public class ViewFactoryConfig : ScriptableObject, IViewFactoryConfig
     {
         public MessageOptionsPopup MessageOptionsPopupPrefab => _messageOptionsPopupPrefab;
+        public IEmojiConfig EmojiConfig => _emojiConfig;
 
         [SerializeField]
         private MessageOptionsPopup _messageOptionsPopupPrefab;
+
+        [SerializeField]
+        private EmojiConfigAsset _emojiConfig;
     }
 }
