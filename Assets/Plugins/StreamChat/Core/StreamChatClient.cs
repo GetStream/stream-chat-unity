@@ -177,11 +177,11 @@ namespace StreamChat.Core
             RegisterEventType<EventMessageUpdatedDTO, EventMessageUpdated>(EventType.MessageUpdated,
                 e => MessageUpdated?.Invoke(e));
 
-            RegisterEventType<EventReactionNewDTO, EventReactionNew>(EventType.MessageUpdated,
+            RegisterEventType<EventReactionNewDTO, EventReactionNew>(EventType.ReactionNew,
                 e => ReactionReceived?.Invoke(e));
-            RegisterEventType<EventReactionUpdatedDTO, EventReactionUpdated>(EventType.MessageUpdated,
+            RegisterEventType<EventReactionUpdatedDTO, EventReactionUpdated>(EventType.ReactionUpdated,
                 e => ReactionUpdated?.Invoke(e));
-            RegisterEventType<EventReactionDeletedDTO, EventReactionDeleted>(EventType.MessageUpdated,
+            RegisterEventType<EventReactionDeletedDTO, EventReactionDeleted>(EventType.ReactionDeleted,
                 e => ReactionDeleted?.Invoke(e));
         }
 
@@ -195,6 +195,11 @@ namespace StreamChat.Core
             Action<TEvent> handler)
             where TEvent : ILoadableFrom<TDto, TEvent>, new()
         {
+            if (_eventKeyToHandler.ContainsKey(key))
+            {
+                _logs.Warning($"Event handler with key `{key}` is already registered. Ignored");
+                return;
+            }
             _eventKeyToHandler.Add(key, content =>
             {
                 var eventObj = DeserializeEvent<TDto, TEvent>(content);
