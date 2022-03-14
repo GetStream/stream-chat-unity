@@ -57,7 +57,12 @@ namespace StreamChat.SampleProject.Popups
                 var instance = Instantiate(_emojiButtonPrefab, _emojiButtonsContainer);
                 _buttons.Add(instance);
 
-                instance.GetComponent<Image>().sprite = emoji.Sprite;
+                var image = instance.GetComponent<Image>();
+                image.sprite = emoji.Sprite;
+
+                var color = image.color;
+                color.a = emoji.IsAdded ? 0.2f : 1.0f;
+                image.color = color;
 
                 instance.onClick.AddListener(() =>
                 {

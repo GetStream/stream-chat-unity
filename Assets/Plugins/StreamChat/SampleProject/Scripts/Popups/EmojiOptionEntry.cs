@@ -7,12 +7,14 @@ namespace StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Popu
     {
         public readonly string Key;
         public readonly Sprite Sprite;
+        public readonly bool IsAdded;
         public readonly Action OnClick;
 
-        public EmojiOptionEntry(string key, Sprite sprite, Action onClick)
+        public EmojiOptionEntry(string key, Sprite sprite, bool isAdded, Action onClick)
         {
             Key = key;
             Sprite = sprite;
+            IsAdded = isAdded;
             OnClick = onClick;
         }
     }

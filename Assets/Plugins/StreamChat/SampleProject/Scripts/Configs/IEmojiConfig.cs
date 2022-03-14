@@ -5,6 +5,6 @@ namespace StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Conf
 {
     public interface IEmojiConfig
     {
-        IReadOnlyDictionary<string, Sprite> Emojis { get; }
+        IEnumerable<(string Key, Sprite Sprite)> Emojis { get; }
     }
 }

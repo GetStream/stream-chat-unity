@@ -1,5 +1,6 @@
 ﻿using StreamChat.SampleProject.Popups;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -11,5 +12,7 @@ namespace StreamChat.SampleProject.Views
         MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView);
 
         RectTransform PopupsContainer { get; }
+
+        void CreateReactionEmoji(Image prefab, Transform container, string key);
     }
 }

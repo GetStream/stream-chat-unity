@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using StreamChat.Core;
 using StreamChat.Core.Exceptions;
+using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Popups;
 using StreamChat.SampleProject.Popups;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -97,19 +100,7 @@ namespace StreamChat.SampleProject.Views
 
             var emojis = new List<EmojiOptionEntry>();
 
-            foreach (var emoji in _config.EmojiConfig.Emojis)
-            {
-                emojis.Add(new EmojiOptionEntry(emoji.Key, emoji.Value, () =>
-                {
-                    _client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
-                    {
-                        Reaction = new ReactionRequest
-                        {
-                            Type = emoji.Key,
-                        }
-                    });
-                }));
-            }
+            AddEmojiOptions(emojis, message);
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options, emojis);
             popup.Show(args);
@@ -117,10 +108,51 @@ namespace StreamChat.SampleProject.Views
             return popup;
         }
 
+        public void CreateReactionEmoji(Image prefab, Transform container, string key)
+        {
+            var emojiEntry = _config.EmojiConfig.Emojis.FirstOrDefault(_ => _.Key == key);
+
+            if (emojiEntry == default)
+            {
+                Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _config.EmojiConfig.Emojis.Select(_ => _.Key)));
+                return;
+            }
+
+
+            var reaction = GameObject.Instantiate(prefab, container);
+            reaction.sprite = emojiEntry.Sprite;
+        }
+
         private readonly IStreamChatClient _client;
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
 
         private IChatViewContext _viewContext;
+
+        private void AddEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message)
+        {
+            foreach (var (key, sprite) in _config.EmojiConfig.Emojis)
+            {
+                var isAdded = message.ReactionCounts.ContainsKey(key);
+
+                emojis.Add(new EmojiOptionEntry(key, sprite, isAdded, () =>
+                {
+                    if (isAdded)
+                    {
+                        _client.MessageApi.DeleteReactionAsync(message.Id, key);
+                    }
+                    else
+                    {
+                        _client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
+                        {
+                            Reaction = new ReactionRequest
+                            {
+                                Type = key,
+                            }
+                        });
+                    }
+                }));
+            }
+        }
     }
 }
