@@ -10,5 +10,7 @@
         TType Deserialize<TType>(string serializedObj);
 
         bool TryPeekValue<TValue>(string serializedObj, string key, out TValue value);
+
+        object? DeserializeObject(string serializedObj);
     }
 }
