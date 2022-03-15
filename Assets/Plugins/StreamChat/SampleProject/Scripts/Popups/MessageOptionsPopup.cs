@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Popups;
+using SampleProject.Scripts.Popups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SampleProject.Scripts.Popups;
 using StreamChat.Core;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
-using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Popups;
 using StreamChat.SampleProject.Popups;
 using UnityEngine;
 using UnityEngine.UI;
@@ -66,33 +66,6 @@ namespace StreamChat.SampleProject.Views
                     //Todo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
                     _client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
                 }));
-
-                var reactionCounts = message.ReactionCounts;
-
-                const string likeReactionKey = "like";
-
-                var isLiked = reactionCounts.TryGetValue(likeReactionKey, out var likeCount) && likeCount > 0;
-
-                if (isLiked)
-                {
-                    options.Add(new MenuOptionEntry("Unlike", () =>
-                    {
-                        _client.MessageApi.DeleteReactionAsync(message.Id, likeReactionKey);
-                    }));
-                }
-                else
-                {
-                    options.Add(new MenuOptionEntry("Like", () =>
-                    {
-                        _client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
-                        {
-                            Reaction = new ReactionRequest
-                            {
-                                Type = likeReactionKey,
-                            }
-                        });
-                    }));
-                }
             }
 
             options.Add(new MenuOptionEntry("Delete",
@@ -117,7 +90,6 @@ namespace StreamChat.SampleProject.Views
                 Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _config.EmojiConfig.Emojis.Select(_ => _.Key)));
                 return;
             }
-
 
             var reaction = GameObject.Instantiate(prefab, container);
             reaction.sprite = emojiEntry.Sprite;
