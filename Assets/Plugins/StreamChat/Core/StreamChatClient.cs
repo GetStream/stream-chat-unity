@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -22,6 +23,7 @@ namespace StreamChat.Core
     public class StreamChatClient : IStreamChatClient
     {
         public const string MenuPrefix = "Stream/";
+        public const int ReconnectMaxAttempts = 5;
 
         public static readonly Uri ServerBaseUrl = new Uri("wss://chat.stream-io-api.com");
 
@@ -63,7 +65,8 @@ namespace StreamChat.Core
             return streamChatClient;
         }
 
-        public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient, IHttpClient httpClient,
+        public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
+            IHttpClient httpClient,
             ISerializer serializer, ITimeService timeService, ILogs logs)
         {
             if (authCredentials.IsAnyEmpty())
@@ -107,10 +110,14 @@ namespace StreamChat.Core
             _logs.Info($"Attempt to connect");
 
             ConnectionState = ConnectionState.Connecting;
-            _websocketClient.ConnectAsync(connectionUri).LogIfFailed();
+
+            _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
+            _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
 
             _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient.Connected += OnWebsocketsConnected;
+
+            _websocketClient.ConnectAsync(connectionUri).LogIfFailed();
         }
 
         public void Update(float deltaTime)
@@ -131,6 +138,7 @@ namespace StreamChat.Core
 
         public void Dispose()
         {
+            _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
             _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient?.Dispose();
         }
@@ -162,7 +170,24 @@ namespace StreamChat.Core
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
 
+        private int _reconnectAttempt;
+
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
+
+        private void OnWebsocketsConnectionFailed()
+        {
+            ConnectionState = ConnectionState.Disconnected;
+
+            if (_reconnectAttempt >= ReconnectMaxAttempts)
+            {
+                return;
+            }
+
+            ConnectionState = ConnectionState.Reconnecting;
+            _reconnectAttempt++;
+
+            Connect();
+        }
 
         private void OnConnectionConfirmed() => Connected?.Invoke();
 
@@ -200,6 +225,7 @@ namespace StreamChat.Core
                 _logs.Warning($"Event handler with key `{key}` is already registered. Ignored");
                 return;
             }
+
             _eventKeyToHandler.Add(key, content =>
             {
                 var eventObj = DeserializeEvent<TDto, TEvent>(content);

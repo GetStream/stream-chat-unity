@@ -28,6 +28,7 @@ namespace StreamChat.Tests
             _mockSerializer = Substitute.For<ISerializer>();
             _mockTimeService = Substitute.For<ITimeService>();
             _mockLogs = Substitute.For<ILogs>();
+
             _client = new StreamChatClient(_authCredentials, _mockWebsocketClient, _mockHttpClient, _mockSerializer,
                 _mockTimeService, _mockLogs);
         }
@@ -39,6 +40,7 @@ namespace StreamChat.Tests
             _client = null;
 
             _mockWebsocketClient = null;
+            _mockHttpClient = null;
             _mockSerializer = null;
             _mockTimeService = null;
             _mockLogs = null;
@@ -54,11 +56,27 @@ namespace StreamChat.Tests
         [Test]
         public void when_stream_client_connection_failed_expect_reconnect()
         {
-            _mockWebsocketClient.ConnectAsync(default)
-                .ReturnsForAnyArgs(_ => Task.FromException<Exception>(new Exception("failed to connect")));
-
             _client.Connect();
-            _mockWebsocketClient.ReceivedWithAnyArgs().ConnectAsync(default);
+            _mockWebsocketClient.ConnectionFailed += Raise.Event<Action>();
+
+            _mockWebsocketClient.ReceivedWithAnyArgs(2).ConnectAsync(default);
+        }
+
+        [Test]
+        public void when_stream_client_max_reconnections_reached_expect_disconnected_state()
+        {
+            _client.Connect();
+
+            for (int i = 0; i < StreamChatClient.ReconnectMaxAttempts + 10; i++)
+            {
+                _mockWebsocketClient.ConnectionFailed += Raise.Event<Action>();
+            }
+
+            var expectedAttempts = StreamChatClient.ReconnectMaxAttempts + 1;
+
+            _mockWebsocketClient.ReceivedWithAnyArgs(expectedAttempts).ConnectAsync(default);
+
+            Assert.AreEqual(_client.ConnectionState, ConnectionState.Disconnected);
         }
 
         [Test]

@@ -9,6 +9,7 @@ namespace StreamChat.Libs.Websockets
     public interface IWebsocketClient : IDisposable
     {
         event Action Connected;
+        event Action ConnectionFailed;
 
         bool IsRunning { get; }
 

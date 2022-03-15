@@ -20,7 +20,7 @@ namespace StreamChat.Libs.Websockets
 
         public bool IsRunning { get; private set; }
 
-        public WebSocketState State => _client?.State ?? WebSocketState.None;
+        public WebSocketState State => _internalClient?.State ?? WebSocketState.None;
 
         public WebsocketClient(ILogs logs, Encoding encoding = default)
         {
@@ -39,8 +39,8 @@ namespace StreamChat.Libs.Websockets
 
             try
             {
-                _client = new ClientWebSocket();
-                await _client.ConnectAsync(_uri, _connectionCts.Token).ConfigureAwait(false);
+                _internalClient = new ClientWebSocket();
+                await _internalClient.ConnectAsync(_uri, _connectionCts.Token).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -71,7 +71,7 @@ namespace StreamChat.Libs.Websockets
             var buffer = _encoding.GetBytes(message);
             var messageSegment = new ArraySegment<byte>(buffer);
 
-            await _client
+            await _internalClient
                 .SendAsync(messageSegment, WebSocketMessageType.Text, true, _connectionCts.Token)
                 .ConfigureAwait(false);
         }
@@ -99,7 +99,7 @@ namespace StreamChat.Libs.Websockets
         private readonly Encoding _encoding;
 
         private Uri _uri;
-        private ClientWebSocket _client;
+        private ClientWebSocket _internalClient;
         private CancellationTokenSource _connectionCts;
 
         private async Task SendMessages()
@@ -109,7 +109,7 @@ namespace StreamChat.Libs.Websockets
                 while (!_sendQueue.IsCompleted)
                 {
                     var msg = _sendQueue.Take();
-                    await _client.SendAsync(msg, WebSocketMessageType.Text, true, CancellationToken.None);
+                    await _internalClient.SendAsync(msg, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             }
         }
@@ -142,12 +142,12 @@ namespace StreamChat.Libs.Websockets
             var ms = new MemoryStream();
             var bufferSegment = new ArraySegment<byte>(readBuffer);
 
-            if (_client.State == WebSocketState.Open)
+            if (_internalClient.State == WebSocketState.Open)
             {
                 WebSocketReceiveResult chunkResult;
                 do
                 {
-                    chunkResult = await _client.ReceiveAsync(bufferSegment, CancellationToken.None);
+                    chunkResult = await _internalClient.ReceiveAsync(bufferSegment, CancellationToken.None);
 
                     if (chunkResult.MessageType == WebSocketMessageType.Close)
                     {
