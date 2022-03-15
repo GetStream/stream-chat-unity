@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace StreamChat.Libs.Serialization
@@ -18,6 +19,9 @@ namespace StreamChat.Libs.Serialization
 
         public TType Deserialize<TType>(string serializedObj)
             => JsonConvert.DeserializeObject<TType>(serializedObj);
+
+        public object? DeserializeObject(string serializedObj)
+            => JsonConvert.DeserializeObject(serializedObj);
 
         public bool TryPeekValue<TValue>(string serializedObj, string key, out TValue value)
         {

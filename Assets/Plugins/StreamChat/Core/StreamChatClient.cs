@@ -33,6 +33,10 @@ namespace StreamChat.Core
         public event Action<EventMessageDeleted> MessageDeleted;
         public event Action<EventMessageUpdated> MessageUpdated;
 
+        public event Action<EventReactionNew> ReactionReceived;
+        public event Action<EventReactionUpdated> ReactionUpdated;
+        public event Action<EventReactionDeleted> ReactionDeleted;
+
         public IChannelApi ChannelApi { get; }
         public IMessageApi MessageApi { get; }
         public IModerationApi ModerationApi { get; }
@@ -172,6 +176,13 @@ namespace StreamChat.Core
                 e => MessageDeleted?.Invoke(e));
             RegisterEventType<EventMessageUpdatedDTO, EventMessageUpdated>(EventType.MessageUpdated,
                 e => MessageUpdated?.Invoke(e));
+
+            RegisterEventType<EventReactionNewDTO, EventReactionNew>(EventType.ReactionNew,
+                e => ReactionReceived?.Invoke(e));
+            RegisterEventType<EventReactionUpdatedDTO, EventReactionUpdated>(EventType.ReactionUpdated,
+                e => ReactionUpdated?.Invoke(e));
+            RegisterEventType<EventReactionDeletedDTO, EventReactionDeleted>(EventType.ReactionDeleted,
+                e => ReactionDeleted?.Invoke(e));
         }
 
         private void Reconnect()
@@ -184,6 +195,11 @@ namespace StreamChat.Core
             Action<TEvent> handler)
             where TEvent : ILoadableFrom<TDto, TEvent>, new()
         {
+            if (_eventKeyToHandler.ContainsKey(key))
+            {
+                _logs.Warning($"Event handler with key `{key}` is already registered. Ignored");
+                return;
+            }
             _eventKeyToHandler.Add(key, content =>
             {
                 var eventObj = DeserializeEvent<TDto, TEvent>(content);
@@ -272,7 +288,7 @@ namespace StreamChat.Core
         private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent)
         {
             _lastHealthCheckReceivedTime = _timeService.Time;
-            _lastHealthCheckReceivedTime = _timeService.Time;
+
             if (ConnectionState == ConnectionState.Connecting)
             {
                 ConnectionState = ConnectionState.Connected;

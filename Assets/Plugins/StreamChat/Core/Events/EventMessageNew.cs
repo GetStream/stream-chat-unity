@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public partial class EventMessageNew : EventBase, ILoadableFrom<EventMessageNewDTO, EventMessageNew>
+    public class EventMessageNew : EventBase, ILoadableFrom<EventMessageNewDTO, EventMessageNew>
     {
         public string ChannelId { get; set; }
 

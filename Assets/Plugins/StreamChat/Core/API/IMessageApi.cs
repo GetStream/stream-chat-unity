@@ -12,5 +12,9 @@ namespace StreamChat.Core.API
         Task<MessageResponse> UpdateMessageAsync(UpdateMessageRequest updateMessageRequest);
 
         Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard);
+
+        Task<ReactionResponse> SendReactionAsync(string messageId, SendReactionRequest sendReactionRequest);
+
+        Task<ReactionRemovalResponse> DeleteReactionAsync(string messageId, string reactionType);
     }
 }

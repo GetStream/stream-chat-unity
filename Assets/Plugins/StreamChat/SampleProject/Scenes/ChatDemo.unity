@@ -537,7 +537,7 @@ PrefabInstance:
     - target: {fileID: 7678271290476806811, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
       propertyPath: _authCredentialsAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 0b08ddaef6283734185d71ce00304d5d, type: 2}
+      objectReference: {fileID: 11400000, guid: 36072d95c2b911944bc4f04ec53898a5, type: 2}
     - target: {fileID: 8637037942456780671, guid: e25f952564d3beb468e8e7b3ed2045db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

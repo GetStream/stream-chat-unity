@@ -21,7 +21,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Messages before this date are hidden from the user
         /// </summary>
-        public System.DateTimeOffset? HideMessagesBefore { get; set; }
+        public DateTimeOffset? HideMessagesBefore { get; set; }
 
         /// <summary>
         /// List of channel members
@@ -36,7 +36,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of channel messages
         /// </summary>
-        public IReadOnlyCollection<Message> Messages => _messages;
+        public ICollection<Message> Messages { get; set; }
 
         /// <summary>
         /// List of pinned messages in the channel
@@ -62,7 +62,7 @@ namespace StreamChat.Core.Models
 
         public void AddMessage(Message message)
         {
-            _messages.Add(message);
+            Messages.Add(message);
             NewMessageAdded?.Invoke(this, message);
         }
 
@@ -73,7 +73,7 @@ namespace StreamChat.Core.Models
             HideMessagesBefore = dto.HideMessagesBefore;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
             Membership = Membership.TryLoadFromDto(dto.Membership);
-            _messages = _messages.TryLoadFromDtoCollection(dto.Messages);
+            Messages = Messages.TryLoadFromDtoCollection(dto.Messages);
             PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);
             Read = Read.TryLoadFromDtoCollection(dto.Read);
             WatcherCount = dto.WatcherCount;
@@ -90,7 +90,7 @@ namespace StreamChat.Core.Models
             HideMessagesBefore = dto.HideMessagesBefore;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
             Membership = Membership.TryLoadFromDto(dto.Membership);
-            _messages = _messages.TryLoadFromDtoCollection(dto.Messages);
+            Messages = Messages.TryLoadFromDtoCollection(dto.Messages);
             PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);
             Read = Read.TryLoadFromDtoCollection(dto.Read);
             WatcherCount = dto.WatcherCount;
@@ -99,7 +99,5 @@ namespace StreamChat.Core.Models
 
             return this;
         }
-
-        private List<Message> _messages;
     }
 }

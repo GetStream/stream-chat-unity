@@ -42,5 +42,20 @@ namespace StreamChat.Core.API
 
             return Delete<MessageResponse, MessageResponseDTO>(endpoint, parameters);
         }
+
+        public Task<ReactionResponse> SendReactionAsync(string messageId, SendReactionRequest sendReactionRequest)
+        {
+            var endpoint = MessageEndpoints.SendReaction(messageId);
+
+            return Post<SendReactionRequest, SendReactionRequestDTO, ReactionResponse, ReactionResponseDTO>(endpoint,
+                sendReactionRequest);
+        }
+
+        public Task<ReactionRemovalResponse> DeleteReactionAsync(string messageId, string reactionType)
+        {
+            var endpoint = MessageEndpoints.DeleteReaction(messageId, reactionType);
+
+            return Delete<ReactionRemovalResponse, ReactionRemovalResponseDTO>(endpoint);
+        }
     }
 }

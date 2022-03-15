@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Models;
@@ -27,6 +28,8 @@ namespace StreamChat.SampleProject.Views
             _text.text = $"{GetMessageText(message)}<br>{Message.User.Name}";
 
             ShowAvatarAsync(Message.User.Image, imageLoader).LogIfFailed();
+
+            ShowReactions(Message);
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -55,6 +58,12 @@ namespace StreamChat.SampleProject.Views
         [SerializeField]
         private Image _avatar;
 
+        [SerializeField]
+        private Transform _emojisContainer;
+
+        [SerializeField]
+        private Image _emojiPrefab;
+
         private async Task ShowAvatarAsync(string url, IImageLoader imageLoader)
         {
             if (string.IsNullOrEmpty(url))
@@ -73,6 +82,14 @@ namespace StreamChat.SampleProject.Views
             _avatar.sprite = sprite;
         }
 
+        private void ShowReactions(Message message)
+        {
+            foreach (var reactionCount in message.ReactionCounts)
+            {
+                Factory.CreateReactionEmoji(_emojiPrefab, _emojisContainer, reactionCount.Key);
+            }
+        }
+
         private void SetOptionsMenuActive(bool active)
         {
             if (_activePopup != null)
@@ -87,7 +104,9 @@ namespace StreamChat.SampleProject.Views
 
                 _activePopup = Factory.CreateMessageOptionsPopup(this);
 
-                ((RectTransform)_activePopup.transform).position = mousePosition;
+                var rectTransform = ((RectTransform)_activePopup.transform);
+
+                rectTransform.position = mousePosition + new Vector2(-10, 10);
             }
         }
 
