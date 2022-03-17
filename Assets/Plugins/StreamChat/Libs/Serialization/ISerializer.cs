@@ -11,6 +11,6 @@
 
         bool TryPeekValue<TValue>(string serializedObj, string key, out TValue value);
 
-        object? DeserializeObject(string serializedObj);
+        object DeserializeObject(string serializedObj);
     }
 }
