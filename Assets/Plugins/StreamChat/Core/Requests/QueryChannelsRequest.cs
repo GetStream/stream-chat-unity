@@ -5,11 +5,6 @@ namespace StreamChat.Core.Requests
 {
     public partial class QueryChannelsRequest : RequestObjectBase, ISavableTo<QueryChannelsRequestDTO>
     {
-        /// <summary>
-        /// Websocket connection ID to interact with. You can pass it as body or URL parameter
-        /// </summary>
-        public string ConnectionId { get; set; }
-
         public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; }
 
         /// <summary>
@@ -63,7 +58,6 @@ namespace StreamChat.Core.Requests
         QueryChannelsRequestDTO ISavableTo<QueryChannelsRequestDTO>.SaveToDto() =>
             new QueryChannelsRequestDTO
             {
-                ConnectionId = ConnectionId,
                 FilterConditions = FilterConditions,
                 Limit = Limit,
                 MemberLimit = MemberLimit,

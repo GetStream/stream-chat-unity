@@ -5,11 +5,6 @@ namespace StreamChat.Core.Requests
 {
     public partial class ChannelGetOrCreateRequest : RequestObjectBase, ISavableTo<ChannelGetOrCreateRequestDTO>
     {
-        /// <summary>
-        /// Websocket connection ID to interact with. You can pass it as body or URL parameter
-        /// </summary>
-        public string ConnectionId { get; set; }
-
         public ChannelRequest Data { get; set; }
 
         public PaginationParamsRequest Members { get; set; }
@@ -38,7 +33,6 @@ namespace StreamChat.Core.Requests
             return new ChannelGetOrCreateRequestDTO
             {
                 AdditionalProperties = AdditionalProperties,
-                ConnectionId = ConnectionId,
                 Data = Data.TrySaveToDto(),
                 Members = Members.TrySaveToDto(),
                 Messages = Messages.TrySaveToDto(),

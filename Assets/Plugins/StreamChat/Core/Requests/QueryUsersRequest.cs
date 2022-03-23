@@ -1,19 +1,12 @@
-﻿using StreamChat.Core;
-using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.Requests
 {
     public partial class QueryUsersRequest : RequestObjectBase, ISavableTo<QueryUsersRequestDTO>
     {
-        /// <summary>
-        /// Websocket connection ID to interact with. You can pass it as body or URL parameter
-        /// </summary>
-        public string ConnectionId { get; set; }
-
         /// <summary>
         /// User filters
         /// </summary>
@@ -63,7 +56,6 @@ namespace StreamChat.Core.Requests
         {
             return new QueryUsersRequestDTO
             {
-                ConnectionId = ConnectionId,
                 FilterConditions = FilterConditions,
                 IdGt = IdGt,
                 IdGte = IdGte,
