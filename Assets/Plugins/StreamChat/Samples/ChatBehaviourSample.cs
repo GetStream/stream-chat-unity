@@ -4,7 +4,7 @@ using UnityEngine;
 namespace StreamChat.Core.Samples
 {
     /// <summary>
-    /// Sample MonoBehaviour that created and updates instance of <see cref="StreamChatClient"/>
+    /// Sample MonoBehaviour that creates and updates instance of <see cref="StreamChatClient"/>
     /// </summary>
     public class ChatBehaviourSample : MonoBehaviour
     {
@@ -24,7 +24,7 @@ namespace StreamChat.Core.Samples
             Client.Connect();
         }
 
-        //Client needs to updated per frame in order to maintain websockets connection
+        //Client needs to be updated per frame in order to maintain websocket connection and exchange data with API
         protected void Update() => Client?.Update(Time.deltaTime);
 
         //Client needs to be disposed once its no longer needed in order to close the connection

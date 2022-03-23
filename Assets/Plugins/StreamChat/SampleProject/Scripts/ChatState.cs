@@ -90,17 +90,19 @@ namespace StreamChat.SampleProject
                     }
                 },
 
-                // Example on to Limit & Offset results
-                // Limit = 30,
-                // Offset = 0,
+                // Limit & Offset results
+                Limit = 30,
+                Offset = 0,
 
-                // Example on how to get only channels containing a specific member
+                // Get only channels containing a specific member
                 // FilterConditions = new Dictionary<string, object>
                 // {
-                //     {"members", new Dictionary<string, object>
                 //     {
-                //         {"$in", new string[]{_client.UserId}}
-                //     }}
+                //         "members", new Dictionary<string, object>
+                //         {
+                //             { "$in", new string[] { _client.UserId } }
+                //         }
+                //     }
                 // }
             };
 
