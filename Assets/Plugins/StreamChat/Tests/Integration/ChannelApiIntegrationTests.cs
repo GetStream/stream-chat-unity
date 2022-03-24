@@ -207,6 +207,72 @@ namespace StreamChat.Tests.Integration
             });
         }
 
+        //[UnityTest]
+        public IEnumerator Watch_channel()
+        {
+            yield return _client.WaitForClientToConnect();
+
+            Assert.AreEqual(_client.UserId, TestAdminId);
+
+            var channelType = "messaging";
+            var channelId = "new-channel-id-1";
+
+            //Create channel
+
+            var createChannelTask = _client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
+
+            yield return createChannelTask.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(channelId, response.Channel.Id);
+                Assert.AreEqual(channelType, response.Channel.Type);
+            });
+
+            _client.Update(Time.deltaTime);
+
+            //Add channel member
+
+            var updateRequestBody = new UpdateChannelRequest
+            {
+                AddMembers = new List<ChannelMemberRequest>()
+                {
+                    new ChannelMemberRequest
+                    {
+                        UserId = TestAdminId
+                    }
+                }
+            };
+
+            _client.Update(Time.deltaTime);
+
+            var updateChannelTask = _client.ChannelApi.UpdateChannelAsync(channelType, channelId, updateRequestBody);
+
+            yield return updateChannelTask.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(channelId, response.Channel.Id);
+                Assert.AreEqual(channelType, response.Channel.Type);
+                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
+            });
+
+            _client.Update(Time.deltaTime);
+
+            var watchChannelTask = _client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest()
+            {
+                Watch = true,
+                State = true,
+                Watchers = new PaginationParamsRequest
+                {
+                    Limit = 10
+                }
+            });
+
+            yield return watchChannelTask.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(channelId, response.Channel.Id);
+                Assert.AreEqual(channelType, response.Channel.Type);
+                Assert.IsTrue(response.Watchers.Any(_ => _.Id == TestAdminId));
+            });
+        }
+
         private IStreamChatClient _client;
     }
 }

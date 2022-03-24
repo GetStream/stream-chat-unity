@@ -71,7 +71,7 @@ namespace StreamChat.Core.DTO.Responses
         /// Number of channel watchers
         /// </summary>
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? WatcherCount { get; set; }
+        public int? WatcherCount { get; set; }
 
         /// <summary>
         /// List of user who is watching the channel

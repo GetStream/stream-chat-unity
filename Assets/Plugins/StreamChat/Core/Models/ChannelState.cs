@@ -51,7 +51,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Number of channel watchers
         /// </summary>
-        public double? WatcherCount { get; set; }
+        public int? WatcherCount { get; set; }
 
         /// <summary>
         /// List of user who is watching the channel
