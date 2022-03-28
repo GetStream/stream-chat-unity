@@ -12,7 +12,8 @@ namespace StreamChat.Tests
     /// </summary>
     public static class UnityTestUtils
     {
-        public static IEnumerator RunAsIEnumerator<TResponse>(this Task<TResponse> task, Action<TResponse> action)
+        public static IEnumerator RunAsIEnumerator<TResponse>(this Task<TResponse> task,
+            Action<TResponse> onSuccess = null, Action<Exception> onFaulted = null)
         {
             while (!task.IsCompleted)
             {
@@ -21,10 +22,17 @@ namespace StreamChat.Tests
 
             if (task.IsFaulted)
             {
-                throw task.Exception;
+                if (onFaulted != null)
+                {
+                    onFaulted(task.Exception);
+                }
+                else
+                {
+                    throw task.Exception;
+                }
             }
 
-            action(task.Result);
+            onSuccess?.Invoke(task.Result);
         }
 
         public static IEnumerator WaitForClientToConnect(this IStreamChatClient client)
