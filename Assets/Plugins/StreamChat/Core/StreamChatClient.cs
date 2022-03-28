@@ -46,7 +46,7 @@ namespace StreamChat.Core
 
         public ConnectionState ConnectionState { get; private set; }
 
-        public static readonly Version SDKVersion = new Version(1, 0, 0);
+        public static readonly Version SDKVersion = new Version(2, 0, 0);
 
         /// <summary>
         /// Use this method to create the main client instance
