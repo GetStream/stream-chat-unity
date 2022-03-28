@@ -17,23 +17,11 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public double? Expiration { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
-        public UserObjectRequest User { get; set; }
-
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
-        public string UserId { get; set; }
-
         UnmuteChannelRequestDTO ISavableTo<UnmuteChannelRequestDTO>.SaveToDto() =>
             new UnmuteChannelRequestDTO
             {
                 ChannelCids = ChannelCids,
                 Expiration = Expiration,
-                User = User.TrySaveToDto(),
-                UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };
     }

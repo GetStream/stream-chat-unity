@@ -41,16 +41,6 @@ namespace StreamChat.Core.Requests
         public bool? State { get; set; } = true;
 
         /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
-        public UserObjectRequest User { get; set; }
-
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
-        public string UserId { get; set; }
-
-        /// <summary>
         /// Whether to start watching found channels or not
         /// </summary>
         public bool? Watch { get; set; } = true;
@@ -66,8 +56,6 @@ namespace StreamChat.Core.Requests
                 Presence = Presence,
                 Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamRequestDTO>(),
                 State = State,
-                User = User.TrySaveToDto(),
-                UserId = UserId,
                 Watch = Watch,
                 AdditionalProperties = AdditionalProperties
             };
