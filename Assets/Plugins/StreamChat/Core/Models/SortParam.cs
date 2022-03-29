@@ -1,5 +1,4 @@
-﻿using StreamChat.Core;
-using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.Models

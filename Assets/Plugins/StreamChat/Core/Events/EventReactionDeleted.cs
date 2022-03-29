@@ -1,6 +1,5 @@
 ﻿using StreamChat.Core.DTO.Events;
 using StreamChat.Core.DTO.Models;
-using StreamChat.Core.Events;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 

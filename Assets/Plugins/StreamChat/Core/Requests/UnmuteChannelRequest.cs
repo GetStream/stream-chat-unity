@@ -1,6 +1,4 @@
-﻿using StreamChat.Core;
-using StreamChat.Core.DTO.Requests;
-using StreamChat.Core.Helpers;
+﻿using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Requests

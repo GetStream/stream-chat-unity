@@ -1,5 +1,4 @@
-﻿using StreamChat.Core;
-using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Responses;
 
@@ -23,7 +22,6 @@ namespace StreamChat.Core.Requests
         /// Truncate channel data up to `truncated_at`. The system message (if provided) creation time is always greater than `truncated_at`
         /// </summary>
         public System.DateTimeOffset? TruncatedAt { get; set; }
-
 
         TruncateChannelRequestDTO ISavableTo<TruncateChannelRequestDTO>.SaveToDto() =>
             new TruncateChannelRequestDTO

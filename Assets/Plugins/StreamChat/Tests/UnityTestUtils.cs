@@ -25,6 +25,7 @@ namespace StreamChat.Tests
                 if (onFaulted != null)
                 {
                     onFaulted(task.Exception);
+                    yield break;
                 }
                 else
                 {

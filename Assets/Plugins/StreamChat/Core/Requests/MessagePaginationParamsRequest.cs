@@ -24,9 +24,9 @@ namespace StreamChat.Core.Requests
 
         public string IdLte { get; set; }
 
-        public double? Limit { get; set; }
+        public int? Limit { get; set; }
 
-        public double? Offset { get; set; }
+        public int? Offset { get; set; }
 
         MessagePaginationParamsRequestDTO ISavableTo<MessagePaginationParamsRequestDTO>.SaveToDto() =>
             new MessagePaginationParamsRequestDTO

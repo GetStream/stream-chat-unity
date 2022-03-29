@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using StreamChat.Core;
 
 namespace StreamChat.Core.Helpers
 {

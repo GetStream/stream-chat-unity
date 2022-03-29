@@ -3,15 +3,13 @@ using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Requests;
 
-namespace Plugins.StreamChat.Samples
+namespace Plugins.StreamChat.Samples.ClientDocs
 {
     /// <summary>
-    /// Code samples for https://getstream.io/chat/docs/unity/?language=unreal
+    /// Code samples for Channels sections: https://getstream.io/chat/docs/unity/creating_channels/?language=unity
     /// </summary>
-    public class ClientDocsCodeSamples
+    public class ChannelsCodeSamples
     {
-        private IStreamChatClient Client;
-
         private async Task CreatingChannelUsingChannelId()
         {
             var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
@@ -156,5 +154,56 @@ namespace Plugins.StreamChat.Samples
                 HardDelete = true
             });
         }
+
+        public async Task PartialChannelUpdate()
+        {
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+                channelType: "messaging", channelId: "channel-id-1", new ChannelGetOrCreateRequest());
+
+            var updateChannelResponse = await Client.ChannelApi.UpdateChannelPartialAsync(channelType: "messaging",
+                channelId: "channel-id-1", new UpdateChannelPartialRequest
+                {
+                    Set = new Dictionary<string, object>
+                    {
+                        { "owned_dogs", 5 },
+                        {
+                            "breakfast", new string[]
+                            {
+                                "donuts"
+                            }
+                        }
+                    },
+                    Unset = new List<string>
+                    {
+                        //must be previously set before trying to unset
+                        "owned_hamsters"
+                    }
+                });
+        }
+
+        public async Task FullChannelUpdate()
+        {
+        }
+
+        public async Task TruncateChannel()
+        {
+//default truncating
+            var truncateChannelResponse = await Client.ChannelApi.TruncateChannelAsync(channelType: "messaging",
+                channelId: "channel-id-1", new TruncateChannelRequest());
+
+//or with parameters
+            var truncateChannelResponse2 = await Client.ChannelApi.TruncateChannelAsync(channelType: "messaging",
+                channelId: "channel-id-1", new TruncateChannelRequest()
+                {
+                    HardDelete = true,
+                    SkipPush = true,
+                    Message = new MessageRequest
+                    {
+                        Text = "This channel has been truncated"
+                    }
+                });
+        }
+
+        private IStreamChatClient Client;
     }
 }
