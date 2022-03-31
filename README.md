@@ -11,7 +11,7 @@
     |
     <a href="https://getstream.io/chat/unity/tutorial/">Tutorial</a>
     |
-    <a href="https://getstream.io/chat/docs/sdk/unity/">SDK Documentation</a>
+    <a href="https://getstream.io/chat/docs/unity/?language=unity">SDK Documentation</a>
     |
     <a href="https://getstream.io/chat/trial/">Register for API Key</a>
 </p>
