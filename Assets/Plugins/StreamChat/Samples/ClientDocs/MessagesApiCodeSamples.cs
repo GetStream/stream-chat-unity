@@ -9,8 +9,6 @@ namespace Plugins.StreamChat.Samples.ClientDocs
     /// </summary>
     public class MessagesApiCodeSamples
     {
-        private IStreamChatClient Client;
-
         public async Task SendMessage()
         {
             var sendMessageRequest = new SendMessageRequest
@@ -88,5 +86,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
                 channelId: "channel-id-1", sendMessageRequest);
         }
+
+        private IStreamChatClient Client;
     }
 }

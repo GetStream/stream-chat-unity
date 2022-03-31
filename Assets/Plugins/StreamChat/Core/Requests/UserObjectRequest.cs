@@ -13,7 +13,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Expiration date of the ban
         /// </summary>
-        public DateTimeOffset BanExpires { get; set; }
+        public DateTimeOffset? BanExpires { get; set; }
 
         /// <summary>
         /// Whether a user is banned or not

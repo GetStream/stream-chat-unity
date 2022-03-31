@@ -2,7 +2,6 @@
 using System.Linq;
 using NUnit.Framework;
 using StreamChat.Core.Requests;
-using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration
 {

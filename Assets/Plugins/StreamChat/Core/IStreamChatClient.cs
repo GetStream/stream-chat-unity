@@ -3,7 +3,6 @@ using StreamChat.Core.API;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
 using StreamChat.Core.Models;
-using Action = System.Action;
 
 namespace StreamChat.Core
 {
