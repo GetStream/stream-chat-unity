@@ -12,7 +12,6 @@ namespace StreamChat.Core
     /// </summary>
     public interface IStreamChatClient : IAuthProvider, IConnectionProvider, IDisposable
     {
-        event Action Connected;
         event Action<string> EventReceived;
         event Action<EventMessageNew> MessageReceived;
         event Action<EventMessageDeleted> MessageDeleted;

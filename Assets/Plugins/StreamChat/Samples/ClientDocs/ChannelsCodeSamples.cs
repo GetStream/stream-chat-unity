@@ -130,7 +130,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             }
         }
 
-        public async Task PaginatingChannelWatchersWithChannelQuery()
+        public void PaginatingChannelWatchersWithChannelQuery()
         {
             //Not possible yet
         }
@@ -181,7 +181,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 });
         }
 
-        public async Task FullChannelUpdate()
+        public void FullChannelUpdate()
         {
         }
 

@@ -27,7 +27,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task UpdateMessage()
         {
-            Client.MessageApi.UpdateMessageAsync(new UpdateMessageRequest
+            await Client.MessageApi.UpdateMessageAsync(new UpdateMessageRequest
             {
                 Message = new MessageRequest
                 {

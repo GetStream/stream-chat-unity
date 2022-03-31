@@ -27,6 +27,7 @@ namespace StreamChat.Core
         public static readonly Uri ServerBaseUrl = new Uri("wss://chat.stream-io-api.com");
 
         public event Action Connected;
+        public event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
 
         public event Action<string> EventReceived;
 
@@ -43,7 +44,16 @@ namespace StreamChat.Core
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
 
-        public ConnectionState ConnectionState { get; private set; }
+        public ConnectionState ConnectionState
+        {
+            get => _connectionState;
+            private set
+            {
+                var prev = value;
+                _connectionState = value;
+                ConnectionStateChanged?.Invoke(prev, value);
+            }
+        }
 
         public static readonly Version SDKVersion = new Version(2, 0, 0);
 
@@ -165,11 +175,11 @@ namespace StreamChat.Core
         private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
             new Dictionary<string, Action<string>>();
 
+        private ConnectionState _connectionState;
         private string _connectionId;
+        private int _reconnectAttempt;
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
-
-        private int _reconnectAttempt;
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
