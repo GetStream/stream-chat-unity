@@ -77,7 +77,10 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                             { "$in", new[] { user_id } }
                         }
                     }
-                }
+                },
+
+                //Channels are watched by default when queried
+                //Watch = true
             };
 
             var channelsResponse = await Client.ChannelApi.QueryChannelsAsync(request);

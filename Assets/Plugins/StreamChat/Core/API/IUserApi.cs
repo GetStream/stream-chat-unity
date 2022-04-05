@@ -11,7 +11,7 @@ namespace StreamChat.Core.API
 
         Task<GuestResponse> CreateGuestAsync(GuestRequest createGuestRequest);
 
-        Task<UpdateUsersResponse> UpdateUsersAsync(UpdateUsersRequest updateUsersRequest);
+        Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest);
 
         Task<UpdateUsersResponse> UpdateUserPartialAsync(UpdateUserPartialRequest updateUserPartialRequest);
 

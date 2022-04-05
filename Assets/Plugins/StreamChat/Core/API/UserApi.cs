@@ -26,7 +26,7 @@ namespace StreamChat.Core.API
         public Task<GuestResponse> CreateGuestAsync(GuestRequest createGuestRequest) =>
             Post<GuestRequest, GuestRequestDTO, GuestResponse, GuestResponseDTO>("/guest", createGuestRequest);
 
-        public Task<UpdateUsersResponse> UpdateUsersAsync(UpdateUsersRequest updateUsersRequest) =>
+        public Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest) =>
             Post<UpdateUsersRequest, UpdateUsersRequestDTO, UpdateUsersResponse, UpdateUsersResponseDTO>("/users",
                 updateUsersRequest);
 

@@ -35,12 +35,12 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Number of records to return
         /// </summary>
-        public double? Limit { get; set; }
+        public int? Limit { get; set; }
 
         /// <summary>
         /// Number of records to offset
         /// </summary>
-        public double? Offset { get; set; }
+        public int? Offset { get; set; }
 
         /// <summary>
         /// Request user presence status
