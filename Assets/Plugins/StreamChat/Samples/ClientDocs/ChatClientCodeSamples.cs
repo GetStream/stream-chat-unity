@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Auth;
-using UnityEditor.PackageManager;
 
 namespace Plugins.StreamChat.Samples.ClientDocs
 {
@@ -10,7 +9,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
     /// </summary>
     public class ChatClientCodeSamples
     {
-        public async Task Initialize()
+        public void Initialize()
         {
             var authCredentials = new AuthCredentials(
                 apiKey: "STREAM_CHAT_API_KEY",
@@ -23,12 +22,12 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             client.Connect();
         }
 
-        public async Task ConnectUser()
-        {
-            //TodoL implement switching users
-        }
+        // public async Task ConnectUser()
+        // {
+        //     //TodoL implement switching users
+        // }
 
-        public async Task Disconnect()
+        public void Disconnect()
         {
             //Todo: implement disconnecting user without disposing a client
 

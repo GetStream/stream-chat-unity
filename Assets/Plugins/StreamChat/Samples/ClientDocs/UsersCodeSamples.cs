@@ -71,6 +71,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             });
         }
 
+        // private async Task SwitchUser()
+        // {
+        //     //Dispose previous client
+        //     //Create new client
+        // }
+
+
         private IStreamChatClient Client;
     }
 }
