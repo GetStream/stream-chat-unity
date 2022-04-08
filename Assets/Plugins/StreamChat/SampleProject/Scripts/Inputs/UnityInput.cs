@@ -10,7 +10,7 @@ namespace StreamChat.SampleProject.Inputs
     {
         public Vector2 MousePosition => Input.mousePosition;
 
-        public bool WasEnteredPressedThisFrame => Input.GetKeyDown(KeyCode.KeypadEnter);
+        public bool WasEnteredPressedThisFrame => Input.GetKeyDown(KeyCode.Return);
 
         public bool GetMouseButton(int index)
             => index switch
