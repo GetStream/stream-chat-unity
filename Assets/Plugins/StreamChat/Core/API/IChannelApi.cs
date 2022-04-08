@@ -5,6 +5,10 @@ using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.API
 {
+    /// <summary>
+    /// A client that can be used to retrieve, create and alter channels of a Stream Chat application.
+    /// </summary>
+    /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity</remarks>
     public interface IChannelApi
     {
         /// <summary>

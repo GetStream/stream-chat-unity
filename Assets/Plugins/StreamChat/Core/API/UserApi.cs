@@ -27,6 +27,9 @@ namespace StreamChat.Core.API
             Post<GuestRequest, GuestRequestDTO, GuestResponse, GuestResponseDTO>("/guest", createGuestRequest);
 
         public Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest) =>
+            UpsertManyUsersAsync(updateUsersRequest);
+
+        public Task<UpdateUsersResponse> UpsertManyUsersAsync(UpdateUsersRequest updateUsersRequest) =>
             Post<UpdateUsersRequest, UpdateUsersRequestDTO, UpdateUsersResponse, UpdateUsersResponseDTO>("/users",
                 updateUsersRequest);
 
@@ -39,6 +42,9 @@ namespace StreamChat.Core.API
                 QueryParameters.Default.AppendFrom(deleteUserRequestParameters));
 
         public Task<DeleteUsersResponse> DeleteUsersAsync(DeleteUsersRequest deleteUsersRequest) =>
+            DeleteManyUsersAsync(deleteUsersRequest);
+
+        public Task<DeleteUsersResponse> DeleteManyUsersAsync(DeleteUsersRequest deleteUsersRequest) =>
             Post<DeleteUsersRequest, DeleteUsersRequestDTO, DeleteUsersResponse, DeleteUsersResponseDTO>(
                 "/users/delete", deleteUsersRequest);
     }

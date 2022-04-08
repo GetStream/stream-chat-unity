@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.Core.Requests.DTO;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration
@@ -17,7 +18,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var upsertUsersTask = Client.UserApi.UpsertUsersAsync(new UpdateUsersRequest()
+            var upsertUsersTask = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>
                 {
@@ -66,7 +67,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var deleteUsersTask = Client.UserApi.DeleteUsersAsync(new DeleteUsersRequest()
+            var deleteUsersTask = Client.UserApi.DeleteManyUsersAsync(new DeleteUsersRequest()
             {
                 UserIds = new List<string>
                 {
@@ -79,7 +80,7 @@ namespace StreamChat.Tests.Integration
                 //ignore if failed
             });
 
-            var updateUsersTask = Client.UserApi.UpsertUsersAsync(new UpdateUsersRequest()
+            var updateUsersTask = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>()
                 {
@@ -100,7 +101,7 @@ namespace StreamChat.Tests.Integration
 
             yield return updateUsersTask.RunAsIEnumerator(response => { });
 
-            var updateUsersTask2 = Client.UserApi.UpsertUsersAsync(new UpdateUsersRequest()
+            var updateUsersTask2 = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>()
                 {
@@ -158,7 +159,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var deleteUsersTask = Client.UserApi.DeleteUsersAsync(new DeleteUsersRequest()
+            var deleteUsersTask = Client.UserApi.DeleteManyUsersAsync(new DeleteUsersRequest()
             {
                 UserIds = new List<string>
                 {
@@ -171,7 +172,7 @@ namespace StreamChat.Tests.Integration
                 //ignore if failed
             });
 
-            var updateUsersTask = Client.UserApi.UpsertUsersAsync(new UpdateUsersRequest()
+            var updateUsersTask = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>()
                 {
@@ -192,7 +193,7 @@ namespace StreamChat.Tests.Integration
 
             yield return updateUsersTask.RunAsIEnumerator(response => { });
 
-            var updateUsersTask2 = Client.UserApi.UpsertUsersAsync(new UpdateUsersRequest()
+            var updateUsersTask2 = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>()
                 {
