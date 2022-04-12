@@ -14,5 +14,8 @@ namespace StreamChat.SampleProject.Views
         RectTransform PopupsContainer { get; }
 
         void CreateReactionEmoji(Image prefab, Transform container, string key);
+
+        TPopup CreateFullscreenPopup<TPopup>()
+            where TPopup : BaseFullscreenPopup;
     }
 }

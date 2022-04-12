@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using StreamChat.SampleProject.Views;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace StreamChat.SampleProject.Popups
@@ -25,9 +28,13 @@ namespace StreamChat.SampleProject.Popups
             OnHide(SelfArgs);
             gameObject.SetActive(false);
         }
-
         void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
         {
+            if (IsPopupUnderMousePointer())
+            {
+                return;
+            }
+
             if (!HideOnPointerExit)
             {
                 return;
@@ -35,6 +42,9 @@ namespace StreamChat.SampleProject.Popups
 
             Hide();
         }
+
+        [SerializeField]
+        private List<RaycastResult> _raycastBuffer = new List<RaycastResult>();
 
         protected TArgs SelfArgs { get; private set; }
 
@@ -44,6 +54,19 @@ namespace StreamChat.SampleProject.Popups
 
         protected virtual void OnHide(TArgs args)
         {
+        }
+
+        private bool IsPopupUnderMousePointer()
+        {
+            var pointerData = new PointerEventData (EventSystem.current)
+            {
+                pointerId = -1,
+                position = InputSystem.MousePosition
+            };
+
+            EventSystem.current.RaycastAll(pointerData, _raycastBuffer);
+
+            return _raycastBuffer.Any(_ => _.gameObject.transform.parent == transform);
         }
     }
 }

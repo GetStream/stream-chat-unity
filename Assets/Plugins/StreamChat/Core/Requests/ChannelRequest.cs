@@ -35,6 +35,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Team { get; set; }
 
+        public string Name { get; set; }
+
         ChannelRequestDTO ISavableTo<ChannelRequestDTO>.SaveToDto() =>
             new ChannelRequestDTO
             {
@@ -47,6 +49,7 @@ namespace StreamChat.Core.Requests
                 Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),
                 OwnCapabilities = OwnCapabilities,
                 Team = Team,
+                Name = Name,
                 AdditionalProperties = AdditionalProperties,
             };
     }

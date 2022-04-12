@@ -1,5 +1,5 @@
 ﻿using StreamChat.Core;
-using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Configs;
+using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Popups;
 using UnityEngine;
 
@@ -13,11 +13,15 @@ namespace StreamChat.SampleProject.Views
     {
         public MessageOptionsPopup MessageOptionsPopupPrefab => _messageOptionsPopupPrefab;
         public IEmojiConfig EmojiConfig => _emojiConfig;
+        public CreateNewChannelFormPopup CreateNewChannelFormPopupPrefab => _createNewChannelPopupPrefab;
 
         [SerializeField]
         private MessageOptionsPopup _messageOptionsPopupPrefab;
 
         [SerializeField]
         private EmojiConfigAsset _emojiConfig;
+
+        [SerializeField]
+        private CreateNewChannelFormPopup _createNewChannelPopupPrefab;
     }
 }

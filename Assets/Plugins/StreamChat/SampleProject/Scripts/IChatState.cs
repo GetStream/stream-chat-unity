@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using StreamChat.Core.Models;
+using StreamChat.SampleProject.Views;
 
 namespace StreamChat.SampleProject
 {
@@ -20,5 +22,15 @@ namespace StreamChat.SampleProject
         void OpenChannel(ChannelState channel);
 
         void EditMessage(Message message);
+
+        Task<ChannelState> CreateNewChannelAsync(string channelName);
+
+        void ShowPopup<TPopup>()
+            where TPopup : BaseFullscreenPopup;
+
+        void HidePopup<TPopup>(TPopup instance)
+            where TPopup : BaseFullscreenPopup;
+
+        Task UpdateChannels();
     }
 }

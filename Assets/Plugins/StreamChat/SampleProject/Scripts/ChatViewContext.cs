@@ -6,9 +6,7 @@ using StreamChat.SampleProject.Views;
 
 namespace StreamChat.SampleProject
 {
-    /// <summary>
-    /// Default implementation of <see cref="IChatViewContext"/>
-    /// </summary>
+    /// <inheritdoc />
     public class ChatViewContext : IChatViewContext
     {
         public IStreamChatClient Client { get; }
@@ -25,7 +23,7 @@ namespace StreamChat.SampleProject
             Factory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));
             InputSystem = inputSystem ?? throw new ArgumentNullException(nameof(inputSystem));
 
-            State = new ChatState(client);
+            State = new ChatState(client, Factory);
         }
     }
 }

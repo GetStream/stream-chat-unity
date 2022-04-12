@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Configs
+namespace StreamChat.SampleProject.Configs
 {
     public interface IEmojiConfig
     {

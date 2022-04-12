@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.SampleProject.Views;
 using UnityEngine;
 
 namespace StreamChat.SampleProject
@@ -39,9 +41,10 @@ namespace StreamChat.SampleProject
 
         public IReadOnlyList<ChannelState> Channels => _channels;
 
-        public ChatState(IStreamChatClient client)
+        public ChatState(IStreamChatClient client, ViewFactory viewFactory)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
+            _viewFactory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));
 
             _client.Connected += OnClientConnected;
             _client.MessageReceived += OnMessageReceived;
@@ -65,19 +68,33 @@ namespace StreamChat.SampleProject
             _client.Dispose();
         }
 
+        public void ShowPopup<TPopup>()
+            where TPopup : BaseFullscreenPopup
+        {
+            _viewFactory.CreateFullscreenPopup<TPopup>();
+        }
+
+        public void HidePopup<TPopup>(TPopup instance)
+            where TPopup : BaseFullscreenPopup
+        {
+            GameObject.Destroy(instance.gameObject);
+        }
+
+        public Task<ChannelState> CreateNewChannelAsync(string channelName)
+            => _client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", channelId: Guid.NewGuid().ToString(),
+                new ChannelGetOrCreateRequest
+                {
+                    Data = new ChannelRequest
+                    {
+                        Name = channelName
+                    }
+                });
+
         public void OpenChannel(ChannelState channel) => ActiveChannel = channel;
 
         public void EditMessage(Message message) => MessageEditRequested?.Invoke(message);
 
-        private readonly IStreamChatClient _client;
-        private readonly List<ChannelState> _channels = new List<ChannelState>();
-
-        private ChannelState _activeChannel;
-
-        //Todo: get it initially from health check event
-        private OwnUser _localUser;
-
-        private async void OnClientConnected()
+        public async Task UpdateChannels()
         {
             var request = new QueryChannelsRequest
             {
@@ -122,12 +139,26 @@ namespace StreamChat.SampleProject
                 Debug.LogException(e);
             }
 
+            ChannelsUpdated?.Invoke();
+        }
+
+        private readonly IStreamChatClient _client;
+        private readonly List<ChannelState> _channels = new List<ChannelState>();
+
+        private ChannelState _activeChannel;
+
+        //Todo: get it initially from health check event
+        private OwnUser _localUser;
+        private readonly ViewFactory _viewFactory;
+
+        private async void OnClientConnected()
+        {
+            await UpdateChannels();
+
             if (ActiveChannel == null && _channels.Count > 0)
             {
                 ActiveChannel = _channels.First();
             }
-
-            ChannelsUpdated?.Invoke();
         }
 
         private void OnMessageReceived(EventMessageNew messageNewEvent)
