@@ -4,7 +4,7 @@ using System.Linq;
 using StreamChat.Core;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Configs
+namespace StreamChat.SampleProject.Configs
 {
     [CreateAssetMenu(fileName = "EmojiConfig", menuName = StreamChatClient.MenuPrefix + "Demo/Create emoji config asset", order = 1)]
     public class EmojiConfigAsset : ScriptableObject, IEmojiConfig

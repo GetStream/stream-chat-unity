@@ -1,8 +1,11 @@
 ﻿namespace StreamChat.SampleProject.Views
 {
     /// <summary>
-    /// Root view
+    /// Root view. This class finds and initializes all child <see cref="BaseView"/> instances
     /// </summary>
+    /// <remarks>
+    /// Does not handle dynamically spawned <see cref="BaseView"/> instances
+    /// </remarks>
     public class RootView : BaseView
     {
         protected override void OnInited()

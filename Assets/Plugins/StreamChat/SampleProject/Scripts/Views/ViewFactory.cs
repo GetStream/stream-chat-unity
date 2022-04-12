@@ -95,6 +95,18 @@ namespace StreamChat.SampleProject.Views
             reaction.sprite = emojiEntry.Sprite;
         }
 
+        public TPopup CreateFullscreenPopup<TPopup>()
+            where TPopup : BaseFullscreenPopup
+        {
+            var prefab = GetFullscreenPopupPrefab<TPopup>();
+            var instance = GameObject.Instantiate(prefab, _popupsContainer);
+            var popup = instance.GetComponent<TPopup>();
+
+            popup.Init(_viewContext);
+
+            return popup;
+        }
+
         private readonly IStreamChatClient _client;
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
@@ -125,6 +137,17 @@ namespace StreamChat.SampleProject.Views
                     }
                 }));
             }
+        }
+
+        private BaseFullscreenPopup GetFullscreenPopupPrefab<TPopup>()
+            where TPopup : BaseFullscreenPopup
+        {
+            return typeof(TPopup) switch
+            {
+                Type createNewChannel when createNewChannel == typeof(CreateNewChannelFormPopup)
+                    => _config.CreateNewChannelFormPopupPrefab,
+                _ => throw new ArgumentOutOfRangeException(nameof(TPopup), typeof(TPopup), null)
+            };
         }
     }
 }
