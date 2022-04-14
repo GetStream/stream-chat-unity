@@ -1,4 +1,4 @@
-﻿using StreamChat.SampleProject.Plugins.StreamChat.SampleProject.Scripts.Configs;
+﻿using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Popups;
 
 namespace StreamChat.SampleProject.Views
@@ -10,5 +10,6 @@ namespace StreamChat.SampleProject.Views
     {
         MessageOptionsPopup MessageOptionsPopupPrefab { get; }
         IEmojiConfig EmojiConfig { get; }
+        CreateNewChannelFormPopup CreateNewChannelFormPopupPrefab { get; }
     }
 }
