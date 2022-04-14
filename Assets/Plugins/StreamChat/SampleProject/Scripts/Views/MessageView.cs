@@ -102,7 +102,7 @@ namespace StreamChat.SampleProject.Views
             {
                 var mousePosition = InputSystem.MousePosition;
 
-                _activePopup = Factory.CreateMessageOptionsPopup(this);
+                _activePopup = Factory.CreateMessageOptionsPopup(this, State);
 
                 var rectTransform = ((RectTransform)_activePopup.transform);
 

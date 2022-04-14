@@ -41,31 +41,33 @@ namespace StreamChat.SampleProject
 
         public IReadOnlyList<ChannelState> Channels => _channels;
 
+        public IStreamChatClient Client { get; }
+
         public ChatState(IStreamChatClient client, ViewFactory viewFactory)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            Client = client ?? throw new ArgumentNullException(nameof(client));
             _viewFactory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));
 
-            _client.Connected += OnClientConnected;
-            _client.MessageReceived += OnMessageReceived;
-            _client.MessageDeleted += OnMessageDeleted;
-            _client.MessageUpdated += OnMessageUpdated;
-            _client.ReactionReceived += OnReactionReceived;
-            _client.ReactionUpdated += OnReactionUpdated;
-            _client.ReactionDeleted += OnReactionDeleted;
+            Client.Connected += OnClientConnected;
+            Client.MessageReceived += OnMessageReceived;
+            Client.MessageDeleted += OnMessageDeleted;
+            Client.MessageUpdated += OnMessageUpdated;
+            Client.ReactionReceived += OnReactionReceived;
+            Client.ReactionUpdated += OnReactionUpdated;
+            Client.ReactionDeleted += OnReactionDeleted;
         }
 
         public void Dispose()
         {
-            _client.Connected -= OnClientConnected;
-            _client.MessageReceived -= OnMessageReceived;
-            _client.MessageDeleted -= OnMessageDeleted;
-            _client.MessageUpdated -= OnMessageUpdated;
-            _client.ReactionReceived -= OnReactionReceived;
-            _client.ReactionUpdated -= OnReactionUpdated;
-            _client.ReactionDeleted -= OnReactionDeleted;
+            Client.Connected -= OnClientConnected;
+            Client.MessageReceived -= OnMessageReceived;
+            Client.MessageDeleted -= OnMessageDeleted;
+            Client.MessageUpdated -= OnMessageUpdated;
+            Client.ReactionReceived -= OnReactionReceived;
+            Client.ReactionUpdated -= OnReactionUpdated;
+            Client.ReactionDeleted -= OnReactionDeleted;
 
-            _client.Dispose();
+            Client.Dispose();
         }
 
         public void ShowPopup<TPopup>()
@@ -81,7 +83,7 @@ namespace StreamChat.SampleProject
         }
 
         public Task<ChannelState> CreateNewChannelAsync(string channelName)
-            => _client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", channelId: Guid.NewGuid().ToString(),
+            => Client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", channelId: Guid.NewGuid().ToString(),
                 new ChannelGetOrCreateRequest
                 {
                     Data = new ChannelRequest
@@ -125,7 +127,7 @@ namespace StreamChat.SampleProject
 
             try
             {
-                var queryChannelsResponse = await _client.ChannelApi.QueryChannelsAsync(request);
+                var queryChannelsResponse = await Client.ChannelApi.QueryChannelsAsync(request);
 
                 _channels.Clear();
                 _channels.AddRange(queryChannelsResponse.Channels);
@@ -142,7 +144,6 @@ namespace StreamChat.SampleProject
             ChannelsUpdated?.Invoke();
         }
 
-        private readonly IStreamChatClient _client;
         private readonly List<ChannelState> _channels = new List<ChannelState>();
 
         private ChannelState _activeChannel;

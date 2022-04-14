@@ -78,11 +78,6 @@ namespace StreamChat.Core
             IHttpClient httpClient,
             ISerializer serializer, ITimeService timeService, ILogs logs)
         {
-            if (authCredentials.IsAnyEmpty())
-            {
-                throw new Exception("Please provide valid non empty credentials: `Api Key`, 'User id`, `User token`");
-            }
-
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -94,7 +89,6 @@ namespace StreamChat.Core
 
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
 
-            _httpClient.SetDefaultAuthenticationHeader(authCredentials.UserToken);
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
             _httpClient.AddDefaultCustomHeader("X-Stream-Client", $"stream-chat-unity-client-{SDKVersion}");
 
@@ -107,8 +101,20 @@ namespace StreamChat.Core
             RegisterEventHandlers();
         }
 
+        private void SetUser(AuthCredentials credentials)
+        {
+            if (credentials.IsAnyEmpty())
+            {
+                throw new StreamMissingAuthCredentialsException("Please provide valid credentials: `Api Key`, 'User id`, `User token`");
+            }
+
+            _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
+        }
+
         public void Connect()
         {
+            SetUser(_authCredentials);
+
             if (!ConnectionState.IsValidToConnect())
             {
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);

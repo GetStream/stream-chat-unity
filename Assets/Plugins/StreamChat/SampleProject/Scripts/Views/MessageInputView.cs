@@ -18,8 +18,10 @@ namespace StreamChat.SampleProject.Views
             _sendButton.onClick.AddListener(OnSendButtonClicked);
         }
 
-        protected void Update()
+        protected override void OnUpdate()
         {
+            base.OnUpdate();
+
             if (InputSystem.WasEnteredPressedThisFrame)
             {
                 OnSendButtonClicked();

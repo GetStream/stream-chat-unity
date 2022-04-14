@@ -14,9 +14,11 @@ namespace StreamChat.SampleProject
             _channelCreateButton.onClick.AddListener(OnCreateChannelClicked);
         }
 
-        protected void OnDestroy()
+        protected override void OnDisposing()
         {
             _channelCreateButton.onClick.RemoveListener(OnCreateChannelClicked);
+
+            base.OnDisposing();
         }
 
         [SerializeField]
