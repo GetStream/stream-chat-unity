@@ -14,6 +14,7 @@ namespace StreamChat.SampleProject.Views
         public MessageOptionsPopup MessageOptionsPopupPrefab => _messageOptionsPopupPrefab;
         public IEmojiConfig EmojiConfig => _emojiConfig;
         public CreateNewChannelFormPopup CreateNewChannelFormPopupPrefab => _createNewChannelPopupPrefab;
+        public ErrorPopup ErrorPopupPrefab => _errorPopupPrefab;
 
         [SerializeField]
         private MessageOptionsPopup _messageOptionsPopupPrefab;
@@ -23,5 +24,8 @@ namespace StreamChat.SampleProject.Views
 
         [SerializeField]
         private CreateNewChannelFormPopup _createNewChannelPopupPrefab;
+
+        [SerializeField]
+        private ErrorPopup _errorPopupPrefab;
     }
 }

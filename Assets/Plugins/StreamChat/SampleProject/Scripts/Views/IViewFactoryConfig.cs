@@ -11,5 +11,6 @@ namespace StreamChat.SampleProject.Views
         MessageOptionsPopup MessageOptionsPopupPrefab { get; }
         IEmojiConfig EmojiConfig { get; }
         CreateNewChannelFormPopup CreateNewChannelFormPopupPrefab { get; }
+        ErrorPopup ErrorPopupPrefab { get; }
     }
 }

@@ -21,8 +21,10 @@ namespace StreamChat.SampleProject.Views
             _channelIdInput.ActivateInputField();
         }
 
-        protected void Update()
+        protected override void OnUpdate()
         {
+            base.OnUpdate();
+
             if (InputSystem.WasEnteredPressedThisFrame && !_isProcessing)
             {
                 OnCreateButtonClicked();

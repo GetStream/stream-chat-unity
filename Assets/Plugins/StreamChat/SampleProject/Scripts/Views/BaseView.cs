@@ -15,6 +15,7 @@ namespace StreamChat.SampleProject.Views
         {
             ViewContext = viewContext ?? throw new ArgumentNullException(nameof(viewContext));
 
+            _isInited = true;
             OnInited();
         }
 
@@ -25,9 +26,30 @@ namespace StreamChat.SampleProject.Views
         protected IChatState State => ViewContext.State;
         protected IInputSystem InputSystem => ViewContext.InputSystem;
 
-        protected void OnDestroy() => OnDisposing();
+        protected void OnDestroy()
+        {
+            if (_isInited)
+            {
+                OnDisposing();
+            }
+        }
+
+        protected void Update()
+        {
+            if (!_isInited)
+            {
+                return;
+            }
+
+            OnUpdate();
+        }
 
         protected virtual void OnInited()
+        {
+
+        }
+
+        protected virtual void OnUpdate()
         {
 
         }
@@ -36,5 +58,7 @@ namespace StreamChat.SampleProject.Views
         {
 
         }
+
+        private bool _isInited;
     }
 }

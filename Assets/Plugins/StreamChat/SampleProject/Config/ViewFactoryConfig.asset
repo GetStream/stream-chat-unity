@@ -15,3 +15,4 @@ MonoBehaviour:
   _messageOptionsPopupPrefab: {fileID: 5378343205483587087, guid: 53e67c14181e3584193d5c627106bd94, type: 3}
   _emojiConfig: {fileID: 11400000, guid: 964e9bb5916fddf4cacf722cd54dc11d, type: 2}
   _createNewChannelPopupPrefab: {fileID: 8926528666989219657, guid: ac25a8d916d27de4aa3d0dba48ba0d2c, type: 3}
+  _errorPopupPrefab: {fileID: 6615067076462953508, guid: a4f9699057cc9444ba6eac7e2068925e, type: 3}

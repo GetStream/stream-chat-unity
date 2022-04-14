@@ -9,9 +9,9 @@ namespace StreamChat.SampleProject.Views
     /// </summary>
     public interface IViewFactory
     {
-        MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView);
-
         RectTransform PopupsContainer { get; }
+
+        MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView, IChatState state);
 
         void CreateReactionEmoji(Image prefab, Transform container, string key);
 

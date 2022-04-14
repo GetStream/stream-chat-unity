@@ -19,9 +19,8 @@ namespace StreamChat.SampleProject.Views
     {
         public RectTransform PopupsContainer => (RectTransform)_popupsContainer;
 
-        public ViewFactory(IStreamChatClient client, IViewFactoryConfig config, Transform popupsContainer)
+        public ViewFactory(IViewFactoryConfig config, Transform popupsContainer)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _popupsContainer =
                 popupsContainer ? popupsContainer : throw new ArgumentNullException(nameof(popupsContainer));
@@ -32,10 +31,12 @@ namespace StreamChat.SampleProject.Views
             _viewContext = viewContext ?? throw new ArgumentNullException(nameof(viewContext));
         }
 
-        public MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView)
+        public MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView, IChatState state)
         {
+            var client = state.Client;
             var message = messageView.Message;
-            var isSelfMessage = _client.IsLocalUser(message.User);
+
+            var isSelfMessage = client.IsLocalUser(message.User);
 
             var popup = GameObject.Instantiate(_config.MessageOptionsPopupPrefab, _popupsContainer);
             popup.Init(_viewContext);
@@ -64,16 +65,16 @@ namespace StreamChat.SampleProject.Views
                     };
 
                     //Todo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
-                    _client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
+                    client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
                 }));
             }
 
             options.Add(new MenuOptionEntry("Delete",
-                () => _client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
+                () => client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
 
             var emojis = new List<EmojiOptionEntry>();
 
-            AddEmojiOptions(emojis, message);
+            AddEmojiOptions(emojis, message, client);
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options, emojis);
             popup.Show(args);
@@ -107,13 +108,13 @@ namespace StreamChat.SampleProject.Views
             return popup;
         }
 
-        private readonly IStreamChatClient _client;
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
 
         private IChatViewContext _viewContext;
 
-        private void AddEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message)
+        private void AddEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message,
+            IStreamChatClient client)
         {
             foreach (var (key, sprite) in _config.EmojiConfig.Emojis)
             {
@@ -123,11 +124,11 @@ namespace StreamChat.SampleProject.Views
                 {
                     if (isAdded)
                     {
-                        _client.MessageApi.DeleteReactionAsync(message.Id, key);
+                        client.MessageApi.DeleteReactionAsync(message.Id, key);
                     }
                     else
                     {
-                        _client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
+                        client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
                         {
                             Reaction = new ReactionRequest
                             {
@@ -146,6 +147,8 @@ namespace StreamChat.SampleProject.Views
             {
                 Type createNewChannel when createNewChannel == typeof(CreateNewChannelFormPopup)
                     => _config.CreateNewChannelFormPopupPrefab,
+                Type createNewChannel when createNewChannel == typeof(ErrorPopup)
+                    => _config.ErrorPopupPrefab,
                 _ => throw new ArgumentOutOfRangeException(nameof(TPopup), typeof(TPopup), null)
             };
         }

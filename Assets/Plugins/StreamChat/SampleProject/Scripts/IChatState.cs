@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.SampleProject.Views;
 
@@ -17,6 +18,7 @@ namespace StreamChat.SampleProject
 
         ChannelState ActiveChannel { get; }
         IReadOnlyList<ChannelState> Channels { get; }
+        IStreamChatClient Client { get; }
 
 
         void OpenChannel(ChannelState channel);
