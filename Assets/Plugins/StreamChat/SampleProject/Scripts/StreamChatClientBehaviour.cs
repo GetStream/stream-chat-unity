@@ -84,8 +84,10 @@ namespace StreamChat.SampleProject
         [SerializeField]
         private Transform _popupsContainer;
 
+#if UNITY_EDITOR
         private IEnumerator BlinkProjectAsset(Object target, Object owner)
         {
+
             EditorUtility.FocusProjectWindow();
 
             while (owner != null)
@@ -94,6 +96,9 @@ namespace StreamChat.SampleProject
 
                 yield return new WaitForSeconds(1);
             }
+
         }
+#endif
+        
     }
 }
