@@ -10,12 +10,12 @@ namespace StreamChat.Core.Plugins.StreamChat.Core.Models
         /// <summary>
         /// Response HTTP status code
         /// </summary>
-        public double? StatusCode { get; set; }
+        public int? StatusCode { get; set; }
 
         /// <summary>
         /// API error code
         /// </summary>
-        public double? Code { get; set; }
+        public int? Code { get; set; }
 
         /// <summary>
         /// Request duration
