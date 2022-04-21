@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Web;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -12,6 +14,7 @@ using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
+using StreamChat.Core.Plugins.StreamChat.Core.Models;
 using StreamChat.Core.Web;
 
 namespace StreamChat.Core
@@ -74,6 +77,21 @@ namespace StreamChat.Core
             return streamChatClient;
         }
 
+        /// <summary>
+        /// Create Development Authorization Token. Dev tokens work only if you enable "Disable Auth Checks" in your project's Dashboard.
+        /// Dev tokens bypasses authorization and should only be used during development and never in production!
+        /// More info <see cref="https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#developer-tokens"/>
+        /// </summary>
+        public static string CreateDeveloperAuthToken(string userId)
+        {
+            var header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"; //  header content = {"alg": "HS256", "typ": "JWT"}
+            var devSignature = "devToken";
+
+            var payloadBytes = Encoding.UTF8.GetBytes("{\"user_id\":\"" + userId + "\"");
+            var payload = HttpServerUtility.UrlTokenEncode(payloadBytes);
+            return $"{header}.{payload}.{devSignature}";
+        }
+
         public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
             IHttpClient httpClient,
             ISerializer serializer, ITimeService timeService, ILogs logs)
@@ -105,7 +123,8 @@ namespace StreamChat.Core
         {
             if (credentials.IsAnyEmpty())
             {
-                throw new StreamMissingAuthCredentialsException("Please provide valid credentials: `Api Key`, 'User id`, `User token`");
+                throw new StreamMissingAuthCredentialsException(
+                    "Please provide valid credentials: `Api Key`, 'User id`, `User token`");
             }
 
             _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
@@ -177,6 +196,7 @@ namespace StreamChat.Core
         private readonly AuthCredentials _authCredentials;
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
+        private readonly StringBuilder _errorSb = new StringBuilder();
 
         private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
             new Dictionary<string, Action<string>>();
@@ -186,6 +206,7 @@ namespace StreamChat.Core
         private int _reconnectAttempt;
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
+
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
@@ -270,6 +291,17 @@ namespace StreamChat.Core
 
         private void HandleNewWebsocketMessage(string msg)
         {
+            const string ErrorKey = "error";
+
+            if (_serializer.TryPeekValue<APIError>(msg, ErrorKey, out var apiError))
+            {
+                _errorSb.Length = 0;
+                apiError.AppendFullLog(_errorSb);
+
+                _logs.Error($"{nameof(APIError)} returned: {_errorSb}");
+                return;
+            }
+
             const string TypeKey = "type";
 
             if (!_serializer.TryPeekValue<string>(msg, TypeKey, out var type))

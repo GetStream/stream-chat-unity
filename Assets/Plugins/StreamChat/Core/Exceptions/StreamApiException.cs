@@ -85,6 +85,7 @@ namespace StreamChat.Core.Exceptions
             }
 
             Debug.LogException(new Exception(_sb.ToString(), exception));
+            _sb.Length = 0;
         }
 
         private static readonly StringBuilder _sb = new StringBuilder();

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using StreamChat.Core.Requests;
 using StreamChat.Libs.Utils;
 using TMPro;
 using UnityEngine;
@@ -65,11 +67,26 @@ namespace StreamChat.SampleProject.Views
                     return;
                 }
 
-                Debug.Log("Added new channel with id: " + task.Result.Channel.Id);
+                var channelState = task.Result;
+                var channel = channelState.Channel;
 
-                State.UpdateChannels().LogIfFailed();
+                Debug.Log("Added new channel with id: " + channel.Id);
 
-                Hide();
+                Client.ChannelApi.UpdateChannelAsync(channel.Type, channel.Id, new UpdateChannelRequest()
+                {
+                    AddMembers = new List<ChannelMemberRequest>()
+                    {
+                        new ChannelMemberRequest()
+                        {
+                            UserId = Client.UserId
+                        }
+                    }
+                }).ContinueWith(task =>
+                {
+                    State.UpdateChannelsAsync().LogIfFailed();
+
+                    Hide();
+                }, TaskScheduler.FromCurrentSynchronizationContext());
 
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
