@@ -96,7 +96,7 @@ namespace StreamChat.SampleProject
 
         public void EditMessage(Message message) => MessageEditRequested?.Invoke(message);
 
-        public async Task UpdateChannels()
+        public async Task UpdateChannelsAsync()
         {
             var request = new QueryChannelsRequest
             {
@@ -114,15 +114,15 @@ namespace StreamChat.SampleProject
                 Offset = 0,
 
                 // Get only channels containing a specific member
-                // FilterConditions = new Dictionary<string, object>
-                // {
-                //     {
-                //         "members", new Dictionary<string, object>
-                //         {
-                //             { "$in", new string[] { _client.UserId } }
-                //         }
-                //     }
-                // }
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "members", new Dictionary<string, object>
+                        {
+                            { "$in", new string[] { Client.UserId } }
+                        }
+                    }
+                }
             };
 
             try
@@ -154,7 +154,7 @@ namespace StreamChat.SampleProject
 
         private async void OnClientConnected()
         {
-            await UpdateChannels();
+            await UpdateChannelsAsync();
 
             if (ActiveChannel == null && _channels.Count > 0)
             {

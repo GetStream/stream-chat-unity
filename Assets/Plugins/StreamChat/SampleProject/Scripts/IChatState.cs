@@ -33,6 +33,6 @@ namespace StreamChat.SampleProject
         void HidePopup<TPopup>(TPopup instance)
             where TPopup : BaseFullscreenPopup;
 
-        Task UpdateChannels();
+        Task UpdateChannelsAsync();
     }
 }

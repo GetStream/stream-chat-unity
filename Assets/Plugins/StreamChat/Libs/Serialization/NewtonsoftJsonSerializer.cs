@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -25,15 +25,28 @@ namespace StreamChat.Libs.Serialization
 
         public bool TryPeekValue<TValue>(string serializedObj, string key, out TValue value)
         {
-            var myJObject = JObject.Parse(serializedObj);
-            if (!myJObject.ContainsKey(key))
+            var wrapperJObject = JObject.Parse(serializedObj);
+            if (!wrapperJObject.ContainsKey(key))
             {
                 value = default;
                 return false;
             }
 
-            value = myJObject[key].Value<TValue>();
-            return true;
+            var obj = wrapperJObject[key];
+
+            if (obj is JObject childJObject)
+            {
+                value = childJObject.ToObject<TValue>();
+                return true;
+            }
+
+            if (obj is JToken childToken)
+            {
+                value = childToken.Value<TValue>();
+                return true;
+            }
+
+            throw new Exception("Unhandled object type: " + obj.GetType());
         }
     }
 }
