@@ -88,7 +88,7 @@ namespace StreamChat.Core
             var devSignature = "devToken";
 
             var payloadBytes = Encoding.UTF8.GetBytes("{\"user_id\":\"" + userId + "\"");
-            var payload = HttpServerUtility.UrlTokenEncode(payloadBytes);
+            var payload = UrlTokenEncode(payloadBytes);
             return $"{header}.{payload}.{devSignature}";
         }
 
@@ -370,6 +370,45 @@ namespace StreamChat.Core
                 _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
                 OnConnectionConfirmed();
             }
+        }
+
+        /// <summary>
+        /// Implementation of copied from .NET HttpServerUtility.UrlTokenEncode() which is not available for .NET Standard 2.1
+        /// </summary>
+        private static string UrlTokenEncode(byte[] input)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof (input));
+            if (input.Length < 1)
+                return string.Empty;
+            string base64String = Convert.ToBase64String(input);
+            if (base64String == null)
+                return (string) null;
+            int length = base64String.Length;
+            while (length > 0 && base64String[length - 1] == '=')
+                --length;
+            char[] chArray = new char[length + 1];
+            chArray[length] = (char) (48 + base64String.Length - length);
+            for (int index = 0; index < length; ++index)
+            {
+                char ch = base64String[index];
+                switch (ch)
+                {
+                    case '+':
+                        chArray[index] = '-';
+                        break;
+                    case '/':
+                        chArray[index] = '_';
+                        break;
+                    case '=':
+                        chArray[index] = ch;
+                        break;
+                    default:
+                        chArray[index] = ch;
+                        break;
+                }
+            }
+            return new string(chArray);
         }
     }
 }
