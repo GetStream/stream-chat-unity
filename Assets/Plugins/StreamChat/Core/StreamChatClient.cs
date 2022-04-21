@@ -87,7 +87,7 @@ namespace StreamChat.Core
             var header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"; //  header content = {"alg": "HS256", "typ": "JWT"}
             var devSignature = "devToken";
 
-            var payloadBytes = Encoding.UTF8.GetBytes("{\"user_id\":\"" + userId + "\"");
+            var payloadBytes = Encoding.UTF8.GetBytes("{\"user_id\":\"" + userId + "\"}");
             var payload = UrlTokenEncode(payloadBytes);
             return $"{header}.{payload}.{devSignature}";
         }
