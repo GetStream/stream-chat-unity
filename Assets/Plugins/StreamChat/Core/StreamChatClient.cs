@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Web;
+using System.Text.RegularExpressions;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -88,8 +88,20 @@ namespace StreamChat.Core
             var devSignature = "devToken";
 
             var payloadBytes = Encoding.UTF8.GetBytes("{\"user_id\":\"" + userId + "\"}");
-            var payload = UrlTokenEncode(payloadBytes);
+            var payload = Base64UrlEncode(payloadBytes);
             return $"{header}.{payload}.{devSignature}";
+        }
+
+        /// <summary>
+        /// Strip invalid characters from a given Stream user id. The only allowed characters are: a-z, 0-9, @, _ and -
+        /// </summary>
+        public static string SanitizeUserId(string userId)
+        {
+            if (IsUserIdValid(userId))
+            {
+                return userId;
+            }
+            return Regex.Replace(userId, @"[^\w\.@_-]", "", RegexOptions.None, TimeSpan.FromSeconds(1));
         }
 
         public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
@@ -206,7 +218,6 @@ namespace StreamChat.Core
         private int _reconnectAttempt;
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
-
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
@@ -372,43 +383,16 @@ namespace StreamChat.Core
             }
         }
 
-        /// <summary>
-        /// Implementation of copied from .NET HttpServerUtility.UrlTokenEncode() which is not available for .NET Standard 2.1
-        /// </summary>
-        private static string UrlTokenEncode(byte[] input)
+        private static bool IsUserIdValid(string userId)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof (input));
-            if (input.Length < 1)
-                return string.Empty;
-            string base64String = Convert.ToBase64String(input);
-            if (base64String == null)
-                return (string) null;
-            int length = base64String.Length;
-            while (length > 0 && base64String[length - 1] == '=')
-                --length;
-            char[] chArray = new char[length + 1];
-            chArray[length] = (char) (48 + base64String.Length - length);
-            for (int index = 0; index < length; ++index)
-            {
-                char ch = base64String[index];
-                switch (ch)
-                {
-                    case '+':
-                        chArray[index] = '-';
-                        break;
-                    case '/':
-                        chArray[index] = '_';
-                        break;
-                    case '=':
-                        chArray[index] = ch;
-                        break;
-                    default:
-                        chArray[index] = ch;
-                        break;
-                }
-            }
-            return new string(chArray);
+            var r = new Regex("^[a-zA-Z0-9@_-]+$");
+            return r.IsMatch(userId);
         }
+
+        private static string Base64UrlEncode(byte[] input) =>
+            Convert.ToBase64String(input)
+                .Replace('+', '-')
+                .Replace('/', '_')
+                .Trim('=');
     }
 }
