@@ -84,6 +84,11 @@ namespace StreamChat.Core
         /// </summary>
         public static string CreateDeveloperAuthToken(string userId)
         {
+            if (!IsUserIdValid(userId))
+            {
+                throw new ArgumentException($"{nameof(userId)} can only contain: a-z, 0-9, @, _ and - ");
+            }
+            
             var header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"; //  header content = {"alg": "HS256", "typ": "JWT"}
             var devSignature = "devToken";
 
