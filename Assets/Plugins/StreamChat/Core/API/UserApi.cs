@@ -36,16 +36,5 @@ namespace StreamChat.Core.API
         public Task<UpdateUsersResponse> UpdateUserPartialAsync(UpdateUserPartialRequest updateUserPartialRequest) =>
             Patch<UpdateUserPartialRequest, UpdateUserPartialRequestDTO, UpdateUsersResponse, UpdateUsersResponseDTO>(
                 "/users", updateUserPartialRequest);
-
-        public Task<DeleteUserResponse> DeleteUserAsync(string userId, DeleteUserRequestParameters deleteUserRequestParameters) =>
-            Delete<DeleteUserResponse, DeleteUserResponseDTO>($"/users/{userId}",
-                QueryParameters.Default.AppendFrom(deleteUserRequestParameters));
-
-        public Task<DeleteUsersResponse> DeleteUsersAsync(DeleteUsersRequest deleteUsersRequest) =>
-            DeleteManyUsersAsync(deleteUsersRequest);
-
-        public Task<DeleteUsersResponse> DeleteManyUsersAsync(DeleteUsersRequest deleteUsersRequest) =>
-            Post<DeleteUsersRequest, DeleteUsersRequestDTO, DeleteUsersResponse, DeleteUsersResponseDTO>(
-                "/users/delete", deleteUsersRequest);
     }
 }

@@ -70,5 +70,15 @@ namespace StreamChat.Tests
                 }
             }
         }
+
+        public static IEnumerator WaitForSeconds(float seconds)
+        {
+            var timeStarted = Time.realtimeSinceStartup;
+
+            while (Time.realtimeSinceStartup - timeStarted < seconds)
+            {
+                yield return null;
+            }
+        }
     }
 }

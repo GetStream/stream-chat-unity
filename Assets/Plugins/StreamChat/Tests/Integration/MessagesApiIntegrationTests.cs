@@ -2,6 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 using StreamChat.Core.Requests;
+using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration
 {
@@ -117,6 +118,9 @@ namespace StreamChat.Tests.Integration
             var messageResponseTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
             yield return messageResponseTask.RunAsIEnumerator(response => { });
+
+            //wait for message to propagate
+            yield return UnityTestUtils.WaitForSeconds(0.5f);
 
             var createChannelTask2 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest

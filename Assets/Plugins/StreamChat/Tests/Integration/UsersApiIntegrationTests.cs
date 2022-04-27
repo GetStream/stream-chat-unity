@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
-using StreamChat.Core.Requests.DTO;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration
@@ -66,19 +66,6 @@ namespace StreamChat.Tests.Integration
         public IEnumerator Query_users()
         {
             yield return Client.WaitForClientToConnect();
-
-            var deleteUsersTask = Client.UserApi.DeleteManyUsersAsync(new DeleteUsersRequest()
-            {
-                UserIds = new List<string>
-                {
-                    "new-user-1", "new-user-2", "new-user-3", "new-user-4"
-                }
-            });
-
-            yield return deleteUsersTask.RunAsIEnumerator(onFaulted: exception =>
-            {
-                //ignore if failed
-            });
 
             var updateUsersTask = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
@@ -158,19 +145,6 @@ namespace StreamChat.Tests.Integration
         public IEnumerator Query_banned_users()
         {
             yield return Client.WaitForClientToConnect();
-
-            var deleteUsersTask = Client.UserApi.DeleteManyUsersAsync(new DeleteUsersRequest()
-            {
-                UserIds = new List<string>
-                {
-                    "new-user-1", "new-user-2", "new-user-3", "new-user-4"
-                }
-            });
-
-            yield return deleteUsersTask.RunAsIEnumerator(onFaulted: exception =>
-            {
-                //ignore if failed
-            });
 
             var updateUsersTask = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
