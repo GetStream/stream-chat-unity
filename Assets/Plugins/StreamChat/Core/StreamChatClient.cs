@@ -58,7 +58,7 @@ namespace StreamChat.Core
             }
         }
 
-        public static readonly Version SDKVersion = new Version(2, 0, 0);
+        public static readonly Version SDKVersion = new Version(2, 4, 0);
 
         /// <summary>
         /// Use this method to create the main client instance
@@ -88,7 +88,7 @@ namespace StreamChat.Core
             {
                 throw new ArgumentException($"{nameof(userId)} can only contain: a-z, 0-9, @, _ and - ");
             }
-            
+
             var header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"; //  header content = {"alg": "HS256", "typ": "JWT"}
             var devSignature = "devToken";
 

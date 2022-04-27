@@ -1,0 +1,39 @@
+v2.4.0:
+* Fixes:
+	* Fixed number types in DTOs
+
+* Improvements:
+	* Added developer token generation
+	* (Sample Project) Added error popup when auth credentials are invalid
+	* (Sample Project) Added "create new channel" button & form
+	* (Sample Project) Fixed popup mouseexit issue
+	* (Sample Project) Fixed sending message with return key
+	* Added xml comment tags
+	* Added code samples to SDK
+	* Added integration tests
+	* Added ConnectionStateChanged event
+
+* Breaking changes:
+	* Removed server-side fields & methods (DeleteUserAsync, DeleteUsersAsync, DeleteManyUsersAsync)
+	* Renamed UpdateUsersAsync() -> UpsertUsersAsync() in UserApi
+	
+v2.0.0:
+
+* Improvements:
+	* Upgraded project to Unity 2021.2.15f1
+	* Added reconnection max attempts
+	* Implemented Reactions: Send/Remove
+	* Added integration tests
+	* Refactored InputSystem dependency in Sample Project
+	* changed all internal types to have internal access modifier
+
+v1.0.0:
+
+* Improvements:
+	* Channels Endpoints: CRUD, Query, Show/Hide, Stop watching, Truncate, Mute
+	* Messages Endpoints: CRUD
+	* Users Endpoints: CRUD, Query
+	* Sample project
+
+
+
