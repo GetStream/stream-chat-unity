@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Libs.Http;
@@ -83,7 +84,17 @@ namespace StreamChat.Core.API
             var uri = _requestUriFactory.CreateEndpointUri(url);
             var requestContent = _serializer.Serialize(request.SaveToDto());
 
-            var httpResponse = await _httpClient.PostAsync(uri, requestContent);
+            HttpResponseMessage httpResponse;
+            try
+            {
+                httpResponse = await _httpClient.PostAsync(uri, requestContent);
+            }
+            catch (Exception e)
+            {
+                _logs.Exception(e);
+                throw;
+            }
+
             var responseContent = await httpResponse.Content.ReadAsStringAsync();
 
             if (!httpResponse.IsSuccessStatusCode)
@@ -104,6 +115,49 @@ namespace StreamChat.Core.API
             }
 
             LogRestCall(uri, requestContent, responseContent);
+
+            var response = new TResponse();
+            response.LoadFromDto(responseDto);
+
+            return response;
+        }
+
+        protected async Task<TResponse> Post<TResponse, TResponseDto>(string url, HttpContent request)
+            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        {
+            var uri = _requestUriFactory.CreateEndpointUri(url);
+
+            HttpResponseMessage httpResponse;
+            try
+            {
+                httpResponse = await _httpClient.PostAsync(uri, request);
+            }
+            catch (Exception e)
+            {
+                _logs.Exception(e);
+                throw;
+            }
+
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                throw new StreamApiException(apiError);
+            }
+
+            TResponseDto responseDto;
+
+            try
+            {
+                responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+            }
+            catch (Exception e)
+            {
+                throw new StreamDeserializationException(request.ToString(), typeof(TResponseDto), e);
+            }
+
+            LogRestCall(uri, request.ToString(), responseContent);
 
             var response = new TResponse();
             response.LoadFromDto(responseDto);
@@ -179,5 +233,7 @@ namespace StreamChat.Core.API
         private readonly ISerializer _serializer;
         private readonly ILogs _logs;
         private readonly IRequestUriFactory _requestUriFactory;
+
+        protected ISerializer Serializer => _serializer;
     }
 }

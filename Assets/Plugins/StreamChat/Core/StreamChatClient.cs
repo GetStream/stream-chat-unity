@@ -136,17 +136,6 @@ namespace StreamChat.Core
             RegisterEventHandlers();
         }
 
-        private void SetUser(AuthCredentials credentials)
-        {
-            if (credentials.IsAnyEmpty())
-            {
-                throw new StreamMissingAuthCredentialsException(
-                    "Please provide valid credentials: `Api Key`, 'User id`, `User token`");
-            }
-
-            _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
-        }
-
         public void Connect()
         {
             SetUser(_authCredentials);
@@ -399,5 +388,15 @@ namespace StreamChat.Core
                 .Replace('+', '-')
                 .Replace('/', '_')
                 .Trim('=');
+
+        private void SetUser(AuthCredentials credentials)
+        {
+            if (credentials.IsAnyEmpty())
+            {
+                throw new StreamMissingAuthCredentialsException("Please provide valid credentials: `Api Key`, 'User id`, `User token`");
+            }
+
+            _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
+        }
     }
 }

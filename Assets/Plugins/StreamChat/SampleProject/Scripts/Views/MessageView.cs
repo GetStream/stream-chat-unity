@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Models;
@@ -10,6 +10,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -25,11 +26,41 @@ namespace StreamChat.SampleProject.Views
             imageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
             Message = message ?? throw new ArgumentNullException(nameof(message));
 
+            var isVideo = HasVideoAttachment(message, out var videoAttachment);
+
+            _videoPlayer.gameObject.SetActive(isVideo);
+            _text.gameObject.SetActive(!isVideo);
+
+            if (isVideo)
+            {
+                if (_renderTexture != null)
+                {
+                    _renderTexture.Release();
+                }
+
+                _renderTexture = new RenderTexture(_sourceRenderTexture);
+
+                _videoPlayer.playOnAwake = false;
+                _videoPlayer.isLooping = false;
+                _videoPlayer.url = videoAttachment.AssetUrl;
+
+                _videoPlayer.targetTexture = _renderTexture;
+                _videoPlayer.GetComponentInChildren<RawImage>().texture = _renderTexture;
+            }
+
             _text.text = $"{GetMessageText(message)}<br>{Message.User.Name}";
 
             ShowAvatarAsync(Message.User.Image, imageLoader).LogIfFailed();
 
             ShowReactions(Message);
+        }
+
+        public void TryPlay()
+        {
+            if (!_videoPlayer.url.IsNullOrEmpty())
+            {
+                Play();
+            }
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -42,18 +73,36 @@ namespace StreamChat.SampleProject.Views
             SetOptionsMenuActive(true);
         }
 
+        protected void Awake()
+        {
+            _playButton.onClick.AddListener(OnPlayButtonClicked);
+            _videoPlayer.loopPointReached += OnVideoPlayerLoopPointReached;
+        }
+
         protected override void OnDisposing()
         {
             _isDestroyed = true;
+
+            if (_renderTexture != null)
+            {
+                _renderTexture.Release();
+            }
 
             base.OnDisposing();
         }
 
         private bool _isDestroyed;
         private MessageOptionsPopup _activePopup;
+        private RenderTexture _renderTexture;
 
         [SerializeField]
         private TMP_Text _text;
+
+        [SerializeField]
+        private VideoPlayer _videoPlayer;
+
+        [SerializeField]
+        private Button _playButton;
 
         [SerializeField]
         private Image _avatar;
@@ -63,6 +112,9 @@ namespace StreamChat.SampleProject.Views
 
         [SerializeField]
         private Image _emojiPrefab;
+
+        [SerializeField]
+        private RenderTexture _sourceRenderTexture;
 
         private async Task ShowAvatarAsync(string url, IImageLoader imageLoader)
         {
@@ -112,5 +164,38 @@ namespace StreamChat.SampleProject.Views
 
         private static string GetMessageText(Message message)
             => message.Type == MessageType.Deleted ? ChatState.MessageDeletedInfo : message.Text;
+
+        private bool HasVideoAttachment(Message message, out Attachment videoAttachment)
+        {
+            for (int i = 0; i < message.Attachments.Count; i++)
+            {
+                var attachment = message.Attachments[0];
+
+                if (AllowedVideoFormats.Contains(attachment.Type))
+                {
+                    videoAttachment = attachment;
+                    return true;
+                }
+            }
+
+            videoAttachment = default;
+            return false;
+        }
+
+        private void OnPlayButtonClicked()
+        {
+            Play();
+        }
+
+        private void Play()
+        {
+            _videoPlayer.Play();
+            _playButton.gameObject.SetActive(false);
+        }
+
+        private void OnVideoPlayerLoopPointReached(VideoPlayer source)
+        {
+            _playButton.gameObject.SetActive(true);
+        }
     }
 }

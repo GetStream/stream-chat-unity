@@ -23,5 +23,9 @@ namespace StreamChat.Libs.Http
         Task<HttpResponseMessage> GetAsync(Uri uri);
 
         Task<HttpResponseMessage> PatchAsync(Uri uri, string content);
+
+        Task<HttpResponseMessage> PostAsync(Uri uri, MultipartFormDataContent content);
+
+        Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content);
     }
 }
