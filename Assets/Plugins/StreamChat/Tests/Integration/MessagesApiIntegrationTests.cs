@@ -232,9 +232,9 @@ namespace StreamChat.Tests.Integration
             var channelType = "messaging";
             var channelId = "new-channel-id-1";
 
-            var task = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
+            var getOrCreateChannelTask = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
 
-            yield return task.RunAsIEnumerator(response =>
+            yield return getOrCreateChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);
@@ -293,9 +293,9 @@ namespace StreamChat.Tests.Integration
             var channelType = "messaging";
             var channelId = "new-channel-id-1";
 
-            var task = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
+            var getOrCreateChannelTask = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
 
-            yield return task.RunAsIEnumerator(response =>
+            yield return getOrCreateChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);

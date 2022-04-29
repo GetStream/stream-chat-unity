@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Requests;
 
@@ -85,6 +87,50 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
             var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
                 channelId: "channel-id-1", sendMessageRequest);
+        }
+
+        public async Task UploadFile()
+        {
+            var filePath = "path/to/Cool Video.mp4";
+            var fileName = "Cool Video.mp4";
+
+            var fileContent = await File.ReadAllBytesAsync(filePath);
+
+            //Upload file and get file url from CDN
+            var uploadFileResponse = await Client.MessageApi.UploadFileAsync(channelType: "messaging",
+                channelId: "channel-id-1", fileContent, fileName);
+
+            //Url to file in CDN
+            var remoteFileUrl = uploadFileResponse.File;
+
+            var sendMessageRequest = new SendMessageRequest
+            {
+                Message = new MessageRequest
+                {
+                    Text = "message with file attachment",
+                    Attachments = new List<AttachmentRequest>
+                    {
+                        new AttachmentRequest
+                        {
+                            //Pass this file url as an attachment
+                            AssetUrl = remoteFileUrl,
+                            Type = "video"
+                        }
+                    }
+                },
+            };
+
+            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+                channelId: "channel-id-1", sendMessageRequest);
+        }
+
+        public async Task DeleteFile()
+        {
+            //File url that got returned by Client.MessageApi.UploadFileAsync endpoint
+            var remoteFileUrl = "url/to/file/in/stream/cdn";
+
+            var deleteFileResponse = await Client.MessageApi.DeleteFileAsync(channelType: "messaging",
+                channelId: "channel-id-1", remoteFileUrl);
         }
 
         private IStreamChatClient Client;
