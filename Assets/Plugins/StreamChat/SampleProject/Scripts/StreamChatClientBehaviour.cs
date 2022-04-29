@@ -30,14 +30,13 @@ namespace StreamChat.SampleProject
             try
             {
                 _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
+                _client.Connect();
 
                 var viewContext =
                     new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem);
 
                 viewFactory.Init(viewContext);
                 _rootView.Init(viewContext);
-
-                _client.Connect();
             }
             catch (StreamMissingAuthCredentialsException)
             {
@@ -99,6 +98,6 @@ namespace StreamChat.SampleProject
 
         }
 #endif
-        
+
     }
 }

@@ -26,6 +26,8 @@ namespace StreamChat.SampleProject.Views
         protected IChatState State => ViewContext.State;
         protected IInputSystem InputSystem => ViewContext.InputSystem;
 
+        protected readonly string[] AllowedVideoFormats = new[] { "mp4", "mov", "mpg", "mpeg", "avi" };
+
         protected void OnDestroy()
         {
             if (_isInited)

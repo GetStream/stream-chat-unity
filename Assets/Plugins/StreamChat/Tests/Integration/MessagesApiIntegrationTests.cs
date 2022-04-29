@@ -1,8 +1,12 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using StreamChat.Core.Requests;
+using UnityEditor;
 using UnityEngine.TestTools;
+using UnityEngine.Video;
 
 namespace StreamChat.Tests.Integration
 {
@@ -204,6 +208,113 @@ namespace StreamChat.Tests.Integration
             yield return createChannelTask3.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(response.Messages.Last().Silent, true);
+            });
+        }
+
+        //[UnityTest]
+        public IEnumerator UploadFile()
+        {
+            yield return Client.WaitForClientToConnect();
+
+            //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
+            var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
+            var videoFilePath = "Assets/Plugins/StreamChat/Tests/SampleFiles/" + filename;
+
+            var videoClip = AssetDatabase.LoadAssetAtPath<VideoClip>(videoFilePath);
+            Assert.NotNull(videoClip);
+
+            var videoFileContent = File.ReadAllBytes(videoFilePath);
+            Assert.NotNull(videoFileContent);
+            Assert.IsNotEmpty(videoFileContent);
+
+            var request = new ChannelGetOrCreateRequest();
+
+            var channelType = "messaging";
+            var channelId = "new-channel-id-1";
+
+            var task = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
+
+            yield return task.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(channelId, response.Channel.Id);
+                Assert.AreEqual(channelType, response.Channel.Type);
+            });
+
+            var uploadFileTask = Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
+
+            var fileUrl = "";
+            yield return uploadFileTask.RunAsIEnumerator(response =>
+            {
+                fileUrl = response.File;
+            });
+
+            var sendMessageRequest = new SendMessageRequest()
+            {
+                Message = new MessageRequest
+                {
+                    Text = "Check out my cool video!",
+                    Attachments = new List<AttachmentRequest>()
+                    {
+                        new AttachmentRequest
+                        {
+                            AssetUrl = fileUrl,
+                            Type = "video"
+                        }
+                    }
+                }
+            };
+
+            var sendMessageTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+
+            yield return sendMessageTask.RunAsIEnumerator(response =>
+            {
+                Assert.IsNotEmpty(response.Message.Attachments);
+            });
+        }
+
+        //[UnityTest]
+        public IEnumerator DeleteFile()
+        {
+            yield return Client.WaitForClientToConnect();
+
+            //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
+            var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
+            var videoFilePath = "Assets/Plugins/StreamChat/Tests/SampleFiles/" + filename;
+
+            var videoClip = AssetDatabase.LoadAssetAtPath<VideoClip>(videoFilePath);
+            Assert.NotNull(videoClip);
+
+            var videoFileContent = File.ReadAllBytes(videoFilePath);
+            Assert.NotNull(videoFileContent);
+            Assert.IsNotEmpty(videoFileContent);
+
+            var request = new ChannelGetOrCreateRequest();
+
+            var channelType = "messaging";
+            var channelId = "new-channel-id-1";
+
+            var task = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
+
+            yield return task.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(channelId, response.Channel.Id);
+                Assert.AreEqual(channelType, response.Channel.Type);
+            });
+
+            var uploadFileTask = Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
+
+            var fileUrl = "";
+            yield return uploadFileTask.RunAsIEnumerator(response =>
+            {
+                Assert.IsNotEmpty(response.File);
+                fileUrl = response.File;
+            });
+
+            var deleteFileTask = Client.MessageApi.DeleteFileAsync(channelType, channelId, fileUrl);
+
+            yield return deleteFileTask.RunAsIEnumerator(response =>
+            {
+
             });
         }
     }

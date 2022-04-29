@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Libs.Http;
@@ -56,6 +57,25 @@ namespace StreamChat.Core.API
             var endpoint = MessageEndpoints.DeleteReaction(messageId, reactionType);
 
             return Delete<ReactionRemovalResponse, ReactionRemovalResponseDTO>(endpoint);
+        }
+
+        public async Task<FileUploadResponse> UploadFileAsync(string channelType, string channelId,
+            byte[] fileContent, string fileName)
+        {
+            var endpoint = $"/channels/{channelType}/{channelId}/file";
+
+            var body = new MultipartFormDataContent();
+            body.Add(new ByteArrayContent(fileContent), "file", fileName);
+
+            return await Post<FileUploadResponse, FileUploadResponseDTO>(endpoint, body);
+        }
+
+        public Task<FileDeleteResponse> DeleteFileAsync(string channelType, string channelId, string fileUrl)
+        {
+            var endpoint = $"channels/{channelType}/{channelId}/file";
+            var parameters = QueryParameters.Default.Append("url", fileUrl);
+
+            return Delete<FileDeleteResponse, FileDeleteResponseDTO>(endpoint, parameters);
         }
     }
 }

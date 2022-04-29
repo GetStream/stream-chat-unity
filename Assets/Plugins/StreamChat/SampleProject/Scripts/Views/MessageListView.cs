@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using StreamChat.Core.Models;
 using StreamChat.SampleProject.Utils;
 using UnityEngine;
@@ -88,6 +89,11 @@ namespace StreamChat.SampleProject.Views
                 var messageView = CreateMessageView(message);
                 messageView.UpdateData(message, imageLoader);
                 _messages.Add(messageView);
+
+                if (message == channel.Messages.Last())
+                {
+                    messageView.TryPlay();
+                }
             }
 
             StartCoroutine(ScrollToBottomAfterResized());

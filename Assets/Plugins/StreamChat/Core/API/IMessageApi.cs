@@ -41,5 +41,23 @@ namespace StreamChat.Core.API
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/send_reaction/?language=unity#removing-a-reaction</remarks>
         Task<ReactionRemovalResponse> DeleteReactionAsync(string messageId, string reactionType);
+
+        /// <summary>
+        /// <para>Uploads a file.</para>
+        /// This functionality defaults to using the Stream CDN. If you would like, you can
+        /// easily change the logic to upload to your own CDN of choice.
+        /// </summary>
+        /// <returns>The URL of the uploaded file.</returns>
+        /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity</remarks>
+        Task<FileUploadResponse> UploadFileAsync(string channelType, string channelId,
+            byte[] fileContent, string fileName);
+
+        /// <summary>
+        /// <para>Deletes a file.</para>
+        /// This functionality defaults to using the Stream CDN. If you would like, you can
+        /// easily change the logic to upload to your own CDN of choice.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity</remarks>
+        Task<FileDeleteResponse> DeleteFileAsync(string channelType, string channelId, string fileUrl);
     }
 }

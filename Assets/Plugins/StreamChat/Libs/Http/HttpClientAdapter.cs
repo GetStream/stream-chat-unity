@@ -27,6 +27,12 @@ namespace StreamChat.Libs.Http
         public Task<HttpResponseMessage> PostAsync(Uri uri, string content)
             => _httpClient.PostAsync(uri, new StringContent(content));
 
+        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content)
+            => _httpClient.PostAsync(uri, content);
+
+        public Task<HttpResponseMessage> PostAsync(Uri uri, MultipartFormDataContent content)
+            => _httpClient.PostAsync(uri, content);
+
         public Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content)
             => _httpClient.PostAsync(uri, content);
 

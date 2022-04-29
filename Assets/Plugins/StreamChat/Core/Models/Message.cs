@@ -10,7 +10,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Array of message attachments
         /// </summary>
-        public ICollection<Attachment> Attachments { get; set; }
+        public IList<Attachment> Attachments { get; set; }
 
         /// <summary>
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
@@ -60,12 +60,12 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of 10 latest reactions to this message
         /// </summary>
-        public ICollection<Reaction> LatestReactions { get; set; }
+        public IList<Reaction> LatestReactions { get; set; }
 
         /// <summary>
         /// List of mentioned users
         /// </summary>
-        public ICollection<User> MentionedUsers { get; set; }
+        public IList<User> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -75,7 +75,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of 10 latest reactions of authenticated user to this message
         /// </summary>
-        public ICollection<Reaction> OwnReactions { get; set; }
+        public IList<Reaction> OwnReactions { get; set; }
 
         /// <summary>
         /// ID of parent message (thread)
