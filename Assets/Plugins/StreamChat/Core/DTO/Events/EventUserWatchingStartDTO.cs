@@ -38,7 +38,7 @@ namespace StreamChat.Core.DTO.Events
         public UserObjectDTO User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? WatcherCount { get; set; }
+        public int? WatcherCount { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

@@ -25,7 +25,7 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-        public double? WatcherCount { get; set; }
+        public int? WatcherCount { get; set; }
 
         EventMessageNew ILoadableFrom<EventMessageNewDTO, EventMessageNew>.LoadFromDto(EventMessageNewDTO dto)
         {

@@ -158,7 +158,7 @@ namespace StreamChat.Core.DTO.Models
         /// Number of replies to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reply_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? ReplyCount { get; set; }
+        public int? ReplyCount { get; set; }
 
         /// <summary>
         /// Whether the message was shadowed or not

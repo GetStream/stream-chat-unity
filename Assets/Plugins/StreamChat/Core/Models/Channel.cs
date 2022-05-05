@@ -76,7 +76,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Number of members in the channel
         /// </summary>
-        public double? MemberCount { get; set; }
+        public int? MemberCount { get; set; }
 
         /// <summary>
         /// List of channel members (max 100)

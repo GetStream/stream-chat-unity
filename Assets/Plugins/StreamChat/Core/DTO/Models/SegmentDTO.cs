@@ -17,7 +17,7 @@ namespace StreamChat.Core.DTO.Models
     internal partial class SegmentDTO
     {
         [Newtonsoft.Json.JsonProperty("channel_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? ChannelCount { get; set; }
+        public int? ChannelCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? CreatedAt { get; set; }
@@ -44,7 +44,7 @@ namespace StreamChat.Core.DTO.Models
         public System.DateTimeOffset? UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? UserCount { get; set; }
+        public int? UserCount { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

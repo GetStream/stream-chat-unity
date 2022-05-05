@@ -122,7 +122,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Number of replies to this message
         /// </summary>
-        public double? ReplyCount { get; set; }
+        public int? ReplyCount { get; set; }
 
         /// <summary>
         /// Whether the message was shadowed or not

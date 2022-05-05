@@ -13,11 +13,11 @@ namespace StreamChat.Core.Models
 
         public System.Collections.Generic.ICollection<UserMute> Mutes { get; set; }
 
-        public double? TotalUnreadCount { get; set; }
+        public int? TotalUnreadCount { get; set; }
 
-        public double? UnreadChannels { get; set; }
+        public int? UnreadChannels { get; set; }
 
-        public double? UnreadCount { get; set; }
+        public int? UnreadCount { get; set; }
 
         OwnUser ILoadableFrom<OwnUserDTO, OwnUser>.LoadFromDto(OwnUserDTO dto)
         {

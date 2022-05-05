@@ -65,13 +65,13 @@ namespace StreamChat.Core.DTO.Models
         public System.Collections.Generic.ICollection<string> Teams { get; set; }
 
         [Newtonsoft.Json.JsonProperty("total_unread_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? TotalUnreadCount { get; set; }
+        public int? TotalUnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? UnreadChannels { get; set; }
+        public int? UnreadChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? UnreadCount { get; set; }
+        public int? UnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? UpdatedAt { get; set; }

@@ -104,7 +104,7 @@ namespace StreamChat.Core.DTO.Responses
         /// Number of members in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("member_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? MemberCount { get; set; }
+        public int? MemberCount { get; set; }
 
         /// <summary>
         /// List of channel members (max 100)

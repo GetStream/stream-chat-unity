@@ -14,7 +14,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Overrides max message length
         /// </summary>
-        public double? MaxMessageLength { get; set; }
+        public int? MaxMessageLength { get; set; }
 
         /// <summary>
         /// Enables message quotes
