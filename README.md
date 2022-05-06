@@ -66,6 +66,9 @@ For Unity's new Input System please:
 `Multiple precompiled assemblies with the same name Newtonsoft.Json.dll included or the current platform. Only one assembly with the same name is allowed per platform.`
 <br>you can remove the `StreamChat\Libs\Serialization\Newtonsoft.Json.dll`
 
+## Missing any features?
+Go ahead and open GitHub Issue with your request and we'll respond as soon as possible.
+
 ---
 
 ## We are hiring
