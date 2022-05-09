@@ -15,13 +15,18 @@ using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Web;
+using StreamChat.Libs;
 using StreamChat.Libs.Auth;
 
 namespace StreamChat.Core
 {
     /// <summary>
-    /// Stream Chat Client
+    /// Stream Chat Client - maintains WebSockets connection, executes API calls and exposes Stream events to which you can subscribe.
+    /// There should be only one instance of this client in your application.
     /// </summary>
+    /// <remarks>
+    /// The only case where you might want to have multiple instances is if you'd be creating an app which maintains multiple users connected simultaneously.
+    /// </remarks>
     public class StreamChatClient : IStreamChatClient
     {
         public const string MenuPrefix = "Stream/";
@@ -61,20 +66,19 @@ namespace StreamChat.Core
         public static readonly Version SDKVersion = new Version(2, 4, 0);
 
         /// <summary>
-        /// Use this method to create the main client instance
+        /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
         /// </summary>
         /// <param name="authCredentials">Authorization data with ApiKey, UserToken and UserId</param>
         public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials)
         {
-            var unityLogs = new UnityLogs();
-            var websocketClient = new WebsocketClient(unityLogs);
-            var httpClient = new HttpClientAdapter();
-            var serializer = new NewtonsoftJsonSerializer();
-            var timeService = new UnityTime();
-            var streamChatClient = new StreamChatClient(authCredentials, websocketClient, httpClient, serializer,
-                timeService, unityLogs);
+            var logs = LibsFactory.CreateDefaultLogs();
+            var websocketClient = LibsFactory.CreateDefaultWebsocketClient(logs);
+            var httpClient = LibsFactory.CreateDefaultHttpClient();
+            var serializer = LibsFactory.CreateDefaultSerializer();
+            var timeService = LibsFactory.CreateDefaultTimeService();
 
-            return streamChatClient;
+            return new StreamChatClient(authCredentials, websocketClient, httpClient, serializer,
+                timeService, logs);
         }
 
         /// <summary>
@@ -110,8 +114,7 @@ namespace StreamChat.Core
         }
 
         public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
-            IHttpClient httpClient,
-            ISerializer serializer, ITimeService timeService, ILogs logs)
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs)
         {
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
