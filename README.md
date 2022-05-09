@@ -20,40 +20,44 @@
 
 The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://getstream.io/chat/sdk/unity/), a service for building chat and messaging games and applications.
 
-
-- **Unity Engine 2020.x:** Supports the latest version of Unity Engine.
+- **Unity Engine 2021.x:** Supports the latest version of Unity Engine.
 - **Realtime events** using websockets.
-- **Supports querying channels and members** with optional filtering and sorting.
-- **Fully open-source implementation:** You have access to the complete source code of the SDK here on GitHub.
+- **Messaging:** Send direct or group messages, and have the messages persist across sessions.
+- **Reactions:** Every message can be reacted to by multiple users.
+- **Channels:** Messages are grouped within channels.
+- **Fully open-source** implementation: You have access to the complete source code of the SDK here on GitHub.
 
-## Main features
+## Free for Indie Developers
 
-- **Messaging:** CRUD operations, flagging
-- **Channels:** CRUD operations, watching, truncating, muting, querying channels, querying members
-- **Users:**
-
-## Free for Makers
-
-Stream is free for most side and hobby projects. You can use Stream Chat for free if you have less than five team members and no more than $10,000 in monthly revenue.
+Stream is free for most side and hobby projects. You can use Stream Chat for free if you have less than five team members and no more than $10,000 in monthly revenue. Visit our website and apply for the Makers Account.
 
 ## Getting Started
 
 1. Download the [latest release](https://github.com/GetStream/stream-chat-unity/releases/latest) and copy it into your project.
 2. Launch Unity Engine and ensure the **Stream Chat** Plugin is imported into your project.
-3. Start integrating Chat into your project! Check out the [Tutorial](https://getstream.io/chat/unity/tutorial/) to get yourself going.
+3. Resolve [dependencies](https://github.com/GetStream/stream-chat-unity#dependencies)
+4. Start integrating Chat into your project! Check out the [Tutorial](https://getstream.io/chat/unity/tutorial/) to get yourself going.
 
 ## Sample Project
 
-This repo contains a fully working chat example featuring:
+In the `StreamChat/SampleProject` you'll find a fully working chat example featuring:
 - Browsing channels and messages
 - Sending, Editing, Deleting a message
 - Message right-click context menu
-
-Just open `StreamChat/SampleProject/Scenes/ChatDemo.scene` and hit play.
+- Reactions
+- Sending video attachments (works only in Editor)
 
 It is created with Unity's uGUI UI system and supports both legacy and the new Unity's Input System. 
 
-For Unity's new Input System please:
+**How to run it?**
+1. [Register](https://getstream.io/try-for-free/) an account and go to [Stream Dasboard](https://getstream.io/dashboard/)
+2. Create App and go to its **Chat Explorer** throught the Dashboard
+3. Create new chat user and save its **id**
+4. Use our [online token generator](https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#manually-generating-tokens) to create user token
+5. In Unity, provide: **Api Key**, **User Id** and **User Token** into `StreamChat/SampleProject/Config/DemoCredentials.asset`
+6. Open `StreamChat/SampleProject/Scenes/ChatDemo.scene` and hit play
+
+How to enable Unity's **[new Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/index.html)**?:
 1. Make sure that the UnityEngine.InputSystem package is available in the project
 2. Add **UnityEngine.InputSystem** dll reference to the **StreamChat.Unity** assembly definition asset
 
@@ -65,6 +69,9 @@ For Unity's new Input System please:
 :warning: In case you already have the Newtonsoft Json dll or package in your project and encounter the following error:<br>
 `Multiple precompiled assemblies with the same name Newtonsoft.Json.dll included or the current platform. Only one assembly with the same name is allowed per platform.`
 <br>you can remove the `StreamChat\Libs\Serialization\Newtonsoft.Json.dll`
+
+## Missing any features?
+Go ahead and open GitHub Issue with your request and we'll respond as soon as possible.
 
 ---
 
