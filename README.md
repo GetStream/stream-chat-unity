@@ -40,12 +40,16 @@ Stream is free for most side and hobby projects. You can use Stream Chat for fre
 
 ## Sample Project
 
-This repo contains a fully working chat example featuring:
+In the `StreamChat/SampleProject` you'll find a fully working chat example featuring:
 - Browsing channels and messages
 - Sending, Editing, Deleting a message
 - Message right-click context menu
+- Reactions
+- Sending video attachments (works only in Editor)
 
-How to run sample project?
+It is created with Unity's uGUI UI system and supports both legacy and the new Unity's Input System. 
+
+How to run it?
 1. [Register](https://getstream.io/try-for-free/) an account and go to [Stream Dasboard](https://getstream.io/dashboard/)
 2. Create App and go to its **Chat Explorer** throught the Dashboard
 3. Create new chat user and save its **id**
@@ -53,9 +57,7 @@ How to run sample project?
 5. In Unity, provide: **Api Key**, **User Id** and **User Token** into `StreamChat/SampleProject/Config/DemoCredentials.asset`
 6. Open `StreamChat/SampleProject/Scenes/ChatDemo.scene` and hit play
 
-It is created with Unity's uGUI UI system and supports both legacy and the new Unity's Input System. 
-
-For Unity's new Input System please:
+How to enable Unity's **[new Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/index.html)**?:
 1. Make sure that the UnityEngine.InputSystem package is available in the project
 2. Add **UnityEngine.InputSystem** dll reference to the **StreamChat.Unity** assembly definition asset
 
