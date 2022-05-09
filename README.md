@@ -49,7 +49,7 @@ In the `StreamChat/SampleProject` you'll find a fully working chat example featu
 
 It is created with Unity's uGUI UI system and supports both legacy and the new Unity's Input System. 
 
-How to run it?
+**How to run it?**
 1. [Register](https://getstream.io/try-for-free/) an account and go to [Stream Dasboard](https://getstream.io/dashboard/)
 2. Create App and go to its **Chat Explorer** throught the Dashboard
 3. Create new chat user and save its **id**
