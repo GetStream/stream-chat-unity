@@ -20,17 +20,12 @@
 
 The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://getstream.io/chat/sdk/unity/), a service for building chat and messaging games and applications.
 
-
-- **Unity Engine 2020.x:** Supports the latest version of Unity Engine.
+- **Unity Engine 2021.x:** Supports the latest version of Unity Engine.
 - **Realtime events** using websockets.
-- **Supports querying channels and members** with optional filtering and sorting.
-- **Fully open-source implementation:** You have access to the complete source code of the SDK here on GitHub.
-
-## Main features
-
-- **Messaging:** CRUD operations, flagging
-- **Channels:** CRUD operations, watching, truncating, muting, querying channels, querying members
-- **Users:**
+- **Messaging:** Send direct or group messages, and have the messages persist across sessions.
+- **Reactions:** Every message can be reacted to by multiple users.
+- **Channels:** Messages are grouped within channels.
+- **Fully open-source** implementation: You have access to the complete source code of the SDK here on GitHub.
 
 ## Free for Indie Developers
 
@@ -50,7 +45,13 @@ This repo contains a fully working chat example featuring:
 - Sending, Editing, Deleting a message
 - Message right-click context menu
 
-Just open `StreamChat/SampleProject/Scenes/ChatDemo.scene` and hit play.
+How to run sample project?
+1. [Register](https://getstream.io/try-for-free/) an account and go to [Stream Dasboard](https://getstream.io/dashboard/)
+2. Create App and go to its **Chat Explorer** throught the Dashboard
+3. Create new chat user and save its **id**
+4. Use our [online token generator](https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#manually-generating-tokens) to create user token
+5. In Unity, provide: **Api Key**, **User Id** and **User Token** into `StreamChat/SampleProject/Config/DemoCredentials.asset`
+6. Open `StreamChat/SampleProject/Scenes/ChatDemo.scene` and hit play
 
 It is created with Unity's uGUI UI system and supports both legacy and the new Unity's Input System. 
 
