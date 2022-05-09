@@ -103,7 +103,11 @@ namespace StreamChat.SampleProject.Views
             var instance = GameObject.Instantiate(prefab, _popupsContainer);
             var popup = instance.GetComponent<TPopup>();
 
-            popup.Init(_viewContext);
+            //Todo: fix this dependency, some popups don't need view context like ErrorPopup
+            if (_viewContext != null)
+            {
+                popup.Init(_viewContext);
+            }
 
             return popup;
         }
