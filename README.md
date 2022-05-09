@@ -32,15 +32,16 @@ The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://gets
 - **Channels:** CRUD operations, watching, truncating, muting, querying channels, querying members
 - **Users:**
 
-## Free for Makers
+## Free for Indie Developers
 
-Stream is free for most side and hobby projects. You can use Stream Chat for free if you have less than five team members and no more than $10,000 in monthly revenue.
+Stream is free for most side and hobby projects. You can use Stream Chat for free if you have less than five team members and no more than $10,000 in monthly revenue. Visit our website and apply for the Makers Account.
 
 ## Getting Started
 
 1. Download the [latest release](https://github.com/GetStream/stream-chat-unity/releases/latest) and copy it into your project.
 2. Launch Unity Engine and ensure the **Stream Chat** Plugin is imported into your project.
-3. Start integrating Chat into your project! Check out the [Tutorial](https://getstream.io/chat/unity/tutorial/) to get yourself going.
+3. Resolve [dependencies](https://github.com/GetStream/stream-chat-unity#dependencies)
+4. Start integrating Chat into your project! Check out the [Tutorial](https://getstream.io/chat/unity/tutorial/) to get yourself going.
 
 ## Sample Project
 
