@@ -1,11 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace StreamChat.Core.Auth
+namespace StreamChat.Libs.Auth
 {
     /// <summary>
     /// Asset to keep auth credentials
     /// </summary>
-    [CreateAssetMenu(fileName = "AuthCredentials", menuName = StreamChatClient.MenuPrefix + "Config/Create auth credentials asset", order = 1)]
+    [CreateAssetMenu(fileName = "AuthCredentials", menuName = "Plugins/Stream/Config/Create auth credentials asset", order = 1)]
     public class AuthCredentialsAsset : ScriptableObject
     {
         public AuthCredentials Credentials => new AuthCredentials(_apiKey, _testUserId, _testUserToken);

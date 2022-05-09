@@ -3,7 +3,7 @@ using System.Text;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Models;
 
-namespace StreamChat.Core.Plugins.StreamChat.Core.Models
+namespace StreamChat.Core.Models
 {
     public partial class APIError : ModelBase, ILoadableFrom<APIErrorDTO, APIError>
     {

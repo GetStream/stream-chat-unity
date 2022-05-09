@@ -7,6 +7,7 @@ using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.Libs.Logs;
 using StreamChat.SampleProject.Views;
 using UnityEngine;
 
@@ -134,7 +135,7 @@ namespace StreamChat.SampleProject
             }
             catch (StreamApiException e)
             {
-                e.LogStreamApiExceptionDetails();
+                e.LogStreamApiExceptionDetails(_unityLogger);
             }
             catch (Exception e)
             {
@@ -146,11 +147,12 @@ namespace StreamChat.SampleProject
 
         private readonly List<ChannelState> _channels = new List<ChannelState>();
 
-        private ChannelState _activeChannel;
+        private readonly ViewFactory _viewFactory;
+        private readonly ILogs _unityLogger = new UnityLogs();
 
         //Todo: get it initially from health check event
         private OwnUser _localUser;
-        private readonly ViewFactory _viewFactory;
+        private ChannelState _activeChannel;
 
         private async void OnClientConnected()
         {

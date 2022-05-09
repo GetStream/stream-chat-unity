@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
-using UnityEngine;
+using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.Exceptions
 {
@@ -42,17 +42,17 @@ namespace StreamChat.Core.Exceptions
     /// </summary>
     public static class StreamApiExceptionExt
     {
-        public static void LogStreamExceptionIfFailed(this Task t) => t.ContinueWith(_ =>
+        public static void LogStreamExceptionIfFailed(this Task t, ILogs logger) => t.ContinueWith(_ =>
         {
             if (_.Exception.InnerException is StreamApiException streamApiException)
             {
-                streamApiException.LogStreamApiExceptionDetails();
+                streamApiException.LogStreamApiExceptionDetails(logger);
             }
 
-            Debug.LogException(_.Exception);
+            logger.Exception(_.Exception);
         }, TaskContinuationOptions.OnlyOnFaulted);
 
-        public static void LogStreamApiExceptionDetails(this StreamApiException exception)
+        public static void LogStreamApiExceptionDetails(this StreamApiException exception, ILogs logger)
         {
             _sb.Append(nameof(StreamApiException));
             _sb.Append(":");
@@ -84,7 +84,7 @@ namespace StreamChat.Core.Exceptions
                 }
             }
 
-            Debug.LogException(new Exception(_sb.ToString(), exception));
+            logger.Exception(new Exception(_sb.ToString(), exception));
             _sb.Length = 0;
         }
 

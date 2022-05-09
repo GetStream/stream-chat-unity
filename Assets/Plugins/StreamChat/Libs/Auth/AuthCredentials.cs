@@ -1,6 +1,6 @@
 ﻿using StreamChat.Libs.Utils;
 
-namespace StreamChat.Core.Auth
+namespace StreamChat.Libs.Auth
 {
     /// <summary>
     /// Wraps authorization data
@@ -19,15 +19,5 @@ namespace StreamChat.Core.Auth
         }
 
         public bool IsAnyEmpty() => ApiKey.IsNullOrEmpty() || UserId.IsNullOrEmpty() || UserToken.IsNullOrEmpty();
-    }
-
-    /// <summary>
-    /// Extensions for <see cref="AuthCredentials"/>
-    /// </summary>
-    internal static class AuthCredentialsExt
-    {
-        public static AuthCredentials WithUserCredentials(this AuthCredentials authCredentials, string userId,
-            string userToken)
-            => new AuthCredentials(authCredentials.ApiKey, userId, userToken);
     }
 }

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Libs.Utils;
+using StreamChat.SampleProject.Utils;
 using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;

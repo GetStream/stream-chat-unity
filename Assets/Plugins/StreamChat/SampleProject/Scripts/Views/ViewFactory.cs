@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using SampleProject.Scripts.Popups;
 using StreamChat.Core;
-using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.SampleProject.Popups;
+using StreamChat.SampleProject.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 

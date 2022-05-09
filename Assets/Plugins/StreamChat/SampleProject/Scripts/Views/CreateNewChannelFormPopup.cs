@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using StreamChat.Core.Requests;
 using StreamChat.Libs.Utils;
+using StreamChat.SampleProject.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

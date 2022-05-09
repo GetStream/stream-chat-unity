@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 using StreamChat.Core;
-using StreamChat.Core.Auth;
+using StreamChat.Libs.Auth;
 
 namespace StreamChat.Tests.Integration
 {

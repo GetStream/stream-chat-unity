@@ -14,8 +14,8 @@ using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
-using StreamChat.Core.Plugins.StreamChat.Core.Models;
 using StreamChat.Core.Web;
+using StreamChat.Libs.Auth;
 
 namespace StreamChat.Core
 {
@@ -157,7 +157,7 @@ namespace StreamChat.Core
             _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient.Connected += OnWebsocketsConnected;
 
-            _websocketClient.ConnectAsync(connectionUri).LogIfFailed();
+            _websocketClient.ConnectAsync(connectionUri).LogIfFailed(_logs);
         }
 
         public void Update(float deltaTime)

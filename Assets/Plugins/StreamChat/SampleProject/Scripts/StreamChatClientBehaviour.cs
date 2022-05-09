@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using StreamChat.Core;
-using StreamChat.Core.Auth;
 using StreamChat.Core.Exceptions;
+using StreamChat.Libs.Auth;
 using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
