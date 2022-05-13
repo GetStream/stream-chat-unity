@@ -13,6 +13,7 @@ namespace StreamChat.Core.Responses
         HideChannelResponse ILoadableFrom<HideChannelResponseDTO, HideChannelResponse>.LoadFromDto(HideChannelResponseDTO dto)
         {
             Duration = dto.Duration;
+            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }

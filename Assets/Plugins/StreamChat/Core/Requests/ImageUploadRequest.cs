@@ -1,7 +1,7 @@
 ﻿using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Requests;
 
-namespace StreamChat.Core.Plugins.StreamChat.Core.Requests
+namespace StreamChat.Core.Requests
 {
     public partial class ImageUploadRequest : RequestObjectBase, ISavableTo<ImageUploadRequestDTO>
     {

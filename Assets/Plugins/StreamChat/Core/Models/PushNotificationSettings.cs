@@ -12,6 +12,7 @@ namespace StreamChat.Core.Models
         {
             Disabled = dto.Disabled;
             DisabledUntil = dto.DisabledUntil;
+            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }

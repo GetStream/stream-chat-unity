@@ -28,6 +28,7 @@ namespace StreamChat.Core.Models
             Explicit = Explicit.TryLoadFromDto(dto.Explicit);
             Spam = Explicit.TryLoadFromDto(dto.Spam);
             Toxic = Explicit.TryLoadFromDto(dto.Toxic);
+            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }

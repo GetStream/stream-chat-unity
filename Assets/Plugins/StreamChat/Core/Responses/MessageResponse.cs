@@ -17,6 +17,7 @@ namespace StreamChat.Core.Responses
         {
             Duration = dto.Duration;
             Message = Message.TryLoadFromDto(dto.Message);
+            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }

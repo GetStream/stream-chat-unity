@@ -18,6 +18,7 @@ namespace StreamChat.Core.Models
         {
             Block = dto.Block;
             Flag = dto.Flag;
+            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }
