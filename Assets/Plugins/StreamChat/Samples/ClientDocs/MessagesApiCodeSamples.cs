@@ -94,7 +94,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             var filePath = "path/to/Cool Video.mp4";
             var fileName = "Cool Video.mp4";
 
-            var fileContent = await File.ReadAllBytesAsync(filePath);
+            var fileContent = File.ReadAllBytes(filePath);
 
             //Upload file and get file url from CDN
             var uploadFileResponse = await Client.MessageApi.UploadFileAsync(channelType: "messaging",

@@ -99,7 +99,8 @@ namespace StreamChat.SampleProject.Views
                     Debug.Log("Start uploading attachment: " + _lastAttachmentUrl + ". This may take a while.");
                     _messageInput.text = "Uploading attachment. This may take a while. Operation is asynchronous so you can continue using chat without being blocked.";
 
-                    var fileContent = await File.ReadAllBytesAsync(_lastAttachmentUrl);
+                    var fileContent = File.ReadAllBytes(_lastAttachmentUrl);
+
                     var uploadFileResponse = await Client.MessageApi.UploadFileAsync(channelState.Channel.Type, channelState.Channel.Id, fileContent, "attachment-1");
                     uploadedFileUrl = uploadFileResponse.File;
                     _lastAttachmentUrl = string.Empty;
