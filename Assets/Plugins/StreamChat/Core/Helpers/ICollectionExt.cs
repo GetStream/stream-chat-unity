@@ -8,7 +8,7 @@ namespace StreamChat.Core.Helpers
     /// </summary>
     internal static class ICollectionExt
     {
-        public static ICollection<TDto> TrySaveToDtoCollection<TSource, TDto>(this ICollection<TSource> source)
+        public static List<TDto> TrySaveToDtoCollection<TSource, TDto>(this List<TSource> source)
             where TSource : ISavableTo<TDto>
         {
             if (source == null)
@@ -26,8 +26,8 @@ namespace StreamChat.Core.Helpers
             return dtos;
         }
 
-        public static List<TSource> TryLoadFromDtoCollection<TDto, TSource>(this ICollection<TSource> _,
-            ICollection<TDto> dtos)
+        public static List<TSource> TryLoadFromDtoCollection<TDto, TSource>(this List<TSource> _,
+            List<TDto> dtos)
             where TSource : ILoadableFrom<TDto, TSource>, new()
         {
             if (dtos == null)

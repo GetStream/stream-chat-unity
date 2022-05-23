@@ -26,19 +26,19 @@ namespace StreamChat.Core.DTO.Requests
         /// List of user IDs to add to the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("add_members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMemberRequestDTO> AddMembers { get; set; }
+        public System.Collections.Generic.List<ChannelMemberRequestDTO> AddMembers { get; set; }
 
         /// <summary>
         /// List of user IDs to make channel moderators
         /// </summary>
         [Newtonsoft.Json.JsonProperty("add_moderators", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> AddModerators { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> AddModerators { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// List of channel member role assignments. If any specified user is not part of the channel, the request will fail
         /// </summary>
         [Newtonsoft.Json.JsonProperty("assign_roles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMemberRequestDTO> AssignRoles { get; set; }
+        public System.Collections.Generic.List<ChannelMemberRequestDTO> AssignRoles { get; set; }
 
         /// <summary>
         /// Sets cool down period for the channel in seconds
@@ -56,7 +56,7 @@ namespace StreamChat.Core.DTO.Requests
         /// List of user IDs to take away moderators status from
         /// </summary>
         [Newtonsoft.Json.JsonProperty("demote_moderators", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> DemoteModerators { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> DemoteModerators { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// Set to `true` to hide channel's history when adding new members
@@ -68,7 +68,7 @@ namespace StreamChat.Core.DTO.Requests
         /// List of user IDs to invite to the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("invites", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMemberRequestDTO> Invites { get; set; }
+        public System.Collections.Generic.List<ChannelMemberRequestDTO> Invites { get; set; }
 
         /// <summary>
         /// Message to send to the chat when channel is successfully updated
@@ -86,7 +86,7 @@ namespace StreamChat.Core.DTO.Requests
         /// List of user IDs to remove from the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("remove_members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> RemoveMembers { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> RemoveMembers { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// When `message` is set disables all push notifications for it
@@ -106,10 +106,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

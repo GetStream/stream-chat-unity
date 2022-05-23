@@ -30,7 +30,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of commands that channel supports
         /// </summary>
-        public System.Collections.Generic.ICollection<Command> Commands { get; set; }
+        public System.Collections.Generic.List<Command> Commands { get; set; }
 
         /// <summary>
         /// Connect events support
@@ -47,7 +47,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public bool? CustomEvents { get; set; }
 
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
 
         /// <summary>
         /// Number of maximum message characters

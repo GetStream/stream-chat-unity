@@ -7,7 +7,7 @@ namespace StreamChat.Core.Helpers
     /// </summary>
     internal static class IDictionaryExt
     {
-        public static IDictionary<TKey, TDto> TrySaveToDtoDictionary<TDto, TSource, TKey>(this IDictionary<TKey, TSource> source)
+        public static Dictionary<TKey, TDto> TrySaveToDtoDictionary<TDto, TSource, TKey>(this Dictionary<TKey, TSource> source)
             where TSource : ISavableTo<TDto>
         {
             if (source == null)
@@ -25,8 +25,8 @@ namespace StreamChat.Core.Helpers
             return dict;
         }
 
-        public static IDictionary<TKey, TSource> TryLoadFromDtoDictionary<TDto, TSource, TKey>(
-            this IDictionary<TKey, TSource> _, IDictionary<TKey, TDto> dtos)
+        public static Dictionary<TKey, TSource> TryLoadFromDtoDictionary<TDto, TSource, TKey>(
+            this Dictionary<TKey, TSource> _, Dictionary<TKey, TDto> dtos)
             where TSource : ILoadableFrom<TDto, TSource>, new()
         {
             if (dtos == null)

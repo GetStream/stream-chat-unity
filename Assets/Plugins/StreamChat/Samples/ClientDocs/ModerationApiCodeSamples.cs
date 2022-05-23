@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Requests;
 
@@ -10,7 +11,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         {
             var muteUserRequest = new MuteUserRequest
             {
-                TargetIds = new string[] { "user-id-1" }
+                TargetIds = new List<string> { "user-id-1" }
             };
 
             var muteUserResponse = await Client.ModerationApi.MuteUserAsync(muteUserRequest);

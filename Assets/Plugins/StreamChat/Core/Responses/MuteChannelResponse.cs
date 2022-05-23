@@ -15,7 +15,7 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// Object with mutes (if multiple channels were muted)
         /// </summary>
-        public System.Collections.Generic.ICollection<ChannelMute> ChannelMutes { get; set; }
+        public System.Collections.Generic.List<ChannelMute> ChannelMutes { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format

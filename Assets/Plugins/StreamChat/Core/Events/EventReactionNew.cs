@@ -21,7 +21,7 @@ namespace StreamChat.Core.Events
 
         public string Team { get; set; }
 
-        public System.Collections.Generic.ICollection<User> ThreadParticipants { get; set; }
+        public System.Collections.Generic.List<User> ThreadParticipants { get; set; }
 
         public string Type { get; set; }
 

@@ -68,7 +68,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of teams user is a part of
         /// </summary>
-        public System.Collections.Generic.ICollection<string> Teams { get; set; }
+        public System.Collections.Generic.List<string> Teams { get; set; }
 
         /// <summary>
         /// Date/time of the last update

@@ -10,7 +10,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// User filters
         /// </summary>
-        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         /// <summary>
         /// Matches IDs that are greater than the specified ID
@@ -50,7 +50,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Array of sort parameters
         /// </summary>
-        public System.Collections.Generic.ICollection<SortParam> Sort { get; set; } = new System.Collections.ObjectModel.Collection<SortParam>();
+        public System.Collections.Generic.List<SortParam> Sort { get; set; } = new System.Collections.Generic.List<SortParam>();
 
         QueryUsersRequestDTO ISavableTo<QueryUsersRequestDTO>.SaveToDto()
         {

@@ -14,7 +14,7 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// Object containing users
         /// </summary>
-        public System.Collections.Generic.IDictionary<string, User> Users { get; set; }
+        public System.Collections.Generic.Dictionary<string, User> Users { get; set; }
 
         UpdateUsersResponse ILoadableFrom<UpdateUsersResponseDTO, UpdateUsersResponse>.LoadFromDto(UpdateUsersResponseDTO dto)
         {

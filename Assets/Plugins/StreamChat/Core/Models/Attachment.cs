@@ -5,7 +5,7 @@ namespace StreamChat.Core.Models
 {
     public class Attachment : ModelBase, ILoadableFrom<AttachmentDTO, Attachment>
     {
-        public System.Collections.Generic.ICollection<AttachmentAction> Actions { get; set; }
+        public System.Collections.Generic.List<AttachmentAction> Actions { get; set; }
 
         public string AssetUrl { get; set; }
 
@@ -19,7 +19,7 @@ namespace StreamChat.Core.Models
 
         public string Fallback { get; set; }
 
-        public System.Collections.Generic.ICollection<Field> Fields { get; set; }
+        public System.Collections.Generic.List<Field> Fields { get; set; }
 
         public string Footer { get; set; }
 

@@ -20,7 +20,7 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// Object with mutes (if multiple users were muted)
         /// </summary>
-        public System.Collections.Generic.ICollection<UserMute> Mutes { get; set; }
+        public System.Collections.Generic.List<UserMute> Mutes { get; set; }
 
         /// <summary>
         /// Authorized user object with fresh mutes information

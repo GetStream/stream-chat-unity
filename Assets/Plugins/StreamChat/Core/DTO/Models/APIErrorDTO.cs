@@ -38,7 +38,7 @@ namespace StreamChat.Core.DTO.Models
         /// Additional error info
         /// </summary>
         [Newtonsoft.Json.JsonProperty("exception_fields", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> ExceptionFields { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> ExceptionFields { get; set; }
 
         /// <summary>
         /// Message describing an error
@@ -52,10 +52,10 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("more_info", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string MoreInfo { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

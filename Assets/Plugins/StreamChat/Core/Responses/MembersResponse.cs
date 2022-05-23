@@ -14,7 +14,7 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// List of found members
         /// </summary>
-        public System.Collections.Generic.ICollection<ChannelMember> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMember> Members { get; set; }
 
 
         MembersResponse ILoadableFrom<MembersResponseDTO, MembersResponse>.LoadFromDto(MembersResponseDTO dto)

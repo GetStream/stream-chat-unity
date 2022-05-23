@@ -23,7 +23,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Array of message attachments
         /// </summary>
         [Newtonsoft.Json.JsonProperty("attachments", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<AttachmentRequestDTO> Attachments { get; set; }
+        public System.Collections.Generic.List<AttachmentRequestDTO> Attachments { get; set; }
 
         /// <summary>
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
@@ -65,7 +65,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Object with translations. Key `language` contains the original language key. Other keys contain translations
         /// </summary>
         [Newtonsoft.Json.JsonProperty("i18n", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> I18n { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> I18n { get; set; }
 
         /// <summary>
         /// Message ID is unique string identifier of the message
@@ -77,19 +77,19 @@ namespace StreamChat.Core.DTO.Requests
         /// Contains image moderation information
         /// </summary>
         [Newtonsoft.Json.JsonProperty("image_labels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> ImageLabels { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> ImageLabels { get; set; }
 
         /// <summary>
         /// List of 10 latest reactions to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("latest_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ReactionRequestDTO> LatestReactions { get; set; }
+        public System.Collections.Generic.List<ReactionRequestDTO> LatestReactions { get; set; }
 
         /// <summary>
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObjectRequestDTO> MentionedUsers { get; set; }
+        public System.Collections.Generic.List<UserObjectRequestDTO> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -101,7 +101,7 @@ namespace StreamChat.Core.DTO.Requests
         /// List of 10 latest reactions of authenticated user to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ReactionRequestDTO> OwnReactions { get; set; }
+        public System.Collections.Generic.List<ReactionRequestDTO> OwnReactions { get; set; }
 
         /// <summary>
         /// ID of parent message (thread)
@@ -146,13 +146,13 @@ namespace StreamChat.Core.DTO.Requests
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, double> ReactionCounts { get; set; }
+        public System.Collections.Generic.Dictionary<string, double> ReactionCounts { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, double> ReactionScores { get; set; }
+        public System.Collections.Generic.Dictionary<string, double> ReactionScores { get; set; }
 
         /// <summary>
         /// Number of replies to this message
@@ -188,7 +188,7 @@ namespace StreamChat.Core.DTO.Requests
         /// List of users who participate in thread
         /// </summary>
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObjectRequestDTO> ThreadParticipants { get; set; }
+        public System.Collections.Generic.List<UserObjectRequestDTO> ThreadParticipants { get; set; }
 
         /// <summary>
         /// Contains type of the message
@@ -209,10 +209,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectRequestDTO User { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

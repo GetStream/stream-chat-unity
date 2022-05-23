@@ -4,6 +4,6 @@ namespace StreamChat.Core.Requests
 {
     public abstract class RequestObjectBase
     {
-        public IDictionary<string, object> AdditionalProperties { get; set; }
+        public Dictionary<string, object> AdditionalProperties { get; set; }
     }
 }

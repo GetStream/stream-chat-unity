@@ -32,7 +32,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Filter to apply to members
         /// </summary>
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         /// <summary>
         /// Channel ID to interact with
@@ -47,7 +47,7 @@ namespace StreamChat.Core.DTO.Requests
         /// List of members to search in distinct channels
         /// </summary>
         [Newtonsoft.Json.JsonProperty("members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMemberDTO> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMemberDTO> Members { get; set; }
 
         [Newtonsoft.Json.JsonProperty("offset", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Offset { get; set; }
@@ -56,7 +56,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Array of sort parameters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("sort", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<SortParamDTO> Sort { get; set; }
+        public System.Collections.Generic.List<SortParamDTO> Sort { get; set; }
 
         /// <summary>
         /// Channel type to interact with
@@ -88,10 +88,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("user_id_lte", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserIdLte { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

@@ -26,9 +26,9 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? Frozen { get; set; }
 
-        public System.Collections.Generic.ICollection<ChannelMemberRequest> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMemberRequest> Members { get; set; }
 
-        public System.Collections.Generic.ICollection<double> OwnCapabilities { get; set; }
+        public System.Collections.Generic.List<double> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (if multi-tenant mode is enabled)

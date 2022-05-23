@@ -17,7 +17,7 @@ namespace StreamChat.Core.DTO.Models
     internal partial class AttachmentDTO
     {
         [Newtonsoft.Json.JsonProperty("actions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ActionDTO> Actions { get; set; }
+        public System.Collections.Generic.List<ActionDTO> Actions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("asset_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AssetUrl { get; set; }
@@ -38,7 +38,7 @@ namespace StreamChat.Core.DTO.Models
         public string Fallback { get; set; }
 
         [Newtonsoft.Json.JsonProperty("fields", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<FieldDTO> Fields { get; set; }
+        public System.Collections.Generic.List<FieldDTO> Fields { get; set; }
 
         [Newtonsoft.Json.JsonProperty("footer", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Footer { get; set; }
@@ -76,10 +76,10 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

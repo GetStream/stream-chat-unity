@@ -5,7 +5,7 @@ namespace StreamChat.Core.Requests
 {
     public partial class QueryChannelsRequest : RequestObjectBase, ISavableTo<QueryChannelsRequestDTO>
     {
-        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; }
+        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; }
 
         /// <summary>
         /// Number of channels to limit
@@ -32,8 +32,8 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of sort parameters
         /// </summary>
-        public System.Collections.Generic.ICollection<SortParamRequest> Sort { get; set; } =
-            new System.Collections.ObjectModel.Collection<SortParamRequest>();
+        public System.Collections.Generic.List<SortParamRequest> Sort { get; set; } =
+            new System.Collections.Generic.List<SortParamRequest>();
 
         /// <summary>
         /// Whether to update channel state or not

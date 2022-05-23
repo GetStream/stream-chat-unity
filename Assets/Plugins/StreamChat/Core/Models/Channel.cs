@@ -81,7 +81,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of channel members (max 100)
         /// </summary>
-        public System.Collections.Generic.ICollection<ChannelMember> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMember> Members { get; set; }
 
         /// <summary>
         /// Date of mute expiration
@@ -96,7 +96,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of channel capabilities of authenticated user
         /// </summary>
-        public System.Collections.Generic.ICollection<string> OwnCapabilities { get; set; }
+        public System.Collections.Generic.List<string> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (multi-tenant only)

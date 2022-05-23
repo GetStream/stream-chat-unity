@@ -18,7 +18,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Filter to apply to members
         /// </summary>
-        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         /// <summary>
         /// Channel ID to interact with
@@ -30,14 +30,14 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of members to search in distinct channels
         /// </summary>
-        public System.Collections.Generic.ICollection<ChannelMember> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMember> Members { get; set; }
 
         public double? Offset { get; set; }
 
         /// <summary>
         /// Array of sort parameters
         /// </summary>
-        public System.Collections.Generic.ICollection<SortParam> Sort { get; set; }
+        public System.Collections.Generic.List<SortParam> Sort { get; set; }
 
         /// <summary>
         /// Channel type to interact with

@@ -50,7 +50,7 @@ namespace StreamChat.Core.DTO.Models
         /// List of commands that channel supports
         /// </summary>
         [Newtonsoft.Json.JsonProperty("commands", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<CommandDTO> Commands { get; set; }
+        public System.Collections.Generic.List<CommandDTO> Commands { get; set; }
 
         /// <summary>
         /// Connect events support
@@ -71,7 +71,7 @@ namespace StreamChat.Core.DTO.Models
         public bool? CustomEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
 
         /// <summary>
         /// Number of maximum message characters
@@ -98,7 +98,7 @@ namespace StreamChat.Core.DTO.Models
         public string Name { get; set; }
 
         [Newtonsoft.Json.JsonProperty("permissions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<PolicyRequestDTO> Permissions { get; set; }
+        public System.Collections.Generic.List<PolicyRequestDTO> Permissions { get; set; }
 
         /// <summary>
         /// Enables push notifications
@@ -160,10 +160,10 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? UrlEnrichment { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

@@ -20,7 +20,7 @@ namespace StreamChat.Core.DTO.Responses
         /// Map of endpoint rate limits for the Android platform
         /// </summary>
         [Newtonsoft.Json.JsonProperty("android", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, LimitInfoDTO> Android { get; set; }
+        public System.Collections.Generic.Dictionary<string, LimitInfoDTO> Android { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -32,24 +32,24 @@ namespace StreamChat.Core.DTO.Responses
         /// Map of endpoint rate limits for the iOS platform
         /// </summary>
         [Newtonsoft.Json.JsonProperty("ios", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, LimitInfoDTO> Ios { get; set; }
+        public System.Collections.Generic.Dictionary<string, LimitInfoDTO> Ios { get; set; }
 
         /// <summary>
         /// Map of endpoint rate limits for the server-side platform
         /// </summary>
         [Newtonsoft.Json.JsonProperty("server_side", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, LimitInfoDTO> ServerSide { get; set; }
+        public System.Collections.Generic.Dictionary<string, LimitInfoDTO> ServerSide { get; set; }
 
         /// <summary>
         /// Map of endpoint rate limits for the web platform
         /// </summary>
         [Newtonsoft.Json.JsonProperty("web", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, LimitInfoDTO> Web { get; set; }
+        public System.Collections.Generic.Dictionary<string, LimitInfoDTO> Web { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

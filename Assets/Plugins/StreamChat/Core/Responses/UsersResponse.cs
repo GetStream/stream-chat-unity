@@ -15,7 +15,7 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// List of found users
         /// </summary>
-        public ICollection<User> Users { get; set; }
+        public List<User> Users { get; set; }
 
         UsersResponse ILoadableFrom<UsersResponseDTO, UsersResponse>.LoadFromDto(UsersResponseDTO dto)
         {

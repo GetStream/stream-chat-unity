@@ -13,7 +13,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public string Duration { get; set; }
 
-        public System.Collections.Generic.ICollection<ChannelMember> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMember> Members { get; set; }
 
         UpdateChannelPartialResponse ILoadableFrom<UpdateChannelPartialResponseDTO, UpdateChannelPartialResponse>.LoadFromDto(UpdateChannelPartialResponseDTO dto)
         {

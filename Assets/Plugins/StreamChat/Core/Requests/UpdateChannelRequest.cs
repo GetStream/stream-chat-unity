@@ -13,17 +13,17 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of user IDs to add to the channel
         /// </summary>
-        public System.Collections.Generic.ICollection<ChannelMemberRequest> AddMembers { get; set; }
+        public System.Collections.Generic.List<ChannelMemberRequest> AddMembers { get; set; }
 
         /// <summary>
         /// List of user IDs to make channel moderators
         /// </summary>
-        public System.Collections.Generic.ICollection<string> AddModerators { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> AddModerators { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// List of channel member role assignments. If any specified user is not part of the channel, the request will fail
         /// </summary>
-        public System.Collections.Generic.ICollection<ChannelMemberRequest> AssignRoles { get; set; }
+        public System.Collections.Generic.List<ChannelMemberRequest> AssignRoles { get; set; }
 
         /// <summary>
         /// Sets cool down period for the channel in seconds
@@ -38,7 +38,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of user IDs to take away moderators status from
         /// </summary>
-        public System.Collections.Generic.ICollection<string> DemoteModerators { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> DemoteModerators { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// Set to `true` to hide channel's history when adding new members
@@ -48,7 +48,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of user IDs to invite to the channel
         /// </summary>
-        public System.Collections.Generic.ICollection<ChannelMemberRequest> Invites { get; set; }
+        public System.Collections.Generic.List<ChannelMemberRequest> Invites { get; set; }
 
         /// <summary>
         /// Message to send to the chat when channel is successfully updated
@@ -63,7 +63,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of user IDs to remove from the channel
         /// </summary>
-        public System.Collections.Generic.ICollection<string> RemoveMembers { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> RemoveMembers { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// When `message` is set disables all push notifications for it

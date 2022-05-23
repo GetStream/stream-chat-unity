@@ -9,7 +9,7 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// List of channels
         /// </summary>
-        public System.Collections.Generic.ICollection<ChannelState> Channels { get; set; }
+        public System.Collections.Generic.List<ChannelState> Channels { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format

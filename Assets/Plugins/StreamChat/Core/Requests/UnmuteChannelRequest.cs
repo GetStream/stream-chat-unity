@@ -8,7 +8,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Channel CIDs to mute (if multiple channels)
         /// </summary>
-        public System.Collections.Generic.ICollection<string> ChannelCids { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> ChannelCids { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// Duration of mute in milliseconds

@@ -6,7 +6,7 @@ namespace StreamChat.Core.Requests
 {
     public class AttachmentRequest : RequestObjectBase, ISavableTo<AttachmentRequestDTO>
     {
-        public ICollection<ActionRequest> Actions { get; set; }
+        public List<ActionRequest> Actions { get; set; }
 
         public string AssetUrl { get; set; }
 
@@ -20,7 +20,7 @@ namespace StreamChat.Core.Requests
 
         public string Fallback { get; set; }
 
-        public ICollection<FieldRequest> Fields { get; set; }
+        public List<FieldRequest> Fields { get; set; }
 
         public string Footer { get; set; }
 

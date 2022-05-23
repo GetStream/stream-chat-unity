@@ -5,13 +5,13 @@ namespace StreamChat.Core.Models
 {
     public class OwnUser : User, ILoadableFrom<OwnUserDTO, OwnUser>
     {
-        public System.Collections.Generic.ICollection<ChannelMute> ChannelMutes { get; set; }
+        public System.Collections.Generic.List<ChannelMute> ChannelMutes { get; set; }
 
-        public System.Collections.Generic.ICollection<Device> Devices { get; set; }
+        public System.Collections.Generic.List<Device> Devices { get; set; }
 
-        public System.Collections.Generic.ICollection<string> LatestHiddenChannels { get; set; }
+        public System.Collections.Generic.List<string> LatestHiddenChannels { get; set; }
 
-        public System.Collections.Generic.ICollection<UserMute> Mutes { get; set; }
+        public System.Collections.Generic.List<UserMute> Mutes { get; set; }
 
         public int? TotalUnreadCount { get; set; }
 

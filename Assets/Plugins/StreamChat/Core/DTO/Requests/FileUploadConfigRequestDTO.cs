@@ -17,21 +17,21 @@ namespace StreamChat.Core.DTO.Requests
     internal partial class FileUploadConfigRequestDTO
     {
         [Newtonsoft.Json.JsonProperty("allowed_file_extensions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> AllowedFileExtensions { get; set; }
+        public System.Collections.Generic.List<string> AllowedFileExtensions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("allowed_mime_types", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> AllowedMimeTypes { get; set; }
+        public System.Collections.Generic.List<string> AllowedMimeTypes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("blocked_file_extensions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> BlockedFileExtensions { get; set; }
+        public System.Collections.Generic.List<string> BlockedFileExtensions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("blocked_mime_types", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> BlockedMimeTypes { get; set; }
+        public System.Collections.Generic.List<string> BlockedMimeTypes { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

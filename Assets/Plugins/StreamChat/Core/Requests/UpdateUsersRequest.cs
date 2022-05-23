@@ -8,7 +8,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Object containing users
         /// </summary>
-        public System.Collections.Generic.IDictionary<string, UserObjectRequest> Users { get; set; } = new System.Collections.Generic.Dictionary<string, UserObjectRequest>();
+        public System.Collections.Generic.Dictionary<string, UserObjectRequest> Users { get; set; }
 
         UpdateUsersRequestDTO ISavableTo<UpdateUsersRequestDTO>.SaveToDto() =>
             new UpdateUsersRequestDTO

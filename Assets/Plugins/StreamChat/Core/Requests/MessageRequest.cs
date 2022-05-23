@@ -14,13 +14,12 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Array of message attachments
         /// </summary>
-        public ICollection<AttachmentRequest> Attachments { get; set; } =
-            new Collection<AttachmentRequest>();
+        public List<AttachmentRequest> Attachments { get; set; }
 
         /// <summary>
         /// Channel unique identifier in <type>:<id> format
         /// </summary>
-        public ICollection<double> Cid { get; set; }
+        public List<double> Cid { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -35,7 +34,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of mentioned users
         /// </summary>
-        public ICollection<string> MentionedUsers { get; set; }
+        public List<string> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -65,14 +64,14 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
-        public ICollection<double> PinnedBy { get; set; }
+        public List<double> PinnedBy { get; set; }
 
         public string QuotedMessageId { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
-        public ICollection<double> ReactionScores { get; set; }
+        public List<double> ReactionScores { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well
