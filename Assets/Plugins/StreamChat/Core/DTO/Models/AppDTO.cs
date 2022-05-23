@@ -29,7 +29,7 @@ namespace StreamChat.Core.DTO.Models
         public bool? CampaignEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_configs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, ChannelConfigDTO> ChannelConfigs { get; set; }
+        public System.Collections.Generic.Dictionary<string, ChannelConfigDTO> ChannelConfigs { get; set; }
 
         [Newtonsoft.Json.JsonProperty("custom_action_handler_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CustomActionHandlerUrl { get; set; }
@@ -47,13 +47,13 @@ namespace StreamChat.Core.DTO.Models
         public FileUploadConfigDTO FileUploadConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? ImageModerationEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_labels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> ImageModerationLabels { get; set; }
+        public System.Collections.Generic.List<string> ImageModerationLabels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_upload_config", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public FileUploadConfigDTO ImageUploadConfig { get; set; }
@@ -71,7 +71,7 @@ namespace StreamChat.Core.DTO.Models
         public string PermissionVersion { get; set; }
 
         [Newtonsoft.Json.JsonProperty("policies", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<PolicyDTO>> Policies { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<PolicyDTO>> Policies { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PushNotificationFieldsDTO PushNotifications { get; set; }
@@ -98,18 +98,18 @@ namespace StreamChat.Core.DTO.Models
         public string SuspendedExplanation { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_search_disallowed_roles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> UserSearchDisallowedRoles { get; set; }
+        public System.Collections.Generic.List<string> UserSearchDisallowedRoles { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> WebhookEvents { get; set; }
+        public System.Collections.Generic.List<string> WebhookEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string WebhookUrl { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

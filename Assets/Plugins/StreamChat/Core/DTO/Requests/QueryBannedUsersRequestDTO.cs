@@ -29,7 +29,7 @@ namespace StreamChat.Core.DTO.Requests
         public System.DateTimeOffset? CreatedAtBeforeOrEqual { get; set; }
 
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Limit { get; set; }
@@ -38,7 +38,7 @@ namespace StreamChat.Core.DTO.Requests
         public double? Offset { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sort", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<SortParamDTO> Sort { get; set; }
+        public System.Collections.Generic.List<SortParamDTO> Sort { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon
@@ -52,10 +52,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

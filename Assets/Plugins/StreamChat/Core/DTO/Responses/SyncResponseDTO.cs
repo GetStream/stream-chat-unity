@@ -26,18 +26,18 @@ namespace StreamChat.Core.DTO.Responses
         /// List of events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<EventDTO> Events { get; set; }
+        public System.Collections.Generic.List<EventDTO> Events { get; set; }
 
         /// <summary>
         /// List of CIDs that user can't access
         /// </summary>
         [Newtonsoft.Json.JsonProperty("inaccessible_cids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> InaccessibleCids { get; set; }
+        public System.Collections.Generic.List<string> InaccessibleCids { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

@@ -110,7 +110,7 @@ namespace StreamChat.Core.DTO.Responses
         /// List of channel members (max 100)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMemberDTO> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMemberDTO> Members { get; set; }
 
         /// <summary>
         /// Date of mute expiration
@@ -128,7 +128,7 @@ namespace StreamChat.Core.DTO.Responses
         /// List of channel capabilities of authenticated user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_capabilities", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> OwnCapabilities { get; set; }
+        public System.Collections.Generic.List<string> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (multi-tenant only)
@@ -151,10 +151,10 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? UpdatedAt { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

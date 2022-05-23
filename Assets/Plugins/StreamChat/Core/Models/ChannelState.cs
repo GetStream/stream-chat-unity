@@ -26,7 +26,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of channel members
         /// </summary>
-        public ICollection<ChannelMember> Members { get; set; }
+        public List<ChannelMember> Members { get; set; }
 
         /// <summary>
         /// Current user membership object
@@ -36,17 +36,17 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of channel messages
         /// </summary>
-        public ICollection<Message> Messages { get; set; }
+        public List<Message> Messages { get; set; }
 
         /// <summary>
         /// List of pinned messages in the channel
         /// </summary>
-        public ICollection<Message> PinnedMessages { get; set; }
+        public List<Message> PinnedMessages { get; set; }
 
         /// <summary>
         /// List of read states
         /// </summary>
-        public ICollection<Read> Read { get; set; }
+        public List<Read> Read { get; set; }
 
         /// <summary>
         /// Number of channel watchers
@@ -56,7 +56,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of user who is watching the channel
         /// </summary>
-        public ICollection<User> Watchers { get; set; }
+        public List<User> Watchers { get; set; }
 
         public bool IsDirectMessage => Channel.MemberCount == 2 && Members.Any(_ => _.User.Id == Channel.CreatedBy.Id);
 

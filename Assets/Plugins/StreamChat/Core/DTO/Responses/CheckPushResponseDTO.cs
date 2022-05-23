@@ -20,7 +20,7 @@ namespace StreamChat.Core.DTO.Responses
         /// Object with device errors
         /// </summary>
         [Newtonsoft.Json.JsonProperty("device_errors", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, DeviceErrorInfoDTO> DeviceErrors { get; set; }
+        public System.Collections.Generic.Dictionary<string, DeviceErrorInfoDTO> DeviceErrors { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -32,7 +32,7 @@ namespace StreamChat.Core.DTO.Responses
         /// List of general errors
         /// </summary>
         [Newtonsoft.Json.JsonProperty("general_errors", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> GeneralErrors { get; set; }
+        public System.Collections.Generic.List<string> GeneralErrors { get; set; }
 
         [Newtonsoft.Json.JsonProperty("rendered_apn_template", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string RenderedApnTemplate { get; set; }
@@ -41,7 +41,7 @@ namespace StreamChat.Core.DTO.Responses
         public string RenderedFirebaseTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("rendered_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, string> RenderedMessage { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> RenderedMessage { get; set; }
 
         /// <summary>
         /// Don't require existing devices to render templates
@@ -49,10 +49,10 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("skip_devices", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? SkipDevices { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

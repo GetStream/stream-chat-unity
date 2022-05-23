@@ -20,7 +20,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Export options for channels
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelExportRequestDTO> Channels { get; set; }
+        public System.Collections.Generic.List<ChannelExportRequestDTO> Channels { get; set; }
 
         /// <summary>
         /// Set if deleted message text should be cleared
@@ -40,10 +40,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("version", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Version { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

@@ -32,7 +32,7 @@ namespace StreamChat.Core.DTO.Responses
         /// Object with mutes (if multiple users were muted)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mutes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserMuteDTO> Mutes { get; set; }
+        public System.Collections.Generic.List<UserMuteDTO> Mutes { get; set; }
 
         /// <summary>
         /// Authorized user object with fresh mutes information
@@ -40,10 +40,10 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("own_user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public OwnUserDTO OwnUser { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

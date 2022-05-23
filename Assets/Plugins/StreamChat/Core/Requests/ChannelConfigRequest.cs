@@ -9,7 +9,7 @@ namespace StreamChat.Core.Requests
 
         public AutomodBehaviourType? BlocklistBehavior { get; set; }
 
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
 
         /// <summary>
         /// Overrides max message length

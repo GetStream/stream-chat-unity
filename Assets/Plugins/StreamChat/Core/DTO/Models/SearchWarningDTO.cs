@@ -20,7 +20,7 @@ namespace StreamChat.Core.DTO.Models
         /// Channel CIDs for the searched channels
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_search_cids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> ChannelSearchCids { get; set; }
+        public System.Collections.Generic.List<string> ChannelSearchCids { get; set; }
 
         /// <summary>
         /// Number of channels searched
@@ -40,10 +40,10 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("warning_description", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string WarningDescription { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

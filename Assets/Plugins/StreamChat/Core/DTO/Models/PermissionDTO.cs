@@ -26,7 +26,7 @@ namespace StreamChat.Core.DTO.Models
         /// MongoDB style condition which decides whether or not the permission is granted
         /// </summary>
         [Newtonsoft.Json.JsonProperty("condition", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> Condition { get; set; }
+        public System.Collections.Generic.Dictionary<string, object> Condition { get; set; }
 
         /// <summary>
         /// Whether this is a custom permission or built-in
@@ -75,12 +75,12 @@ namespace StreamChat.Core.DTO.Models
         /// List of tags of the permission
         /// </summary>
         [Newtonsoft.Json.JsonProperty("tags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Tags { get; set; }
+        public System.Collections.Generic.List<string> Tags { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

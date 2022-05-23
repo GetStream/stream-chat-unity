@@ -51,7 +51,7 @@ namespace StreamChat.Core.DTO.Requests
         public FirebaseConfigRequestDTO FirebaseConfig { get; set; }
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>> Grants { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("huawei_config", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public HuaweiConfigRequestDTO HuaweiConfig { get; set; }
@@ -60,7 +60,7 @@ namespace StreamChat.Core.DTO.Requests
         public bool? ImageModerationEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_labels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> ImageModerationLabels { get; set; }
+        public System.Collections.Generic.List<string> ImageModerationLabels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_upload_config", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public FileUploadConfigRequestDTO ImageUploadConfig { get; set; }
@@ -91,18 +91,18 @@ namespace StreamChat.Core.DTO.Requests
         public string SqsUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_search_disallowed_roles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> UserSearchDisallowedRoles { get; set; }
+        public System.Collections.Generic.List<string> UserSearchDisallowedRoles { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> WebhookEvents { get; set; }
+        public System.Collections.Generic.List<string> WebhookEvents { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string WebhookUrl { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

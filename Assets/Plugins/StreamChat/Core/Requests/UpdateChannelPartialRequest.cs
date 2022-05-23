@@ -7,12 +7,12 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Sets new field values
         /// </summary>
-        public System.Collections.Generic.IDictionary<string, object> Set { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.Dictionary<string, object> Set { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         /// <summary>
         /// Array of field names to unset
         /// </summary>
-        public System.Collections.Generic.ICollection<string> Unset { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> Unset { get; set; } = new System.Collections.Generic.List<string>();
 
         UpdateChannelPartialRequestDTO ISavableTo<UpdateChannelPartialRequestDTO>.SaveToDto() =>
             new UpdateChannelPartialRequestDTO

@@ -2,6 +2,6 @@
 {
     public abstract class ResponseObjectBase
     {
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties { get; set; }
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties { get; set; }
     }
 }

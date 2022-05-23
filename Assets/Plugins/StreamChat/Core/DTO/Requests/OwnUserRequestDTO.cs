@@ -20,7 +20,7 @@ namespace StreamChat.Core.DTO.Requests
         public bool? Banned { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_mutes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMuteRequestDTO> ChannelMutes { get; set; }
+        public System.Collections.Generic.List<ChannelMuteRequestDTO> ChannelMutes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? CreatedAt { get; set; }
@@ -32,7 +32,7 @@ namespace StreamChat.Core.DTO.Requests
         public System.DateTimeOffset? DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("devices", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<DeviceRequestDTO> Devices { get; set; }
+        public System.Collections.Generic.List<DeviceRequestDTO> Devices { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
@@ -47,10 +47,10 @@ namespace StreamChat.Core.DTO.Requests
         public System.DateTimeOffset? LastActive { get; set; }
 
         [Newtonsoft.Json.JsonProperty("latest_hidden_channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> LatestHiddenChannels { get; set; }
+        public System.Collections.Generic.List<string> LatestHiddenChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("mutes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserMuteRequestDTO> Mutes { get; set; }
+        public System.Collections.Generic.List<UserMuteRequestDTO> Mutes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("online", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? Online { get; set; }
@@ -62,7 +62,7 @@ namespace StreamChat.Core.DTO.Requests
         public string Role { get; set; }
 
         [Newtonsoft.Json.JsonProperty("teams", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> Teams { get; set; }
+        public System.Collections.Generic.List<string> Teams { get; set; }
 
         [Newtonsoft.Json.JsonProperty("total_unread_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? TotalUnreadCount { get; set; }
@@ -76,10 +76,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? UpdatedAt { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

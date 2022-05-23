@@ -47,7 +47,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of teams user is a part of
         /// </summary>
-        public ICollection<string> Teams { get; set; }
+        public List<string> Teams { get; set; }
 
         UserObjectRequestDTO ISavableTo<UserObjectRequestDTO>.SaveToDto() =>
             new UserObjectRequestDTO

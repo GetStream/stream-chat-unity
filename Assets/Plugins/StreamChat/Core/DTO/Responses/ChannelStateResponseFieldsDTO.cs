@@ -35,7 +35,7 @@ namespace StreamChat.Core.DTO.Responses
         /// List of channel members
         /// </summary>
         [Newtonsoft.Json.JsonProperty("members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ChannelMemberDTO> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMemberDTO> Members { get; set; }
 
         /// <summary>
         /// Current user membership object
@@ -47,19 +47,19 @@ namespace StreamChat.Core.DTO.Responses
         /// List of channel messages
         /// </summary>
         [Newtonsoft.Json.JsonProperty("messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<MessageDTO> Messages { get; set; }
+        public System.Collections.Generic.List<MessageDTO> Messages { get; set; }
 
         /// <summary>
         /// List of pinned messages in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<MessageDTO> PinnedMessages { get; set; }
+        public System.Collections.Generic.List<MessageDTO> PinnedMessages { get; set; }
 
         /// <summary>
         /// List of read states
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ReadDTO> Read { get; set; }
+        public System.Collections.Generic.List<ReadDTO> Read { get; set; }
 
         /// <summary>
         /// Number of channel watchers
@@ -71,12 +71,12 @@ namespace StreamChat.Core.DTO.Responses
         /// List of user who is watching the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("watchers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<UserObjectDTO> Watchers { get; set; }
+        public System.Collections.Generic.List<UserObjectDTO> Watchers { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

@@ -23,13 +23,13 @@ namespace StreamChat.Core.DTO.Requests
         /// Array of message attachments
         /// </summary>
         [Newtonsoft.Json.JsonProperty("attachments", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<AttachmentRequestDTO> Attachments { get; set; } = new System.Collections.ObjectModel.Collection<AttachmentRequestDTO>();
+        public System.Collections.Generic.List<AttachmentRequestDTO> Attachments { get; set; } = new System.Collections.Generic.List<AttachmentRequestDTO>();
 
         /// <summary>
         /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
         /// </summary>
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<double> Cid { get; set; }
+        public System.Collections.Generic.List<double> Cid { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -47,7 +47,7 @@ namespace StreamChat.Core.DTO.Requests
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> MentionedUsers { get; set; }
+        public System.Collections.Generic.List<string> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -83,7 +83,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Contains user who pinned the message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<double> PinnedBy { get; set; }
+        public System.Collections.Generic.List<double> PinnedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("quoted_message_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string QuotedMessageId { get; set; }
@@ -92,7 +92,7 @@ namespace StreamChat.Core.DTO.Requests
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<double> ReactionScores { get; set; }
+        public System.Collections.Generic.List<double> ReactionScores { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well
@@ -121,10 +121,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

@@ -25,7 +25,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Additional error info
         /// </summary>
-        public System.Collections.Generic.IDictionary<string, string> ExceptionFields { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> ExceptionFields { get; set; }
 
         /// <summary>
         /// Message describing an error

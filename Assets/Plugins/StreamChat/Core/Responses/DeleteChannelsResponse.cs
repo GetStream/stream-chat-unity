@@ -10,7 +10,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public string Duration { get; set; }
 
-        public System.Collections.Generic.IDictionary<string, DeleteChannelsResult> Result { get; set; }
+        public System.Collections.Generic.Dictionary<string, DeleteChannelsResult> Result { get; set; }
 
         public string TaskId { get; set; }
 

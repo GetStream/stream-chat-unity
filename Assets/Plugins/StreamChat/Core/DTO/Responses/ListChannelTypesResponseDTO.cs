@@ -20,7 +20,7 @@ namespace StreamChat.Core.DTO.Responses
         /// Object with all channel types
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_types", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, ChannelTypeConfigDTO> ChannelTypes { get; set; }
+        public System.Collections.Generic.Dictionary<string, ChannelTypeConfigDTO> ChannelTypes { get; set; }
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -28,10 +28,10 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

@@ -17,12 +17,12 @@ namespace StreamChat.Core.DTO.Requests
     internal partial class ExportUsersRequestDTO
     {
         [Newtonsoft.Json.JsonProperty("user_ids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> UserIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> UserIds { get; set; } = new System.Collections.Generic.List<string>();
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

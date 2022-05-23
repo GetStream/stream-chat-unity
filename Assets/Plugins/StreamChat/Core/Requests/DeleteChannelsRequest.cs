@@ -8,7 +8,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// All channels that should be deleted
         /// </summary>
-        public System.Collections.Generic.ICollection<string> Cids { get; set; }
+        public System.Collections.Generic.List<string> Cids { get; set; }
 
         /// <summary>
         /// Specify if channels and all ressources should be hard deleted

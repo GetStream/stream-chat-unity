@@ -20,7 +20,7 @@ namespace StreamChat.Core.DTO.Requests
         /// User IDs to mute (if multiple users)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_ids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<string> TargetIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+        public System.Collections.Generic.List<string> TargetIds { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// Duration of mute in minutes
@@ -40,10 +40,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

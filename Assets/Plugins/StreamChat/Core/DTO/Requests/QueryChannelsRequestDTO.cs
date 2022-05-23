@@ -23,7 +23,7 @@ namespace StreamChat.Core.DTO.Requests
         public string ConnectionId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.IDictionary<string, object> FilterConditions { get; set; }
+        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; }
 
         /// <summary>
         /// Number of channels to limit
@@ -56,7 +56,7 @@ namespace StreamChat.Core.DTO.Requests
         /// List of sort parameters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("sort", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<SortParamRequestDTO> Sort { get; set; } = new System.Collections.ObjectModel.Collection<SortParamRequestDTO>();
+        public System.Collections.Generic.List<SortParamRequestDTO> Sort { get; set; } = new System.Collections.Generic.List<SortParamRequestDTO>();
 
         /// <summary>
         /// Whether to update channel state or not
@@ -82,10 +82,10 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("watch", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? Watch { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

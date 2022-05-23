@@ -14,12 +14,12 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Sets new field values
         /// </summary>
-        public IDictionary<string, object> Set { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Set { get; set; }
 
         /// <summary>
         /// Array of field names to unset
         /// </summary>
-        public ICollection<string> Unset { get; set; } = new Collection<string>();
+        public List<string> Unset { get; set; }
 
         UpdateUserPartialRequestDTO ISavableTo<UpdateUserPartialRequestDTO>.SaveToDto()
         {

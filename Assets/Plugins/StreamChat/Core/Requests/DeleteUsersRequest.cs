@@ -15,7 +15,7 @@ namespace StreamChat.Core.Requests
 
         public DeletionType? User { get; set; }
 
-        public ICollection<string> UserIds { get; set; } = new Collection<string>();
+        public List<string> UserIds { get; set; } = new List<string>();
 
         DeleteUsersRequestDTO ISavableTo<DeleteUsersRequestDTO>.SaveToDto() =>
             new DeleteUsersRequestDTO

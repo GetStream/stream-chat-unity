@@ -26,12 +26,12 @@ namespace StreamChat.Core.DTO.Requests
         /// multipart/form-data field with JSON-encoded array of image size configurations
         /// </summary>
         [Newtonsoft.Json.JsonProperty("upload_sizes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ImageSizeRequestDTO> UploadSizes { get; set; }
+        public System.Collections.Generic.List<ImageSizeRequestDTO> UploadSizes { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }

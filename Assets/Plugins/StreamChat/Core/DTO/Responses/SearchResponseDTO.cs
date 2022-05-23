@@ -38,7 +38,7 @@ namespace StreamChat.Core.DTO.Responses
         /// Search results
         /// </summary>
         [Newtonsoft.Json.JsonProperty("results", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<SearchResultDTO> Results { get; set; }
+        public System.Collections.Generic.List<SearchResultDTO> Results { get; set; }
 
         /// <summary>
         /// Warning about the search results
@@ -46,10 +46,10 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("results_warning", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public SearchWarningDTO ResultsWarning { get; set; }
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
         {
             get { return _additionalProperties; }
             set { _additionalProperties = value; }
