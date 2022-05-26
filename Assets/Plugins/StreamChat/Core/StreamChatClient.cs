@@ -63,7 +63,7 @@ namespace StreamChat.Core
             }
         }
 
-        public static readonly Version SDKVersion = new Version(2, 4, 0);
+        public static readonly Version SDKVersion = new Version(3, 0, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies

@@ -1,3 +1,15 @@
+v3.0.0:
+* Fixes:
+	* Fixed Sample Project compatibility with .NET 4.x
+	* Added missing AdditionalProperties mappings
+
+* Improvements:
+	* IL2CPP Fully supported
+	* Implemented file upload/delete endpoints
+	* Removed UnityEngine dependencies in StreamChat.Core
+    * Removed unnecessary allocation in DTOs
+    * Added code sample & sample project example for video attachment
+
 v2.4.0:
 * Fixes:
 	* Fixed number types in DTOs
@@ -16,7 +28,7 @@ v2.4.0:
 * Breaking changes:
 	* Removed server-side fields & methods (DeleteUserAsync, DeleteUsersAsync, DeleteManyUsersAsync)
 	* Renamed UpdateUsersAsync() -> UpsertUsersAsync() in UserApi
-	
+
 v2.0.0:
 
 * Improvements:
