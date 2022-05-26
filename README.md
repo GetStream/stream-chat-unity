@@ -21,6 +21,7 @@
 The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://getstream.io/chat/sdk/unity/), a service for building chat and messaging games and applications.
 
 - **Unity Engine 2021.x:** Supports the latest version of Unity Engine.
+- **IL2CPP** Support
 - **Realtime events** using websockets.
 - **Messaging:** Send direct or group messages, and have the messages persist across sessions.
 - **Reactions:** Every message can be reacted to by multiple users.
@@ -60,6 +61,15 @@ It is created with Unity's uGUI UI system and supports both legacy and the new U
 How to enable Unity's **[new Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/index.html)**?:
 1. Make sure that the UnityEngine.InputSystem package is available in the project
 2. Add **UnityEngine.InputSystem** dll reference to the **StreamChat.Unity** assembly definition asset
+
+## IL2CPP
+In order to run the SDK with IL2CPP:
+1. Remove the `StreamChat\Libs\Serialization\Newtonsoft.Json.dll`
+2. Replace it with [Unity's package of Newtonsoft Json fork library](https://docs.unity3d.com/Packages/com.unity.nuget.newtonsoft-json@3.0/manual/index.html) which contains IL2CPP fixes
+
+In order to add this package to your project open `Packages/manifest.json` and add this entry:
+`"com.unity.nuget.newtonsoft-json": "3.0.2"`
+In order to avoid assemblies & namespaces conflicts please make sure there is no other newtonsoft json package (like `com.unity.modules.jsonserialize`) or dll already in the project.
 
 ## Dependencies
 
