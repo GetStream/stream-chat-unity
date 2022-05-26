@@ -29,6 +29,12 @@ namespace StreamChat.Tests
                 }
                 else
                 {
+                    if (task.Exception is AggregateException aggregateException &&
+                        aggregateException.InnerExceptions.Count == 1)
+                    {
+                        throw task.Exception.InnerException;
+                    }
+
                     throw task.Exception;
                 }
             }
