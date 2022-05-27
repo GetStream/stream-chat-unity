@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using StreamChat.Core.Exceptions;
+using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Libs.Utils;
 using UnityEngine;
@@ -32,6 +33,29 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);
             });
+        }
+
+        //[UnityTest]
+        public IEnumerator create_channel_with_custom_data()
+        {
+            yield return Client.WaitForClientToConnect();
+
+            var requestBody = new ChannelGetOrCreateRequest
+            {
+                Data = new ChannelRequest
+                {
+                    AdditionalProperties = new Dictionary<string, object>
+                    {
+                        {"MyNumber", 3},
+                        {"MyString", "Hey Joe!"},
+                        {"MyIntArray", new int[]{5, 8, 9}}
+                    }
+                },
+            };
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel("messaging", requestBody, state => channelState = state);
+
+            Assert.AreNotEqual(0, channelState.Channel.AdditionalProperties.Count);
         }
 
         //[UnityTest]
