@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -174,3 +175,4 @@ namespace StreamChat.Tests
         private IHttpClient _mockHttpClient;
     }
 }
+#endif

@@ -1,9 +1,9 @@
-﻿using System.Collections;
+﻿#if STREAM_TESTS_ENABLED
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
-using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration
@@ -13,7 +13,7 @@ namespace StreamChat.Tests.Integration
     /// </summary>
     public class UsersApiIntegrationTests : BaseIntegrationTests
     {
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator Upsert_users()
         {
             yield return Client.WaitForClientToConnect();
@@ -62,7 +62,7 @@ namespace StreamChat.Tests.Integration
             });
         }
 
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator Query_users()
         {
             yield return Client.WaitForClientToConnect();
@@ -141,7 +141,7 @@ namespace StreamChat.Tests.Integration
             yield return queryUsersTask.RunAsIEnumerator(response => { });
         }
 
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator Query_banned_users()
         {
             yield return Client.WaitForClientToConnect();
@@ -220,3 +220,4 @@ namespace StreamChat.Tests.Integration
         }
     }
 }
+#endif

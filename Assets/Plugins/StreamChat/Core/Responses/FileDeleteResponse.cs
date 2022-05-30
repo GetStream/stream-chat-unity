@@ -1,5 +1,4 @@
 ﻿using StreamChat.Core.DTO.Responses;
-using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Responses
 {

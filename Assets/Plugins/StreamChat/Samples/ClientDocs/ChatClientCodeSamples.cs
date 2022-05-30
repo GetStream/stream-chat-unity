@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using StreamChat.Core;
+﻿using StreamChat.Core;
 using StreamChat.Libs.Auth;
 
 namespace Plugins.StreamChat.Samples.ClientDocs

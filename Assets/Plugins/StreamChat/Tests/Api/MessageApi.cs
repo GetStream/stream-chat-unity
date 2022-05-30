@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using NSubstitute;
@@ -147,3 +148,4 @@ namespace StreamChat.Tests.Api
         }
     }
 }
+#endif

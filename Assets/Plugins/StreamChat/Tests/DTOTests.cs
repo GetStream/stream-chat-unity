@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -61,3 +62,4 @@ namespace StreamChat.Tests.Plugins.StreamChat.Tests
         }
     }
 }
+#endif

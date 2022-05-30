@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -8,6 +9,7 @@ using StreamChat.Core.Requests;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Utils;
+using UnityEngine;
 
 namespace StreamChat.Tests.Integration
 {
@@ -16,9 +18,11 @@ namespace StreamChat.Tests.Integration
     /// </summary>
     public abstract class BaseIntegrationTests
     {
-        [SetUp]
+        [OneTimeSetUp]
         public void Up()
         {
+            Debug.Log("------------ Up");
+
             const string ApiKey = "";
 
             var guestAuthCredentials = new AuthCredentials(
@@ -40,9 +44,11 @@ namespace StreamChat.Tests.Integration
             Client.Connect();
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
+            Debug.Log("------------ TearDown");
+
             DeleteTempChannels();
 
             Client.Dispose();
@@ -56,7 +62,7 @@ namespace StreamChat.Tests.Integration
         protected IStreamChatClient Client { get; private set; }
 
         /// <summary>
-        ///  Create temp channel with random name that will be removed in [TearDown]
+        ///  Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
         protected IEnumerator CreateTempUniqueChannel(string channelType,
             ChannelGetOrCreateRequest channelGetOrCreateRequest, Action<ChannelState> onChannelReturned)
@@ -100,3 +106,4 @@ namespace StreamChat.Tests.Integration
         }
     }
 }
+#endif

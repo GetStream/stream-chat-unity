@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿#if STREAM_TESTS_ENABLED
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using UnityEditor;
 using UnityEngine.TestTools;
@@ -15,7 +17,7 @@ namespace StreamChat.Tests.Integration
     /// </summary>
     public class MessagesApiIntegrationTests : BaseIntegrationTests
     {
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator Send_message()
         {
             yield return Client.WaitForClientToConnect();
@@ -44,7 +46,7 @@ namespace StreamChat.Tests.Integration
             });
         }
 
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator Update_message()
         {
             yield return Client.WaitForClientToConnect();
@@ -91,25 +93,17 @@ namespace StreamChat.Tests.Integration
             });
         }
 
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator Send_message_with_url()
         {
             yield return Client.WaitForClientToConnect();
 
             var channelType = "messaging";
-            var channelId = "new-channel-id-1";
 
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId);
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel("messaging", new ChannelGetOrCreateRequest(), state => channelState = state);
 
-            yield return deleteChannelTask.RunAsIEnumerator(onFaulted: exception =>
-            {
-                //ignore if deletion failed
-            });
-
-            var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
-
-            yield return createChannelTask.RunAsIEnumerator();
+            var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
             {
@@ -123,9 +117,6 @@ namespace StreamChat.Tests.Integration
 
             yield return messageResponseTask.RunAsIEnumerator(response => { });
 
-            //wait for message to propagate
-            yield return UnityTestUtils.WaitForSeconds(0.5f);
-
             var createChannelTask2 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
                 {
@@ -133,8 +124,9 @@ namespace StreamChat.Tests.Integration
                     Messages = new MessagePaginationParamsRequest()
                     {
                         Limit = 30,
-                        Offset = 0
-                    }
+                        Offset = 0,
+
+                    },
                 });
 
             yield return createChannelTask2.RunAsIEnumerator(response =>
@@ -144,7 +136,7 @@ namespace StreamChat.Tests.Integration
             });
         }
 
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator Send_silent_message()
         {
             yield return Client.WaitForClientToConnect();
@@ -211,7 +203,7 @@ namespace StreamChat.Tests.Integration
             });
         }
 
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator UploadFile()
         {
             yield return Client.WaitForClientToConnect();
@@ -230,15 +222,10 @@ namespace StreamChat.Tests.Integration
             var request = new ChannelGetOrCreateRequest();
 
             var channelType = "messaging";
-            var channelId = "new-channel-id-1";
 
-            var getOrCreateChannelTask = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
-
-            yield return getOrCreateChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(channelId, response.Channel.Id);
-                Assert.AreEqual(channelType, response.Channel.Type);
-            });
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            var channelId = channelState.Channel.Id;
 
             var uploadFileTask = Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
 
@@ -272,7 +259,7 @@ namespace StreamChat.Tests.Integration
             });
         }
 
-        //[UnityTest]
+        [UnityTest]
         public IEnumerator DeleteFile()
         {
             yield return Client.WaitForClientToConnect();
@@ -291,15 +278,10 @@ namespace StreamChat.Tests.Integration
             var request = new ChannelGetOrCreateRequest();
 
             var channelType = "messaging";
-            var channelId = "new-channel-id-1";
 
-            var getOrCreateChannelTask = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
-
-            yield return getOrCreateChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(channelId, response.Channel.Id);
-                Assert.AreEqual(channelType, response.Channel.Type);
-            });
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            var channelId = channelState.Channel.Id;
 
             var uploadFileTask = Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
 
@@ -319,3 +301,4 @@ namespace StreamChat.Tests.Integration
         }
     }
 }
+#endif
