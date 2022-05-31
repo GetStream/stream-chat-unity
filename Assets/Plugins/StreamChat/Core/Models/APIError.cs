@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using StreamChat.Core.DTO.Models;
-using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Models
 {

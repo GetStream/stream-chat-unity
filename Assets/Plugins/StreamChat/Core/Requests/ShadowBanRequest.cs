@@ -1,6 +1,4 @@
-﻿using StreamChat.Core.Requests;
-
-namespace StreamChat.Core.Requests
+﻿namespace StreamChat.Core.Requests
 {
     public class ShadowBanRequest : BanRequest
     {
