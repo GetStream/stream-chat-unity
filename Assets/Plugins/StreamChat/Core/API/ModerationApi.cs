@@ -26,42 +26,42 @@ namespace StreamChat.Core.API
                 muteUserRequest);
         }
 
-        public Task<MuteUserResponse> UnmuteUserAsync(MuteUserRequest muteUserRequest)
+        public Task<UnmuteResponse> UnmuteUserAsync(UnmuteUserRequest unmuteUserRequest)
         {
             var endpoint = ModerationEndpoints.UnmuteUser();
 
-            return Post<MuteUserRequest, MuteUserRequestDTO, MuteUserResponse, MuteUserResponseDTO>(endpoint,
-                muteUserRequest);
+            return Post<UnmuteUserRequest, UnmuteUserRequestDTO, UnmuteResponse, UnmuteResponseDTO>(endpoint,
+                unmuteUserRequest);
         }
 
-        public Task<ApiResponse> BanAsync(BanRequest banRequest)
+        public Task<ApiResponse> BanUserAsync(BanRequest banRequest)
         {
             var endpoint = "/moderation/ban";
 
             return Post<BanRequest, BanRequestDTO, ApiResponse, ResponseDTO>(endpoint, banRequest);
         }
 
-        public Task<ApiResponse> UnbanAsync(string userId, string channelId, string channelType)
+        public Task<ApiResponse> UnbanUserAsync(UnbanRequest unbanRequest)
         {
             var endpoint = "/moderation/ban";
 
             var parameters = QueryParameters.Default
-                .Append("target_user_id", userId)
-                .Append("type", channelType)
-                .Append("id", channelId);
+                .Append("target_user_id", unbanRequest.TargetUserId)
+                .Append("type", unbanRequest.Type)
+                .Append("id", unbanRequest.Id);
 
             return Delete<ApiResponse, ResponseDTO>(endpoint, parameters);
         }
 
-        public Task<ApiResponse> ShadowBanAsync(ShadowBanRequest shadowBanRequest)
+        public Task<ApiResponse> ShadowBanUserAsync(ShadowBanRequest shadowBanRequest)
         {
             var endpoint = "/moderation/ban";
 
             return Post<BanRequest, BanRequestDTO, ApiResponse, ResponseDTO>(endpoint, shadowBanRequest);
         }
 
-        public Task<ApiResponse> RemoveShadowBanAsync(string userId, string channelId, string channelType)
-            => UnbanAsync(userId, channelId, channelType);
+        public Task<ApiResponse> RemoveUserShadowBanAsync(UnbanRequest unbanRequest)
+            => UnbanUserAsync(unbanRequest);
 
         public Task<QueryBannedUsersResponse> QueryBannedUsersAsync(QueryBannedUsersRequest queryBannedUsersRequest)
         {

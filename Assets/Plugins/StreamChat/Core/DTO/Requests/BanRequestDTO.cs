@@ -62,7 +62,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Timeout of ban in minutes. User will be unbanned after this period of time
         /// </summary>
         [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Timeout { get; set; }
+        public int? Timeout { get; set; }
 
         /// <summary>
         /// Channel type to ban user in

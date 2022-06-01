@@ -24,47 +24,47 @@ namespace StreamChat.Core.API
         /// Use <see cref="MuteAsync"/> method to mute a user.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#mutes</remarks>
-        Task<MuteUserResponse> UnmuteUserAsync(MuteUserRequest muteUserRequest);
+        Task<UnmuteResponse> UnmuteUserAsync(UnmuteUserRequest unmuteUserRequest);
 
         /// <summary>
         /// <para>Bans a user.</para>
         /// Users can be banned from an app entirely or from a channel.
         /// When a user is banned, they will not be allowed to post messages until the
         /// ban is removed or expired but will be able to connect to Chat and to channels as before.
-        /// To unban a user, use <see cref="UnbanAsync"/> method.
+        /// To unban a user, use <see cref="UnbanUserAsync"/> method.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
-        Task<ApiResponse> BanAsync(BanRequest banRequest);
+        Task<ApiResponse> BanUserAsync(BanRequest banRequest);
 
         /// <summary>
         /// <para>Unbans a user.</para>
         /// Users can be banned from an app entirely or from a channel.
         /// When a user is banned, they will not be allowed to post messages until the
         /// ban is removed or expired but will be able to connect to Chat and to channels as before.
-        /// To ban a user, use <see cref="BanAsync"/> method.
+        /// To ban a user, use <see cref="BanUserAsync"/> method.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
-        Task<ApiResponse> UnbanAsync(string userId, string channelId, string channelType);
+        Task<ApiResponse> UnbanUserAsync(UnbanRequest unbanRequest);
 
         /// <summary>
         /// <para>Shadow bans a user.</para>
         /// When a user is shadow banned, they will still be allowed to post messages,
         /// but any message sent during the will only be visible to the messages author
         /// and invisible to other users of the App.
-        /// To remove a shadow ban, use <see cref="RemoveShadowBanAsync"/> method.
+        /// To remove a shadow ban, use <see cref="RemoveUserShadowBanAsync"/> method.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks>
-        Task<ApiResponse> ShadowBanAsync(ShadowBanRequest shadowBanRequest);
+        Task<ApiResponse> ShadowBanUserAsync(ShadowBanRequest shadowBanRequest);
 
         /// <summary>
         /// <para>Removes a shadow ban from a user.</para>
         /// When a user is shadow banned, they will still be allowed to post messages,
         /// but any message sent during the will only be visible to the messages author
         /// and invisible to other users of the App.
-        /// To shadow ban a user, use <see cref="ShadowBanAsync"/> method.
+        /// To shadow ban a user, use <see cref="ShadowBanUserAsync"/> method.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks>
-        Task<ApiResponse> RemoveShadowBanAsync(string userId, string channelId, string channelType);
+        Task<ApiResponse> RemoveUserShadowBanAsync(UnbanRequest unbanRequest);
 
         /// <summary>
         /// <para>Queries banned users.</para>

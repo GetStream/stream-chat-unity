@@ -9,7 +9,6 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public string Duration { get; set; }
 
-
         UnmuteResponse ILoadableFrom<UnmuteResponseDTO, UnmuteResponse>.LoadFromDto(UnmuteResponseDTO dto)
         {
             Duration = dto.Duration;

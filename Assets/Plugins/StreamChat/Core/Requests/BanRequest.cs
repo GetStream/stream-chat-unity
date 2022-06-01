@@ -43,7 +43,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Timeout of ban in minutes. User will be unbanned after this period of time
         /// </summary>
-        public double? Timeout { get; set; }
+        public int? Timeout { get; set; }
 
         /// <summary>
         /// Channel type to ban user in

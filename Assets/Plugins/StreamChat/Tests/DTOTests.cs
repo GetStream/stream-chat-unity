@@ -6,7 +6,7 @@ using System.Text;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace StreamChat.Tests.Plugins.StreamChat.Tests
+namespace StreamChat.Tests
 {
     public class DTOTests
     {

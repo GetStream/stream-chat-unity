@@ -26,7 +26,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Duration of mute in minutes
         /// </summary>
         [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Timeout { get; set; }
+        public int? Timeout { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon

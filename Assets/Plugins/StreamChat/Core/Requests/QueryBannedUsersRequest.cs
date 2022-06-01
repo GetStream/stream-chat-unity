@@ -15,7 +15,7 @@ namespace StreamChat.Core.Requests
 
         public System.DateTimeOffset? CreatedAtBeforeOrEqual { get; set; }
 
-        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; }
 
         public double? Limit { get; set; }
 
