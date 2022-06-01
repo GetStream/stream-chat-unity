@@ -23,12 +23,6 @@ namespace StreamChat.Core.DTO.Requests
         public System.Collections.Generic.List<string> TargetIds { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
-        /// Duration of mute in minutes
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Timeout { get; set; }
-
-        /// <summary>
         /// **Server-side only**. User object which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

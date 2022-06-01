@@ -25,5 +25,50 @@ namespace StreamChat.Core.API
             return Post<MuteUserRequest, MuteUserRequestDTO, MuteUserResponse, MuteUserResponseDTO>(endpoint,
                 muteUserRequest);
         }
+
+        public Task<UnmuteResponse> UnmuteUserAsync(UnmuteUserRequest unmuteUserRequest)
+        {
+            var endpoint = ModerationEndpoints.UnmuteUser();
+
+            return Post<UnmuteUserRequest, UnmuteUserRequestDTO, UnmuteResponse, UnmuteResponseDTO>(endpoint,
+                unmuteUserRequest);
+        }
+
+        public Task<ApiResponse> BanUserAsync(BanRequest banRequest)
+        {
+            var endpoint = "/moderation/ban";
+
+            return Post<BanRequest, BanRequestDTO, ApiResponse, ResponseDTO>(endpoint, banRequest);
+        }
+
+        public Task<ApiResponse> UnbanUserAsync(UnbanRequest unbanRequest)
+        {
+            var endpoint = "/moderation/ban";
+
+            var parameters = QueryParameters.Default
+                .Append("target_user_id", unbanRequest.TargetUserId)
+                .Append("type", unbanRequest.Type)
+                .Append("id", unbanRequest.Id);
+
+            return Delete<ApiResponse, ResponseDTO>(endpoint, parameters);
+        }
+
+        public Task<ApiResponse> ShadowBanUserAsync(ShadowBanRequest shadowBanRequest)
+        {
+            var endpoint = "/moderation/ban";
+
+            return Post<BanRequest, BanRequestDTO, ApiResponse, ResponseDTO>(endpoint, shadowBanRequest);
+        }
+
+        public Task<ApiResponse> RemoveUserShadowBanAsync(UnbanRequest unbanRequest)
+            => UnbanUserAsync(unbanRequest);
+
+        public Task<QueryBannedUsersResponse> QueryBannedUsersAsync(QueryBannedUsersRequest queryBannedUsersRequest)
+        {
+            var endpoint = "/query_banned_users";
+
+            return Get<QueryBannedUsersRequest, QueryBannedUsersRequestDTO, QueryBannedUsersResponse,
+                QueryBannedUsersResponseDTO>(endpoint, queryBannedUsersRequest);
+        }
     }
 }

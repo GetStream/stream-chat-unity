@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 

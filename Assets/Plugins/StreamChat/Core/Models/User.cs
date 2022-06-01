@@ -53,7 +53,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public bool? Online { get; set; }
 
-        public PushNotificationSettings PushNotifications { get; set; } //Todo: DTO -> Model
+        public PushNotificationSettings PushNotifications { get; set; }
 
         /// <summary>
         /// Revocation date for tokens
