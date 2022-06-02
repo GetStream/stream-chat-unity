@@ -85,13 +85,6 @@ namespace StreamChat.Core.API
         Task<FlagResponse> FlagUserAsync(string targetUserId);
 
         /// <summary>
-        /// <para>Unflags a user.</para>
-        /// To flag a user, use <see cref="FlagUserAsync"/> method.
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity</remarks>
-        Task<FlagResponse> UnflagUserAsync(string targetUserId);
-
-        /// <summary>
         /// <para>Flags a message.</para>
         /// Any user is allowed to flag a message. This triggers the
         /// message.flagged webhook event and adds the message to the inbox of your Stream Dashboard Chat Moderation view.
@@ -99,15 +92,6 @@ namespace StreamChat.Core.API
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity</remarks>
         Task<FlagResponse> FlagMessageAsync(string targetMessageId);
-
-        /// <summary>
-        /// <para>Unflags a message.</para>
-        /// Any user is allowed to flag a message. This triggers the
-        /// message.flagged webhook event and adds the message to the inbox of your Stream Dashboard Chat Moderation view.
-        /// To flag a message, use <see cref="FlagMessageAsync"/> method.
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity</remarks>
-        Task<FlagResponse> UnflagMessageAsync(string targetMessageId);
 
         /// <summary>
         /// <para>Queries message flags.</para>

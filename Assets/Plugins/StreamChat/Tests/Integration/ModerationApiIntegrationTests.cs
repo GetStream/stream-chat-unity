@@ -333,32 +333,6 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(TestUserId, response.Flag.TargetUser.Id);
             });
         }
-
-        [UnityTest]
-        public IEnumerator When_user_unflagged_expect_response_target_user_id_match()
-        {
-            yield return Client.WaitForClientToConnect();
-
-            var channelType = "messaging";
-
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState = state);
-
-            var flagMessageTask = Client.ModerationApi.FlagUserAsync(TestUserId);
-
-            yield return flagMessageTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(TestUserId, response.Flag.TargetUser.Id);
-            });
-
-            var unflagMessageTask = Client.ModerationApi.UnflagUserAsync(TestUserId);
-
-            yield return unflagMessageTask.RunAsIEnumerator(response =>
-            {
-
-            });
-        }
     }
 }
 #endif

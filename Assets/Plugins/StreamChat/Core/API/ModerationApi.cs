@@ -84,35 +84,9 @@ namespace StreamChat.Core.API
                 FlagResponseDTO>(endpoint, request);
         }
 
-        public Task<FlagResponse> UnflagUserAsync(string targetUserId)
-        {
-            var endpoint = "/moderation/unflag";
-
-            var request = new FlagRequest
-            {
-                TargetUserId = targetUserId
-            };
-
-            return Post<FlagRequest, FlagRequestDTO, FlagResponse,
-                FlagResponseDTO>(endpoint, request);
-        }
-
         public Task<FlagResponse> FlagMessageAsync(string targetMessageId)
         {
             var endpoint = "/moderation/flag";
-
-            var request = new FlagRequest
-            {
-                TargetMessageId = targetMessageId
-            };
-
-            return Post<FlagRequest, FlagRequestDTO, FlagResponse,
-                FlagResponseDTO>(endpoint, request);
-        }
-
-        public Task<FlagResponse> UnflagMessageAsync(string targetMessageId)
-        {
-            var endpoint = "/moderation/unflag";
 
             var request = new FlagRequest
             {
