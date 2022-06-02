@@ -94,7 +94,40 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Type = channel.Type
             };
 
-            var banResponse = await Client.ModerationApi.UnbanUserAsync(unbanRequest);
+            var unbanResponse = await Client.ModerationApi.UnbanUserAsync(unbanRequest);
+        }
+
+        public async Task ShadowBanUserFor24Hour()
+        {
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channel = channelState.Channel;
+
+            //Shadow Ban user with id: `user-to-ban-id` for 24 hours
+            var banRequest = new ShadowBanRequest
+            {
+                TargetUserId = "user-to-ban-id",
+                Id = channel.Id,
+                Type = channel.Type,
+                Timeout = 60 * 24,
+                Reason = "Toxic behaviour towards other users"
+            };
+
+            var shadowBanResponse = await Client.ModerationApi.ShadowBanUserAsync(banRequest);
+        }
+
+        public async Task RemoveUserShadowBan()
+        {
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channel = channelState.Channel;
+
+            var unbanRequest = new UnbanRequest
+            {
+                TargetUserId = "banned-user-id",
+                Id = channel.Id,
+                Type = channel.Type
+            };
+
+            var unbanResponse = await Client.ModerationApi.RemoveUserShadowBanAsync(unbanRequest);
         }
 
         public async Task ShadowBanUser()
@@ -140,8 +173,6 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             };
 
             var queryBannedUsersResponse = await Client.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
-
-
         }
 
         private IStreamChatClient Client;
