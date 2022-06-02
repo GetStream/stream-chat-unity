@@ -17,12 +17,6 @@ namespace StreamChat.Core.DTO.Requests
     internal partial class DeactivateUserRequestDTO
     {
         /// <summary>
-        /// **Server-side only**. ID of user who deactivated the user
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("created_by_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string CreatedById { get; set; }
-
-        /// <summary>
         /// Makes messages appear to be deleted
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mark_messages_deleted", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -39,7 +33,6 @@ namespace StreamChat.Core.DTO.Requests
             get { return _additionalProperties; }
             set { _additionalProperties = value; }
         }
-
     }
 
 }
