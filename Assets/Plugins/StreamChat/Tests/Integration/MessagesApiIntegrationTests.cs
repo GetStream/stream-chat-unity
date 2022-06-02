@@ -125,12 +125,13 @@ namespace StreamChat.Tests.Integration
                     {
                         Limit = 30,
                         Offset = 0,
-
                     },
                 });
 
             yield return createChannelTask2.RunAsIEnumerator(response =>
             {
+                Assert.IsNotNull(response.Messages);
+                Assert.IsNotEmpty(response.Messages);
                 Assert.AreEqual(response.Messages.Last().Attachments.First().AuthorName, "Imgur");
                 Assert.AreEqual(response.Messages.Last().Attachments.First().TitleLink, "https://imgur.com/4zmGbMN");
             });
@@ -142,19 +143,11 @@ namespace StreamChat.Tests.Integration
             yield return Client.WaitForClientToConnect();
 
             var channelType = "messaging";
-            var channelId = "new-channel-id-1";
 
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId);
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel("messaging", new ChannelGetOrCreateRequest(), state => channelState = state);
 
-            yield return deleteChannelTask.RunAsIEnumerator(onFaulted: exception =>
-            {
-                //ignore if deletion failed
-            });
-
-            var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
-
-            yield return createChannelTask.RunAsIEnumerator();
+            var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
             {
