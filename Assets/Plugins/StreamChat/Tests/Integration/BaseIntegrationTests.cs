@@ -9,6 +9,7 @@ using StreamChat.Core.Requests;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Utils;
+using UnityEditor;
 using UnityEngine;
 
 namespace StreamChat.Tests.Integration
@@ -77,6 +78,20 @@ namespace StreamChat.Tests.Integration
                 _tempChannelsToDelete.Add((response.Channel.Type, response.Channel.Id));
                 onChannelReturned(response);
             });
+        }
+
+        protected IEnumerator InternalWaitForSeconds(float seconds)
+        {
+            if (seconds <= 0)
+            {
+                yield break;
+            }
+            var currentTime = EditorApplication.timeSinceStartup;
+
+            while ((EditorApplication.timeSinceStartup - currentTime) < seconds)
+            {
+                yield return null;
+            }
         }
 
         private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =

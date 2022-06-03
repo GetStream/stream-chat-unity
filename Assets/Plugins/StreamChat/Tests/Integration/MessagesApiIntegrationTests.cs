@@ -117,6 +117,9 @@ namespace StreamChat.Tests.Integration
 
             yield return messageResponseTask.RunAsIEnumerator(response => { });
 
+            //Message is not always immediately available due to data propagation
+            yield return InternalWaitForSeconds(0.2f);
+
             var createChannelTask2 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
                 {
