@@ -30,7 +30,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task BanUserForOneHour()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
             //Ban user with id: `user-to-ban-id` for 1 hour
@@ -48,7 +50,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task BanUserPermanently()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
             //Ban user with id: `user-to-ban-id` permanently
@@ -65,7 +69,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task BanUserAndIPAddress()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
             //Ban user with id: `user-to-ban-id` along with his last know IP address for 24 hours
@@ -84,7 +90,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task UnbanUser()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
             var unbanRequest = new UnbanRequest
@@ -99,7 +107,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task ShadowBanUserFor24Hour()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
             //Shadow Ban user with id: `user-to-ban-id` for 24 hours
@@ -117,7 +127,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task RemoveUserShadowBan()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
             var unbanRequest = new UnbanRequest
@@ -132,7 +144,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task ShadowBanUser()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
             //Ban user with id: `user-to-ban-id` along with his last know IP address for 24 hours
@@ -150,17 +164,21 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task QueryBannedUsers()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
             var queryBannedUsersRequest = new QueryBannedUsersRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
-                    {"channel_cid", new Dictionary<string, object>()
                     {
-                        { "$eq", channel.Cid }
-                    }}
+                        "channel_cid", new Dictionary<string, object>()
+                        {
+                            { "$eq", channel.Cid }
+                        }
+                    }
                 },
                 Sort = new List<SortParam>
                 {
@@ -173,6 +191,39 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             };
 
             var queryBannedUsersResponse = await Client.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
+        }
+
+        public async Task FlagMessage()
+        {
+            var flagMessageResponse = await Client.ModerationApi.FlagMessageAsync("message-id-1");
+        }
+
+        public async Task FlagUser()
+        {
+            var flagUserResponse = await Client.ModerationApi.FlagUserAsync("user-id-1");
+        }
+
+        public async Task QueryFlaggedMessages()
+        {
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                    new ChannelGetOrCreateRequest());
+            var channel = channelState.Channel;
+
+            var queryMessageFlagsRequest = new QueryMessageFlagsRequest
+            {
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "channel_cid", new Dictionary<string, object>
+                        {
+                            { "$eq", channel.Cid } //Note we use CID here instead of ID
+                        }
+                    }
+                }
+            };
+
+            var queryMessageFlagsResponse = await Client.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
         }
 
         private IStreamChatClient Client;
