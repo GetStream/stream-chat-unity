@@ -28,18 +28,6 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("target_user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TargetUserId { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequestDTO User { get; set; }
-
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string UserId { get; set; }
-
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]

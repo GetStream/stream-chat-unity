@@ -76,5 +76,30 @@ namespace StreamChat.Core.API
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#query-banned-users</remarks>
         Task<QueryBannedUsersResponse> QueryBannedUsersAsync(QueryBannedUsersRequest queryBannedUsersRequest);
+
+        /// <summary>
+        /// <para>Flags a user.</para>
+        /// To unflag a user, use <see cref="UnflagUserAsync"/> method.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity</remarks>
+        Task<FlagResponse> FlagUserAsync(string targetUserId);
+
+        /// <summary>
+        /// <para>Flags a message.</para>
+        /// Any user is allowed to flag a message. This triggers the
+        /// message.flagged webhook event and adds the message to the inbox of your Stream Dashboard Chat Moderation view.
+        /// To unflag a message, use <see cref="UnflagMessageAsync"/> method.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity</remarks>
+        Task<FlagResponse> FlagMessageAsync(string targetMessageId);
+
+        /// <summary>
+        /// <para>Queries message flags.</para>
+        /// If you prefer to build your own in app moderation dashboard, rather than use the Stream
+        /// dashboard, then the query message flags endpoint lets you get flagged messages. Similar
+        /// to other queries in Stream Chat, you can filter the flags using query operators.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#query-message-flags</remarks>
+        Task<QueryMessageFlagsResponse> QueryMessageFlagsAsync(QueryMessageFlagsRequest queryMessageFlagsRequest);
     }
 }

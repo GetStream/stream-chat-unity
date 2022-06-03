@@ -70,5 +70,39 @@ namespace StreamChat.Core.API
             return Get<QueryBannedUsersRequest, QueryBannedUsersRequestDTO, QueryBannedUsersResponse,
                 QueryBannedUsersResponseDTO>(endpoint, queryBannedUsersRequest);
         }
+
+        public Task<FlagResponse> FlagUserAsync(string targetUserId)
+        {
+            var endpoint = "/moderation/flag";
+
+            var request = new FlagRequest
+            {
+                TargetUserId = targetUserId
+            };
+
+            return Post<FlagRequest, FlagRequestDTO, FlagResponse,
+                FlagResponseDTO>(endpoint, request);
+        }
+
+        public Task<FlagResponse> FlagMessageAsync(string targetMessageId)
+        {
+            var endpoint = "/moderation/flag";
+
+            var request = new FlagRequest
+            {
+                TargetMessageId = targetMessageId
+            };
+
+            return Post<FlagRequest, FlagRequestDTO, FlagResponse,
+                FlagResponseDTO>(endpoint, request);
+        }
+
+        public Task<QueryMessageFlagsResponse> QueryMessageFlagsAsync(QueryMessageFlagsRequest queryMessageFlagsRequest)
+        {
+            var endpoint = "/moderation/flags/message";
+
+            return Get<QueryMessageFlagsRequest, QueryMessageFlagsRequestDTO, QueryMessageFlagsResponse,
+                QueryMessageFlagsResponseDTO>(endpoint, queryMessageFlagsRequest);
+        }
     }
 }
