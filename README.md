@@ -20,17 +20,20 @@
 
 The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://getstream.io/chat/sdk/unity/), a service for building chat and messaging games and applications.
 
-- **Unity Engine 2021.x:** Supports the latest version of Unity Engine.
+- **Unity Engine 2021.x & 2020.x Support**
 - **IL2CPP** Support
-- **Realtime events** using websockets.
-- **Messaging:** Send direct or group messages, and have the messages persist across sessions.
-- **Reactions:** Every message can be reacted to by multiple users.
-- **Channels:** Messages are grouped within channels.
-- **Fully open-source** implementation: You have access to the complete source code of the SDK here on GitHub.
+- **Realtime** Highly responsive events using Websockets
+- **Messaging:** Send direct or group messages, and have the messages persist across sessions
+- **Channels:** group channels, private messages, etc.
+- **Reactions:** Every message can be reacted to by multiple users
+- **Moderation:** Banning (temporary, permanent, shadow), Muting (users, channels), Flagging (messages, users)
+- **Roles & Permissions:** Admins, Moderators, custom roles with custom permission
+- **Moderation Dashboard** Dedicated web panel to handle moderation
+- **Fully open-source**: Complete access to the SDK source code here on GitHub
 
 ## Free for Indie Developers
 
-Stream is free for most side and hobby projects. You can use Stream Chat for free if you have less than five team members and no more than $10,000 in monthly revenue. Visit our website and apply for the Makers Account.
+Stream is free for most side and hobby projects. You can use Stream Chat for free if you have less than five team members and no more than $10,000 in monthly revenue. Visit our website and [apply for the Makers Account](https://getstream.io/maker-account/).
 
 ## Getting Started
 
@@ -63,22 +66,16 @@ How to enable Unity's **[new Input System](https://docs.unity3d.com/Packages/com
 2. Add **UnityEngine.InputSystem** dll reference to the **StreamChat.Unity** assembly definition asset
 
 ## IL2CPP
-In order to run the SDK with IL2CPP:
-1. Remove the `StreamChat\Libs\Serialization\Newtonsoft.Json.dll`
-2. Replace it with [Unity's package of Newtonsoft Json fork library](https://docs.unity3d.com/Packages/com.unity.nuget.newtonsoft-json@3.0/manual/index.html) which contains IL2CPP fixes
-
-In order to add this package to your project open `Packages/manifest.json` and add this entry:
-`"com.unity.nuget.newtonsoft-json": "3.0.2"`
-In order to avoid assemblies & namespaces conflicts please make sure there is no other newtonsoft json package (like `com.unity.modules.jsonserialize`) or dll already in the project.
+SDK runs out of the box with IL2CPP
 
 ## Dependencies
 
 - **TextMeshPro** StreamChat/SampleProject requires a TextMeshPro package
-- **Newtonsoft.Json** SDK uses Newtonsoft Json Library for serialization.
+- **Newtonsoft.Json** SDK uses [Unity's packge of Newtonsoft Json](com.unity.nuget.newtonsoft-json@3.0) Library for serialization.
 
 :warning: In case you already have the Newtonsoft Json dll or package in your project and encounter the following error:<br>
 `Multiple precompiled assemblies with the same name Newtonsoft.Json.dll included or the current platform. Only one assembly with the same name is allowed per platform.`
-<br>you can remove the `StreamChat\Libs\Serialization\Newtonsoft.Json.dll`
+<br>you can remove the `StreamChat\Libs\Serialization\com.unity.nuget.newtonsoft-json@3.0.2` directory
 
 ## Missing any features?
 Go ahead and open GitHub Issue with your request and we'll respond as soon as possible.
