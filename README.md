@@ -71,7 +71,7 @@ SDK runs out of the box with IL2CPP
 ## Dependencies
 
 - **TextMeshPro** StreamChat/SampleProject requires a TextMeshPro package
-- **Newtonsoft.Json** SDK uses [Unity's packge of Newtonsoft Json](com.unity.nuget.newtonsoft-json@3.0) Library for serialization.
+- **Newtonsoft.Json** SDK uses [Unity's packge of Newtonsoft Json]([com.unity.nuget.newtonsoft-json@3.0](https://docs.unity3d.com/Packages/com.unity.nuget.newtonsoft-json@3.0/manual/index.html)) Library for serialization.
 
 :warning: In case you already have the Newtonsoft Json dll or package in your project and encounter the following error:<br>
 `Multiple precompiled assemblies with the same name Newtonsoft.Json.dll included or the current platform. Only one assembly with the same name is allowed per platform.`
