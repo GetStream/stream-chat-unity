@@ -1,7 +1,8 @@
+using System;
 using System.Linq;
 using StreamChat.Core;
+using StreamChat.Editor.DefineSymbols;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEngine;
 
 namespace StreamChat.EditorTools
@@ -15,13 +16,13 @@ namespace StreamChat.EditorTools
         [MenuItem(MenuPrefix + "Toggle Stream Integration & Unit Tests Enabled")]
         public static void ToggleStreamTestsEnabledCompilerFlag()
         {
+            var unityDefineSymbols = new UnityDefineSymbolsFactory().CreateDefault();
+
             var activeBuildTarget = EditorUserBuildSettings.activeBuildTarget;
-            var group = BuildPipeline.GetBuildTargetGroup(activeBuildTarget);
-            var namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(group);
 
-            var scriptingDefineSymbols = PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget);
+            var symbols = unityDefineSymbols.GetScriptingDefineSymbols(activeBuildTarget).ToList();
 
-            var symbols = scriptingDefineSymbols.Split(';').ToList();
+            var prevCombined = string.Join(", ", symbols);
 
             if (symbols.Contains(StreamTestsEnabledCompilerFlag))
             {
@@ -32,11 +33,11 @@ namespace StreamChat.EditorTools
                 symbols.Add(StreamTestsEnabledCompilerFlag);
             }
 
-            var newScriptingDefineSymbols = string.Join(";", symbols);
+            var currentCombined = string.Join(", ", symbols);
 
-            PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, newScriptingDefineSymbols);
+            unityDefineSymbols.SetScriptingDefineSymbols(activeBuildTarget, symbols);
 
-            Debug.Log($"Editor scripting define symbols have been modified from: `{scriptingDefineSymbols}` to: `{newScriptingDefineSymbols}` for named build target: `{namedBuildTarget.TargetName}`");
+            Debug.Log($"Editor scripting define symbols have been modified from: `{prevCombined}` to: `{currentCombined}` for named build target: `{Enum.GetName(typeof(BuildTarget), activeBuildTarget)}`");
         }
     }
 }
