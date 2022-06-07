@@ -24,9 +24,6 @@ namespace StreamChat.Core
     /// Stream Chat Client - maintains WebSockets connection, executes API calls and exposes Stream events to which you can subscribe.
     /// There should be only one instance of this client in your application.
     /// </summary>
-    /// <remarks>
-    /// The only case where you might want to have multiple instances is if you'd be creating an app which maintains multiple users connected simultaneously.
-    /// </remarks>
     public class StreamChatClient : IStreamChatClient
     {
         public const string MenuPrefix = "Stream/";
@@ -40,8 +37,8 @@ namespace StreamChat.Core
         public event Action<string> EventReceived;
 
         public event Action<EventMessageNew> MessageReceived;
-        public event Action<EventMessageDeleted> MessageDeleted;
         public event Action<EventMessageUpdated> MessageUpdated;
+        public event Action<EventMessageDeleted> MessageDeleted;
 
         public event Action<EventReactionNew> ReactionReceived;
         public event Action<EventReactionUpdated> ReactionUpdated;
