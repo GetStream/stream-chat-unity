@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -134,6 +135,8 @@ namespace StreamChat.Core
             UserApi = new UserApi(httpClient, serializer, logs, _requestUriFactory);
 
             RegisterEventHandlers();
+
+            LogErrorIfUpdateIsNotBeingCalled();
         }
 
         public void Connect()
@@ -162,6 +165,8 @@ namespace StreamChat.Core
 
         public void Update(float deltaTime)
         {
+            _updateCallReceived = true;
+
             UpdateHealthCheck();
 
             while (_websocketClient.TryDequeueMessage(out var msg))
@@ -212,6 +217,7 @@ namespace StreamChat.Core
         private int _reconnectAttempt;
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
+        private bool _updateCallReceived;
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
@@ -397,6 +403,18 @@ namespace StreamChat.Core
             }
 
             _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
+        }
+
+        private void LogErrorIfUpdateIsNotBeingCalled()
+        {
+            const int Timeout = 2;
+            Task.Delay(Timeout * 1000).ContinueWith(t =>
+            {
+                if (!_updateCallReceived)
+                {
+                    _logs.Error($"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(StreamChatClient.Update)}` method per frame.");
+                }
+            });
         }
     }
 }
