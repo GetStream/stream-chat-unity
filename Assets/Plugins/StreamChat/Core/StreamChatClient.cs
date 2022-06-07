@@ -186,6 +186,8 @@ namespace StreamChat.Core
             _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
             _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient?.Dispose();
+
+            ConnectionState = ConnectionState.Disconnected;
         }
 
         string IAuthProvider.ApiKey => _authCredentials.ApiKey;
@@ -410,7 +412,7 @@ namespace StreamChat.Core
             const int Timeout = 2;
             Task.Delay(Timeout * 1000).ContinueWith(t =>
             {
-                if (!_updateCallReceived)
+                if (!_updateCallReceived && ConnectionState != ConnectionState.Disconnected)
                 {
                     _logs.Error($"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(StreamChatClient.Update)}` method per frame.");
                 }
