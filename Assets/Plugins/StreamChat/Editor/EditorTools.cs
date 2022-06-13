@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core;
 using StreamChat.Editor.DefineSymbols;
@@ -38,6 +39,23 @@ namespace StreamChat.EditorTools
             unityDefineSymbols.SetScriptingDefineSymbols(activeBuildTarget, symbols);
 
             Debug.Log($"Editor scripting define symbols have been modified from: `{prevCombined}` to: `{currentCombined}` for named build target: `{Enum.GetName(typeof(BuildTarget), activeBuildTarget)}`");
+        }
+
+        public static void ParseEnvArgs(string[] args, IDictionary<string, string> result)
+            => ParseEnvArgs(args, _ => result.Add(_.Key, _.Value));
+
+        public static void ParseEnvArgs(string[] args, Action<(string Key, string Value)> onArgumentParsed)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i].StartsWith("-"))
+                {
+                    var key = args[i];
+                    var value = i < args.Length - 1 ? args[i + 1] : "";
+
+                    onArgumentParsed?.Invoke((key, value));
+                }
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
+using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -19,27 +20,56 @@ namespace StreamChat.Tests.Integration
     /// </summary>
     public abstract class BaseIntegrationTests
     {
+        public const string StreamTestDataArgKey = "-StreamTestDataSet";
+
         [OneTimeSetUp]
         public void Up()
         {
             Debug.Log("------------ Up");
 
-            const string ApiKey = "";
+            AuthCredentials guestAuthCredentials, userAuthCredentials, adminAuthCredentials = default;
 
-            var guestAuthCredentials = new AuthCredentials(
-                apiKey: ApiKey,
-                userId: TestGuestId,
-                userToken: "");
+            if (Application.isBatchMode)
+            {
+                //Get from environment
 
-            var userAuthCredentials = new AuthCredentials(
-                apiKey: ApiKey,
-                userId: TestUserId,
-                userToken: "");
+                var args = new Dictionary<string, string>();
+                EditorTools.EditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
 
-            var adminAuthCredentials = new AuthCredentials(
-                apiKey: ApiKey,
-                userId: TestAdminId,
-                userToken: "");
+                if (!args.ContainsKey(StreamTestDataArgKey))
+                {
+                    throw new ArgumentException("Missing environment arg with key: " + StreamTestDataArgKey);
+                }
+
+                var serializer = new NewtonsoftJsonSerializer();
+                var testAuthDataSet = serializer.Deserialize<TestAuthDataSet>(args[StreamTestDataArgKey]);
+
+                guestAuthCredentials = testAuthDataSet.TestGuestData;
+                userAuthCredentials = testAuthDataSet.TestUserData;
+                adminAuthCredentials = testAuthDataSet.TestAdminData;
+
+            }
+            else
+            {
+                //Define manually
+
+                const string ApiKey = "";
+
+                guestAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestGuestId,
+                    userToken: "");
+
+                userAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestUserId,
+                    userToken: "");
+
+                adminAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestAdminId,
+                    userToken: "");
+            }
 
             Client = StreamChatClient.CreateDefaultClient(adminAuthCredentials);
             Client.Connect();
@@ -112,6 +142,8 @@ namespace StreamChat.Tests.Integration
             {
                 cids.Add($"{channelType}:{channelId}");
             }
+
+            _tempChannelsToDelete.Clear();
 
             Client.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
             {
