@@ -34,7 +34,7 @@ namespace StreamChat.Tests.Integration
                 //Get from environment
 
                 var args = new Dictionary<string, string>();
-                EditorTools.EditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
+                EditorTools.StreamEditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
 
                 if (!args.ContainsKey(StreamTestDataArgKey))
                 {

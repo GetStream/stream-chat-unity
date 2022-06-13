@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Build;
 
-namespace StreamChat.Editor.DefineSymbols
+namespace StreamChat.EditorTools.DefineSymbols
 {
     public class Unity2021DefineSymbols : IUnityDefineSymbols
     {

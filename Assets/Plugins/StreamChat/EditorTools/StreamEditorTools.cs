@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core;
-using StreamChat.Editor.DefineSymbols;
+using StreamChat.EditorTools.DefineSymbols;
 using UnityEditor;
 using UnityEngine;
 
 namespace StreamChat.EditorTools
 {
-    public static class EditorTools
+    public static class StreamEditorTools
     {
         public const string MenuPrefix = "Tools/" + StreamChatClient.MenuPrefix;
 
