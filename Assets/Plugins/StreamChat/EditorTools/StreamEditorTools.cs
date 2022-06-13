@@ -28,6 +28,9 @@ namespace StreamChat.EditorTools
             SetStreamTestsEnabledCompilerFlag(nextState);
         }
 
+        public static void EnableStreamTestsEnabledCompilerFlag()
+            => SetStreamTestsEnabledCompilerFlag(true);
+
         public static void SetStreamTestsEnabledCompilerFlag(bool enabled)
         {
             var unityDefineSymbols = new UnityDefineSymbolsFactory().CreateDefault();
