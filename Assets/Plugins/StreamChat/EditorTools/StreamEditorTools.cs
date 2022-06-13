@@ -23,15 +23,29 @@ namespace StreamChat.EditorTools
 
             var symbols = unityDefineSymbols.GetScriptingDefineSymbols(activeBuildTarget).ToList();
 
+            var nextState = !symbols.Contains(StreamTestsEnabledCompilerFlag);
+
+            SetStreamTestsEnabledCompilerFlag(nextState);
+        }
+
+        public static void SetStreamTestsEnabledCompilerFlag(bool enabled)
+        {
+            var unityDefineSymbols = new UnityDefineSymbolsFactory().CreateDefault();
+
+            var activeBuildTarget = EditorUserBuildSettings.activeBuildTarget;
+
+            var symbols = unityDefineSymbols.GetScriptingDefineSymbols(activeBuildTarget).ToList();
+
             var prevCombined = string.Join(", ", symbols);
 
-            if (symbols.Contains(StreamTestsEnabledCompilerFlag))
-            {
-                symbols.Remove(StreamTestsEnabledCompilerFlag);
-            }
-            else
+            if (enabled && !symbols.Contains(StreamTestsEnabledCompilerFlag))
             {
                 symbols.Add(StreamTestsEnabledCompilerFlag);
+            }
+
+            if (!enabled && symbols.Contains(StreamTestsEnabledCompilerFlag))
+            {
+                symbols.Remove(StreamTestsEnabledCompilerFlag);
             }
 
             var currentCombined = string.Join(", ", symbols);
