@@ -30,12 +30,12 @@ jobs:
         shell: bash
         run: sudo installer -package Unity.pkg -target /
         
-      - name: LS Logs dir
+      - name: ls /Applications/Unity/Unity.app/Contents/MacOS/
         shell: bash
         run: ls /Applications/Unity/Unity.app/Contents/MacOS/
         continue-on-error: true
         
-      - name: LS Logs dir 2
+      - name: ls /Applications/
         shell: bash
         run: ls /Applications/
         continue-on-error: true
@@ -52,10 +52,11 @@ jobs:
         shell: bash
         run: cat ~/license.ulf
         
-      - name: User
-        shell: bash
-        run: echo "${{ secrets.UNITY_ACCOUNT_USER }}"
-        continue-on-error: true
+      - name: Activate Unity
+        uses: kuler90/activate-unity@v1
+        with:
+          unity-username: ${{ secrets.UNITY_ACCOUNT_USER }}
+          unity-password: ${{ secrets.UNITY_ACCOUNT_PASS }}
         
       - name: Test open
         shell: bash
@@ -70,6 +71,16 @@ jobs:
       - name: LS Unity Logs dir
         shell: bash
         run: ls ~/Library/Logs/Unity/
+        continue-on-error: true
+        
+      - name: Print Unity Logs
+        shell: bash
+        run: cat ~/Library/Logs/Unity/Unity.Entitlements.Audit.log
+        continue-on-error: true
+        
+      - name: Print Unity Logs
+        shell: bash
+        run: cat ~/Library/Logs/Unity/Unity.Licensing.Client.log
         continue-on-error: true
         
       - name: Print Unity Logs
