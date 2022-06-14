@@ -33,10 +33,18 @@ jobs:
       - name: MKDIR
         shell: bash
         run: mkdir test_results
+        
+      - name: Save license
+        shell: bash
+        run: echo "${{ env.UNITY_LICENSE }}" > ~/license.ulf
+        
+      - name: Print license
+        shell: bash
+        run: cat ~/license.ulf
 
       - name: Activate Unity License
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile "${{ env.UNITY_LICENSE }}" -logFile -quit
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile ~/license.ulf -logFile -quit
         continue-on-error: true
         
       - name: Print Unity Logs
