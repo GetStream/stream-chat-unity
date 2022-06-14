@@ -46,7 +46,7 @@ jobs:
         
       - name: Save license
         shell: bash
-        run: echo "${{ secrets.UNITY_LICENSE }}" > ~/license.ulf
+        run: echo ${{ secrets.UNITY_LICENSE }} > ~/license.ulf
         
       - name: Print license
         shell: bash
@@ -54,12 +54,12 @@ jobs:
         
       - name: User
         shell: bash
-        run: echo $"{{ secrets.UNITY_ACCOUNT_USER }}"
+        run: echo ${{ secrets.UNITY_ACCOUNT_USER }}
         continue-on-error: true
         
       - name: Test open
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -username $"{{ secrets.UNITY_ACCOUNT_USER }}" -password $"{{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -username ${{ secrets.UNITY_ACCOUNT_USER }} -password ${{ secrets.UNITY_ACCOUNT_PASS }} -quit
         continue-on-error: true
         
       - name: LS Logs dir
@@ -104,7 +104,7 @@ jobs:
         
       - name: Try open project in Unity 
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -quit
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -quit
         continue-on-error: true
 
       - name: Print Unity Logs
