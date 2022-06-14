@@ -44,12 +44,13 @@ jobs:
 
       - name: Activate Unity License
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile ~/license.ulf -logFile -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile "~/license.ulf" -logFile -quit
         continue-on-error: true
         
       - name: Print Unity Logs
         shell: bash
         run: cat ~/Library/Logs/Unity/Editor.log
+        continue-on-error: true
         
       - name: Activate Unity License 2
         shell: bash
