@@ -55,6 +55,7 @@ jobs:
       - name: Activate Unity
         uses: kuler90/activate-unity@v1
         with:
+          unity-version: 2021.2.1f1
           unity-username: ${{ secrets.UNITY_ACCOUNT_USER }}
           unity-password: ${{ secrets.UNITY_ACCOUNT_PASS }}
         
