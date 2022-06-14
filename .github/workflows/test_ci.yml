@@ -79,7 +79,7 @@ jobs:
 
       - name: Activate Unity License
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile "~/license.ulf" -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile "~/license.ulf" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
         continue-on-error: true
         
       - name: Print Unity Logs
@@ -113,11 +113,11 @@ jobs:
         
       - name: Enable Stream Tests in Unity
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -executeMethod StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag -quit
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -executeMethod StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
         
       - name: Run Unity Tests
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -runTests -testResults test_results/results.xml -quit
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -runTests -testResults test_results/results.xml -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
         
       - name: Print Unity Logs
         shell: bash
