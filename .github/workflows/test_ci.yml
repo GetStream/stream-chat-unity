@@ -44,10 +44,19 @@ jobs:
 
       - name: Activate Unity License
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile ~/license.ulf -logFile -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile ~/license.ulf -logFile -quit
         continue-on-error: true
         
       - name: Print Unity Logs
+        shell: bash
+        run: cat ~/Library/Logs/Unity/Editor.log
+        
+      - name: Activate Unity License 2
+        shell: bash
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -username "${{ env.UNITY_ACCOUNT_USER }}" -password "${{ env.UNITY_ACCOUNT_PASS }}" -logFile -quit
+        continue-on-error: true
+        
+      - name: Print Unity Logs 2
         shell: bash
         run: cat ~/Library/Logs/Unity/Editor.log
         
