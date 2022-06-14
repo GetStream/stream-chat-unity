@@ -36,7 +36,7 @@ jobs:
 
       - name: Activate Unity License
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile "${{ env.UNITY_LICENSE }}"
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile "${{ env.UNITY_LICENSE }}" -logFile -quit
         continue-on-error: true
         
       - name: Print Unity Logs
@@ -45,7 +45,8 @@ jobs:
         
       - name: Try open project in Unity 
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath "$GITHUB_WORKSPACE" -quit
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath "$GITHUB_WORKSPACE" -logFile -quit
+        continue-on-error: true
 
       - name: Print Unity Logs
         shell: bash
