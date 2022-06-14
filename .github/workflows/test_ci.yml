@@ -59,6 +59,7 @@ jobs:
       - name: Print Unity Logs 2
         shell: bash
         run: cat ~/Library/Logs/Unity/Editor.log
+        continue-on-error: true
         
       - name: Try open project in Unity 
         shell: bash
