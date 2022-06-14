@@ -54,7 +54,7 @@ jobs:
         
       - name: Test open
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -username "${{ env.UNITY_ACCOUNT_USER }}" -password "${{ env.UNITY_ACCOUNT_PASS }}" -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -username ${{ env.UNITY_ACCOUNT_USER }} -password ${{ env.UNITY_ACCOUNT_PASS }} -quit
         continue-on-error: true
         
       - name: LS Logs dir
