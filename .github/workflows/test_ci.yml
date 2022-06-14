@@ -61,7 +61,12 @@ jobs:
         
       - name: Try open project in Unity
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath $GITHUB_WORKSPACE -quit
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath "$GITHUB_WORKSPACE" -quit
+        continue-on-error: true
+
+      - name: Print Unity Logs
+        shell: bash
+        run: cat ~/Library/Logs/Unity/Editor.log
         
       - name: Enable Stream Tests in Unity
         shell: bash
@@ -70,6 +75,10 @@ jobs:
       - name: Run Unity Tests
         shell: bash
         run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath $GITHUB_WORKSPACE -runTests -testResults test_results/results.xml -quit
+        
+      - name: Print Unity Logs
+        shell: bash
+        run: cat ~/Library/Logs/Unity/Editor.log
         
       - name: Print Results
         shell: bash
