@@ -46,20 +46,20 @@ jobs:
         
       - name: Save license
         shell: bash
-        run: echo "${{ env.UNITY_LICENSE }}" > ~/license.ulf
+        run: echo "${{ secrets.UNITY_LICENSE }}" > ~/license.ulf
         
       - name: Print license
         shell: bash
         run: cat ~/license.ulf
         
-      - name: LS Logs dir
+      - name: User
         shell: bash
-        run: echo $"{{ secret.UNITY_ACCOUNT_USER }}"
+        run: echo $"{{ secrets.UNITY_ACCOUNT_USER }}"
         continue-on-error: true
         
       - name: Test open
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -username $"{{ secret.UNITY_ACCOUNT_USER }}" -password $"{{ secret.UNITY_ACCOUNT_PASS }}" -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -username $"{{ secrets.UNITY_ACCOUNT_USER }}" -password $"{{ secrets.UNITY_ACCOUNT_PASS }}" -quit
         continue-on-error: true
         
       - name: LS Logs dir
@@ -89,12 +89,12 @@ jobs:
         
       - name: Print user
         shell: bash
-        run: echo ${{ env.UNITY_ACCOUNT_USER }}
+        run: echo ${{ secrets.UNITY_ACCOUNT_USER }}
         continue-on-error: true
         
       - name: Activate Unity License 2
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -username ${{ secret.UNITY_ACCOUNT_USER }} -password ${{ secret.UNITY_ACCOUNT_PASS }} -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -username ${{ secrets.UNITY_ACCOUNT_USER }} -password ${{ secrets.UNITY_ACCOUNT_PASS }} -quit
         continue-on-error: true
         
       - name: Print Unity Logs 2
