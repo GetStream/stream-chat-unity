@@ -52,9 +52,9 @@ jobs:
         shell: bash
         run: cat ~/license.ulf
         
-      - name: Test open to generate logs file
+      - name: Test open
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -quit
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -username "${{ env.UNITY_ACCOUNT_USER }}" -password "${{ env.UNITY_ACCOUNT_PASS }}" -quit
         continue-on-error: true
         
       - name: LS Logs dir
@@ -74,7 +74,7 @@ jobs:
 
       - name: Activate Unity License
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile ~/license.ulf -logFile -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile ~/license.ulf -quit
         continue-on-error: true
         
       - name: Print Unity Logs
@@ -84,7 +84,7 @@ jobs:
         
       - name: Activate Unity License 2
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -username "${{ env.UNITY_ACCOUNT_USER }}" -password "${{ env.UNITY_ACCOUNT_PASS }}" -logFile -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -username "${{ env.UNITY_ACCOUNT_USER }}" -password "${{ env.UNITY_ACCOUNT_PASS }}" -quit
         continue-on-error: true
         
       - name: Print Unity Logs 2
@@ -94,7 +94,7 @@ jobs:
         
       - name: Try open project in Unity 
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -logFile -quit
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -quit
         continue-on-error: true
 
       - name: Print Unity Logs
