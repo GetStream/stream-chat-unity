@@ -36,7 +36,7 @@ jobs:
 
       - name: Activate Unity License
         shell: bash
-        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile ${{ env.UNITY_LICENSE }}
+        run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile "${{ env.UNITY_LICENSE }}"
         continue-on-error: true
         
       - name: Print Unity Logs
