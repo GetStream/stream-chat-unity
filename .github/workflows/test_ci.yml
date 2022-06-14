@@ -26,9 +26,9 @@ jobs:
         shell: bash
         run: curl -OL  https://download.unity3d.com/download_unity/2ab9c4179772/MacEditorInstaller/Unity.pkg
         
-      - name: Install Unity
-        shell: bash
-        run: sudo installer -package Unity.pkg -target /
+#      - name: Install Unity
+#        shell: bash
+#        run: sudo installer -package Unity.pkg -target /
         
       - name: ls /Applications/Unity/Unity.app/Contents/MacOS/
         shell: bash
@@ -52,10 +52,14 @@ jobs:
         shell: bash
         run: cat ~/license.ulf
         
+      - name: Setup Unity
+        uses: kuler90/setup-unity@v1
+        with:
+          unity-version: 2021.2.1f1
+        
       - name: Activate Unity
         uses: kuler90/activate-unity@v1
         with:
-          unity-version: 2021.2.1f1
           unity-username: ${{ secrets.UNITY_ACCOUNT_USER }}
           unity-password: ${{ secrets.UNITY_ACCOUNT_PASS }}
         
