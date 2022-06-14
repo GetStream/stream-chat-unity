@@ -82,9 +82,14 @@ jobs:
         run: cat ~/Library/Logs/Unity/Editor.log
         continue-on-error: true
         
+      - name: Print user
+        shell: bash
+        run: echo ${{ env.UNITY_ACCOUNT_USER }}
+        continue-on-error: true
+        
       - name: Activate Unity License 2
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -username "${{ env.UNITY_ACCOUNT_USER }}" -password "${{ env.UNITY_ACCOUNT_PASS }}" -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -username ${{ env.UNITY_ACCOUNT_USER }} -password ${{ env.UNITY_ACCOUNT_PASS }} -quit
         continue-on-error: true
         
       - name: Print Unity Logs 2
