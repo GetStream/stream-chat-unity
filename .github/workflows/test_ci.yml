@@ -24,7 +24,7 @@ jobs:
         
       - name: Download Unity
         shell: bash
-        run: curl -OL  https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg > UnityInstaller.pkg
+        run: curl -OL  https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg
         
       - name: Install Unity
         shell: bash
