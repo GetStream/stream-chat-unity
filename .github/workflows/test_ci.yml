@@ -22,9 +22,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         
+      - name: Print chipset
+        shell: bash
+        run: echo uname -m
+        continue-on-error: true
+        
       - name: Download Unity
         shell: bash
-        run: curl -OL  https://download.unity3d.com/download_unity/2ab9c4179772/MacEditorInstaller/Unity.pkg
+        run: |
+          if [[ $(uname -m) == 'arm64' ]]; then
+            curl -OL https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstallerArm64/Unity.pkg
+          else
+            curl -OL https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg
+          fi
         
       - name: Install Unity
         shell: bash
