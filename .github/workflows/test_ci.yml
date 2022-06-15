@@ -26,9 +26,9 @@ jobs:
         shell: bash
         run: curl -OL  https://download.unity3d.com/download_unity/2ab9c4179772/MacEditorInstaller/Unity.pkg
         
-#      - name: Install Unity
-#        shell: bash
-#        run: sudo installer -package Unity.pkg -target /
+      - name: Install Unity
+        shell: bash
+        run: sudo installer -package Unity.pkg -target /
         
       - name: ls /Applications/Unity/Unity.app/Contents/MacOS/
         shell: bash
@@ -43,29 +43,35 @@ jobs:
       - name: MKDIR
         shell: bash
         run: mkdir test_results
+        continue-on-error: true
         
-      - name: Save license
+#      - name: Save license
+#        shell: bash
+#        run: echo "${{ secrets.UNITY_LICENSE }}" > ~/license.ulf
+        
+#      - name: Print license
+#        shell: bash
+#        run: cat ~/license.ulf
+        
+#      - name: Setup Unity
+#        uses: kuler90/setup-unity@v1
+#        with:
+#          unity-version: 2021.2.1f1
+        
+ #     - name: Activate Unity
+ #       uses: kuler90/activate-unity@v1
+ #       with:
+ #         unity-username: ${{ secrets.UNITY_ACCOUNT_USER }}
+ #         unity-password: ${{ secrets.UNITY_ACCOUNT_PASS }}
+        
+      - name: Try Activate license
         shell: bash
-        run: echo "${{ secrets.UNITY_LICENSE }}" > ~/license.ulf
-        
-      - name: Print license
-        shell: bash
-        run: cat ~/license.ulf
-        
-      - name: Setup Unity
-        uses: kuler90/setup-unity@v1
-        with:
-          unity-version: 2021.2.1f1
-        
-      - name: Activate Unity
-        uses: kuler90/activate-unity@v1
-        with:
-          unity-username: ${{ secrets.UNITY_ACCOUNT_USER }}
-          unity-password: ${{ secrets.UNITY_ACCOUNT_PASS }}
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+        continue-on-error: true
         
       - name: Test open
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath $GITHUB_WORKSPACE -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath $GITHUB_WORKSPACE -quit
         continue-on-error: true
         
       - name: LS Logs dir
@@ -126,19 +132,27 @@ jobs:
       - name: Print Unity Logs
         shell: bash
         run: cat ~/Library/Logs/Unity/Editor.log
-        
+        continue-on-error: true
+
       - name: Enable Stream Tests in Unity
         shell: bash
         run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath "$GITHUB_WORKSPACE" -executeMethod StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+        continue-on-error: true
         
       - name: Run Unity Tests
         shell: bash
         run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -projectPath "$GITHUB_WORKSPACE" -runTests -testResults test_results/results.xml -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+        continue-on-error: true
         
       - name: Print Unity Logs
         shell: bash
         run: cat ~/Library/Logs/Unity/Editor.log
+        continue-on-error: true
         
+      - name: Try Return license
+        shell: bash
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -returnlicense -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+       
       - name: Print Test Results
         shell: bash
         run: cat test_results/results.xml
