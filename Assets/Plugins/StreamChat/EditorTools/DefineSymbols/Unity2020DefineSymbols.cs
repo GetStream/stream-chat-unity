@@ -18,7 +18,7 @@ namespace StreamChat.EditorTools.DefineSymbols
         public void SetScriptingDefineSymbols(BuildTarget buildTarget, ICollection<string> defines)
         {
             var group = BuildPipeline.GetBuildTargetGroup(buildTarget);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(group, defines.ToArray());
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(group, string.Join(";", defines));
         }
     }
 }

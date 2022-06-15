@@ -13,12 +13,16 @@ namespace StreamChat.SampleProject.Inputs
         public bool WasEnteredPressedThisFrame => Input.GetKeyDown(KeyCode.Return);
 
         public bool GetMouseButton(int index)
-            => index switch
+        {
+            switch (index)
             {
-                0 => Input.GetMouseButton(0),
-                1 => Input.GetMouseButton(1),
-                2 => Input.GetMouseButton(2),
-                _ => throw new ArgumentOutOfRangeException()
-            };
+                case 0: return Input.GetMouseButton(0);
+                case 1: return Input.GetMouseButton(1);
+                case 2: return Input.GetMouseButton(2);
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
     }
 }

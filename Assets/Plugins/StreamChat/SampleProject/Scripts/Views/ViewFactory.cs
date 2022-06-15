@@ -147,14 +147,15 @@ namespace StreamChat.SampleProject.Views
         private BaseFullscreenPopup GetFullscreenPopupPrefab<TPopup>()
             where TPopup : BaseFullscreenPopup
         {
-            return typeof(TPopup) switch
+            switch (typeof(TPopup))
             {
-                Type createNewChannel when createNewChannel == typeof(CreateNewChannelFormPopup)
-                    => _config.CreateNewChannelFormPopupPrefab,
-                Type createNewChannel when createNewChannel == typeof(ErrorPopup)
-                    => _config.ErrorPopupPrefab,
-                _ => throw new ArgumentOutOfRangeException(nameof(TPopup), typeof(TPopup), null)
-            };
+                case Type createNewChannel when createNewChannel == typeof(CreateNewChannelFormPopup):
+                    return _config.CreateNewChannelFormPopupPrefab;
+                case Type createNewChannel when createNewChannel == typeof(ErrorPopup):
+                    return _config.ErrorPopupPrefab;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(TPopup), typeof(TPopup), null);
+            }
         }
     }
 }

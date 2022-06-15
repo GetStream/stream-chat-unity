@@ -82,7 +82,7 @@ namespace StreamChat.SampleProject.Views
                             UserId = Client.UserId
                         }
                     }
-                }).ContinueWith(task =>
+                }).ContinueWith(_ =>
                 {
                     State.UpdateChannelsAsync().LogIfFailed();
 
