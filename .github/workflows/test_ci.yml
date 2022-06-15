@@ -27,14 +27,18 @@ jobs:
         run: echo uname -m
         continue-on-error: true
         
-      - name: Download Unity
+      - name: Download Unity 2020
         shell: bash
-        run: |
-          if [[ $(uname -m) == 'arm64' ]]; then
-            curl -OL https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstallerArm64/Unity.pkg
-          else
-            curl -OL https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg
-          fi
+        run: curl -OL https://download.unity3d.com/download_unity/18e4db7a9996/MacEditorInstaller/Unity.pkg
+        
+#      - name: Download Unity 2021
+#        shell: bash
+#        run: |
+#          if [[ $(uname -m) == 'arm64' ]]; then
+#            curl -OL https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstallerArm64/Unity.pkg
+#          else
+#            curl -OL https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg
+#          fi
         
       - name: Install Unity
         shell: bash
@@ -74,15 +78,13 @@ jobs:
  #         unity-username: ${{ secrets.UNITY_ACCOUNT_USER }}
  #         unity-password: ${{ secrets.UNITY_ACCOUNT_PASS }}
         
-      - name: Try Activate license
+      - name: Activate Unity with User/Pass/Serial 
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
-        continue-on-error: true
         
       - name: Test open
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -quit
-        continue-on-error: true
         
       - name: LS Logs dir
         shell: bash
@@ -94,47 +96,27 @@ jobs:
         run: ls ~/Library/Logs/Unity/
         continue-on-error: true
         
-      - name: Print Unity Logs
+      - name: Print Audit Unity Logs
         shell: bash
         run: cat ~/Library/Logs/Unity/Unity.Entitlements.Audit.log
         continue-on-error: true
         
-      - name: Print Unity Logs
+      - name: Print Client Unity Logs
         shell: bash
         run: cat ~/Library/Logs/Unity/Unity.Licensing.Client.log
         continue-on-error: true
         
-      - name: Print Unity Logs
+      - name: Print Unity Editor Logs
         shell: bash
         run: cat ~/Library/Logs/Unity/Editor.log
         continue-on-error: true
 
-      - name: Activate Unity License
-        shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile "~/license.ulf" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
-        continue-on-error: true
+#      - name: Activate Unity License From license file
+#        shell: bash
+#        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile "~/license.ulf" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+#        continue-on-error: true
         
-      - name: Print Unity Logs
-        shell: bash
-        run: cat ~/Library/Logs/Unity/Editor.log
-        continue-on-error: true
-        
-      - name: Print user
-        shell: bash
-        run: echo ${{ secrets.UNITY_ACCOUNT_USER }}
-        continue-on-error: true
-        
-      - name: Activate Unity License 2
-        shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
-        continue-on-error: true
-        
-      - name: Print Unity Logs 2
-        shell: bash
-        run: cat ~/Library/Logs/Unity/Editor.log
-        continue-on-error: true
-        
-      - name: Try open project in Unity 
+      - name: Open project in Unity 
         shell: bash
         run: /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -quit
         continue-on-error: true
@@ -159,7 +141,8 @@ jobs:
         run: cat ~/Library/Logs/Unity/Editor.log
         continue-on-error: true
         
-      - name: Try Return license
+      - name: Return Unity license
+        if: always()
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -returnlicense -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
        
