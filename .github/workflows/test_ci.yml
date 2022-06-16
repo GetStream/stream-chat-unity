@@ -35,7 +35,7 @@ jobs:
         shell: bash
         run: sudo installer -package Unity.pkg -target /
 
-      - name: MKDIR
+      - name: Create Test Results dir
         shell: bash
         run: mkdir test_results
 
