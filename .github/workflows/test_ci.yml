@@ -131,9 +131,16 @@ jobs:
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -quit
         continue-on-error: true
         
+#skip -quit due to not working with async tests
       - name: Run Unity Tests
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -runTests -testResults test_results/results.xml -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -runTests -testResults test_results/results.xml
+        continue-on-error: true
+        
+#due to skipped -quit
+      - name: Force Close Unity
+        shell: bash
+        run: sudo pkill -x Unity
         continue-on-error: true
         
       - name: Print Unity Logs
