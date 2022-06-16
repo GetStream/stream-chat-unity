@@ -33,6 +33,8 @@ namespace StreamChat.Tests.Integration
             {
                 //Get from environment
 
+                Debug.Log("Batch mode, expecting data injected through args");
+
                 var args = new Dictionary<string, string>();
                 EditorTools.StreamEditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
 
@@ -43,6 +45,8 @@ namespace StreamChat.Tests.Integration
 
                 var serializer = new NewtonsoftJsonSerializer();
                 var testAuthDataSet = serializer.Deserialize<TestAuthDataSet>(args[StreamTestDataArgKey]);
+
+                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData.UserId);
 
                 guestAuthCredentials = testAuthDataSet.TestGuestData;
                 userAuthCredentials = testAuthDataSet.TestUserData;
