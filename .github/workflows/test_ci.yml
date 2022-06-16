@@ -79,6 +79,7 @@ jobs:
         continue-on-error: true
         
       - name: Print Test Results
+        if: always()
         shell: bash
         run: cat ~/test_results/results.xml
         
