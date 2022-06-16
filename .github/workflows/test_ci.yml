@@ -78,6 +78,10 @@ jobs:
         run: sudo pkill -x Unity
         continue-on-error: true
         
+      - name: Print Test Results
+        shell: bash
+        run: cat ~/test_results/results.xml
+        
       - name: Print Unity Logs
         shell: bash
         run: cat ~/Library/Logs/Unity/Editor.log
@@ -88,6 +92,4 @@ jobs:
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -returnlicense -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
        
-      - name: Print Test Results
-        shell: bash
-        run: cat test_results/results.xml
+
