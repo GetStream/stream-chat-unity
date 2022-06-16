@@ -134,7 +134,7 @@ jobs:
 #skip -quit due to not working with async tests
       - name: Run Unity Tests
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -runTests -testResults test_results/results.xml --args -StreamTestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA }}"
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -runTests -testResults ~/test_results/results.xml --args -StreamTestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA }}"
         continue-on-error: true
         
 #due to skipped -quit
