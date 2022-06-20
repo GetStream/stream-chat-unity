@@ -21,6 +21,7 @@ namespace StreamChat.Core.Exceptions
         public IReadOnlyDictionary<string, string> ExceptionFields => _exceptionFields;
 
         internal StreamApiException(APIErrorDTO apiError)
+            : base(apiError.Message)
         {
             StatusCode = apiError.StatusCode;
             Code = apiError.Code;
