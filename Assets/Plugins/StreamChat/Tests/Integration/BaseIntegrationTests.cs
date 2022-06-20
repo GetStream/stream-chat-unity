@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Models;
@@ -20,6 +21,7 @@ namespace StreamChat.Tests.Integration
     /// </summary>
     public abstract class BaseIntegrationTests
     {
+        public const string StreamBase64TestDataArgKey = "-StreamBase64TestDataSet";
         public const string StreamTestDataArgKey = "-StreamTestDataSet";
 
         [OneTimeSetUp]
@@ -35,23 +37,15 @@ namespace StreamChat.Tests.Integration
 
                 Debug.Log("Batch mode, expecting data injected through args");
 
-                var args = new Dictionary<string, string>();
-                EditorTools.StreamEditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
-
-                if (!args.ContainsKey(StreamTestDataArgKey))
-                {
-                    throw new ArgumentException("Missing environment arg with key: " + StreamTestDataArgKey);
-                }
-
+                var dataSet = GetDataSetFromCommandLineArgs();
                 var serializer = new NewtonsoftJsonSerializer();
-                var testAuthDataSet = serializer.Deserialize<TestAuthDataSet>(args[StreamTestDataArgKey]);
+                var testAuthDataSet = serializer.Deserialize<TestAuthDataSet>(dataSet);
 
                 Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData.UserId);
 
                 guestAuthCredentials = testAuthDataSet.TestGuestData;
                 userAuthCredentials = testAuthDataSet.TestUserData;
                 adminAuthCredentials = testAuthDataSet.TestAdminData;
-
             }
             else
             {
@@ -120,6 +114,7 @@ namespace StreamChat.Tests.Integration
             {
                 yield break;
             }
+
             var currentTime = EditorApplication.timeSinceStartup;
 
             while ((EditorApplication.timeSinceStartup - currentTime) < seconds)
@@ -154,6 +149,25 @@ namespace StreamChat.Tests.Integration
                 Cids = cids,
                 HardDelete = true
             }).LogIfFailed(unityLogs);
+        }
+
+        private static string GetDataSetFromCommandLineArgs()
+        {
+            var args = new Dictionary<string, string>();
+            EditorTools.StreamEditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
+
+            if (args.ContainsKey(StreamBase64TestDataArgKey))
+            {
+                var decodedBytes = Convert.FromBase64String(args[StreamBase64TestDataArgKey]);
+                return Encoding.UTF8.GetString(decodedBytes);
+            }
+
+            if (args.ContainsKey(StreamTestDataArgKey))
+            {
+                return args[StreamTestDataArgKey];
+            }
+
+            throw new ArgumentException($"Test Data missing. Expected environment arg with key: `{StreamBase64TestDataArgKey}` or `{StreamTestDataArgKey}`");
         }
     }
 }
