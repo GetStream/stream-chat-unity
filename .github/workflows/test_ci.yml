@@ -16,8 +16,15 @@ jobs:
 
   testRunner:
     needs: checkLicense
+    strategy:
+      matrix:
+        os: [macos-latest]
+        unity_version: [2021.3.4, 2020.1.1]
+        dotnet_version: [NET_4_x]
+        compiler: [mono, il2cpp]
+        target_platform: [standalone]
     name: Execute editor tests
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,13 +34,57 @@ jobs:
         run: echo uname -m
         continue-on-error: true
         
-      - name: Download Unity 2020
+      - name: Download Unity & Modules
+        if: ${{ matrix.os }} == 'macos-latest'
         shell: bash
-        run: curl -OL https://download.unity3d.com/download_unity/18e4db7a9996/MacEditorInstaller/Unity.pkg
+        run: |
+          if [[ ${{ matrix.unity_version }} ==  '2021.3.4']]
+          then
+            curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg
 
-      - name: Install Unity
+            if [[ [[ ${{ matrix.compiler }} == 'il2cpp' ]]
+            then
+              curl -L -o ~/UnityIL2CPPModule.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2021.3.4f1.pkg
+            fi
+
+            if [[ [[ ${{ matrix.target_platform }} == 'mobile' ]]
+            then
+              curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2021.3.4f1.pkg
+            fi
+          elif [[ ${{ matrix.unity_version }} ==  '2020.1.1']]
+          then
+            curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/2285c3239188/MacEditorInstaller/Unity.pkg
+
+            if [[ [[ ${{ matrix.compiler }} == 'il2cpp' ]]
+            then
+              curl -L -o ~/UnityIL2CPPModule.pkg  https://download.unity3d.com/download_unity/2285c3239188/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2020.1.1f1.pkg
+            fi
+
+            if [[ [[ ${{ matrix.target_platform }} == 'mobile' ]]
+            then
+              curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/2285c3239188/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2020.1.1f1.pkg
+            fi
+          fi
+
+      - name: Install Unity & Modules
         shell: bash
-        run: sudo installer -package Unity.pkg -target /
+        run: |
+          sudo installer -package Unity.pkg -target /
+
+          if [[ [[ ${{ matrix.compiler }} == 'il2cpp' ]]
+          then
+            sudo installer -package UnityIL2CPPModule.pkg -target /
+          fi
+
+          if [[ [[ ${{ matrix.target_platform }} == 'mobile' ]]
+          then
+            sudo installer -package UnityIosModule.pkg -target /
+          fi
+          
+      - name: Print ls
+        if: always()
+        shell: bash
+        run: ls
 
       - name: Create Test Results dir
         shell: bash
@@ -88,9 +139,12 @@ jobs:
         run: cat ~/Library/Logs/Unity/Editor.log
         continue-on-error: true
         
+      - name: Build Sample App
+        shell: bash
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -executeMethod "StreamChat.EditorTools.StreamEditorTools.BuildSampleApp" -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath "~/SampleAppBuild/App" -quit
+        
       - name: Return Unity license
         if: always()
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -returnlicense -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
        
-
