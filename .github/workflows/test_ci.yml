@@ -38,7 +38,7 @@ jobs:
         if: ${{ matrix.os }} == 'macos-latest'
         shell: bash
         run: |
-          if [[ ${{ matrix.unity_version }} ==  '2021.3.4']]
+          if [[ ${{ matrix.unity_version }} ==  '2021.3.4' ]]
           then
             curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg
 
@@ -51,7 +51,7 @@ jobs:
             then
               curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2021.3.4f1.pkg
             fi
-          elif [[ ${{ matrix.unity_version }} ==  '2020.1.1']]
+          elif [[ ${{ matrix.unity_version }} ==  '2020.1.1' ]]
           then
             curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/2285c3239188/MacEditorInstaller/Unity.pkg
 
