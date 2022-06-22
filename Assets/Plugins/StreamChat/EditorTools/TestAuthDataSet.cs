@@ -1,6 +1,6 @@
 ﻿using StreamChat.Libs.Auth;
 
-namespace StreamChat.Tests
+namespace StreamChat.EditorTools
 {
     public struct TestAuthDataSet
     {

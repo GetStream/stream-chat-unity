@@ -2,14 +2,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.EditorTools;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
-using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -21,9 +20,6 @@ namespace StreamChat.Tests.Integration
     /// </summary>
     public abstract class BaseIntegrationTests
     {
-        public const string StreamBase64TestDataArgKey = "-StreamBase64TestDataSet";
-        public const string StreamTestDataArgKey = "-StreamTestDataSet";
-
         [OneTimeSetUp]
         public void Up()
         {
@@ -33,13 +29,12 @@ namespace StreamChat.Tests.Integration
 
             if (Application.isBatchMode)
             {
-                //Get from environment
+                Debug.Log("Batch mode, expecting data injected through CLI args");
 
-                Debug.Log("Batch mode, expecting data injected through args");
+                var parser = new CommandLineParser();
+                var argsDict = parser.GetParsedCommandLineArguments();
 
-                var dataSet = GetDataSetFromCommandLineArgs();
-                var serializer = new NewtonsoftJsonSerializer();
-                var testAuthDataSet = serializer.Deserialize<TestAuthDataSet>(dataSet);
+                var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
 
                 Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData.UserId);
 
@@ -149,25 +144,6 @@ namespace StreamChat.Tests.Integration
                 Cids = cids,
                 HardDelete = true
             }).LogIfFailed(unityLogs);
-        }
-
-        private static string GetDataSetFromCommandLineArgs()
-        {
-            var args = new Dictionary<string, string>();
-            EditorTools.StreamEditorTools.ParseEnvArgs(Environment.GetCommandLineArgs(), args);
-
-            if (args.ContainsKey(StreamBase64TestDataArgKey))
-            {
-                var decodedBytes = Convert.FromBase64String(args[StreamBase64TestDataArgKey]);
-                return Encoding.UTF8.GetString(decodedBytes);
-            }
-
-            if (args.ContainsKey(StreamTestDataArgKey))
-            {
-                return args[StreamTestDataArgKey];
-            }
-
-            throw new ArgumentException($"Test Data missing. Expected environment arg with key: `{StreamBase64TestDataArgKey}` or `{StreamTestDataArgKey}`");
         }
     }
 }
