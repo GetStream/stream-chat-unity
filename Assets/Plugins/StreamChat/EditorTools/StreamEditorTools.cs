@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using StreamChat.EditorTools.Builders;
 using StreamChat.Core;
 using StreamChat.EditorTools.DefineSymbols;
 using UnityEditor;
@@ -10,10 +13,6 @@ namespace StreamChat.EditorTools
 {
     public static class StreamEditorTools
     {
-        public const string MenuPrefix = "Tools/" + StreamChatClient.MenuPrefix;
-
-        public const string StreamTestsEnabledCompilerFlag = "STREAM_TESTS_ENABLED";
-
         [MenuItem(MenuPrefix + "Toggle Stream Integration & Unit Tests Enabled")]
         public static void ToggleStreamTestsEnabledCompilerFlag()
         {
@@ -26,6 +25,16 @@ namespace StreamChat.EditorTools
             var nextState = !symbols.Contains(StreamTestsEnabledCompilerFlag);
 
             SetStreamTestsEnabledCompilerFlag(nextState);
+        }
+
+        public static void BuildSampleApp()
+        {
+            var parser = new CommandLineParser();
+            var builder = new StreamAppBuilder();
+
+            var (buildSettings, authCredentials) = parser.GetParsedBuildArgs();
+
+            builder.BuildSampleApp(buildSettings, authCredentials);
         }
 
         public static void EnableStreamTestsEnabledCompilerFlag()
@@ -58,22 +67,10 @@ namespace StreamChat.EditorTools
             Debug.Log($"Editor scripting define symbols have been modified from: `{prevCombined}` to: `{currentCombined}` for named build target: `{Enum.GetName(typeof(BuildTarget), activeBuildTarget)}`");
         }
 
-        public static void ParseEnvArgs(string[] args, IDictionary<string, string> result)
-            => ParseEnvArgs(args, _ => result.Add(_.Key, _.Value));
+        private const string MenuPrefix = "Tools/" + StreamChatClient.MenuPrefix;
 
-        public static void ParseEnvArgs(string[] args, Action<(string Key, string Value)> onArgumentParsed)
-        {
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i].StartsWith("-"))
-                {
-                    var key = args[i];
-                    var value = i < args.Length - 1 ? args[i + 1] : "";
+        private const string StreamTestsEnabledCompilerFlag = "STREAM_TESTS_ENABLED";
 
-                    onArgumentParsed?.Invoke((key, value));
-                }
-            }
-        }
     }
 }
 

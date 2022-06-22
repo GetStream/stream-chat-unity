@@ -10,6 +10,13 @@ namespace StreamChat.Libs.Auth
     {
         public AuthCredentials Credentials => new AuthCredentials(_apiKey, _testUserId, _testUserToken);
 
+        public void SetData(AuthCredentials authCredentials)
+        {
+            _apiKey = authCredentials.ApiKey;
+            _testUserId = authCredentials.UserId;
+            _testUserToken = authCredentials.UserToken;
+        }
+
         [Header("Your `Api Key`")]
         [Tooltip("You can find it in Stream Dashboard")]
         [SerializeField]
