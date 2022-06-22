@@ -69,16 +69,16 @@ jobs:
       - name: Install Unity & Modules
         shell: bash
         run: |
-          sudo installer -package Unity.pkg -target /
+          sudo installer -package ~/Unity.pkg -target /
 
           if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
           then
-            sudo installer -package UnityIL2CPPModule.pkg -target /
+            sudo installer -package ~/UnityIL2CPPModule.pkg -target /
           fi
 
           if [[ ${{ matrix.target_platform }} == 'mobile' ]]
           then
-            sudo installer -package UnityIosModule.pkg -target /
+            sudo installer -package ~/UnityIosModule.pkg -target /
           fi
           
       - name: Print ls
