@@ -42,12 +42,12 @@ jobs:
           then
             curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorInstaller/Unity.pkg
 
-            if [[ [[ ${{ matrix.compiler }} == 'il2cpp' ]]
+            if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
             then
               curl -L -o ~/UnityIL2CPPModule.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2021.3.0f1.pkg
             fi
 
-            if [[ [[ ${{ matrix.target_platform }} == 'mobile' ]]
+            if [[ ${{ matrix.target_platform }} == 'mobile' ]]
             then
               curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2021.3.0f1.pkg
             fi
