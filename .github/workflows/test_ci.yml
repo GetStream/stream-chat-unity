@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        unity_version: [2021.3.4, 2020.1.1]
+        unity_version: [2021.3.0, 2020.1.1]
         dotnet_version: [NET_4_x]
         compiler: [mono, il2cpp]
         target_platform: [standalone]
@@ -38,18 +38,18 @@ jobs:
         if: ${{ matrix.os }} == 'macos-latest'
         shell: bash
         run: |
-          if [[ ${{ matrix.unity_version }} ==  '2021.3.4' ]]
+          if [[ ${{ matrix.unity_version }} ==  '2021.3.0' ]]
           then
-            curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg
+            curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorInstaller/Unity.pkg
 
-            if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
+            if [[ [[ ${{ matrix.compiler }} == 'il2cpp' ]]
             then
-              curl -L -o ~/UnityIL2CPPModule.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2021.3.4f1.pkg
+              curl -L -o ~/UnityIL2CPPModule.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2021.3.0f1.pkg
             fi
 
-            if [[ ${{ matrix.target_platform }} == 'mobile' ]]
+            if [[ [[ ${{ matrix.target_platform }} == 'mobile' ]]
             then
-              curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2021.3.4f1.pkg
+              curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2021.3.0f1.pkg
             fi
           elif [[ ${{ matrix.unity_version }} ==  '2020.1.1' ]]
           then
