@@ -18,14 +18,12 @@ namespace StreamChat.EditorTools.Builders
             EditorUserBuildSettings.SetBuildLocation(buildTarget, settings.TargetPath);
 
             var sceneAssetPath = AssetDatabase.GUIDToAssetPath(SampleAppSceneGuid);
-
             if (!File.Exists(sceneAssetPath))
             {
                 throw new ArgumentException($"Failed to find scene with guid: `{SampleAppSceneGuid}` and path: `{sceneAssetPath}`");
             }
 
             var configAssetPath = AssetDatabase.GUIDToAssetPath(SampleAppConfigGuid);
-
             if (!File.Exists(configAssetPath))
             {
                 throw new ArgumentException($"Failed to find scene with guid: `{SampleAppConfigGuid}` and path: `{configAssetPath}`");
