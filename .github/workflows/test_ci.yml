@@ -42,12 +42,12 @@ jobs:
           then
             curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorInstaller/Unity.pkg
 
-            if [[ [[ ${{ matrix.compiler }} == 'il2cpp' ]]
+            if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
             then
               curl -L -o ~/UnityIL2CPPModule.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2021.3.4f1.pkg
             fi
 
-            if [[ [[ ${{ matrix.target_platform }} == 'mobile' ]]
+            if [[ ${{ matrix.target_platform }} == 'mobile' ]]
             then
               curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/cb45f9cae8b7/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2021.3.4f1.pkg
             fi
@@ -55,12 +55,12 @@ jobs:
           then
             curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/2285c3239188/MacEditorInstaller/Unity.pkg
 
-            if [[ [[ ${{ matrix.compiler }} == 'il2cpp' ]]
+            if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
             then
               curl -L -o ~/UnityIL2CPPModule.pkg  https://download.unity3d.com/download_unity/2285c3239188/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2020.1.1f1.pkg
             fi
 
-            if [[ [[ ${{ matrix.target_platform }} == 'mobile' ]]
+            if [[ ${{ matrix.target_platform }} == 'mobile' ]]
             then
               curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/2285c3239188/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2020.1.1f1.pkg
             fi
@@ -71,12 +71,12 @@ jobs:
         run: |
           sudo installer -package Unity.pkg -target /
 
-          if [[ [[ ${{ matrix.compiler }} == 'il2cpp' ]]
+          if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
           then
             sudo installer -package UnityIL2CPPModule.pkg -target /
           fi
 
-          if [[ [[ ${{ matrix.target_platform }} == 'mobile' ]]
+          if [[ ${{ matrix.target_platform }} == 'mobile' ]]
           then
             sudo installer -package UnityIosModule.pkg -target /
           fi
