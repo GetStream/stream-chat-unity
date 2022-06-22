@@ -40,7 +40,7 @@ jobs:
         run: |
           if [[ ${{ matrix.unity_version }} ==  '2021.3.0' ]]
           then
-            curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorInstaller/Unity.pkg
+            curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorInstallerArm64/Unity.pkg
 
             if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
             then
