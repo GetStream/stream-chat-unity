@@ -27,19 +27,22 @@ namespace StreamChat.EditorTools
                 throw new ArgumentException($"Missing argument: `{missingArgsInfo}`");
             }
 
-            if (!Enum.TryParse<BuildTargetPlatform>(args[BuildTargetPlatformArgKey], out var targetPlatform))
+            if (!Enum.TryParse<BuildTargetPlatform>(args[BuildTargetPlatformArgKey], ignoreCase: true,
+                out var targetPlatform))
             {
                 throw new ArgumentException(
                     $"Failed to parse argument: `{args[BuildTargetPlatformArgKey]}` to enum: {typeof(BuildTargetPlatform)}");
             }
 
-            if (!Enum.TryParse<ApiCompatibility>(args[ApiCompatibilityArgKey], out var apiCompatibility))
+            if (!Enum.TryParse<ApiCompatibility>(args[ApiCompatibilityArgKey], ignoreCase: true,
+                out var apiCompatibility))
             {
                 throw new ArgumentException(
                     $"Failed to parse argument: `{args[BuildTargetPlatformArgKey]}` to enum: {typeof(BuildTargetPlatform)}");
             }
 
-            if (!Enum.TryParse<ScriptingBackend>(args[ScriptingBackendArgKey], out var scriptingBackend))
+            if (!Enum.TryParse<ScriptingBackend>(args[ScriptingBackendArgKey], ignoreCase: true,
+                out var scriptingBackend))
             {
                 throw new ArgumentException(
                     $"Failed to parse argument: `{args[BuildTargetPlatformArgKey]}` to enum: {typeof(BuildTargetPlatform)}");
