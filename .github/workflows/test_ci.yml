@@ -31,7 +31,7 @@ jobs:
         
       - name: Print chipset
         shell: bash
-        run: echo uname -m
+        run: uname -m
         continue-on-error: true
         
       - name: Download Unity & Modules
