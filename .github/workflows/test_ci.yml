@@ -38,8 +38,7 @@ jobs:
       - name: Install Gdown
         shell: bash
         run: |
-          sudo pip install --upgrade pip
-          sudo pip install gdown
+          sudo pip3 install gdown
         
       - name: Download license file
         shell: bash
