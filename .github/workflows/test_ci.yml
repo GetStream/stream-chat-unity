@@ -35,6 +35,10 @@ jobs:
         run: uname -m
         continue-on-error: true
         
+      - name: Generate lincense file
+        shell: bash
+        run: echo "${{ secrets.UNITY_OFFLINE_LICENCE_ULF_FILE }}" > ~/unity_license.ulf
+        
       - name: Download Unity & Modules
         if: ${{ matrix.os }} == 'macos-latest'
         shell: bash
@@ -96,9 +100,13 @@ jobs:
         shell: bash
         run: mkdir test_results
 
-      - name: Activate Unity with User/Pass/Serial 
+#      - name: Activate Unity with User/Pass/Serial 
+#        shell: bash
+#        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+        
+      - name: Activate Unity with license file
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile ~/unity_license.ulf -quit
         
       - name: LS Unity Logs dir
         shell: bash
