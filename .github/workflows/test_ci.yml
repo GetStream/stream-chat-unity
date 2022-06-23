@@ -106,7 +106,7 @@ jobs:
         
       - name: Activate Unity with license file
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -manualLicenseFile ~/unity_license.ulf -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile ~/unity_license.ulf -quit
         
       - name: LS Unity Logs dir
         shell: bash
