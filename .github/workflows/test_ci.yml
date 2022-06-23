@@ -17,6 +17,7 @@ jobs:
   testRunner:
     needs: checkLicense
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest]
         unity_version: [2021.3.0, 2020.1.1]
