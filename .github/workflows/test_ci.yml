@@ -17,7 +17,7 @@ jobs:
   testRunner:
     needs: checkLicense
     strategy:
-      max-parallel: 1
+      #max-parallel: 1
       fail-fast: false
       matrix:
         os: [macos-latest]
@@ -112,9 +112,18 @@ jobs:
         shell: bash
         run: mkdir test_results
 
-      - name: Activate Unity with User/Pass/Serial 
-        shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+      - name: Activate Unity
+        uses: kuler90/activate-unity@v1
+        with:
+          unity-username: ${{ secrets.UNITY_ACCOUNT_USER }}
+          unity-password: ${{ secrets.UNITY_ACCOUNT_PASS }}
+          unity-authenticator-key: ${{ secrets.UNITY_AUTHENTICATOR_KEY }}
+          unity-serial: "${{ secrets.UNITY_ACCOUNT_SERIAL }}"
+          unity-path: "/Applications/Unity/Unity.app/Contents/MacOS/Unity"
+
+#      - name: Activate Unity with User/Pass/Serial 
+#        shell: bash
+#        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
         
 #      - name: Activate Unity with license file
 #        shell: bash
