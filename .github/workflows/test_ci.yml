@@ -47,9 +47,9 @@ jobs:
 #          cd ~
 #          gdown ${{ secrets.UNITY_LICENSE_GDRIVE_FILE_ID }}
         
-#      - name: Generate lincense file
-#        shell: bash
-#        run: echo "${{ secrets.UNITY_OFFLINE_LICENCE_ULF_FILE }}" > ~/unity_license.ulf
+      - name: Generate lincense file
+        shell: bash
+        run: echo "${{ env.UNITY_LICENSE }}" > ~/unity_license.ulf
         
       - name: Download Unity & Modules
         if: ${{ matrix.os }} == 'macos-latest'
@@ -121,13 +121,13 @@ jobs:
 #          unity-serial: "${{ secrets.UNITY_ACCOUNT_SERIAL }}"
 #          unity-path: "/Applications/Unity/Unity.app/Contents/MacOS/Unity"
 
-      - name: Activate Unity with User/Pass/Serial 
-        shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
-        
-#      - name: Activate Unity with license file
+#      - name: Activate Unity with User/Pass/Serial 
 #        shell: bash
-#        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile ~/unity_license.ulf -quit
+#        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+        
+      - name: Activate Unity with license file
+        shell: bash
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile ~/unity_license.ulf -quit
         
       - name: LS Unity Logs dir
         shell: bash
