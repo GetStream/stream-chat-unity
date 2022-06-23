@@ -35,9 +35,19 @@ jobs:
         run: uname -m
         continue-on-error: true
         
-      - name: Generate lincense file
+      - name: Install Gdown
         shell: bash
-        run: echo "${{ secrets.UNITY_OFFLINE_LICENCE_ULF_FILE }}" > ~/unity_license.ulf
+        run: sudo pip install gdown
+        
+      - name: Download license file
+        shell: bash
+        run: |
+          cd ~
+          gdown ${{ secrets.UNITY_LICENSE_GDRIVE_FILE_ID }}
+        
+#      - name: Generate lincense file
+#        shell: bash
+#        run: echo "${{ secrets.UNITY_OFFLINE_LICENCE_ULF_FILE }}" > ~/unity_license.ulf
         
       - name: Download Unity & Modules
         if: ${{ matrix.os }} == 'macos-latest'
