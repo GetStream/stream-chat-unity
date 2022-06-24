@@ -135,7 +135,8 @@ jobs:
         
       - name: Generate license file
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -createManualActivationFile -quit  
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -createManualActivationFile -quit
+        continue-on-error: true
         
       - name: List dir
         shell: bash
