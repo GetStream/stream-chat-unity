@@ -149,11 +149,15 @@ jobs:
         
       - name: Activate license file
         shell: bash
-        run: unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" "$(ls | grep ".alf$")"
+        run: unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")"
         
       - name: List dir
         shell: bash
         run: ls
+        
+      - name: Get ulf file
+        shell: bash
+        run: ls | grep ".ulf$"
         
 #      - name: Activate the license - Generate ULF file
 #        run: unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" $ULF_FILE_PATH
