@@ -31,12 +31,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Unity_v2020.3.30f1.alf
-          path: ~/Unity_v2020.3.30f1.alf
-        continue-on-error: true
-        
-      # Upload artifact (Unity_v20XX.X.XXXX.alf)
-      - name: Expose as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: Unity_v2020.3.30f1.alf
-          path: ~/Unity_v2020.3.30f1.alf
+          path: Unity_v2020.3.30f1.alf
