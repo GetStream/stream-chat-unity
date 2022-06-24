@@ -19,9 +19,24 @@ jobs:
         shell: bash
         run: ls ~
         continue-on-error: true
+      - name: Pwd
+        shell: bash
+        run: pwd
+        continue-on-error: true
+      - name: List current
+        shell: bash
+        run: ls
+        continue-on-error: true
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unity_v2020.3.30f1.alf
+          path: ~/Unity_v2020.3.30f1.alf
+        continue-on-error: true
+        
       # Upload artifact (Unity_v20XX.X.XXXX.alf)
       - name: Expose as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Unity_v2020.3.0f1.alf
-          path: ~/Unity_v2020.3.0f1.alf
+          name: Unity_v2020.3.30f1.alf
+          path: ~/Unity_v2020.3.30f1.alf
