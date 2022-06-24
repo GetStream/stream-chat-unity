@@ -36,16 +36,24 @@ jobs:
         run: uname -m
         continue-on-error: true
         
-      - name: Install Gdown
-        shell: bash
-        run: |
-          sudo pip3 install gdown
+      - name: Set up Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Install node package, `unity-license-activate`
+        run: npm install --global unity-license-activate
+       
+#      - name: Install Gdown
+#        shell: bash
+#        run: |
+#          sudo pip3 install gdown
         
-      - name: Download license file
-        shell: bash
-        run: |
-          cd ~
-          gdown ${{ secrets.UNITY_LICENSE_GDRIVE_FILE_ID }}
+#      - name: Download license file
+#        shell: bash
+#        run: |
+#          cd ~
+#          gdown ${{ secrets.UNITY_LICENSE_GDRIVE_FILE_ID }}
         
 #      - name: Generate lincense file
 #        shell: bash
@@ -125,9 +133,28 @@ jobs:
 #        shell: bash
 #        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
         
-      - name: Activate Unity with license file
+      - name: Generate license file
         shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile ~/unity_license.ulf -quit
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -createManualActivationFile -quit  
+        
+      - name: List dir
+        shell: bash
+        run: ls
+        
+      - name: Save alf file to var
+        shell: bash
+        run: ULF_FILE_PATH=$(ls | grep ".alf$")
+        
+      - name: List dir
+        shell: bash
+        run: echo $ULF_FILE_PATH
+        
+      - name: Activate the license - Generate ULF file
+        run: unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" $ULF_FILE_PATH
+        
+ #     - name: Activate Unity with license file
+ #       shell: bash
+ #       run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile ~/unity_license.ulf -quit
         
       - name: LS Unity Logs dir
         shell: bash
