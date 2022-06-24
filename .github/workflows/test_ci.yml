@@ -36,20 +36,20 @@ jobs:
         run: uname -m
         continue-on-error: true
         
-#      - name: Install Gdown
-#        shell: bash
-#        run: |
-#          sudo pip3 install gdown
-        
-#      - name: Download license file
-#        shell: bash
-#        run: |
-#          cd ~
-#          gdown ${{ secrets.UNITY_LICENSE_GDRIVE_FILE_ID }}
-        
-      - name: Generate lincense file
+      - name: Install Gdown
         shell: bash
-        run: echo "${{ env.UNITY_LICENSE }}" > ~/unity_license.ulf
+        run: |
+          sudo pip3 install gdown
+        
+      - name: Download license file
+        shell: bash
+        run: |
+          cd ~
+          gdown ${{ secrets.UNITY_LICENSE_GDRIVE_FILE_ID }}
+        
+#      - name: Generate lincense file
+#        shell: bash
+#        run: echo "${{ env.UNITY_LICENSE }}" > ~/unity_license.ulf
         
       - name: Download Unity & Modules
         if: ${{ matrix.os }} == 'macos-latest'
