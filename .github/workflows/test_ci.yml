@@ -43,6 +43,9 @@ jobs:
 
       - name: Install node package, `unity-license-activate`
         run: npm install --global unity-license-activate
+        
+      - name: Install node package, `unity-verify-code`
+        run: npm install --global unity-verify-code
        
 #      - name: Install Gdown
 #        shell: bash
@@ -149,7 +152,7 @@ jobs:
         
       - name: Activate license file
         shell: bash
-        run: unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")"
+        run: unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}"
         continue-on-error: true
         
       - name: 🩺 Upload error screenshot
