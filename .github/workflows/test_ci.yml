@@ -144,14 +144,19 @@ jobs:
         
       - name: Save alf file to var
         shell: bash
-        run: ULF_FILE_PATH=$(ls | grep ".alf$")
+        run: |
+          ls
+          grep ".alf$"
+          ULF_FILE_PATH=$(ls | grep ".alf$")
+          echo $ULF_FILE_PATH
+          unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" $ULF_FILE_PATH
         
       - name: List dir
         shell: bash
         run: echo $ULF_FILE_PATH
         
-      - name: Activate the license - Generate ULF file
-        run: unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" $ULF_FILE_PATH
+#      - name: Activate the license - Generate ULF file
+#        run: unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" $ULF_FILE_PATH
         
  #     - name: Activate Unity with license file
  #       shell: bash
