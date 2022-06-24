@@ -140,27 +140,27 @@ jobs:
         
       - name: List dir
         shell: bash
-        run: ls
-        
-      - name: Save alf file to var
-        shell: bash
         run: |
           ls
           grep ".alf$"
           ULF_FILE_PATH=$(ls | grep ".alf$")
           echo $ULF_FILE_PATH
-          unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" $ULF_FILE_PATH
+        continue-on-error: true 
+        
+      - name: Activate license file
+        shell: bash
+        run: unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" "$(ls | grep ".alf$")"
         
       - name: List dir
         shell: bash
-        run: echo $ULF_FILE_PATH
+        run: ls
         
 #      - name: Activate the license - Generate ULF file
 #        run: unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" $ULF_FILE_PATH
         
- #     - name: Activate Unity with license file
- #       shell: bash
- #       run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile ~/unity_license.ulf -quit
+      - name: Activate Unity with license file
+        shell: bash
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile "$(ls | grep ".ulf$")" -quit
         
       - name: LS Unity Logs dir
         shell: bash
