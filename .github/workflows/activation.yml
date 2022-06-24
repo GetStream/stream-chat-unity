@@ -6,15 +6,19 @@ jobs:
     name: Generate manual license file
     runs-on: macos-latest
     steps:
-      - name: Download Unity & Generate license file
+      - name: Download & Install Unity
         shell: bash
         run: |
           curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/1fb1bf06830e/MacEditorInstaller/Unity.pkg
           sudo installer -package ~/Unity.pkg -target /
-
-          sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode  -nographics -createManualActivationFile
-
-          ls ~
+      - name: Generate license file
+        shell: bash
+        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode  -nographics -createManualActivationFile -quit
+        continue-on-error: true
+      - name: List dir
+        shell: bash
+        run: ls ~
+        continue-on-error: true
       # Upload artifact (Unity_v20XX.X.XXXX.alf)
       - name: Expose as artifact
         uses: actions/upload-artifact@v2
