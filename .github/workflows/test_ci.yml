@@ -44,8 +44,11 @@ jobs:
       - name: Install node package, `unity-license-activate`
         run: npm install --global unity-license-activate
         
+#      - name: Install node package, `unity-verify-code`
+#        run: npm install --global unity-verify-code
+        
       - name: Install node package, `unity-verify-code`
-        run: npm install --global unity-verify-code
+        run: npm install --global https://github.com/zxc30314/unity-verify-code
        
 #      - name: Install Gdown
 #        shell: bash
