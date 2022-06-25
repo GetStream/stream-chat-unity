@@ -42,7 +42,7 @@ jobs:
           node-version: 14
 
       - name: Install node package, `unity-license-activate`
-        run: npm install --global unity-license-activate
+        run: npm install --global https://github.com/sierpinskid/unity-license-activate
         
 #      - name: Install node package, `unity-verify-code`
 #        run: npm install --global unity-verify-code
