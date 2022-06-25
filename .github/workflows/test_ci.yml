@@ -34,8 +34,8 @@ jobs:
       - name: Print chipset
         shell: bash
         run: uname -m
-        continue-on-error: true
-        
+        continue-on-error: true      
+
       - name: Set up Node.js 14
         uses: actions/setup-node@v1
         with:
@@ -152,6 +152,11 @@ jobs:
           ULF_FILE_PATH=$(ls | grep ".alf$")
           echo $ULF_FILE_PATH
         continue-on-error: true 
+        
+      - name: Ensure code file exists
+        shell: bash
+        run: touch ./code.txt
+        continue-on-error: true
         
       - name: Activate license file
         shell: bash
