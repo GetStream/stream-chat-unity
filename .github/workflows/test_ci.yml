@@ -48,7 +48,7 @@ jobs:
 #        run: npm install --global unity-verify-code
         
       - name: Install node package, `unity-verify-code`
-        run: npm install --global https://github.com/zxc30314/unity-verify-code
+        run: npm install --global https://github.com/GetStream/unity-verify-code
        
 #      - name: Install Gdown
 #        shell: bash
