@@ -165,6 +165,7 @@ jobs:
         
       - name: 🩺 Upload error screenshot
         uses: actions/upload-artifact@v1
+        continue-on-error: true
         with:
           name: screenshot_error
           path: error.png
