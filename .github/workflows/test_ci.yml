@@ -34,27 +34,9 @@ jobs:
       - name: Install node package, `unity-license-activate`
         run: npm install --global https://github.com/sierpinskid/unity-license-activate
         
-#      - name: Install node package, `unity-verify-code`
-#        run: npm install --global unity-verify-code
-        
       - name: Install node package, `unity-verify-code`
         run: npm install --global https://github.com/sierpinskid/unity-verify-code
-       
-#      - name: Install Gdown
-#        shell: bash
-#        run: |
-#          sudo pip3 install gdown
-        
-#      - name: Download license file
-#        shell: bash
-#        run: |
-#          cd ~
-#          gdown ${{ secrets.UNITY_LICENSE_GDRIVE_FILE_ID }}
-        
-#      - name: Generate lincense file
-#        shell: bash
-#        run: echo "${{ env.UNITY_LICENSE }}" > ~/unity_license.ulf
-        
+
       - name: Download Unity & Modules
         if: ${{ matrix.os }} == 'macos-latest'
         shell: bash
@@ -116,19 +98,6 @@ jobs:
         shell: bash
         run: mkdir test_results
 
-#      - name: Activate Unity
-#        uses: kuler90/activate-unity@v1
-#        with:
-#          unity-username: ${{ secrets.UNITY_ACCOUNT_USER }}
-#          unity-password: ${{ secrets.UNITY_ACCOUNT_PASS }}
-#          unity-authenticator-key: ${{ secrets.UNITY_AUTHENTICATOR_KEY }}
-#          unity-serial: "${{ secrets.UNITY_ACCOUNT_SERIAL }}"
-#          unity-path: "/Applications/Unity/Unity.app/Contents/MacOS/Unity"
-
-#      - name: Activate Unity with User/Pass/Serial 
-#        shell: bash
-#        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -serial "${{ secrets.UNITY_ACCOUNT_SERIAL }}" -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
-        
       - name: Generate license file
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -createManualActivationFile -quit
@@ -172,9 +141,6 @@ jobs:
       - name: Get ulf file
         shell: bash
         run: ls | grep ".ulf$"
-        
-#      - name: Activate the license - Generate ULF file
-#        run: unity-license-activate "${{ secrets.UNITY_EMAIL }}" "${{ secrets.UNITY_PASSWORD }}" $ULF_FILE_PATH
         
       - name: Activate Unity with license file
         shell: bash
