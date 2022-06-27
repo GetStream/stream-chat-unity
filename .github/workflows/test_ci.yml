@@ -240,8 +240,8 @@ jobs:
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -executeMethod "StreamChat.EditorTools.StreamEditorTools.BuildSampleApp" -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath "~/SampleAppBuild/App" -quit
         
-      - name: Return Unity license
-        if: always()
-        shell: bash
-        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -returnlicense -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
+#      - name: Return Unity license
+#        if: always()
+#        shell: bash
+#        run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -returnlicense -username "${{ secrets.UNITY_ACCOUNT_USER }}" -password "${{ secrets.UNITY_ACCOUNT_PASS }}" -quit
        
