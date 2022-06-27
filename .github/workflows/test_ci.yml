@@ -163,6 +163,11 @@ jobs:
         run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
         continue-on-error: true
         
+      - name: Print code file
+        shell: bash
+        run: cat ./code.txt
+        continue-on-error: true
+        
       - name: 🩺 Upload error screenshot
         uses: actions/upload-artifact@v1
         continue-on-error: true
