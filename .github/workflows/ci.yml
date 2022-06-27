@@ -1,4 +1,4 @@
-name: Run Unity tests on Mac OS
+name: CI - Run Tests + Build Sample App
 
 on: workflow_dispatch
 
@@ -14,8 +14,8 @@ jobs:
         unity_version: [2021.3.0, 2020.3.0]
         dotnet_version: [NET_4_x, STANDARD_2_x]
         compiler: [mono, il2cpp]
-        target_platform: [standalone]
-    name: Execute editor tests
+        target_platform: [standalone, mobile]
+    name: Run tests + Build Sample APp
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
