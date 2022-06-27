@@ -142,7 +142,7 @@ jobs:
       - name: Generate license file
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -createManualActivationFile -quit
-        continue-on-error: true
+        continue-on-error: true #Unity return exit code 1 even if successfully creating license file
         
       - name: List dir
         shell: bash
@@ -158,7 +158,7 @@ jobs:
         run: touch ./code.txt
         continue-on-error: true
         
-      - name: Activate license file
+      - name: Activate license file (generate ULF from ALF)
         shell: bash
         run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
         continue-on-error: true
@@ -189,6 +189,7 @@ jobs:
       - name: Activate Unity with license file
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile "$(ls | grep ".ulf$")" -quit
+        continue-on-error: true #Unity return exit code 1 even if successfully activating with license file
         
       - name: LS Unity Logs dir
         shell: bash
