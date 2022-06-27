@@ -17,7 +17,7 @@ jobs:
       - name: Run Verify Code
         shell: bash
         run: |
-          sudo touch "./code.txt"
+          touch "./code.txt"
           unity-verify-code "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.EMAIL_PASS }}" "./code.txt" --host "imap.gmail.com"
         continue-on-error: true
           
