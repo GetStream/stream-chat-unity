@@ -68,11 +68,6 @@ jobs:
               curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/1fb1bf06830e/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2020.3.30f1.pkg
             fi
           fi
-          
-      - name: Print home dir
-        shell: bash
-        run: ls ~
-        continue-on-error: true
 
       - name: Install Unity & Modules
         shell: bash
@@ -88,17 +83,12 @@ jobs:
           then
             sudo installer -package ~/UnityIosModule.pkg -target /
           fi
-          
-      - name: Print ls
-        if: always()
-        shell: bash
-        run: ls
 
       - name: Create Test Results dir
         shell: bash
         run: mkdir test_results
 
-      - name: Generate license file
+      - name: Generate .ALF license file
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -createManualActivationFile -quit
         continue-on-error: true #Unity return exit code 1 even if successfully creating license file
@@ -117,33 +107,48 @@ jobs:
         run: touch ./code.txt
         continue-on-error: true
         
-      - name: Activate license file (generate ULF from ALF)
-        id: generate_ulf_license
+      - name: Activate .ALF License - Get .ULF file
+        id: generate_ulf_license_attempt_1
         shell: bash
         run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
         
-      - name: Print code file
+      - name: Activate .ALF License - Get .ULF file - Attempt 2
+        if: steps.generate_ulf_license_attempt_1.outcome == 'failure'
+        id: generate_ulf_license_attempt_2
         shell: bash
-        run: cat ./code.txt
-        continue-on-error: true
+        run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+        
+      - name: Activate .ALF License - Get .ULF file - Attempt 3
+        if: steps.generate_ulf_license_attempt_2.outcome == 'failure'
+        id: generate_ulf_license_attempt_3
+        shell: bash
+        run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
         
       - name: 🩺 Upload error screenshot
-        if: steps.generate_ulf_license.outcome == 'failure'
+        if: steps.generate_ulf_license_attempt_1.outcome == 'failure'
         uses: actions/upload-artifact@v1
         continue-on-error: true
         with:
-          name: screenshot_error
-          path: error.png
+          name: screenshot_error_1
+          path: error_1.png
+          
+      - name: 🩺 Upload error screenshot 2
+        if: steps.generate_ulf_license_attempt_2.outcome == 'failure'
+        uses: actions/upload-artifact@v1
+        continue-on-error: true
+        with:
+          name: screenshot_error_2
+          path: error_2.png
+          
+      - name: 🩺 Upload error screenshot
+        if: steps.generate_ulf_license_attempt_3.outcome == 'failure'
+        uses: actions/upload-artifact@v1
+        continue-on-error: true
+        with:
+          name: screenshot_error_3
+          path: error_3.png
         
-      - name: List dir
-        shell: bash
-        run: ls
-        
-      - name: Get ulf file
-        shell: bash
-        run: ls | grep ".ulf$"
-        
-      - name: Activate Unity with license file
+      - name: Activate Unity with .ULF license file
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile "$(ls | grep ".ulf$")" -quit
         continue-on-error: true #Unity return exit code 1 even if successfully activating with license file
