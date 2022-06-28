@@ -5,11 +5,11 @@ using Random = UnityEngine.Random;
 
 namespace StreamChat.EditorTools
 {
-    public readonly struct TestAuthDataSet
+    public struct TestAuthDataSet
     {
-        public AuthCredentials[] TestAdminData { get; }
-        public AuthCredentials TestUserData { get; }
-        public AuthCredentials TestGuestData { get; }
+        public AuthCredentials[] TestAdminData { get; set; }
+        public AuthCredentials TestUserData { get; set; }
+        public AuthCredentials TestGuestData { get; set; }
 
         public TestAuthDataSet(IEnumerable<AuthCredentials> testAdminData, AuthCredentials testUserData, AuthCredentials testGuestData)
         {

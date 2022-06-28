@@ -87,7 +87,8 @@ namespace StreamChat.Tests
         [Test]
         public void when_stream_client_passed_null_arg_expect_argument_null_exception()
         {
-            Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials, websocketClient: null, httpClient: _mockHttpClient, serializer: _mockSerializer,
+            Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials, websocketClient: null,
+                httpClient: _mockHttpClient, serializer: _mockSerializer,
                 timeService: _mockTimeService, logs: _mockLogs));
 
             Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials,
