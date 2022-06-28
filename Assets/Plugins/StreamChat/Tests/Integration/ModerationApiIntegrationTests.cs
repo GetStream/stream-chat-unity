@@ -69,7 +69,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
+            const string channelType = "messaging";
 
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
@@ -120,7 +120,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
+            const string channelType = "messaging";
 
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
@@ -203,7 +203,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
+            const string channelType = "messaging";
 
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
@@ -236,7 +236,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
+            const string channelType = "messaging";
 
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
@@ -320,7 +320,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
+            const string channelType = "messaging";
 
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),

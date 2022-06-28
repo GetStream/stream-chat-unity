@@ -89,7 +89,7 @@ namespace StreamChat.Tests.Integration
         ///  Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
         protected IEnumerator CreateTempUniqueChannel(string channelType,
-            ChannelGetOrCreateRequest channelGetOrCreateRequest, Action<ChannelState> onChannelReturned)
+            ChannelGetOrCreateRequest channelGetOrCreateRequest, Action<ChannelState> onChannelReturned = null)
         {
             var channelId = "random-channel-" + Guid.NewGuid();
 
@@ -99,7 +99,7 @@ namespace StreamChat.Tests.Integration
             yield return createChannelTask.RunAsIEnumerator(response =>
             {
                 _tempChannelsToDelete.Add((response.Channel.Type, response.Channel.Id));
-                onChannelReturned(response);
+                onChannelReturned?.Invoke(response);
             });
         }
 

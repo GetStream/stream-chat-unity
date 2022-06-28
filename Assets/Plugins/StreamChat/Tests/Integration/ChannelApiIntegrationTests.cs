@@ -23,7 +23,7 @@ namespace StreamChat.Tests.Integration
 
             var request = new ChannelGetOrCreateRequest();
 
-            var channelType = "messaging";
+            const string channelType = "messaging";
             var channelId = "random-channel-" + Guid.NewGuid();
 
             var task = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
@@ -96,8 +96,8 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
-            var channelId = "new-channel-id-1";
+            const string channelType = "messaging";
+            var channelId = "new-channel-id-" + Guid.NewGuid();
 
             var createChannelTask =
                 Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
@@ -122,20 +122,11 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
-            var channelId = "new-channel-id-1";
-            var channelId2 = "new-channel-id-2";
+            const string channelType = "messaging";
 
             //Create 2 channels with admin being member of one of them
 
-            var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
-
-            yield return createChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(channelId, response.Channel.Id);
-                Assert.AreEqual(channelType, response.Channel.Type);
-            });
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest());
 
             var getOrCreateRequest2 = new ChannelGetOrCreateRequest()
             {
@@ -151,14 +142,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var createChannelTask2 =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId2, getOrCreateRequest2);
-
-            yield return createChannelTask2.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(channelId2, response.Channel.Id);
-                Assert.AreEqual(channelType, response.Channel.Type);
-            });
+            yield return CreateTempUniqueChannel(channelType, getOrCreateRequest2);
 
             //Query channels where admin is a member
 

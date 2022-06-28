@@ -22,13 +22,11 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
-            var channelId = "new-channel-id-1";
+            const string channelType = "messaging";
 
-            var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
-
-            yield return createChannelTask.RunAsIEnumerator();
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
             {
@@ -51,13 +49,11 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
-            var channelId = "new-channel-id-1";
+            const string channelType = "messaging";
 
-            var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
-
-            yield return createChannelTask.RunAsIEnumerator();
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
             {
@@ -98,7 +94,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
+            const string channelType = "messaging";
 
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel("messaging", new ChannelGetOrCreateRequest(), state => channelState = state);
@@ -145,7 +141,7 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            var channelType = "messaging";
+            const string channelType = "messaging";
 
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel("messaging", new ChannelGetOrCreateRequest(), state => channelState = state);
