@@ -26,10 +26,10 @@ jobs:
         run: uname -m
         continue-on-error: true      
 
-      - name: Set up Node.js 14
+      - name: Set up Node.js 16
         uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Install node package, `unity-license-activate`
         run: npm install --global https://github.com/sierpinskid/unity-license-activate
