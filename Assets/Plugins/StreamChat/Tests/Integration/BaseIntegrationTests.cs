@@ -2,6 +2,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Models;
@@ -9,6 +11,7 @@ using StreamChat.Core.Requests;
 using StreamChat.EditorTools;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
+using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -27,6 +30,8 @@ namespace StreamChat.Tests.Integration
 
             AuthCredentials guestAuthCredentials, userAuthCredentials, adminAuthCredentials = default;
 
+            const string TestAuthDataFilePath = "test_auth_data_xSpgxW.txt";
+
             if (Application.isBatchMode)
             {
                 Debug.Log("Batch mode, expecting data injected through CLI args");
@@ -35,6 +40,22 @@ namespace StreamChat.Tests.Integration
                 var argsDict = parser.GetParsedCommandLineArguments();
 
                 var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
+
+                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
+
+                guestAuthCredentials = testAuthDataSet.TestGuestData;
+                userAuthCredentials = testAuthDataSet.TestUserData;
+                adminAuthCredentials = testAuthDataSet.GetRandomAdminData();
+            }
+            else if (File.Exists(TestAuthDataFilePath))
+            {
+                var serializer = new NewtonsoftJsonSerializer();
+
+                var base64TestData = File.ReadAllText(TestAuthDataFilePath);
+                var decodedJsonTestData = Convert.FromBase64String(base64TestData);
+
+                var testAuthDataSet =
+                    serializer.Deserialize<TestAuthDataSet>(Encoding.UTF8.GetString(decodedJsonTestData));
 
                 Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
 

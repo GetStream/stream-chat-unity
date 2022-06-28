@@ -189,19 +189,11 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            Assert.AreEqual(Client.UserId, TestAdminId);
+            const string channelType = "messaging";
 
-            var channelType = "messaging";
-            var channelId = "new-channel-id-1";
-
-            var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
-
-            yield return createChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(channelId, response.Channel.Id);
-                Assert.AreEqual(channelType, response.Channel.Type);
-            });
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            var channelId = channelState.Channel.Id;
 
             var updateRequestBody = new UpdateChannelRequest
             {
@@ -262,7 +254,7 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);
 
-                Assert.IsTrue(response.Watchers.Any(_ => _.Id == TestAdminId));
+                Assert.IsTrue(response.Watchers.Any(_ => _.Id == Client.UserId));
             });
         }
 
@@ -271,38 +263,28 @@ namespace StreamChat.Tests.Integration
         {
             yield return Client.WaitForClientToConnect();
 
-            Assert.AreEqual(Client.UserId, TestAdminId);
+            const string channelType = "messaging";
 
-            var channelType = "messaging";
-            var channelId = "new-channel-id-1";
-
-            //Delete channel to remove any previous information
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId);
-
-            yield return deleteChannelTask.RunAsIEnumerator(onFaulted: exception => {
-                //ignore if deletion failed
-            });
-
-            var watchChannelTask = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
-                new ChannelGetOrCreateRequest
-                {
-                    Watch = true,
-                    State = true,
-                    Watchers = new PaginationParamsRequest
-                    {
-                        Limit = 10
-                    }
-                });
-
-            yield return watchChannelTask.RunAsIEnumerator(response =>
+            var getOrCreateRequest = new ChannelGetOrCreateRequest
             {
-                Assert.AreEqual(channelId, response.Channel.Id);
-                Assert.AreEqual(channelType, response.Channel.Type);
+                Watch = true,
+                State = true,
+                Watchers = new PaginationParamsRequest
+                {
+                    Limit = 10
+                }
+            };
+
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel(channelType, getOrCreateRequest, state =>
+            {
+                channelState = state;
 
                 //Assert.IsTrue(response.Watchers.Any(_ => _.Id == TestAdminId));
                 //It seems that if users starts watching a channel he will not be returned in watchers collection until the next request
-                Assert.IsNull(response.Watchers);
+                Assert.IsNull(state.Watchers);
             });
+            var channelId = channelState.Channel.Id;
 
             var watchChannelTask2 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
@@ -319,7 +301,7 @@ namespace StreamChat.Tests.Integration
             {
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Watchers.Any(_ => _.Id == TestAdminId));
+                Assert.IsTrue(response.Watchers.Any(_ => _.Id == Client.UserId));
             });
         }
 

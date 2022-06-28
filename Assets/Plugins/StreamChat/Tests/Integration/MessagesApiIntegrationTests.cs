@@ -144,8 +144,7 @@ namespace StreamChat.Tests.Integration
             const string channelType = "messaging";
 
             ChannelState channelState = null;
-            yield return CreateTempUniqueChannel("messaging", new ChannelGetOrCreateRequest(), state => channelState = state);
-
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
             var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
