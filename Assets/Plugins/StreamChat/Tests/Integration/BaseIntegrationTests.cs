@@ -36,11 +36,11 @@ namespace StreamChat.Tests.Integration
 
                 var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
 
-                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData.UserId);
+                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
 
                 guestAuthCredentials = testAuthDataSet.TestGuestData;
                 userAuthCredentials = testAuthDataSet.TestUserData;
-                adminAuthCredentials = testAuthDataSet.TestAdminData;
+                adminAuthCredentials = testAuthDataSet.GetRandomAdminData();
             }
             else
             {
