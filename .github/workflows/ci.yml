@@ -31,6 +31,15 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 16
+          
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+          
+      - name: Print python version
+        shell: bash
+        run: python --version
+        continue-on-error: true   
 
       - name: Install node package, `unity-license-activate`
         run: npm install --global https://github.com/sierpinskid/unity-license-activate
