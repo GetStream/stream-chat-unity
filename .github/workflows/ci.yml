@@ -229,8 +229,9 @@ jobs:
           name: sample_app
           path: sample_app.zip
         continue-on-error: true
-	
-      - uses: actions/upload-artifact@v3
+
+      - name: Build Sample App
+        uses: actions/upload-artifact@v3
         with:
           name: test_results.xml
           path: /test_results/results.xml
