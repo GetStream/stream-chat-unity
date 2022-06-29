@@ -218,6 +218,13 @@ jobs:
           echo '----'
         continue-on-error: true
         
+      - name: Generate HTML test report
+        uses: rempelj/nunit-html-action@v1.0.1
+        if: always()
+        with:
+          inputXmlPath: ~/test_results/results.xml
+          outputHtmlPath: ~/test_results/results.html
+        
       - name: Zip sample app
         uses: vimtor/action-zip@v1
         with:
@@ -232,11 +239,18 @@ jobs:
           path: sample_app.zip
         continue-on-error: true
         
-      - name: Upload tests results
+      - name: Upload tests results XML
         uses: actions/upload-artifact@v3
         with:
           name: test_results.xml
-          path: /test_results/results.xml
+          path: ~/test_results/results.xml
+        continue-on-error: true
+        
+      - name: Upload tests results Html
+        uses: actions/upload-artifact@v3
+        with:
+          name: test_results.xml
+          path: ~/test_results/results.html
         continue-on-error: true
          
 #      - name: Return Unity license
