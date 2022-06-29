@@ -1,6 +1,10 @@
 name: CI - Run Tests + Build Sample App
 
-on: workflow_dispatch
+on:
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
 
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
