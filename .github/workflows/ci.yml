@@ -74,12 +74,12 @@ jobs:
 
             if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
             then
-              curl -L -o ~/UnityIL2CPPModule.pkg  https://download.unity3d.com/download_unity/1fb1bf06830e/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2020.3.30f1.pkg
+              curl -L -o ~/UnityIL2CPPModule.pkg https://download.unity3d.com/download_unity/1fb1bf06830e/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2020.3.30f1.pkg
             fi
 
             if [[ ${{ matrix.target_platform }} == 'mobile' ]]
             then
-              curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/1fb1bf06830e/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2020.3.30f1.pkg
+              curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/1fb1bf06830e/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2020.3.30f1.pkg
             fi
           fi
 
@@ -248,21 +248,21 @@ jobs:
       - name: Upload Sample App
         uses: actions/upload-artifact@v3
         with:
-          name: sample_app
+          name: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_sample_app
           path: sample_app.zip
         continue-on-error: true
         
       - name: Upload tests results XML
         uses: actions/upload-artifact@v3
         with:
-          name: test_results.xml
+          name: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_test_results.xml
           path: ~/test_results/results.xml
         continue-on-error: true
         
       - name: Upload tests results Html
         uses: actions/upload-artifact@v3
         with:
-          name: test_results.xml
+          name: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_test_results.html
           path: ~/test_results/results.html
         continue-on-error: true
          
