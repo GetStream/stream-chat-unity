@@ -218,19 +218,21 @@ jobs:
           echo '----'
         continue-on-error: true
         
+      - name: Zip sample app
       - uses: vimtor/action-zip@v1
         with:
           files: "~/SampleAppBuild/App"
           dest: sample_app.zip
         continue-on-error: true
         
+      - name: Upload Sample App
       - uses: actions/upload-artifact@v3
         with:
           name: sample_app
           path: sample_app.zip
         continue-on-error: true
         
-      - name: Build Sample App
+      - name: Upload tests results
         uses: actions/upload-artifact@v3
         with:
           name: test_results.xml
