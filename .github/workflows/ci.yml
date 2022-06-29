@@ -205,6 +205,37 @@ jobs:
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -executeMethod "StreamChat.EditorTools.StreamEditorTools.BuildSampleApp" -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath "~/SampleAppBuild/App" -quit
         
+      - name: LS
+        shell: bash
+        run: |
+          ls
+          echo '----'
+          ls ~
+          echo '----'
+          ls "~/SampleAppBuild/"
+          echo '----'
+          ls "~/SampleAppBuild/App/"
+          echo '----'
+        continue-on-error: true
+        
+      - uses: vimtor/action-zip@v1
+        with:
+          files: "~/SampleAppBuild/App"
+          dest: sample_app.zip
+        continue-on-error: true
+		  
+      - uses: actions/upload-artifact@v3
+        with:
+          name: sample_app
+          path: sample_app.zip
+        continue-on-error: true
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          name: test_results.xml
+          path: /test_results/results.xml
+        continue-on-error: true
+        
 #      - name: Return Unity license
 #        if: always()
 #        shell: bash
