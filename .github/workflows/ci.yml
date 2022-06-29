@@ -17,6 +17,7 @@ jobs:
         target_platform: [standalone, mobile]
     name: Run tests + Build Sample APp
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 600
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
