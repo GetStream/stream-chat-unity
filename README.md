@@ -16,6 +16,16 @@
     <a href="https://getstream.io/chat/trial/">Register for API Key</a>
 </p>
 
+<p align="center">
+    <a href="https://github.com/GetStream/stream-chat-unity/releases/latest">
+        <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/GetStream/stream-chat-unity">
+    </a>
+    &nbsp;
+    <a href="https://github.com/GetStream/stream-chat-unity/graphs/commit-activity">
+        <img src="https://img.shields.io/github/commit-activity/m/GetStream/stream-chat-unity" alt="GitHub commit activity">
+    </a>
+</p>
+
 ---
 
 The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://getstream.io/chat/sdk/unity/), a service for building chat and messaging games and applications.
