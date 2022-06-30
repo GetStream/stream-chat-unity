@@ -1,0 +1,23 @@
+name: Test Json
+
+on: workflow_dispatch
+
+jobs:
+  testVerifyCodeJob:
+    name: Verify Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test 1
+        shell: bash     
+        run: |
+          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)}}
+          echo '-----'
+          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)}}.2021.3.0
+          echo '-----'
+          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)}}.2021.3.0.macos-latest.editor
+          echo '-----'
+          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)}}.2020.3.0.ubuntu-latest.il2cpp
+          echo '-----'
+          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)}}["2021.3.0"]
+          echo '-----'
+          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)}}[2021.3.0]
