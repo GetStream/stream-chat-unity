@@ -12,12 +12,6 @@ jobs:
         run: |
           echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)}}
           echo '-----'
-          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX).2021.3.0}}
+          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)["2021.3.0"].macos-latest.editor}}
           echo '-----'
-          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX).2021.3.0.macos-latest.editor}}
-          echo '-----'
-          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX).2020.3.0.ubuntu-latest.il2cpp}}
-          echo '-----'
-          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)["2021.3.0"]}}
-          echo '-----'
-          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)[2021.3.0]}}
+          echo ${{fromJSON(env.UNITY_DOWNLOAD_URLS_MATRIX)["2021.3.0"].2020.3.0.ubuntu-latest.il2cpp}}
