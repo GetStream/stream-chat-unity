@@ -125,6 +125,7 @@ jobs:
         id: generate_ulf_license_attempt_1
         shell: bash
         run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+        timeout-minutes: 15
         continue-on-error: true
         
       - name: Activate .ALF License - Get .ULF file - Attempt 2
@@ -132,6 +133,7 @@ jobs:
         id: generate_ulf_license_attempt_2
         shell: bash
         run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+        timeout-minutes: 15
         continue-on-error: true
         
       - name: Activate .ALF License - Get .ULF file - Attempt 3
@@ -139,6 +141,7 @@ jobs:
         id: generate_ulf_license_attempt_3
         shell: bash
         run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+        timeout-minutes: 15
         
       - name: 🩺 Upload error screenshot
         if: steps.generate_ulf_license_attempt_1.outcome == 'failure'
