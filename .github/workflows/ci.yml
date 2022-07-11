@@ -149,7 +149,7 @@ jobs:
         continue-on-error: true
         with:
           name: screenshot_error_1
-          path: error_1.png
+          path: error.png
           
       - name: 🩺 Upload error screenshot 2
         if: steps.generate_ulf_license_attempt_2.outcome == 'failure'
@@ -157,15 +157,15 @@ jobs:
         continue-on-error: true
         with:
           name: screenshot_error_2
-          path: error_2.png
+          path: error.png
          
-      - name: 🩺 Upload error screenshot
+      - name: 🩺 Upload error screenshot 3
         if: steps.generate_ulf_license_attempt_3.outcome == 'failure'
         uses: actions/upload-artifact@v1
         continue-on-error: true
         with:
           name: screenshot_error_3
-          path: error_3.png
+          path: error.png
         
       - name: Activate Unity with .ULF license file
         shell: bash
