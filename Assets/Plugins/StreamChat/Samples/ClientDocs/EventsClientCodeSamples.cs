@@ -38,7 +38,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
             Client.EventReceived += serializedEventData => { };
 
-            Client.Connected += () =>
+            Client.Connected += (localUser) =>
             {
                 //client connected
             };

@@ -15,6 +15,7 @@ using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
+using StreamChat.Core;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
@@ -32,7 +33,7 @@ namespace StreamChat.Core
 
         public static readonly Uri ServerBaseUrl = new Uri("wss://chat.stream-io-api.com");
 
-        public event Action Connected;
+        public event ConnectionHandler Connected;
         public event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
 
         public event Action<string> EventReceived;
@@ -240,7 +241,7 @@ namespace StreamChat.Core
             Connect();
         }
 
-        private void OnConnectionConfirmed() => Connected?.Invoke();
+        private void OnConnectionConfirmed(OwnUser localUser) => Connected?.Invoke(localUser);
 
         private void RegisterEventHandlers()
         {
@@ -385,7 +386,7 @@ namespace StreamChat.Core
                 LocalUser = healthCheckEvent.Me;
 
                 _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
-                OnConnectionConfirmed();
+                OnConnectionConfirmed(healthCheckEvent.Me);
             }
         }
 
