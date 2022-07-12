@@ -154,7 +154,7 @@ namespace StreamChat.SampleProject
         private OwnUser _localUser;
         private ChannelState _activeChannel;
 
-        private async void OnClientConnected()
+        private async void OnClientConnected(OwnUser ownUser)
         {
             await UpdateChannelsAsync();
 
