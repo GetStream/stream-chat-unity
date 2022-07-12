@@ -18,14 +18,14 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Whether a user is banned or not
         /// </summary>
-        public bool Banned { get; set; }
+        public bool? Banned { get; set; }
 
         /// <summary>
         /// Unique user identifier
         /// </summary>
         public string Id { get; set; }
 
-        public bool Invisible { get; set; }
+        public bool? Invisible { get; set; }
 
         /// <summary>
         /// Preferred language of a user
@@ -37,7 +37,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Revocation date for tokens
         /// </summary>
-        public DateTimeOffset RevokeTokensIssuedBefore { get; set; }
+        public DateTimeOffset? RevokeTokensIssuedBefore { get; set; }
 
         /// <summary>
         /// Determines the set of user permissions
