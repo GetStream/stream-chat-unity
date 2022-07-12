@@ -50,6 +50,8 @@ namespace StreamChat.Core
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
 
+        public OwnUser LocalUser { get; private set; }
+
         public ConnectionState ConnectionState
         {
             get => _connectionState;
@@ -379,6 +381,8 @@ namespace StreamChat.Core
             {
                 ConnectionState = ConnectionState.Connected;
                 _connectionId = healthCheckEvent.ConnectionId;
+
+                LocalUser = healthCheckEvent.Me;
 
                 _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
                 OnConnectionConfirmed();
