@@ -108,7 +108,7 @@ namespace StreamChat.Core.API
 
             if (!httpResponse.IsSuccessStatusCode)
             {
-                LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, request.ToString());
+                LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, requestContent);
 
                 var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
                 throw new StreamApiException(apiError);
@@ -122,7 +122,7 @@ namespace StreamChat.Core.API
             }
             catch (Exception e)
             {
-                LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, request.ToString());
+                LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, requestContent);
                 throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
             }
 
@@ -260,9 +260,14 @@ namespace StreamChat.Core.API
             _sb.Append(uri);
             _sb.Append(Environment.NewLine);
             _sb.Append(Environment.NewLine);
-            _sb.AppendLine("Request:");
-            _sb.AppendLine(request);
-            _sb.Append(Environment.NewLine);
+
+            if (request != null)
+            {
+                _sb.AppendLine("Request:");
+                _sb.AppendLine(request);
+                _sb.Append(Environment.NewLine);
+            }
+
             _sb.AppendLine("Response:");
             _sb.AppendLine(response);
             _sb.Append(Environment.NewLine);
