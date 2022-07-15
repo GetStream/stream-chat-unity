@@ -274,11 +274,12 @@ jobs:
         
       - name: Set GH Comment as variable
         if: github.event_name == 'pull_request'
+        id: generate_gh_comment
         run: echo "::set-output name=gh_comment::$(cat ~/test_results/gh_comment.txt)"
         
       - name: Comment PR
         if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v1
         with:
-          message: echo gh_comment
+          message: echo ${{ steps.generate_gh_comment.outputs.gh_comment }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
