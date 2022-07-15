@@ -248,14 +248,14 @@ jobs:
           name: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_sample_app
           path: ~/SampleAppBuild/App/
         
-      - name: Upload tests results XML
+      - name: Upload tests results XML Artifact
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_test_results.xml
           path: ~/test_results/results.xml
         
-      - name: Upload tests results Html
+      - name: Upload tests results Html Artifact
         uses: actions/upload-artifact@v3
         if: always()
         with:
@@ -266,7 +266,7 @@ jobs:
         uses: sierpinskid/nunit-github-comment@v1
         if: github.event_name == 'pull_request'
         with:
-          inputXmlPath: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_test_results.xml
+          inputXmlPath: ~/test_results/results.xml
           outputFilePath: ~/test_results/gh_comment.txt
         
       - name: Set GH Comment as variable
