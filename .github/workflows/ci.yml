@@ -200,6 +200,7 @@ jobs:
       - name: Run Unity Tests
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -runTests -testResults ~/test_results/results.xml -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}
+        continue-on-error: true
         
 #due to skipped -quit
       - name: Force Close Unity
@@ -268,8 +269,8 @@ jobs:
         uses: sierpinskid/nunit-github-comment@v1
         if: github.event_name == 'pull_request'
         with:
-          name: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_test_results.html
-          path: ~/test_results/gh_comment.txt
+          inputXmlPath: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_test_results.html
+          outputFilePath: ~/test_results/gh_comment.txt
         continue-on-error: true
         
       - name: Set GH Comment as variable
