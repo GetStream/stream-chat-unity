@@ -263,3 +263,22 @@ jobs:
           name: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_test_results.html
           path: ~/test_results/results.html
         continue-on-error: true
+        
+      - name: Generate GH Summary Comment
+        uses: sierpinskid/nunit-github-comment@v1
+        if: github.event_name == 'pull_request'
+        with:
+          name: ${{ matrix.os }}_${{ matrix.unity_version }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}_${{ matrix.target_platform }}_test_results.html
+          path: ~/test_results/gh_comment.txt
+        continue-on-error: true
+        
+      - name: Set GH Comment as variable
+        if: github.event_name == 'pull_request'
+        run: echo "::set-output name=gh_comment::$(cat ~/test_results/gh_comment.txt)"
+        
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: echo gh_comment
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
