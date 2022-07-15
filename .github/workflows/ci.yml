@@ -269,14 +269,14 @@ jobs:
           inputXmlPath: ~/test_results/results.xml
           outputFilePath: ~/test_results/gh_comment.txt
         
-      - name: Set GH Comment as variable
-        if: github.event_name == 'pull_request'
-        id: generate_gh_comment
-        run: echo "::set-output name=gh_comment::$(cat ~/test_results/gh_comment.txt)"
+#      - name: Set GH Comment as variable
+#        if: github.event_name == 'pull_request'
+#        id: generate_gh_comment
+#        run: echo "::set-output name=gh_comment::$(cat ~/test_results/gh_comment.txt)"
         
       - name: Comment PR
         if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v1
         with:
-          message: echo ${{ steps.generate_gh_comment.outputs.gh_comment }}
+          message: cat ~/test_results/gh_comment.txt
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
