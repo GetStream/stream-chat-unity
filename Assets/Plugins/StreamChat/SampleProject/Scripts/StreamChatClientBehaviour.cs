@@ -5,12 +5,15 @@ using StreamChat.Core;
 using StreamChat.Core.Exceptions;
 using StreamChat.Libs.Auth;
 using StreamChat.SampleProject.Inputs;
+using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
+using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
 namespace StreamChat.SampleProject
@@ -25,7 +28,9 @@ namespace StreamChat.SampleProject
             var inputSystemFactory = new InputSystemFactory();
             var defaultInputSystem = inputSystemFactory.CreateDefault();
 
-            var viewFactory = new ViewFactory(_viewFactoryConfig, _popupsContainer);
+            var viewFactory = new ViewFactory(_appConfig, _popupsContainer);
+
+            TrySetEmojisSpriteAtlas();
 
             try
             {
@@ -33,7 +38,7 @@ namespace StreamChat.SampleProject
                 _client.Connect();
 
                 var viewContext =
-                    new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem);
+                    new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem, _appConfig);
 
                 viewFactory.Init(viewContext);
                 _rootView.Init(viewContext);
@@ -77,8 +82,9 @@ namespace StreamChat.SampleProject
         [SerializeField]
         private AuthCredentialsAsset _authCredentialsAsset;
 
+        [FormerlySerializedAs("appConfig")]
         [SerializeField]
-        private ViewFactoryConfig _viewFactoryConfig;
+        private AppConfig _appConfig;
 
         [SerializeField]
         private Transform _popupsContainer;
@@ -98,6 +104,34 @@ namespace StreamChat.SampleProject
 
         }
 #endif
+
+        private void TrySetEmojisSpriteAtlas()
+        {
+            var spriteAsset = _appConfig?.Emojis?.TMPSpriteAsset;
+            if (spriteAsset != null)
+            {
+                if (TMP_Settings.defaultSpriteAsset == spriteAsset)
+                {
+
+                }
+                else if (TMP_Settings.defaultSpriteAsset != null)
+                {
+                    var fallbackSpriteAssets = TMP_Settings.defaultSpriteAsset.fallbackSpriteAssets;
+
+                    if (!fallbackSpriteAssets.Contains(spriteAsset))
+                    {
+                        fallbackSpriteAssets.Add(spriteAsset);
+                    }
+
+                    Debug.LogWarning($"`{spriteAsset.name}` sprite asset was added as a fallback to the default `{TMP_Settings.defaultSpriteAsset}`");
+                }
+                else
+                {
+                    Debug.LogError($"TMP_Settings Default sprite is not set. Emojis sprite will not be properly replaced. " +
+                                   $"Please either set the `{spriteAsset.name}` as a default sprite asset or set any default asset so that `{spriteAsset.name}` gets appended as a fallback");
+                }
+            }
+        }
 
     }
 }

@@ -13,7 +13,7 @@ namespace StreamChat.SampleProject.Views
 
         MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView, IChatState state);
 
-        void CreateReactionEmoji(Image prefab, Transform container, string key);
+        void CreateEmoji(Image prefab, Transform container, string key);
 
         TPopup CreateFullscreenPopup<TPopup>()
             where TPopup : BaseFullscreenPopup;

@@ -138,7 +138,7 @@ namespace StreamChat.SampleProject.Views
         {
             foreach (var reactionCount in message.ReactionCounts)
             {
-                Factory.CreateReactionEmoji(_emojiPrefab, _emojisContainer, reactionCount.Key);
+                Factory.CreateEmoji(_emojiPrefab, _emojisContainer, reactionCount.Key);
             }
         }
 

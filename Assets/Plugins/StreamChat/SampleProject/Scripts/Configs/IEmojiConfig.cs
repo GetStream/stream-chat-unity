@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace StreamChat.SampleProject.Configs
 {
     public interface IEmojiConfig
     {
-        IEnumerable<(string Key, Sprite Sprite)> Emojis { get; }
+        IEnumerable<Sprite> AllSprites { get; }
+        IEnumerable<Sprite> ReactionSprites { get; }
+        TMP_SpriteAsset TMPSpriteAsset { get; }
     }
 }

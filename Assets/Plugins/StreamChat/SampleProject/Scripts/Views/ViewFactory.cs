@@ -5,6 +5,7 @@ using SampleProject.Scripts.Popups;
 using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Popups;
 using StreamChat.SampleProject.Utils;
 using UnityEngine;
@@ -19,11 +20,11 @@ namespace StreamChat.SampleProject.Views
     {
         public RectTransform PopupsContainer => (RectTransform)_popupsContainer;
 
-        public ViewFactory(IViewFactoryConfig config, Transform popupsContainer)
+        public ViewFactory(IAppConfig config, Transform popupsContainer)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            _popupsContainer =
-                popupsContainer ? popupsContainer : throw new ArgumentNullException(nameof(popupsContainer));
+            _appConfig = config ?? throw new ArgumentNullException(nameof(config));
+            _config = config.ViewFactoryConfig ?? throw new ArgumentNullException(nameof(config.ViewFactoryConfig));
+            _popupsContainer = popupsContainer ? popupsContainer : throw new ArgumentNullException(nameof(popupsContainer));
         }
 
         public void Init(IChatViewContext viewContext)
@@ -74,7 +75,7 @@ namespace StreamChat.SampleProject.Views
 
             var emojis = new List<EmojiOptionEntry>();
 
-            AddEmojiOptions(emojis, message, client);
+            AddReactionsEmojiOptions(emojis, message, client);
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options, emojis);
             popup.Show(args);
@@ -82,18 +83,18 @@ namespace StreamChat.SampleProject.Views
             return popup;
         }
 
-        public void CreateReactionEmoji(Image prefab, Transform container, string key)
+        public void CreateEmoji(Image prefab, Transform container, string key)
         {
-            var emojiEntry = _config.EmojiConfig.Emojis.FirstOrDefault(_ => _.Key == key);
+            var sprite = _appConfig.Emojis.AllSprites.FirstOrDefault(_ => _.name == key);
 
-            if (emojiEntry == default)
+            if (sprite == default)
             {
-                Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _config.EmojiConfig.Emojis.Select(_ => _.Key)));
+                Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _appConfig.Emojis.AllSprites.Select(_ => _.name)));
                 return;
             }
 
             var reaction = GameObject.Instantiate(prefab, container);
-            reaction.sprite = emojiEntry.Sprite;
+            reaction.sprite = sprite;
         }
 
         public TPopup CreateFullscreenPopup<TPopup>()
@@ -112,35 +113,38 @@ namespace StreamChat.SampleProject.Views
             return popup;
         }
 
+        private readonly IAppConfig _appConfig;
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
 
         private IChatViewContext _viewContext;
 
-        private void AddEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message,
+        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message,
             IStreamChatClient client)
         {
-            foreach (var (key, sprite) in _config.EmojiConfig.Emojis)
+            foreach (var sprite in _appConfig.Emojis.ReactionSprites)
             {
+                var key = sprite.name;
+
                 var isAdded = message.ReactionCounts.ContainsKey(key);
 
-                emojis.Add(new EmojiOptionEntry(key, sprite, isAdded, () =>
-                {
-                    if (isAdded)
-                    {
-                        client.MessageApi.DeleteReactionAsync(message.Id, key);
-                    }
-                    else
-                    {
-                        client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
-                        {
-                            Reaction = new ReactionRequest
-                            {
-                                Type = key,
-                            }
-                        });
-                    }
-                }));
+                 emojis.Add(new EmojiOptionEntry(key, sprite, isAdded, () =>
+                 {
+                     if (isAdded)
+                     {
+                         client.MessageApi.DeleteReactionAsync(message.Id, key);
+                     }
+                     else
+                     {
+                         client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
+                         {
+                             Reaction = new ReactionRequest
+                             {
+                                 Type = key,
+                             }
+                         });
+                     }
+                 }));
             }
         }
 

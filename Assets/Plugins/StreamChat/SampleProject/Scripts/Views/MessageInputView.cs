@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Libs.Utils;
@@ -24,6 +25,8 @@ namespace StreamChat.SampleProject.Views
         {
             _sendButton.onClick.AddListener(OnSendButtonClicked);
             _attachmentButton.onClick.AddListener(OnAttachmentButtonClicked);
+
+            _messageInput.onValueChanged.AddListener(OnMessageInputValueChanged);
         }
 
         protected override void OnUpdate()
@@ -41,6 +44,20 @@ namespace StreamChat.SampleProject.Views
             base.OnInited();
 
             ViewContext.State.MessageEditRequested += OnMessageEditRequested;
+
+            var sb = new StringBuilder();
+            foreach (var sprite in ViewContext.AppConfig.Emojis.AllSprites)
+            {
+                sb.Append(":");
+                sb.Append(sprite.name);
+                sb.Append(":");
+
+                var shortcode = sb.ToString();
+                _emojisShortcodes.Add(shortcode);
+                _emojiShortcodeToSpriteName[shortcode] = sprite.name;
+
+                sb.Length = 0;
+            }
         }
 
         protected override void OnDisposing()
@@ -64,6 +81,9 @@ namespace StreamChat.SampleProject.Views
             Create,
             Edit,
         }
+
+        private readonly List<string> _emojisShortcodes = new List<string>();
+        private readonly Dictionary<string, string> _emojiShortcodeToSpriteName = new Dictionary<string, string>();
 
         [SerializeField]
         private TMP_InputField _messageInput;
@@ -189,6 +209,22 @@ namespace StreamChat.SampleProject.Views
 #else
             Debug.LogError("Please implement file picker for this platform. File picker in demo only works in editor.");
 #endif
+        }
+
+        private void OnMessageInputValueChanged(string value)
+        {
+            var source = _messageInput.text;
+            foreach (var shortcode in _emojisShortcodes)
+            {
+                var spriteName = _emojiShortcodeToSpriteName[shortcode];
+                source = source.Replace(shortcode, $"<sprite name=\"{spriteName}\">");
+            }
+
+            if (source != _messageInput.text)
+            {
+                _messageInput.SetTextWithoutNotify(source);
+                _messageInput.caretPosition = _messageInput.text.Length;
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ namespace StreamChat.SampleProject.Popups
         {
             OnHide(SelfArgs);
             gameObject.SetActive(false);
+            Destroy(gameObject);
         }
         void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
         {
