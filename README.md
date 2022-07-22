@@ -24,6 +24,10 @@
     <a href="https://github.com/GetStream/stream-chat-unity/graphs/commit-activity">
         <img src="https://img.shields.io/github/commit-activity/m/GetStream/stream-chat-unity" alt="GitHub commit activity">
     </a>
+    &nbsp;
+	  <a href="https://github.com/GetStream/stream-chat-unity/actions/workflows/ci.yml">
+        <img src="https://github.com/GetStream/stream-chat-unity/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI">
+    </a>
 </p>
 
 ---
