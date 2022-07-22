@@ -251,8 +251,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rootView: {fileID: 5577065971412910734}
   _authCredentialsAsset: {fileID: 11400000, guid: 0b08ddaef6283734185d71ce00304d5d, type: 2}
-  _viewFactoryConfig: {fileID: 11400000, guid: 68e2e69f7cb34ef478eac352e97fca3a, type: 2}
+  _appConfig: {fileID: 11400000, guid: 0974ede686fa6da4b96d526edea9fbbd, type: 2}
   _popupsContainer: {fileID: 5034016418571902947}
+  _tmpSpriteAsset: {fileID: 11400000, guid: baf066641327b9143b99e56db7a47f8c, type: 2}
 --- !u!1 &7002968776139178785
 GameObject:
   m_ObjectHideFlags: 0

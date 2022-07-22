@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core;
+using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
@@ -12,8 +13,9 @@ namespace StreamChat.SampleProject
     {
         IStreamChatClient Client { get; }
         IImageLoader ImageLoader { get; }
-        ViewFactory Factory { get; }
+        IViewFactory Factory { get; }
         IChatState State { get; }
         IInputSystem InputSystem { get; }
+        IAppConfig AppConfig { get; }
     }
 }

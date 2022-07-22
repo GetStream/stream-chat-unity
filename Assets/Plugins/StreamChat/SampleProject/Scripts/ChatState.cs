@@ -44,7 +44,7 @@ namespace StreamChat.SampleProject
 
         public IStreamChatClient Client { get; }
 
-        public ChatState(IStreamChatClient client, ViewFactory viewFactory)
+        public ChatState(IStreamChatClient client, IViewFactory viewFactory)
         {
             Client = client ?? throw new ArgumentNullException(nameof(client));
             _viewFactory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));
@@ -147,7 +147,7 @@ namespace StreamChat.SampleProject
 
         private readonly List<ChannelState> _channels = new List<ChannelState>();
 
-        private readonly ViewFactory _viewFactory;
+        private readonly IViewFactory _viewFactory;
         private readonly ILogs _unityLogger = new UnityLogs();
 
         //Todo: get it initially from health check event

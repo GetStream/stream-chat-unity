@@ -27,6 +27,13 @@ namespace StreamChat.EditorTools
             SetStreamTestsEnabledCompilerFlag(nextState);
         }
 
+        [MenuItem(MenuPrefix + "Open " + nameof(SpriteAtlasUtilityEditor))]
+        public static void ShowSpriteAtlasUtilityEditorWindow()
+        {
+            var window = EditorWindow.GetWindow<SpriteAtlasUtilityEditor>();
+            window.Show();
+        }
+
         public static void BuildSampleApp()
         {
             var parser = new CommandLineParser();
@@ -70,7 +77,6 @@ namespace StreamChat.EditorTools
         private const string MenuPrefix = "Tools/" + StreamChatClient.MenuPrefix;
 
         private const string StreamTestsEnabledCompilerFlag = "STREAM_TESTS_ENABLED";
-
     }
 }
 
