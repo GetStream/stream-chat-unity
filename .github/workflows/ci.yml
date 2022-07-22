@@ -3,6 +3,8 @@ name: CI - Run Tests + Build Sample App
 on:
   pull_request:
     branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
 
   workflow_dispatch:
 
