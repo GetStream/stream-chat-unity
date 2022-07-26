@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Requests;
+using UnityEngine;
 
 namespace Plugins.StreamChat.Samples.ClientDocs
 {
@@ -46,6 +48,35 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 {
                     Watch = true,
                 });
+        }
+
+        private async Task GetReadStatesForChannel()
+        {
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+                channelType: "messaging", channelId: "channel-id-1", new ChannelGetOrCreateRequest());
+
+            foreach (var read in channelState.Read)
+            {
+                Debug.Log(read.User.Id);
+                Debug.Log(read.UnreadMessages); //Total unread messages
+                Debug.Log(read.LastRead); //Date of the last read message
+            }
+        }
+
+        private async Task GetMessagesBasedOnLastRead()
+        {
+            var lastReadTime = new DateTimeOffset(); //Take it from channelState.Read
+            var getOrCreateRequest = new ChannelGetOrCreateRequest()
+            {
+                Messages = new MessagePaginationParamsRequest()
+                {
+                    CreatedAtAfterOrEqual = lastReadTime,
+                    Limit = 25
+                }
+            };
+
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+                channelType: "messaging", channelId: "channel-id-1", getOrCreateRequest);
         }
 
         private async Task WatchingMultipleChannels()
@@ -181,6 +212,18 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                         //must be previously set before trying to unset
                         "owned_hamsters"
                     }
+                });
+        }
+
+        private async Task UpdateChannelToHideHistoryForNewMembers()
+        {
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+                channelType: "messaging", channelId: "channel-id-1", new ChannelGetOrCreateRequest());
+
+            var updateChannelResponse = await Client.ChannelApi.UpdateChannelAsync(channelType: "messaging",
+                channelId: "channel-id-1", new UpdateChannelRequest()
+                {
+                    HideHistory = true,
                 });
         }
 

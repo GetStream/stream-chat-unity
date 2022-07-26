@@ -25,6 +25,37 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 channelId: "channel-id-1", sendMessageRequest);
         }
 
+        public async Task SendMessageInThread()
+        {
+            var sendMessageRequest = new SendMessageRequest
+            {
+                Message = new MessageRequest
+                {
+                    Text = "message content",
+                    ParentId = "parent-message-id", //Thread root
+                    ShowInChannel = true //If true the message will be visible both in the thread and the main channel
+                }
+            };
+
+            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+                channelId: "channel-id-1", sendMessageRequest);
+        }
+
+        public async Task QuoteOtherMessage()
+        {
+            var sendMessageRequest = new SendMessageRequest
+            {
+                Message = new MessageRequest
+                {
+                    Text = "message content",
+                    QuotedMessageId = "quoted-message-id"
+                }
+            };
+
+            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+                channelId: "channel-id-1", sendMessageRequest);
+        }
+
         public async Task UpdateMessage()
         {
             await Client.MessageApi.UpdateMessageAsync(new UpdateMessageRequest
