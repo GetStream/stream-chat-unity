@@ -126,7 +126,7 @@ namespace StreamChat.Core.API
                 throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
             }
 
-            LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: true, request.ToString());
+            LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: true, requestContent);
 
             var response = new TResponse();
             response.LoadFromDto(responseDto);
