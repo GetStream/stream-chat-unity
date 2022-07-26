@@ -8,6 +8,8 @@ on:
 
   workflow_dispatch:
 
+concurrency: main_ci
+
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
