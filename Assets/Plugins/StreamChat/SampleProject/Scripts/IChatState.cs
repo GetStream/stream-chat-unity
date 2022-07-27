@@ -13,13 +13,13 @@ namespace StreamChat.SampleProject
     public interface IChatState : IDisposable
     {
         event Action<ChannelState> ActiveChanelChanged;
+        event Action<ChannelState, Message> ActiveChanelMessageReceived;
         event Action ChannelsUpdated;
         event Action<Message> MessageEditRequested;
 
         ChannelState ActiveChannel { get; }
         IReadOnlyList<ChannelState> Channels { get; }
         IStreamChatClient Client { get; }
-
 
         void OpenChannel(ChannelState channel);
 
