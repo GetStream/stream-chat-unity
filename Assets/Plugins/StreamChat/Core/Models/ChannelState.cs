@@ -9,6 +9,7 @@ namespace StreamChat.Core.Models
     public class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsDTO, ChannelState>,
         ILoadableFrom<ChannelStateResponseDTO, ChannelState>
     {
+        [Obsolete("This event is deprecated and will be removed in a future major release.")]
         public event Action<ChannelState, Message> NewMessageAdded;
 
         public Channel Channel { get; set; }
@@ -60,6 +61,7 @@ namespace StreamChat.Core.Models
 
         public bool IsDirectMessage => Channel.MemberCount == 2 && Members.Any(_ => _.User.Id == Channel.CreatedBy.Id);
 
+        [Obsolete("This method is deprecated and will be removed in a future major release.")]
         public void AddMessage(Message message)
         {
             Messages.Add(message);
