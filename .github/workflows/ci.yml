@@ -146,6 +146,7 @@ jobs:
         shell: bash
         run: sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
         timeout-minutes: 25
+        continue-on-error: true
         
       - name: 🩺 Upload error screenshot
         if: steps.generate_ulf_license_attempt_1.outcome == 'failure'
