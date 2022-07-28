@@ -87,20 +87,19 @@ jobs:
             fi
           fi
 
-      - name: Install Unity & Modules
+      - name: Install Unity
         shell: bash
-        run: |
-          sudo installer -package ~/Unity.pkg -target /
+        run: sudo installer -package ~/Unity.pkg -target /
 
-          if [[ ${{ matrix.compiler }} == 'il2cpp' ]]
-          then
-            sudo installer -package ~/UnityIL2CPPModule.pkg -target /
-          fi
-
-          if [[ ${{ matrix.target_platform }} == 'mobile' ]]
-          then
-            sudo installer -package ~/UnityIosModule.pkg -target /
-          fi
+      - name: Instal IL2CPP Module
+        if: ${{ matrix.compiler }} == 'il2cpp' 
+        shell: bash
+        run: sudo installer -package ~/UnityIL2CPPModule.pkg -target /
+        
+      - name: Instal Mobile Module
+        if: ${{ matrix.target_platform }} == 'mobile'
+        shell: bash
+        run: sudo installer -package ~/UnityIosModule.pkg -target /
 
       - name: Create Test Results dir
         shell: bash
