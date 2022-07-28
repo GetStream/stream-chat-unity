@@ -92,12 +92,12 @@ jobs:
         run: sudo installer -package ~/Unity.pkg -target /
 
       - name: Instal IL2CPP Module
-        if: ${{ matrix.compiler }} == 'il2cpp' 
+        if: matrix.compiler == 'il2cpp' 
         shell: bash
         run: sudo installer -package ~/UnityIL2CPPModule.pkg -target /
         
       - name: Instal Mobile Module
-        if: ${{ matrix.target_platform }} == 'mobile'
+        if: matrix.target_platform == 'mobile'
         shell: bash
         run: sudo installer -package ~/UnityIosModule.pkg -target /
 
