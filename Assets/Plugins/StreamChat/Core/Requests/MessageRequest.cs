@@ -70,7 +70,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
-        public List<double> ReactionScores { get; set; }
+        public Dictionary<string, int> ReactionScores { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well
@@ -109,7 +109,6 @@ namespace StreamChat.Core.Requests
                 PinnedAt = PinnedAt,
                 PinnedBy = PinnedBy,
                 QuotedMessageId = QuotedMessageId,
-                ReactionScores = ReactionScores,
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,

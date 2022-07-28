@@ -22,7 +22,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Reaction score. If not specified reaction has score of 1
         /// </summary>
-        public double? Score { get; set; }
+        public int? Score { get; set; }
 
         /// <summary>
         /// The type of reaction (e.g. 'like', 'laugh', 'wow')

@@ -29,7 +29,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Reaction score. If not specified reaction has score of 1
         /// </summary>
         [Newtonsoft.Json.JsonProperty("score", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Score { get; set; }
+        public int? Score { get; set; }
 
         /// <summary>
         /// The type of reaction (e.g. 'like', 'laugh', 'wow')

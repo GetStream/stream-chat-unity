@@ -89,12 +89,6 @@ namespace StreamChat.Core.DTO.Requests
         public string QuotedMessageId { get; set; }
 
         /// <summary>
-        /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<double> ReactionScores { get; set; }
-
-        /// <summary>
         /// Whether thread reply should be shown in the channel as well
         /// </summary>
         [Newtonsoft.Json.JsonProperty("show_in_channel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

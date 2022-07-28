@@ -146,13 +146,13 @@ namespace StreamChat.Core.DTO.Models
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, double> ReactionCounts { get; set; }
+        public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, double> ReactionScores { get; set; }
+        public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; }
 
         /// <summary>
         /// Number of replies to this message

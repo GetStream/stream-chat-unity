@@ -25,7 +25,8 @@ namespace StreamChat.Tests.Integration
             const string channelType = "messaging";
 
             ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState = state);
             var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
@@ -52,7 +53,8 @@ namespace StreamChat.Tests.Integration
             const string channelType = "messaging";
 
             ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState = state);
             var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
@@ -97,7 +99,8 @@ namespace StreamChat.Tests.Integration
             const string channelType = "messaging";
 
             ChannelState channelState = null;
-            yield return CreateTempUniqueChannel("messaging", new ChannelGetOrCreateRequest(), state => channelState = state);
+            yield return CreateTempUniqueChannel("messaging", new ChannelGetOrCreateRequest(),
+                state => channelState = state);
 
             var channelId = channelState.Channel.Id;
 
@@ -144,7 +147,8 @@ namespace StreamChat.Tests.Integration
             const string channelType = "messaging";
 
             ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState = state);
             var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
@@ -215,16 +219,15 @@ namespace StreamChat.Tests.Integration
             var channelType = "messaging";
 
             ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState = state);
             var channelId = channelState.Channel.Id;
 
-            var uploadFileTask = Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
+            var uploadFileTask =
+                Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
 
             var fileUrl = "";
-            yield return uploadFileTask.RunAsIEnumerator(response =>
-            {
-                fileUrl = response.File;
-            });
+            yield return uploadFileTask.RunAsIEnumerator(response => { fileUrl = response.File; });
 
             var sendMessageRequest = new SendMessageRequest()
             {
@@ -271,10 +274,12 @@ namespace StreamChat.Tests.Integration
             var channelType = "messaging";
 
             ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(), state => channelState = state);
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState = state);
             var channelId = channelState.Channel.Id;
 
-            var uploadFileTask = Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
+            var uploadFileTask =
+                Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
 
             var fileUrl = "";
             yield return uploadFileTask.RunAsIEnumerator(response =>
@@ -285,9 +290,75 @@ namespace StreamChat.Tests.Integration
 
             var deleteFileTask = Client.MessageApi.DeleteFileAsync(channelType, channelId, fileUrl);
 
-            yield return deleteFileTask.RunAsIEnumerator(response =>
-            {
+            yield return deleteFileTask.RunAsIEnumerator(response => { });
+        }
 
+        [UnityTest]
+        public IEnumerator Add_reaction_score_to_existing_message()
+        {
+            yield return Client.WaitForClientToConnect();
+
+            #region Send Message
+
+            const string channelType = "messaging";
+
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState = state);
+            var channelId = channelState.Channel.Id;
+
+            var sendMessageRequest = new SendMessageRequest
+            {
+                Message = new MessageRequest
+                {
+                    Text = "message content"
+                }
+            };
+
+            var messageResponseTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+
+            var messageId = string.Empty;
+            yield return messageResponseTask.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(response.Message.Text, "message content");
+                messageId = response.Message.Id;
+            });
+
+            #endregion
+
+            var sendReactionRequest = new SendReactionRequest
+            {
+                Reaction = new ReactionRequest
+                {
+                    Type = "like",
+                    Score = 15
+                }
+            };
+
+            var sendReactionTask = Client.MessageApi.SendReactionAsync(messageId, sendReactionRequest);
+
+            yield return sendReactionTask.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(response.Reaction.MessageId, messageId);
+                Assert.AreEqual(response.Reaction.Score, 15);
+            });
+
+            var channelGetOrCreateTask = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+                new ChannelGetOrCreateRequest()
+                {
+                    State = true
+                });
+
+            yield return channelGetOrCreateTask.RunAsIEnumerator(response =>
+            {
+                var message = response.Messages.FirstOrDefault(_ => _.Id == messageId);
+                Assert.IsNotNull(message);
+
+                Assert.IsTrue(message.ReactionCounts.ContainsKey("like"));
+                Assert.AreEqual(message.ReactionCounts["like"], 1);
+
+                Assert.IsTrue(message.ReactionScores.ContainsKey("like"));
+                Assert.AreEqual(message.ReactionScores["like"], 15);
             });
         }
     }
