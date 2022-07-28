@@ -99,7 +99,7 @@ jobs:
       - name: Instal Mobile Module
         if: ${{ matrix.target_platform }} == 'mobile'
         shell: bash
-        run: sudo installer -package ~/UnityIL2CPPModule.pkg -target /
+        run: sudo installer -package ~/UnityIosModule.pkg -target /
 
       - name: Create Test Results dir
         shell: bash
