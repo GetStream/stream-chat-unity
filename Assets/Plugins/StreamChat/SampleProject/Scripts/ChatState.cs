@@ -21,6 +21,7 @@ namespace StreamChat.SampleProject
         public const string MessageDeletedInfo = "This message was deleted...";
 
         public event Action<ChannelState> ActiveChanelChanged;
+        public event Action<ChannelState, Message> ActiveChanelMessageReceived;
         public event Action ChannelsUpdated;
 
         public event Action<Message> MessageEditRequested;
@@ -167,7 +168,12 @@ namespace StreamChat.SampleProject
         private void OnMessageReceived(EventMessageNew messageNewEvent)
         {
             var channel = GetChannel(messageNewEvent.ChannelId);
-            channel.AddMessage(messageNewEvent.Message);
+            channel.Messages.Add(messageNewEvent.Message);
+
+            if (channel == ActiveChannel)
+            {
+                ActiveChanelMessageReceived?.Invoke(ActiveChannel, messageNewEvent.Message);
+            }
         }
 
         private void OnMessageDeleted(EventMessageDeleted messageDeletedEvent)

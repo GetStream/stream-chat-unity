@@ -18,17 +18,14 @@ namespace StreamChat.SampleProject.Views
             base.OnInited();
 
             State.ActiveChanelChanged += OnActiveChannelChanged;
+            State.ActiveChanelMessageReceived += OnActiveChanelMessageReceived;
         }
 
         protected override void OnDisposing()
         {
-            if (_activeChannel != null)
-            {
-                _activeChannel.NewMessageAdded -= OnUpdated;
-                _activeChannel = null;
-            }
-
             State.ActiveChanelChanged -= OnActiveChannelChanged;
+            State.ActiveChanelMessageReceived -= OnActiveChanelMessageReceived;
+
             ClearAll();
 
             base.OnDisposing();
@@ -45,28 +42,18 @@ namespace StreamChat.SampleProject.Views
         [SerializeField]
         private MessageView _localUserMessageViewPrefab;
 
-        private ChannelState _activeChannel;
-
         private void OnActiveChannelChanged(ChannelState channel)
         {
-            if (_activeChannel != null)
-            {
-                _activeChannel.NewMessageAdded -= OnUpdated;
-                _activeChannel = null;
-            }
-
             if (channel == null)
             {
+                ClearAll();
                 return;
             }
 
             RebuildMessages(channel);
-
-            _activeChannel = channel;
-            channel.NewMessageAdded += OnUpdated;
         }
 
-        private void OnUpdated(ChannelState channel, Message message)
+        private void OnActiveChanelMessageReceived(ChannelState channel, Message message)
             => RebuildMessages(channel);
 
         private void ClearAll()
