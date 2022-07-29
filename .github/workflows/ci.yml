@@ -92,7 +92,8 @@ jobs:
         with:
           timeout_minutes: 15
           max_attempts: 3
-          shell: sudo installer -package ~/Unity.pkg -target /
+          shell: bash
+          command: sudo installer -package ~/Unity.pkg -target /
           
       - name: Instal IL2CPP Module
         if: matrix.compiler == 'il2cpp' 
@@ -100,7 +101,8 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 3
-          shell: sudo installer -package ~/UnityIL2CPPModule.pkg -target /
+          shell: bash
+          command: sudo installer -package ~/UnityIL2CPPModule.pkg -target /
 
       - name: Instal Mobile Module
         if: matrix.target_platform == 'mobile'
@@ -108,7 +110,8 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 3
-          shell: sudo installer -package ~/UnityIosModule.pkg -target /
+          shell: bash
+          command: sudo installer -package ~/UnityIosModule.pkg -target /
 
       - name: Create Test Results dir
         shell: bash
