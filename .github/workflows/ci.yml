@@ -86,20 +86,29 @@ jobs:
               curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/1fb1bf06830e/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2020.3.30f1.pkg
             fi
           fi
-
+        
       - name: Install Unity
-        shell: bash
-        run: sudo installer -package ~/Unity.pkg -target /
-
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          shell: sudo installer -package ~/Unity.pkg -target /
+          
       - name: Instal IL2CPP Module
         if: matrix.compiler == 'il2cpp' 
-        shell: bash
-        run: sudo installer -package ~/UnityIL2CPPModule.pkg -target /
-        
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          shell: sudo installer -package ~/UnityIL2CPPModule.pkg -target /
+
       - name: Instal Mobile Module
         if: matrix.target_platform == 'mobile'
-        shell: bash
-        run: sudo installer -package ~/UnityIosModule.pkg -target /
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          shell: sudo installer -package ~/UnityIosModule.pkg -target /
 
       - name: Create Test Results dir
         shell: bash
