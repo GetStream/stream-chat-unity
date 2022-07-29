@@ -112,12 +112,12 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
-        public Dictionary<string, double> ReactionCounts { get; set; }
+        public Dictionary<string, int> ReactionCounts { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
-        public Dictionary<string, double> ReactionScores { get; set; }
+        public Dictionary<string, int> ReactionScores { get; set; }
 
         /// <summary>
         /// Number of replies to this message
