@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="ChannelItemView" src="project://database/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Templates/ChannelItemView.uxml?fileID=9197481963319205126&amp;guid=155019b41f0ae8e42bad884ae2559c88&amp;type=3#ChannelItemView" />
+    <Style src="project://database/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Styles/main.uss?fileID=7433441132597879392&amp;guid=49c5eed616a8fca4d8c20f031ce0bfac&amp;type=3#main" />
+    <ui:VisualElement name="container" class="container">
+        <ui:VisualElement name="left-bar" class="left-bar">
+            <ui:VisualElement name="Header" class="left-bar__header">
+                <ui:VisualElement name="avatar" class="avatar avatar--large" style="background-image: url(&apos;project://database/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/Tesla_circa_1890.jpeg?fileID=2800000&amp;guid=122acdf07525f194181965be9aed42c6&amp;type=3#Tesla_circa_1890&apos;);" />
+                <ui:Label text="Label" display-tooltip-when-elided="true" name="name" class="left-bar__header__label" />
+                <ui:Button text="&#10;" display-tooltip-when-elided="true" name="new-message-button" class="new-channel-button">
+                    <ui:VisualElement name="icon" class="new-channel-button__icon" />
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:ScrollView name="channels-list" class="channels-list">
+                <ui:Instance template="ChannelItemView" name="ChannelItemView" />
+                <ui:Instance template="ChannelItemView" name="ChannelItemView" />
+                <ui:Instance template="ChannelItemView" name="ChannelItemView" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="main-content" class="main-content" />
+        <ui:VisualElement name="thread-sidebar" class="thread-sidebar" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,123 @@
+.left-bar {
+    width: 30%;
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    flex-shrink: 0;
+    flex-grow: 0;
+    background-color: rgb(33, 35, 38);
+}
+
+.left-bar__header {
+    flex-grow: 0;
+    height: auto;
+    padding: 10px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.left-bar__header__label {
+    justify-content: flex-start;
+    align-items: auto;
+    -unity-text-align: middle-left;
+    flex-grow: 1;
+    margin: 0 0 0 10px;
+}
+
+.avatar {
+    border-radius: 50px;
+    flex-shrink: 1;
+}
+
+.avatar--large {
+    width: 40px;
+    height: 40px;
+}
+
+.main-content {
+    flex-grow: 1;
+    width: auto;
+}
+
+.thread-sidebar {
+    display: none;
+    flex-grow: 1;
+}
+
+.new-channel-button {
+    border-radius: 15px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    visibility: visible;
+    overflow: visible;
+    position: relative;
+    padding: 5px;
+    margin: 0;
+}
+
+.new-channel-button__icon {
+    width: auto;
+    height: auto;
+    flex-grow: 1;
+    background-image: url('project://database/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/edit-pen-icon.png?fileID=21300000&guid=f9544a55fb737f041b8ca45496adc436&type=3#edit-pen-icon');
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.channels-list {
+    flex-grow: 1;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.channel-item {
+    flex-direction: row;
+    margin-bottom: 10px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    align-items: center;
+}
+
+.channel-item__avatar {
+    width: 40px;
+    height: 40px;
+    background-image: url('project://database/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/Tesla_circa_1890.jpeg?fileID=21300000&guid=122acdf07525f194181965be9aed42c6&type=3#Tesla_circa_1890');
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+}
+
+.channel-item__preview {
+    margin-left: 10px;
+}
+
+.channel-item__title {
+    color: rgb(255, 255, 255);
+}
+
+.channel-item__last-message-preview {
+    color: rgb(133, 134, 136);
+}
+
+.channel-item__last-message-date {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: rgba(133, 134, 136, 255);
+}
+
+.channel-item:hover {
+    background-color: rgb(44, 44, 48);
+}

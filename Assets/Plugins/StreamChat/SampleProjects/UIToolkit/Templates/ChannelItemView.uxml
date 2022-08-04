@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Styles/main.uss?fileID=7433441132597879392&amp;guid=49c5eed616a8fca4d8c20f031ce0bfac&amp;type=3#main" />
+    <ui:VisualElement name="channel-item" class="channel-item">
+        <ui:VisualElement name="avatar" class="channel-item__avatar" />
+        <ui:VisualElement name="preview" class="channel-item__preview">
+            <ui:Label text="The Channel Name" display-tooltip-when-elided="true" name="name" class="channel-item__title" />
+            <ui:Label text="last message preview..." display-tooltip-when-elided="true" name="last-message" class="channel-item__last-message-preview" />
+        </ui:VisualElement>
+        <ui:Label text="12:15 PM" display-tooltip-when-elided="true" name="last-message-date" class="channel-item__last-message-date" />
+    </ui:VisualElement>
+</ui:UXML>
