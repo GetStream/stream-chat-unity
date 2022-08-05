@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.SampleProject.Utils;
 using UnityEngine;
@@ -19,6 +20,18 @@ namespace StreamChat.SampleProject.Views
 
             State.ActiveChanelChanged += OnActiveChannelChanged;
             State.ActiveChanelMessageReceived += OnActiveChanelMessageReceived;
+
+            _scrollRect = GetComponent<ScrollRect>();
+        }
+
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            if (_scrollRect.verticalNormalizedPosition >= 1f && !IsScrollListRebuilding)
+            {
+                TryLoadPreviousMessagesAsync().LogIfFailed();
+            }
         }
 
         protected override void OnDisposing()
@@ -42,6 +55,15 @@ namespace StreamChat.SampleProject.Views
         [SerializeField]
         private MessageView _localUserMessageViewPrefab;
 
+        private ScrollRect _scrollRect;
+
+        private int _scrollListLastUpdateFrame;
+        private Task _loadPreviousMessagesTask;
+        private string _lastChannelCId;
+
+        //we wait 2 frames before depending on scroll list position in order for the list to render and update its internal state
+        private bool IsScrollListRebuilding => _scrollListLastUpdateFrame + 2 > Time.frameCount;
+
         private void OnActiveChannelChanged(ChannelState channel)
         {
             if (channel == null)
@@ -50,11 +72,15 @@ namespace StreamChat.SampleProject.Views
                 return;
             }
 
-            RebuildMessages(channel);
+            var channelChanged = _lastChannelCId != channel.Channel.Cid;
+
+            _lastChannelCId = channel.Channel.Cid;
+
+            RebuildMessages(channel, scrollToBottom: channelChanged);
         }
 
         private void OnActiveChanelMessageReceived(ChannelState channel, Message message)
-            => RebuildMessages(channel);
+            => RebuildMessages(channel, scrollToBottom: false);
 
         private void ClearAll()
         {
@@ -66,7 +92,7 @@ namespace StreamChat.SampleProject.Views
             _messages.Clear();
         }
 
-        private void RebuildMessages(ChannelState channel)
+        private void RebuildMessages(ChannelState channel, bool scrollToBottom)
         {
             ClearAll();
 
@@ -83,7 +109,67 @@ namespace StreamChat.SampleProject.Views
                 }
             }
 
-            StartCoroutine(ScrollToBottomAfterResized());
+            _scrollListLastUpdateFrame = Time.frameCount;
+
+            if (scrollToBottom)
+            {
+                StartCoroutine(ScrollToBottomAfterResized());
+            }
+        }
+
+        private async Task TryLoadPreviousMessagesAsync()
+        {
+            if (!_loadPreviousMessagesTask?.IsCompleted ?? false)
+            {
+                return;
+            }
+
+            var lastTopMessageId = State.ActiveChannel.Messages.FirstOrDefault()?.Id;
+
+            _loadPreviousMessagesTask = State.LoadPreviousMessagesAsync();
+
+            await _loadPreviousMessagesTask;
+
+            await Task.Delay(1); //wait 1 frame for the scroll rect render to update
+
+            if (lastTopMessageId == null)
+            {
+                return;
+            }
+
+            TryScrollToPreviouslyTopMessage(lastTopMessageId);
+        }
+
+        private void TryScrollToPreviouslyTopMessage(string lastTopMessageId)
+        {
+            var currentTopMessageId = State.ActiveChannel.Messages.FirstOrDefault()?.Id;
+
+            if (currentTopMessageId == lastTopMessageId)
+            {
+                return;
+            }
+
+            var lastTopMessage = _messages.FirstOrDefault(_ => _.Message.Id == lastTopMessageId);
+
+            if (lastTopMessage == null)
+            {
+                return;
+            }
+
+            _scrollRect.content.localPosition =
+                GetSnapToPositionToBringChildIntoView(_scrollRect, (RectTransform)lastTopMessage.transform);
+        }
+
+        private static Vector2 GetSnapToPositionToBringChildIntoView(ScrollRect instance, RectTransform child)
+        {
+            Canvas.ForceUpdateCanvases();
+            var viewportLocalPosition = instance.viewport.localPosition;
+            var childLocalPosition = child.localPosition;
+            var result = new Vector2(
+                0 - (viewportLocalPosition.x + childLocalPosition.x),
+                0 - (viewportLocalPosition.y + childLocalPosition.y)
+            );
+            return result;
         }
 
         //Todo: extract to ViewFactory

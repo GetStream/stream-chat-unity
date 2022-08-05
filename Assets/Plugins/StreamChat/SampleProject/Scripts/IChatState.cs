@@ -34,5 +34,7 @@ namespace StreamChat.SampleProject
             where TPopup : BaseFullscreenPopup;
 
         Task UpdateChannelsAsync();
+
+        Task LoadPreviousMessagesAsync();
     }
 }
