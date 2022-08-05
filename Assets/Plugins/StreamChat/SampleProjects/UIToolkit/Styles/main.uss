@@ -40,6 +40,7 @@
 .main-content {
     flex-grow: 1;
     width: auto;
+    background-color: rgba(40, 42, 45, 255);
 }
 
 .thread-sidebar {
@@ -89,6 +90,10 @@
     align-items: center;
 }
 
+.channel-item:hover, .channel-item__selected {
+    background-color: rgb(44, 44, 48);
+}
+
 .channel-item__avatar {
     width: 40px;
     height: 40px;
@@ -115,9 +120,23 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    color: rgba(133, 134, 136, 255);
+    color: rgb(133, 134, 136);
 }
 
-.channel-item:hover {
-    background-color: rgb(44, 44, 48);
+.main-content__header {
+    height: 80px;
+    background-color: rgba(47, 48, 51, 255);
+}
+
+.main-content__content {
+    flex-grow: 1;
+}
+
+.main-content__footer {
+    height: 80px;
+    background-color: rgba(46, 48, 51, 255);
+}
+
+.new-message-form {
+    flex-direction: row;
 }

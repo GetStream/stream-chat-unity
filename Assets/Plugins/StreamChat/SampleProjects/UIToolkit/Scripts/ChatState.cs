@@ -52,6 +52,19 @@ namespace StreamChat.SampleProjects.UIToolkit
         public void Update(float deltaTime)
             => _client.Update(deltaTime);
 
+        public void SelectChannel(ChannelState channelState)
+        {
+            var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == channelState.Channel.Cid);
+
+            if (channel == null)
+            {
+                Debug.LogError("Failed to find channel with Cid: " + channelState.Channel.Cid);
+                return;
+            }
+
+            ActiveChannel = channel;
+        }
+
         public void Dispose()
         {
             UnsubscribeFromEvents();

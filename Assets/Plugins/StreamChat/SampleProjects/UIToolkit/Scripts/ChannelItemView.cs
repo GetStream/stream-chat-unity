@@ -7,21 +7,34 @@ namespace StreamChat.SampleProjects.UIToolkit
 {
     public class ChannelItemView : BaseView
     {
+        public event Action<ChannelItemView> Selected;
+
+        public ChannelState Data { get; private set; }
+
         public ChannelItemView(VisualElement visualElement, IViewFactory viewFactory, IViewConfig config)
             : base(visualElement, viewFactory, config)
         {
             _name = VisualElement.Q<Label>("name");
             _lastMessage = VisualElement.Q<Label>("last-message");
             _lastMessageDate = VisualElement.Q<Label>("last-message-date");
+
+            visualElement.RegisterCallback<ClickEvent>(OnClickEvent);
         }
 
         public void SetData(ChannelState data)
         {
-            _data = data ?? throw new ArgumentNullException(nameof(data));
+            Data = data ?? throw new ArgumentNullException(nameof(data));
 
-            _name.text = _data.Channel.Name;
+            _name.text = Data.Channel.Name;
             _lastMessage.text = GetLastMessageSnippet();
             _lastMessageDate.text = data.Channel.LastMessageAt?.ToString("t") ?? string.Empty;
+        }
+
+        protected override void OnDispose()
+        {
+            VisualElement.UnregisterCallback<ClickEvent>(OnClickEvent);
+
+            base.OnDispose();
         }
 
         private const int MessageSnippetLength = 20;
@@ -30,11 +43,9 @@ namespace StreamChat.SampleProjects.UIToolkit
         private readonly Label _lastMessage;
         private readonly Label _lastMessageDate;
 
-        private ChannelState _data;
-
         private string GetLastMessageSnippet()
         {
-            var lastMessage = _data.Messages.LastOrDefault();
+            var lastMessage = Data.Messages.LastOrDefault();
 
             if (lastMessage == null)
             {
@@ -43,6 +54,11 @@ namespace StreamChat.SampleProjects.UIToolkit
 
             var endIndex = Math.Min(lastMessage.Text.Length, MessageSnippetLength);
             return lastMessage.Text.Substring(0, endIndex);
+        }
+
+        private void OnClickEvent(ClickEvent clickEvent)
+        {
+            Selected?.Invoke(this);
         }
     }
 }

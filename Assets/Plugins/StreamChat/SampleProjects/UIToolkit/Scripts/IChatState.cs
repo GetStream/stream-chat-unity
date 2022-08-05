@@ -8,9 +8,12 @@ namespace StreamChat.SampleProjects.UIToolkit
     {
         event Action ChannelsUpdated;
         event Action<ChannelState> ActiveChanelChanged;
+        event Action OwnUserUpdated;
+
         OwnUser OwnUser { get; }
         IReadOnlyList<ChannelState> Channels { get; }
         ChannelState ActiveChannel { get; }
-        event Action OwnUserUpdated;
+
+        void SelectChannel(ChannelState channelState);
     }
 }
