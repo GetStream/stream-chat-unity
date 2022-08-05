@@ -146,6 +146,68 @@ namespace StreamChat.SampleProject
             ChannelsUpdated?.Invoke();
         }
 
+        public async Task LoadPreviousMessagesAsync()
+        {
+            if (ActiveChannel == null)
+            {
+                return;
+            }
+
+            if (_maxHistoryReachedChannelCids.Contains(ActiveChannel.Channel.Cid))
+            {
+                return;
+            }
+
+            var firstMessage = ActiveChannel.Messages.FirstOrDefault();
+
+            if (firstMessage == null)
+            {
+                return;
+            }
+
+            var activeChannelCid = ActiveChannel.Channel.Cid;
+
+            _activeHistoryRequestChannelCids.Add(activeChannelCid);
+
+            var currentMessages = ActiveChannel.Messages;
+
+            try
+            {
+                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, new ChannelGetOrCreateRequest
+                {
+                    State = true,
+                    Messages = new MessagePaginationParamsRequest
+                    {
+                        IdLt = firstMessage.Id,
+                        Limit = 50,
+                    },
+                });
+
+                if (channelState.Messages == null || channelState.Messages.Count == 0)
+                {
+                    _maxHistoryReachedChannelCids.Add(channelState.Channel.Cid);
+                }
+
+                channelState.Messages.AddRange(currentMessages);
+
+                ActiveChannel = channelState;
+            }
+            catch (StreamApiException e)
+            {
+                Debug.LogException(e);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
+                _activeHistoryRequestChannelCids.Remove(activeChannelCid);
+            }
+        }
+
+        private readonly HashSet<string> _maxHistoryReachedChannelCids = new HashSet<string>();
+        private readonly HashSet<string> _activeHistoryRequestChannelCids = new HashSet<string>();
         private readonly List<ChannelState> _channels = new List<ChannelState>();
 
         private readonly IViewFactory _viewFactory;
@@ -154,6 +216,8 @@ namespace StreamChat.SampleProject
         //Todo: get it initially from health check event
         private OwnUser _localUser;
         private ChannelState _activeChannel;
+
+        private Task _activeLoadPreviousMessagesTask;
 
         private async void OnClientConnected(OwnUser ownUser)
         {
