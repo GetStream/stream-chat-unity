@@ -1,5 +1,7 @@
 ﻿using System;
 using StreamChat.Core.Models;
+using StreamChat.SampleProjects.UIToolkit.Config;
+using StreamChat.SampleProjects.UIToolkit.Views;
 using UnityEngine.UIElements;
 
 namespace StreamChat.SampleProjects.UIToolkit
@@ -21,6 +23,16 @@ namespace StreamChat.SampleProjects.UIToolkit
 
             var item = new ChannelItemView(vs, viewFactory: this, _config);
             item.SetData(channelState);
+
+            return item;
+        }
+
+        public MessageItemView CreateMessageItemView(Message message)
+        {
+            var vs = _config.MessageItemViewTemplate.Instantiate();
+
+            var item = new MessageItemView(vs, viewFactory: this, _config);
+            item.SetData(message);
 
             return item;
         }

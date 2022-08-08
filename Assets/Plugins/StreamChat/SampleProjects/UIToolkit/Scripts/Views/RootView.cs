@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using StreamChat.Core.Models;
+using StreamChat.SampleProjects.UIToolkit.Config;
+using StreamChat.SampleProjects.UIToolkit.Utils;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace StreamChat.SampleProjects.UIToolkit
+namespace StreamChat.SampleProjects.UIToolkit.Views
 {
     public class RootView : BaseView
     {
@@ -13,8 +16,10 @@ namespace StreamChat.SampleProjects.UIToolkit
             _chatState = chatState ?? throw new ArgumentNullException(nameof(chatState));
 
             _chatState.ChannelsUpdated += OnChannelsUpdated;
+            _chatState.ActiveChannelChanged += OnActiveChannelChanged;
 
             _channelsScrollView = VisualElement.Q<ScrollView>("channels-list");
+            _channelMessagesScrollView = VisualElement.Q<ScrollView>("channel-messages");
         }
 
         protected override void OnDispose()
@@ -36,13 +41,11 @@ namespace StreamChat.SampleProjects.UIToolkit
         private readonly IChatState _chatState;
 
         private readonly ScrollView _channelsScrollView;
+        private readonly ScrollView _channelMessagesScrollView;
 
         private void OnChannelsUpdated()
         {
-            for (int i = _channelsScrollView.childCount - 1; i >= 0; i--)
-            {
-                _channelsScrollView.RemoveAt(i);
-            }
+            _channelsScrollView.RemoveAllChildren();
 
             foreach (var channel in _chatState.Channels)
             {
@@ -57,7 +60,6 @@ namespace StreamChat.SampleProjects.UIToolkit
         private void OnChannelSelected(ChannelItemView channelItem)
         {
             var channelState = channelItem.Data;
-            Debug.Log("Selected channel: " + channelState.Channel.Id);
 
             _chatState.SelectChannel(channelState);
 
@@ -70,6 +72,17 @@ namespace StreamChat.SampleProjects.UIToolkit
                 }
 
                 item.VisualElement.RemoveFromClassList(ChannelItemSelectedClass);
+            }
+        }
+
+        private void OnActiveChannelChanged()
+        {
+            _channelMessagesScrollView.RemoveAllChildren();
+
+            foreach (var message in _chatState.ActiveChannel.Messages)
+            {
+                var messageItemView = Factory.CreateMessageItemView(message);
+                _channelMessagesScrollView.Add(messageItemView.VisualElement);
             }
         }
     }

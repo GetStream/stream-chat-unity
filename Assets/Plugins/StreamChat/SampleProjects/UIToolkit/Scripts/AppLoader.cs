@@ -1,4 +1,6 @@
 using StreamChat.Libs.Auth;
+using StreamChat.SampleProjects.UIToolkit.Config;
+using StreamChat.SampleProjects.UIToolkit.Views;
 using UnityEngine;
 using UnityEngine.UIElements;
 

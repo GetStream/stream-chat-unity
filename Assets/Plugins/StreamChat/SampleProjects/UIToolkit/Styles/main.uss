@@ -40,7 +40,7 @@
 .main-content {
     flex-grow: 1;
     width: auto;
-    background-color: rgba(40, 42, 45, 255);
+    background-color: rgb(40, 42, 45);
 }
 
 .thread-sidebar {
@@ -64,7 +64,7 @@
     width: auto;
     height: auto;
     flex-grow: 1;
-    background-image: url('project://database/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/edit-pen-icon.png?fileID=21300000&guid=f9544a55fb737f041b8ca45496adc436&type=3#edit-pen-icon');
+    background-image: url('/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/edit-pen-icon.png');
     -unity-background-scale-mode: scale-and-crop;
 }
 
@@ -90,14 +90,18 @@
     align-items: center;
 }
 
-.channel-item:hover, .channel-item__selected {
+.channel-item:hover {
+    background-color: rgb(44, 44, 48);
+}
+
+.channel-item__selected {
     background-color: rgb(44, 44, 48);
 }
 
 .channel-item__avatar {
     width: 40px;
     height: 40px;
-    background-image: url('project://database/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/Tesla_circa_1890.jpeg?fileID=21300000&guid=122acdf07525f194181965be9aed42c6&type=3#Tesla_circa_1890');
+    background-image: url('/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/Tesla_circa_1890.jpeg');
     border-top-left-radius: 100px;
     border-bottom-left-radius: 100px;
     border-top-right-radius: 100px;
@@ -125,18 +129,76 @@
 
 .main-content__header {
     height: 80px;
-    background-color: rgba(47, 48, 51, 255);
+    background-color: rgb(47, 48, 51);
+    min-height: 80px;
 }
 
 .main-content__content {
     flex-grow: 1;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 20px;
 }
 
 .main-content__footer {
     height: 80px;
-    background-color: rgba(46, 48, 51, 255);
+    background-color: rgb(46, 48, 51);
+    min-height: 80px;
 }
 
-.new-message-form {
+.message-item {
     flex-direction: row;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    align-items: flex-start;
+}
+
+.message-item__content {
+    flex-direction: column;
+    padding-left: 10px;
+}
+
+.message-item__text {
+    margin-bottom: 2px;
+    background-color: rgb(52, 52, 52);
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    max-width: 90%;
+    color: rgb(255, 255, 255);
+    white-space: normal;
+}
+
+.message-item__footer {
+    margin-left: 10px;
+    color: rgb(147, 148, 150);
+}
+
+.message-item__avatar {
+    background-image: url('/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/Tesla_circa_1890.jpeg');
+    width: 50px;
+    height: 50px;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+}
+
+.message-form {
+    flex-direction: row;
+}
+
+.message-form__emoji-picker-button {
+}
+
+.message-form__input {
+}
+
+.message-form__send-button {
 }

@@ -20,7 +20,7 @@ namespace StreamChat.SampleProjects.UIToolkit
         public event Action OwnUserUpdated;
 
         public event Action ChannelsUpdated;
-        public event Action<ChannelState> ActiveChanelChanged;
+        public event Action ActiveChannelChanged;
 
         public OwnUser OwnUser { get; private set; }
 
@@ -31,13 +31,15 @@ namespace StreamChat.SampleProjects.UIToolkit
             get => _activeChannel;
             private set
             {
-                var prevValue = _activeChannel;
+                if (_activeChannel != null && _activeChannel.Channel.Cid == value?.Channel.Cid)
+                {
+                    return;
+                }
+
                 _activeChannel = value;
 
-                if (prevValue != value)
-                {
-                    ActiveChanelChanged?.Invoke(_activeChannel);
-                }
+                Debug.Log("Selected channel: " + (_activeChannel?.Channel.Id ?? "None"));
+                ActiveChannelChanged?.Invoke();
             }
         }
 

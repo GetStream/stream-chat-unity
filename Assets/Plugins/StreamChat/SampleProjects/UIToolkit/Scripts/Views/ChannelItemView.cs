@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Linq;
 using StreamChat.Core.Models;
+using StreamChat.SampleProjects.UIToolkit.Config;
 using UnityEngine.UIElements;
 
-namespace StreamChat.SampleProjects.UIToolkit
+namespace StreamChat.SampleProjects.UIToolkit.Views
 {
-    public class ChannelItemView : BaseView
+    public class ChannelItemView : BaseDataView<ChannelState>
     {
         public event Action<ChannelItemView> Selected;
-
-        public ChannelState Data { get; private set; }
 
         public ChannelItemView(VisualElement visualElement, IViewFactory viewFactory, IViewConfig config)
             : base(visualElement, viewFactory, config)
@@ -21,9 +20,9 @@ namespace StreamChat.SampleProjects.UIToolkit
             visualElement.RegisterCallback<ClickEvent>(OnClickEvent);
         }
 
-        public void SetData(ChannelState data)
+        protected override void OnDataSet(ChannelState data)
         {
-            Data = data ?? throw new ArgumentNullException(nameof(data));
+            base.OnDataSet(data);
 
             _name.text = Data.Channel.Name;
             _lastMessage.text = GetLastMessageSnippet();

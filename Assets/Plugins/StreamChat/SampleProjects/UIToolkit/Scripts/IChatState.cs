@@ -7,7 +7,7 @@ namespace StreamChat.SampleProjects.UIToolkit
     public interface IChatState
     {
         event Action ChannelsUpdated;
-        event Action<ChannelState> ActiveChanelChanged;
+        event Action ActiveChannelChanged;
         event Action OwnUserUpdated;
 
         OwnUser OwnUser { get; }

@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: AppConfig
   m_EditorClassIdentifier: 
   _channelItemViewTemplate: {fileID: 9197481963319205126, guid: 155019b41f0ae8e42bad884ae2559c88, type: 3}
+  _messageItemViewTemplate: {fileID: 9197481963319205126, guid: c1b0dc429a5e18247adfd4b4d1317abf, type: 3}
