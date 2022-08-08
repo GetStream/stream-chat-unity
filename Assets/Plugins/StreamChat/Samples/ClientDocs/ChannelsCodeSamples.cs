@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using UnityEngine;
 
@@ -61,6 +62,42 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Debug.Log(read.UnreadMessages); //Total unread messages
                 Debug.Log(read.LastRead); //Date of the last read message
             }
+        }
+
+        private async Task PaginateMessagesMembersOrWatchers()
+        {
+            var messages = new List<Message>();
+            var lastMessageId = messages[0].Id;
+
+            //Pick the parts you need: Messages, Members or Watchers
+            var paginateMessages = new ChannelGetOrCreateRequest
+            {
+                State = true,
+
+                //Paginate through messages
+                Messages = new MessagePaginationParamsRequest
+                {
+                    IdLt = lastMessageId, //Get messages with ID less than provided Message ID
+                    Limit = 50,
+                },
+
+                //Paginate through members
+                Members = new PaginationParamsRequest
+                {
+                    Limit = 30,
+                    Offset = 0
+                },
+
+                //Paginate through watcher
+                Watchers = new PaginationParamsRequest
+                {
+                    Limit = 30,
+                    Offset = 0
+                },
+            };
+
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging",
+                channelId: "channel-id-1", paginateMessages);
         }
 
         private async Task GetMessagesBasedOnLastRead()
