@@ -43,16 +43,15 @@ namespace StreamChat.SampleProjects.UIToolkit
             }
         }
 
-        public ChatState(AuthCredentials chatCredentials)
+        public ChatState(IStreamChatClient streamChatClient)
         {
-            _client = StreamChatClient.CreateDefaultClient(chatCredentials);
-            _client.Connect();
+            _streamClient = streamChatClient ?? throw new ArgumentNullException(nameof(streamChatClient));
 
             SubscribeToEvents();
         }
 
         public void Update(float deltaTime)
-            => _client.Update(deltaTime);
+            => _streamClient.Update(deltaTime);
 
         public void SelectChannel(ChannelState channelState)
         {
@@ -70,24 +69,24 @@ namespace StreamChat.SampleProjects.UIToolkit
         public void Dispose()
         {
             UnsubscribeFromEvents();
-            _client?.Dispose();
+            _streamClient?.Dispose();
         }
 
         private readonly ILogs _unityLogger = new UnityLogs();
 
-        private readonly IStreamChatClient _client;
+        private readonly IStreamChatClient _streamClient;
         private readonly List<ChannelState> _channels = new List<ChannelState>();
 
         private ChannelState _activeChannel;
 
         private void SubscribeToEvents()
         {
-            _client.Connected += OnConnected;
+            _streamClient.Connected += OnConnected;
         }
 
         private void UnsubscribeFromEvents()
         {
-            _client.Connected -= OnConnected;
+            _streamClient.Connected -= OnConnected;
         }
 
         private async void OnConnected(OwnUser ownUser)
@@ -126,7 +125,7 @@ namespace StreamChat.SampleProjects.UIToolkit
                     {
                         "members", new Dictionary<string, object>
                         {
-                            { "$in", new string[] { _client.UserId } }
+                            { "$in", new string[] { _streamClient.UserId } }
                         }
                     }
                 }
@@ -134,7 +133,7 @@ namespace StreamChat.SampleProjects.UIToolkit
 
             try
             {
-                var queryChannelsResponse = await _client.ChannelApi.QueryChannelsAsync(request);
+                var queryChannelsResponse = await _streamClient.ChannelApi.QueryChannelsAsync(request);
 
                 return queryChannelsResponse.Channels;
 

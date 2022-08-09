@@ -11,5 +11,7 @@ namespace StreamChat.SampleProjects.UIToolkit
         ChannelItemView CreateChannelItemView(ChannelState channelState);
 
         MessageItemView CreateMessageItemView(Message message);
+
+        MessageInputFormView CreateMessageInputFormView(IChatWriter chatWriter);
     }
 }

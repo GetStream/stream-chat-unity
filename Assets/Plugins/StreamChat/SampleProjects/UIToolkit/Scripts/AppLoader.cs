@@ -1,3 +1,4 @@
+using StreamChat.Core;
 using StreamChat.Libs.Auth;
 using StreamChat.SampleProjects.UIToolkit.Config;
 using StreamChat.SampleProjects.UIToolkit.Views;
@@ -17,7 +18,13 @@ namespace StreamChat.SampleProjects.UIToolkit
 
             var viewFactory = new ViewFactory(uiDocument.rootVisualElement, _viewConfig);
 
-            _state = new ChatState(_authCredentials.Credentials);
+            var streamChatClient = StreamChatClient.CreateDefaultClient(_authCredentials.Credentials);
+            streamChatClient.Connect();
+
+            _state = new ChatState(streamChatClient);
+
+            var chatWriter = new ChatWriter(streamChatClient, _state);
+
             _rootView = viewFactory.CreateRootView(_state);
         }
 

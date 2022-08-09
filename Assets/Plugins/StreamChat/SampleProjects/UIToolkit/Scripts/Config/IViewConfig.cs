@@ -6,5 +6,6 @@ namespace StreamChat.SampleProjects.UIToolkit.Config
     {
         VisualTreeAsset ChannelItemViewTemplate { get; }
         VisualTreeAsset MessageItemViewTemplate { get; }
+        VisualTreeAsset MessageInputFormViewTemplate { get; }
     }
 }

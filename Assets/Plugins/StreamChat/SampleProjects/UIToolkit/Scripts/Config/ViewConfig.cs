@@ -9,11 +9,15 @@ namespace StreamChat.SampleProjects.UIToolkit.Config
     {
         public VisualTreeAsset ChannelItemViewTemplate => _channelItemViewTemplate;
         public VisualTreeAsset MessageItemViewTemplate => _messageItemViewTemplate;
+        public VisualTreeAsset MessageInputFormViewTemplate => _messageInputFormViewTemplate;
 
         [SerializeField]
         private VisualTreeAsset _channelItemViewTemplate;
 
         [SerializeField]
         private VisualTreeAsset _messageItemViewTemplate;
+
+        [SerializeField]
+        private VisualTreeAsset _messageInputFormViewTemplate;
     }
 }

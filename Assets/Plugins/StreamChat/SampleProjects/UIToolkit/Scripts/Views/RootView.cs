@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using StreamChat.Core.Models;
 using StreamChat.SampleProjects.UIToolkit.Config;
 using StreamChat.SampleProjects.UIToolkit.Utils;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace StreamChat.SampleProjects.UIToolkit.Views
