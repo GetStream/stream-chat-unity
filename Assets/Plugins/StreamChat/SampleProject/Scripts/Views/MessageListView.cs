@@ -124,7 +124,7 @@ namespace StreamChat.SampleProject.Views
                 return;
             }
 
-            var lastTopMessageId = State.ActiveChannel.Messages.FirstOrDefault()?.Id;
+            var lastTopMessageId = State.ActiveChannel?.Messages.FirstOrDefault()?.Id;
 
             _loadPreviousMessagesTask = State.LoadPreviousMessagesAsync();
 
