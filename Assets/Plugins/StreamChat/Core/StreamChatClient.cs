@@ -58,7 +58,7 @@ namespace StreamChat.Core
             get => _connectionState;
             private set
             {
-                var prev = value;
+                var prev = _connectionState;
                 _connectionState = value;
                 ConnectionStateChanged?.Invoke(prev, value);
             }
