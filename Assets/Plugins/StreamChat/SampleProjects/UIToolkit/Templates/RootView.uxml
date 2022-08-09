@@ -4,7 +4,7 @@
     <ui:VisualElement name="container" class="container">
         <ui:VisualElement name="left-bar" class="left-bar">
             <ui:VisualElement name="header" class="left-bar__header">
-                <ui:VisualElement name="avatar" class="avatar avatar--large" style="background-image: url(&apos;/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/Tesla_circa_1890.jpeg&apos;);" />
+                <ui:VisualElement name="avatar" class="avatar avatar--large" />
                 <ui:Label text="Label" display-tooltip-when-elided="true" name="name" class="left-bar__header__label" />
                 <ui:Button text="&#10;" display-tooltip-when-elided="true" name="new-message-button" class="new-channel-button">
                     <ui:VisualElement name="icon" class="new-channel-button__icon" />
@@ -21,9 +21,13 @@
             </ui:VisualElement>
             <ui:VisualElement name="footer" class="main-content__footer">
                 <ui:VisualElement name="new-message-form" class="message-form">
-                    <ui:Button text="Button" display-tooltip-when-elided="true" name="emoji-picker-button" class="message-form__emoji-picker-button" />
-                    <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" text="filler text" name="message-input" class="message-form__input" />
-                    <ui:Button text="Button" display-tooltip-when-elided="true" name="send-message-button" class="message-form__send-button" />
+                    <ui:Button display-tooltip-when-elided="true" name="emoji-picker-button" class="message-form__emoji-picker-button">
+                        <ui:VisualElement class="button-icon" />
+                    </ui:Button>
+                    <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" text="Write a message" name="message-input" class="message-form__input" />
+                    <ui:Button display-tooltip-when-elided="true" name="send-message-button" class="message-form__send-button">
+                        <ui:VisualElement class="button-icon" style="background-image: url(&apos;/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/Icons/arrow-next-right-icon.png&apos;);" />
+                    </ui:Button>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
