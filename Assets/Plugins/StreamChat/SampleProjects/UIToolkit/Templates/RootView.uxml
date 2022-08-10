@@ -1,5 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="MessageItemView" src="MessageItemView.uxml" />
+    <ui:Template name="MessageInputFormView" src="MessageInputFormView.uxml" />
     <Style src="/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Styles/main.uss" />
     <ui:VisualElement name="container" class="container">
         <ui:VisualElement name="left-bar" class="left-bar">
@@ -20,15 +21,7 @@
                 </ui:ScrollView>
             </ui:VisualElement>
             <ui:VisualElement name="footer" class="main-content__footer">
-                <ui:VisualElement name="new-message-form" class="message-form">
-                    <ui:Button display-tooltip-when-elided="true" name="emoji-picker-button" class="message-form__emoji-picker-button">
-                        <ui:VisualElement class="button-icon" />
-                    </ui:Button>
-                    <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" text="Write a message" name="message-input" class="message-form__input" />
-                    <ui:Button display-tooltip-when-elided="true" name="send-message-button" class="message-form__send-button">
-                        <ui:VisualElement class="button-icon" style="background-image: url(&apos;/Assets/Plugins/StreamChat/SampleProjects/UIToolkit/Textures/Icons/arrow-next-right-icon.png&apos;);" />
-                    </ui:Button>
-                </ui:VisualElement>
+                <ui:Instance template="MessageInputFormView" name="MessageInputFormView" />
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="thread-sidebar" class="thread-sidebar" />

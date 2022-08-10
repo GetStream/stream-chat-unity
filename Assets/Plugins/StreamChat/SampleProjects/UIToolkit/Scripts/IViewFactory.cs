@@ -6,12 +6,13 @@ namespace StreamChat.SampleProjects.UIToolkit
 {
     public interface IViewFactory
     {
-        RootView CreateRootView(IChatState chatState);
+        RootView CreateRootView(IChatState chatState, IChatWriter chatWriter);
 
         ChannelItemView CreateChannelItemView(ChannelState channelState);
 
         MessageItemView CreateMessageItemView(Message message);
 
-        MessageInputFormView CreateMessageInputFormView(IChatWriter chatWriter);
+        MessageInputFormView CreateMessageInputFormView(IChatWriter chatWriter,
+            VisualElement instance = null);
     }
 }

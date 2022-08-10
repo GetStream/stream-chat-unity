@@ -22,10 +22,9 @@ namespace StreamChat.SampleProjects.UIToolkit
             streamChatClient.Connect();
 
             _state = new ChatState(streamChatClient);
-
             var chatWriter = new ChatWriter(streamChatClient, _state);
 
-            _rootView = viewFactory.CreateRootView(_state);
+            _rootView = viewFactory.CreateRootView(_state, chatWriter);
         }
 
         protected void Update()

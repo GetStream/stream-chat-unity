@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProjects.UIToolkit.Config;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace StreamChat.SampleProjects.UIToolkit.Views
@@ -17,6 +19,8 @@ namespace StreamChat.SampleProjects.UIToolkit.Views
             _sendButton = VisualElement.Q<Button>("send-message-button");
 
             _sendButton.clickable.clicked += OnSendButtonClicked;
+
+            _defaultMessageInputText = _messageInput.text;
         }
 
         protected override void OnDispose()
@@ -32,14 +36,34 @@ namespace StreamChat.SampleProjects.UIToolkit.Views
 
         private readonly IChatWriter _chatWriter;
 
+        private readonly string _defaultMessageInputText;
+
         private void OnSendButtonClicked()
         {
-            if (_messageInput.value.IsNullOrEmpty())
+            if (_messageInput.text.IsNullOrEmpty())
             {
                 return;
             }
 
-            _chatWriter.SendNewMessageAsync(_messageInput.value).LogOnFaulted();
+            if (_defaultMessageInputText == _messageInput.text)
+            {
+                return;
+            }
+
+            _chatWriter.SendNewMessageAsync(_messageInput.text).ContinueWith(continuation =>
+            {
+                if (continuation.IsFaulted)
+                {
+                    Debug.LogException(continuation.Exception);
+                    return;
+                }
+
+                var success = continuation.Result;
+                if (success)
+                {
+                    _messageInput.SetValueWithoutNotify(_defaultMessageInputText);
+                }
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 }

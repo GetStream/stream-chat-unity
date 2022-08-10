@@ -8,7 +8,8 @@ namespace StreamChat.SampleProjects.UIToolkit.Views
 {
     public class RootView : BaseView
     {
-        public RootView(IChatState chatState, VisualElement visualElement, IViewFactory viewFactory, IViewConfig config)
+        public RootView(IChatState chatState, IChatWriter chatWriter, VisualElement visualElement,
+            IViewFactory viewFactory, IViewConfig config)
             : base(visualElement, viewFactory, config)
         {
             _chatState = chatState ?? throw new ArgumentNullException(nameof(chatState));
@@ -18,6 +19,9 @@ namespace StreamChat.SampleProjects.UIToolkit.Views
 
             _channelsScrollView = VisualElement.Q<ScrollView>("channels-list");
             _channelMessagesScrollView = VisualElement.Q<ScrollView>("channel-messages");
+
+            var newMessageForm = VisualElement.Q<VisualElement>("new-message-form");
+            _messageInputFormView = viewFactory.CreateMessageInputFormView(chatWriter, newMessageForm);
         }
 
         protected override void OnDispose()
@@ -30,6 +34,9 @@ namespace StreamChat.SampleProjects.UIToolkit.Views
                 _channels.RemoveAt(i);
             }
 
+            _messageInputFormView?.Dispose();
+            _messageInputFormView = null;
+
             base.OnDispose();
         }
 
@@ -40,6 +47,8 @@ namespace StreamChat.SampleProjects.UIToolkit.Views
 
         private readonly ScrollView _channelsScrollView;
         private readonly ScrollView _channelMessagesScrollView;
+
+        private MessageInputFormView _messageInputFormView;
 
         private void OnChannelsUpdated()
         {

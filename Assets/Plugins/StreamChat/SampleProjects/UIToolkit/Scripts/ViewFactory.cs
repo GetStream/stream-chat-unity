@@ -14,8 +14,8 @@ namespace StreamChat.SampleProjects.UIToolkit
             _rootVisualElement = rootVisualElement ?? throw new ArgumentNullException(nameof(rootVisualElement));
         }
 
-        public RootView CreateRootView(IChatState chatState)
-            => new RootView(chatState, _rootVisualElement, viewFactory: this, _config);
+        public RootView CreateRootView(IChatState chatState, IChatWriter chatWriter)
+            => new RootView(chatState, chatWriter, _rootVisualElement, viewFactory: this, _config);
 
         public ChannelItemView CreateChannelItemView(ChannelState channelState)
         {
@@ -37,9 +37,9 @@ namespace StreamChat.SampleProjects.UIToolkit
             return item;
         }
 
-        public MessageInputFormView CreateMessageInputFormView(IChatWriter chatWriter)
+        public MessageInputFormView CreateMessageInputFormView(IChatWriter chatWriter, VisualElement instance = null)
         {
-            var vs = _config.MessageInputFormViewTemplate.Instantiate();
+            var vs = instance ?? _config.MessageInputFormViewTemplate.Instantiate();
 
             var item = new MessageInputFormView(chatWriter, vs, viewFactory: this, _config);
 

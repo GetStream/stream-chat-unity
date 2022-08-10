@@ -54,7 +54,20 @@ namespace StreamChat.Core.Exceptions
         }, TaskContinuationOptions.OnlyOnFaulted);
 
         public static void LogStreamApiExceptionDetails(this StreamApiException exception, ILogs logger)
+            => logger.Exception(new Exception(exception.GetStreamApiExceptionDetails(), exception));
+
+        /// <summary>
+        /// Unwraps StreamApiException to regular Exception with all the details contained in the Exception message
+        /// </summary>
+        public static Exception GetStreamApiUnwrappedException(this StreamApiException exception)
+            => new Exception(exception.GetStreamApiExceptionDetails());
+
+        /// <summary>
+        /// Get string with summary of all StreamApiException details
+        /// </summary>
+        public static string GetStreamApiExceptionDetails(this StreamApiException exception)
         {
+            _sb.Length = 0;
             _sb.Append(nameof(StreamApiException));
             _sb.Append(":");
             _sb.Append(Environment.NewLine);
@@ -85,8 +98,7 @@ namespace StreamChat.Core.Exceptions
                 }
             }
 
-            logger.Exception(new Exception(_sb.ToString(), exception));
-            _sb.Length = 0;
+            return _sb.ToString();
         }
 
         private static readonly StringBuilder _sb = new StringBuilder();

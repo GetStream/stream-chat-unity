@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _viewConfig: {fileID: 11400000, guid: a0afc30e93a064d4facad71ab209e6de, type: 2}
-  _authCredentials: {fileID: 11400000, guid: d1f7736753b42b44bbf881d708988dec, type: 2}
+  _authCredentials: {fileID: 11400000, guid: ce610023926852f4da756648740e296c, type: 2}
 --- !u!114 &6550693478601252294
 MonoBehaviour:
   m_ObjectHideFlags: 0
