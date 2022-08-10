@@ -7,7 +7,10 @@ using UnityEngine.UIElements;
 
 namespace StreamChat.SampleProjects.UIToolkit.Views
 {
-    public class MessageInputFormView : BaseView
+    /// <summary>
+    /// Represents input form for message
+    /// </summary>
+    public class MessageInputFormView : BaseView<VisualElement>
     {
         public MessageInputFormView(IChatWriter chatWriter, VisualElement visualElement, IViewFactory viewFactory,
             IViewConfig config)

@@ -4,7 +4,13 @@ using UnityEngine.UIElements;
 
 namespace StreamChat.SampleProjects.UIToolkit.Views
 {
-    public abstract class BaseDataView<TDataType> : BaseView
+    /// <summary>
+    /// Base view for view representing single data model
+    /// </summary>
+    /// <typeparam name="TDataType">Type of data model</typeparam>
+    /// <typeparam name="TVisualElement">Type of visual element representing this data model</typeparam>
+    public abstract class BaseDataView<TDataType, TVisualElement> : BaseView<TVisualElement>
+        where TVisualElement : VisualElement
     {
         public TDataType Data { get; private set; }
 
@@ -14,7 +20,7 @@ namespace StreamChat.SampleProjects.UIToolkit.Views
             OnDataSet(data);
         }
 
-        protected BaseDataView(VisualElement visualElement, IViewFactory viewFactory, IViewConfig config)
+        protected BaseDataView(TVisualElement visualElement, IViewFactory viewFactory, IViewConfig config)
             : base(visualElement, viewFactory, config)
         {
         }

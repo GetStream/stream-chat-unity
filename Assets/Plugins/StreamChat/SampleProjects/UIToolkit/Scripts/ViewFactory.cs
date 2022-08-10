@@ -17,6 +17,9 @@ namespace StreamChat.SampleProjects.UIToolkit
         public RootView CreateRootView(IChatState chatState, IChatWriter chatWriter)
             => new RootView(chatState, chatWriter, _rootVisualElement, viewFactory: this, _config);
 
+        public ChannelsListView CreateChannelsListView(IChatState chatState, ScrollView scrollView)
+            => new ChannelsListView(chatState, scrollView, viewFactory: this, _config);
+
         public ChannelItemView CreateChannelItemView(ChannelState channelState)
         {
             var vs = _config.ChannelItemViewTemplate.Instantiate();
@@ -26,6 +29,9 @@ namespace StreamChat.SampleProjects.UIToolkit
 
             return item;
         }
+
+        public ChannelMessagesView CreateChannelMessagesView(IChatState chatState, ScrollView scrollView)
+            => new ChannelMessagesView(chatState, scrollView, viewFactory: this, _config);
 
         public MessageItemView CreateMessageItemView(Message message)
         {

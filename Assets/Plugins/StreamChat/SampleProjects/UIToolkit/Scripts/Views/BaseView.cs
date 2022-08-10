@@ -4,16 +4,21 @@ using UnityEngine.UIElements;
 
 namespace StreamChat.SampleProjects.UIToolkit.Views
 {
-    public abstract class BaseView : IDisposable
+    /// <summary>
+    /// Base view
+    /// </summary>
+    /// <typeparam name="TVisualElement">Type of Visual Element representing this view</typeparam>
+    public abstract class BaseView<TVisualElement> : IDisposable
+        where TVisualElement : VisualElement
     {
-        public VisualElement VisualElement { get; }
+        public TVisualElement VisualElement { get; }
 
         public void Dispose() => OnDispose();
 
         protected IViewFactory Factory { get; }
         protected IViewConfig Config { get; }
 
-        protected BaseView(VisualElement visualElement, IViewFactory viewFactory, IViewConfig config)
+        protected BaseView(TVisualElement visualElement, IViewFactory viewFactory, IViewConfig config)
         {
             VisualElement = visualElement ?? throw new ArgumentNullException(nameof(visualElement));
             Factory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));

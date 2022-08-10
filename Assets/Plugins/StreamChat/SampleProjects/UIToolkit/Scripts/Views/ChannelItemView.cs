@@ -6,7 +6,10 @@ using UnityEngine.UIElements;
 
 namespace StreamChat.SampleProjects.UIToolkit.Views
 {
-    public class ChannelItemView : BaseDataView<ChannelState>
+    /// <summary>
+    /// Represents single channel preview in the channels list
+    /// </summary>
+    public class ChannelItemView : BaseDataView<ChannelState, VisualElement>
     {
         public event Action<ChannelItemView> Selected;
 

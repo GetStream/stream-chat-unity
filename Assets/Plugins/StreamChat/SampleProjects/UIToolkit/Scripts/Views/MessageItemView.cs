@@ -5,7 +5,10 @@ using UnityEngine.UIElements;
 
 namespace StreamChat.SampleProjects.UIToolkit.Views
 {
-    public class MessageItemView : BaseDataView<Message>
+    /// <summary>
+    /// Represents single chat message
+    /// </summary>
+    public class MessageItemView : BaseDataView<Message, VisualElement>
     {
         public MessageItemView(VisualElement visualElement, IViewFactory viewFactory, IViewConfig config)
             : base(visualElement, viewFactory, config)

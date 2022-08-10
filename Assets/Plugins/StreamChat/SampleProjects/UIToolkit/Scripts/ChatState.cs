@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
-using StreamChat.Libs.Auth;
 using StreamChat.Libs.Logs;
 using UnityEngine;
 
@@ -21,6 +21,9 @@ namespace StreamChat.SampleProjects.UIToolkit
 
         public event Action ChannelsUpdated;
         public event Action ActiveChannelChanged;
+        public event Action<Message> MessageReceived;
+        public event Action<Message> MessageDeleted;
+        public event Action<Message> MessageUpdated;
 
         public OwnUser OwnUser { get; private set; }
 
@@ -82,11 +85,17 @@ namespace StreamChat.SampleProjects.UIToolkit
         private void SubscribeToEvents()
         {
             _streamClient.Connected += OnConnected;
+            _streamClient.MessageReceived += OnMessageReceived;
+            _streamClient.MessageDeleted += OnMessageDeleted;
+            _streamClient.MessageUpdated += OnMessageUpdated;
         }
 
         private void UnsubscribeFromEvents()
         {
             _streamClient.Connected -= OnConnected;
+            _streamClient.MessageReceived -= OnMessageReceived;
+            _streamClient.MessageDeleted -= OnMessageDeleted;
+            _streamClient.MessageUpdated -= OnMessageUpdated;
         }
 
         private async void OnConnected(OwnUser ownUser)
@@ -100,6 +109,11 @@ namespace StreamChat.SampleProjects.UIToolkit
             _channels.AddRange(channels);
 
             ChannelsUpdated?.Invoke();
+
+            if (ActiveChannel == null && _channels.Count > 0)
+            {
+                ActiveChannel = _channels[0];
+            }
         }
 
         private async Task<IEnumerable<ChannelState>> FetchChannelsAsync()
@@ -134,7 +148,6 @@ namespace StreamChat.SampleProjects.UIToolkit
             try
             {
                 var queryChannelsResponse = await _streamClient.ChannelApi.QueryChannelsAsync(request);
-
                 return queryChannelsResponse.Channels;
 
             }
@@ -148,6 +161,76 @@ namespace StreamChat.SampleProjects.UIToolkit
             }
 
             return Enumerable.Empty<ChannelState>();
+        }
+
+        private void OnMessageUpdated(EventMessageUpdated eventMessageUpdated)
+        {
+            var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == eventMessageUpdated.Cid);
+            if (channel == null)
+            {
+                Debug.LogError($"Deleted message, but channel with CID `{eventMessageUpdated.Cid}` not found");
+                return;
+            }
+
+            if (channel.Messages?.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = channel.Messages.Count - 1; i >= 0; i--)
+            {
+                var message = channel.Messages[i];
+                if (message.Id != eventMessageUpdated.Message.Id)
+                {
+                    continue;
+                }
+
+                channel.Messages.RemoveAt(i);
+                channel.Messages.Insert(i, eventMessageUpdated.Message);
+                MessageUpdated?.Invoke(eventMessageUpdated.Message);
+                return;
+            }
+        }
+
+        private void OnMessageDeleted(EventMessageDeleted eventMessageDeleted)
+        {
+            var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == eventMessageDeleted.Cid);
+            if (channel == null)
+            {
+                Debug.LogError($"Deleted message, but channel with CID `{eventMessageDeleted.Cid}` not found");
+                return;
+            }
+
+            if (channel.Messages?.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = channel.Messages.Count - 1; i >= 0; i--)
+            {
+                var message = channel.Messages[i];
+                if (message.Id != eventMessageDeleted.Message.Id)
+                {
+                    continue;
+                }
+
+                channel.Messages.RemoveAt(i);
+                MessageDeleted?.Invoke(message);
+                return;
+            }
+        }
+
+        private void OnMessageReceived(EventMessageNew eventMessageNew)
+        {
+            var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == eventMessageNew.Cid);
+            if (channel == null)
+            {
+                Debug.LogError($"Received message, but channel with CID `{eventMessageNew.Cid}` not found");
+                return;
+            }
+
+            channel.Messages.Add(eventMessageNew.Message);
+            MessageReceived?.Invoke(eventMessageNew.Message);
         }
     }
 }
