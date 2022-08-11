@@ -4,6 +4,7 @@ using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
+using UnityEngine;
 
 namespace StreamChat.SampleProject
 {
@@ -19,7 +20,7 @@ namespace StreamChat.SampleProject
         public IAppConfig AppConfig { get; }
 
         public ChatViewContext(IStreamChatClient client, IImageLoader imageLoader, ViewFactory viewFactory,
-            IInputSystem inputSystem, IAppConfig appConfig)
+            IInputSystem inputSystem, IAppConfig appConfig, MonoBehaviour coroutineRunner)
         {
             Client = client ?? throw new ArgumentNullException(nameof(client));
             ImageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
@@ -27,7 +28,7 @@ namespace StreamChat.SampleProject
             InputSystem = inputSystem ?? throw new ArgumentNullException(nameof(inputSystem));
             AppConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
 
-            State = new ChatState(client, Factory);
+            State = new ChatState(client, Factory, coroutineRunner);
         }
     }
 }

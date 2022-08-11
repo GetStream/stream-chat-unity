@@ -9,6 +9,7 @@ namespace StreamChat.Libs.Websockets
     public interface IWebsocketClient : IDisposable
     {
         event Action Connected;
+        event Action Disconnected;
         event Action ConnectionFailed;
 
         bool IsRunning { get; }
@@ -17,6 +18,9 @@ namespace StreamChat.Libs.Websockets
 
         Task ConnectAsync(Uri serverUri);
 
-        Task Send(string message);
+
+        void Update();
+
+        void Send(string message);
     }
 }

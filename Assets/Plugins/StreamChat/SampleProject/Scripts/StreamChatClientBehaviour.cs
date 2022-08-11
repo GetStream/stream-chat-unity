@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using StreamChat.Core;
 using StreamChat.Core.Exceptions;
 using StreamChat.Libs.Auth;
@@ -32,13 +33,15 @@ namespace StreamChat.SampleProject
 
             TrySetEmojisSpriteAtlas();
 
+            Debug.LogError("MAIN THREAD ID " + Thread.CurrentThread.ManagedThreadId);
+
             try
             {
                 _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
                 _client.Connect();
 
                 var viewContext =
-                    new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem, _appConfig);
+                    new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem, _appConfig, this);
 
                 viewFactory.Init(viewContext);
                 _rootView.Init(viewContext);
