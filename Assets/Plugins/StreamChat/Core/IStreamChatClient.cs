@@ -50,7 +50,7 @@ namespace StreamChat.Core
 
         bool IsLocalUser(ChannelMember channelMember);
 
-        void SetReconnectStrategy(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
+        void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval);
     }
 }

@@ -211,7 +211,7 @@ namespace StreamChat.Core
         /// <param name="exponentialMaxInterval">Defines max reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
         /// <param name="constantInterval">Defines reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Constant"/></param>
         /// <exception cref="ArgumentException">throws exception if intervals are less than or equal to zero</exception>
-        public void SetReconnectStrategy(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
+        public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval)
         {
             ReconnectStrategy = reconnectStrategy;
