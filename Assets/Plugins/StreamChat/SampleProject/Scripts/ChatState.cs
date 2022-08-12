@@ -137,6 +137,19 @@ namespace StreamChat.SampleProject
 
                 _channels.Clear();
                 _channels.AddRange(queryChannelsResponse.Channels);
+
+                if (ActiveChannel != null)
+                {
+                    var activeChannel = _channels.FirstOrDefault(_ => _.Channel.Cid == ActiveChannel.Channel.Cid);
+                    if (activeChannel != null)
+                    {
+                        ActiveChannel = activeChannel;
+                    }
+                    else
+                    {
+                        ActiveChannel = _channels.FirstOrDefault();
+                    }
+                }
             }
             catch (StreamApiException e)
             {
@@ -240,7 +253,7 @@ namespace StreamChat.SampleProject
             var channel = GetChannel(messageNewEvent.ChannelId);
             channel.Messages.Add(messageNewEvent.Message);
 
-            if (channel == ActiveChannel)
+            if (AreChannelsEqual(channel, ActiveChannel))
             {
                 ActiveChanelMessageReceived?.Invoke(ActiveChannel, messageNewEvent.Message);
             }
@@ -252,7 +265,7 @@ namespace StreamChat.SampleProject
             var message = channel.Messages.First(_ => _.Id == messageDeletedEvent.Message.Id);
             message.Text = MessageDeletedInfo;
 
-            if (channel == ActiveChannel)
+            if (AreChannelsEqual(channel, ActiveChannel))
             {
                 ActiveChanelChanged?.Invoke(ActiveChannel);
             }
@@ -262,11 +275,14 @@ namespace StreamChat.SampleProject
         {
             var channel = GetChannel(messageUpdatedEvent.ChannelId);
 
-            if (channel == ActiveChannel)
+            if (AreChannelsEqual(channel, ActiveChannel))
             {
                 ActiveChanelChanged?.Invoke(ActiveChannel);
             }
         }
+
+        private static bool AreChannelsEqual(ChannelState channelA, ChannelState channelB) =>
+            channelA.Channel.Cid == channelB.Channel.Cid;
 
         private void OnReactionReceived(EventReactionNew eventReactionNew) =>
             UpdateChannelMessage(eventReactionNew.Message);
@@ -284,7 +300,6 @@ namespace StreamChat.SampleProject
             var channelCid = message.Cid;
 
             var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == channelCid);
-
             if (channel == null)
             {
                 return;
