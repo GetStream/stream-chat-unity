@@ -16,7 +16,13 @@ namespace StreamChat.Core
         event ConnectionHandler Connected;
 
         /// <summary>
-        /// Raised when connection state changes. Returns respectively previous and the current connection state
+        /// Client lost connection with the server. if ReconnectStrategy is Exponential or Constant it will attempt to reconnect.
+        /// Once Connected event is raised again you should re-init watch state for previously observed channels and re-fetch potentially missed data
+        /// </summary>
+        event Action Disconnected;
+
+        /// <summary>
+        /// Raised when connection state changes. Returns previous and the current connection state respectively
         /// </summary>
         event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
 

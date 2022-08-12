@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Libs.Http;
@@ -33,6 +32,7 @@ namespace StreamChat.Core
         public static readonly Uri ServerBaseUrl = new Uri("wss://chat.stream-io-api.com");
 
         public event ConnectionHandler Connected;
+        public event Action Disconnected;
         public event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
 
         public event Action<string> EventReceived;
@@ -65,6 +65,11 @@ namespace StreamChat.Core
                 var prev = _connectionState;
                 _connectionState = value;
                 ConnectionStateChanged?.Invoke(prev, _connectionState);
+
+                if (value == ConnectionState.Disconnected)
+                {
+                    Disconnected?.Invoke();
+                }
             }
         }
 
@@ -510,8 +515,8 @@ namespace StreamChat.Core
 
             if (ConnectionState == ConnectionState.Connecting)
             {
-                ConnectionState = ConnectionState.Connected;
                 _connectionId = healthCheckEvent.ConnectionId;
+                ConnectionState = ConnectionState.Connected;
 
                 LocalUser = healthCheckEvent.Me;
 
