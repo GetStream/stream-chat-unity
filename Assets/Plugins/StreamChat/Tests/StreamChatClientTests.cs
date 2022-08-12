@@ -62,23 +62,6 @@ namespace StreamChat.Tests
         }
 
         [Test]
-        public void when_stream_client_max_reconnections_reached_expect_disconnected_state()
-        {
-            _client.Connect();
-
-            for (int i = 0; i < StreamChatClient.ReconnectMaxAttempts + 10; i++)
-            {
-                _mockWebsocketClient.ConnectionFailed += Raise.Event<Action>();
-            }
-
-            var expectedAttempts = StreamChatClient.ReconnectMaxAttempts + 1;
-
-            _mockWebsocketClient.ReceivedWithAnyArgs(expectedAttempts).ConnectAsync(default);
-
-            Assert.AreEqual(_client.ConnectionState, ConnectionState.Disconnected);
-        }
-
-        [Test]
         public void when_stream_client_factory_called_expect_no_exceptions()
         {
             Assert.DoesNotThrow(() => StreamChatClient.CreateDefaultClient(_authCredentials));
