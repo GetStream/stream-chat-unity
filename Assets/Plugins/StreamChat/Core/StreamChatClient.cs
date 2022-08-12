@@ -61,7 +61,9 @@ namespace StreamChat.Core
                 {
                     return;
                 }
-                _logs.Error($"CONNECTION STATE: {_connectionState} => {value} THREAD ID: " + Thread.CurrentThread.ManagedThreadId);
+
+                _logs.Error($"CONNECTION STATE: {_connectionState} => {value} THREAD ID: " +
+                            Thread.CurrentThread.ManagedThreadId);
                 var prev = _connectionState;
                 _connectionState = value;
                 ConnectionStateChanged?.Invoke(prev, _connectionState);
@@ -119,6 +121,7 @@ namespace StreamChat.Core
             {
                 return userId;
             }
+
             return Regex.Replace(userId, @"[^\w\.@_-]", "", RegexOptions.None, TimeSpan.FromSeconds(1));
         }
 
@@ -171,58 +174,6 @@ namespace StreamChat.Core
             ConnectionState = ConnectionState.Connecting;
 
             _websocketClient.ConnectAsync(connectionUri).LogIfFailed(_logs);
-        }
-
-        private void TryToReconnect()
-        {
-            if (!ConnectionState.IsValidToConnect() || !_nextReconnectAt.HasValue)
-            {
-                return;
-            }
-
-            if (_nextReconnectAt.Value > _timeService.Time)
-            {
-                return;
-            }
-
-            _reconnectAttempt++;
-            Connect();
-        }
-
-        private bool TryScheduleReconnect()
-        {
-            if (_nextReconnectAt.HasValue && _nextReconnectAt.Value > _timeService.Time)
-            {
-                return false;
-            }
-
-            switch (ReconnectStrategy)
-            {
-                case ReconnectStrategy.Exponential:
-
-                    var baseInterval = Math.Pow(2, _reconnectAttempt);
-                    var interval = Math.Min(Math.Max(ReconnectConstantInterval, baseInterval),
-                        ReconnectExponentialMaxInterval);
-                    _logs.Error($"----ATTEMPT {_reconnectAttempt} CALCED INTERVAL " + interval);
-                    _nextReconnectAt = _timeService.Time + interval;
-
-                    break;
-                case ReconnectStrategy.Constant:
-                    _nextReconnectAt = _timeService.Time + ReconnectConstantInterval;
-                    break;
-                case ReconnectStrategy.Never:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            if (_nextReconnectAt.HasValue)
-            {
-                ConnectionState = ConnectionState.WaitToReconnect;
-                _logs.Info($"Reconnect scheduled at `{_nextReconnectAt.Value}`, current time: {_timeService.Time}");
-            }
-
-            return _nextReconnectAt.HasValue;
         }
 
         public void Update(float deltaTime)
@@ -331,11 +282,66 @@ namespace StreamChat.Core
             TryScheduleReconnect();
         }
 
+        /// <summary>
+        /// Based on receiving initial health check event from the server
+        /// </summary>
         private void OnConnectionConfirmed(OwnUser localUser)
         {
             _lastHealthCheckReceivedTime = _timeService.Time;
             _reconnectAttempt = 0;
             Connected?.Invoke(localUser);
+        }
+
+        private void TryToReconnect()
+        {
+            if (!ConnectionState.IsValidToConnect() || !_nextReconnectAt.HasValue)
+            {
+                return;
+            }
+
+            if (_nextReconnectAt.Value > _timeService.Time)
+            {
+                return;
+            }
+
+            _reconnectAttempt++;
+            Connect();
+        }
+
+        private bool TryScheduleReconnect()
+        {
+            if (_nextReconnectAt.HasValue && _nextReconnectAt.Value > _timeService.Time)
+            {
+                return false;
+            }
+
+            switch (ReconnectStrategy)
+            {
+                case ReconnectStrategy.Exponential:
+
+                    var baseInterval = Math.Pow(2, _reconnectAttempt);
+                    var interval = Math.Min(Math.Max(ReconnectConstantInterval, baseInterval),
+                        ReconnectExponentialMaxInterval);
+                    _logs.Error($"----ATTEMPT {_reconnectAttempt} CALCED INTERVAL " + interval);
+                    _nextReconnectAt = _timeService.Time + interval;
+
+                    break;
+                case ReconnectStrategy.Constant:
+                    _nextReconnectAt = _timeService.Time + ReconnectConstantInterval;
+                    break;
+                case ReconnectStrategy.Never:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            if (_nextReconnectAt.HasValue)
+            {
+                ConnectionState = ConnectionState.WaitToReconnect;
+                _logs.Info($"Reconnect scheduled at `{_nextReconnectAt.Value}`, current time: {_timeService.Time}");
+            }
+
+            return _nextReconnectAt.HasValue;
         }
 
         private void RegisterEventHandlers()
@@ -446,7 +452,8 @@ namespace StreamChat.Core
                 ConnectionState = ConnectionState.Disconnected;
                 if (TryScheduleReconnect())
                 {
-                    _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
+                    _logs.Warning(
+                        $"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
                 }
             }
         }
@@ -494,7 +501,8 @@ namespace StreamChat.Core
         {
             if (credentials.IsAnyEmpty())
             {
-                throw new StreamMissingAuthCredentialsException("Please provide valid credentials: `Api Key`, 'User id`, `User token`");
+                throw new StreamMissingAuthCredentialsException(
+                    "Please provide valid credentials: `Api Key`, 'User id`, `User token`");
             }
 
             _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
@@ -507,7 +515,8 @@ namespace StreamChat.Core
             {
                 if (!_updateCallReceived && ConnectionState != ConnectionState.Disconnected)
                 {
-                    _logs.Error($"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(Update)}` method per frame.");
+                    _logs.Error(
+                        $"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(Update)}` method per frame.");
                 }
             });
         }
