@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using StreamChat.Core;
 using TMPro;
 using UnityEngine;
 
@@ -14,11 +15,13 @@ namespace StreamChat.SampleProject.Views
             base.OnInited();
 
             Client.EventReceived += OnEventReceived;
+            Client.ConnectionStateChanged += OnConnectionStateChanged;
         }
 
         protected override void OnDisposing()
         {
             Client.EventReceived -= OnEventReceived;
+            Client.ConnectionStateChanged -= OnConnectionStateChanged;
 
             base.OnDisposing();
         }
@@ -39,7 +42,18 @@ namespace StreamChat.SampleProject.Views
                 _records.RemoveRange(0, _records.Count - MaxRecords);
             }
 
-            _text.text = "Received events:" + "<br>" + string.Join("<br>", _records);
+            PrintRecords();
         }
+
+        private void OnConnectionStateChanged(ConnectionState prev, ConnectionState current)
+        {
+            if (current == ConnectionState.Disconnected)
+            {
+                _records.Clear();
+                PrintRecords();
+            }
+        }
+
+        private void PrintRecords() => _text.text = "Received events:" + "<br>" + string.Join("<br>", _records);
     }
 }
