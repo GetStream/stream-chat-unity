@@ -62,66 +62,6 @@ namespace StreamChat.SampleProject
             Client.ReactionDeleted += OnReactionDeleted;
         }
 
-        private void OnClientConnectionStateChanged(ConnectionState prev, ConnectionState current)
-        {
-            if (current == ConnectionState.Disconnected)
-            {
-                _restoreStateAfterDisconnected = true;
-            }
-
-            if (current == ConnectionState.Connected && _restoreStateAfterDisconnected)
-            {
-                _restoreStateAfterDisconnected = false;
-                RestoreLostStateAsync().LogIfFailed();
-            }
-        }
-
-        private async Task RestoreLostStateAsync()
-        {
-            Debug.LogError("_____RESTORE STATE");
-
-            if (ActiveChannel == null)
-            {
-                Debug.LogError("____ACTIVE CHANNEL NULL");
-                return;
-            }
-
-            var lastMessage = ActiveChannel.Messages.LastOrDefault();
-
-            var getOrCreateRequest = new ChannelGetOrCreateRequest
-            {
-                State = true,
-                Watch = true,
-            };
-
-            if (lastMessage != null)
-            {
-                getOrCreateRequest.Messages = new MessagePaginationParamsRequest
-                {
-                    IdGt = lastMessage.Id,
-                    Limit = 50,
-                };
-            }
-
-            try
-            {
-                Debug.LogError("____FETCH CHANNEL MISSING STATE");
-                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, getOrCreateRequest);
-                Debug.LogError("_____RESTORE STATE GOT BACK MESSAGES: " + channelState.Messages?.Count);
-                ActiveChannel.Messages.AddRange(channelState.Messages);
-            }
-            catch (StreamApiException e)
-            {
-                e.LogStreamApiExceptionDetails(_unityLogger);
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
-        }
-
-        private bool _restoreStateAfterDisconnected;
-
         public void Dispose()
         {
             Client.Connected -= OnClientConnected;
@@ -282,6 +222,7 @@ namespace StreamChat.SampleProject
         private ChannelState _activeChannel;
 
         private Task _activeLoadPreviousMessagesTask;
+        private bool _restoreStateAfterReconnect;
 
         private async void OnClientConnected(OwnUser ownUser)
         {
@@ -372,5 +313,67 @@ namespace StreamChat.SampleProject
             }
         }
 
+        private void OnClientConnectionStateChanged(ConnectionState prev, ConnectionState current)
+        {
+            if (current == ConnectionState.Disconnected)
+            {
+                _restoreStateAfterReconnect = true;
+            }
+
+            if (current == ConnectionState.Connected && _restoreStateAfterReconnect)
+            {
+                _restoreStateAfterReconnect = false;
+                RestoreLostStateAsync().LogIfFailed();
+            }
+        }
+
+        private async Task RestoreLostStateAsync()
+        {
+            Debug.LogError("_____RESTORE STATE");
+
+            if (ActiveChannel == null)
+            {
+                Debug.LogError("____ACTIVE CHANNEL NULL");
+                return;
+            }
+
+            var lastMessage = ActiveChannel.Messages.LastOrDefault();
+
+            var getOrCreateRequest = new ChannelGetOrCreateRequest
+            {
+                State = true,
+                Watch = true,
+            };
+
+            if (lastMessage != null)
+            {
+                getOrCreateRequest.Messages = new MessagePaginationParamsRequest
+                {
+                    IdGt = lastMessage.Id,
+                    Limit = 50,
+                };
+            }
+
+            try
+            {
+                Debug.LogError("____FETCH CHANNEL MISSING STATE");
+                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, getOrCreateRequest);
+                Debug.LogError("_____RESTORE STATE GOT BACK MESSAGES: " + channelState.Messages?.Count);
+                ActiveChannel.Messages.AddRange(channelState.Messages);
+
+                foreach (var message in channelState.Messages)
+                {
+                    ActiveChanelMessageReceived?.Invoke(ActiveChannel, message);
+                }
+            }
+            catch (StreamApiException e)
+            {
+                e.LogStreamApiExceptionDetails(_unityLogger);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
     }
 }
