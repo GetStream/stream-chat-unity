@@ -8,8 +8,8 @@ namespace StreamChat.Core
     public enum ConnectionState
     {
         /// <summary>
-        /// StreamChatClient got Disconnected from the server.
-        /// If allowed by <see cref="IStreamChatClient.ReconnectStrategy"/> it will switch to WaitToReconnect and attempt to connect again after a timeout
+        /// StreamChatClient is Disconnected from the server.
+        /// If was Connected before and allowed by <see cref="IStreamChatClient.ReconnectStrategy"/> it will switch to WaitToReconnect and attempt to connect again after a timeout
         /// </summary>
         Disconnected,
 
