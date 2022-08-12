@@ -162,14 +162,14 @@ namespace StreamChat.Core
 
         public void Connect()
         {
-            _nextReconnectAt = default;
-
             SetUser(_authCredentials);
 
             if (!ConnectionState.IsValidToConnect())
             {
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
+
+            _nextReconnectAt = default;
 
             var connectionUri = _requestUriFactory.CreateConnectionUri();
 
