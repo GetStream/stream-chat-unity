@@ -68,9 +68,10 @@ namespace StreamChat.Core
             }
         }
 
-        public ReconnectStrategy ReconnectStrategy { get; set; }
-        public int ReconnectConstantInterval { get; private set; } = 3;
-        public int ReconnectExponentialMaxInterval { get; private set; } = 1024;
+        public ReconnectStrategy ReconnectStrategy { get; private set; }
+        public float ReconnectConstantInterval { get; private set; } = 3;
+        public float ReconnectExponentialMinInterval { get; private set; } = 1;
+        public float ReconnectExponentialMaxInterval { get; private set; } = 1024;
 
         public static readonly Version SDKVersion = new Version(3, 0, 0);
 
@@ -197,6 +198,46 @@ namespace StreamChat.Core
         public bool IsLocalUser(ChannelMember channelMember)
             => channelMember.User.Id == _authCredentials.UserId;
 
+        /// <summary>
+        /// Set parameters for StreamChatClient reconnect strategy
+        /// </summary>
+        /// <param name="reconnectStrategy">Defines how Client will react to Disconnected state</param>
+        /// <param name="exponentialMinInterval">Defines min reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
+        /// <param name="exponentialMaxInterval">Defines max reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
+        /// <param name="constantInterval">Defines reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Constant"/></param>
+        /// <exception cref="ArgumentException">throws exception if intervals are less than or equal to zero</exception>
+        public void SetReconnectStrategy(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
+            float? exponentialMaxInterval, float? constantInterval)
+        {
+            ReconnectStrategy = reconnectStrategy;
+
+            void ThrowIfLessOrEqualToZero(float value, string name)
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentException($"{name} needs to greater than zero, given: " + value);
+                }
+            }
+
+            if (exponentialMinInterval.HasValue)
+            {
+                ThrowIfLessOrEqualToZero(exponentialMinInterval.Value, nameof(exponentialMinInterval));
+                ReconnectExponentialMinInterval = exponentialMinInterval.Value;
+            }
+
+            if (exponentialMaxInterval.HasValue)
+            {
+                ThrowIfLessOrEqualToZero(exponentialMaxInterval.Value, nameof(exponentialMaxInterval));
+                ReconnectExponentialMaxInterval = exponentialMaxInterval.Value;
+            }
+
+            if (constantInterval.HasValue)
+            {
+                ThrowIfLessOrEqualToZero(constantInterval.Value, nameof(constantInterval));
+                ReconnectConstantInterval = constantInterval.Value;
+            }
+        }
+
         public void Dispose()
         {
             _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
@@ -318,7 +359,7 @@ namespace StreamChat.Core
                 case ReconnectStrategy.Exponential:
 
                     var baseInterval = Math.Pow(2, _reconnectAttempt);
-                    var interval = Math.Min(Math.Max(ReconnectConstantInterval, baseInterval),
+                    var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
                         ReconnectExponentialMaxInterval);
                     _nextReconnectAt = _timeService.Time + interval;
 

@@ -16,7 +16,6 @@ namespace StreamChat.Libs.Websockets
 
         Task ConnectAsync(Uri serverUri);
 
-
         void Update();
 
         void Send(string message);

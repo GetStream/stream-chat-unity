@@ -21,13 +21,16 @@ namespace StreamChat.Core
         event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
 
         ConnectionState ConnectionState { get; }
-        ReconnectStrategy ReconnectStrategy { get; set; }
+        ReconnectStrategy ReconnectStrategy { get; }
 
         IChannelApi ChannelApi { get; }
         IMessageApi MessageApi { get; }
         IModerationApi ModerationApi { get; }
         IUserApi UserApi { get; }
         OwnUser LocalUser { get; }
+        float ReconnectConstantInterval { get; }
+        float ReconnectExponentialMinInterval { get; }
+        float ReconnectExponentialMaxInterval { get; }
 
         void Update(float deltaTime);
 
@@ -40,5 +43,8 @@ namespace StreamChat.Core
         bool IsLocalUser(User user);
 
         bool IsLocalUser(ChannelMember channelMember);
+
+        void SetReconnectStrategy(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
+            float? exponentialMaxInterval, float? constantInterval);
     }
 }
