@@ -219,7 +219,7 @@ namespace StreamChat.Core
             if (_nextReconnectAt.HasValue)
             {
                 ConnectionState = ConnectionState.WaitToReconnect;
-                _logs.Info($"Reconnect scheduled at `{_nextReconnectAt.Value}`");
+                _logs.Info($"Reconnect scheduled at `{_nextReconnectAt.Value}`, current time: {_timeService.Time}");
             }
 
             return _nextReconnectAt.HasValue;
@@ -443,6 +443,7 @@ namespace StreamChat.Core
             var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
+                ConnectionState = ConnectionState.Disconnected;
                 if (TryScheduleReconnect())
                 {
                     _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
@@ -458,7 +459,6 @@ namespace StreamChat.Core
             };
 
             _websocketClient.Send(_serializer.Serialize(healthCheck));
-
             _lastHealthCheckSendTime = _timeService.Time;
         }
 
@@ -507,7 +507,7 @@ namespace StreamChat.Core
             {
                 if (!_updateCallReceived && ConnectionState != ConnectionState.Disconnected)
                 {
-                    _logs.Error($"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(StreamChatClient.Update)}` method per frame.");
+                    _logs.Error($"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(Update)}` method per frame.");
                 }
             });
         }
