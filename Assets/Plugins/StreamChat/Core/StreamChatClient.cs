@@ -450,11 +450,8 @@ namespace StreamChat.Core
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
                 ConnectionState = ConnectionState.Disconnected;
-                if (TryScheduleReconnect())
-                {
-                    _logs.Warning(
-                        $"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
-                }
+                _websocketClient.Disconnect();
+                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
             }
         }
 

@@ -12,8 +12,6 @@ namespace StreamChat.Libs.Websockets
         event Action Disconnected;
         event Action ConnectionFailed;
 
-        bool IsRunning { get; }
-
         bool TryDequeueMessage(out string message);
 
         Task ConnectAsync(Uri serverUri);
@@ -22,5 +20,7 @@ namespace StreamChat.Libs.Websockets
         void Update();
 
         void Send(string message);
+
+        void Disconnect();
     }
 }
