@@ -47,7 +47,7 @@ namespace StreamChat.SampleProject
 
         public IStreamChatClient Client { get; }
 
-        public ChatState(IStreamChatClient client, IViewFactory viewFactory, MonoBehaviour coroutineRunner)
+        public ChatState(IStreamChatClient client, IViewFactory viewFactory)
         {
             Client = client ?? throw new ArgumentNullException(nameof(client));
             _viewFactory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));
@@ -239,7 +239,6 @@ namespace StreamChat.SampleProject
 
         private async void OnClientConnected(OwnUser ownUser)
         {
-            Debug.LogError("CLIENT CONNECTED");
             await UpdateChannelsAsync();
 
             if (ActiveChannel == null && _channels.Count > 0)
@@ -344,11 +343,8 @@ namespace StreamChat.SampleProject
 
         private async Task RestoreLostStateAsync()
         {
-            Debug.LogError("_____RESTORE STATE");
-
             if (ActiveChannel == null)
             {
-                Debug.LogError("____ACTIVE CHANNEL NULL");
                 return;
             }
 
@@ -371,9 +367,7 @@ namespace StreamChat.SampleProject
 
             try
             {
-                Debug.LogError("____FETCH CHANNEL MISSING STATE");
                 var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, getOrCreateRequest);
-                Debug.LogError("_____RESTORE STATE GOT BACK MESSAGES: " + channelState.Messages?.Count);
                 ActiveChannel.Messages.AddRange(channelState.Messages);
 
                 foreach (var message in channelState.Messages)

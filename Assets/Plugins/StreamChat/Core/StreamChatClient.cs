@@ -62,8 +62,6 @@ namespace StreamChat.Core
                     return;
                 }
 
-                _logs.Error($"CONNECTION STATE: {_connectionState} => {value} THREAD ID: " +
-                            Thread.CurrentThread.ManagedThreadId);
                 var prev = _connectionState;
                 _connectionState = value;
                 ConnectionStateChanged?.Invoke(prev, _connectionState);
@@ -322,7 +320,6 @@ namespace StreamChat.Core
                     var baseInterval = Math.Pow(2, _reconnectAttempt);
                     var interval = Math.Min(Math.Max(ReconnectConstantInterval, baseInterval),
                         ReconnectExponentialMaxInterval);
-                    _logs.Error($"----ATTEMPT {_reconnectAttempt} CALCED INTERVAL " + interval);
                     _nextReconnectAt = _timeService.Time + interval;
 
                     break;
@@ -338,7 +335,7 @@ namespace StreamChat.Core
             if (_nextReconnectAt.HasValue)
             {
                 ConnectionState = ConnectionState.WaitToReconnect;
-                _logs.Info($"Reconnect scheduled at `{_nextReconnectAt.Value}`, current time: {_timeService.Time}");
+                _logs.Info($"Reconnect scheduled at `{_nextReconnectAt.Value:0.00}`, current time: {_timeService.Time:0.00}");
             }
 
             return _nextReconnectAt.HasValue;

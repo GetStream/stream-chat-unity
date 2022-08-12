@@ -20,7 +20,7 @@ namespace StreamChat.SampleProject
         public IAppConfig AppConfig { get; }
 
         public ChatViewContext(IStreamChatClient client, IImageLoader imageLoader, ViewFactory viewFactory,
-            IInputSystem inputSystem, IAppConfig appConfig, MonoBehaviour coroutineRunner)
+            IInputSystem inputSystem, IAppConfig appConfig)
         {
             Client = client ?? throw new ArgumentNullException(nameof(client));
             ImageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
@@ -28,7 +28,7 @@ namespace StreamChat.SampleProject
             InputSystem = inputSystem ?? throw new ArgumentNullException(nameof(inputSystem));
             AppConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
 
-            State = new ChatState(client, Factory, coroutineRunner);
+            State = new ChatState(client, Factory);
         }
     }
 }
