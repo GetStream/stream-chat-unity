@@ -46,6 +46,7 @@ namespace StreamChat.Tests.Integration
                 guestAuthCredentials = testAuthDataSet.TestGuestData;
                 userAuthCredentials = testAuthDataSet.TestUserData;
                 adminAuthCredentials = testAuthDataSet.GetRandomAdminData();
+                OtherUserId = testAuthDataSet.GetOtherThan(adminAuthCredentials).UserId;
             }
             else if (File.Exists(TestAuthDataFilePath))
             {
@@ -62,6 +63,7 @@ namespace StreamChat.Tests.Integration
                 guestAuthCredentials = testAuthDataSet.TestGuestData;
                 userAuthCredentials = testAuthDataSet.TestUserData;
                 adminAuthCredentials = testAuthDataSet.GetRandomAdminData();
+                OtherUserId = testAuthDataSet.GetOtherThan(adminAuthCredentials).UserId;
             }
             else
             {
@@ -83,6 +85,8 @@ namespace StreamChat.Tests.Integration
                     apiKey: ApiKey,
                     userId: TestAdminId,
                     userToken: "");
+
+                OtherUserId = "";
             }
 
             Client = StreamChatClient.CreateDefaultClient(adminAuthCredentials);
@@ -105,6 +109,11 @@ namespace StreamChat.Tests.Integration
         protected const string TestGuestId = "integration-tests-role-guest";
 
         protected IStreamChatClient Client { get; private set; }
+
+        /// <summary>
+        /// Id of other user than currently logged one
+        /// </summary>
+        protected string OtherUserId { get; private set; }
 
         /// <summary>
         ///  Create temp channel with random id that will be removed in [TearDown]

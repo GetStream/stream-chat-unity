@@ -42,9 +42,13 @@ namespace StreamChat.Core
         public event Action<EventMessageUpdated> MessageUpdated;
         public event Action<EventMessageDeleted> MessageDeleted;
 
+        public event Action<EventMessageRead> MessageRead;
+
         public event Action<EventReactionNew> ReactionReceived;
         public event Action<EventReactionUpdated> ReactionUpdated;
         public event Action<EventReactionDeleted> ReactionDeleted;
+
+        public event Action<EventNotificationMarkRead> NotificationMarkRead;
 
         public IChannelApi ChannelApi { get; }
         public IMessageApi MessageApi { get; }
@@ -260,6 +264,11 @@ namespace StreamChat.Core
                 e => ReactionUpdated?.Invoke(e));
             RegisterEventType<EventReactionDeletedDTO, EventReactionDeleted>(EventType.ReactionDeleted,
                 e => ReactionDeleted?.Invoke(e));
+
+            RegisterEventType<EventMessageReadDTO, EventMessageRead>(EventType.MessageRead,
+                e => MessageRead?.Invoke(e));
+            RegisterEventType<EventNotificationMarkReadDTO, EventNotificationMarkRead>(EventType.NotificationMarkRead,
+                e => NotificationMarkRead?.Invoke(e));
         }
 
         private void Reconnect()
