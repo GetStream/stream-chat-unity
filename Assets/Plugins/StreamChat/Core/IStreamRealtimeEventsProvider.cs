@@ -15,7 +15,7 @@ namespace StreamChat.Core
         event Action<string> EventReceived;
 
         /// <summary>
-        /// Event raised when a new message has been received to a watched channel.
+        /// Event raised when a new message has been sent to a watched channel.
         ///
         /// Use <see cref="EventMessageNew.Cid"/> to know which channel it belongs to.
         /// </summary>
@@ -77,5 +77,14 @@ namespace StreamChat.Core
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventNotificationMarkRead> NotificationMarkRead;
+
+        /// <summary>
+        /// Notification Event raised when a new message is sent to channel the user is member of.
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationMessageNew.Cid"/> & <see cref="EventNotificationMessageNew.Message"/> to know which channel & message it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationMessageNew> NotificationMessageReceived;
     }
 }

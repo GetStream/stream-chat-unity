@@ -15,7 +15,6 @@ using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
-using StreamChat.Core;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
@@ -49,6 +48,7 @@ namespace StreamChat.Core
         public event Action<EventReactionDeleted> ReactionDeleted;
 
         public event Action<EventNotificationMarkRead> NotificationMarkRead;
+        public event Action<EventNotificationMessageNew> NotificationMessageReceived;
 
         public IChannelApi ChannelApi { get; }
         public IMessageApi MessageApi { get; }
@@ -269,6 +269,8 @@ namespace StreamChat.Core
                 e => MessageRead?.Invoke(e));
             RegisterEventType<EventNotificationMarkReadDTO, EventNotificationMarkRead>(EventType.NotificationMarkRead,
                 e => NotificationMarkRead?.Invoke(e));
+            RegisterEventType<EventNotificationMessageNewDTO, EventNotificationMessageNew>(EventType.NotificationMessageNew,
+                e => NotificationMessageReceived?.Invoke(e));
         }
 
         private void Reconnect()
@@ -355,14 +357,12 @@ namespace StreamChat.Core
             }
 
             var timeSinceLastHealthCheckSent = _timeService.Time - _lastHealthCheckSendTime;
-
             if (timeSinceLastHealthCheckSent > HealthCheckSendInterval)
             {
                 PingHealthCheck();
             }
 
             var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
-
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
                 _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
