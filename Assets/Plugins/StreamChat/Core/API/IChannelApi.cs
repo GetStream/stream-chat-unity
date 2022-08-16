@@ -124,10 +124,18 @@ namespace StreamChat.Core.API
             ChannelStopWatchingRequest channelStopWatchingRequest);
 
         /// <summary>
-        /// Mark channels as read. Pass a map of CID to a message ID that is considered last read by client.
+        /// Marks channel as read up to the specific message
+        /// If message ID is empty, the whole channel will be considered as read
+        /// </summary>
+        /// <returns></returns>
+        Task<MarkReadResponse> MarkReadAsync(string channelType, string channelId,
+            MarkReadRequest markReadRequest);
+
+        /// <summary>
+        /// Mark multiple channels as read. Pass a map of CID to a message ID that is considered last read by client.
         /// If message ID is empty, the whole channel will be considered as read
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/unread_channel/?language=unity</remarks>
-        Task<MarkReadResponse> MarkReadAsync(MarkChannelsReadRequest markChannelsReadRequest);
+        Task<MarkReadResponse> MarkManyReadAsync(MarkChannelsReadRequest markChannelsReadRequest);
     }
 }

@@ -8,6 +8,7 @@ using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.Core.Responses;
 using StreamChat.EditorTools;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
@@ -28,69 +29,7 @@ namespace StreamChat.Tests.Integration
         {
             Debug.Log("------------ Up");
 
-            AuthCredentials guestAuthCredentials, userAuthCredentials, adminAuthCredentials = default;
-
-            const string TestAuthDataFilePath = "test_auth_data_xSpgxW.txt";
-
-            if (Application.isBatchMode)
-            {
-                Debug.Log("Batch mode, expecting data injected through CLI args");
-
-                var parser = new CommandLineParser();
-                var argsDict = parser.GetParsedCommandLineArguments();
-
-                var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
-
-                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
-
-                guestAuthCredentials = testAuthDataSet.TestGuestData;
-                userAuthCredentials = testAuthDataSet.TestUserData;
-                adminAuthCredentials = testAuthDataSet.GetRandomAdminData();
-                OtherUserId = testAuthDataSet.GetOtherThan(adminAuthCredentials).UserId;
-            }
-            else if (File.Exists(TestAuthDataFilePath))
-            {
-                var serializer = new NewtonsoftJsonSerializer();
-
-                var base64TestData = File.ReadAllText(TestAuthDataFilePath);
-                var decodedJsonTestData = Convert.FromBase64String(base64TestData);
-
-                var testAuthDataSet =
-                    serializer.Deserialize<TestAuthDataSet>(Encoding.UTF8.GetString(decodedJsonTestData));
-
-                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
-
-                guestAuthCredentials = testAuthDataSet.TestGuestData;
-                userAuthCredentials = testAuthDataSet.TestUserData;
-                adminAuthCredentials = testAuthDataSet.GetRandomAdminData();
-                OtherUserId = testAuthDataSet.GetOtherThan(adminAuthCredentials).UserId;
-            }
-            else
-            {
-                //Define manually
-
-                const string ApiKey = "";
-
-                guestAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestGuestId,
-                    userToken: "");
-
-                userAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestUserId,
-                    userToken: "");
-
-                adminAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestAdminId,
-                    userToken: "");
-
-                OtherUserId = "";
-            }
-
-            Client = StreamChatClient.CreateDefaultClient(adminAuthCredentials);
-            Client.Connect();
+            InitClientAndConnect();
         }
 
         [OneTimeTearDown]
@@ -148,6 +87,27 @@ namespace StreamChat.Tests.Integration
             }
         }
 
+        protected IEnumerator SendTestMessages(ChannelState channelState, int count,
+            Action<(int Index, MessageResponse MessageResponse)> onMessageSent, string messagePrefix = "")
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var sendMessageTask = Client.MessageApi.SendNewMessageAsync(channelState.Channel.Type,
+                    channelState.Channel.Id, new SendMessageRequest
+                    {
+                        Message = new MessageRequest
+                        {
+                            Text = messagePrefix + " #" + i
+                        }
+                    });
+
+                yield return sendMessageTask.RunAsIEnumerator(messageResponse =>
+                {
+                    onMessageSent?.Invoke((i, messageResponse));
+                });
+            }
+        }
+
         private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =
             new List<(string ChannelType, string ChannelId)>();
 
@@ -174,6 +134,94 @@ namespace StreamChat.Tests.Integration
                 Cids = cids,
                 HardDelete = true
             }).LogIfFailed(unityLogs);
+        }
+
+        private void InitClientAndConnect(string forcedAdminId = null)
+        {
+            GetTestAuthCredentials(out var guestAuthCredentials, out var userAuthCredentials,
+                out var adminAuthCredentials, out var otherUserAuthCredentials, forcedAdminId);
+
+            OtherUserId = otherUserAuthCredentials.UserId;
+
+            Client = StreamChatClient.CreateDefaultClient(adminAuthCredentials);
+            Client.Connect();
+        }
+
+        protected IEnumerator ReconnectClient()
+        {
+            var userId = Client.UserId;
+            Client.Dispose();
+            InitClientAndConnect(userId);
+
+            yield return Client.WaitForClientToConnect();
+        }
+
+        private static void GetTestAuthCredentials(out AuthCredentials guestAuthCredentials,
+            out AuthCredentials userAuthCredentials, out AuthCredentials adminAuthCredentials,
+            out AuthCredentials otherUserAuthCredentials, string forcedAdminId = null)
+        {
+            const string TestAuthDataFilePath = "test_auth_data_xSpgxW.txt";
+
+            if (Application.isBatchMode)
+            {
+                Debug.Log("Batch mode, expecting data injected through CLI args");
+
+                var parser = new CommandLineParser();
+                var argsDict = parser.GetParsedCommandLineArguments();
+
+                var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
+
+                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
+
+                guestAuthCredentials = testAuthDataSet.TestGuestData;
+                userAuthCredentials = testAuthDataSet.TestUserData;
+                adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
+                otherUserAuthCredentials = testAuthDataSet.GetOtherThan(adminAuthCredentials);
+            }
+            else if (File.Exists(TestAuthDataFilePath))
+            {
+                var serializer = new NewtonsoftJsonSerializer();
+
+                var base64TestData = File.ReadAllText(TestAuthDataFilePath);
+                var decodedJsonTestData = Convert.FromBase64String(base64TestData);
+
+                var testAuthDataSet =
+                    serializer.Deserialize<TestAuthDataSet>(Encoding.UTF8.GetString(decodedJsonTestData));
+
+                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
+
+                guestAuthCredentials = testAuthDataSet.TestGuestData;
+                userAuthCredentials = testAuthDataSet.TestUserData;
+                adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
+                otherUserAuthCredentials = testAuthDataSet.GetOtherThan(adminAuthCredentials);
+            }
+            else
+            {
+                //Define manually
+
+                const string ApiKey = "";
+
+                guestAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestGuestId,
+                    userToken: "");
+
+                userAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestUserId,
+                    userToken: "");
+
+                adminAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: TestAdminId,
+                    userToken: "");
+
+                otherUserAuthCredentials = new AuthCredentials(
+                    apiKey: ApiKey,
+                    userId: "",
+                    userToken: "");
+                ;
+            }
         }
     }
 }

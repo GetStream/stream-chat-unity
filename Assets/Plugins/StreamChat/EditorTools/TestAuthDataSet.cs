@@ -12,14 +12,20 @@ namespace StreamChat.EditorTools
         public AuthCredentials TestUserData { get; set; }
         public AuthCredentials TestGuestData { get; set; }
 
-        public TestAuthDataSet(IEnumerable<AuthCredentials> testAdminData, AuthCredentials testUserData, AuthCredentials testGuestData)
+        public TestAuthDataSet(IEnumerable<AuthCredentials> testAdminData, AuthCredentials testUserData,
+            AuthCredentials testGuestData)
         {
             TestAdminData = testAdminData.ToArray();
             TestUserData = testUserData;
             TestGuestData = testGuestData;
         }
 
-        public AuthCredentials GetRandomAdminData() => TestAdminData[Random.Range(0, TestAdminData.Length)];
+        public AuthCredentials GetAdminData(string forcedAdminId = null)
+        {
+            return forcedAdminId != null
+                ? TestAdminData.First(_ => _.UserId == forcedAdminId)
+                : TestAdminData[Random.Range(0, TestAdminData.Length)];
+        }
 
         public AuthCredentials GetOtherThan(AuthCredentials authCredentials)
         {

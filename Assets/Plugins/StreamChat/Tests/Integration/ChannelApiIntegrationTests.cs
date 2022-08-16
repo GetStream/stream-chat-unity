@@ -7,7 +7,6 @@ using NUnit.Framework;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
-using StreamChat.Core.Responses;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration
@@ -75,11 +74,11 @@ namespace StreamChat.Tests.Integration
                     {
                         new ChannelMemberRequest
                         {
-                            UserId = TestUserId
+                            UserId = Client.UserId
                         },
                         new ChannelMemberRequest
                         {
-                            UserId = TestAdminId
+                            UserId = OtherUserId
                         },
                     }
                 }
@@ -467,76 +466,28 @@ namespace StreamChat.Tests.Integration
             });
         }
 
-        /// <summary>
-        /// 1. Create 3 channels with 3 messages
-        /// 2. Mark first, second and third message as read for each channel respectively
-        /// 3. query channels and validate 2, 1, 0 unread messages respectively
-        /// </summary>
         [UnityTest]
-        public IEnumerator Mark_read()
+        public IEnumerator Mark_single_read_with_specified_message_id()
         {
-            IEnumerator SendTestMessages(ChannelState channelState,
-                Action<(int Index, MessageResponse MessageResponse)> onMessageSent)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    var sendMessageTask = Client.MessageApi.SendNewMessageAsync(channelState.Channel.Type,
-                        channelState.Channel.Id, new SendMessageRequest
-                        {
-                            Message = new MessageRequest
-                            {
-                                Text = nameof(channelState) + " #" + i
-                            }
-                        });
-
-                    yield return sendMessageTask.RunAsIEnumerator(messageResponse =>
-                    {
-                        onMessageSent?.Invoke((i, messageResponse));
-                    });
-                }
-            }
-
             yield return Client.WaitForClientToConnect();
 
             var channelType = "messaging";
 
             ChannelState channelState1 = null;
-            ChannelState channelState2 = null;
-            ChannelState channelState3 = null;
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
                 state => channelState1 = state);
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState2 = state);
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState3 = state);
 
-            //first is read -> 2 unread
-            var channelState1FirstMessageId = string.Empty;
-            yield return SendTestMessages(channelState1, response =>
-            {
-                if (response.Index == 0)
-                {
-                    channelState1FirstMessageId = response.MessageResponse.Message.Id;
-                }
-            });
             //second is read -> 1 unread
-            var channelState2SecondMessageId = string.Empty;
-            yield return SendTestMessages(channelState2, response =>
+            var channelState1SecondMessageId = string.Empty;
+            yield return SendTestMessages(channelState1, count: 3, response =>
             {
                 if (response.Index == 1)
                 {
-                    channelState2SecondMessageId = response.MessageResponse.Message.Id;
+                    channelState1SecondMessageId = response.MessageResponse.Message.Id;
                 }
             });
-            //third is read -> 0 unread
-            var channelState3ThirdMessageId = string.Empty;
-            yield return SendTestMessages(channelState3, response =>
-            {
-                if (response.Index == 2)
-                {
-                    channelState3ThirdMessageId = response.MessageResponse.Message.Id;
-                }
-            });
+
+            //Join channel as members
 
             var updateRequestBody = new UpdateChannelRequest
             {
@@ -553,7 +504,247 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
+            var updateChannelTask =
+                Client.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
+            yield return updateChannelTask.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(channelType, response.Channel.Type);
+                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
+            });
+
+            var markReadTask = Client.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
+                new MarkReadRequest
+                {
+                    MessageId = channelState1SecondMessageId
+                });
+
+            yield return markReadTask.RunAsIEnumerator(response => { });
+
+            //Query channels to confirm the read state
+
+            var queryChannelsTask = Client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
+            {
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "cid", new Dictionary<string, object>
+                        {
+                            {
+                                "$in",
+                                new[]
+                                {
+                                    channelState1.Channel.Cid
+                                }
+                            }
+                        }
+                    }
+                },
+            });
+
+            yield return queryChannelsTask.RunAsIEnumerator(channelsResponse =>
+            {
+                Assert.AreEqual(channelsResponse.Channels.Count, 1);
+
+                channelState1 =
+                    channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState1.Channel.Cid);
+
+                Assert.NotNull(channelState1);
+
+                var localUserChannelState1ReadState =
+                    channelState1.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
+
+                Assert.NotNull(localUserChannelState1ReadState);
+
+                //Assert channel unread counts
+                Assert.AreEqual(localUserChannelState1ReadState.UnreadMessages, 1);
+            });
+        }
+
+        [UnityTest]
+        public IEnumerator Mark_single_read_without_message_id()
+        {
+            yield return Client.WaitForClientToConnect();
+
+            var channelType = "messaging";
+
+            ChannelState channelState1 = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState1 = state);
+
+            //second is read -> 1 unread
+            var channelState1SecondMessageId = string.Empty;
+            yield return SendTestMessages(channelState1, count: 3, response =>
+            {
+                if (response.Index == 1)
+                {
+                    channelState1SecondMessageId = response.MessageResponse.Message.Id;
+                }
+            });
+
+            //Join channel as members
+
+            var updateRequestBody = new UpdateChannelRequest
+            {
+                AddMembers = new List<ChannelMemberRequest>
+                {
+                    new ChannelMemberRequest
+                    {
+                        UserId = OtherUserId
+                    },
+                    new ChannelMemberRequest
+                    {
+                        UserId = Client.UserId
+                    }
+                }
+            };
+
+            var updateChannelTask =
+                Client.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
+            yield return updateChannelTask.RunAsIEnumerator(response =>
+            {
+                Assert.AreEqual(channelType, response.Channel.Type);
+                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
+            });
+
+            var markReadTask = Client.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
+                new MarkReadRequest
+                {
+                    MessageId = channelState1SecondMessageId
+                });
+
+            yield return markReadTask.RunAsIEnumerator(response => { });
+
+            //Query channels to confirm the read state
+
+            var queryChannelsRequest = new QueryChannelsRequest
+            {
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "cid", new Dictionary<string, object>
+                        {
+                            {
+                                "$in",
+                                new[]
+                                {
+                                    channelState1.Channel.Cid
+                                }
+                            }
+                        }
+                    }
+                },
+            };
+
+            var queryChannelsTask = Client.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
+
+            // Expect 1 message unread
+
+            yield return queryChannelsTask.RunAsIEnumerator(channelsResponse =>
+            {
+                Assert.AreEqual(channelsResponse.Channels.Count, 1);
+
+                channelState1 =
+                    channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState1.Channel.Cid);
+
+                Assert.NotNull(channelState1);
+
+                var localUserChannelState1ReadState =
+                    channelState1.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
+
+                Assert.NotNull(localUserChannelState1ReadState);
+
+                //Assert channel unread counts
+                Assert.AreEqual(localUserChannelState1ReadState.UnreadMessages, 1);
+            });
+
+            // Update again with message ID not specified - expect whole channel marked as read == 0 unread
+
+            var markReadTask2 = Client.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
+                new MarkReadRequest());
+
+            yield return markReadTask2.RunAsIEnumerator(response => { });
+
+            // Query channels again - expect 0 unread
+
+            var queryChannelsTask2 = Client.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
+
+            yield return queryChannelsTask2.RunAsIEnumerator(channelsResponse =>
+            {
+                Assert.AreEqual(channelsResponse.Channels.Count, 1);
+
+                channelState1 =
+                    channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState1.Channel.Cid);
+
+                Assert.NotNull(channelState1);
+
+                var localUserChannelState1ReadState =
+                    channelState1.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
+
+                Assert.NotNull(localUserChannelState1ReadState);
+
+                //Assert channel unread counts
+                Assert.AreEqual(localUserChannelState1ReadState.UnreadMessages, 0);
+            });
+        }
+
+        /// <summary>
+        /// 1. Create 3 channels with 3 messages
+        /// 2. Mark first, second and third message as read for each channel respectively
+        /// 3. query channels and validate 2, 1, 0 unread messages respectively
+        /// </summary>
+        [UnityTest]
+        public IEnumerator Mark_many_read_with_specified_message_id()
+        {
+            yield return Client.WaitForClientToConnect();
+
+            var channelType = "messaging";
+
+            // Create channels
+
+            ChannelState channelState1 = null;
+            ChannelState channelState2 = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState1 = state);
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState2 = state);
+
+            //Send messages & pick the last read
+
+            //first is read -> 2 unread
+            var channelState1FirstMessageId = string.Empty;
+            yield return SendTestMessages(channelState1, count: 3, response =>
+            {
+                if (response.Index == 0)
+                {
+                    channelState1FirstMessageId = response.MessageResponse.Message.Id;
+                }
+            });
+            //second is read -> 1 unread
+            var channelState2SecondMessageId = string.Empty;
+            yield return SendTestMessages(channelState2, count: 3, response =>
+            {
+                if (response.Index == 1)
+                {
+                    channelState2SecondMessageId = response.MessageResponse.Message.Id;
+                }
+            });
+
             //Join channels as members
+
+            var updateRequestBody = new UpdateChannelRequest
+            {
+                AddMembers = new List<ChannelMemberRequest>
+                {
+                    new ChannelMemberRequest
+                    {
+                        UserId = OtherUserId
+                    },
+                    new ChannelMemberRequest
+                    {
+                        UserId = Client.UserId
+                    }
+                }
+            };
 
             var updateChannelTask =
                 Client.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
@@ -565,15 +756,7 @@ namespace StreamChat.Tests.Integration
 
             var updateChannelTask2 =
                 Client.ChannelApi.UpdateChannelAsync(channelType, channelState2.Channel.Id, updateRequestBody);
-            yield return updateChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
-            });
-
-            var updateChannelTask3 =
-                Client.ChannelApi.UpdateChannelAsync(channelType, channelState3.Channel.Id, updateRequestBody);
-            yield return updateChannelTask.RunAsIEnumerator(response =>
+            yield return updateChannelTask2.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
                 Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
@@ -581,13 +764,12 @@ namespace StreamChat.Tests.Integration
 
             //Send mark read state
 
-            var markReadRequestTask = Client.ChannelApi.MarkReadAsync(new MarkChannelsReadRequest
+            var markReadRequestTask = Client.ChannelApi.MarkManyReadAsync(new MarkChannelsReadRequest
             {
                 ReadByChannel = new Dictionary<string, string>
                 {
                     { channelState1.Channel.Cid, channelState1FirstMessageId },
                     { channelState2.Channel.Cid, channelState2SecondMessageId },
-                    { channelState3.Channel.Cid, channelState3ThirdMessageId },
                 }
             });
 
@@ -595,7 +777,7 @@ namespace StreamChat.Tests.Integration
 
             //Query channels to confirm the read state
 
-            var queryChannelsTask = Client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest()
+            var queryChannelsTask = Client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -606,7 +788,7 @@ namespace StreamChat.Tests.Integration
                                 "$in",
                                 new[]
                                 {
-                                    channelState1.Channel.Cid, channelState2.Channel.Cid, channelState3.Channel.Cid
+                                    channelState1.Channel.Cid, channelState2.Channel.Cid
                                 }
                             }
                         }
@@ -614,34 +796,38 @@ namespace StreamChat.Tests.Integration
                 },
             });
 
+            // Expect specific unread counts
+
             yield return queryChannelsTask.RunAsIEnumerator(channelsResponse =>
             {
-                Assert.AreEqual(channelsResponse.Channels.Count, 3);
+                Assert.AreEqual(channelsResponse.Channels.Count, 2);
 
-                channelState1 = channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState1.Channel.Cid);
-                channelState2 = channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState2.Channel.Cid);
-                channelState3 = channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState3.Channel.Cid);
+                channelState1 =
+                    channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState1.Channel.Cid);
+                channelState2 =
+                    channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState2.Channel.Cid);
 
                 Assert.NotNull(channelState1);
                 Assert.NotNull(channelState2);
-                Assert.NotNull(channelState3);
 
                 var localUserChannelState1ReadState =
                     channelState1.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
                 var localUserChannelState2ReadState =
                     channelState2.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
-                var localUserChannelState3ReadState =
-                    channelState3.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
 
                 Assert.NotNull(localUserChannelState1ReadState);
                 Assert.NotNull(localUserChannelState2ReadState);
-                Assert.NotNull(localUserChannelState3ReadState);
 
                 //Assert channel unread counts
                 Assert.AreEqual(localUserChannelState1ReadState.UnreadMessages, 2);
                 Assert.AreEqual(localUserChannelState2ReadState.UnreadMessages, 1);
-                Assert.AreEqual(localUserChannelState3ReadState.UnreadMessages, 0);
             });
+
+            yield return ReconnectClient();
+
+            //Should use Assert.AreEqual but there seems to be some delay with updating the values
+            Assert.GreaterOrEqual(Client.LocalUser.UnreadChannels, 2);
+            Assert.GreaterOrEqual(Client.LocalUser.TotalUnreadCount, 3);
         }
     }
 }
