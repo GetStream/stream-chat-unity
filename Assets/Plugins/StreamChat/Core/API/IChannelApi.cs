@@ -33,7 +33,8 @@ namespace StreamChat.Core.API
         /// Create or return a channel with a given type and id
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity#1.-creating-a-channel-using-a-channel-id</remarks>
-        Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId, ChannelGetOrCreateRequest getOrCreateRequest);
+        Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId,
+            ChannelGetOrCreateRequest getOrCreateRequest);
 
         /// <summary>
         /// <para>Updates a channel.</para>
@@ -42,13 +43,15 @@ namespace StreamChat.Core.API
         /// the <see cref="UpdateChannelPartialAsync"/> method instead.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_update/?language=unity</remarks>
-        Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId, UpdateChannelRequest updateChannelRequest);
+        Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId,
+            UpdateChannelRequest updateChannelRequest);
 
         /// <summary>
         /// Can be used to set and unset specific fields when it is necessary to retain additional custom data fields on the object.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_update/?language=unity</remarks>
-        Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId, UpdateChannelPartialRequest updateChannelPartialRequest);
+        Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId,
+            UpdateChannelPartialRequest updateChannelPartialRequest);
 
         /// <summary>
         /// <para>Deletes multiple channels.</para>
@@ -68,7 +71,8 @@ namespace StreamChat.Core.API
         /// If you want to delete both channel and message data then use <see cref="DeleteAsync"/> method instead.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/truncate_channel/?language=unity</remarks>
-        Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId, TruncateChannelRequest truncateChannelRequest);
+        Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId,
+            TruncateChannelRequest truncateChannelRequest);
 
         /// <summary>
         /// <para>Mutes a channel.</para>
@@ -91,14 +95,16 @@ namespace StreamChat.Core.API
         /// Use <see cref="HideChannelAsync"/> to hide a channel.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity</remarks>
-        Task<ShowChannelResponse> ShowChannelAsync(string channelType, string channelId, ShowChannelRequest showChannelRequest);
+        Task<ShowChannelResponse> ShowChannelAsync(string channelType, string channelId,
+            ShowChannelRequest showChannelRequest);
 
         /// <summary>
         /// <para>Removes a channel from query channel requests for that user until a new message is added.</para>
         /// Use <see cref="ShowChannelAsync"/> to cancel this operation.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity</remarks>
-        Task<HideChannelResponse> HideChannelAsync(string channelType, string channelId, HideChannelRequest hideChannelRequest);
+        Task<HideChannelResponse> HideChannelAsync(string channelType, string channelId,
+            HideChannelRequest hideChannelRequest);
 
         /// <summary>
         /// <para>Queries members of a channel.</para>
@@ -116,5 +122,20 @@ namespace StreamChat.Core.API
         /// <remarks>https://getstream.io/chat/docs/unity/watch_channel/?language=unity#stop-watching-a-channel</remarks>
         Task<StopWatchingResponse> StopWatchingChannelAsync(string channelType, string channelId,
             ChannelStopWatchingRequest channelStopWatchingRequest);
+
+        /// <summary>
+        /// Marks channel as read up to the specific message
+        /// If message ID is empty, the whole channel will be considered as read
+        /// </summary>
+        /// <returns></returns>
+        Task<MarkReadResponse> MarkReadAsync(string channelType, string channelId,
+            MarkReadRequest markReadRequest);
+
+        /// <summary>
+        /// Mark multiple channels as read. Pass a map of CID to a message ID that is considered last read by client.
+        /// If message ID is empty, the whole channel will be considered as read
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/unread_channel/?language=unity</remarks>
+        Task<MarkReadResponse> MarkManyReadAsync(MarkChannelsReadRequest markChannelsReadRequest);
     }
 }

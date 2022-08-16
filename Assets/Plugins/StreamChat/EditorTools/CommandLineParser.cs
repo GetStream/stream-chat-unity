@@ -56,7 +56,7 @@ namespace StreamChat.EditorTools
             var testAuthDataSet = ParseTestAuthDataSetArg(args);
 
             return (new BuildSettings(buildTargetGroup, apiCompatibilityLevel, scriptingImplementation, targetPath),
-                testAuthDataSet.GetRandomAdminData());
+                testAuthDataSet.GetAdminData());
         }
 
         public TestAuthDataSet ParseTestAuthDataSetArg(IDictionary<string, string> args)

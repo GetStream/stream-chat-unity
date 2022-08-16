@@ -20,7 +20,7 @@ namespace StreamChat.Core.DTO.Models
         public System.DateTimeOffset? LastRead { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? UnreadMessages { get; set; }
+        public int? UnreadMessages { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectDTO User { get; set; }

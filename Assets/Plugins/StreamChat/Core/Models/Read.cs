@@ -7,7 +7,7 @@ namespace StreamChat.Core.Models
     {
         public System.DateTimeOffset? LastRead { get; set; }
 
-        public double? UnreadMessages { get; set; }
+        public int? UnreadMessages { get; set; }
 
         public User User { get; set; }
 

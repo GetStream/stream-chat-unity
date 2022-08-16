@@ -15,7 +15,7 @@ namespace StreamChat.Core
         event Action<string> EventReceived;
 
         /// <summary>
-        /// Event raised when a new message has been received to a watched channel.
+        /// Event raised when a new message has been sent to a watched channel.
         ///
         /// Use <see cref="EventMessageNew.Cid"/> to know which channel it belongs to.
         /// </summary>
@@ -37,6 +37,14 @@ namespace StreamChat.Core
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventMessageDeleted> MessageDeleted;
+
+        /// <summary>
+        /// Event raised when a when a watched channel is marked as read.
+        ///
+        /// Use <see cref="EventMessageRead.Cid"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventMessageRead> MessageRead;
 
         /// <summary>
         /// Event raised when a reaction has been added to the message of a watched channel.
@@ -61,5 +69,22 @@ namespace StreamChat.Core
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventReactionDeleted> ReactionDeleted;
+
+        /// <summary>
+        /// Notification Event raised when the total count of unread messages (across all channels the user is a member) changes.
+        ///
+        /// Use <see cref="EventNotificationMarkRead.Cid"/> & <see cref="EventNotificationMarkRead.Channel"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationMarkRead> NotificationMarkRead;
+
+        /// <summary>
+        /// Notification Event raised when a new message is sent to channel the user is member of.
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationMessageNew.Cid"/> & <see cref="EventNotificationMessageNew.Message"/> to know which channel & message it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationMessageNew> NotificationMessageReceived;
     }
 }
