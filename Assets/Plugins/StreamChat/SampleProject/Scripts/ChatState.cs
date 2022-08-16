@@ -57,9 +57,12 @@ namespace StreamChat.SampleProject
             Client.MessageReceived += OnMessageReceived;
             Client.MessageDeleted += OnMessageDeleted;
             Client.MessageUpdated += OnMessageUpdated;
+            Client.MessageRead += OnMessageRead;
             Client.ReactionReceived += OnReactionReceived;
             Client.ReactionUpdated += OnReactionUpdated;
             Client.ReactionDeleted += OnReactionDeleted;
+
+            Client.NotificationMarkRead += OnNotificationMarkRead;
         }
 
         public void Dispose()
@@ -69,9 +72,12 @@ namespace StreamChat.SampleProject
             Client.MessageReceived -= OnMessageReceived;
             Client.MessageDeleted -= OnMessageDeleted;
             Client.MessageUpdated -= OnMessageUpdated;
+            Client.MessageRead -= OnMessageRead;
             Client.ReactionReceived -= OnReactionReceived;
             Client.ReactionUpdated -= OnReactionUpdated;
             Client.ReactionDeleted -= OnReactionDeleted;
+
+            Client.NotificationMarkRead -= OnNotificationMarkRead;
 
             Client.Dispose();
         }
@@ -101,6 +107,21 @@ namespace StreamChat.SampleProject
         public void OpenChannel(ChannelState channel) => ActiveChannel = channel;
 
         public void EditMessage(Message message) => MessageEditRequested?.Invoke(message);
+
+        public void MarkMessageAsLastRead(Message message)
+        {
+            var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == message.Cid);
+            if (channel == null)
+            {
+                Debug.LogError("Failed to find channel with CID: " + message.Cid);
+                return;
+            }
+
+            Client.ChannelApi.MarkReadAsync(channel.Channel.Type, channel.Channel.Id, new MarkReadRequest()
+            {
+                MessageId = message.Id
+            }).LogStreamExceptionIfFailed();
+        }
 
         public async Task UpdateChannelsAsync()
         {
@@ -190,15 +211,16 @@ namespace StreamChat.SampleProject
 
             try
             {
-                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, new ChannelGetOrCreateRequest
-                {
-                    State = true,
-                    Messages = new MessagePaginationParamsRequest
+                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type,
+                    ActiveChannel.Channel.Id, new ChannelGetOrCreateRequest
                     {
-                        IdLt = firstMessage.Id,
-                        Limit = 50,
-                    },
-                });
+                        State = true,
+                        Messages = new MessagePaginationParamsRequest
+                        {
+                            IdLt = firstMessage.Id,
+                            Limit = 50,
+                        },
+                    });
 
                 if (channelState.Messages == null || channelState.Messages.Count == 0)
                 {
@@ -291,6 +313,13 @@ namespace StreamChat.SampleProject
 
         private void OnReactionUpdated(EventReactionUpdated eventReactionUpdated) =>
             UpdateChannelMessage(eventReactionUpdated.Message);
+
+        private void OnNotificationMarkRead(EventNotificationMarkRead eventNotificationMarkRead) =>
+            Debug.Log($"Notified mark read for channel: {eventNotificationMarkRead.Cid}, " +
+                      $"TotalUnreadCount: {eventNotificationMarkRead.TotalUnreadCount}, UnreadChannels: {eventNotificationMarkRead.UnreadChannels}");
+
+        private void OnMessageRead(EventMessageRead eventMessageRead) =>
+            Debug.Log("Message read received for channel: " + eventMessageRead.Cid);
 
         private ChannelState GetChannel(string id) => _channels.First(_ => _.Channel.Id == id);
 

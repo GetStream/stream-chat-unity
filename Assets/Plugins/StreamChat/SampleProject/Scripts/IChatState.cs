@@ -36,5 +36,7 @@ namespace StreamChat.SampleProject
         Task UpdateChannelsAsync();
 
         Task LoadPreviousMessagesAsync();
+
+        void MarkMessageAsLastRead(Message message);
     }
 }

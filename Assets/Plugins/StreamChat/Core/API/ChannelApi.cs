@@ -141,5 +141,14 @@ namespace StreamChat.Core.API
             Post<ChannelStopWatchingRequest, ChannelStopWatchingRequestDTO, StopWatchingResponse,
                 StopWatchingResponseDTO>($"/channels/{channelType}/{channelId}/stop-watching",
                 channelStopWatchingRequest);
+
+        public Task<MarkReadResponse> MarkReadAsync(string channelType, string channelId,
+            MarkReadRequest markReadRequest) =>
+            Post<MarkReadRequest, MarkReadRequestDTO, MarkReadResponse, MarkReadResponseDTO>(
+                $"/channels/{channelType}/{channelId}/read", markReadRequest);
+
+        public Task<MarkReadResponse> MarkManyReadAsync(MarkChannelsReadRequest markChannelsReadRequest) =>
+            Post<MarkChannelsReadRequest, MarkChannelsReadRequestDTO, MarkReadResponse, MarkReadResponseDTO>(
+                $"/channels/read", markChannelsReadRequest);
     }
 }

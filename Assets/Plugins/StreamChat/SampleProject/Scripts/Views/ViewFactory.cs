@@ -70,6 +70,8 @@ namespace StreamChat.SampleProject.Views
                 }));
             }
 
+            options.Add(new MenuOptionEntry("Mark as read", () => state.MarkMessageAsLastRead(message)));
+
             options.Add(new MenuOptionEntry("Delete",
                 () => client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
 

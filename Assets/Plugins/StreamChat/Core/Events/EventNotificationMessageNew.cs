@@ -1,12 +1,15 @@
 ﻿using StreamChat.Core.DTO.Events;
 using StreamChat.Core.DTO.Models;
+using StreamChat.Core.Events;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public class EventMessageNew : EventBase, ILoadableFrom<EventMessageNewDTO, EventMessageNew>
+    public partial class EventNotificationMessageNew : EventBase, ILoadableFrom<EventNotificationMessageNewDTO, EventNotificationMessageNew>
     {
+        public Channel Channel { get; set; }
+
         public string ChannelId { get; set; }
 
         public string ChannelType { get; set; }
@@ -19,13 +22,7 @@ namespace StreamChat.Core.Events
 
         public string Team { get; set; }
 
-        public System.Collections.Generic.List<User> ThreadParticipants { get; set; }
-
         public string Type { get; set; }
-
-        public User User { get; set; }
-
-        public int? WatcherCount { get; set; }
 
         public int? TotalUnreadCount { get; set; }
 
@@ -33,18 +30,16 @@ namespace StreamChat.Core.Events
 
         public int? UnreadCount { get; set; }
 
-        EventMessageNew ILoadableFrom<EventMessageNewDTO, EventMessageNew>.LoadFromDto(EventMessageNewDTO dto)
+        EventNotificationMessageNew ILoadableFrom<EventNotificationMessageNewDTO, EventNotificationMessageNew>.LoadFromDto(EventNotificationMessageNewDTO dto)
         {
+            Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Message = Message.TryLoadFromDto(dto.Message);
             Team = dto.Team;
-            ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
-            WatcherCount = dto.WatcherCount;
             TotalUnreadCount = dto.TotalUnreadCount;
             UnreadChannels = dto.UnreadChannels;
             UnreadCount = dto.UnreadCount;
