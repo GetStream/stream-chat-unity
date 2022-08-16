@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.Events;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.Libs.Auth;
 using UnityEngine;
 
 namespace Plugins.StreamChat.Samples.ClientDocs
@@ -285,6 +288,138 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                         Text = "This channel has been truncated"
                     }
                 });
+        }
+
+        public async Task GetInitialLocalUserReadState()
+        {
+            AuthCredentials authCredentials = default;
+
+            void InitStreamChatClient()
+            {
+                Client = StreamChatClient.CreateDefaultClient(authCredentials);
+                Client.Connected += ClientOnConnected;
+                Client.Connect();
+            }
+
+            void ClientOnConnected(OwnUser ownUser)
+            {
+                Debug.Log(ownUser.UnreadChannels);
+                Debug.Log(ownUser.TotalUnreadCount);
+            }
+        }
+
+        public async Task MarkChannelReadState()
+        {
+            Message message = default;
+            ChannelState channelState = default;
+
+            var markReadResponse = await Client.ChannelApi.MarkReadAsync(channelState.Channel.Type, channelState.Channel.Id, new MarkReadRequest
+            {
+                //Optional Message ID to mark user last read message, if no Message ID is passed the whole channel is marked as read
+                MessageId = message.Id
+            });
+        }
+
+        public async Task ListenToMarkReadStateEvents()
+        {
+            AuthCredentials authCredentials = default;
+
+            void InitStreamChatClient()
+            {
+                Client = StreamChatClient.CreateDefaultClient(authCredentials);
+                Client.Connect();
+
+                //sent when message is read to users watching the channel
+                Client.MessageRead += OnMessageRead;
+
+                //sent when unread state changes to all channel members even if they're not watching the channel
+                Client.NotificationMarkRead += OnNotificationMarkRead;
+            }
+
+            void OnMessageRead(EventMessageRead eventMessageRead)
+            {
+                Debug.Log(eventMessageRead.Cid); //Channel CID
+                Debug.Log(eventMessageRead.User); //Which user
+            }
+
+            void OnNotificationMarkRead(EventNotificationMarkRead eventNotificationMarkRead)
+            {
+                Debug.Log(eventNotificationMarkRead.Cid); //Channel CID
+                Debug.Log(eventNotificationMarkRead.User); //Which user
+                Debug.Log(eventNotificationMarkRead.TotalUnreadCount); //How many unread messages
+                Debug.Log(eventNotificationMarkRead.UnreadChannels); //How many channels with unread messages
+            }
+        }
+
+        public async Task GetChannelReadState()
+        {
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id", new ChannelGetOrCreateRequest());
+
+            foreach (var readState in channelState.Read)
+            {
+                Debug.Log(readState.User); //Which user
+                Debug.Log(readState.LastRead); //Last read message date
+                Debug.Log(readState.UnreadMessages); //Total unread messages
+            }
+        }
+
+        public async Task GetChannelLocalUserReadState()
+        {
+            //Get desired channel
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id", new ChannelGetOrCreateRequest());
+
+            Read localUserReadState = default;
+
+            //Loop through results
+            foreach (var readState in channelState.Read)
+            {
+                if (readState.User.Id == Client.UserId)
+                {
+                    localUserReadState = readState;
+                    break;
+                }
+            }
+
+            //Or use LINQ
+            localUserReadState = channelState.Read.First(read => read.User.Id == Client.UserId);
+
+            //Access local user read state for desired channel
+            Debug.Log(localUserReadState.LastRead); //Last read message date
+            Debug.Log(localUserReadState.UnreadMessages); //Total unread messages
+        }
+
+        public async Task GetMultipleChannelReadState()
+        {
+            var channelsResponse = await Client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
+            {
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        //Get channels to which local user has joined as a member
+                        "members", new Dictionary<string, object>
+                        {
+                            { "$in", new [] { Client.UserId } }
+                        }
+                    }
+                },
+            });
+
+            foreach (var channelState in channelsResponse.Channels)
+            {
+                foreach (var readState in channelState.Read)
+                {
+                    Debug.Log(readState.User); //Which user
+                    Debug.Log(readState.LastRead); //Last read message date
+                    Debug.Log(readState.UnreadMessages); //Total unread messages
+                }
+            }
+        }
+
+        public async Task MarkAllAsRead()
+        {
+            //if MarkReadRequest.MessageId is empty, the whole channel is marked as read
+            var markReadRequest = new MarkReadRequest();
+            var markReadResponse = await Client.ChannelApi.MarkReadAsync("messaging", "channel-id", markReadRequest);
         }
 
         private IStreamChatClient Client;
