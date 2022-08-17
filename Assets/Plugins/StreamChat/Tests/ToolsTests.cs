@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
@@ -50,3 +51,4 @@ namespace StreamChat.Tests
         }
     }
 }
+#endif
