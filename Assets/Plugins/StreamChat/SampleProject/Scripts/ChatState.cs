@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,6 +53,7 @@ namespace StreamChat.SampleProject
             _viewFactory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));
 
             Client.Connected += OnClientConnected;
+            Client.ConnectionStateChanged += OnClientConnectionStateChanged;
             Client.MessageReceived += OnMessageReceived;
             Client.MessageDeleted += OnMessageDeleted;
             Client.MessageUpdated += OnMessageUpdated;
@@ -66,6 +68,7 @@ namespace StreamChat.SampleProject
         public void Dispose()
         {
             Client.Connected -= OnClientConnected;
+            Client.ConnectionStateChanged -= OnClientConnectionStateChanged;
             Client.MessageReceived -= OnMessageReceived;
             Client.MessageDeleted -= OnMessageDeleted;
             Client.MessageUpdated -= OnMessageUpdated;
@@ -155,6 +158,19 @@ namespace StreamChat.SampleProject
 
                 _channels.Clear();
                 _channels.AddRange(queryChannelsResponse.Channels);
+
+                if (ActiveChannel != null)
+                {
+                    var activeChannel = _channels.FirstOrDefault(_ => _.Channel.Cid == ActiveChannel.Channel.Cid);
+                    if (activeChannel != null)
+                    {
+                        ActiveChannel = activeChannel;
+                    }
+                    else
+                    {
+                        ActiveChannel = _channels.FirstOrDefault();
+                    }
+                }
             }
             catch (StreamApiException e)
             {
@@ -241,6 +257,7 @@ namespace StreamChat.SampleProject
         private ChannelState _activeChannel;
 
         private Task _activeLoadPreviousMessagesTask;
+        private bool _restoreStateAfterReconnect;
 
         private async void OnClientConnected(OwnUser ownUser)
         {
@@ -257,7 +274,7 @@ namespace StreamChat.SampleProject
             var channel = GetChannel(messageNewEvent.ChannelId);
             channel.Messages.Add(messageNewEvent.Message);
 
-            if (channel == ActiveChannel)
+            if (AreChannelsEqual(channel, ActiveChannel))
             {
                 ActiveChanelMessageReceived?.Invoke(ActiveChannel, messageNewEvent.Message);
             }
@@ -269,7 +286,7 @@ namespace StreamChat.SampleProject
             var message = channel.Messages.First(_ => _.Id == messageDeletedEvent.Message.Id);
             message.Text = MessageDeletedInfo;
 
-            if (channel == ActiveChannel)
+            if (AreChannelsEqual(channel, ActiveChannel))
             {
                 ActiveChanelChanged?.Invoke(ActiveChannel);
             }
@@ -279,11 +296,14 @@ namespace StreamChat.SampleProject
         {
             var channel = GetChannel(messageUpdatedEvent.ChannelId);
 
-            if (channel == ActiveChannel)
+            if (AreChannelsEqual(channel, ActiveChannel))
             {
                 ActiveChanelChanged?.Invoke(ActiveChannel);
             }
         }
+
+        private static bool AreChannelsEqual(ChannelState channelA, ChannelState channelB) =>
+            channelA.Channel.Cid == channelB.Channel.Cid;
 
         private void OnReactionReceived(EventReactionNew eventReactionNew) =>
             UpdateChannelMessage(eventReactionNew.Message);
@@ -308,7 +328,6 @@ namespace StreamChat.SampleProject
             var channelCid = message.Cid;
 
             var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == channelCid);
-
             if (channel == null)
             {
                 return;
@@ -334,6 +353,64 @@ namespace StreamChat.SampleProject
             else
             {
                 Debug.LogError("Failed to update channel message");
+            }
+        }
+
+        private void OnClientConnectionStateChanged(ConnectionState prev, ConnectionState current)
+        {
+            if (current == ConnectionState.Disconnected)
+            {
+                _restoreStateAfterReconnect = true;
+            }
+
+            if (current == ConnectionState.Connected && _restoreStateAfterReconnect)
+            {
+                _restoreStateAfterReconnect = false;
+                RestoreLostStateAsync().LogIfFailed();
+            }
+        }
+
+        private async Task RestoreLostStateAsync()
+        {
+            if (ActiveChannel == null)
+            {
+                return;
+            }
+
+            var lastMessage = ActiveChannel.Messages.LastOrDefault();
+
+            var getOrCreateRequest = new ChannelGetOrCreateRequest
+            {
+                State = true,
+                Watch = true,
+            };
+
+            if (lastMessage != null)
+            {
+                getOrCreateRequest.Messages = new MessagePaginationParamsRequest
+                {
+                    IdGt = lastMessage.Id,
+                    Limit = 50,
+                };
+            }
+
+            try
+            {
+                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, getOrCreateRequest);
+                ActiveChannel.Messages.AddRange(channelState.Messages);
+
+                foreach (var message in channelState.Messages)
+                {
+                    ActiveChanelMessageReceived?.Invoke(ActiveChannel, message);
+                }
+            }
+            catch (StreamApiException e)
+            {
+                e.LogStreamApiExceptionDetails(_unityLogger);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
             }
         }
     }

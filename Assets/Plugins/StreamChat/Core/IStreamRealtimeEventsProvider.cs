@@ -9,8 +9,7 @@ namespace StreamChat.Core
     public interface IStreamRealtimeEventsProvider
     {
         /// <summary>
-        /// Raw serialized event received from server. Can be useful for debugging purposes.
-        /// For production please used events with typed data structures
+        /// Debug log for received event
         /// </summary>
         event Action<string> EventReceived;
 

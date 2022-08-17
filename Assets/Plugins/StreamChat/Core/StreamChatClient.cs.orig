@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
+using StreamChat.Core;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
@@ -28,11 +30,11 @@ namespace StreamChat.Core
     public class StreamChatClient : IStreamChatClient
     {
         public const string MenuPrefix = "Stream/";
+        public const int ReconnectMaxAttempts = 5;
 
         public static readonly Uri ServerBaseUrl = new Uri("wss://chat.stream-io-api.com");
 
         public event ConnectionHandler Connected;
-        public event Action Disconnected;
         public event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
 
         public event Action<string> EventReceived;
@@ -41,14 +43,9 @@ namespace StreamChat.Core
         public event Action<EventMessageUpdated> MessageUpdated;
         public event Action<EventMessageDeleted> MessageDeleted;
 
-        public event Action<EventMessageRead> MessageRead;
-
         public event Action<EventReactionNew> ReactionReceived;
         public event Action<EventReactionUpdated> ReactionUpdated;
         public event Action<EventReactionDeleted> ReactionDeleted;
-
-        public event Action<EventNotificationMarkRead> NotificationMarkRead;
-        public event Action<EventNotificationMessageNew> NotificationMessageReceived;
 
         public IChannelApi ChannelApi { get; }
         public IMessageApi MessageApi { get; }
@@ -62,27 +59,15 @@ namespace StreamChat.Core
             get => _connectionState;
             private set
             {
-                if (_connectionState == value)
-                {
-                    return;
-                }
-
+<<<<<<< Updated upstream
+=======
+                _logs.Error($"CONNECTION STATE: {_connectionState} => {value}");
+>>>>>>> Stashed changes
                 var prev = _connectionState;
                 _connectionState = value;
                 ConnectionStateChanged?.Invoke(prev, _connectionState);
-
-                if (value == ConnectionState.Disconnected)
-                {
-                    Disconnected?.Invoke();
-                }
             }
         }
-
-        public ReconnectStrategy ReconnectStrategy { get; private set; }
-        public float ReconnectConstantInterval { get; private set; } = 3;
-        public float ReconnectExponentialMinInterval { get; private set; } = 1;
-        public float ReconnectExponentialMaxInterval { get; private set; } = 1024;
-        public double? NextReconnectTime { get; private set; }
 
         public static readonly Version SDKVersion = new Version(3, 0, 0);
 
@@ -131,7 +116,6 @@ namespace StreamChat.Core
             {
                 return userId;
             }
-
             return Regex.Replace(userId, @"[^\w\.@_-]", "", RegexOptions.None, TimeSpan.FromSeconds(1));
         }
 
@@ -152,10 +136,7 @@ namespace StreamChat.Core
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
             _httpClient.AddDefaultCustomHeader("X-Stream-Client", $"stream-chat-unity-client-{SDKVersion}");
 
-            _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
-            _websocketClient.Connected += OnWebsocketsConnected;
-            _websocketClient.Disconnected += OnWebsocketDisconnected;
-
+            //Todo: move to factory
             ChannelApi = new ChannelApi(httpClient, serializer, logs, _requestUriFactory);
             MessageApi = new MessageApi(httpClient, serializer, logs, _requestUriFactory);
             ModerationApi = new ModerationApi(httpClient, serializer, logs, _requestUriFactory);
@@ -175,13 +156,17 @@ namespace StreamChat.Core
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
 
-            NextReconnectTime = default;
-
             var connectionUri = _requestUriFactory.CreateConnectionUri();
 
             _logs.Info($"Attempt to connect");
 
             ConnectionState = ConnectionState.Connecting;
+
+            _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
+            _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
+
+            _websocketClient.Connected -= OnWebsocketsConnected;
+            _websocketClient.Connected += OnWebsocketsConnected;
 
             _websocketClient.ConnectAsync(connectionUri).LogIfFailed(_logs);
         }
@@ -189,9 +174,6 @@ namespace StreamChat.Core
         public void Update(float deltaTime)
         {
             _updateCallReceived = true;
-
-            TryHandleWebsocketsConnectionFailed();
-            TryToReconnect();
 
             UpdateHealthCheck();
 
@@ -209,54 +191,13 @@ namespace StreamChat.Core
         public bool IsLocalUser(ChannelMember channelMember)
             => channelMember.User.Id == _authCredentials.UserId;
 
-        /// <summary>
-        /// Set parameters for StreamChatClient reconnect strategy
-        /// </summary>
-        /// <param name="reconnectStrategy">Defines how Client will react to Disconnected state</param>
-        /// <param name="exponentialMinInterval">Defines min reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
-        /// <param name="exponentialMaxInterval">Defines max reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
-        /// <param name="constantInterval">Defines reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Constant"/></param>
-        /// <exception cref="ArgumentException">throws exception if intervals are less than or equal to zero</exception>
-        public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
-            float? exponentialMaxInterval, float? constantInterval)
-        {
-            ReconnectStrategy = reconnectStrategy;
-
-            void ThrowIfLessOrEqualToZero(float value, string name)
-            {
-                if (value <= 0)
-                {
-                    throw new ArgumentException($"{name} needs to greater than zero, given: " + value);
-                }
-            }
-
-            if (exponentialMinInterval.HasValue)
-            {
-                ThrowIfLessOrEqualToZero(exponentialMinInterval.Value, nameof(exponentialMinInterval));
-                ReconnectExponentialMinInterval = exponentialMinInterval.Value;
-            }
-
-            if (exponentialMaxInterval.HasValue)
-            {
-                ThrowIfLessOrEqualToZero(exponentialMaxInterval.Value, nameof(exponentialMaxInterval));
-                ReconnectExponentialMaxInterval = exponentialMaxInterval.Value;
-            }
-
-            if (constantInterval.HasValue)
-            {
-                ThrowIfLessOrEqualToZero(constantInterval.Value, nameof(constantInterval));
-                ReconnectConstantInterval = constantInterval.Value;
-            }
-        }
-
         public void Dispose()
         {
-            ConnectionState = ConnectionState.Closing;
-
             _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
             _websocketClient.Connected -= OnWebsocketsConnected;
-            _websocketClient.Disconnected -= OnWebsocketDisconnected;
             _websocketClient?.Dispose();
+
+            ConnectionState = ConnectionState.Disconnected;
         }
 
         string IAuthProvider.ApiKey => _authCredentials.ApiKey;
@@ -279,135 +220,35 @@ namespace StreamChat.Core
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
         private readonly StringBuilder _errorSb = new StringBuilder();
-        private readonly StringBuilder _logSb = new StringBuilder();
 
         private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
             new Dictionary<string, Action<string>>();
 
-        private readonly object _websocketConnectionFailedFlagLock = new object();
-
         private ConnectionState _connectionState;
         private string _connectionId;
+        private int _reconnectAttempt;
         private float _lastHealthCheckReceivedTime;
         private float _lastHealthCheckSendTime;
         private bool _updateCallReceived;
 
-        private bool _websocketConnectionFailed;
-        private int _reconnectAttempt;
-
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
-        private void OnWebsocketDisconnected()
-        {
-            ConnectionState = ConnectionState.Disconnected;
-            TryScheduleReconnect();
-        }
-
-        /// <summary>
-        /// This event can be called by a background thread and we must propagate it on the main thread
-        /// Otherwise any call to Unity API would result in Exception. Unity API can only be called from the main thread
-        /// </summary>
         private void OnWebsocketsConnectionFailed()
         {
-            lock (_websocketConnectionFailedFlagLock)
-            {
-                _websocketConnectionFailed = true;
-            }
-        }
-
-        private void TryHandleWebsocketsConnectionFailed()
-        {
-            lock (_websocketConnectionFailedFlagLock)
-            {
-                if (!_websocketConnectionFailed)
-                {
-                    return;
-                }
-
-                _websocketConnectionFailed = false;
-            }
-
             ConnectionState = ConnectionState.Disconnected;
 
-            TryScheduleReconnect();
-        }
-
-        /// <summary>
-        /// Based on receiving initial health check event from the server
-        /// </summary>
-        private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent)
-        {
-            _connectionId = healthCheckEvent.ConnectionId;
-            LocalUser = healthCheckEvent.Me;
-            _lastHealthCheckReceivedTime = _timeService.Time;
-            _reconnectAttempt = 0;
-            ConnectionState = ConnectionState.Connected;
-
-            _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
-            Connected?.Invoke(LocalUser);
-        }
-
-        private void TryToReconnect()
-        {
-            if (!ConnectionState.IsValidToConnect() || !NextReconnectTime.HasValue)
+            if (_reconnectAttempt >= ReconnectMaxAttempts)
             {
                 return;
             }
 
-            if (NextReconnectTime.Value > _timeService.Time)
-            {
-                return;
-            }
-
+            ConnectionState = ConnectionState.Reconnecting;
             _reconnectAttempt++;
+
             Connect();
         }
 
-        private bool TryScheduleReconnect()
-        {
-            if (NextReconnectTime.HasValue && NextReconnectTime.Value > _timeService.Time)
-            {
-                return false;
-            }
-
-            switch (ReconnectStrategy)
-            {
-                case ReconnectStrategy.Exponential:
-
-                    var baseInterval = Math.Pow(2, _reconnectAttempt);
-                    var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
-                        ReconnectExponentialMaxInterval);
-                    NextReconnectTime = _timeService.Time + interval;
-
-                    break;
-                case ReconnectStrategy.Constant:
-                    NextReconnectTime = _timeService.Time + ReconnectConstantInterval;
-                    break;
-                case ReconnectStrategy.Never:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            if (NextReconnectTime.HasValue)
-            {
-                ConnectionState = ConnectionState.WaitToReconnect;
-                var timeLeft = NextReconnectTime.Value - _timeService.Time;
-
-                _logSb.Append("Reconnect scheduled to time: <b>");
-                _logSb.Append(Math.Round(NextReconnectTime.Value));
-                _logSb.Append(" seconds</b>, current time: <b>");
-                _logSb.Append(Math.Round(_timeService.Time));
-                _logSb.Append(" seconds</b>, time left: <b>");
-                _logSb.Append(Math.Round(timeLeft));
-                _logSb.Append(" seconds</b>");
-
-                _logs.Info(_logSb.ToString());
-                _logSb.Clear();
-            }
-
-            return NextReconnectTime.HasValue;
-        }
+        private void OnConnectionConfirmed(OwnUser localUser) => Connected?.Invoke(localUser);
 
         private void RegisterEventHandlers()
         {
@@ -426,13 +267,12 @@ namespace StreamChat.Core
                 e => ReactionUpdated?.Invoke(e));
             RegisterEventType<EventReactionDeletedDTO, EventReactionDeleted>(EventType.ReactionDeleted,
                 e => ReactionDeleted?.Invoke(e));
+        }
 
-            RegisterEventType<EventMessageReadDTO, EventMessageRead>(EventType.MessageRead,
-                e => MessageRead?.Invoke(e));
-            RegisterEventType<EventNotificationMarkReadDTO, EventNotificationMarkRead>(EventType.NotificationMarkRead,
-                e => NotificationMarkRead?.Invoke(e));
-            RegisterEventType<EventNotificationMessageNewDTO, EventNotificationMessageNew>(EventType.NotificationMessageNew,
-                e => NotificationMessageReceived?.Invoke(e));
+        private void Reconnect()
+        {
+            ConnectionState = ConnectionState.Reconnecting;
+            Connect();
         }
 
         private void RegisterEventType<TDto, TEvent>(string key,
@@ -513,27 +353,31 @@ namespace StreamChat.Core
             }
 
             var timeSinceLastHealthCheckSent = _timeService.Time - _lastHealthCheckSendTime;
+
             if (timeSinceLastHealthCheckSent > HealthCheckSendInterval)
             {
                 PingHealthCheck();
             }
 
             var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
+
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
-                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, reset connection");
-                _websocketClient.Disconnect();
+                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
+                Reconnect();
             }
         }
 
         private void PingHealthCheck()
         {
+            //Todo: react demo also includes `client_id` but it's not in spec and health check seems to work without it
             var healthCheck = new EventHealthCheck
             {
                 Type = EventType.HealthCheck
             };
 
             _websocketClient.Send(_serializer.Serialize(healthCheck));
+
             _lastHealthCheckSendTime = _timeService.Time;
         }
 
@@ -543,7 +387,13 @@ namespace StreamChat.Core
 
             if (ConnectionState == ConnectionState.Connecting)
             {
-                OnConnectionConfirmed(healthCheckEvent);
+                ConnectionState = ConnectionState.Connected;
+                _connectionId = healthCheckEvent.ConnectionId;
+
+                LocalUser = healthCheckEvent.Me;
+
+                _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
+                OnConnectionConfirmed(healthCheckEvent.Me);
             }
         }
 
@@ -563,8 +413,7 @@ namespace StreamChat.Core
         {
             if (credentials.IsAnyEmpty())
             {
-                throw new StreamMissingAuthCredentialsException(
-                    "Please provide valid credentials: `Api Key`, 'User id`, `User token`");
+                throw new StreamMissingAuthCredentialsException("Please provide valid credentials: `Api Key`, 'User id`, `User token`");
             }
 
             _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
@@ -577,8 +426,7 @@ namespace StreamChat.Core
             {
                 if (!_updateCallReceived && ConnectionState != ConnectionState.Disconnected)
                 {
-                    _logs.Error(
-                        $"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(Update)}` method per frame.");
+                    _logs.Error($"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(StreamChatClient.Update)}` method per frame.");
                 }
             });
         }

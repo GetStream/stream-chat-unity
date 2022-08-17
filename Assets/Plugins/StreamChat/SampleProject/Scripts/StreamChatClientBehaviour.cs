@@ -38,7 +38,8 @@ namespace StreamChat.SampleProject
                 _client.Connect();
 
                 var viewContext =
-                    new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem, _appConfig);
+                    new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem,
+                        _appConfig);
 
                 viewFactory.Init(viewContext);
                 _rootView.Init(viewContext);
@@ -47,16 +48,16 @@ namespace StreamChat.SampleProject
             {
                 var popup = viewFactory.CreateFullscreenPopup<ErrorPopup>();
                 popup.SetData("Invalid Authorization Credentials",
-                        $"Please provide valid authorization data into `{_authCredentialsAsset.name}` asset. " +
-                        $"Register Stream Account and visit <b>Dashboard</b> to get your `API_KEY` and use <b>chat explorer</b> to create your first user. " +
-                        $"You can then click here -> <link=\"TokenGenerator\"><u>Tokens & Authorization</u></link> to visit online auth token generator.",
-                        new Dictionary<string, string>()
+                    $"Please provide valid authorization data into `{_authCredentialsAsset.name}` asset. " +
+                    $"Register Stream Account and visit <b>Dashboard</b> to get your `API_KEY` and use <b>chat explorer</b> to create your first user. " +
+                    $"You can then click here -> <link=\"TokenGenerator\"><u>Tokens & Authorization</u></link> to visit online auth token generator.",
+                    new Dictionary<string, string>()
+                    {
                         {
-                            {
-                                "TokenGenerator",
-                                "https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#manually-generating-tokens"
-                            }
-                        });
+                            "TokenGenerator",
+                            "https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#manually-generating-tokens"
+                        }
+                    });
 
 #if UNITY_EDITOR
 
@@ -70,7 +71,28 @@ namespace StreamChat.SampleProject
             }
         }
 
-        protected void Update() => _client?.Update(Time.deltaTime);
+        protected void Update()
+        {
+            if (_client == null)
+            {
+                return;
+            }
+
+            _client.Update(Time.deltaTime);
+
+            var isClientConnectedOrConnecting = _client.ConnectionState == ConnectionState.Connected ||
+                                                _client.ConnectionState == ConnectionState.Connecting;
+
+            var isNetworkReachable =
+                Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork ||
+                Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork;
+
+            if (!isClientConnectedOrConnecting && isNetworkReachable)
+            {
+                Debug.LogWarning("Client is not connected, but network is reachable. Force reconnect.");
+                _client.Connect();
+            }
+        }
 
         protected void OnDestroy() => _client?.Dispose();
 
@@ -92,7 +114,6 @@ namespace StreamChat.SampleProject
 #if UNITY_EDITOR
         private IEnumerator BlinkProjectAsset(Object target, Object owner)
         {
-
             EditorUtility.FocusProjectWindow();
 
             while (owner != null)
@@ -101,7 +122,6 @@ namespace StreamChat.SampleProject
 
                 yield return new WaitForSeconds(1);
             }
-
         }
 #endif
 
@@ -112,7 +132,6 @@ namespace StreamChat.SampleProject
             {
                 if (TMP_Settings.defaultSpriteAsset == spriteAsset)
                 {
-
                 }
                 else if (TMP_Settings.defaultSpriteAsset != null)
                 {
@@ -123,15 +142,16 @@ namespace StreamChat.SampleProject
                         fallbackSpriteAssets.Add(spriteAsset);
                     }
 
-                    Debug.LogWarning($"`{spriteAsset.name}` sprite asset was added as a fallback to the default `{TMP_Settings.defaultSpriteAsset}`");
+                    Debug.LogWarning(
+                        $"`{spriteAsset.name}` sprite asset was added as a fallback to the default `{TMP_Settings.defaultSpriteAsset}`");
                 }
                 else
                 {
-                    Debug.LogError($"TMP_Settings Default sprite is not set. Emojis sprite will not be properly replaced. " +
-                                   $"Please either set the `{spriteAsset.name}` as a default sprite asset or set any default asset so that `{spriteAsset.name}` gets appended as a fallback");
+                    Debug.LogError(
+                        $"TMP_Settings Default sprite is not set. Emojis sprite will not be properly replaced. " +
+                        $"Please either set the `{spriteAsset.name}` as a default sprite asset or set any default asset so that `{spriteAsset.name}` gets appended as a fallback");
                 }
             }
         }
-
     }
 }

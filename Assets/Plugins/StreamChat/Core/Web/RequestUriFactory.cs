@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using StreamChat.Core.Auth;
@@ -13,7 +14,7 @@ namespace StreamChat.Core.Web
     /// </summary>
     internal class RequestUriFactory : IRequestUriFactory
     {
-        public RequestUriFactory(IAuthProvider authProvider, IConnectionProvider connectionProvider,
+        public RequestUriFactory(IAuthProvider authProvider, IStreamChatClient connectionProvider,
             ISerializer serializer)
         {
             _authProvider = authProvider ?? throw new ArgumentNullException(nameof(authProvider));
@@ -67,7 +68,7 @@ namespace StreamChat.Core.Web
 
         private readonly IAuthProvider _authProvider;
         private readonly ISerializer _serializer;
-        private readonly IConnectionProvider _connectionProvider;
+        private readonly IStreamChatClient _connectionProvider;
 
         private Dictionary<string, string> GetDefaultParameters() =>
             new Dictionary<string, string>
