@@ -154,7 +154,7 @@ namespace StreamChat.Core
 
             _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
             _websocketClient.Connected += OnWebsocketsConnected;
-            _websocketClient.Disconnected += OnWebsocketClientDisconnected;
+            _websocketClient.Disconnected += OnWebsocketDisconnected;
 
             ChannelApi = new ChannelApi(httpClient, serializer, logs, _requestUriFactory);
             MessageApi = new MessageApi(httpClient, serializer, logs, _requestUriFactory);
@@ -255,7 +255,7 @@ namespace StreamChat.Core
 
             _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
             _websocketClient.Connected -= OnWebsocketsConnected;
-            _websocketClient.Disconnected -= OnWebsocketClientDisconnected;
+            _websocketClient.Disconnected -= OnWebsocketDisconnected;
             _websocketClient?.Dispose();
         }
 
@@ -279,6 +279,7 @@ namespace StreamChat.Core
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
         private readonly StringBuilder _errorSb = new StringBuilder();
+        private readonly StringBuilder _logSb = new StringBuilder();
 
         private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
             new Dictionary<string, Action<string>>();
@@ -296,7 +297,7 @@ namespace StreamChat.Core
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
-        private void OnWebsocketClientDisconnected()
+        private void OnWebsocketDisconnected()
         {
             ConnectionState = ConnectionState.Disconnected;
             TryScheduleReconnect();
@@ -334,11 +335,16 @@ namespace StreamChat.Core
         /// <summary>
         /// Based on receiving initial health check event from the server
         /// </summary>
-        private void OnConnectionConfirmed(OwnUser localUser)
+        private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent)
         {
+            _connectionId = healthCheckEvent.ConnectionId;
+            LocalUser = healthCheckEvent.Me;
             _lastHealthCheckReceivedTime = _timeService.Time;
             _reconnectAttempt = 0;
-            Connected?.Invoke(localUser);
+            ConnectionState = ConnectionState.Connected;
+
+            _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
+            Connected?.Invoke(LocalUser);
         }
 
         private void TryToReconnect()
@@ -386,7 +392,18 @@ namespace StreamChat.Core
             if (NextReconnectTime.HasValue)
             {
                 ConnectionState = ConnectionState.WaitToReconnect;
-                _logs.Info($"Reconnect scheduled at `{NextReconnectTime.Value:0.00}`, current time: {_timeService.Time:0.00}");
+                var timeLeft = NextReconnectTime.Value - _timeService.Time;
+
+                _logSb.Append("Reconnect scheduled to time: <b>");
+                _logSb.Append(Math.Round(NextReconnectTime.Value));
+                _logSb.Append(" seconds</b>, current time: <b>");
+                _logSb.Append(Math.Round(_timeService.Time));
+                _logSb.Append(" seconds</b>, time left: <b>");
+                _logSb.Append(Math.Round(timeLeft));
+                _logSb.Append(" seconds</b>");
+
+                _logs.Info(_logSb.ToString());
+                _logSb.Clear();
             }
 
             return NextReconnectTime.HasValue;
@@ -504,9 +521,8 @@ namespace StreamChat.Core
             var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
-                ConnectionState = ConnectionState.Disconnected;
+                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, reset connection");
                 _websocketClient.Disconnect();
-                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, attempt to reconnect");
             }
         }
 
@@ -527,13 +543,7 @@ namespace StreamChat.Core
 
             if (ConnectionState == ConnectionState.Connecting)
             {
-                _connectionId = healthCheckEvent.ConnectionId;
-                ConnectionState = ConnectionState.Connected;
-
-                LocalUser = healthCheckEvent.Me;
-
-                _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
-                OnConnectionConfirmed(healthCheckEvent.Me);
+                OnConnectionConfirmed(healthCheckEvent);
             }
         }
 

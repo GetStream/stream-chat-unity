@@ -27,7 +27,7 @@ namespace StreamChat.SampleProject.Views
 
             if (Client.NextReconnectTime != _prevNextReconnectTime)
             {
-                Debug.LogWarning($"{nameof(Client.NextReconnectTime)} changed from: `{_prevNextReconnectTime}` to: `{Client.NextReconnectTime}`");
+                Debug.LogWarning($"{nameof(Client.NextReconnectTime)} changed from: `{_prevNextReconnectTime:0:00}` to: `{Client.NextReconnectTime:0:00}`");
                 _prevNextReconnectTime = Client.NextReconnectTime;
                 UpdateConnectionLog();
             }
@@ -118,7 +118,7 @@ namespace StreamChat.SampleProject.Views
 
             _sb.Append(nameof(NetworkReachability));
             _sb.Append(": ");
-            _sb.Append(Enum.GetName(typeof(NetworkReachability), Application.internetReachability));
+            _sb.Append(Application.internetReachability);
             _sb.Append(Environment.NewLine);
 
             _connectionLogText.text = _sb.ToString();
