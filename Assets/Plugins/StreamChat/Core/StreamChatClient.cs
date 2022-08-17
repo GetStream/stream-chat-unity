@@ -82,6 +82,7 @@ namespace StreamChat.Core
         public float ReconnectConstantInterval { get; private set; } = 3;
         public float ReconnectExponentialMinInterval { get; private set; } = 1;
         public float ReconnectExponentialMaxInterval { get; private set; } = 1024;
+        public double? NextReconnectTime { get; private set; }
 
         public static readonly Version SDKVersion = new Version(3, 0, 0);
 
@@ -174,7 +175,7 @@ namespace StreamChat.Core
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
 
-            _nextReconnectAt = default;
+            NextReconnectTime = default;
 
             var connectionUri = _requestUriFactory.CreateConnectionUri();
 
@@ -250,12 +251,12 @@ namespace StreamChat.Core
 
         public void Dispose()
         {
+            ConnectionState = ConnectionState.Closing;
+
             _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
             _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient.Disconnected -= OnWebsocketClientDisconnected;
             _websocketClient?.Dispose();
-
-            ConnectionState = ConnectionState.Closing;
         }
 
         string IAuthProvider.ApiKey => _authCredentials.ApiKey;
@@ -292,7 +293,6 @@ namespace StreamChat.Core
 
         private bool _websocketConnectionFailed;
         private int _reconnectAttempt;
-        private double? _nextReconnectAt;
 
         private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
 
@@ -343,12 +343,12 @@ namespace StreamChat.Core
 
         private void TryToReconnect()
         {
-            if (!ConnectionState.IsValidToConnect() || !_nextReconnectAt.HasValue)
+            if (!ConnectionState.IsValidToConnect() || !NextReconnectTime.HasValue)
             {
                 return;
             }
 
-            if (_nextReconnectAt.Value > _timeService.Time)
+            if (NextReconnectTime.Value > _timeService.Time)
             {
                 return;
             }
@@ -359,7 +359,7 @@ namespace StreamChat.Core
 
         private bool TryScheduleReconnect()
         {
-            if (_nextReconnectAt.HasValue && _nextReconnectAt.Value > _timeService.Time)
+            if (NextReconnectTime.HasValue && NextReconnectTime.Value > _timeService.Time)
             {
                 return false;
             }
@@ -371,11 +371,11 @@ namespace StreamChat.Core
                     var baseInterval = Math.Pow(2, _reconnectAttempt);
                     var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
                         ReconnectExponentialMaxInterval);
-                    _nextReconnectAt = _timeService.Time + interval;
+                    NextReconnectTime = _timeService.Time + interval;
 
                     break;
                 case ReconnectStrategy.Constant:
-                    _nextReconnectAt = _timeService.Time + ReconnectConstantInterval;
+                    NextReconnectTime = _timeService.Time + ReconnectConstantInterval;
                     break;
                 case ReconnectStrategy.Never:
                     break;
@@ -383,13 +383,13 @@ namespace StreamChat.Core
                     throw new ArgumentOutOfRangeException();
             }
 
-            if (_nextReconnectAt.HasValue)
+            if (NextReconnectTime.HasValue)
             {
                 ConnectionState = ConnectionState.WaitToReconnect;
-                _logs.Info($"Reconnect scheduled at `{_nextReconnectAt.Value:0.00}`, current time: {_timeService.Time:0.00}");
+                _logs.Info($"Reconnect scheduled at `{NextReconnectTime.Value:0.00}`, current time: {_timeService.Time:0.00}");
             }
 
-            return _nextReconnectAt.HasValue;
+            return NextReconnectTime.HasValue;
         }
 
         private void RegisterEventHandlers()

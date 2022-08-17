@@ -14,17 +14,17 @@ namespace StreamChat.Core
         Disconnected,
 
         /// <summary>
-        /// Trying to connect to server, waiting for connection handshake to complete
+        /// Currently connecting to server, waiting for the connection handshake to complete
         /// </summary>
         Connecting,
 
         /// <summary>
-        /// Waiting for the next connect attempt
+        /// Waiting specified interval until the next connect attempt
         /// </summary>
         WaitToReconnect,
 
         /// <summary>
-        /// Connection with server is established. StreamChatClient is ready to send and receive data
+        /// Connection with server is active. StreamChatClient can send and receive data
         /// </summary>
         Connected,
 

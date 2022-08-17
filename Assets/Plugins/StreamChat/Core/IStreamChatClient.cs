@@ -28,15 +28,16 @@ namespace StreamChat.Core
 
         ConnectionState ConnectionState { get; }
         ReconnectStrategy ReconnectStrategy { get; }
+        float ReconnectConstantInterval { get; }
+        float ReconnectExponentialMinInterval { get; }
+        float ReconnectExponentialMaxInterval { get; }
+        double? NextReconnectTime { get; }
 
         IChannelApi ChannelApi { get; }
         IMessageApi MessageApi { get; }
         IModerationApi ModerationApi { get; }
         IUserApi UserApi { get; }
         OwnUser LocalUser { get; }
-        float ReconnectConstantInterval { get; }
-        float ReconnectExponentialMinInterval { get; }
-        float ReconnectExponentialMaxInterval { get; }
 
         void Update(float deltaTime);
 

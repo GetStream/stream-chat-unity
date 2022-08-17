@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using StreamChat.Core;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -18,6 +21,26 @@ namespace StreamChat.SampleProject.Views
             Client.ConnectionStateChanged += OnConnectionStateChanged;
         }
 
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            if (Client.NextReconnectTime != _prevNextReconnectTime)
+            {
+                Debug.LogWarning($"{nameof(Client.NextReconnectTime)} changed from: `{_prevNextReconnectTime}` to: `{Client.NextReconnectTime}`");
+                _prevNextReconnectTime = Client.NextReconnectTime;
+                UpdateConnectionLog();
+            }
+
+            if (_prevNetworkReachability != Application.internetReachability)
+            {
+                var reachabilityName = Enum.GetName(typeof(NetworkReachability), Application.internetReachability);
+                Debug.LogWarning($"{nameof(NetworkReachability)} changed from `{_prevNetworkReachability}` to `{reachabilityName}`");
+                _prevNetworkReachability = Application.internetReachability;
+                UpdateConnectionLog();
+            }
+        }
+
         protected override void OnDisposing()
         {
             Client.EventReceived -= OnEventReceived;
@@ -29,9 +52,17 @@ namespace StreamChat.SampleProject.Views
         private const int MaxRecords = 10;
 
         private readonly List<string> _records = new List<string>();
+        private readonly StringBuilder _sb = new StringBuilder();
+
+        [FormerlySerializedAs("_text")]
+        [SerializeField]
+        private TMP_Text _eventsLogText;
 
         [SerializeField]
-        private TMP_Text _text;
+        private TMP_Text _connectionLogText;
+
+        private double? _prevNextReconnectTime;
+        private NetworkReachability _prevNetworkReachability;
 
         private void OnEventReceived(string obj)
         {
@@ -42,7 +73,7 @@ namespace StreamChat.SampleProject.Views
                 _records.RemoveRange(0, _records.Count - MaxRecords);
             }
 
-            PrintRecords();
+            UpdateEventsLog();
         }
 
         private void OnConnectionStateChanged(ConnectionState prev, ConnectionState current)
@@ -50,10 +81,48 @@ namespace StreamChat.SampleProject.Views
             if (current == ConnectionState.Disconnected)
             {
                 _records.Clear();
-                PrintRecords();
+                UpdateEventsLog();
             }
+
+            Debug.LogWarning($"Connection changed from `{prev}` to `{current}`");
+
+            UpdateConnectionLog();
         }
 
-        private void PrintRecords() => _text.text = "Received events:" + "<br>" + string.Join("<br>", _records);
+        private void UpdateEventsLog() => _eventsLogText.text = "Received events:" + "<br>" + string.Join("<br>", _records);
+
+        private void UpdateConnectionLog()
+        {
+            _sb.AppendLine("Connection:");
+
+            _sb.Append("State: ");
+            _sb.Append(Client.ConnectionState);
+            _sb.Append(Environment.NewLine);
+
+            _sb.Append("Next Reconnect: ");
+
+            if (Client.NextReconnectTime.HasValue)
+            {
+                var timeLeft = Client.NextReconnectTime.Value - Time.time;
+                _sb.Append(Client.NextReconnectTime.Value.ToString("0.0"));
+                _sb.Append(" (in: ");
+                _sb.Append(timeLeft.ToString("0.0"));
+                _sb.Append("s)");
+            }
+            else
+            {
+                _sb.Append("None");
+            }
+
+            _sb.Append(Environment.NewLine);
+
+            _sb.Append(nameof(NetworkReachability));
+            _sb.Append(": ");
+            _sb.Append(Enum.GetName(typeof(NetworkReachability), Application.internetReachability));
+            _sb.Append(Environment.NewLine);
+
+            _connectionLogText.text = _sb.ToString();
+            _sb.Clear();
+        }
     }
 }
