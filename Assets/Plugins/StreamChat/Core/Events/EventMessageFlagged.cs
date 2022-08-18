@@ -23,7 +23,7 @@ namespace StreamChat.Core.Events
         {
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Message = Message.TryLoadFromDto(dto.Message);
+            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);

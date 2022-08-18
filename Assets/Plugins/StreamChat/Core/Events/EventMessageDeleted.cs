@@ -34,7 +34,7 @@ namespace StreamChat.Core.Events
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             HardDelete = dto.HardDelete;
-            Message = Message.TryLoadFromDto(dto.Message);
+            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
             Team = dto.Team;
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;

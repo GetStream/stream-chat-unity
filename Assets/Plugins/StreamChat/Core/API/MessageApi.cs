@@ -77,5 +77,8 @@ namespace StreamChat.Core.API
 
             return Delete<FileDeleteResponse, FileDeleteResponseDTO>(endpoint, parameters);
         }
+
+        public Task<SearchResponse> SearchMessagesAsync(SearchRequest searchRequest)
+            => Get<SearchRequest, SearchRequestDTO, SearchResponse, SearchResponseDTO>("/search", searchRequest);
     }
 }

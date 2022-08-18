@@ -1,4 +1,5 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
@@ -22,7 +23,7 @@ namespace StreamChat.Core.Responses
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
-            Message = Message.TryLoadFromDto(dto.Message);
+            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

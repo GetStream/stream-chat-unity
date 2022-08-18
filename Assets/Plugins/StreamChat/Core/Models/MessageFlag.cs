@@ -30,7 +30,7 @@ namespace StreamChat.Core.Models
             ApprovedAt = dto.ApprovedAt;
             CreatedAt = dto.CreatedAt;
             CreatedByAutomod = dto.CreatedByAutomod;
-            Message = Message.TryLoadFromDto(dto.Message);
+            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
             ModerationResult = ModerationResult.TryLoadFromDto(dto.ModerationResult);
             RejectedAt = dto.RejectedAt;
             ReviewedAt = dto.ReviewedAt;

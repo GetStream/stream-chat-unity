@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class Message : ModelBase, ILoadableFrom<MessageDTO, Message>
+    public class Message : ModelBase, ILoadableFrom<MessageDTO, Message>, ILoadableFrom<SearchResultMessageDTO, Message>
     {
         /// <summary>
         /// Array of message attachments
@@ -16,6 +17,11 @@ namespace StreamChat.Core.Models
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
         /// </summary>
         public bool? BeforeMessageSendFailed { get; set; }
+
+        /// <summary>
+        /// Channel object
+        /// </summary>
+        public Channel Channel { get; set; }
 
         /// <summary>
         /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
@@ -166,9 +172,9 @@ namespace StreamChat.Core.Models
 
         Message ILoadableFrom<MessageDTO, Message>.LoadFromDto(MessageDTO dto)
         {
-            AdditionalProperties = dto.AdditionalProperties;
             Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);
             BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
+            //Channel?
             Cid = dto.Cid;
             Command = dto.Command;
             CreatedAt = dto.CreatedAt;
@@ -186,7 +192,7 @@ namespace StreamChat.Core.Models
             Pinned = dto.Pinned;
             PinnedAt = dto.PinnedAt;
             PinnedBy = PinnedBy.TryLoadFromDto<UserObjectDTO, User>(dto.PinnedBy);
-            QuotedMessage = QuotedMessage.TryLoadFromDto(dto.QuotedMessage);
+            QuotedMessage = QuotedMessage.TryLoadFromDto<MessageDTO, Message>(dto.QuotedMessage);
             QuotedMessageId = dto.QuotedMessageId;
             ReactionCounts = dto.ReactionCounts;
             ReactionScores = dto.ReactionScores;
@@ -199,6 +205,47 @@ namespace StreamChat.Core.Models
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
             User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            AdditionalProperties = dto.AdditionalProperties;
+
+            return this;
+        }
+
+        Message ILoadableFrom<SearchResultMessageDTO, Message>.LoadFromDto(SearchResultMessageDTO dto)
+        {
+            Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);
+            BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
+            Channel = Channel.TryLoadFromDto(dto.Channel);
+            Cid = dto.Cid;
+            Command = dto.Command;
+            CreatedAt = dto.CreatedAt;
+            DeletedAt = dto.DeletedAt;
+            Html = dto.Html;
+            I18n = dto.I18n;
+            Id = dto.Id;
+            ImageLabels = dto.ImageLabels;
+            LatestReactions = LatestReactions.TryLoadFromDtoCollection(dto.LatestReactions);
+            MentionedUsers = MentionedUsers.TryLoadFromDtoCollection(dto.MentionedUsers);
+            Mml = dto.Mml;
+            OwnReactions = OwnReactions.TryLoadFromDtoCollection(dto.OwnReactions);
+            ParentId = dto.ParentId;
+            PinExpires = dto.PinExpires;
+            Pinned = dto.Pinned;
+            PinnedAt = dto.PinnedAt;
+            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectDTO, User>(dto.PinnedBy);
+            QuotedMessage = QuotedMessage.TryLoadFromDto<MessageDTO, Message>(dto.QuotedMessage);
+            QuotedMessageId = dto.QuotedMessageId;
+            ReactionCounts = dto.ReactionCounts;
+            ReactionScores = dto.ReactionScores;
+            ReplyCount = dto.ReplyCount;
+            Shadowed = dto.Shadowed;
+            ShowInChannel = dto.ShowInChannel;
+            Silent = dto.Silent;
+            Text = dto.Text;
+            ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
+            Type = dto.Type;
+            UpdatedAt = dto.UpdatedAt;
+            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }
