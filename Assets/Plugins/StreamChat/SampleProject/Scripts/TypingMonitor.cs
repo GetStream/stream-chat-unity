@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using StreamChat.Core;
-using StreamChat.Core.Events;
 using StreamChat.Core.Models;
 using TMPro;
 using UnityEngine;

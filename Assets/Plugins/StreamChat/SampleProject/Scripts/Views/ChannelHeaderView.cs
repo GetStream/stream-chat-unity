@@ -11,6 +11,11 @@ namespace StreamChat.SampleProject.Views
     /// </summary>
     public class ChannelHeaderView : BaseView
     {
+        protected void Awake()
+        {
+            _typingNotificationText.text = string.Empty;
+        }
+
         protected override void OnInited()
         {
             base.OnInited();
@@ -103,7 +108,7 @@ namespace StreamChat.SampleProject.Views
                 {
                     _sb.Append(isSingle ? " is typing" : " are typing");
 
-                    var dotsCount = _step % 3;
+                    var dotsCount = _step % 4;
                     _sb.Append(new string('.', dotsCount));
                 }
 

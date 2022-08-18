@@ -254,12 +254,6 @@ namespace StreamChat.Core
             _websocketClient?.Dispose();
         }
 
-        internal void SendEvent<TEventType, TDto>(TEventType eventBody)
-            where TEventType : EventBase, ISavableTo<TDto>
-        {
-            _websocketClient.Send(_serializer.Serialize(eventBody.SaveToDto()));
-        }
-
         string IAuthProvider.ApiKey => _authCredentials.ApiKey;
         string IAuthProvider.UserToken => _authCredentials.UserToken;
         string IAuthProvider.UserId => _authCredentials.UserId;
@@ -504,7 +498,7 @@ namespace StreamChat.Core
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
-                _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
+                //_logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
                 return;
             }
 
