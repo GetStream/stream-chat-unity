@@ -4,10 +4,14 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.DTO.Responses;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
 using StreamChat.Core.Exceptions;
+using StreamChat.Core.Requests;
+using StreamChat.Core.Responses;
 using StreamChat.Core.Web;
 
 namespace StreamChat.Core.API
@@ -244,6 +248,14 @@ namespace StreamChat.Core.API
 
             return response;
         }
+
+        protected Task PostEventAsync<TEvent, TEventDto>(string channelType, string channelId, TEvent eventBody)
+            where TEvent : ISavableTo<TEventDto> =>
+            Post<SendEventRequest<TEvent, TEventDto>, SendEventRequestDTO, ApiResponse, ResponseDTO>(
+                $"/channels/{channelType}/{channelId}/event", new SendEventRequest<TEvent, TEventDto>
+                {
+                    Event = eventBody,
+                });
 
         protected void LogRestCall(Uri uri, string endpoint, HttpMethod httpMethod, string response, bool success, string request = null)
         {

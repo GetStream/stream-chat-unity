@@ -25,13 +25,14 @@ namespace StreamChat.SampleProject.Views
         {
             _sendButton.onClick.AddListener(OnSendButtonClicked);
             _attachmentButton.onClick.AddListener(OnAttachmentButtonClicked);
-
             _messageInput.onValueChanged.AddListener(OnMessageInputValueChanged);
         }
 
         protected override void OnUpdate()
         {
             base.OnUpdate();
+
+            _typingMonitor.Update();
 
             if (InputSystem.WasEnteredPressedThisFrame)
             {
@@ -42,6 +43,8 @@ namespace StreamChat.SampleProject.Views
         protected override void OnInited()
         {
             base.OnInited();
+
+            _typingMonitor = new TypingMonitor(_messageInput, Client, State, isActive: () => _mode == Mode.Create);
 
             ViewContext.State.MessageEditRequested += OnMessageEditRequested;
 
@@ -62,7 +65,15 @@ namespace StreamChat.SampleProject.Views
 
         protected override void OnDisposing()
         {
+            _sendButton.onClick.RemoveListener(OnSendButtonClicked);
+            _attachmentButton.onClick.RemoveListener(OnAttachmentButtonClicked);
+            _messageInput.onValueChanged.RemoveListener(OnMessageInputValueChanged);
+
             ViewContext.State.MessageEditRequested -= OnMessageEditRequested;
+
+            _typingMonitor?.Dispose();
+            _typingMonitor = null;
+
             base.OnDisposing();
         }
 
@@ -97,6 +108,7 @@ namespace StreamChat.SampleProject.Views
         private Mode _mode;
         private Message _currentEditMessage;
         private string _lastAttachmentUrl;
+        private TypingMonitor _typingMonitor;
 
         private async void OnSendButtonClicked()
         {
@@ -117,11 +129,13 @@ namespace StreamChat.SampleProject.Views
                     uploadedFileType = Path.GetExtension(_lastAttachmentUrl);
 
                     Debug.Log("Start uploading attachment: " + _lastAttachmentUrl + ". This may take a while.");
-                    _messageInput.text = "Uploading attachment. This may take a while. Operation is asynchronous so you can continue using chat without being blocked.";
+                    _messageInput.text =
+                        "Uploading attachment. This may take a while. Operation is asynchronous so you can continue using chat without being blocked.";
 
                     var fileContent = File.ReadAllBytes(_lastAttachmentUrl);
 
-                    var uploadFileResponse = await Client.MessageApi.UploadFileAsync(channelState.Channel.Type, channelState.Channel.Id, fileContent, "attachment-1");
+                    var uploadFileResponse = await Client.MessageApi.UploadFileAsync(channelState.Channel.Type,
+                        channelState.Channel.Id, fileContent, "attachment-1");
                     uploadedFileUrl = uploadFileResponse.File;
                     _lastAttachmentUrl = string.Empty;
 
@@ -157,7 +171,8 @@ namespace StreamChat.SampleProject.Views
                         };
                     }
 
-                    var sendMessageResponse = await Client.MessageApi.SendNewMessageAsync(channelState.Channel.Type, channelState.Channel.Id,
+                    var sendMessageResponse = await Client.MessageApi.SendNewMessageAsync(channelState.Channel.Type,
+                        channelState.Channel.Id,
                         sendMessageRequest);
 
                     if (!uploadedFileUrl.IsNullOrEmpty())
@@ -195,6 +210,8 @@ namespace StreamChat.SampleProject.Views
 
             _currentEditMessage = null;
             _mode = Mode.Create;
+
+            _typingMonitor.NotifyChannelStoppedTyping(State.ActiveChannel.Channel);
         }
 
         private void OnAttachmentButtonClicked()
@@ -211,7 +228,9 @@ namespace StreamChat.SampleProject.Views
 #endif
         }
 
-        private void OnMessageInputValueChanged(string value)
+        private void OnMessageInputValueChanged(string value) => ReplaceEmojisWithSpriteMarkdown();
+
+        private void ReplaceEmojisWithSpriteMarkdown()
         {
             var source = _messageInput.text;
             foreach (var shortcode in _emojisShortcodes)

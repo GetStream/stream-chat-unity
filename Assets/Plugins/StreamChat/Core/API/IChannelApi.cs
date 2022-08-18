@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using StreamChat.Core.Events;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
@@ -137,5 +138,9 @@ namespace StreamChat.Core.API
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/unread_channel/?language=unity</remarks>
         Task<MarkReadResponse> MarkManyReadAsync(MarkChannelsReadRequest markChannelsReadRequest);
+
+        Task SendTypingStartEventAsync(string channelType, string channelId);
+
+        Task SendTypingStopEventAsync(string channelType, string channelId);
     }
 }

@@ -39,6 +39,10 @@ namespace StreamChat.Core
         IUserApi UserApi { get; }
         OwnUser LocalUser { get; }
 
+        /// <summary>
+        /// Per frame update of the StreamChatClient. This method triggers sending and receiving data between the client and the server. Make sure to call it every frame.
+        /// </summary>
+        /// <param name="deltaTime"></param>
         void Update(float deltaTime);
 
         /// <summary>
@@ -51,6 +55,14 @@ namespace StreamChat.Core
 
         bool IsLocalUser(ChannelMember channelMember);
 
+        /// <summary>
+        /// Set parameters for StreamChatClient reconnect strategy
+        /// </summary>
+        /// <param name="reconnectStrategy">Defines how Client will react to Disconnected state</param>
+        /// <param name="exponentialMinInterval">Defines min reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
+        /// <param name="exponentialMaxInterval">Defines max reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
+        /// <param name="constantInterval">Defines reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Constant"/></param>
+        /// <exception cref="ArgumentException">throws exception if intervals are less than or equal to zero</exception>
         void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval);
     }

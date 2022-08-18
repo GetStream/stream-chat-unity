@@ -47,6 +47,9 @@ namespace StreamChat.Core
         public event Action<EventReactionUpdated> ReactionUpdated;
         public event Action<EventReactionDeleted> ReactionDeleted;
 
+        public event Action<EventTypingStart> TypingStarted;
+        public event Action<EventTypingStop> TypingStopped;
+
         public event Action<EventNotificationMarkRead> NotificationMarkRead;
         public event Action<EventNotificationMessageNew> NotificationMessageReceived;
 
@@ -209,14 +212,6 @@ namespace StreamChat.Core
         public bool IsLocalUser(ChannelMember channelMember)
             => channelMember.User.Id == _authCredentials.UserId;
 
-        /// <summary>
-        /// Set parameters for StreamChatClient reconnect strategy
-        /// </summary>
-        /// <param name="reconnectStrategy">Defines how Client will react to Disconnected state</param>
-        /// <param name="exponentialMinInterval">Defines min reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
-        /// <param name="exponentialMaxInterval">Defines max reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Exponential"/></param>
-        /// <param name="constantInterval">Defines reconnect interval for <see cref="StreamChat.Core.ReconnectStrategy.Constant"/></param>
-        /// <exception cref="ArgumentException">throws exception if intervals are less than or equal to zero</exception>
         public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval)
         {
@@ -426,6 +421,11 @@ namespace StreamChat.Core
                 e => ReactionUpdated?.Invoke(e));
             RegisterEventType<EventReactionDeletedDTO, EventReactionDeleted>(EventType.ReactionDeleted,
                 e => ReactionDeleted?.Invoke(e));
+
+            RegisterEventType<EventTypingStartDTO, EventTypingStart>(EventType.TypingStart,
+                e => TypingStarted?.Invoke(e));
+            RegisterEventType<EventTypingStopDTO, EventTypingStop>(EventType.TypingStop,
+                e => TypingStopped?.Invoke(e));
 
             RegisterEventType<EventMessageReadDTO, EventMessageRead>(EventType.MessageRead,
                 e => MessageRead?.Invoke(e));
