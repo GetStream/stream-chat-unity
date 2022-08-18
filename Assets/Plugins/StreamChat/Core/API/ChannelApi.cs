@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
+using StreamChat.Core.DTO.Events;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
@@ -150,5 +152,11 @@ namespace StreamChat.Core.API
         public Task<MarkReadResponse> MarkManyReadAsync(MarkChannelsReadRequest markChannelsReadRequest) =>
             Post<MarkChannelsReadRequest, MarkChannelsReadRequestDTO, MarkReadResponse, MarkReadResponseDTO>(
                 $"/channels/read", markChannelsReadRequest);
+
+        public Task SendTypingStartEventAsync(string channelType, string channelId)
+            => PostEventAsync<EventTypingStart, EventTypingStartDTO>(channelType, channelId, new EventTypingStart());
+
+        public Task SendTypingStopEventAsync(string channelType, string channelId)
+            => PostEventAsync<EventTypingStop, EventTypingStopDTO>(channelType, channelId, new EventTypingStop());
     }
 }

@@ -13,6 +13,11 @@ namespace StreamChat.SampleProject.Views
     /// </summary>
     public class ConsoleView : BaseView
     {
+        protected void Awake()
+        {
+            _prevNetworkReachability = Application.internetReachability;
+        }
+
         protected override void OnInited()
         {
             base.OnInited();

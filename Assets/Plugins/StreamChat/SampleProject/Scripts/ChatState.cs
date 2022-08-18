@@ -62,6 +62,9 @@ namespace StreamChat.SampleProject
             Client.ReactionUpdated += OnReactionUpdated;
             Client.ReactionDeleted += OnReactionDeleted;
 
+            Client.TypingStarted += OnTypingStarted;
+            Client.TypingStopped += OnTypingStopped;
+
             Client.NotificationMarkRead += OnNotificationMarkRead;
         }
 
@@ -76,6 +79,9 @@ namespace StreamChat.SampleProject
             Client.ReactionReceived -= OnReactionReceived;
             Client.ReactionUpdated -= OnReactionUpdated;
             Client.ReactionDeleted -= OnReactionDeleted;
+
+            Client.TypingStarted -= OnTypingStarted;
+            Client.TypingStopped -= OnTypingStopped;
 
             Client.NotificationMarkRead -= OnNotificationMarkRead;
 
@@ -313,6 +319,16 @@ namespace StreamChat.SampleProject
 
         private void OnReactionUpdated(EventReactionUpdated eventReactionUpdated) =>
             UpdateChannelMessage(eventReactionUpdated.Message);
+
+        private void OnTypingStarted(EventTypingStart obj)
+        {
+            Debug.Log($"OnTypingStarted - CID: {obj.Cid}, User: {obj.User.Id}, Created at: {obj.CreatedAt}");
+        }
+
+        private void OnTypingStopped(EventTypingStop obj)
+        {
+            Debug.Log($"OnTypingStopped - CID: {obj.Cid}, User: {obj.User.Id}, Created at: {obj.CreatedAt}");
+        }
 
         private void OnNotificationMarkRead(EventNotificationMarkRead eventNotificationMarkRead) =>
             Debug.Log($"Notified mark read for channel: {eventNotificationMarkRead.Cid}, " +
