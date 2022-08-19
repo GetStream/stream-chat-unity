@@ -290,9 +290,10 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 });
         }
 
-        public async Task GetInitialLocalUserReadState()
+        public void GetInitialLocalUserReadState()
         {
             AuthCredentials authCredentials = default;
+            InitStreamChatClient();
 
             void InitStreamChatClient()
             {
@@ -320,9 +321,10 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             });
         }
 
-        public async Task ListenToMarkReadStateEvents()
+        public void ListenToMarkReadStateEvents()
         {
             AuthCredentials authCredentials = default;
+            InitStreamChatClient();
 
             void InitStreamChatClient()
             {
@@ -420,6 +422,44 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             //if MarkReadRequest.MessageId is empty, the whole channel is marked as read
             var markReadRequest = new MarkReadRequest();
             var markReadResponse = await Client.ChannelApi.MarkReadAsync("messaging", "channel-id", markReadRequest);
+        }
+
+        public async Task SendTypingStartStopEvents()
+        {
+            ChannelState channelState = default;
+
+            //Notify other users that user started typing
+            await Client.ChannelApi.SendTypingStartEventAsync(channelState.Channel.Type, channelState.Channel.Id);
+
+            //Notify other users that user stopped typing
+            await Client.ChannelApi.SendTypingStopEventAsync(channelState.Channel.Type, channelState.Channel.Id);
+        }
+
+        public void ReceiveTypingStartStopEvents()
+        {
+            SubscribeToTypingEvents();
+
+            void SubscribeToTypingEvents()
+            {
+                Client.TypingStarted += OnTypingStarted;
+                Client.TypingStopped += OnTypingStopped;
+            }
+
+            void OnTypingStarted(EventTypingStart eventTypingStart)
+            {
+                Debug.Log(eventTypingStart.ChannelId); //Channel ID
+                Debug.Log(eventTypingStart.ChannelType); //Channel Type
+                Debug.Log(eventTypingStart.Cid); //Channel CID
+                Debug.Log(eventTypingStart.User); //User that started typing
+            }
+
+            void OnTypingStopped(EventTypingStop eventTypingStop)
+            {
+                Debug.Log(eventTypingStop.ChannelId); //Channel ID
+                Debug.Log(eventTypingStop.ChannelType); //Channel Type
+                Debug.Log(eventTypingStop.Cid); //Channel CID
+                Debug.Log(eventTypingStop.User); //User that stopped typing
+            }
         }
 
         private IStreamChatClient Client;
