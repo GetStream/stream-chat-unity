@@ -26,7 +26,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Number of messages to return
         /// </summary>
         [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Limit { get; set; }
+        public int? Limit { get; set; }
 
         /// <summary>
         /// Message filter conditions
@@ -44,7 +44,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Pagination offset. Cannot be used with sort or next.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("offset", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Offset { get; set; }
+        public int? Offset { get; set; }
 
         /// <summary>
         /// Search phrase

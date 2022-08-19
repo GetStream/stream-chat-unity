@@ -61,7 +61,7 @@ namespace StreamChat.SampleProject.Views
         {
             if (!_channelCidToTypingUserIds.TryGetValue(obj.Cid, out var userIds))
             {
-                _channelCidToTypingUserIds[obj.Cid] = new HashSet<string>();
+                _channelCidToTypingUserIds[obj.Cid] = userIds = new HashSet<string>();
             }
 
             userIds.Add(obj.User.Id);

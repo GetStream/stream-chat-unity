@@ -15,7 +15,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Number of messages to return
         /// </summary>
-        public double? Limit { get; set; }
+        public int? Limit { get; set; }
 
         /// <summary>
         /// Message filter conditions
@@ -30,7 +30,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Pagination offset. Cannot be used with sort or next.
         /// </summary>
-        public double? Offset { get; set; }
+        public int? Offset { get; set; }
 
         /// <summary>
         /// Search phrase

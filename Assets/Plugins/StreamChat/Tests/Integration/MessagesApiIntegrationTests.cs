@@ -7,6 +7,7 @@ using NUnit.Framework;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.Video;
 
@@ -359,6 +360,109 @@ namespace StreamChat.Tests.Integration
 
                 Assert.IsTrue(message.ReactionScores.ContainsKey("like"));
                 Assert.AreEqual(message.ReactionScores["like"], 15);
+            });
+        }
+
+        [UnityTest]
+        public IEnumerator SearchMessages()
+        {
+            yield return Client.WaitForClientToConnect();
+
+            var phrasesToInject = new string[]
+            {
+                "bengal Cat",
+                "Bengal's logo",
+                "A beNGAl cat is cool"
+            };
+
+            var injectedMessageIds = new List<string>();
+
+            const string channelType = "messaging";
+
+            ChannelState channelState = null;
+            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
+                state => channelState = state);
+            var channelId = channelState.Channel.Id;
+
+            var joinTask = Client.ChannelApi.UpdateChannelAsync(channelState.Channel.Type, channelState.Channel.Id,
+                new UpdateChannelRequest
+                {
+                    AddMembers = new List<ChannelMemberRequest>
+                    {
+                        new ChannelMemberRequest
+                        {
+                            UserId = Client.UserId
+                        }
+                    }
+                });
+
+            yield return joinTask.RunAsIEnumerator();
+
+            //Generate 6 messages and inject search phrases to 3 of them
+
+            var insertedPhrases = 0;
+            for (int i = 0; i < 6; i++)
+            {
+                var injectSearchPhrase = (i % 2 == 0) && (insertedPhrases < phrasesToInject.Length);
+                var text = GenerateRandomMessage();
+                if (injectSearchPhrase)
+                {
+                    var insertIndex = Random.Range(0, text.Length);
+                    var phrase = phrasesToInject[insertedPhrases];
+                    text = text.Insert(insertIndex, $" {phrase} ");
+                    insertedPhrases++;
+                }
+
+                var sendMessageRequest = new SendMessageRequest
+                {
+                    Message = new MessageRequest
+                    {
+                        Text = text
+                    }
+                };
+
+                var messageResponseTask =
+                    Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+
+                yield return messageResponseTask.RunAsIEnumerator(response =>
+                {
+                    if (injectSearchPhrase)
+                    {
+                        injectedMessageIds.Add(response.Message.Id);
+                    }
+                });
+            }
+
+            //Search
+
+            var searchTask = Client.MessageApi.SearchMessagesAsync(new SearchRequest
+            {
+                //Filter is required for search
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        //Get channels that local user is a member of
+                        "members", new Dictionary<string, object>
+                        {
+                            { "$in", new[] { Client.UserId } }
+                        }
+                    }
+                },
+
+                //search phrase
+                Query = "bengal"
+            });
+
+            yield return searchTask.RunAsIEnumerator(response =>
+            {
+                Assert.NotNull(response.Results);
+                Assert.AreEqual(3, response.Results.Count);
+
+                foreach (var injectedPhrase in phrasesToInject)
+                {
+                    var result = response.Results.FirstOrDefault(_ => _.Message.Text.Contains(injectedPhrase));
+                    Assert.NotNull(result);
+                }
             });
         }
     }

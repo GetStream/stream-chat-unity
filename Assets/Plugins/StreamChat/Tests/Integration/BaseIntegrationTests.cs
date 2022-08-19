@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using StreamChat.Core;
@@ -16,6 +17,7 @@ using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace StreamChat.Tests.Integration
 {
@@ -108,8 +110,32 @@ namespace StreamChat.Tests.Integration
             }
         }
 
+        protected string GenerateRandomMessage(int minWords = 2, int maxWords = 10, int minWordLength = 2, int maxWordLength = 8)
+        {
+            var wordsCount = Random.Range(minWords, maxWords);
+            while (wordsCount-- > 0)
+            {
+                var wordLength = Random.Range(minWordLength, maxWordLength);
+
+                while (wordLength-- > 0)
+                {
+                    _sb.Append(Random.Range(0, WordChars.Length));
+                }
+
+                _sb.Append(" ");
+            }
+
+            var result = _sb.ToString();
+            _sb.Clear();
+            return result;
+        }
+
+        const string WordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
         private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =
             new List<(string ChannelType, string ChannelId)>();
+        private StringBuilder _sb = new StringBuilder();
+
 
         private void DeleteTempChannels()
         {
