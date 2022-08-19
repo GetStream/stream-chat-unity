@@ -37,7 +37,7 @@ namespace StreamChat.Core.Events
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Message = Message.TryLoadFromDto(dto.Message);
+            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
             Team = dto.Team;
             Type = dto.Type;
             TotalUnreadCount = dto.TotalUnreadCount;

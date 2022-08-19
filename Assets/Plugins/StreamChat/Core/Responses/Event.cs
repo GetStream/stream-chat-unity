@@ -91,7 +91,7 @@ namespace StreamChat.Core.Responses
             CreatedBy = CreatedBy.TryLoadFromDto<UserObjectDTO, User>(dto.CreatedBy);
             Me = Me.TryLoadFromDto<OwnUserDTO, OwnUser>(dto.Me);
             Member = Member.TryLoadFromDto(dto.Member);
-            Message = Message.TryLoadFromDto(dto.Message);
+            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
             ParentId = dto.ParentId;
             Reaction = Reaction.TryLoadFromDto(dto.Reaction);
             Reason = dto.Reason;

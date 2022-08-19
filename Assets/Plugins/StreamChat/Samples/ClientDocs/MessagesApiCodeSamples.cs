@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Requests;
+using UnityEngine;
 
 namespace Plugins.StreamChat.Samples.ClientDocs
 {
@@ -162,6 +163,35 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
             var deleteFileResponse = await Client.MessageApi.DeleteFileAsync(channelType: "messaging",
                 channelId: "channel-id-1", remoteFileUrl);
+        }
+
+        public async Task SearchMessages()
+        {
+            var searchResponse = await Client.MessageApi.SearchMessagesAsync(new SearchRequest
+            {
+                //Filter is required for search
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        //Get channels that local user is a member of
+                        "members", new Dictionary<string, object>
+                        {
+                            { "$in", new[] { "John" } }
+                        }
+                    }
+                },
+
+                //search phrase
+                Query = "supercalifragilisticexpialidocious"
+            });
+
+            foreach (var searchResult in searchResponse.Results)
+            {
+                Debug.Log(searchResult.Message.Id); //Message ID
+                Debug.Log(searchResult.Message.Text); //Message text
+                Debug.Log(searchResult.Message.User); //Message author info
+                Debug.Log(searchResult.Message.Channel); //Channel info
+            }
         }
 
         private IStreamChatClient Client;

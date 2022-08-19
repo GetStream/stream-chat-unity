@@ -1,4 +1,5 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.DTO.Models;
+using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
@@ -16,7 +17,7 @@ namespace StreamChat.Core.Responses
         MessageResponse ILoadableFrom<MessageResponseDTO, MessageResponse>.LoadFromDto(MessageResponseDTO dto)
         {
             Duration = dto.Duration;
-            Message = Message.TryLoadFromDto(dto.Message);
+            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

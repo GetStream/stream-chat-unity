@@ -59,5 +59,13 @@ namespace StreamChat.Core.API
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity</remarks>
         Task<FileDeleteResponse> DeleteFileAsync(string channelType, string channelId, string fileUrl);
+
+        /// <summary>
+        /// <para>Search messages</para>
+        /// You can enable and/or disable the search indexing on a per channel
+        /// type through the Stream Dashboard.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/search/?language=unity</remarks>
+        Task<SearchResponse> SearchMessagesAsync(SearchRequest searchRequest);
     }
 }
