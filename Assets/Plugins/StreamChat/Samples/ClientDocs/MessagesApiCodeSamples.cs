@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using UnityEngine;
 
@@ -165,7 +166,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 channelId: "channel-id-1", remoteFileUrl);
         }
 
-        public async Task SearchMessages()
+        public async Task SearchMessagesWithPaginationUsingLimitAndOffset()
         {
             var searchResponse = await Client.MessageApi.SearchMessagesAsync(new SearchRequest
             {
@@ -181,6 +182,19 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                     }
                 },
 
+                // Optional sorting, default is "by relevance"
+                Sort = new List<SortParam>
+                {
+                    new SortParam
+                    {
+                        Field = "updated_at",
+                        Direction = -1 // Descending
+                    }
+                },
+
+                Limit = 100,
+                Offset = 0,
+
                 //search phrase
                 Query = "supercalifragilisticexpialidocious"
             });
@@ -191,6 +205,65 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Debug.Log(searchResult.Message.Text); //Message text
                 Debug.Log(searchResult.Message.User); //Message author info
                 Debug.Log(searchResult.Message.Channel); //Channel info
+            }
+        }
+
+        public async Task SearchMessagesWithPaginationUsingNextKey()
+        {
+            // Get first page without setting the Next parameter
+            var resultsPage1 = await Client.MessageApi.SearchMessagesAsync(new SearchRequest
+            {
+                //Filter is required for search
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        //Get channels that local user is a member of
+                        "members", new Dictionary<string, object>
+                        {
+                            { "$in", new[] { "John" } }
+                        }
+                    }
+                },
+                Query = "supercalifragilisticexpialidocious", // Search phrase
+                Limit = 30 // Per page results
+            });
+
+            // First page results
+            foreach (var searchResult in resultsPage1.Results)
+            {
+                Debug.Log(searchResult.Message.Id); // Message ID
+                Debug.Log(searchResult.Message.Text); // Message text
+                Debug.Log(searchResult.Message.User); // Message author info
+                Debug.Log(searchResult.Message.Channel); // Channel info
+            }
+
+            // Get second page of results by setting: Next = resultsPage1.Next
+            var resultsPage2 = await Client.MessageApi.SearchMessagesAsync(new SearchRequest
+            {
+                // Filter is required for search
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        //Get channels that local user is a member of
+                        "members", new Dictionary<string, object>
+                        {
+                            { "$in", new[] { "John" } }
+                        }
+                    }
+                },
+
+                Next = resultsPage1.Next, // Put Next key from the previous page request
+                Query = "supercalifragilisticexpialidocious", // Search phrase
+                Limit = 30 // Per page results
+            });
+
+            // Second page results
+            foreach (var searchResult in resultsPage1.Results)
+            {
+                Debug.Log(searchResult.Message.Id); // Message ID
+                Debug.Log(searchResult.Message.Text); // Message text
+                Debug.Log(searchResult.Message.User); // Message author info
+                Debug.Log(searchResult.Message.Channel); // Channel info
             }
         }
 
