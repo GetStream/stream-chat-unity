@@ -43,6 +43,9 @@ The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://gets
 - **Moderation:** Banning (temporary, permanent, shadow), Muting (users, channels), Flagging (messages, users)
 - **Roles & Permissions:** Admins, Moderators, custom roles with custom permission
 - **Moderation Dashboard** Dedicated web panel to handle moderation
+- **Search** search through messages history 
+- **Unread counts** mark read state and count unread messages for each user
+- **Typing indicators** see who's currently writing a new message
 - **Fully open-source**: Complete access to the SDK source code here on GitHub
 
 ## Free for Indie Developers
