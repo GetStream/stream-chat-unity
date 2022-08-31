@@ -36,11 +36,7 @@ namespace StreamChat.EditorTools
 
             if (GUILayout.Button("Strip changelog markdown"))
             {
-                _changelog = CleanupMarkdown(_changelog);
-
-                // This fixed TextArea above to refresh and properly show cleaned up changelog
-                GUIUtility.keyboardControl = 0;
-                GUIUtility.hotControl = 0;
+                StripChangelogMarkdown();
             }
 
             GUILayout.Space(10);
@@ -57,17 +53,37 @@ namespace StreamChat.EditorTools
 
             GUILayout.Space(10);
 
+            _stripMarkdown = EditorGUILayout.Toggle("Strip markdown from changelog", _stripMarkdown);
+
+            GUILayout.Space(10);
+
             if (GUILayout.Button("Export"))
             {
+                _lastSuccess = false;
                 _lastError = null;
                 try
                 {
-                    _exporter.Export(_targetDirectory, new Version(_versionMajor, _versionMinor, _versionBuild), _changelog);
+                    if (_stripMarkdown)
+                    {
+                        StripChangelogMarkdown();
+                    }
+                    _exporter.Export(_targetDirectory, new Version(_versionMajor, _versionMinor, _versionBuild), _changelog, out var packagePath);
                     EditorPrefs.SetString(EditorPrefsLastTargetDirectory, _targetDirectory);
+
+                    _lastSuccess = true;
+                    EditorUtility.RevealInFinder(packagePath);
                 }
                 catch (Exception e)
                 {
                     _lastError = e.ToString();
+                }
+            }
+
+            if (_lastSuccess)
+            {
+                using (new GUIColorScope(Color.green))
+                {
+                    GUILayout.Label("Export successful!");
                 }
             }
 
@@ -80,7 +96,6 @@ namespace StreamChat.EditorTools
             }
         }
 
-        private const int DefaultTextAreaHeight = 100;
         private const string EditorPrefsLastTargetDirectory = "fda978fdsah_LastExportPackageTargetDirectory";
 
         private readonly StreamPackageExporter _exporter = new StreamPackageExporter();
@@ -88,20 +103,34 @@ namespace StreamChat.EditorTools
         private int _versionMajor, _versionMinor, _versionBuild;
         private string _changelog;
         private string _targetDirectory;
+        private bool _stripMarkdown = true;
 
         private string _lastError;
+        private bool _lastSuccess;
 
         private Vector2 _textAreaScrollPos;
+
+        private void StripChangelogMarkdown()
+        {
+            _changelog = CleanupMarkdown(_changelog);
+
+            // This fixed TextArea above to refresh and properly show cleaned up changelog
+            GUIUtility.keyboardControl = 0;
+            GUIUtility.hotControl = 0;
+        }
 
         private static string CleanupMarkdown(string text)
         {
             text = text.Replace("`", "");
 
             // GH Issues
-            text = Regex.Replace(text, @"\(#[0-9]+\)", "");
+            text = Regex.Replace(text, @"\(#[0-9]+\)", "", RegexOptions.Multiline);
 
             // GH Headers
-            text = Regex.Replace(text, @"^#+\s*", "");
+            text = Regex.Replace(text, @"^#+\s*", "", RegexOptions.Multiline);
+
+            // first - to *
+            text = Regex.Replace(text, @"^([^-]\s*)?(\-\s*)", "$1* ", RegexOptions.Multiline);
 
             return text.Trim();
         }

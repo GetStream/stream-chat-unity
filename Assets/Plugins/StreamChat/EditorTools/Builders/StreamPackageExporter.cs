@@ -14,7 +14,7 @@ namespace StreamChat.EditorTools.Builders
         /// <param name="targetDirectory">Full path of target directory</param>
         /// <param name="version">New Version</param>
         /// <param name="changelog">Changelog associated with this particular version</param>
-        public void Export(string targetDirectory, Version version, string changelog)
+        public void Export(string targetDirectory, Version version, string changelog, out string packagePath)
         {
             if (changelog.IsNullOrEmpty())
             {
@@ -41,7 +41,7 @@ namespace StreamChat.EditorTools.Builders
 
             var pluginDirectory = Path.GetDirectoryName(changelogFilepath);
 
-            ExportPackage(targetDirectory, pluginDirectory, version);
+            packagePath = ExportPackage(targetDirectory, pluginDirectory, version);
         }
 
         private const string StreamChatClientFilename = "StreamChatClient.cs";
@@ -156,11 +156,13 @@ namespace StreamChat.EditorTools.Builders
             }
         }
 
-        private static void ExportPackage(string targetDirectory, string rooDirectoryPath, Version version)
+        private static string ExportPackage(string targetDirectory, string rooDirectoryPath, Version version)
         {
             var filename = string.Format(PackageNameTemplate, version);
             var path = Path.Combine(targetDirectory, filename);
             AssetDatabase.ExportPackage(rooDirectoryPath, path, ExportPackageOptions.Recurse);
+
+            return path;
         }
     }
 }
