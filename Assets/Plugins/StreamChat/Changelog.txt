@@ -1,3 +1,66 @@
+v3.6.0:
+Deprecated (will be removed in a future release):
+* ChannelState's NewMessageAdded and AddMessage methods
+
+Fixes:
+* ConnectionStateChanged event invalid previous state argument 
+* Fixed Connection "not being updated" error to not show if the client disconnects before the health event timeout
+* Fixed StreamApiException passing message to base Exception
+* Fixed detailed request log not showing for POST
+* Added missing EventMessageNew fields
+* Change client state to Disconnected if HealthCheck not received
+* Kill WebSocket if healthcheck not received + Close Websocket on Disconnect
+	
+Improvements:
+* Client will automatically reconnect whenever a connection gets lost based on reconnect strategy settings 
+	* Added SetReconnectStrategy to allow control of the reconnect strategy
+* Added Moderation API Endpoints & Code Samples:
+	* Unmute
+	* Ban
+	* Unban
+	* ShadowBanUser
+	* RemoveUserShadowBan
+	* QueryBannedUsers
+	* FlagUser
+	* FlagMessage
+	* QueryMessageFlags
+* Added ChannelApi API Endpoints & Code Samples:
+	* MarkRead & MarkManyRead  - marking read state
+	* SendTypingStartEvent & SendTypingStopEvent  - typing indicators
+* Added MessageAip Endpoint & Code Samples:
+	* SearchMessages 
+* Added events:
+	* MessageRead
+	* NotificationMarkRead
+	* Disconnected
+* Added LocalUser property to IStreamChatClient
+* Added XML summaries Stream Chat Client events:
+* Improved description & optimized API calls logs 
+* Added code samples:
+	* users upsert 
+	* reply in a thread
+	* quote message
+	* get read states
+	* get the next 25 messages since last read
+	* update the channel to hide history for new members
+	* paginating: messages, members, or watchers 
+	* mark read endpoints 
+	* typing indicators 
+* Added error log if a user forgets to update the connection per frame
+* Added option to toggle compilation of SDK unity & integration tests
+	
+Sample Project:
+* Fixes:
+	* (Sample Project) Fixed receiving active channel messages after reconnect
+	* (Sample Project) Fixed null ref exception on app start 
+* Improvements:
+	* Added emojis sprite atlas using Twemoji + Added auto replacing of emoji shortcodes with TMP sprites 
+	* Added option to mark the message as the last read
+	* Logs for MessageRead & NotificationMarkRead events
+	* Added connection details info
+	* Added forcing reconnect based on Unity's NetworkReachability feature
+	* Added typing indicators
+
 v3.0.0:
 * Fixes:
 	* Fixed Sample Project compatibility with .NET 4.x
@@ -46,6 +109,3 @@ v1.0.0:
 	* Messages Endpoints: CRUD
 	* Users Endpoints: CRUD, Query
 	* Sample project
-
-
-
