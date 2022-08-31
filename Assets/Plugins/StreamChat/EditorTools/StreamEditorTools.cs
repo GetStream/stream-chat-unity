@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using StreamChat.EditorTools.Builders;
 using StreamChat.Core;
 using StreamChat.EditorTools.DefineSymbols;
@@ -31,6 +28,13 @@ namespace StreamChat.EditorTools
         public static void ShowSpriteAtlasUtilityEditorWindow()
         {
             var window = EditorWindow.GetWindow<SpriteAtlasUtilityEditor>();
+            window.Show();
+        }
+
+        [MenuItem(MenuPrefix + "Open " + nameof(StreamPackageExportEditor))]
+        public static void ShowStreamPackageExportEditorWindow()
+        {
+            var window = EditorWindow.GetWindow<StreamPackageExportEditor>();
             window.Show();
         }
 
