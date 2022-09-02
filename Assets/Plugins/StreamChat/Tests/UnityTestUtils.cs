@@ -42,6 +42,36 @@ namespace StreamChat.Tests
             onSuccess?.Invoke(task.Result);
         }
 
+        public static IEnumerator RunAsIEnumerator(this Task task,
+            Action onSuccess = null, Action<Exception> onFaulted = null)
+        {
+            while (!task.IsCompleted)
+            {
+                yield return null;
+            }
+
+            if (task.IsFaulted)
+            {
+                if (onFaulted != null)
+                {
+                    onFaulted(task.Exception);
+                    yield break;
+                }
+                else
+                {
+                    if (task.Exception is AggregateException aggregateException &&
+                        aggregateException.InnerExceptions.Count == 1)
+                    {
+                        throw task.Exception.InnerException;
+                    }
+
+                    throw task.Exception;
+                }
+            }
+
+            onSuccess?.Invoke();
+        }
+
         public static IEnumerator WaitForClientToConnect(this IStreamChatClient client)
         {
             const float MaxTimeToConnect = 3;
