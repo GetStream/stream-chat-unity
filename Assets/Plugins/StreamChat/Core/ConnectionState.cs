@@ -45,6 +45,7 @@ namespace StreamChat.Core
             {
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                case ConnectionState.Closing:
                     return false;
                 case ConnectionState.Disconnected:
                 case ConnectionState.WaitToReconnect:
