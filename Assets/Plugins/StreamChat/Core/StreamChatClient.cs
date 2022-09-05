@@ -94,9 +94,9 @@ namespace StreamChat.Core
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
         /// </summary>
         /// <param name="authCredentials">Authorization data with ApiKey, UserToken and UserId</param>
-        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials, IStreamConfig config = default)
+        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials, IStreamClientConfig config = default)
         {
-            config ??= StreamConfig.Default;
+            config ??= StreamClientConfig.Default;
             var logs = LibsFactory.CreateDefaultLogs(config.LogLevel.ToLogLevel());
             var websocketClient = LibsFactory.CreateDefaultWebsocketClient(logs, isDebugMode: config.LogLevel.IsDebugEnabled());
             var httpClient = LibsFactory.CreateDefaultHttpClient();
@@ -142,7 +142,7 @@ namespace StreamChat.Core
 
         public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
-            IStreamConfig config)
+            IStreamClientConfig config)
         {
             _config = config;
             _authCredentials = authCredentials;
@@ -280,7 +280,7 @@ namespace StreamChat.Core
         private readonly IHttpClient _httpClient;
         private readonly StringBuilder _errorSb = new StringBuilder();
         private readonly StringBuilder _logSb = new StringBuilder();
-        private readonly IStreamConfig _config;
+        private readonly IStreamClientConfig _config;
 
         private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
             new Dictionary<string, Action<string>>();

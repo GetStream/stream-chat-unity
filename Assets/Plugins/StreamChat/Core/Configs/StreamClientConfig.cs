@@ -3,9 +3,9 @@
     /// <summary>
     /// <inheritdoc />
     /// </summary>
-    public class StreamConfig : IStreamConfig
+    public class StreamClientConfig : IStreamClientConfig
     {
-        public static IStreamConfig Default { get; set; } = new StreamConfig();
+        public static IStreamClientConfig Default { get; set; } = new StreamClientConfig();
 
         public StreamLogLevel LogLevel { get; set; } = StreamLogLevel.All;
     }
