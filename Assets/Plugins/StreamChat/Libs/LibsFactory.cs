@@ -11,10 +11,16 @@ namespace StreamChat.Libs
     /// </summary>
     public static class LibsFactory
     {
-        public static ILogs CreateDefaultLogs() => new UnityLogs();
-        public static IWebsocketClient CreateDefaultWebsocketClient(ILogs logs) => new WebsocketClient(logs);
+        public static ILogs CreateDefaultLogs(UnityLogs.LogLevel logLevel = UnityLogs.LogLevel.All)
+            => new UnityLogs(logLevel);
+
+        public static IWebsocketClient CreateDefaultWebsocketClient(ILogs logs, bool isDebugMode = false)
+            => new WebsocketClient(logs, isDebugMode: isDebugMode);
+
         public static IHttpClient CreateDefaultHttpClient() => new HttpClientAdapter();
+
         public static ISerializer CreateDefaultSerializer() => new NewtonsoftJsonSerializer();
+
         public static ITimeService CreateDefaultTimeService() => new UnityTime();
     }
 }
