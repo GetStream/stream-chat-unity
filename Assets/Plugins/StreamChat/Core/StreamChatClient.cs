@@ -15,6 +15,7 @@ using StreamChat.Core.Auth;
 using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
+using StreamChat.Core.Configs;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
@@ -93,16 +94,17 @@ namespace StreamChat.Core
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
         /// </summary>
         /// <param name="authCredentials">Authorization data with ApiKey, UserToken and UserId</param>
-        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials)
+        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials, IStreamClientConfig config = default)
         {
-            var logs = LibsFactory.CreateDefaultLogs();
-            var websocketClient = LibsFactory.CreateDefaultWebsocketClient(logs);
+            config ??= StreamClientConfig.Default;
+            var logs = LibsFactory.CreateDefaultLogs(config.LogLevel.ToLogLevel());
+            var websocketClient = LibsFactory.CreateDefaultWebsocketClient(logs, isDebugMode: config.LogLevel.IsDebugEnabled());
             var httpClient = LibsFactory.CreateDefaultHttpClient();
             var serializer = LibsFactory.CreateDefaultSerializer();
             var timeService = LibsFactory.CreateDefaultTimeService();
 
             return new StreamChatClient(authCredentials, websocketClient, httpClient, serializer,
-                timeService, logs);
+                timeService, logs, config);
         }
 
         /// <summary>
@@ -139,16 +141,19 @@ namespace StreamChat.Core
         }
 
         public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs)
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
+            IStreamClientConfig config)
         {
+            _config = config;
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
+            _config = config ?? throw new ArgumentNullException(nameof(config));
 
-            _logs.Prefix = "Stream Chat: ";
+            _logs.Prefix = "[Stream Chat] ";
 
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
 
@@ -221,7 +226,7 @@ namespace StreamChat.Core
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentException($"{name} needs to greater than zero, given: " + value);
+                    throw new ArgumentException($"{name} needs to be greater than zero, given: " + value);
                 }
             }
 
@@ -275,6 +280,7 @@ namespace StreamChat.Core
         private readonly IHttpClient _httpClient;
         private readonly StringBuilder _errorSb = new StringBuilder();
         private readonly StringBuilder _logSb = new StringBuilder();
+        private readonly IStreamClientConfig _config;
 
         private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
             new Dictionary<string, Action<string>>();
@@ -431,7 +437,8 @@ namespace StreamChat.Core
                 e => MessageRead?.Invoke(e));
             RegisterEventType<EventNotificationMarkReadDTO, EventNotificationMarkRead>(EventType.NotificationMarkRead,
                 e => NotificationMarkRead?.Invoke(e));
-            RegisterEventType<EventNotificationMessageNewDTO, EventNotificationMessageNew>(EventType.NotificationMessageNew,
+            RegisterEventType<EventNotificationMessageNewDTO, EventNotificationMessageNew>(
+                EventType.NotificationMessageNew,
                 e => NotificationMessageReceived?.Invoke(e));
         }
 
@@ -498,7 +505,10 @@ namespace StreamChat.Core
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
-                //_logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
+                if (_config.LogLevel.IsDebugEnabled())
+                {
+                    _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
+                }
                 return;
             }
 

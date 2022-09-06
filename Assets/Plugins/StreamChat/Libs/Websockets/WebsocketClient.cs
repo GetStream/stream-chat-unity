@@ -19,19 +19,17 @@ namespace StreamChat.Libs.Websockets
         public event Action Disconnected;
         public event Action ConnectionFailed;
 
-        public const bool IsDebugMode = false;
-
         public bool IsConnected => State == WebSocketState.Open;
         public bool IsConnecting => State == WebSocketState.Connecting;
 
         public WebSocketState State => _internalClient?.State ?? WebSocketState.None;
 
-        public WebsocketClient(ILogs logs, Encoding encoding = default)
+        /// <param name="isDebugMode">Additional logs will be printed</param>
+        public WebsocketClient(ILogs logs, Encoding encoding = default, bool isDebugMode = false)
         {
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
             _encoding = encoding ?? DefaultEncoding;
-
-            _logs.Prefix = "StreamChat Internal Websocket Client";
+            _isDebugMode = isDebugMode;
 
             var readBuffer = new byte[4 * 1024];
             _bufferSegment = new ArraySegment<byte>(readBuffer);
@@ -60,7 +58,7 @@ namespace StreamChat.Libs.Websockets
             }
             catch (WebSocketException e)
             {
-                if (IsDebugMode)
+                if (_isDebugMode)
                 {
                     _logs.Exception(e);
                 }
@@ -96,7 +94,7 @@ namespace StreamChat.Libs.Websockets
             var disconnect = false;
             while (_threadWebsocketExceptionsLog.TryDequeue(out var webSocketException))
             {
-                if (IsDebugMode)
+                if (_isDebugMode)
                 {
                     _logs.Exception(webSocketException);
                 }
@@ -152,6 +150,7 @@ namespace StreamChat.Libs.Websockets
 
         private readonly ILogs _logs;
         private readonly Encoding _encoding;
+        private readonly bool _isDebugMode;
 
         private Uri _uri;
         private ClientWebSocket _internalClient;
