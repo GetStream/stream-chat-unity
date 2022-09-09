@@ -89,9 +89,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
             try
             {
-                var updateUsersResponse = await Client.UserApi.UpsertUsersAsync(new UpdateUsersRequest
+                var updateUsersResponse = await Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest
                 {
-                    Users = new Dictionary<string, UserObjectRequest>()
+                    Users = new Dictionary<string, UserObjectRequest>
                     {
                         {createNewUserRequest.Id, createNewUserRequest}
                     }
@@ -102,7 +102,6 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Debug.LogException(e);
             }
         }
-
 
         private IStreamChatClient Client;
     }

@@ -9,7 +9,7 @@ namespace StreamChat.Core
     public enum StreamLogLevel
     {
         /// <summary>
-        /// Logging is completely disabled. This option is not recommended.
+        /// Logging is entirely disabled. This option is not recommended.
         /// </summary>
         Disabled,
 
