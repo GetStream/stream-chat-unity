@@ -25,14 +25,14 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Id { get; set; }
 
-        public double? Limit { get; set; }
+        public int? Limit { get; set; }
 
         /// <summary>
         /// List of members to search in distinct channels
         /// </summary>
         public System.Collections.Generic.List<ChannelMember> Members { get; set; }
 
-        public double? Offset { get; set; }
+        public int? Offset { get; set; }
 
         /// <summary>
         /// Array of sort parameters
