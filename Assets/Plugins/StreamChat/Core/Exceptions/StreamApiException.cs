@@ -21,7 +21,7 @@ namespace StreamChat.Core.Exceptions
         public IReadOnlyDictionary<string, string> ExceptionFields => _exceptionFields;
 
         internal StreamApiException(APIErrorDTO apiError)
-            : base(apiError.Message)
+            : base($"{apiError.Message}, Error Code: {apiError.Code}, Http Status Code: {apiError.StatusCode}, More info: {apiError.MoreInfo}, Exception fields: {PrintExceptionFields(apiError)}")
         {
             StatusCode = apiError.StatusCode;
             Code = apiError.Code;
@@ -35,7 +35,37 @@ namespace StreamChat.Core.Exceptions
             }
         }
 
+        private static readonly StringBuilder _sb = new StringBuilder();
+
         private readonly Dictionary<string, string> _exceptionFields;
+
+        private static string PrintExceptionFields(APIErrorDTO apiError)
+        {
+            if (apiError.ExceptionFields == null)
+            {
+                return "None";
+            }
+
+            _sb.Length = 0;
+
+            var count = apiError.ExceptionFields.Count;
+            var index = 0;
+            foreach (var keyValuePair in apiError.ExceptionFields)
+            {
+                _sb.Append(keyValuePair.Key);
+                _sb.Append(": ");
+                _sb.Append(keyValuePair.Value);
+
+                if (index < count - 1)
+                {
+                    _sb.Append(", ");
+                }
+
+                index++;
+            }
+
+            return _sb.ToString();
+        }
     }
 
     /// <summary>
