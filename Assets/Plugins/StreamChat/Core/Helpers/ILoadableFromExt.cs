@@ -15,5 +15,16 @@
 
             return new TDomain().LoadFromDto(dto);
         }
+
+        public static TDomain ToDomain<TDto, TDomain>(this TDto dto)
+            where TDomain : class, ILoadableFrom<TDto, TDomain>, new()
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            return new TDomain().LoadFromDto(dto);
+        }
     }
 }

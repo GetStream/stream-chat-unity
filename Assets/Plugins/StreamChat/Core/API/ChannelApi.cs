@@ -1,162 +1,139 @@
-﻿using System.Threading.Tasks;
-using StreamChat.Core.DTO.Events;
-using StreamChat.Core.DTO.Requests;
+﻿using System;
+using System.Threading.Tasks;
 using StreamChat.Core.DTO.Responses;
-using StreamChat.Core.Events;
-using StreamChat.Libs.Http;
-using StreamChat.Libs.Logs;
-using StreamChat.Libs.Serialization;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
+using StreamChat.Core.API.Internal;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
-using StreamChat.Core.Web;
 
 namespace StreamChat.Core.API
 {
-    internal class ChannelApi : ApiClientBase, IChannelApi
+    internal class ChannelApi : IChannelApi
     {
-        public ChannelApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
-            IRequestUriFactory requestUriFactory)
-            : base(httpClient, serializer, logs, requestUriFactory)
+        internal ChannelApi(IInternalChannelApi internalChannelApi)
         {
+            _internalChannelApi = internalChannelApi ?? throw new ArgumentNullException(nameof(internalChannelApi));
         }
 
-        public Task<ChannelsResponse> QueryChannelsAsync(QueryChannelsRequest queryChannelsRequest)
+        public async Task<ChannelsResponse> QueryChannelsAsync(QueryChannelsRequest queryChannelsRequest)
         {
-            var endpoint = ChannelEndpoints.QueryChannels();
-
-            return Post<QueryChannelsRequest, QueryChannelsRequestDTO, ChannelsResponse, ChannelsResponseDTO>(endpoint,
-                queryChannelsRequest);
+            var dto = await _internalChannelApi.QueryChannelsAsync(queryChannelsRequest.TrySaveToDto());
+            return dto.ToDomain<ChannelsResponseDTO, ChannelsResponse>();
         }
 
-        public Task<ChannelState> GetOrCreateChannelAsync(string channelType,
+        public async Task<ChannelState> GetOrCreateChannelAsync(string channelType,
             ChannelGetOrCreateRequest getOrCreateRequest)
         {
-            var endpoint = ChannelEndpoints.GetOrCreate(channelType);
-
-            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(
-                endpoint,
-                getOrCreateRequest);
+            var dto = await _internalChannelApi.GetOrCreateChannelAsync(channelType, getOrCreateRequest.TrySaveToDto());
+            return dto.ToDomain<ChannelStateResponseDTO, ChannelState>();
         }
 
-        public Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId,
+        public async Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId,
             ChannelGetOrCreateRequest getOrCreateRequest)
         {
-            var endpoint = ChannelEndpoints.GetOrCreate(channelType, channelId);
-
-            return Post<ChannelGetOrCreateRequest, ChannelGetOrCreateRequestDTO, ChannelState, ChannelStateResponseDTO>(
-                endpoint,
-                getOrCreateRequest);
+            var dto = await _internalChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+                getOrCreateRequest.TrySaveToDto());
+            return dto.ToDomain<ChannelStateResponseDTO, ChannelState>();
         }
 
-        public Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId,
+        public async Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId,
             UpdateChannelRequest updateChannelRequest)
         {
-            var endpoint = ChannelEndpoints.Update(channelType, channelId);
-
-            return Post<UpdateChannelRequest, UpdateChannelRequestDTO, UpdateChannelResponse, UpdateChannelResponseDTO>(
-                endpoint,
-                updateChannelRequest);
+            var dto = await _internalChannelApi.UpdateChannelAsync(channelType, channelId,
+                updateChannelRequest.TrySaveToDto());
+            return dto.ToDomain<UpdateChannelResponseDTO, UpdateChannelResponse>();
         }
 
-        public Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId,
+        public async Task<UpdateChannelPartialResponse> UpdateChannelPartialAsync(string channelType, string channelId,
             UpdateChannelPartialRequest updateChannelPartialRequest)
         {
-            var endpoint = ChannelEndpoints.UpdatePartial(channelType, channelId);
-
-            return Patch<UpdateChannelPartialRequest, UpdateChannelPartialRequestDTO, UpdateChannelPartialResponse,
-                UpdateChannelPartialResponseDTO>(endpoint,
-                updateChannelPartialRequest);
+            var dto = await _internalChannelApi.UpdateChannelPartialAsync(channelType, channelId,
+                updateChannelPartialRequest.TrySaveToDto());
+            return dto.ToDomain<UpdateChannelPartialResponseDTO, UpdateChannelPartialResponse>();
         }
 
-        public Task<DeleteChannelsResponse> DeleteChannelsAsync(DeleteChannelsRequest deleteChannelsRequest)
+        public async Task<DeleteChannelsResponse> DeleteChannelsAsync(DeleteChannelsRequest deleteChannelsRequest)
         {
-            var endpoint = ChannelEndpoints.DeleteChannels();
-
-            return Post<DeleteChannelsRequest, DeleteChannelsRequestDTO, DeleteChannelsResponse,
-                DeleteChannelsResponseDTO>(endpoint,
-                deleteChannelsRequest);
+            var dto = await _internalChannelApi.DeleteChannelsAsync(deleteChannelsRequest.TrySaveToDto());
+            return dto.ToDomain<DeleteChannelsResponseDTO, DeleteChannelsResponse>();
         }
 
-        public Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId)
+        public async Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId)
         {
-            var endpoint = ChannelEndpoints.DeleteChannel(channelType, channelId);
-
-            return Delete<DeleteChannelResponse, DeleteChannelResponseDTO>(endpoint);
+            var dto = await _internalChannelApi.DeleteChannelAsync(channelType, channelId);
+            return dto.ToDomain<DeleteChannelResponseDTO, DeleteChannelResponse>();
         }
 
-        public Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId,
+        public async Task<TruncateChannelResponse> TruncateChannelAsync(string channelType, string channelId,
             TruncateChannelRequest truncateChannelRequest)
         {
-            var endpoint = ChannelEndpoints.TruncateChannel(channelType, channelId);
-
-            return Post<TruncateChannelRequest, TruncateChannelRequestDTO, TruncateChannelResponse,
-                TruncateChannelResponseDTO>(endpoint,
-                truncateChannelRequest);
+            var dto = await _internalChannelApi.TruncateChannelAsync(channelType, channelId,
+                truncateChannelRequest.TrySaveToDto());
+            return dto.ToDomain<TruncateChannelResponseDTO, TruncateChannelResponse>();
         }
 
-        public Task<MuteChannelResponse> MuteChannelAsync(MuteChannelRequest muteChannelRequest)
+        public async Task<MuteChannelResponse> MuteChannelAsync(MuteChannelRequest muteChannelRequest)
         {
-            var endpoint = ChannelEndpoints.MuteChannel();
-
-            return Post<MuteChannelRequest, MuteChannelRequestDTO, MuteChannelResponse, MuteChannelResponseDTO>(
-                endpoint,
-                muteChannelRequest);
+            var dto = await _internalChannelApi.MuteChannelAsync(muteChannelRequest.TrySaveToDto());
+            return dto.ToDomain<MuteChannelResponseDTO, MuteChannelResponse>();
         }
 
-        public Task<UnmuteResponse> UnmuteChannelAsync(UnmuteChannelRequest unmuteChannelRequest)
+        public async Task<UnmuteResponse> UnmuteChannelAsync(UnmuteChannelRequest unmuteChannelRequest)
         {
-            var endpoint = ChannelEndpoints.UnmuteChannel();
-
-            return Post<UnmuteChannelRequest, UnmuteChannelRequestDTO, UnmuteResponse, UnmuteResponseDTO>(
-                endpoint,
-                unmuteChannelRequest);
+            var dto = await _internalChannelApi.UnmuteChannelAsync(unmuteChannelRequest.TrySaveToDto());
+            return dto.ToDomain<UnmuteResponseDTO, UnmuteResponse>();
         }
 
-        public Task<ShowChannelResponse> ShowChannelAsync(string channelType, string channelId,
+        public async Task<ShowChannelResponse> ShowChannelAsync(string channelType, string channelId,
             ShowChannelRequest showChannelRequest)
         {
-            var endpoint = ChannelEndpoints.ShowChannel(channelType, channelId);
-
-            return Post<ShowChannelRequest, ShowChannelRequestDTO, ShowChannelResponse, ShowChannelResponseDTO>(
-                endpoint,
-                showChannelRequest);
+            var dto = await _internalChannelApi.ShowChannelAsync(channelType, channelId,
+                showChannelRequest.TrySaveToDto());
+            return dto.ToDomain<ShowChannelResponseDTO, ShowChannelResponse>();
         }
 
-        public Task<HideChannelResponse> HideChannelAsync(string channelType, string channelId,
+        public async Task<HideChannelResponse> HideChannelAsync(string channelType, string channelId,
             HideChannelRequest hideChannelRequest)
         {
-            var endpoint = ChannelEndpoints.HideChannel(channelType, channelId);
-
-            return Post<HideChannelRequest, HideChannelRequestDTO, HideChannelResponse, HideChannelResponseDTO>(
-                endpoint,
-                hideChannelRequest);
+            var dto = await _internalChannelApi.HideChannelAsync(channelType, channelId,
+                hideChannelRequest.TrySaveToDto());
+            return dto.ToDomain<HideChannelResponseDTO, HideChannelResponse>();
         }
 
-        public Task<MembersResponse> QueryMembersAsync(QueryMembersRequest queryMembersRequest) =>
-            Get<QueryMembersRequest, QueryMembersRequestDTO, MembersResponse, MembersResponseDTO>(
-                "/members",
-                queryMembersRequest);
+        public async Task<MembersResponse> QueryMembersAsync(QueryMembersRequest queryMembersRequest)
+        {
+            var dto = await _internalChannelApi.QueryMembersAsync(queryMembersRequest.TrySaveToDto());
+            return dto.ToDomain<MembersResponseDTO, MembersResponse>();
+        }
 
-        public Task<StopWatchingResponse> StopWatchingChannelAsync(string channelType, string channelId,
-            ChannelStopWatchingRequest channelStopWatchingRequest) =>
-            Post<ChannelStopWatchingRequest, ChannelStopWatchingRequestDTO, StopWatchingResponse,
-                StopWatchingResponseDTO>($"/channels/{channelType}/{channelId}/stop-watching",
-                channelStopWatchingRequest);
+        public async Task<StopWatchingResponse> StopWatchingChannelAsync(string channelType, string channelId,
+            ChannelStopWatchingRequest channelStopWatchingRequest)
+        {
+            var dto = await _internalChannelApi.StopWatchingChannelAsync(channelType, channelId,
+                channelStopWatchingRequest.TrySaveToDto());
+            return dto.ToDomain<StopWatchingResponseDTO, StopWatchingResponse>();
+        }
 
-        public Task<MarkReadResponse> MarkReadAsync(string channelType, string channelId,
-            MarkReadRequest markReadRequest) =>
-            Post<MarkReadRequest, MarkReadRequestDTO, MarkReadResponse, MarkReadResponseDTO>(
-                $"/channels/{channelType}/{channelId}/read", markReadRequest);
+        public async Task<MarkReadResponse> MarkReadAsync(string channelType, string channelId,
+            MarkReadRequest markReadRequest)
+        {
+            var dto = await _internalChannelApi.MarkReadAsync(channelType, channelId, markReadRequest.TrySaveToDto());
+            return dto.ToDomain<MarkReadResponseDTO, MarkReadResponse>();
+        }
 
-        public Task<MarkReadResponse> MarkManyReadAsync(MarkChannelsReadRequest markChannelsReadRequest) =>
-            Post<MarkChannelsReadRequest, MarkChannelsReadRequestDTO, MarkReadResponse, MarkReadResponseDTO>(
-                $"/channels/read", markChannelsReadRequest);
+        public async Task<MarkReadResponse> MarkManyReadAsync(MarkChannelsReadRequest markChannelsReadRequest)
+        {
+            var dto = await _internalChannelApi.MarkManyReadAsync(markChannelsReadRequest.TrySaveToDto());
+            return dto.ToDomain<MarkReadResponseDTO, MarkReadResponse>();
+        }
 
         public Task SendTypingStartEventAsync(string channelType, string channelId)
-            => PostEventAsync<EventTypingStart, EventTypingStartDTO>(channelType, channelId, new EventTypingStart());
+            => _internalChannelApi.SendTypingStartEventAsync(channelType, channelId);
 
         public Task SendTypingStopEventAsync(string channelType, string channelId)
-            => PostEventAsync<EventTypingStop, EventTypingStopDTO>(channelType, channelId, new EventTypingStop());
+            => _internalChannelApi.SendTypingStopEventAsync(channelType, channelId);
+
+        private readonly IInternalChannelApi _internalChannelApi;
     }
 }

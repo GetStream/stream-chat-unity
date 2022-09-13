@@ -1,84 +1,71 @@
-﻿using System.Net.Http;
+﻿using System;
 using System.Threading.Tasks;
-using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.API.Internal;
 using StreamChat.Core.DTO.Responses;
-using StreamChat.Libs.Http;
-using StreamChat.Libs.Logs;
-using StreamChat.Libs.Serialization;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
-using StreamChat.Core.Web;
 
 namespace StreamChat.Core.API
 {
-    internal class MessageApi : ApiClientBase, IMessageApi
+    internal class MessageApi : IMessageApi
     {
-        public MessageApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
-            IRequestUriFactory requestUriFactory)
-            : base(httpClient, serializer, logs, requestUriFactory)
+        public MessageApi(IInternalMessageApi internalMessageApi)
         {
+            _internalMessageApi = internalMessageApi ?? throw new ArgumentNullException(nameof(internalMessageApi));
         }
 
-        public Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId,
+        public async Task<MessageResponse> SendNewMessageAsync(string channelType, string channelId,
             SendMessageRequest sendMessageRequest)
         {
-            var endpoint = MessageEndpoints.SendMessage(channelType, channelId);
-
-            return Post<SendMessageRequest, SendMessageRequestDTO, MessageResponse, MessageResponseDTO>(endpoint,
-                sendMessageRequest);
+            var dto = await _internalMessageApi.SendNewMessageAsync(channelType, channelId,
+                sendMessageRequest.TrySaveToDto());
+            return dto.ToDomain<MessageResponseDTO, MessageResponse>();
         }
 
-        public Task<MessageResponse> UpdateMessageAsync(UpdateMessageRequest updateMessageRequest)
+        public async Task<MessageResponse> UpdateMessageAsync(UpdateMessageRequest updateMessageRequest)
         {
-            var endpoint = MessageEndpoints.UpdateMessage(updateMessageRequest.Message.Id);
-
-            return Post<UpdateMessageRequest, UpdateMessageRequestDTO, MessageResponse, MessageResponseDTO>(endpoint,
-                updateMessageRequest);
+            var dto = await _internalMessageApi.UpdateMessageAsync(updateMessageRequest.TrySaveToDto());
+            return dto.ToDomain<MessageResponseDTO, MessageResponse>();
         }
 
-        public Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard)
+        public async Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard)
         {
-            var endpoint = MessageEndpoints.DeleteMessage(messageId);
-            var parameters = QueryParameters.Default.Append("hard", hard);
-
-            return Delete<MessageResponse, MessageResponseDTO>(endpoint, parameters);
+            var dto = await _internalMessageApi.DeleteMessageAsync(messageId, hard);
+            return dto.ToDomain<MessageResponseDTO, MessageResponse>();
         }
 
-        public Task<ReactionResponse> SendReactionAsync(string messageId, SendReactionRequest sendReactionRequest)
+        public async Task<ReactionResponse> SendReactionAsync(string messageId, SendReactionRequest sendReactionRequest)
         {
-            var endpoint = MessageEndpoints.SendReaction(messageId);
-
-            return Post<SendReactionRequest, SendReactionRequestDTO, ReactionResponse, ReactionResponseDTO>(endpoint,
-                sendReactionRequest);
+            var dto = await _internalMessageApi.SendReactionAsync(messageId, sendReactionRequest.TrySaveToDto());
+            return dto.ToDomain<ReactionResponseDTO, ReactionResponse>();
         }
 
-        public Task<ReactionRemovalResponse> DeleteReactionAsync(string messageId, string reactionType)
+        public async Task<ReactionRemovalResponse> DeleteReactionAsync(string messageId, string reactionType)
         {
-            var endpoint = MessageEndpoints.DeleteReaction(messageId, reactionType);
-
-            return Delete<ReactionRemovalResponse, ReactionRemovalResponseDTO>(endpoint);
+            var dto = await _internalMessageApi.DeleteReactionAsync(messageId, reactionType);
+            return dto.ToDomain<ReactionRemovalResponseDTO, ReactionRemovalResponse>();
         }
 
         public async Task<FileUploadResponse> UploadFileAsync(string channelType, string channelId,
             byte[] fileContent, string fileName)
         {
-            var endpoint = $"/channels/{channelType}/{channelId}/file";
-
-            var body = new MultipartFormDataContent();
-            body.Add(new ByteArrayContent(fileContent), "file", fileName);
-
-            return await Post<FileUploadResponse, FileUploadResponseDTO>(endpoint, body);
+            var dto = await _internalMessageApi.UploadFileAsync(channelType, channelId, fileContent, fileName);
+            return dto.ToDomain<FileUploadResponseDTO, FileUploadResponse>();
         }
 
-        public Task<FileDeleteResponse> DeleteFileAsync(string channelType, string channelId, string fileUrl)
+        public async Task<FileDeleteResponse> DeleteFileAsync(string channelType, string channelId, string fileUrl)
         {
-            var endpoint = $"channels/{channelType}/{channelId}/file";
-            var parameters = QueryParameters.Default.Append("url", fileUrl);
-
-            return Delete<FileDeleteResponse, FileDeleteResponseDTO>(endpoint, parameters);
+            var dto = await _internalMessageApi.DeleteFileAsync(channelType, channelId, fileUrl);
+            return dto.ToDomain<FileDeleteResponseDTO, FileDeleteResponse>();
         }
 
-        public Task<SearchResponse> SearchMessagesAsync(SearchRequest searchRequest)
-            => Get<SearchRequest, SearchRequestDTO, SearchResponse, SearchResponseDTO>("/search", searchRequest);
+        public async Task<SearchResponse> SearchMessagesAsync(SearchRequest searchRequest)
+        {
+            var dto = await _internalMessageApi.SearchMessagesAsync(searchRequest.TrySaveToDto());
+            return dto.ToDomain<SearchResponseDTO, SearchResponse>();
+        }
+
+        private readonly IInternalMessageApi _internalMessageApi;
     }
 }
