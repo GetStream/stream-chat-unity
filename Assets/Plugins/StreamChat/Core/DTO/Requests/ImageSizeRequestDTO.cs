@@ -27,7 +27,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Target image height
         /// </summary>
         [Newtonsoft.Json.JsonProperty("height", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Height { get; set; }
+        public int? Height { get; set; }
 
         /// <summary>
         /// Resize method
@@ -40,7 +40,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Target image width
         /// </summary>
         [Newtonsoft.Json.JsonProperty("width", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Width { get; set; }
+        public int? Width { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

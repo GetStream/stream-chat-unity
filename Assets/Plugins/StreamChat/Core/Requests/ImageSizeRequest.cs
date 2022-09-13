@@ -13,7 +13,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Target image height
         /// </summary>
-        public double? Height { get; set; }
+        public int? Height { get; set; }
 
         /// <summary>
         /// Resize method
@@ -23,7 +23,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Target image width
         /// </summary>
-        public double? Width { get; set; }
+        public int? Width { get; set; }
 
         ImageSizeRequestDTO ISavableTo<ImageSizeRequestDTO>.SaveToDto() =>
             new ImageSizeRequestDTO()

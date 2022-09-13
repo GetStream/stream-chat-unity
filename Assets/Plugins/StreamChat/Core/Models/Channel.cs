@@ -29,7 +29,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Cooldown period after sending each message
         /// </summary>
-        public double? Cooldown { get; set; }
+        public int? Cooldown { get; set; }
 
         /// <summary>
         /// Date/time of creation
