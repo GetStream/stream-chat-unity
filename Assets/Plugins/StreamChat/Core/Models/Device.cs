@@ -28,7 +28,6 @@ namespace StreamChat.Core.Models
 
         public string UserId { get; set; }
 
-
         Device ILoadableFrom<DeviceDTO, Device>.LoadFromDto(DeviceDTO dto)
         {
             CreatedAt = dto.CreatedAt;

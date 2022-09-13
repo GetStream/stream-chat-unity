@@ -26,7 +26,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Duration of mute in milliseconds
         /// </summary>
         [Newtonsoft.Json.JsonProperty("expiration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Expiration { get; set; }
+        public int? Expiration { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon

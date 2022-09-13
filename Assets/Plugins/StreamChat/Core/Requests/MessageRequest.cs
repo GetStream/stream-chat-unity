@@ -18,7 +18,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Channel unique identifier in <type>:<id> format
         /// </summary>
-        public List<double> Cid { get; set; }
+        public List<int> Cid { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -63,7 +63,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
-        public List<double> PinnedBy { get; set; }
+        public List<int> PinnedBy { get; set; }
 
         public string QuotedMessageId { get; set; }
 

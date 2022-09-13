@@ -68,7 +68,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Number of maximum message characters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? MaxMessageLength { get; set; }
+        public int? MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention

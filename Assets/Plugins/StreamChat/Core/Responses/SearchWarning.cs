@@ -13,12 +13,12 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// Number of channels searched
         /// </summary>
-        public double? ChannelSearchCount { get; set; }
+        public int? ChannelSearchCount { get; set; }
 
         /// <summary>
         /// Code corresponding to the warning
         /// </summary>
-        public double? WarningCode { get; set; }
+        public int? WarningCode { get; set; }
 
         /// <summary>
         /// Description of the warning

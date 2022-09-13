@@ -50,7 +50,7 @@ namespace StreamChat.Core.DTO.Models
         public string Name { get; set; }
 
         [Newtonsoft.Json.JsonProperty("progress", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Progress { get; set; }
+        public int? Progress { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? PushNotifications { get; set; }

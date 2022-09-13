@@ -36,7 +36,7 @@ namespace StreamChat.Core.DTO.Requests
         /// Policy priority
         /// </summary>
         [Newtonsoft.Json.JsonProperty("priority", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Priority { get; set; }
+        public int Priority { get; set; }
 
         /// <summary>
         /// List of resources to apply policy to

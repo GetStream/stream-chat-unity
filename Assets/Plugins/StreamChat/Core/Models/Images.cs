@@ -19,7 +19,6 @@ namespace StreamChat.Core.Models
 
         public ImageData Original { get; set; }
 
-
         Images ILoadableFrom<ImagesDTO, Images>.LoadFromDto(ImagesDTO dto)
         {
             FixedHeight = FixedHeight.TryLoadFromDto(dto.FixedHeight);

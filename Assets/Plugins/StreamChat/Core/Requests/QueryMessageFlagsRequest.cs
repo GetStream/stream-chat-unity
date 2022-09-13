@@ -8,9 +8,9 @@ namespace StreamChat.Core.Requests
     {
         public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; }
 
-        public double? Limit { get; set; }
+        public int? Limit { get; set; }
 
-        public double? Offset { get; set; }
+        public int? Offset { get; set; }
 
         QueryMessageFlagsRequestDTO ISavableTo<QueryMessageFlagsRequestDTO>.SaveToDto() =>
             new QueryMessageFlagsRequestDTO

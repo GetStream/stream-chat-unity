@@ -28,7 +28,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Sets cool down period for the channel in seconds
         /// </summary>
-        public double? Cooldown { get; set; }
+        public int? Cooldown { get; set; }
 
         /// <summary>
         /// Channel data to update

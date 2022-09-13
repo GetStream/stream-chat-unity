@@ -26,13 +26,13 @@ namespace StreamChat.Core.DTO.Models
         /// Number of channels searched
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_search_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? ChannelSearchCount { get; set; }
+        public int? ChannelSearchCount { get; set; }
 
         /// <summary>
         /// Code corresponding to the warning
         /// </summary>
         [Newtonsoft.Json.JsonProperty("warning_code", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? WarningCode { get; set; }
+        public int? WarningCode { get; set; }
 
         /// <summary>
         /// Description of the warning

@@ -20,19 +20,19 @@ namespace StreamChat.Core.DTO.Models
         /// The maximum number of calls allowed for the time window
         /// </summary>
         [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Limit { get; set; }
+        public int? Limit { get; set; }
 
         /// <summary>
         /// The number of remaining calls in the current window
         /// </summary>
         [Newtonsoft.Json.JsonProperty("remaining", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Remaining { get; set; }
+        public int? Remaining { get; set; }
 
         /// <summary>
         /// The Unix timestamp of the next window
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reset", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Reset { get; set; }
+        public int? Reset { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

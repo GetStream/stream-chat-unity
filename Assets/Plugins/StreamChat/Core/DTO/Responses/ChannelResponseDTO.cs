@@ -47,7 +47,7 @@ namespace StreamChat.Core.DTO.Responses
         /// Cooldown period after sending each message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("cooldown", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Cooldown { get; set; }
+        public int? Cooldown { get; set; }
 
         /// <summary>
         /// Date/time of creation

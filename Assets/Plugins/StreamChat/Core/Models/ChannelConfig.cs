@@ -52,7 +52,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Number of maximum message characters
         /// </summary>
-        public double? MaxMessageLength { get; set; }
+        public int? MaxMessageLength { get; set; }
 
         /// <summary>
         /// Number of days to keep messages. 'infinite' disables retention
