@@ -9,7 +9,7 @@ using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
 
-namespace StreamChat.Core.StreamChat.Core.API.Internal
+namespace StreamChat.Core.API.Internal
 {
     internal class InternalMessageApi : ApiClientBase, IInternalMessageApi
     {

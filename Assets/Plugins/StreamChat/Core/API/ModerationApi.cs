@@ -1,108 +1,81 @@
-﻿using System.Threading.Tasks;
-using StreamChat.Core.DTO.Requests;
+﻿using System;
+using System.Threading.Tasks;
+using StreamChat.Core.API.Internal;
 using StreamChat.Core.DTO.Responses;
-using StreamChat.Libs.Http;
-using StreamChat.Libs.Logs;
-using StreamChat.Libs.Serialization;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
-using StreamChat.Core.Web;
 
 namespace StreamChat.Core.API
 {
-    internal class ModerationApi : ApiClientBase, IModerationApi
+    internal class ModerationApi : IModerationApi
     {
-        public ModerationApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
-            IRequestUriFactory requestUriFactory)
-            : base(httpClient, serializer, logs, requestUriFactory)
+        public ModerationApi(IInternalModerationApi internalModerationApi)
         {
+            _internalModerationApi =
+                internalModerationApi ?? throw new ArgumentNullException(nameof(internalModerationApi));
         }
 
-        public Task<MuteUserResponse> MuteUserAsync(MuteUserRequest muteUserRequest)
+        public async Task<MuteUserResponse> MuteUserAsync(MuteUserRequest muteUserRequest)
         {
-            var endpoint = ModerationEndpoints.MuteUser();
-
-            return Post<MuteUserRequest, MuteUserRequestDTO, MuteUserResponse, MuteUserResponseDTO>(endpoint,
-                muteUserRequest);
+            var dto = await _internalModerationApi.MuteUserAsync(muteUserRequest.TrySaveToDto());
+            return dto.ToDomain<MuteUserResponseDTO, MuteUserResponse>();
         }
 
-        public Task<UnmuteResponse> UnmuteUserAsync(UnmuteUserRequest unmuteUserRequest)
+        public async Task<UnmuteResponse> UnmuteUserAsync(UnmuteUserRequest unmuteUserRequest)
         {
-            var endpoint = ModerationEndpoints.UnmuteUser();
-
-            return Post<UnmuteUserRequest, UnmuteUserRequestDTO, UnmuteResponse, UnmuteResponseDTO>(endpoint,
-                unmuteUserRequest);
+            var dto = await _internalModerationApi.UnmuteUserAsync(unmuteUserRequest.TrySaveToDto());
+            return dto.ToDomain<UnmuteResponseDTO, UnmuteResponse>();
         }
 
-        public Task<ApiResponse> BanUserAsync(BanRequest banRequest)
+        public async Task<ApiResponse> BanUserAsync(BanRequest banRequest)
         {
-            var endpoint = "/moderation/ban";
-
-            return Post<BanRequest, BanRequestDTO, ApiResponse, ResponseDTO>(endpoint, banRequest);
+            var dto = await _internalModerationApi.BanUserAsync(banRequest.TrySaveToDto());
+            return dto.ToDomain<ResponseDTO, ApiResponse>();
         }
 
-        public Task<ApiResponse> UnbanUserAsync(UnbanRequest unbanRequest)
+        public async Task<ApiResponse> UnbanUserAsync(UnbanRequest unbanRequest)
         {
-            var endpoint = "/moderation/ban";
-
-            var parameters = QueryParameters.Default
-                .Append("target_user_id", unbanRequest.TargetUserId)
-                .Append("type", unbanRequest.Type)
-                .Append("id", unbanRequest.Id);
-
-            return Delete<ApiResponse, ResponseDTO>(endpoint, parameters);
+            var dto = await _internalModerationApi.UnbanUserAsync(unbanRequest.TargetUserId, unbanRequest.TargetUserId,
+                unbanRequest.Id);
+            return dto.ToDomain<ResponseDTO, ApiResponse>();
         }
 
-        public Task<ApiResponse> ShadowBanUserAsync(ShadowBanRequest shadowBanRequest)
+        public async Task<ApiResponse> ShadowBanUserAsync(ShadowBanRequest shadowBanRequest)
         {
-            var endpoint = "/moderation/ban";
-
-            return Post<BanRequest, BanRequestDTO, ApiResponse, ResponseDTO>(endpoint, shadowBanRequest);
+            var dto = await _internalModerationApi.ShadowBanUserAsync(shadowBanRequest.TrySaveToDto());
+            return dto.ToDomain<ResponseDTO, ApiResponse>();
         }
 
         public Task<ApiResponse> RemoveUserShadowBanAsync(UnbanRequest unbanRequest)
             => UnbanUserAsync(unbanRequest);
 
-        public Task<QueryBannedUsersResponse> QueryBannedUsersAsync(QueryBannedUsersRequest queryBannedUsersRequest)
+        public async Task<QueryBannedUsersResponse> QueryBannedUsersAsync(
+            QueryBannedUsersRequest queryBannedUsersRequest)
         {
-            var endpoint = "/query_banned_users";
-
-            return Get<QueryBannedUsersRequest, QueryBannedUsersRequestDTO, QueryBannedUsersResponse,
-                QueryBannedUsersResponseDTO>(endpoint, queryBannedUsersRequest);
+            var dto = await _internalModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest.TrySaveToDto());
+            return dto.ToDomain<QueryBannedUsersResponseDTO, QueryBannedUsersResponse>();
         }
 
-        public Task<FlagResponse> FlagUserAsync(string targetUserId)
+        public async Task<FlagResponse> FlagUserAsync(string targetUserId)
         {
-            var endpoint = "/moderation/flag";
-
-            var request = new FlagRequest
-            {
-                TargetUserId = targetUserId
-            };
-
-            return Post<FlagRequest, FlagRequestDTO, FlagResponse,
-                FlagResponseDTO>(endpoint, request);
+            var dto = await _internalModerationApi.FlagUserAsync(targetUserId);
+            return dto.ToDomain<FlagResponseDTO, FlagResponse>();
         }
 
-        public Task<FlagResponse> FlagMessageAsync(string targetMessageId)
+        public async Task<FlagResponse> FlagMessageAsync(string targetMessageId)
         {
-            var endpoint = "/moderation/flag";
-
-            var request = new FlagRequest
-            {
-                TargetMessageId = targetMessageId
-            };
-
-            return Post<FlagRequest, FlagRequestDTO, FlagResponse,
-                FlagResponseDTO>(endpoint, request);
+            var dto = await _internalModerationApi.FlagMessageAsync(targetMessageId);
+            return dto.ToDomain<FlagResponseDTO, FlagResponse>();
         }
 
-        public Task<QueryMessageFlagsResponse> QueryMessageFlagsAsync(QueryMessageFlagsRequest queryMessageFlagsRequest)
+        public async Task<QueryMessageFlagsResponse> QueryMessageFlagsAsync(
+            QueryMessageFlagsRequest queryMessageFlagsRequest)
         {
-            var endpoint = "/moderation/flags/message";
-
-            return Get<QueryMessageFlagsRequest, QueryMessageFlagsRequestDTO, QueryMessageFlagsResponse,
-                QueryMessageFlagsResponseDTO>(endpoint, queryMessageFlagsRequest);
+            var dto = await _internalModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest.TrySaveToDto());
+            return dto.ToDomain<QueryMessageFlagsResponseDTO, QueryMessageFlagsResponse>();
         }
+
+        private readonly IInternalModerationApi _internalModerationApi;
     }
 }
