@@ -214,7 +214,7 @@ jobs:
         
 #skip -quit due to not working with async tests
       - name: Run Unity Tests
-        id: step_run_unity_tests
+        id: run_unity_tests
         shell: bash
         run: sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -projectPath "$GITHUB_WORKSPACE" -runTests -testResults ~/test_results/results.xml -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}
         continue-on-error: true
@@ -292,7 +292,7 @@ jobs:
         run: echo "::set-output name=gh_comment::$(cat ~/test_results/gh_comment.txt)"
         
       - name: Validate All Tests Passed
-        if: step_run_unity_tests.outcome == 'failure'
+        if: steps.run_unity_tests.outcome == 'failure'
         run: exit 1
         
 #      - name: Comment PR
