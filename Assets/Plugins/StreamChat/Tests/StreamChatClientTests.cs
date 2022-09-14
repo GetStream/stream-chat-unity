@@ -58,8 +58,18 @@ namespace StreamChat.Tests
         [Test]
         public void when_stream_client_connection_failed_expect_reconnect()
         {
-            _client.Connect();
+            _mockTimeService.Time.Returns(0);
             _mockWebsocketClient.ConnectionFailed += Raise.Event<Action>();
+            _client.Connect();
+
+            // Tick for client to react to WS connection failure
+            _client.Update(0.1f);
+
+            // Simulate 3 seconds have passed
+            _mockTimeService.Time.Returns(3);
+
+            // Tick frame for client to issue reconnect
+            _client.Update(0.1f);
 
             _mockWebsocketClient.ReceivedWithAnyArgs(2).ConnectAsync(default);
         }
