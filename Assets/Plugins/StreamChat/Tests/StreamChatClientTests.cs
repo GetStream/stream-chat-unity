@@ -152,6 +152,11 @@ namespace StreamChat.Tests
                 return Task.CompletedTask;
             });
 
+            _mockWebsocketClient.When(_ => _.Disconnect()).Do(callbackInfo =>
+            {
+                _mockWebsocketClient.Disconnected += Raise.Event<Action>();
+            });
+
             _mockWebsocketClient.TryDequeueMessage(out Arg.Any<string>()).Returns(arg =>
             {
                 arg[0] = "{\"connection_id\":\"fakeId\", \"type\":\"health.check\"}";
