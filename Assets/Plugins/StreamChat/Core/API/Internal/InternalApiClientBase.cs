@@ -28,7 +28,7 @@ namespace StreamChat.Core.API.Internal
             _requestUriFactory = requestUriFactory ?? throw new ArgumentNullException(nameof(requestUriFactory));
         }
 
-        protected async Task<TResponseDto> Get<TPayloadDTO, TResponseDto>(string endpoint, TPayloadDTO payload)
+        protected async Task<TResponseDto> Get<TPayload, TResponseDto>(string endpoint, TPayload payload)
         {
             var payloadContent = _serializer.Serialize(payload);
             var parameters = QueryParameters.Default.Append("payload", payloadContent);
@@ -52,7 +52,7 @@ namespace StreamChat.Core.API.Internal
             return responseDto;
         }
 
-        protected async Task<TResponseDto> Post<TRequestDto, TResponseDto>(string endpoint, TRequestDto request)
+        protected async Task<TResponse> Post<TRequest, TResponse>(string endpoint, TRequest request)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);
             var requestContent = _serializer.Serialize(request);
@@ -78,16 +78,16 @@ namespace StreamChat.Core.API.Internal
                 throw new StreamApiException(apiError);
             }
 
-            TResponseDto responseDto;
+            TResponse responseDto;
 
             try
             {
-                responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+                responseDto = _serializer.Deserialize<TResponse>(responseContent);
             }
             catch (Exception e)
             {
                 LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, requestContent);
-                throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
+                throw new StreamDeserializationException(requestContent, typeof(TResponse), e);
             }
 
             LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: true, requestContent);
@@ -95,7 +95,7 @@ namespace StreamChat.Core.API.Internal
             return responseDto;
         }
 
-        protected async Task<TResponseDto> Post<TResponseDto>(string endpoint, HttpContent request)
+        protected async Task<TResponse> Post<TResponse>(string endpoint, HttpContent request)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);
 
@@ -122,7 +122,7 @@ namespace StreamChat.Core.API.Internal
 
             try
             {
-                var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+                var responseDto = _serializer.Deserialize<TResponse>(responseContent);
                 LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: true, request.ToString());
 
                 return responseDto;
@@ -130,7 +130,7 @@ namespace StreamChat.Core.API.Internal
             catch (Exception e)
             {
                 LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, request.ToString());
-                throw new StreamDeserializationException(request.ToString(), typeof(TResponseDto), e);
+                throw new StreamDeserializationException(request.ToString(), typeof(TResponse), e);
             }
         }
 
@@ -167,7 +167,7 @@ namespace StreamChat.Core.API.Internal
             return responseDto;
         }
 
-        protected async Task<TResponseDto> Delete<TResponseDto>(string endpoint, Dictionary<string, string> parameters = null)
+        protected async Task<TResponse> Delete<TResponse>(string endpoint, Dictionary<string, string> parameters = null)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
 
@@ -185,7 +185,7 @@ namespace StreamChat.Core.API.Internal
             LogRestCall(uri, endpoint, HttpMethod.Delete, responseContent, success: true);
 
             //Todo: wrap in deserialize?
-            return _serializer.Deserialize<TResponseDto>(responseContent);
+            return _serializer.Deserialize<TResponse>(responseContent);
         }
 
         protected Task PostEventAsync(string channelType, string channelId, object eventBodyDto)
