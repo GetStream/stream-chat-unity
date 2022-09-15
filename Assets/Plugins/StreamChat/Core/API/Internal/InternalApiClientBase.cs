@@ -6,22 +6,20 @@ using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Exceptions;
+using StreamChat.Core.Web;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
-using StreamChat.Core.Exceptions;
-using StreamChat.Core.Requests;
-using StreamChat.Core.Responses;
-using StreamChat.Core.Web;
 
-namespace StreamChat.Core.API
+namespace StreamChat.Core.API.Internal
 {
     /// <summary>
     /// Base Api client
     /// </summary>
-    internal abstract class ApiClientBase
+    internal abstract class InternalApiClientBase
     {
-        protected ApiClientBase(IHttpClient httpClient, ISerializer serializer, ILogs logs,
+        protected InternalApiClientBase(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -52,21 +50,6 @@ namespace StreamChat.Core.API
 
             var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
             return responseDto;
-        }
-
-
-        [Obsolete] //Todo: DELETE
-        protected async Task<TResponse> Post<TRequest, TRequestDto, TResponse, TResponseDto>(string endpoint,
-            TRequest request)
-            where TRequest : ISavableTo<TRequestDto>
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
-        {
-            var result = await Post<TRequestDto, TResponseDto>(endpoint, request.SaveToDto());
-
-            var response = new TResponse();
-            response.LoadFromDto(result);
-
-            return response;
         }
 
         protected async Task<TResponseDto> Post<TRequestDto, TResponseDto>(string endpoint, TRequestDto request)
@@ -205,12 +188,11 @@ namespace StreamChat.Core.API
             return _serializer.Deserialize<TResponseDto>(responseContent);
         }
 
-        protected Task PostEventAsync<TEvent, TEventDto>(string channelType, string channelId, TEvent eventBody)
-            where TEvent : ISavableTo<TEventDto> =>
-            Post<SendEventRequest<TEvent, TEventDto>, SendEventRequestDTO, ApiResponse, ResponseDTO>(
-                $"/channels/{channelType}/{channelId}/event", new SendEventRequest<TEvent, TEventDto>
+        protected Task PostEventAsync(string channelType, string channelId, object eventBodyDto)
+            => Post<SendEventRequestDTO, ResponseDTO>(
+                $"/channels/{channelType}/{channelId}/event", new SendEventRequestDTO
                 {
-                    Event = eventBody,
+                    Event = eventBodyDto,
                 });
 
         private readonly IHttpClient _httpClient;

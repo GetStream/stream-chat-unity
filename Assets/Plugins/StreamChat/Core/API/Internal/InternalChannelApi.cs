@@ -1,9 +1,7 @@
 ﻿using System.Threading.Tasks;
-using StreamChat.Core.API;
 using StreamChat.Core.DTO.Events;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
-using StreamChat.Core.Events;
 using StreamChat.Core.Web;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -11,7 +9,7 @@ using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.API.Internal
 {
-    internal class InternalChannelApi : ApiClientBase, IInternalChannelApi
+    internal class InternalChannelApi : InternalApiClientBase, IInternalChannelApi
     {
         internal InternalChannelApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)
@@ -105,8 +103,7 @@ namespace StreamChat.Core.API.Internal
         public Task<StopWatchingResponseDTO> StopWatchingChannelAsync(string channelType, string channelId,
             ChannelStopWatchingRequestDTO channelStopWatchingRequest)
             => Post<ChannelStopWatchingRequestDTO, StopWatchingResponseDTO>(
-                $"/channels/{channelType}/{channelId}/stop-watching",
-                channelStopWatchingRequest);
+                $"/channels/{channelType}/{channelId}/stop-watching", channelStopWatchingRequest);
 
         public Task<MarkReadResponseDTO> MarkReadAsync(string channelType, string channelId,
             MarkReadRequestDTO markReadRequest)
@@ -117,9 +114,9 @@ namespace StreamChat.Core.API.Internal
             Post<MarkChannelsReadRequestDTO, MarkReadResponseDTO>($"/channels/read", markChannelsReadRequest);
 
         public Task SendTypingStartEventAsync(string channelType, string channelId)
-            => PostEventAsync<EventTypingStart, EventTypingStartDTO>(channelType, channelId, new EventTypingStart());
+            => PostEventAsync(channelType, channelId, new EventTypingStartDTO());
 
         public Task SendTypingStopEventAsync(string channelType, string channelId)
-            => PostEventAsync<EventTypingStop, EventTypingStopDTO>(channelType, channelId, new EventTypingStop());
+            => PostEventAsync(channelType, channelId, new EventTypingStopDTO());
     }
 }

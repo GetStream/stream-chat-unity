@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
-using StreamChat.Core.Requests;
-using StreamChat.Core.Responses;
 using StreamChat.Core.Web;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -10,7 +8,7 @@ using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.API.Internal
 {
-    internal class InternalModerationApi : ApiClientBase, IInternalModerationApi
+    internal class InternalModerationApi : InternalApiClientBase, IInternalModerationApi
     {
         public InternalModerationApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)
@@ -51,7 +49,6 @@ namespace StreamChat.Core.API.Internal
         public Task<ResponseDTO> ShadowBanUserAsync(BanRequestDTO shadowBanRequest)
         {
             const string endpoint = "/moderation/ban";
-
             return Post<BanRequestDTO, ResponseDTO>(endpoint, shadowBanRequest);
         }
 

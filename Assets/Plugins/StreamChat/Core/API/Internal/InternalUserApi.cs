@@ -8,7 +8,7 @@ using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.API.Internal
 {
-    internal class InternalUserApi : ApiClientBase, IInternalUserApi
+    internal class InternalUserApi : InternalApiClientBase, IInternalUserApi
     {
         public InternalUserApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)

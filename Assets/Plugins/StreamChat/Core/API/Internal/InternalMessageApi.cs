@@ -1,7 +1,5 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
-using StreamChat.Core.API;
-using StreamChat.Core.API.Internal;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Web;
@@ -11,7 +9,7 @@ using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.API.Internal
 {
-    internal class InternalMessageApi : ApiClientBase, IInternalMessageApi
+    internal class InternalMessageApi : InternalApiClientBase, IInternalMessageApi
     {
         public InternalMessageApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)

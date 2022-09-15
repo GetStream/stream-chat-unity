@@ -1,7 +1,7 @@
 namespace StreamChat.Core.API
 {
     /// <summary>
-    ///
+    /// Moderation API Endpoints
     /// </summary>
     internal static class ModerationEndpoints
     {
