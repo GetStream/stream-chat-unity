@@ -36,7 +36,7 @@ namespace StreamChat.Core.API
 
         public async Task<ApiResponse> UnbanUserAsync(UnbanRequest unbanRequest)
         {
-            var dto = await _internalModerationApi.UnbanUserAsync(unbanRequest.TargetUserId, unbanRequest.TargetUserId,
+            var dto = await _internalModerationApi.UnbanUserAsync(unbanRequest.TargetUserId, unbanRequest.Type,
                 unbanRequest.Id);
             return dto.ToDomain<ResponseDTO, ApiResponse>();
         }
