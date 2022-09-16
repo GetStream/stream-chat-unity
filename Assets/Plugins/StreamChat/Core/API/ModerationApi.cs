@@ -47,8 +47,7 @@ namespace StreamChat.Core.API
             return dto.ToDomain<ResponseDTO, ApiResponse>();
         }
 
-        public Task<ApiResponse> RemoveUserShadowBanAsync(UnbanRequest unbanRequest)
-            => UnbanUserAsync(unbanRequest);
+        public Task<ApiResponse> RemoveUserShadowBanAsync(UnbanRequest unbanRequest) => UnbanUserAsync(unbanRequest);
 
         public async Task<QueryBannedUsersResponse> QueryBannedUsersAsync(
             QueryBannedUsersRequest queryBannedUsersRequest)

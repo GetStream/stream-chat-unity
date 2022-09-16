@@ -27,8 +27,8 @@ namespace StreamChat.Core.API
             return dto.ToDomain<GuestResponseDTO, GuestResponse>();
         }
 
-        public Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest) =>
-            UpsertManyUsersAsync(updateUsersRequest);
+        public Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest)
+            => UpsertManyUsersAsync(updateUsersRequest);
 
         public async Task<UpdateUsersResponse> UpsertManyUsersAsync(UpdateUsersRequest updateUsersRequest)
         {
