@@ -6,6 +6,7 @@ namespace StreamChat.Core.API
     internal static class ModerationEndpoints
     {
         public static string MuteUser() => "/moderation/mute";
+
         public static string UnmuteUser() => "/moderation/unmute";
     }
 }

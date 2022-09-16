@@ -41,14 +41,12 @@ namespace StreamChat.Core.API.Internal
         public Task<ReactionResponseDTO> SendReactionAsync(string messageId, SendReactionRequestDTO sendReactionRequest)
         {
             var endpoint = MessageEndpoints.SendReaction(messageId);
-
             return Post<SendReactionRequestDTO, ReactionResponseDTO>(endpoint, sendReactionRequest);
         }
 
         public Task<ReactionRemovalResponseDTO> DeleteReactionAsync(string messageId, string reactionType)
         {
             var endpoint = MessageEndpoints.DeleteReaction(messageId, reactionType);
-
             return Delete<ReactionRemovalResponseDTO>(endpoint);
         }
 
