@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests.DTO
 {
@@ -9,7 +8,7 @@ namespace StreamChat.Core.Requests.DTO
         public string UserId;
 
         [JsonProperty("user_details")]
-        public User User;
+        public UserObjectRequest User;
 
         [JsonProperty("user_token")]
         public string UserToken;

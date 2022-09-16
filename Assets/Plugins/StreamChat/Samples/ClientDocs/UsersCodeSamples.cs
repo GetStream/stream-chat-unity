@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using UnityEngine;
 
@@ -41,9 +40,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Limit = 30,
                 Offset = 0,
 
-                Sort = new List<SortParam>
+                Sort = new List<SortParamRequest>
                 {
-                    new SortParam
+                    new SortParamRequest
                     {
                         Field = "created_at",
                         Direction = -1,

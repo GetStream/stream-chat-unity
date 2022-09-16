@@ -43,7 +43,7 @@ namespace StreamChat.Core.Requests
                 AutoTranslationEnabled = AutoTranslationEnabled,
                 AutoTranslationLanguage = AutoTranslationLanguage,
                 ConfigOverrides = ConfigOverrides.TrySaveToDto(),
-                CreatedBy = CreatedBy.TrySaveToDto(),
+                CreatedBy = CreatedBy.TrySaveToDto<UserObjectRequestDTO>(),
                 Disabled = Disabled,
                 Frozen = Frozen,
                 Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),

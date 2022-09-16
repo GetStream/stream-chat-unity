@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
@@ -40,7 +39,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Sort parameters. Cannot be used with non-zero offset
         /// </summary>
-        public System.Collections.Generic.List<SortParam> Sort { get; set; }
+        public System.Collections.Generic.List<SortParamRequest> Sort { get; set; }
 
         SearchRequestDTO ISavableTo<SearchRequestDTO>.SaveToDto() =>
             new SearchRequestDTO
@@ -51,8 +50,10 @@ namespace StreamChat.Core.Requests
                 Next = Next,
                 Offset = Offset,
                 Query = Query,
-                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
     }
+
+
 }

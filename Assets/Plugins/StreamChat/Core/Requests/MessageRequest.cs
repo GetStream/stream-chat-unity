@@ -112,7 +112,7 @@ namespace StreamChat.Core.Requests
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,
-                User = User.TrySaveToDto(),
+                User = User.TrySaveToDto<UserObjectRequestDTO>(),
                 UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };

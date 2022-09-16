@@ -7,7 +7,6 @@ using NUnit.Framework;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
-using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration

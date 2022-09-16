@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
@@ -30,14 +29,14 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of members to search in distinct channels
         /// </summary>
-        public System.Collections.Generic.List<ChannelMember> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMemberRequest> Members { get; set; }
 
         public int? Offset { get; set; }
 
         /// <summary>
         /// Array of sort parameters
         /// </summary>
-        public System.Collections.Generic.List<SortParam> Sort { get; set; }
+        public System.Collections.Generic.List<SortParamRequest> Sort { get; set; }
 
         /// <summary>
         /// Channel type to interact with
@@ -62,9 +61,9 @@ namespace StreamChat.Core.Requests
                 FilterConditions = FilterConditions,
                 Id = Id,
                 Limit = Limit,
-                Members = Members.TrySaveToDtoCollection<ChannelMember, ChannelMemberDTO>(),
+                Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberDTO>(),
                 Offset = Offset,
-                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamDTO>(),
                 Type = Type,
                 UserIdGt = UserIdGt,
                 UserIdGte = UserIdGte,

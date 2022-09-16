@@ -54,7 +54,7 @@ namespace StreamChat.Core.Requests
         {
             return new BanRequestDTO
             {
-                BannedBy = BannedBy.TrySaveToDto(),
+                BannedBy = BannedBy.TrySaveToDto<UserObjectRequestDTO>(),
                 BannedById = BannedById,
                 Id = Id,
                 IpBan = IpBan,

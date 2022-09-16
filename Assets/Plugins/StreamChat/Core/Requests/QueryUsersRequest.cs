@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
@@ -50,7 +49,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Array of sort parameters
         /// </summary>
-        public System.Collections.Generic.List<SortParam> Sort { get; set; } = new System.Collections.Generic.List<SortParam>();
+        public System.Collections.Generic.List<SortParamRequest> Sort { get; set; } = new System.Collections.Generic.List<SortParamRequest>();
 
         QueryUsersRequestDTO ISavableTo<QueryUsersRequestDTO>.SaveToDto()
         {
@@ -64,7 +63,7 @@ namespace StreamChat.Core.Requests
                 Limit = Limit,
                 Offset = Offset,
                 Presence = Presence,
-                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
         }

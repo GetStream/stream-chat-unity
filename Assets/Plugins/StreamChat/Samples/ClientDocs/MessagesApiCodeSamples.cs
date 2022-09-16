@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using UnityEngine;
 
@@ -183,9 +182,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 },
 
                 // Optional sorting, default is "by relevance"
-                Sort = new List<SortParam>
+                Sort = new List<SortParamRequest>
                 {
-                    new SortParam
+                    new SortParamRequest
                     {
                         Field = "updated_at",
                         Direction = -1 // Descending

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using UnityEngine.TestTools;
 
@@ -128,9 +127,9 @@ namespace StreamChat.Tests.Integration
                 Limit = 30,
                 Offset = 0,
 
-                Sort = new List<SortParam>
+                Sort = new List<SortParamRequest>
                 {
-                    new SortParam
+                    new SortParamRequest
                     {
                         Field = "id",
                         Direction = -1,
@@ -206,9 +205,9 @@ namespace StreamChat.Tests.Integration
                 Limit = 30,
                 Offset = 0,
 
-                Sort = new List<SortParam>
+                Sort = new List<SortParamRequest>
                 {
-                    new SortParam
+                    new SortParamRequest
                     {
                         Field = "id",
                         Direction = -1,

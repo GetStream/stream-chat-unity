@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
 
@@ -8,7 +9,7 @@ namespace StreamChat.Core.Requests
     /// <summary>
     /// Represents chat user
     /// </summary>
-    public class UserObjectRequest : RequestObjectBase, ISavableTo<UserObjectRequestDTO>
+    public class UserObjectRequest : RequestObjectBase, ISavableTo<UserObjectRequestDTO>, ISavableTo<UserObjectDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -49,15 +50,30 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public List<string> Teams { get; set; }
 
-        UserObjectRequestDTO ISavableTo<UserObjectRequestDTO>.SaveToDto() =>
-            new UserObjectRequestDTO
+        UserObjectRequestDTO ISavableTo<UserObjectRequestDTO>.SaveToDto()
+            => new UserObjectRequestDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,
                 Id = Id,
                 Invisible = Invisible,
                 Language = Language,
-                PushNotifications = PushNotifications.TrySaveToDto(),
+                PushNotifications = PushNotifications.TrySaveToDto<PushNotificationSettingsRequestDTO>(),
+                RevokeTokensIssuedBefore = RevokeTokensIssuedBefore,
+                Role = Role,
+                Teams = Teams,
+                AdditionalProperties = AdditionalProperties
+            };
+
+        UserObjectDTO ISavableTo<UserObjectDTO>.SaveToDto()
+            => new UserObjectDTO
+            {
+                BanExpires = BanExpires,
+                Banned = Banned,
+                Id = Id,
+                Invisible = Invisible,
+                Language = Language,
+                PushNotifications = PushNotifications.TrySaveToDto<PushNotificationSettingsDTO>(),
                 RevokeTokensIssuedBefore = RevokeTokensIssuedBefore,
                 Role = Role,
                 Teams = Teams,

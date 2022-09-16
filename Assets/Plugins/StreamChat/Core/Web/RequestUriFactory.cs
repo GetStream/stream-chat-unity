@@ -5,6 +5,7 @@ using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Models;
+using StreamChat.Core.Requests;
 using StreamChat.Core.Requests.DTO;
 
 namespace StreamChat.Core.Web
@@ -27,7 +28,7 @@ namespace StreamChat.Core.Web
             var connectPayloadDTO = new ConnectPayload
             {
                 UserId = _authProvider.UserId,
-                User = new User
+                User = new UserObjectRequest()
                 {
                     Id = _authProvider.UserId
                 },

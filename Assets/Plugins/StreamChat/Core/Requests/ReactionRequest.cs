@@ -33,7 +33,7 @@ namespace StreamChat.Core.Requests
                 MessageId = MessageId,
                 Score = Score,
                 Type = Type,
-                User = User.TrySaveToDto(),
+                User = User.TrySaveToDto<UserObjectRequestDTO>(),
                 UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };

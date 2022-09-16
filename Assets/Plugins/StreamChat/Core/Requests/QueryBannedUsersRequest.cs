@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
@@ -21,7 +20,7 @@ namespace StreamChat.Core.Requests
 
         public int? Offset { get; set; }
 
-        public System.Collections.Generic.List<SortParam> Sort { get; set; }
+        public System.Collections.Generic.List<SortParamRequest> Sort { get; set; }
 
         QueryBannedUsersRequestDTO ISavableTo<QueryBannedUsersRequestDTO>.SaveToDto()
         {
@@ -34,7 +33,7 @@ namespace StreamChat.Core.Requests
                 FilterConditions = FilterConditions,
                 Limit = Limit,
                 Offset = Offset,
-                Sort = Sort.TrySaveToDtoCollection<SortParam,SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParamRequest,SortParamDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
         }
