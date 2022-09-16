@@ -6,26 +6,20 @@ using System.Threading.Tasks;
 using StreamChat.Core.DTO.Models;
 using StreamChat.Core.DTO.Requests;
 using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Exceptions;
+using StreamChat.Core.Web;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
-using StreamChat.Core.Exceptions;
-using StreamChat.Core.Requests;
-using StreamChat.Core.Responses;
-using StreamChat.Core.Web;
 
-namespace StreamChat.Core.API
+namespace StreamChat.Core.API.Internal
 {
-    //Todo: refactor methods to remove duplication
-    //Probably best to use HttpClient.SendAsync only with optional content instead specialized methods that have common logic
-    //We could also not pass TRequestDto TResponseDto but have it registered in a map so that calls are not bloated with so many types
-
     /// <summary>
     /// Base Api client
     /// </summary>
-    internal abstract class ApiClientBase
+    internal abstract class InternalApiClientBase
     {
-        protected ApiClientBase(IHttpClient httpClient, ISerializer serializer, ILogs logs,
+        protected InternalApiClientBase(IHttpClient httpClient, ISerializer serializer, ILogs logs,
             IRequestUriFactory requestUriFactory)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -34,37 +28,9 @@ namespace StreamChat.Core.API
             _requestUriFactory = requestUriFactory ?? throw new ArgumentNullException(nameof(requestUriFactory));
         }
 
-        protected async Task<TResponse> Get<TResponse, TResponseDto>(string endpoint,
-            Dictionary<string, string> parameters = null)
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        protected async Task<TResponse> Get<TPayload, TResponse>(string endpoint, TPayload payload)
         {
-            var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
-
-            var httpResponse = await _httpClient.GetAsync(uri);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
-
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: false);
-
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
-                throw new StreamApiException(apiError);
-            }
-
-            LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: true);
-
-            var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
-        }
-
-        protected async Task<TResponse> Get<TPayload, TPayloadDTO, TResponse, TResponseDto>(string endpoint, TPayload payload)
-            where TPayload : ISavableTo<TPayloadDTO>
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
-        {
-            var payloadContent = _serializer.Serialize(payload.SaveToDto());
+            var payloadContent = _serializer.Serialize(payload);
             var parameters = QueryParameters.Default.Append("payload", payloadContent);
 
             var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
@@ -80,22 +46,24 @@ namespace StreamChat.Core.API
                 throw new StreamApiException(apiError);
             }
 
-            LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: true);
+            try
+            {
+                var response = _serializer.Deserialize<TResponse>(responseContent);
+                LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: true);
 
-            var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
+                return response;
+            }
+            catch (Exception e)
+            {
+                LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: false);
+                throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
+            }
         }
 
-        protected async Task<TResponse> Post<TRequest, TRequestDto, TResponse, TResponseDto>(string endpoint,
-            TRequest request)
-            where TRequest : ISavableTo<TRequestDto>
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        protected async Task<TResponse> Post<TRequest, TResponse>(string endpoint, TRequest request)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);
-            var requestContent = _serializer.Serialize(request.SaveToDto());
+            var requestContent = _serializer.Serialize(request);
 
             HttpResponseMessage httpResponse;
             try
@@ -118,28 +86,21 @@ namespace StreamChat.Core.API
                 throw new StreamApiException(apiError);
             }
 
-            TResponseDto responseDto;
-
             try
             {
-                responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+                var response = _serializer.Deserialize<TResponse>(responseContent);
+                LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: true, requestContent);
+
+                return response;
             }
             catch (Exception e)
             {
                 LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, requestContent);
-                throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
+                throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
             }
-
-            LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: true, requestContent);
-
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
         }
 
-        protected async Task<TResponse> Post<TResponse, TResponseDto>(string endpoint, HttpContent request)
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        protected async Task<TResponse> Post<TResponse>(string endpoint, HttpContent request)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);
 
@@ -164,33 +125,23 @@ namespace StreamChat.Core.API
                 throw new StreamApiException(apiError);
             }
 
-            TResponseDto responseDto;
-
             try
             {
-                responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+                var response = _serializer.Deserialize<TResponse>(responseContent);
+                LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: true, request.ToString());
+                return response;
             }
             catch (Exception e)
             {
                 LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, request.ToString());
-                throw new StreamDeserializationException(request.ToString(), typeof(TResponseDto), e);
+                throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
             }
-
-            LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: true, request.ToString());
-
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
         }
 
-        protected async Task<TResponse> Patch<TRequest, TRequestDto, TResponse, TResponseDto>(string endpoint,
-            TRequest request)
-            where TRequest : ISavableTo<TRequestDto>
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        protected async Task<TResponse> Patch<TRequest, TResponse>(string endpoint, TRequest request)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);
-            var requestContent = _serializer.Serialize(request.SaveToDto());
+            var requestContent = _serializer.Serialize(request);
 
             var httpResponse = await _httpClient.PatchAsync(uri, requestContent);
             var responseContent = await httpResponse.Content.ReadAsStringAsync();
@@ -203,29 +154,20 @@ namespace StreamChat.Core.API
                 throw new StreamApiException(apiError);
             }
 
-            TResponseDto responseDto;
-
             try
             {
-                responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
+                var response = _serializer.Deserialize<TResponse>(responseContent);
+                LogRestCall(uri, endpoint, new HttpMethod("PATCH"), responseContent, success: true, requestContent);
+                return response;
             }
             catch (Exception e)
             {
                 LogRestCall(uri, endpoint, new HttpMethod("PATCH"), responseContent, success: false, requestContent);
-                throw new StreamDeserializationException(requestContent, typeof(TResponseDto), e);
+                throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
             }
-
-            LogRestCall(uri, endpoint, new HttpMethod("PATCH"), responseContent, success: true, requestContent);
-
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
         }
 
-        protected async Task<TResponse> Delete<TResponse, TResponseDto>(string endpoint,
-            Dictionary<string, string> parameters = null)
-            where TResponse : ILoadableFrom<TResponseDto, TResponse>, new()
+        protected async Task<TResponse> Delete<TResponse>(string endpoint, Dictionary<string, string> parameters = null)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
 
@@ -240,24 +182,33 @@ namespace StreamChat.Core.API
                 throw new StreamApiException(apiError);
             }
 
-            LogRestCall(uri, endpoint, HttpMethod.Delete, responseContent, success: true);
-
-            var responseDto = _serializer.Deserialize<TResponseDto>(responseContent);
-            var response = new TResponse();
-            response.LoadFromDto(responseDto);
-
-            return response;
+            try
+            {
+                var response = _serializer.Deserialize<TResponse>(responseContent);
+                LogRestCall(uri, endpoint, HttpMethod.Delete, responseContent, success: true);
+                return response;
+            }
+            catch (Exception e)
+            {
+                LogRestCall(uri, endpoint, HttpMethod.Delete, responseContent, success: false);
+                throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
+            }
         }
 
-        protected Task PostEventAsync<TEvent, TEventDto>(string channelType, string channelId, TEvent eventBody)
-            where TEvent : ISavableTo<TEventDto> =>
-            Post<SendEventRequest<TEvent, TEventDto>, SendEventRequestDTO, ApiResponse, ResponseDTO>(
-                $"/channels/{channelType}/{channelId}/event", new SendEventRequest<TEvent, TEventDto>
+        protected Task PostEventAsync(string channelType, string channelId, object eventBodyDto)
+            => Post<SendEventRequestDTO, ResponseDTO>(
+                $"/channels/{channelType}/{channelId}/event", new SendEventRequestDTO
                 {
-                    Event = eventBody,
+                    Event = eventBodyDto,
                 });
 
-        protected void LogRestCall(Uri uri, string endpoint, HttpMethod httpMethod, string response, bool success, string request = null)
+        private readonly IHttpClient _httpClient;
+        private readonly ISerializer _serializer;
+        private readonly ILogs _logs;
+        private readonly IRequestUriFactory _requestUriFactory;
+        private readonly StringBuilder _sb = new StringBuilder();
+
+        private void LogRestCall(Uri uri, string endpoint, HttpMethod httpMethod, string response, bool success, string request = null)
         {
             _sb.Clear();
             _sb.Append("API Call: ");
@@ -286,11 +237,5 @@ namespace StreamChat.Core.API
 
             _logs.Info(_sb.ToString());
         }
-
-        private readonly IHttpClient _httpClient;
-        private readonly ISerializer _serializer;
-        private readonly ILogs _logs;
-        private readonly IRequestUriFactory _requestUriFactory;
-        private readonly StringBuilder _sb = new StringBuilder();
     }
 }

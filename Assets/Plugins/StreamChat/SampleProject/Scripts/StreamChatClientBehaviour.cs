@@ -37,9 +37,8 @@ namespace StreamChat.SampleProject
                 _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
                 _client.Connect();
 
-                var viewContext =
-                    new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory, defaultInputSystem,
-                        _appConfig);
+                var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory,
+                    defaultInputSystem, _appConfig);
 
                 viewFactory.Init(viewContext);
                 _rootView.Init(viewContext);

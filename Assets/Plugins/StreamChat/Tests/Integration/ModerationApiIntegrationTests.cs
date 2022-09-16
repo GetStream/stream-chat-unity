@@ -137,7 +137,6 @@ namespace StreamChat.Tests.Integration
             };
 
             var banUserTask = Client.ModerationApi.BanUserAsync(banRequest);
-
             yield return banUserTask.RunAsIEnumerator(response => { });
 
             var queryBannedUsersRequest = new QueryBannedUsersRequest
@@ -173,8 +172,7 @@ namespace StreamChat.Tests.Integration
             };
 
             var unbanUserTask = Client.ModerationApi.UnbanUserAsync(unbanRequest);
-
-            yield return banUserTask.RunAsIEnumerator(response => { });
+            yield return unbanUserTask.RunAsIEnumerator(response => { });
 
             var queryBannedUsersRequest2 = new QueryBannedUsersRequest
             {
@@ -190,7 +188,6 @@ namespace StreamChat.Tests.Integration
             };
 
             var queryBannedUsersTask2 = Client.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest2);
-
             yield return queryBannedUsersTask2.RunAsIEnumerator(response =>
             {
                 var userBanInfo = response.Bans.FirstOrDefault(_ => _.User.Id == TestUserId);

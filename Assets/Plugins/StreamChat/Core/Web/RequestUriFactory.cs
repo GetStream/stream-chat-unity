@@ -78,7 +78,7 @@ namespace StreamChat.Core.Web
                 { "connection_id", _connectionProvider.ConnectionId },
             };
 
-        private Uri CreateRequestUri(string endPoint, IDictionary<string, string> parameters)
+        private Uri CreateRequestUri(string endPoint, IReadOnlyDictionary<string, string> parameters)
             => CreateRequestUri(endPoint, parameters.ToQueryParameters());
 
         private Uri CreateRequestUri(string endPoint, string query)

@@ -16,6 +16,7 @@ using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Configs;
+using StreamChat.Core.API.Internal;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
@@ -59,6 +60,7 @@ namespace StreamChat.Core
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
 
+        //Todo Remove
         public OwnUser LocalUser { get; private set; }
 
         public ConnectionState ConnectionState
@@ -164,10 +166,15 @@ namespace StreamChat.Core
             _websocketClient.Connected += OnWebsocketsConnected;
             _websocketClient.Disconnected += OnWebsocketDisconnected;
 
-            ChannelApi = new ChannelApi(httpClient, serializer, logs, _requestUriFactory);
-            MessageApi = new MessageApi(httpClient, serializer, logs, _requestUriFactory);
-            ModerationApi = new ModerationApi(httpClient, serializer, logs, _requestUriFactory);
-            UserApi = new UserApi(httpClient, serializer, logs, _requestUriFactory);
+            InternalChannelApi = new InternalChannelApi(httpClient, serializer, logs, _requestUriFactory);
+            InternalMessageApi = new InternalMessageApi(httpClient, serializer, logs, _requestUriFactory);
+            InternalModerationApi = new InternalModerationApi(httpClient, serializer, logs, _requestUriFactory);
+            InternalUserApi = new InternalUserApi(httpClient, serializer, logs, _requestUriFactory);
+
+            ChannelApi = new ChannelApi(InternalChannelApi);
+            MessageApi = new MessageApi(InternalMessageApi);
+            ModerationApi = new ModerationApi(InternalModerationApi);
+            UserApi = new UserApi(InternalUserApi);
 
             RegisterEventHandlers();
 
@@ -265,6 +272,11 @@ namespace StreamChat.Core
         string IAuthProvider.StreamAuthType => DefaultStreamAuthType;
         string IConnectionProvider.ConnectionId => _connectionId;
         Uri IConnectionProvider.ServerUri => ServerBaseUrl;
+
+        internal IInternalChannelApi InternalChannelApi { get; }
+        internal IInternalMessageApi InternalMessageApi { get; }
+        internal IInternalModerationApi InternalModerationApi { get;}
+        internal InternalUserApi InternalUserApi { get; }
 
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;

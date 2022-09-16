@@ -1,39 +1,47 @@
-﻿using System.Threading.Tasks;
-using StreamChat.Core.DTO.Requests;
+﻿using System;
+using System.Threading.Tasks;
+using StreamChat.Core.API.Internal;
 using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
-using StreamChat.Core.Web;
-using StreamChat.Libs.Http;
-using StreamChat.Libs.Logs;
-using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.API
 {
-    internal class UserApi : ApiClientBase, IUserApi
+    internal class UserApi : IUserApi
     {
-        public UserApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
-            IRequestUriFactory requestUriFactory)
-            : base(httpClient, serializer, logs, requestUriFactory)
+        public UserApi(IInternalUserApi internalUserApi)
         {
+            _internalUserApi = internalUserApi ?? throw new ArgumentNullException(nameof(internalUserApi));
         }
 
-        public Task<UsersResponse> QueryUsersAsync(QueryUsersRequest queryUsersRequest) =>
-            Get<QueryUsersRequest, QueryUsersRequestDTO, UsersResponse, UsersResponseDTO>("/users",
-                queryUsersRequest);
+        public async Task<UsersResponse> QueryUsersAsync(QueryUsersRequest queryUsersRequest)
+        {
+            var dto = await _internalUserApi.QueryUsersAsync(queryUsersRequest.TrySaveToDto());
+            return dto.ToDomain<UsersResponseDTO, UsersResponse>();
+        }
 
-        public Task<GuestResponse> CreateGuestAsync(GuestRequest createGuestRequest) =>
-            Post<GuestRequest, GuestRequestDTO, GuestResponse, GuestResponseDTO>("/guest", createGuestRequest);
+        public async Task<GuestResponse> CreateGuestAsync(GuestRequest createGuestRequest)
+        {
+            var dto = await _internalUserApi.CreateGuestAsync(createGuestRequest.TrySaveToDto());
+            return dto.ToDomain<GuestResponseDTO, GuestResponse>();
+        }
 
-        public Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest) =>
-            UpsertManyUsersAsync(updateUsersRequest);
+        public Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest)
+            => UpsertManyUsersAsync(updateUsersRequest);
 
-        public Task<UpdateUsersResponse> UpsertManyUsersAsync(UpdateUsersRequest updateUsersRequest) =>
-            Post<UpdateUsersRequest, UpdateUsersRequestDTO, UpdateUsersResponse, UpdateUsersResponseDTO>("/users",
-                updateUsersRequest);
+        public async Task<UpdateUsersResponse> UpsertManyUsersAsync(UpdateUsersRequest updateUsersRequest)
+        {
+            var dto = await _internalUserApi.UpsertManyUsersAsync(updateUsersRequest.TrySaveToDto());
+            return dto.ToDomain<UpdateUsersResponseDTO, UpdateUsersResponse>();
+        }
 
-        public Task<UpdateUsersResponse> UpdateUserPartialAsync(UpdateUserPartialRequest updateUserPartialRequest) =>
-            Patch<UpdateUserPartialRequest, UpdateUserPartialRequestDTO, UpdateUsersResponse, UpdateUsersResponseDTO>(
-                "/users", updateUserPartialRequest);
+        public async Task<UpdateUsersResponse> UpdateUserPartialAsync(UpdateUserPartialRequest updateUserPartialRequest)
+        {
+            var dto = await _internalUserApi.UpdateUserPartialAsync(updateUserPartialRequest.TrySaveToDto());
+            return dto.ToDomain<UpdateUsersResponseDTO, UpdateUsersResponse>();
+        }
+
+        private readonly IInternalUserApi _internalUserApi;
     }
 }
