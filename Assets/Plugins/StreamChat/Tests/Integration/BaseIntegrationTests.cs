@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Models;
@@ -72,6 +73,18 @@ namespace StreamChat.Tests.Integration
                 _tempChannelsToDelete.Add((response.Channel.Type, response.Channel.Id));
                 onChannelReturned?.Invoke(response);
             });
+        }
+
+        /// <summary>
+        ///  Create temp channel with random id that will be removed in [TearDown]
+        /// </summary>
+        protected async Task<ChannelState> CreateTempUniqueChannelAsync(string channelType, ChannelGetOrCreateRequest channelGetOrCreateRequest)
+        {
+            var channelId = "random-channel-" + Guid.NewGuid();
+
+            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
+            _tempChannelsToDelete.Add((channelState.Channel.Type, channelState.Channel.Id));
+            return channelState;
         }
 
         protected IEnumerator InternalWaitForSeconds(float seconds)

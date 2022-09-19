@@ -114,9 +114,15 @@ namespace StreamChat.Core.API.Internal
             => Post<MarkChannelsReadRequestDTO, MarkReadResponseDTO>($"/channels/read", markChannelsReadRequest);
 
         public Task SendTypingStartEventAsync(string channelType, string channelId)
-            => PostEventAsync(channelType, channelId, new EventTypingStartDTO());
+            => PostEventAsync(channelType, channelId, new EventTypingStartDTO
+            {
+                Type = EventType.TypingStart
+            });
 
         public Task SendTypingStopEventAsync(string channelType, string channelId)
-            => PostEventAsync(channelType, channelId, new EventTypingStopDTO());
+            => PostEventAsync(channelType, channelId, new EventTypingStopDTO
+            {
+                Type = EventType.TypingStop
+            });
     }
 }

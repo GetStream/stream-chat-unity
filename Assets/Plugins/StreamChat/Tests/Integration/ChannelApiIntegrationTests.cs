@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
@@ -828,6 +829,22 @@ namespace StreamChat.Tests.Integration
             //Should use Assert.AreEqual but there seems to be some delay with updating the values
             Assert.GreaterOrEqual(Client.LocalUser.UnreadChannels, 2);
             Assert.GreaterOrEqual(Client.LocalUser.TotalUnreadCount, 3);
+        }
+
+        [UnityTest]
+        public IEnumerator When_sending_typing_start_stop_events_expect_no_errors()
+        {
+            yield return Client.WaitForClientToConnect();
+            yield return When_sending_typing_start_stop_events_expect_no_exceptions_Async().RunAsIEnumerator();
+        }
+
+        private async Task When_sending_typing_start_stop_events_expect_no_exceptions_Async()
+        {
+            const string channelType = "messaging";
+            var tempChannel = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
+
+            await Client.ChannelApi.SendTypingStartEventAsync(channelType, tempChannel.Channel.Id);
+            await Client.ChannelApi.SendTypingStopEventAsync(channelType, tempChannel.Channel.Id);
         }
     }
 }
