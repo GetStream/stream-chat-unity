@@ -17,12 +17,6 @@ namespace StreamChat.Core.DTO.Requests
     internal partial class ReactivateUserRequestDTO
     {
         /// <summary>
-        /// **Server-side only**. User ID who's reactivating the user
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("created_by_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string CreatedById { get; set; }
-
-        /// <summary>
         /// Set this field to put new name for the user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
