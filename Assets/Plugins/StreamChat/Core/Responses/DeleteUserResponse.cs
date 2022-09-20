@@ -12,11 +12,14 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public string Duration { get; set; }
 
+        public string TaskId { get; set; }
+
         public User User { get; set; }
 
         DeleteUserResponse ILoadableFrom<DeleteUserResponseDTO, DeleteUserResponse>.LoadFromDto(DeleteUserResponseDTO dto)
         {
             Duration = dto.Duration;
+            TaskId = dto.TaskId;
             User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 

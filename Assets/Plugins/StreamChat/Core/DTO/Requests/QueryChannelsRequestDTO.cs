@@ -16,6 +16,9 @@ namespace StreamChat.Core.DTO.Requests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class QueryChannelsRequestDTO
     {
+        [Newtonsoft.Json.JsonProperty("client_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ClientId { get; set; }
+
         /// <summary>
         /// Websocket connection ID to interact with. You can pass it as body or URL parameter
         /// </summary>

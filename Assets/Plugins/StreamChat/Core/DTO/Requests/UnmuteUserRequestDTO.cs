@@ -19,8 +19,14 @@ namespace StreamChat.Core.DTO.Requests
         /// <summary>
         /// User IDs to mute (if multiple users)
         /// </summary>
+        [Newtonsoft.Json.JsonProperty("target_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string TargetId { get; set; }
+
         [Newtonsoft.Json.JsonProperty("target_ids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<string> TargetIds { get; set; } = new System.Collections.Generic.List<string>();
+
+        [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Timeout { get; set; }
 
         /// <summary>
         /// **Server-side only**. User object which server acts upon

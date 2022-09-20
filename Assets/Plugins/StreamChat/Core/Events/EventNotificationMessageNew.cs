@@ -24,12 +24,6 @@ namespace StreamChat.Core.Events
 
         public string Type { get; set; }
 
-        public int? TotalUnreadCount { get; set; }
-
-        public int? UnreadChannels { get; set; }
-
-        public int? UnreadCount { get; set; }
-
         EventNotificationMessageNew ILoadableFrom<EventNotificationMessageNewDTO, EventNotificationMessageNew>.LoadFromDto(EventNotificationMessageNewDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
@@ -40,9 +34,6 @@ namespace StreamChat.Core.Events
             Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
             Team = dto.Team;
             Type = dto.Type;
-            TotalUnreadCount = dto.TotalUnreadCount;
-            UnreadChannels = dto.UnreadChannels;
-            UnreadCount = dto.UnreadCount;
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

@@ -22,8 +22,17 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
+        /// <summary>
+        /// URL to the uploaded asset. Should be used to put to `asset_url` attachment field
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("file", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string File { get; set; }
+
+        /// <summary>
+        /// URL of the file thumbnail for supported file formats. Should be put to `thumb_url` attachment field
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("thumb_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ThumbUrl { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

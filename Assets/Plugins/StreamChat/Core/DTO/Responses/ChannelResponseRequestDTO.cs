@@ -136,8 +136,14 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("team", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Team { get; set; }
 
+        /// <summary>
+        /// Date of the latest truncation of the channel
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("truncated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? TruncatedAt { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("truncated_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public UserObjectRequestDTO TruncatedBy { get; set; }
 
         /// <summary>
         /// Type of the channel

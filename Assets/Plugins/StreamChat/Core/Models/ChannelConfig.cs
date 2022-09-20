@@ -89,6 +89,8 @@ namespace StreamChat.Core.Models
         /// </summary>
         public bool? ReadEvents { get; set; }
 
+        public bool? Reminders { get; set; }
+
         /// <summary>
         /// Enables message replies (threads)
         /// </summary>
@@ -139,6 +141,7 @@ namespace StreamChat.Core.Models
             Quotes = dto.Quotes;
             Reactions = dto.Reactions;
             ReadEvents = dto.ReadEvents;
+            Reminders = dto.Reminders;
             Replies = dto.Replies;
             Search = dto.Search;
             TypingEvents = dto.TypingEvents;

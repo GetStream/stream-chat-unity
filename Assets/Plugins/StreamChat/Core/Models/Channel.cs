@@ -105,6 +105,8 @@ namespace StreamChat.Core.Models
 
         public System.DateTimeOffset? TruncatedAt { get; set; }
 
+        public User TruncatedBy { get; set; }
+
         /// <summary>
         /// Type of the channel
         /// </summary>
@@ -140,6 +142,7 @@ namespace StreamChat.Core.Models
             OwnCapabilities = dto.OwnCapabilities;
             Team = dto.Team;
             TruncatedAt = dto.TruncatedAt;
+            TruncatedBy = TruncatedBy.TryLoadFromDto<UserObjectDTO, User>(dto.TruncatedBy);
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
             AdditionalProperties = dto.AdditionalProperties;

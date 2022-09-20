@@ -16,10 +16,28 @@ namespace StreamChat.Core.DTO.Requests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class DeleteUsersRequestDTO
     {
+        /// <summary>
+        /// Conversation channels delete mode.
+        /// <br/>Conversation channel is any channel which only has two members one of which is the user being deleted.
+        /// <br/>
+        /// <br/>* null or empty string - doesn't delete any conversation channels
+        /// <br/>* soft - marks all conversation channels as deleted (same effect as Delete Channels with 'hard' option disabled)
+        /// <br/>* hard - deletes channel and all its data completely including messages (same effect as Delete Channels with 'hard' option enabled)
+        /// <br/>
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("conversations", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public DeleteUsersRequestConversations? Conversations { get; set; }
 
+        /// <summary>
+        /// Message delete mode.
+        /// <br/>
+        /// <br/>* null or empty string - doesn't delete user messages
+        /// <br/>* soft - marks all user messages as deleted without removing any related message data
+        /// <br/>* pruning - marks all user messages as deleted, nullifies message information and removes some message data such as reactions and flags
+        /// <br/>* hard - deletes messages completely with all related information
+        /// <br/>
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public DeletionType? Messages { get; set; }
@@ -27,10 +45,21 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("new_channel_owner_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string NewChannelOwnerId { get; set; }
 
+        /// <summary>
+        /// User delete mode.
+        /// <br/>
+        /// <br/>* soft - marks user as deleted and retains all user data
+        /// <br/>* pruning - marks user as deleted and nullifies user information
+        /// <br/>* hard - deletes user completely. Requires 'hard' option for messages and conversations as well
+        /// <br/>
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public DeletionType? User { get; set; }
 
+        /// <summary>
+        /// IDs of users to delete
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("user_ids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<string> UserIds { get; set; } = new System.Collections.Generic.List<string>();
 

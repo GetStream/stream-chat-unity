@@ -25,8 +25,17 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("huawei", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public HuaweiConfigFieldsDTO Huawei { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("offline_only", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? OfflineOnly { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("providers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<PushProviderDTO> Providers { get; set; }
+
         [Newtonsoft.Json.JsonProperty("version", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Version { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("xiaomi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public XiaomiConfigFieldsDTO Xiaomi { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

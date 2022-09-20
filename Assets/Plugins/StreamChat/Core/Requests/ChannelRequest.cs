@@ -28,12 +28,18 @@ namespace StreamChat.Core.Requests
 
         public System.Collections.Generic.List<ChannelMemberRequest> Members { get; set; }
 
-        public System.Collections.Generic.List<double> OwnCapabilities { get; set; }
+        public System.Collections.Generic.List<int> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (if multi-tenant mode is enabled)
         /// </summary>
         public string Team { get; set; }
+
+        public System.Collections.Generic.List<int> TruncatedAt { get; set; }
+
+        public System.Collections.Generic.List<int> TruncatedBy { get; set; }
+
+        public string TruncatedById { get; set; }
 
         public string Name { get; set; }
 
@@ -49,6 +55,9 @@ namespace StreamChat.Core.Requests
                 Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),
                 OwnCapabilities = OwnCapabilities,
                 Team = Team,
+                TruncatedAt = TruncatedAt,
+                TruncatedBy = TruncatedBy,
+                TruncatedById = TruncatedById,
                 Name = Name,
                 AdditionalProperties = AdditionalProperties,
             };

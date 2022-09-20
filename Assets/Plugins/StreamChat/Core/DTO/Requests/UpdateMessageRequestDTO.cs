@@ -22,6 +22,9 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageRequestDTO Message { get; set; } = new MessageRequestDTO();
 
+        [Newtonsoft.Json.JsonProperty("pending_message_metadata", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, string> PendingMessageMetadata { get; set; }
+
         /// <summary>
         /// Do not try to enrich the links within message
         /// </summary>

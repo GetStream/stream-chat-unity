@@ -23,6 +23,9 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public PushProviderType? PushProvider { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("push_provider_name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PushProviderName { get; set; }
+
         /// <summary>
         /// **Server-side only**. User object which server acts upon
         /// </summary>

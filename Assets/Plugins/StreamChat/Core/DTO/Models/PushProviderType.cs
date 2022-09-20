@@ -26,6 +26,9 @@ namespace StreamChat.Core.DTO.Models
         [System.Runtime.Serialization.EnumMember(Value = @"huawei")]
         Huawei = 2,
 
+        [System.Runtime.Serialization.EnumMember(Value = @"xiaomi")]
+        Xiaomi = 3,
+
     }
 
 }

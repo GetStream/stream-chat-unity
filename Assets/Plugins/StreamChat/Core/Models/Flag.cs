@@ -10,18 +10,12 @@ namespace StreamChat.Core.Models
         /// </summary>
         public System.DateTimeOffset? ApprovedAt { get; set; }
 
-        public string ChannelCid { get; set; }
-
-        public string ChannelTeam { get; set; }
-
         /// <summary>
         /// Date/time of creation
         /// </summary>
         public System.DateTimeOffset? CreatedAt { get; set; }
 
         public bool? CreatedByAutomod { get; set; }
-
-        public string MessageUserId { get; set; }
 
         /// <summary>
         /// Date of the rejection
@@ -56,12 +50,10 @@ namespace StreamChat.Core.Models
         Flag ILoadableFrom<FlagDTO, Flag>.LoadFromDto(FlagDTO dto)
         {
             ApprovedAt = dto.ApprovedAt;
-            ChannelCid = dto.ChannelCid;
-            ChannelTeam = dto.ChannelTeam;
             CreatedAt = dto.CreatedAt;
             CreatedByAutomod = dto.CreatedByAutomod;
-            MessageUserId = dto.MessageUserId;
             RejectedAt = dto.RejectedAt;
+            ReviewedAt = dto.ReviewedAt;
             ReviewedAt = dto.ReviewedAt;
             TargetMessageId = dto.TargetMessageId;
             TargetUser = TargetUser.TryLoadFromDto<UserObjectDTO, User>(dto.TargetUser);

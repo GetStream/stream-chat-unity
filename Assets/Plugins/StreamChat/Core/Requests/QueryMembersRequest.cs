@@ -25,6 +25,9 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Id { get; set; }
 
+        /// <summary>
+        /// Number of records to return
+        /// </summary>
         public int? Limit { get; set; }
 
         /// <summary>
@@ -32,6 +35,9 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public System.Collections.Generic.List<ChannelMember> Members { get; set; }
 
+        /// <summary>
+        /// Number of records to offset
+        /// </summary>
         public int? Offset { get; set; }
 
         /// <summary>

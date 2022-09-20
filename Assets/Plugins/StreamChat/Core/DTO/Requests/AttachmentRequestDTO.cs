@@ -55,6 +55,12 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("og_scrape_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string OgScrapeUrl { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("original_height", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? OriginalHeight { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("original_width", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? OriginalWidth { get; set; }
+
         [Newtonsoft.Json.JsonProperty("pretext", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Pretext { get; set; }
 

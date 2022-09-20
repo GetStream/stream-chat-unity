@@ -5,6 +5,8 @@ namespace StreamChat.Core.Requests
 {
     public class SendReactionRequest : RequestObjectBase, ISavableTo<SendReactionRequestDTO>
     {
+        public string ID { get; set; }
+
         /// <summary>
         /// Whether to replace all existing user reactions
         /// </summary>
@@ -20,6 +22,7 @@ namespace StreamChat.Core.Requests
         SendReactionRequestDTO ISavableTo<SendReactionRequestDTO>.SaveToDto() =>
             new SendReactionRequestDTO
             {
+                ID = ID,
                 EnforceUnique = EnforceUnique,
                 Reaction = Reaction.TrySaveToDto(),
                 SkipPush = SkipPush,

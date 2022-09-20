@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core.DTO.Responses;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Models
 {
@@ -38,6 +39,11 @@ namespace StreamChat.Core.Models
         /// List of channel messages
         /// </summary>
         public List<Message> Messages { get; set; }
+
+        /// <summary>
+        /// Pending messages that this user has sent
+        /// </summary>
+        public System.Collections.Generic.List<PendingMessage> PendingMessages { get; set; }
 
         /// <summary>
         /// List of pinned messages in the channel
@@ -76,6 +82,7 @@ namespace StreamChat.Core.Models
             Members = Members.TryLoadFromDtoCollection(dto.Members);
             Membership = Membership.TryLoadFromDto(dto.Membership);
             Messages = Messages.TryLoadFromDtoCollection(dto.Messages);
+            PendingMessages = PendingMessages.TryLoadFromDtoCollection(dto.PendingMessages);
             PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);
             Read = Read.TryLoadFromDtoCollection(dto.Read);
             WatcherCount = dto.WatcherCount;
@@ -93,6 +100,7 @@ namespace StreamChat.Core.Models
             Members = Members.TryLoadFromDtoCollection(dto.Members);
             Membership = Membership.TryLoadFromDto(dto.Membership);
             Messages = Messages.TryLoadFromDtoCollection(dto.Messages);
+            PendingMessages = PendingMessages.TryLoadFromDtoCollection(dto.PendingMessages);
             PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);
             Read = Read.TryLoadFromDtoCollection(dto.Read);
             WatcherCount = dto.WatcherCount;

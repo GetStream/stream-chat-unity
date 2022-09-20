@@ -16,6 +16,9 @@ namespace StreamChat.Core.DTO.Models
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class APNConfigFieldsDTO
     {
+        [Newtonsoft.Json.JsonProperty("auth_key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AuthKey { get; set; }
+
         [Newtonsoft.Json.JsonProperty("auth_type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AuthType { get; set; }
 
@@ -36,6 +39,9 @@ namespace StreamChat.Core.DTO.Models
 
         [Newtonsoft.Json.JsonProperty("notification_template", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string NotificationTemplate { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("p12_cert", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string P12Cert { get; set; }
 
         [Newtonsoft.Json.JsonProperty("team_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TeamId { get; set; }

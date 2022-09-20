@@ -26,6 +26,12 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public PushProviderType? PushProvider { get; set; }
 
+        /// <summary>
+        /// Name of the push provider configuration
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("push_provider_name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PushProviderName { get; set; }
+
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]

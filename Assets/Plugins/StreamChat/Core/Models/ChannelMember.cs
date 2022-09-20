@@ -49,6 +49,12 @@ namespace StreamChat.Core.Models
         public bool? IsModerator { get; set; }
 
         /// <summary>
+        /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)
+        /// </summary>
+        [Obsolete("Use ChannelRole instead")]
+        public ChannelMemberRoleType? Role { get; set; }
+
+        /// <summary>
         /// Whether member is shadow banned in this channel or not
         /// </summary>
         public bool? ShadowBanned { get; set; }
@@ -73,6 +79,9 @@ namespace StreamChat.Core.Models
             InviteRejectedAt = dto.InviteRejectedAt;
             Invited = dto.Invited;
             IsModerator = dto.IsModerator;
+#pragma warning disable 0618
+            Role = dto.Role;
+#pragma warning restore 0618
             ShadowBanned = dto.ShadowBanned;
             UpdatedAt = dto.UpdatedAt;
             User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
@@ -95,6 +104,9 @@ namespace StreamChat.Core.Models
                 InviteRejectedAt = InviteRejectedAt,
                 Invited = Invited,
                 IsModerator = IsModerator,
+#pragma warning disable 0618
+                Role = Role,
+#pragma warning restore 0618
                 ShadowBanned = ShadowBanned,
                 UpdatedAt = UpdatedAt,
                 User = User.TrySaveToDto(),
