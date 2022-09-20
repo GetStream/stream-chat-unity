@@ -109,6 +109,7 @@ namespace StreamChat.Core.Requests
                 PinnedAt = PinnedAt,
                 PinnedBy = PinnedBy,
                 QuotedMessageId = QuotedMessageId,
+                ReactionScores = ReactionScores,
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,

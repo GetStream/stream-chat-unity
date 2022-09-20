@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public partial class Flag  : ModelBase, ILoadableFrom<FlagDTO, Flag>
+    public partial class Flag : ModelBase, ILoadableFrom<FlagDTO, Flag>
     {
         /// <summary>
         /// Date of the approval
@@ -17,6 +17,8 @@ namespace StreamChat.Core.Models
 
         public bool? CreatedByAutomod { get; set; }
 
+        public FlagDetails Details { get; set; }
+
         /// <summary>
         /// Date of the rejection
         /// </summary>
@@ -26,6 +28,8 @@ namespace StreamChat.Core.Models
         /// Date of the review
         /// </summary>
         public System.DateTimeOffset? ReviewedAt { get; set; }
+
+        public Message TargetMessage { get; set; }
 
         /// <summary>
         /// ID of flagged message
@@ -52,9 +56,11 @@ namespace StreamChat.Core.Models
             ApprovedAt = dto.ApprovedAt;
             CreatedAt = dto.CreatedAt;
             CreatedByAutomod = dto.CreatedByAutomod;
+            Details = Details.TryLoadFromDto(dto.Details);
             RejectedAt = dto.RejectedAt;
             ReviewedAt = dto.ReviewedAt;
             ReviewedAt = dto.ReviewedAt;
+            TargetMessage = TargetMessage.TryLoadFromDto<MessageDTO, Message>(dto.TargetMessage);
             TargetMessageId = dto.TargetMessageId;
             TargetUser = TargetUser.TryLoadFromDto<UserObjectDTO, User>(dto.TargetUser);
             UpdatedAt = dto.UpdatedAt;
