@@ -16,9 +16,6 @@ namespace StreamChat.Core.DTO.Requests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class ImageUploadRequestDTO
     {
-        /// <summary>
-        /// multipart/form-data file field
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("file", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string File { get; set; }
 

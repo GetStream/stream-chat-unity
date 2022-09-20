@@ -46,9 +46,6 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("cooldown", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Cooldown { get; set; }
 
-        /// <summary>
-        /// Channel data to update
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelRequestDTO Data { get; set; }
 
@@ -94,15 +91,9 @@ namespace StreamChat.Core.DTO.Requests
         [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? SkipPush { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectRequestDTO User { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 

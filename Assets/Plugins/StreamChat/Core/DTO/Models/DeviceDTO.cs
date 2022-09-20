@@ -34,9 +34,6 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("disabled_reason", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string DisabledReason { get; set; }
 
-        /// <summary>
-        /// Device ID
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 

@@ -22,9 +22,6 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("channel_types", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, ChannelTypeConfigDTO> ChannelTypes { get; set; }
 
-        /// <summary>
-        /// Duration of the request in human-readable format
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
