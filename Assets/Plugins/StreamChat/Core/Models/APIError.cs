@@ -16,6 +16,8 @@ namespace StreamChat.Core.Models
         /// </summary>
         public int? Code { get; set; }
 
+        public System.Collections.Generic.List<string> Details { get; set; }
+
         /// <summary>
         /// Request duration
         /// </summary>
@@ -79,6 +81,7 @@ namespace StreamChat.Core.Models
         {
             StatusCode = dto.StatusCode;
             Code = dto.Code;
+            Details = dto.Details;
             Duration = dto.Duration;
             ExceptionFields = dto.ExceptionFields;
             Message = dto.Message;

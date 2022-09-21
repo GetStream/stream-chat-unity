@@ -16,6 +16,9 @@ namespace StreamChat.Core.DTO.Requests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class UpdateChannelTypeRequestDTO
     {
+        [Newtonsoft.Json.JsonProperty("NameFromPath", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string NameFromPath { get; set; }
+
         /// <summary>
         /// Enables automatic message moderation
         /// </summary>
@@ -111,6 +114,9 @@ namespace StreamChat.Core.DTO.Requests
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? ReadEvents { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("reminders", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Reminders { get; set; }
 
         /// <summary>
         /// Enables message replies (threads)

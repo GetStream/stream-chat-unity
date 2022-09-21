@@ -19,15 +19,24 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("actions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<ActionDTO> Actions { get; set; }
 
+        /// <summary>
+        /// URL of detected video or audio
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("asset_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AssetUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("author_icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AuthorIcon { get; set; }
 
+        /// <summary>
+        /// og:site
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("author_link", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AuthorLink { get; set; }
 
+        /// <summary>
+        /// og:site_name
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("author_name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AuthorName { get; set; }
 
@@ -55,29 +64,53 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("giphy", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ImagesDTO Giphy { get; set; }
 
+        /// <summary>
+        /// URL of detected image
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("image_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ImageUrl { get; set; }
 
+        /// <summary>
+        /// extracted url from the text
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("og_scrape_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string OgScrapeUrl { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("original_height", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? OriginalHeight { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("original_width", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? OriginalWidth { get; set; }
 
         [Newtonsoft.Json.JsonProperty("pretext", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Pretext { get; set; }
 
+        /// <summary>
+        /// og:description
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }
 
+        /// <summary>
+        /// URL of detected thumb image
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("thumb_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ThumbUrl { get; set; }
 
+        /// <summary>
+        /// og:title
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("title", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Title { get; set; }
 
+        /// <summary>
+        /// og:url
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("title_link", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TitleLink { get; set; }
 
         /// <summary>
-        /// Attachment type (e.g. image, video, url)
+        /// Attachment type, could be empty, image, audio or video
         /// </summary>
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }

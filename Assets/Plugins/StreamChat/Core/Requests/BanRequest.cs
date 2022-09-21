@@ -50,6 +50,10 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Type { get; set; }
 
+        public UserObjectRequest User { get; set; }
+
+        public string UserId { get; set; }
+
         BanRequestDTO ISavableTo<BanRequestDTO>.SaveToDto()
         {
             return new BanRequestDTO
@@ -63,6 +67,8 @@ namespace StreamChat.Core.Requests
                 TargetUserId = TargetUserId,
                 Timeout = Timeout,
                 Type = Type,
+                User = User.TrySaveToDto(),
+                UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };
         }

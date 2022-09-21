@@ -41,10 +41,29 @@ namespace StreamChat.Core.DTO.Requests
         public string MessageId { get; set; }
 
         /// <summary>
+        /// Name of push provider
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("push_provider_name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PushProviderName { get; set; }
+
+        /// <summary>
+        /// Push provider type
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("push_provider_type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        public CheckPushRequestPushProviderType? PushProviderType { get; set; }
+
+        /// <summary>
         /// Don't require existing devices to render templates
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_devices", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? SkipDevices { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public UserObjectRequestDTO User { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string UserId { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -54,6 +73,7 @@ namespace StreamChat.Core.DTO.Requests
             get { return _additionalProperties; }
             set { _additionalProperties = value; }
         }
+
     }
 
 }

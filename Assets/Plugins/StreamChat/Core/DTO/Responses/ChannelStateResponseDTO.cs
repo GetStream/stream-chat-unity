@@ -55,6 +55,9 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<MessageDTO> Messages { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("pending_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<PendingMessageDTO> PendingMessages { get; set; }
+
         /// <summary>
         /// List of pinned messages in the channel
         /// </summary>

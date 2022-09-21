@@ -29,6 +29,12 @@ namespace StreamChat.Core.DTO.Models
         public int? Code { get; set; }
 
         /// <summary>
+        /// Additional error-specific information
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<string> Details { get; set; } //Changed manually from int to string, int seems wrong for details field
+
+        /// <summary>
         /// Request duration
         /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

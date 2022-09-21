@@ -16,6 +16,12 @@ namespace StreamChat.Core.DTO.Models
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class FirebaseConfigFieldsDTO
     {
+        [Newtonsoft.Json.JsonProperty("apn_template", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ApnTemplate { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("credentials_json", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string CredentialsJson { get; set; }
+
         [Newtonsoft.Json.JsonProperty("data_template", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string DataTemplate { get; set; }
 
@@ -24,6 +30,9 @@ namespace StreamChat.Core.DTO.Models
 
         [Newtonsoft.Json.JsonProperty("notification_template", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string NotificationTemplate { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("server_key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ServerKey { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

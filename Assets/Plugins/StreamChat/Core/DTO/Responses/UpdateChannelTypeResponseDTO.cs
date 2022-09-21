@@ -130,6 +130,9 @@ namespace StreamChat.Core.DTO.Responses
         [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? ReadEvents { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("reminders", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Reminders { get; set; }
+
         /// <summary>
         /// Enables message replies (threads)
         /// </summary>

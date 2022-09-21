@@ -32,6 +32,10 @@ namespace StreamChat.Core.Requests
 
         public string OgScrapeUrl { get; set; }
 
+        public int? OriginalHeight { get; set; }
+
+        public int? OriginalWidth { get; set; }
+
         public string Pretext { get; set; }
 
         public string Text { get; set; }
@@ -63,6 +67,8 @@ namespace StreamChat.Core.Requests
                 Giphy = Giphy.TrySaveToDto(),
                 ImageUrl = ImageUrl,
                 OgScrapeUrl = OgScrapeUrl,
+                OriginalHeight = OriginalHeight,
+                OriginalWidth = OriginalWidth,
                 Pretext = Pretext,
                 Text = Text,
                 ThumbUrl = ThumbUrl,

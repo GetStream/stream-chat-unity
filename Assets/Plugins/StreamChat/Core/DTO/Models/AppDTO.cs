@@ -16,6 +16,9 @@ namespace StreamChat.Core.DTO.Models
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class AppDTO
     {
+        [Newtonsoft.Json.JsonProperty("agora_options", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ConfigDTO AgoraOptions { get; set; }
+
         [Newtonsoft.Json.JsonProperty("async_url_enrich_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? AsyncUrlEnrichEnabled { get; set; }
 
@@ -28,6 +31,12 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("campaign_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? CampaignEnabled { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("cdn_expiration_seconds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? CdnExpirationSeconds { get; set; }
+
+        /// <summary>
+        /// Object with channel configs
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_configs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, ChannelConfigDTO> ChannelConfigs { get; set; }
 
@@ -48,6 +57,9 @@ namespace StreamChat.Core.DTO.Models
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("hms_options", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ConfigDTO HmsOptions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? ImageModerationEnabled { get; set; }
@@ -76,11 +88,18 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PushNotificationFieldsDTO PushNotifications { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("reminders_interval", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? RemindersInterval { get; set; }
+
         [Newtonsoft.Json.JsonProperty("revoke_tokens_issued_before", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? RevokeTokensIssuedBefore { get; set; }
 
+        /// <summary>
+        /// Backend implementation used for search
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("search_backend", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string SearchBackend { get; set; }
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        public AppSearchBackend? SearchBackend { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sqs_key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SqsKey { get; set; }
@@ -99,6 +118,9 @@ namespace StreamChat.Core.DTO.Models
 
         [Newtonsoft.Json.JsonProperty("user_search_disallowed_roles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<string> UserSearchDisallowedRoles { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("video_provider", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string VideoProvider { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<string> WebhookEvents { get; set; }

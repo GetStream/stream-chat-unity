@@ -11,6 +11,8 @@ namespace StreamChat.Core.Events
 
         public System.DateTimeOffset? CreatedAt { get; set; }
 
+        public Flag Flag { get; set; }
+
         public Message Message { get; set; }
 
         public System.Collections.Generic.List<User> ThreadParticipants { get; set; }
@@ -24,6 +26,7 @@ namespace StreamChat.Core.Events
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Flag = Flag.TryLoadFromDto(dto.Flag);
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);

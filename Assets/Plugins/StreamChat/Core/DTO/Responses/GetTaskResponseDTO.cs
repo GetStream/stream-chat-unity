@@ -41,12 +41,14 @@ namespace StreamChat.Core.DTO.Responses
         public System.Collections.Generic.Dictionary<string, object> Result { get; set; }
 
         /// <summary>
-        /// Task status
+        /// Current status of task
         /// </summary>
         [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ResponseStatusType? Status { get; set; }
+        public string Status { get; set; }
 
+        /// <summary>
+        /// ID of task
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TaskId { get; set; }
 

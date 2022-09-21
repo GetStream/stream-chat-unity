@@ -7,6 +7,8 @@ namespace StreamChat.Core.Requests
     {
         public MessageRequest Message { get; set; }
 
+        public System.Collections.Generic.Dictionary<string, string> PendingMessageMetadata { get; set; }
+
         /// <summary>
         /// Do not try to enrich the links within message
         /// </summary>
@@ -16,6 +18,7 @@ namespace StreamChat.Core.Requests
             new UpdateMessageRequestDTO
             {
                 Message = Message.TrySaveToDto(),
+                PendingMessageMetadata = PendingMessageMetadata,
                 SkipEnrichUrl = SkipEnrichUrl
             };
     }

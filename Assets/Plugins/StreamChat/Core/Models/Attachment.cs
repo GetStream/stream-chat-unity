@@ -31,6 +31,10 @@ namespace StreamChat.Core.Models
 
         public string OgScrapeUrl { get; set; }
 
+        public int? OriginalHeight { get; set; }
+
+        public int? OriginalWidth { get; set; }
+
         public string Pretext { get; set; }
 
         public string Text { get; set; }
@@ -62,6 +66,8 @@ namespace StreamChat.Core.Models
             Giphy = Giphy.TryLoadFromDto(dto.Giphy);
             ImageUrl = dto.ImageUrl;
             OgScrapeUrl = dto.OgScrapeUrl;
+            OriginalHeight = dto.OriginalHeight;
+            OriginalWidth = dto.OriginalWidth;
             Pretext = dto.Pretext;
             Text = dto.Text;
             ThumbUrl = dto.ThumbUrl;

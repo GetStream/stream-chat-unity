@@ -33,6 +33,7 @@ namespace StreamChat.Core.DTO.Requests
             get { return _additionalProperties; }
             set { _additionalProperties = value; }
         }
+
     }
 
 }

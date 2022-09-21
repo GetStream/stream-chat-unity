@@ -25,12 +25,6 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("approved_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? ApprovedAt { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("channel_cid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ChannelCid { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("channel_team", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ChannelTeam { get; set; }
-
         /// <summary>
         /// Date/time of creation
         /// </summary>
@@ -40,8 +34,8 @@ namespace StreamChat.Core.DTO.Models
         [Newtonsoft.Json.JsonProperty("created_by_automod", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? CreatedByAutomod { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("message_user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MessageUserId { get; set; }
+        [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public FlagDetailsDTO Details { get; set; }
 
         /// <summary>
         /// Date of the rejection
@@ -54,6 +48,9 @@ namespace StreamChat.Core.DTO.Models
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reviewed_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? ReviewedAt { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("target_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public MessageDTO TargetMessage { get; set; }
 
         /// <summary>
         /// ID of flagged message

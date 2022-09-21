@@ -8,7 +8,14 @@ namespace StreamChat.Core.Requests
     /// </summary>
     public class SendMessageRequest : RequestObjectBase, ISavableTo<SendMessageRequestDTO>
     {
+        /// <summary>
+        /// Make the message a pending message. This message will not be viewable to others until it is committed.
+        /// </summary>
+        public bool? IsPendingMessage { get; set; }
+
         public MessageRequest Message { get; set; } = new MessageRequest();
+
+        public System.Collections.Generic.Dictionary<string, string> PendingMessageMetadata { get; set; }
 
         /// <summary>
         /// Do not try to enrich the links within message
@@ -23,7 +30,9 @@ namespace StreamChat.Core.Requests
         SendMessageRequestDTO ISavableTo<SendMessageRequestDTO>.SaveToDto() =>
             new SendMessageRequestDTO
             {
+                IsPendingMessage = IsPendingMessage,
                 Message = Message.TrySaveToDto(),
+                PendingMessageMetadata = PendingMessageMetadata,
                 SkipEnrichUrl = SkipEnrichUrl,
                 SkipPush = SkipPush,
                 AdditionalProperties = AdditionalProperties,

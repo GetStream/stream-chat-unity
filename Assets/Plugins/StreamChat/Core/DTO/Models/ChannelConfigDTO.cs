@@ -121,6 +121,9 @@ namespace StreamChat.Core.DTO.Models
         /// <summary>
         /// Enables message replies (threads)
         /// </summary>
+        [Newtonsoft.Json.JsonProperty("reminders", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? Reminders { get; set; }
+
         [Newtonsoft.Json.JsonProperty("replies", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? Replies { get; set; }
 

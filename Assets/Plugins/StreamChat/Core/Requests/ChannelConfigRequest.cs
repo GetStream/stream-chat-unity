@@ -9,6 +9,8 @@ namespace StreamChat.Core.Requests
 
         public AutomodBehaviourType? BlocklistBehavior { get; set; }
 
+        public System.Collections.Generic.List<string> Commands { get; set; }
+
         public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
 
         /// <summary>
@@ -51,6 +53,7 @@ namespace StreamChat.Core.Requests
             {
                 Blocklist = Blocklist,
                 BlocklistBehavior = BlocklistBehavior,
+                Commands = Commands,
                 Grants = Grants,
                 MaxMessageLength = MaxMessageLength,
                 Quotes = Quotes,

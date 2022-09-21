@@ -3,16 +3,12 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public partial class Flag  : ModelBase, ILoadableFrom<FlagDTO, Flag>
+    public partial class Flag : ModelBase, ILoadableFrom<FlagDTO, Flag>
     {
         /// <summary>
         /// Date of the approval
         /// </summary>
         public System.DateTimeOffset? ApprovedAt { get; set; }
-
-        public string ChannelCid { get; set; }
-
-        public string ChannelTeam { get; set; }
 
         /// <summary>
         /// Date/time of creation
@@ -21,7 +17,7 @@ namespace StreamChat.Core.Models
 
         public bool? CreatedByAutomod { get; set; }
 
-        public string MessageUserId { get; set; }
+        public FlagDetails Details { get; set; }
 
         /// <summary>
         /// Date of the rejection
@@ -32,6 +28,8 @@ namespace StreamChat.Core.Models
         /// Date of the review
         /// </summary>
         public System.DateTimeOffset? ReviewedAt { get; set; }
+
+        public Message TargetMessage { get; set; }
 
         /// <summary>
         /// ID of flagged message
@@ -56,13 +54,13 @@ namespace StreamChat.Core.Models
         Flag ILoadableFrom<FlagDTO, Flag>.LoadFromDto(FlagDTO dto)
         {
             ApprovedAt = dto.ApprovedAt;
-            ChannelCid = dto.ChannelCid;
-            ChannelTeam = dto.ChannelTeam;
             CreatedAt = dto.CreatedAt;
             CreatedByAutomod = dto.CreatedByAutomod;
-            MessageUserId = dto.MessageUserId;
+            Details = Details.TryLoadFromDto(dto.Details);
             RejectedAt = dto.RejectedAt;
             ReviewedAt = dto.ReviewedAt;
+            ReviewedAt = dto.ReviewedAt;
+            TargetMessage = TargetMessage.TryLoadFromDto<MessageDTO, Message>(dto.TargetMessage);
             TargetMessageId = dto.TargetMessageId;
             TargetUser = TargetUser.TryLoadFromDto<UserObjectDTO, User>(dto.TargetUser);
             UpdatedAt = dto.UpdatedAt;
