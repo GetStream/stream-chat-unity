@@ -1,6 +1,6 @@
-﻿using StreamChat.Core.DTO.Events;
+﻿using System;
+using StreamChat.Core.DTO.Events;
 using StreamChat.Core.DTO.Models;
-using StreamChat.Core.Events;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
@@ -30,6 +30,7 @@ namespace StreamChat.Core.Events
 
         public int? UnreadChannels { get; set; }
 
+        [Obsolete("Please use the TotalUnreadCount. This property will be removed in the future.")]
         public int? UnreadCount { get; set; }
 
         public User User { get; set; }
@@ -45,7 +46,9 @@ namespace StreamChat.Core.Events
             TotalUnreadCount = dto.TotalUnreadCount;
             Type = dto.Type;
             UnreadChannels = dto.UnreadChannels;
-            UnreadCount = dto.UnreadCount;
+#pragma warning disable 0618
+            UnreadCount = dto.TotalUnreadCount;
+#pragma warning restore 0618
             User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 

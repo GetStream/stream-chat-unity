@@ -60,7 +60,8 @@ namespace StreamChat.Core
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
 
-        //Todo Remove
+        [Obsolete("This property presents only initial state of the LocalUser when connection is made and is not being updated any further. " +
+                  "Please use the OwnUser object returned via StreamChatClient.Connected event. This property will  be removed in the future.")]
         public OwnUser LocalUser { get; private set; }
 
         public ConnectionState ConnectionState
@@ -351,13 +352,15 @@ namespace StreamChat.Core
         private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent)
         {
             _connectionId = healthCheckEvent.ConnectionId;
+#pragma warning disable 0618
             LocalUser = healthCheckEvent.Me;
+#pragma warning restore 0618
             _lastHealthCheckReceivedTime = _timeService.Time;
             _reconnectAttempt = 0;
             ConnectionState = ConnectionState.Connected;
 
             _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
-            Connected?.Invoke(LocalUser);
+            Connected?.Invoke(healthCheckEvent.Me);
         }
 
         private void TryToReconnect()
