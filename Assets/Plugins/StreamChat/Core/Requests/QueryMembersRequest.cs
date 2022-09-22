@@ -1,10 +1,11 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class QueryMembersRequest : RequestObjectBase, ISavableTo<QueryMembersRequestDTO>
+    public partial class QueryMembersRequest : RequestObjectBase, ISavableTo<QueryMembersRequestInternalDTO>
     {
         public System.DateTimeOffset? CreatedAtAfter { get; set; }
 
@@ -24,19 +25,25 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Id { get; set; }
 
+        /// <summary>
+        /// Number of records to return
+        /// </summary>
         public int? Limit { get; set; }
 
         /// <summary>
         /// List of members to search in distinct channels
         /// </summary>
-        public System.Collections.Generic.List<ChannelMemberRequest> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMember> Members { get; set; }
 
+        /// <summary>
+        /// Number of records to offset
+        /// </summary>
         public int? Offset { get; set; }
 
         /// <summary>
         /// Array of sort parameters
         /// </summary>
-        public System.Collections.Generic.List<SortParamRequest> Sort { get; set; }
+        public System.Collections.Generic.List<SortParam> Sort { get; set; }
 
         /// <summary>
         /// Channel type to interact with
@@ -51,8 +58,8 @@ namespace StreamChat.Core.Requests
 
         public string UserIdLte { get; set; }
 
-        QueryMembersRequestDTO ISavableTo<QueryMembersRequestDTO>.SaveToDto() =>
-            new QueryMembersRequestDTO
+        QueryMembersRequestInternalDTO ISavableTo<QueryMembersRequestInternalDTO>.SaveToDto() =>
+            new QueryMembersRequestInternalDTO
             {
                 CreatedAtAfter = CreatedAtAfter,
                 CreatedAtAfterOrEqual = CreatedAtAfterOrEqual,
@@ -61,9 +68,9 @@ namespace StreamChat.Core.Requests
                 FilterConditions = FilterConditions,
                 Id = Id,
                 Limit = Limit,
-                Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberDTO>(),
+                Members = Members.TrySaveToDtoCollection<ChannelMember, ChannelMemberInternalDTO>(),
                 Offset = Offset,
-                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamInternalDTO>(),
                 Type = Type,
                 UserIdGt = UserIdGt,
                 UserIdGte = UserIdGte,

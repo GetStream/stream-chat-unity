@@ -1,8 +1,8 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.Models
 {
-    public class Device : ModelBase, ILoadableFrom<DeviceDTO, Device>
+    public class Device : ModelBase, ILoadableFrom<DeviceInternalDTO, Device>
     {
         /// <summary>
         /// Date/time of creation
@@ -28,7 +28,7 @@ namespace StreamChat.Core.Models
 
         public string UserId { get; set; }
 
-        Device ILoadableFrom<DeviceDTO, Device>.LoadFromDto(DeviceDTO dto)
+        Device ILoadableFrom<DeviceInternalDTO, Device>.LoadFromDto(DeviceInternalDTO dto)
         {
             CreatedAt = dto.CreatedAt;
             Disabled = dto.Disabled;

@@ -1,10 +1,10 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class Channel : ModelBase, ILoadableFrom<ChannelResponseDTO, Channel>
+    public class Channel : ModelBase, ILoadableFrom<ChannelResponseInternalDTO, Channel>
     {
         /// <summary>
         /// Whether auto translation is enabled or not
@@ -105,6 +105,8 @@ namespace StreamChat.Core.Models
 
         public System.DateTimeOffset? TruncatedAt { get; set; }
 
+        public User TruncatedBy { get; set; }
+
         /// <summary>
         /// Type of the channel
         /// </summary>
@@ -117,7 +119,7 @@ namespace StreamChat.Core.Models
 
         public string Name { get; set; }
 
-        Channel ILoadableFrom<ChannelResponseDTO, Channel>.LoadFromDto(ChannelResponseDTO dto)
+        Channel ILoadableFrom<ChannelResponseInternalDTO, Channel>.LoadFromDto(ChannelResponseInternalDTO dto)
         {
             AutoTranslationEnabled = dto.AutoTranslationEnabled;
             AutoTranslationLanguage = dto.AutoTranslationLanguage;
@@ -125,7 +127,7 @@ namespace StreamChat.Core.Models
             Config = Config.TryLoadFromDto(dto.Config);
             Cooldown = dto.Cooldown;
             CreatedAt = dto.CreatedAt;
-            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectDTO, User>(dto.CreatedBy);
+            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.CreatedBy);
             DeletedAt = dto.DeletedAt;
             Disabled = dto.Disabled;
             Frozen = dto.Frozen;
@@ -140,6 +142,7 @@ namespace StreamChat.Core.Models
             OwnCapabilities = dto.OwnCapabilities;
             Team = dto.Team;
             TruncatedAt = dto.TruncatedAt;
+            TruncatedBy = TruncatedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.TruncatedBy);
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
             AdditionalProperties = dto.AdditionalProperties;

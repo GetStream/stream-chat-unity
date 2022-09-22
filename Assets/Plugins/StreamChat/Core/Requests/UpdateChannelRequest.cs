@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class UpdateChannelRequest : RequestObjectBase, ISavableTo<UpdateChannelRequestDTO>
+    public partial class UpdateChannelRequest : RequestObjectBase, ISavableTo<UpdateChannelRequestInternalDTO>
     {
         /// <summary>
         /// Set to `true` to accept the invite
@@ -70,18 +70,18 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? SkipPush { get; set; }
 
-        UpdateChannelRequestDTO ISavableTo<UpdateChannelRequestDTO>.SaveToDto() =>
-            new UpdateChannelRequestDTO
+        UpdateChannelRequestInternalDTO ISavableTo<UpdateChannelRequestInternalDTO>.SaveToDto() =>
+            new UpdateChannelRequestInternalDTO
             {
                 AcceptInvite = AcceptInvite,
-                AddMembers = AddMembers.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),
+                AddMembers = AddMembers.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
                 AddModerators = AddModerators,
-                AssignRoles = AssignRoles.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),
+                AssignRoles = AssignRoles.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
                 Cooldown = Cooldown,
                 Data = Data.TrySaveToDto(),
                 DemoteModerators = DemoteModerators,
                 HideHistory = HideHistory,
-                Invites = Invites.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),
+                Invites = Invites.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
                 Message = Message.TrySaveToDto(),
                 RejectInvite = RejectInvite,
                 RemoveMembers = RemoveMembers,

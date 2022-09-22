@@ -1,10 +1,10 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class SearchResponse : ResponseObjectBase, ILoadableFrom<SearchResponseDTO, SearchResponse>
+    public partial class SearchResponse : ResponseObjectBase, ILoadableFrom<SearchResponseInternalDTO, SearchResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -31,7 +31,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public SearchWarning ResultsWarning { get; set; }
 
-        SearchResponse ILoadableFrom<SearchResponseDTO, SearchResponse>.LoadFromDto(SearchResponseDTO dto)
+        SearchResponse ILoadableFrom<SearchResponseInternalDTO, SearchResponse>.LoadFromDto(SearchResponseInternalDTO dto)
         {
             Duration = dto.Duration;
             Next = dto.Next;

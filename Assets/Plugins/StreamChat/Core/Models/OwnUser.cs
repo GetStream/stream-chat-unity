@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class OwnUser : User, ILoadableFrom<OwnUserDTO, OwnUser>
+    public class OwnUser : User, ILoadableFrom<OwnUserInternalDTO, OwnUser>
     {
         public System.Collections.Generic.List<ChannelMute> ChannelMutes { get; set; }
 
@@ -19,7 +19,7 @@ namespace StreamChat.Core.Models
 
         public int? UnreadCount { get; set; }
 
-        OwnUser ILoadableFrom<OwnUserDTO, OwnUser>.LoadFromDto(OwnUserDTO dto)
+        OwnUser ILoadableFrom<OwnUserInternalDTO, OwnUser>.LoadFromDto(OwnUserInternalDTO dto)
         {
             Banned = dto.Banned;
             ChannelMutes = ChannelMutes.TryLoadFromDtoCollection(dto.ChannelMutes);

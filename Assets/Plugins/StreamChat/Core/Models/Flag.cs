@@ -1,18 +1,14 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public partial class Flag  : ModelBase, ILoadableFrom<FlagDTO, Flag>
+    public partial class Flag : ModelBase, ILoadableFrom<FlagInternalDTO, Flag>
     {
         /// <summary>
         /// Date of the approval
         /// </summary>
         public System.DateTimeOffset? ApprovedAt { get; set; }
-
-        public string ChannelCid { get; set; }
-
-        public string ChannelTeam { get; set; }
 
         /// <summary>
         /// Date/time of creation
@@ -21,7 +17,7 @@ namespace StreamChat.Core.Models
 
         public bool? CreatedByAutomod { get; set; }
 
-        public string MessageUserId { get; set; }
+        public FlagDetails Details { get; set; }
 
         /// <summary>
         /// Date of the rejection
@@ -32,6 +28,8 @@ namespace StreamChat.Core.Models
         /// Date of the review
         /// </summary>
         public System.DateTimeOffset? ReviewedAt { get; set; }
+
+        public Message TargetMessage { get; set; }
 
         /// <summary>
         /// ID of flagged message
@@ -53,20 +51,20 @@ namespace StreamChat.Core.Models
         /// </summary>
         public User User { get; set; }
 
-        Flag ILoadableFrom<FlagDTO, Flag>.LoadFromDto(FlagDTO dto)
+        Flag ILoadableFrom<FlagInternalDTO, Flag>.LoadFromDto(FlagInternalDTO dto)
         {
             ApprovedAt = dto.ApprovedAt;
-            ChannelCid = dto.ChannelCid;
-            ChannelTeam = dto.ChannelTeam;
             CreatedAt = dto.CreatedAt;
             CreatedByAutomod = dto.CreatedByAutomod;
-            MessageUserId = dto.MessageUserId;
+            Details = Details.TryLoadFromDto(dto.Details);
             RejectedAt = dto.RejectedAt;
             ReviewedAt = dto.ReviewedAt;
+            ReviewedAt = dto.ReviewedAt;
+            TargetMessage = TargetMessage.TryLoadFromDto<MessageInternalDTO, Message>(dto.TargetMessage);
             TargetMessageId = dto.TargetMessageId;
-            TargetUser = TargetUser.TryLoadFromDto<UserObjectDTO, User>(dto.TargetUser);
+            TargetUser = TargetUser.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.TargetUser);
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

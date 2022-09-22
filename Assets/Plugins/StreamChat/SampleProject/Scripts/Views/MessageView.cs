@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using StreamChat.Core.DTO.Models;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProject.Utils;

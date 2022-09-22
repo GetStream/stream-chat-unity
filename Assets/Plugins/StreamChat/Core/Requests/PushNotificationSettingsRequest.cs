@@ -1,26 +1,16 @@
 ﻿using System;
-using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public class PushNotificationSettingsRequest : RequestObjectBase, ISavableTo<PushNotificationSettingsRequestDTO>,
-        ISavableTo<PushNotificationSettingsDTO>
+    public class PushNotificationSettingsRequest : RequestObjectBase, ISavableTo<PushNotificationSettingsRequestInternalDTO>
     {
         public bool Disabled { get; set; }
 
         public DateTimeOffset DisabledUntil { get; set; }
 
-        PushNotificationSettingsRequestDTO ISavableTo<PushNotificationSettingsRequestDTO>.SaveToDto()
-            => new PushNotificationSettingsRequestDTO
-            {
-                Disabled = Disabled,
-                DisabledUntil = DisabledUntil,
-                AdditionalProperties = AdditionalProperties
-            };
-
-        PushNotificationSettingsDTO ISavableTo<PushNotificationSettingsDTO>.SaveToDto()
-            => new PushNotificationSettingsDTO
+        PushNotificationSettingsRequestInternalDTO ISavableTo<PushNotificationSettingsRequestInternalDTO>.SaveToDto() =>
+            new PushNotificationSettingsRequestInternalDTO
             {
                 Disabled = Disabled,
                 DisabledUntil = DisabledUntil,

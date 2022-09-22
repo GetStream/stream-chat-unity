@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
 {
-    public class ReactionRemovalResponse : ResponseObjectBase, ILoadableFrom<ReactionRemovalResponseDTO, ReactionRemovalResponse>
+    public class ReactionRemovalResponse : ResponseObjectBase, ILoadableFrom<ReactionRemovalResponseInternalDTO, ReactionRemovalResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -16,10 +16,10 @@ namespace StreamChat.Core.Responses
 
         public Reaction Reaction { get; set; }
 
-        ReactionRemovalResponse ILoadableFrom<ReactionRemovalResponseDTO, ReactionRemovalResponse>.LoadFromDto(ReactionRemovalResponseDTO dto)
+        ReactionRemovalResponse ILoadableFrom<ReactionRemovalResponseInternalDTO, ReactionRemovalResponse>.LoadFromDto(ReactionRemovalResponseInternalDTO dto)
         {
             Duration = Duration;
-            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             Reaction = Reaction.TryLoadFromDto(dto.Reaction);
             AdditionalProperties = AdditionalProperties;
 

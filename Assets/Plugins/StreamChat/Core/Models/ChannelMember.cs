@@ -1,10 +1,10 @@
 ﻿using System;
-using StreamChat.Core.DTO.Models;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class ChannelMember : ModelBase, ILoadableFrom<ChannelMemberDTO, ChannelMember>, ISavableTo<ChannelMemberDTO>
+    public class ChannelMember : ModelBase, ILoadableFrom<ChannelMemberInternalDTO, ChannelMember>, ISavableTo<ChannelMemberInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -49,6 +49,12 @@ namespace StreamChat.Core.Models
         public bool? IsModerator { get; set; }
 
         /// <summary>
+        /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)
+        /// </summary>
+        [Obsolete("Use ChannelRole instead")]
+        public ChannelMemberRoleType? Role { get; set; }
+
+        /// <summary>
         /// Whether member is shadow banned in this channel or not
         /// </summary>
         public bool? ShadowBanned { get; set; }
@@ -62,7 +68,7 @@ namespace StreamChat.Core.Models
 
         public string UserId { get; set; }
 
-        ChannelMember ILoadableFrom<ChannelMemberDTO, ChannelMember>.LoadFromDto(ChannelMemberDTO dto)
+        ChannelMember ILoadableFrom<ChannelMemberInternalDTO, ChannelMember>.LoadFromDto(ChannelMemberInternalDTO dto)
         {
             BanExpires = dto.BanExpires;
             Banned = dto.Banned;
@@ -73,18 +79,21 @@ namespace StreamChat.Core.Models
             InviteRejectedAt = dto.InviteRejectedAt;
             Invited = dto.Invited;
             IsModerator = dto.IsModerator;
+#pragma warning disable 0618
+            Role = dto.Role;
+#pragma warning restore 0618
             ShadowBanned = dto.ShadowBanned;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }
 
-        ChannelMemberDTO ISavableTo<ChannelMemberDTO>.SaveToDto()
+        ChannelMemberInternalDTO ISavableTo<ChannelMemberInternalDTO>.SaveToDto()
         {
-            return new ChannelMemberDTO
+            return new ChannelMemberInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,
@@ -95,6 +104,9 @@ namespace StreamChat.Core.Models
                 InviteRejectedAt = InviteRejectedAt,
                 Invited = Invited,
                 IsModerator = IsModerator,
+#pragma warning disable 0618
+                Role = Role,
+#pragma warning restore 0618
                 ShadowBanned = ShadowBanned,
                 UpdatedAt = UpdatedAt,
                 User = User.TrySaveToDto(),

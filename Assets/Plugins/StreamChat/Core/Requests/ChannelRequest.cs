@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ChannelRequest : RequestObjectBase, ISavableTo<ChannelRequestDTO>
+    public partial class ChannelRequest : RequestObjectBase, ISavableTo<ChannelRequestInternalDTO>
     {
         /// <summary>
         /// Enable or disable auto translation
@@ -28,17 +28,23 @@ namespace StreamChat.Core.Requests
 
         public System.Collections.Generic.List<ChannelMemberRequest> Members { get; set; }
 
-        public System.Collections.Generic.List<double> OwnCapabilities { get; set; }
+        public System.Collections.Generic.List<int> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (if multi-tenant mode is enabled)
         /// </summary>
         public string Team { get; set; }
 
+        public System.Collections.Generic.List<int> TruncatedAt { get; set; }
+
+        public System.Collections.Generic.List<int> TruncatedBy { get; set; }
+
+        public string TruncatedById { get; set; }
+
         public string Name { get; set; }
 
-        ChannelRequestDTO ISavableTo<ChannelRequestDTO>.SaveToDto() =>
-            new ChannelRequestDTO
+        ChannelRequestInternalDTO ISavableTo<ChannelRequestInternalDTO>.SaveToDto() =>
+            new ChannelRequestInternalDTO
             {
                 AutoTranslationEnabled = AutoTranslationEnabled,
                 AutoTranslationLanguage = AutoTranslationLanguage,
@@ -46,9 +52,12 @@ namespace StreamChat.Core.Requests
                 CreatedBy = CreatedBy.TrySaveToDto<UserObjectRequestDTO>(),
                 Disabled = Disabled,
                 Frozen = Frozen,
-                Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),
+                Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
                 OwnCapabilities = OwnCapabilities,
                 Team = Team,
+                TruncatedAt = TruncatedAt,
+                TruncatedBy = TruncatedBy,
+                TruncatedById = TruncatedById,
                 Name = Name,
                 AdditionalProperties = AdditionalProperties,
             };

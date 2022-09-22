@@ -1,16 +1,16 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.Responses
 {
     public partial class ShowChannelResponse : ResponseObjectBase,
-        ILoadableFrom<ShowChannelResponseDTO, ShowChannelResponse>
+        ILoadableFrom<ShowChannelResponseInternalDTO, ShowChannelResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
         /// </summary>
         public string Duration { get; set; }
 
-        ShowChannelResponse ILoadableFrom<ShowChannelResponseDTO, ShowChannelResponse>.LoadFromDto(ShowChannelResponseDTO dto)
+        ShowChannelResponse ILoadableFrom<ShowChannelResponseInternalDTO, ShowChannelResponse>.LoadFromDto(ShowChannelResponseInternalDTO dto)
         {
             Duration = dto.Duration;
             AdditionalProperties = dto.AdditionalProperties;

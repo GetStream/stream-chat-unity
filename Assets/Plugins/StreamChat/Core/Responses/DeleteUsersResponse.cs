@@ -1,8 +1,8 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class DeleteUsersResponse : ResponseObjectBase, ILoadableFrom<DeleteUsersResponseDTO, DeleteUsersResponse>
+    public partial class DeleteUsersResponse : ResponseObjectBase, ILoadableFrom<DeleteUsersResponseInternalDTO, DeleteUsersResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -11,7 +11,7 @@ namespace StreamChat.Core.Responses
 
         public string TaskId { get; set; }
 
-        DeleteUsersResponse ILoadableFrom<DeleteUsersResponseDTO, DeleteUsersResponse>.LoadFromDto(DeleteUsersResponseDTO dto)
+        DeleteUsersResponse ILoadableFrom<DeleteUsersResponseInternalDTO, DeleteUsersResponse>.LoadFromDto(DeleteUsersResponseInternalDTO dto)
         {
             Duration = dto.Duration;
             TaskId = dto.TaskId;

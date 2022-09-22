@@ -1,8 +1,8 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.Models
 {
-    public class ImageData : ModelBase, ILoadableFrom<ImageDataDTO, ImageData>
+    public class ImageData : ModelBase, ILoadableFrom<ImageDataInternalDTO, ImageData>
     {
         public string Frames { get; set; }
 
@@ -14,7 +14,7 @@ namespace StreamChat.Core.Models
 
         public string Width { get; set; }
 
-        ImageData ILoadableFrom<ImageDataDTO, ImageData>.LoadFromDto(ImageDataDTO dto)
+        ImageData ILoadableFrom<ImageDataInternalDTO, ImageData>.LoadFromDto(ImageDataInternalDTO dto)
         {
             Frames = dto.Frames;
             Height = dto.Height;

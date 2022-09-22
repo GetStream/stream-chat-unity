@@ -1,17 +1,17 @@
 ﻿using System.Threading.Tasks;
-using StreamChat.Core.DTO.Requests;
-using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.API.Internal
 {
     internal interface IInternalUserApi
     {
-        Task<UsersResponseDTO> QueryUsersAsync(QueryUsersRequestDTO queryUsersRequest);
+        Task<UsersResponseInternalDTO> QueryUsersAsync(QueryUsersRequestInternalDTO queryUsersRequest);
 
-        Task<GuestResponseDTO> CreateGuestAsync(GuestRequestDTO createGuestRequest);
+        Task<GuestResponseInternalDTO> CreateGuestAsync(GuestRequestInternalDTO createGuestRequest);
 
-        Task<UpdateUsersResponseDTO> UpsertManyUsersAsync(UpdateUsersRequestDTO updateUsersRequest);
+        Task<UpdateUsersResponseInternalDTO> UpsertManyUsersAsync(UpdateUsersRequestInternalDTO updateUsersRequest);
 
-        Task<UpdateUsersResponseDTO> UpdateUserPartialAsync(UpdateUserPartialRequestDTO updateUserPartialRequest);
+        Task<UpdateUsersResponseInternalDTO> UpdateUserPartialAsync(UpdateUserPartialRequestInternalDTO updateUserPartialRequest);
     }
 }

@@ -1,11 +1,10 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ChannelMemberRequest : RequestObjectBase, ISavableTo<ChannelMemberRequestDTO>,
-        ISavableTo<ChannelMemberDTO>
+    public partial class ChannelMemberRequest : RequestObjectBase, ISavableTo<ChannelMemberRequestInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -68,8 +67,8 @@ namespace StreamChat.Core.Requests
 
         public string UserId { get; set; }
 
-        ChannelMemberRequestDTO ISavableTo<ChannelMemberRequestDTO>.SaveToDto()
-            => new ChannelMemberRequestDTO
+        ChannelMemberRequestInternalDTO ISavableTo<ChannelMemberRequestInternalDTO>.SaveToDto() =>
+            new ChannelMemberRequestInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,
@@ -83,26 +82,7 @@ namespace StreamChat.Core.Requests
                 Role = Role,
                 ShadowBanned = ShadowBanned,
                 UpdatedAt = UpdatedAt,
-                User = User.TrySaveToDto<UserObjectRequestDTO>(),
-                UserId = UserId,
-                AdditionalProperties = AdditionalProperties,
-            };
-
-        ChannelMemberDTO ISavableTo<ChannelMemberDTO>.SaveToDto()
-            => new ChannelMemberDTO
-            {
-                BanExpires = BanExpires,
-                Banned = Banned,
-                ChannelRole = ChannelRole,
-                CreatedAt = CreatedAt,
-                DeletedAt = DeletedAt,
-                InviteAcceptedAt = InviteAcceptedAt,
-                InviteRejectedAt = InviteRejectedAt,
-                Invited = Invited,
-                IsModerator = IsModerator,
-                ShadowBanned = ShadowBanned,
-                UpdatedAt = UpdatedAt,
-                User = User.TrySaveToDto<UserObjectDTO>(),
+                User = User.TrySaveToDto(),
                 UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };

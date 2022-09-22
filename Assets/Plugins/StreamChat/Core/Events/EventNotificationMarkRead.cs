@@ -1,6 +1,6 @@
-﻿using StreamChat.Core.DTO.Events;
-using StreamChat.Core.DTO.Models;
-using StreamChat.Core.Events;
+﻿using System;
+using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
@@ -10,7 +10,7 @@ namespace StreamChat.Core.Events
     /// Trigger: when the total count of unread messages (across all channels the user is a member) changes
     /// Recipients: clients from the user removed that are not watching the channel
     /// </summary>
-    public partial class EventNotificationMarkRead : EventBase, ILoadableFrom<EventNotificationMarkReadDTO, EventNotificationMarkRead>
+    public partial class EventNotificationMarkRead : EventBase, ILoadableFrom<EventNotificationMarkReadInternalDTO, EventNotificationMarkRead>
     {
         public Channel Channel { get; set; }
 
@@ -30,11 +30,12 @@ namespace StreamChat.Core.Events
 
         public int? UnreadChannels { get; set; }
 
+        [Obsolete("Please use the TotalUnreadCount. This property will be removed in the future.")]
         public int? UnreadCount { get; set; }
 
         public User User { get; set; }
 
-        EventNotificationMarkRead ILoadableFrom<EventNotificationMarkReadDTO, EventNotificationMarkRead>.LoadFromDto(EventNotificationMarkReadDTO dto)
+        EventNotificationMarkRead ILoadableFrom<EventNotificationMarkReadInternalDTO, EventNotificationMarkRead>.LoadFromDto(EventNotificationMarkReadInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;
@@ -45,8 +46,10 @@ namespace StreamChat.Core.Events
             TotalUnreadCount = dto.TotalUnreadCount;
             Type = dto.Type;
             UnreadChannels = dto.UnreadChannels;
-            UnreadCount = dto.UnreadCount;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+#pragma warning disable 0618
+            UnreadCount = dto.TotalUnreadCount;
+#pragma warning restore 0618
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

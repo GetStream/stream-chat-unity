@@ -1,14 +1,14 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.Models
 {
-    public class PushNotificationSettings : ModelBase, ILoadableFrom<PushNotificationSettingsDTO, PushNotificationSettings>, ISavableTo<PushNotificationSettingsDTO>
+    public class PushNotificationSettings : ModelBase, ILoadableFrom<PushNotificationSettingsInternalDTO, PushNotificationSettings>, ISavableTo<PushNotificationSettingsInternalDTO>
     {
         public bool? Disabled { get; set; }
 
         public System.DateTimeOffset? DisabledUntil { get; set; }
 
-        PushNotificationSettings ILoadableFrom<PushNotificationSettingsDTO, PushNotificationSettings>.LoadFromDto(PushNotificationSettingsDTO dto)
+        PushNotificationSettings ILoadableFrom<PushNotificationSettingsInternalDTO, PushNotificationSettings>.LoadFromDto(PushNotificationSettingsInternalDTO dto)
         {
             Disabled = dto.Disabled;
             DisabledUntil = dto.DisabledUntil;
@@ -17,8 +17,8 @@ namespace StreamChat.Core.Models
             return this;
         }
 
-        PushNotificationSettingsDTO ISavableTo<PushNotificationSettingsDTO>.SaveToDto() =>
-            new PushNotificationSettingsDTO
+        PushNotificationSettingsInternalDTO ISavableTo<PushNotificationSettingsInternalDTO>.SaveToDto() =>
+            new PushNotificationSettingsInternalDTO
             {
                 Disabled = Disabled,
                 DisabledUntil = DisabledUntil,

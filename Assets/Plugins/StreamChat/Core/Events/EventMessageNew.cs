@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Events;
-using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public class EventMessageNew : EventBase, ILoadableFrom<EventMessageNewDTO, EventMessageNew>
+    public class EventMessageNew : EventBase, ILoadableFrom<EventMessageNewInternalDTO, EventMessageNew>
     {
         public string ChannelId { get; set; }
 
@@ -27,27 +27,18 @@ namespace StreamChat.Core.Events
 
         public int? WatcherCount { get; set; }
 
-        public int? TotalUnreadCount { get; set; }
-
-        public int? UnreadChannels { get; set; }
-
-        public int? UnreadCount { get; set; }
-
-        EventMessageNew ILoadableFrom<EventMessageNewDTO, EventMessageNew>.LoadFromDto(EventMessageNewDTO dto)
+        EventMessageNew ILoadableFrom<EventMessageNewInternalDTO, EventMessageNew>.LoadFromDto(EventMessageNewInternalDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             Team = dto.Team;
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             WatcherCount = dto.WatcherCount;
-            TotalUnreadCount = dto.TotalUnreadCount;
-            UnreadChannels = dto.UnreadChannels;
-            UnreadCount = dto.UnreadCount;
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

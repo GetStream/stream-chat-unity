@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class DeleteUsersRequest : RequestObjectBase, ISavableTo<DeleteUsersRequestDTO>
+    public partial class DeleteUsersRequest : RequestObjectBase, ISavableTo<DeleteUsersRequestInternalDTO>
     {
         public DeleteUsersRequestConversations? Conversations { get; set; }
 
@@ -16,8 +16,8 @@ namespace StreamChat.Core.Requests
 
         public List<string> UserIds { get; set; } = new List<string>();
 
-        DeleteUsersRequestDTO ISavableTo<DeleteUsersRequestDTO>.SaveToDto() =>
-            new DeleteUsersRequestDTO
+        DeleteUsersRequestInternalDTO ISavableTo<DeleteUsersRequestInternalDTO>.SaveToDto() =>
+            new DeleteUsersRequestInternalDTO
             {
                 Conversations = Conversations,
                 Messages = Messages,

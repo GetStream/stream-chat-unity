@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class QueryBannedUsersResponse : ResponseObjectBase, ILoadableFrom<QueryBannedUsersResponseDTO, QueryBannedUsersResponse>
+    public partial class QueryBannedUsersResponse : ResponseObjectBase, ILoadableFrom<QueryBannedUsersResponseInternalDTO, QueryBannedUsersResponse>
     {
         public System.Collections.Generic.List<BanResponse> Bans { get; set; }
 
@@ -12,7 +12,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public string Duration { get; set; }
 
-        QueryBannedUsersResponse ILoadableFrom<QueryBannedUsersResponseDTO, QueryBannedUsersResponse>.LoadFromDto(QueryBannedUsersResponseDTO dto)
+        QueryBannedUsersResponse ILoadableFrom<QueryBannedUsersResponseInternalDTO, QueryBannedUsersResponse>.LoadFromDto(QueryBannedUsersResponseInternalDTO dto)
         {
             Bans = Bans.TryLoadFromDtoCollection(dto.Bans);
             Duration = dto.Duration;

@@ -1,8 +1,8 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.Models
 {
-    public class Field : ModelBase, ILoadableFrom<FieldDTO, Field>
+    public class Field : ModelBase, ILoadableFrom<FieldInternalDTO, Field>
     {
         public bool? Short { get; set; }
 
@@ -10,7 +10,7 @@ namespace StreamChat.Core.Models
 
         public string Value { get; set; }
 
-        Field ILoadableFrom<FieldDTO, Field>.LoadFromDto(FieldDTO dto)
+        Field ILoadableFrom<FieldInternalDTO, Field>.LoadFromDto(FieldInternalDTO dto)
         {
             Short = dto.Short;
             Title = dto.Title;

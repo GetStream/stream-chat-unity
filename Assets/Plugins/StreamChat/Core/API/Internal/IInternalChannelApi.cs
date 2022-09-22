@@ -1,51 +1,51 @@
 ﻿using System.Threading.Tasks;
-using StreamChat.Core.DTO.Requests;
-using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.API.Internal
 {
     internal interface IInternalChannelApi
     {
-        Task<ShowChannelResponseDTO> ShowChannelAsync(string channelType, string channelId,
-            ShowChannelRequestDTO showChannelRequest);
+        Task<ShowChannelResponseInternalDTO> ShowChannelAsync(string channelType, string channelId,
+            ShowChannelRequestInternalDTO showChannelRequest);
 
-        Task<ChannelsResponseDTO> QueryChannelsAsync(QueryChannelsRequestDTO queryChannelsRequest);
+        Task<ChannelsResponseInternalDTO> QueryChannelsAsync(QueryChannelsRequestInternalDTO queryChannelsRequest);
 
-        Task<ChannelStateResponseDTO> GetOrCreateChannelAsync(string channelType,
-            ChannelGetOrCreateRequestDTO getOrCreateRequest);
+        Task<ChannelStateResponseInternalDTO> GetOrCreateChannelAsync(string channelType,
+            ChannelGetOrCreateRequestInternalDTO getOrCreateRequest);
 
-        Task<ChannelStateResponseDTO> GetOrCreateChannelAsync(string channelType, string channelId,
-            ChannelGetOrCreateRequestDTO getOrCreateRequest);
+        Task<ChannelStateResponseInternalDTO> GetOrCreateChannelAsync(string channelType, string channelId,
+            ChannelGetOrCreateRequestInternalDTO getOrCreateRequest);
 
-        Task<UpdateChannelResponseDTO> UpdateChannelAsync(string channelType, string channelId,
-            UpdateChannelRequestDTO updateChannelRequest);
+        Task<UpdateChannelResponseInternalDTO> UpdateChannelAsync(string channelType, string channelId,
+            UpdateChannelRequestInternalDTO updateChannelRequest);
 
-        Task<UpdateChannelPartialResponseDTO> UpdateChannelPartialAsync(string channelType, string channelId,
-            UpdateChannelPartialRequestDTO updateChannelPartialRequest);
+        Task<UpdateChannelPartialResponseInternalDTO> UpdateChannelPartialAsync(string channelType, string channelId,
+            UpdateChannelPartialRequestInternalDTO updateChannelPartialRequest);
 
-        Task<DeleteChannelsResponseDTO> DeleteChannelsAsync(DeleteChannelsRequestDTO deleteChannelsRequest);
+        Task<DeleteChannelsResponseInternalDTO> DeleteChannelsAsync(DeleteChannelsRequestInternalDTO deleteChannelsRequest);
 
-        Task<DeleteChannelResponseDTO> DeleteChannelAsync(string channelType, string channelId);
+        Task<DeleteChannelResponseInternalDTO> DeleteChannelAsync(string channelType, string channelId);
 
-        Task<TruncateChannelResponseDTO> TruncateChannelAsync(string channelType, string channelId,
-            TruncateChannelRequestDTO truncateChannelRequest);
+        Task<TruncateChannelResponseInternalDTO> TruncateChannelAsync(string channelType, string channelId,
+            TruncateChannelRequestInternalDTO truncateChannelRequest);
 
-        Task<MuteChannelResponseDTO> MuteChannelAsync(MuteChannelRequestDTO muteChannelRequest);
+        Task<MuteChannelResponseInternalDTO> MuteChannelAsync(MuteChannelRequestInternalDTO muteChannelRequest);
 
-        Task<UnmuteResponseDTO> UnmuteChannelAsync(UnmuteChannelRequestDTO unmuteChannelRequest);
+        Task<UnmuteResponseInternalDTO> UnmuteChannelAsync(UnmuteChannelRequestInternalDTO unmuteChannelRequest);
 
-        Task<HideChannelResponseDTO> HideChannelAsync(string channelType, string channelId,
-            HideChannelRequestDTO hideChannelRequest);
+        Task<HideChannelResponseInternalDTO> HideChannelAsync(string channelType, string channelId,
+            HideChannelRequestInternalDTO hideChannelRequest);
 
-        Task<MembersResponseDTO> QueryMembersAsync(QueryMembersRequestDTO queryMembersRequest);
+        Task<MembersResponseInternalDTO> QueryMembersAsync(QueryMembersRequestInternalDTO queryMembersRequest);
 
-        Task<StopWatchingResponseDTO> StopWatchingChannelAsync(string channelType, string channelId,
-            ChannelStopWatchingRequestDTO channelStopWatchingRequest);
+        Task<StopWatchingResponseInternalDTO> StopWatchingChannelAsync(string channelType, string channelId,
+            ChannelStopWatchingRequestInternalDTO channelStopWatchingRequest);
 
-        Task<MarkReadResponseDTO> MarkReadAsync(string channelType, string channelId,
-            MarkReadRequestDTO markReadRequest);
+        Task<MarkReadResponseInternalDTO> MarkReadAsync(string channelType, string channelId,
+            MarkReadRequestInternalDTO markReadRequest);
 
-        Task<MarkReadResponseDTO> MarkManyReadAsync(MarkChannelsReadRequestDTO markChannelsReadRequest);
+        Task<MarkReadResponseInternalDTO> MarkManyReadAsync(MarkChannelsReadRequestInternalDTO markChannelsReadRequest);
 
         Task SendTypingStartEventAsync(string channelType, string channelId);
 
