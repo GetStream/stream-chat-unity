@@ -4,15 +4,15 @@ using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class UpdateUserPartialRequest : RequestObjectBase, ISavableTo<UpdateUserPartialRequestDTO>
+    public partial class UpdateUserPartialRequest : RequestObjectBase, ISavableTo<UpdateUserPartialRequestInternalDTO>
     {
         public System.Collections.Generic.List<UpdateUserPartialRequestEntry> Users { get; set; }
 
-        UpdateUserPartialRequestDTO ISavableTo<UpdateUserPartialRequestDTO>.SaveToDto()
+        UpdateUserPartialRequestInternalDTO ISavableTo<UpdateUserPartialRequestInternalDTO>.SaveToDto()
         {
-            return new UpdateUserPartialRequestDTO
+            return new UpdateUserPartialRequestInternalDTO
             {
-                Users = Users.TrySaveToDtoCollection<UpdateUserPartialRequestEntry, UpdateUserPartialRequestEntryDTO>(),
+                Users = Users.TrySaveToDtoCollection<UpdateUserPartialRequestEntry, UpdateUserPartialRequestEntryInternalDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
         }

@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class UserMute : ModelBase, ILoadableFrom<UserMuteDTO, UserMute>
+    public class UserMute : ModelBase, ILoadableFrom<UserMuteInternalDTO, UserMute>
     {
         /// <summary>
         /// Date/time of creation
@@ -35,13 +35,13 @@ namespace StreamChat.Core.Models
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public User User { get; set; }
 
-        UserMute ILoadableFrom<UserMuteDTO, UserMute>.LoadFromDto(UserMuteDTO dto)
+        UserMute ILoadableFrom<UserMuteInternalDTO, UserMute>.LoadFromDto(UserMuteInternalDTO dto)
         {
             CreatedAt = dto.CreatedAt;
             Expires = dto.Expires;
-            Target = Target.TryLoadFromDto<UserObjectDTO, User>(dto.Target);
+            Target = Target.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.Target);
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

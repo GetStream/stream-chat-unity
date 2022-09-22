@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ImageUploadRequest : RequestObjectBase, ISavableTo<ImageUploadRequestDTO>
+    public partial class ImageUploadRequest : RequestObjectBase, ISavableTo<ImageUploadRequestInternalDTO>
     {
         /// <summary>
         /// multipart/form-data file field
@@ -14,8 +14,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public System.Collections.Generic.List<ImageSizeRequest> UploadSizes { get; set; }
 
-        ImageUploadRequestDTO ISavableTo<ImageUploadRequestDTO>.SaveToDto() =>
-            new ImageUploadRequestDTO()
+        ImageUploadRequestInternalDTO ISavableTo<ImageUploadRequestInternalDTO>.SaveToDto() =>
+            new ImageUploadRequestInternalDTO()
             {
                 File = File,
                 AdditionalProperties = AdditionalProperties

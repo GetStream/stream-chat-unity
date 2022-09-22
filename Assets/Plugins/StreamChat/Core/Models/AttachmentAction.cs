@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Models
 {
-    public class AttachmentAction : ModelBase, ILoadableFrom<ActionDTO, AttachmentAction>
+    public class AttachmentAction : ModelBase, ILoadableFrom<ActionInternalDTO, AttachmentAction>
     {
         public string Name { get; set; }
 
@@ -14,7 +14,7 @@ namespace StreamChat.Core.Models
 
         public string Value { get; set; }
 
-        AttachmentAction ILoadableFrom<ActionDTO, AttachmentAction>.LoadFromDto(ActionDTO dto)
+        AttachmentAction ILoadableFrom<ActionInternalDTO, AttachmentAction>.LoadFromDto(ActionInternalDTO dto)
         {
             Name = dto.Name;
             Style = dto.Style;

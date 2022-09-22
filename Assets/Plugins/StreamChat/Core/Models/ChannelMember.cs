@@ -4,7 +4,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class ChannelMember : ModelBase, ILoadableFrom<ChannelMemberDTO, ChannelMember>, ISavableTo<ChannelMemberDTO>
+    public class ChannelMember : ModelBase, ILoadableFrom<ChannelMemberInternalDTO, ChannelMember>, ISavableTo<ChannelMemberInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -68,7 +68,7 @@ namespace StreamChat.Core.Models
 
         public string UserId { get; set; }
 
-        ChannelMember ILoadableFrom<ChannelMemberDTO, ChannelMember>.LoadFromDto(ChannelMemberDTO dto)
+        ChannelMember ILoadableFrom<ChannelMemberInternalDTO, ChannelMember>.LoadFromDto(ChannelMemberInternalDTO dto)
         {
             BanExpires = dto.BanExpires;
             Banned = dto.Banned;
@@ -84,16 +84,16 @@ namespace StreamChat.Core.Models
 #pragma warning restore 0618
             ShadowBanned = dto.ShadowBanned;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }
 
-        ChannelMemberDTO ISavableTo<ChannelMemberDTO>.SaveToDto()
+        ChannelMemberInternalDTO ISavableTo<ChannelMemberInternalDTO>.SaveToDto()
         {
-            return new ChannelMemberDTO
+            return new ChannelMemberInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,

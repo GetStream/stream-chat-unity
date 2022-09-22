@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class MuteUserResponse : ResponseObjectBase, ILoadableFrom<MuteUserResponseDTO, MuteUserResponse>
+    public partial class MuteUserResponse : ResponseObjectBase, ILoadableFrom<MuteUserResponseInternalDTO, MuteUserResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -27,12 +27,12 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public OwnUser OwnUser { get; set; }
 
-        MuteUserResponse ILoadableFrom<MuteUserResponseDTO, MuteUserResponse>.LoadFromDto(MuteUserResponseDTO dto)
+        MuteUserResponse ILoadableFrom<MuteUserResponseInternalDTO, MuteUserResponse>.LoadFromDto(MuteUserResponseInternalDTO dto)
         {
             Duration = dto.Duration;
             Mute = Mute.TryLoadFromDto(dto.Mute);
             Mutes = Mutes.TryLoadFromDtoCollection(dto.Mutes);
-            OwnUser = OwnUser.TryLoadFromDto<OwnUserDTO, OwnUser>(dto.OwnUser);
+            OwnUser = OwnUser.TryLoadFromDto<OwnUserInternalDTO, OwnUser>(dto.OwnUser);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

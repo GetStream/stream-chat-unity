@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Requests
 {
-    public class FieldRequest : RequestObjectBase, ISavableTo<FieldRequestDTO>
+    public class FieldRequest : RequestObjectBase, ISavableTo<FieldRequestInternalDTO>
     {
         public bool Short { get; set; }
 
@@ -10,8 +10,8 @@ namespace StreamChat.Core.Requests
 
         public string Value { get; set; }
 
-        FieldRequestDTO ISavableTo<FieldRequestDTO>.SaveToDto() =>
-            new FieldRequestDTO
+        FieldRequestInternalDTO ISavableTo<FieldRequestInternalDTO>.SaveToDto() =>
+            new FieldRequestInternalDTO
             {
                 Short = Short,
                 Title = Title,

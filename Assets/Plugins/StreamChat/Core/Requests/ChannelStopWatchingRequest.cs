@@ -2,10 +2,10 @@
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ChannelStopWatchingRequest : RequestObjectBase, ISavableTo<ChannelStopWatchingRequestDTO>
+    public partial class ChannelStopWatchingRequest : RequestObjectBase, ISavableTo<ChannelStopWatchingRequestInternalDTO>
     {
-        ChannelStopWatchingRequestDTO ISavableTo<ChannelStopWatchingRequestDTO>.SaveToDto() =>
-            new ChannelStopWatchingRequestDTO
+        ChannelStopWatchingRequestInternalDTO ISavableTo<ChannelStopWatchingRequestInternalDTO>.SaveToDto() =>
+            new ChannelStopWatchingRequestInternalDTO
             {
                 AdditionalProperties = AdditionalProperties,
             };

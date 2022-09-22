@@ -4,7 +4,7 @@ using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Models
 {
-    public partial class MessageModerationResult : ModelBase, ILoadableFrom<MessageModerationResultDTO, MessageModerationResult>
+    public partial class MessageModerationResult : ModelBase, ILoadableFrom<MessageModerationResultInternalDTO, MessageModerationResult>
     {
         public string Action { get; set; }
 
@@ -28,7 +28,7 @@ namespace StreamChat.Core.Models
 
         public float? UserKarma { get; set; }
 
-        MessageModerationResult ILoadableFrom<MessageModerationResultDTO, MessageModerationResult>.LoadFromDto(MessageModerationResultDTO dto)
+        MessageModerationResult ILoadableFrom<MessageModerationResultInternalDTO, MessageModerationResult>.LoadFromDto(MessageModerationResultInternalDTO dto)
         {
             Action = dto.Action;
             AiModerationResponse = AiModerationResponse.TryLoadFromDto(dto.AiModerationResponse);

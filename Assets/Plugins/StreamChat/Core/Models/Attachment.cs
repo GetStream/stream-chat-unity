@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class Attachment : ModelBase, ILoadableFrom<AttachmentDTO, Attachment>
+    public class Attachment : ModelBase, ILoadableFrom<AttachmentInternalDTO, Attachment>
     {
         public System.Collections.Generic.List<AttachmentAction> Actions { get; set; }
 
@@ -50,7 +50,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public string Type { get; set; }
 
-        Attachment ILoadableFrom<AttachmentDTO, Attachment>.LoadFromDto(AttachmentDTO dto)
+        Attachment ILoadableFrom<AttachmentInternalDTO, Attachment>.LoadFromDto(AttachmentInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             Actions = Actions.TryLoadFromDtoCollection(dto.Actions);

@@ -7,8 +7,8 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Models
 {
-    public class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsDTO, ChannelState>,
-        ILoadableFrom<ChannelStateResponseDTO, ChannelState>
+    public class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsInternalDTO, ChannelState>,
+        ILoadableFrom<ChannelStateResponseInternalDTO, ChannelState>
     {
         [Obsolete("This event is deprecated and will be removed in a future major release.")]
         public event Action<ChannelState, Message> NewMessageAdded;
@@ -74,7 +74,7 @@ namespace StreamChat.Core.Models
             NewMessageAdded?.Invoke(this, message);
         }
 
-        ChannelState ILoadableFrom<ChannelStateResponseFieldsDTO, ChannelState>.LoadFromDto(ChannelStateResponseFieldsDTO dto)
+        ChannelState ILoadableFrom<ChannelStateResponseFieldsInternalDTO, ChannelState>.LoadFromDto(ChannelStateResponseFieldsInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Hidden = dto.Hidden;
@@ -92,7 +92,7 @@ namespace StreamChat.Core.Models
             return this;
         }
 
-        ChannelState ILoadableFrom<ChannelStateResponseDTO, ChannelState>.LoadFromDto(ChannelStateResponseDTO dto)
+        ChannelState ILoadableFrom<ChannelStateResponseInternalDTO, ChannelState>.LoadFromDto(ChannelStateResponseInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Hidden = dto.Hidden;

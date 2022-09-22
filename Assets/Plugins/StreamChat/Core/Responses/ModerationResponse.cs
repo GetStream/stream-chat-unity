@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Responses
 {
-    public partial class ModerationResponse : ResponseObjectBase, ILoadableFrom<ModerationResponseDTO, ModerationResponse>
+    public partial class ModerationResponse : ResponseObjectBase, ILoadableFrom<ModerationResponseInternalDTO, ModerationResponse>
     {
         public float? Explicit { get; set; }
 
@@ -10,7 +10,7 @@ namespace StreamChat.Core.Responses
 
         public float? Toxic { get; set; }
 
-        ModerationResponse ILoadableFrom<ModerationResponseDTO, ModerationResponse>.LoadFromDto(ModerationResponseDTO dto)
+        ModerationResponse ILoadableFrom<ModerationResponseInternalDTO, ModerationResponse>.LoadFromDto(ModerationResponseInternalDTO dto)
         {
             Explicit = dto.Explicit;
             Spam = dto.Spam;

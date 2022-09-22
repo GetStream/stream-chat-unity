@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Requests
 {
-    public partial class MuteUserRequest : RequestObjectBase, ISavableTo<MuteUserRequestDTO>
+    public partial class MuteUserRequest : RequestObjectBase, ISavableTo<MuteUserRequestInternalDTO>
     {
         /// <summary>
         /// User IDs to mute (if multiple users)
@@ -14,8 +14,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public int? Timeout { get; set; }
 
-        MuteUserRequestDTO ISavableTo<MuteUserRequestDTO>.SaveToDto() =>
-            new MuteUserRequestDTO
+        MuteUserRequestInternalDTO ISavableTo<MuteUserRequestInternalDTO>.SaveToDto() =>
+            new MuteUserRequestInternalDTO
             {
                 AdditionalProperties = AdditionalProperties,
                 TargetIds = TargetIds,

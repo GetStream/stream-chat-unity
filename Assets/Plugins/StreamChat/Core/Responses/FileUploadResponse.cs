@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Responses
 {
-    public partial class FileUploadResponse : ResponseObjectBase, ILoadableFrom<FileUploadResponseDTO, FileUploadResponse>
+    public partial class FileUploadResponse : ResponseObjectBase, ILoadableFrom<FileUploadResponseInternalDTO, FileUploadResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -11,7 +11,7 @@ namespace StreamChat.Core.Responses
 
         public string File { get; set; }
 
-        FileUploadResponse ILoadableFrom<FileUploadResponseDTO, FileUploadResponse>.LoadFromDto(FileUploadResponseDTO dto)
+        FileUploadResponse ILoadableFrom<FileUploadResponseInternalDTO, FileUploadResponse>.LoadFromDto(FileUploadResponseInternalDTO dto)
         {
             Duration = dto.Duration;
             File = dto.File;

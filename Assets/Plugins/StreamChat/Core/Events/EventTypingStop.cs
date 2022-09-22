@@ -5,8 +5,8 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public partial class EventTypingStop : EventBase, ILoadableFrom<EventTypingStopDTO, EventTypingStop>,
-        ISavableTo<EventTypingStopDTO>
+    public partial class EventTypingStop : EventBase, ILoadableFrom<EventTypingStopInternalDTO, EventTypingStop>,
+        ISavableTo<EventTypingStopInternalDTO>
     {
         public string ChannelId { get; set; }
 
@@ -22,7 +22,7 @@ namespace StreamChat.Core.Events
 
         public User User { get; internal set; }
 
-        EventTypingStop ILoadableFrom<EventTypingStopDTO, EventTypingStop>.LoadFromDto(EventTypingStopDTO dto)
+        EventTypingStop ILoadableFrom<EventTypingStopInternalDTO, EventTypingStop>.LoadFromDto(EventTypingStopInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             ChannelId = dto.ChannelId;
@@ -31,13 +31,13 @@ namespace StreamChat.Core.Events
             CreatedAt = dto.CreatedAt;
             ParentId = dto.ParentId;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
 
             return this;
         }
 
-        EventTypingStopDTO ISavableTo<EventTypingStopDTO>.SaveToDto() =>
-            new EventTypingStopDTO
+        EventTypingStopInternalDTO ISavableTo<EventTypingStopInternalDTO>.SaveToDto() =>
+            new EventTypingStopInternalDTO
             {
                 ChannelId = ChannelId,
                 ChannelType = ChannelType,

@@ -3,7 +3,7 @@ using StreamChat.Core.DTO.Responses;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class DeleteChannelsResponse : ResponseObjectBase, ILoadableFrom<DeleteChannelsResponseDTO, DeleteChannelsResponse>
+    public partial class DeleteChannelsResponse : ResponseObjectBase, ILoadableFrom<DeleteChannelsResponseInternalDTO, DeleteChannelsResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -14,7 +14,7 @@ namespace StreamChat.Core.Responses
 
         public string TaskId { get; set; }
 
-        DeleteChannelsResponse ILoadableFrom<DeleteChannelsResponseDTO, DeleteChannelsResponse>.LoadFromDto(DeleteChannelsResponseDTO dto)
+        DeleteChannelsResponse ILoadableFrom<DeleteChannelsResponseInternalDTO, DeleteChannelsResponse>.LoadFromDto(DeleteChannelsResponseInternalDTO dto)
         {
             Duration = dto.Duration;
             Result = Result.TryLoadFromDtoDictionary(dto.Result);

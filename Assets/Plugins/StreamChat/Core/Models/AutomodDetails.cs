@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public partial class AutomodDetails : ModelBase, ILoadableFrom<AutomodDetailsDTO, AutomodDetails>
+    public partial class AutomodDetails : ModelBase, ILoadableFrom<AutomodDetailsInternalDTO, AutomodDetails>
     {
         public string Action { get; set; }
 
@@ -15,7 +15,7 @@ namespace StreamChat.Core.Models
 
         public MessageModerationResult Result { get; set; }
 
-        AutomodDetails ILoadableFrom<AutomodDetailsDTO, AutomodDetails>.LoadFromDto(AutomodDetailsDTO dto)
+        AutomodDetails ILoadableFrom<AutomodDetailsInternalDTO, AutomodDetails>.LoadFromDto(AutomodDetailsInternalDTO dto)
         {
             Action = dto.Action;
             ImageLabels = dto.ImageLabels;

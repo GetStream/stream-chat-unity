@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class TruncateChannelResponse : ResponseObjectBase, ILoadableFrom<TruncateChannelResponseDTO, TruncateChannelResponse>
+    public partial class TruncateChannelResponse : ResponseObjectBase, ILoadableFrom<TruncateChannelResponseInternalDTO, TruncateChannelResponse>
     {
         public Channel Channel { get; set; }
 
@@ -16,11 +16,11 @@ namespace StreamChat.Core.Responses
 
         public Message Message { get; set; }
 
-        TruncateChannelResponse ILoadableFrom<TruncateChannelResponseDTO, TruncateChannelResponse>.LoadFromDto(TruncateChannelResponseDTO dto)
+        TruncateChannelResponse ILoadableFrom<TruncateChannelResponseInternalDTO, TruncateChannelResponse>.LoadFromDto(TruncateChannelResponseInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;
-            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

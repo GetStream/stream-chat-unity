@@ -3,7 +3,7 @@ using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class SearchWarning : ResponseObjectBase, ILoadableFrom<SearchWarningDTO, SearchWarning>
+    public partial class SearchWarning : ResponseObjectBase, ILoadableFrom<SearchWarningInternalDTO, SearchWarning>
     {
         /// <summary>
         /// Channel CIDs for the searched channels
@@ -25,7 +25,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public string WarningDescription { get; set; }
 
-        SearchWarning ILoadableFrom<SearchWarningDTO, SearchWarning>.LoadFromDto(SearchWarningDTO dto)
+        SearchWarning ILoadableFrom<SearchWarningInternalDTO, SearchWarning>.LoadFromDto(SearchWarningInternalDTO dto)
         {
             ChannelSearchCids = dto.ChannelSearchCids;
             ChannelSearchCount = dto.ChannelSearchCount;

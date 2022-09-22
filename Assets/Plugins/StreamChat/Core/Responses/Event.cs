@@ -6,7 +6,7 @@ using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class Event : ResponseObjectBase, ILoadableFrom<EventDTO, Event>
+    public partial class Event : ResponseObjectBase, ILoadableFrom<EventInternalDTO, Event>
     {
         /// <summary>
         /// Only applicable to `message.flagged` event.
@@ -78,7 +78,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public int? WatcherCount { get; set; }
 
-        Event ILoadableFrom<EventDTO, Event>.LoadFromDto(EventDTO dto)
+        Event ILoadableFrom<EventInternalDTO, Event>.LoadFromDto(EventInternalDTO dto)
         {
             Automoderation = dto.Automoderation;
             AutomoderationScores = AutomoderationScores.TryLoadFromDto(dto.AutomoderationScores);
@@ -88,16 +88,16 @@ namespace StreamChat.Core.Responses
             Cid = dto.Cid;
             ConnectionId = dto.ConnectionId;
             CreatedAt = dto.CreatedAt;
-            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectDTO, User>(dto.CreatedBy);
-            Me = Me.TryLoadFromDto<OwnUserDTO, OwnUser>(dto.Me);
+            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.CreatedBy);
+            Me = Me.TryLoadFromDto<OwnUserInternalDTO, OwnUser>(dto.Me);
             Member = Member.TryLoadFromDto(dto.Member);
-            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             ParentId = dto.ParentId;
             Reaction = Reaction.TryLoadFromDto(dto.Reaction);
             Reason = dto.Reason;
             Team = dto.Team;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             WatcherCount = dto.WatcherCount;
             AdditionalProperties = dto.AdditionalProperties;

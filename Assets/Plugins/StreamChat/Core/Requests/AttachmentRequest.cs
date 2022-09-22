@@ -4,7 +4,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public class AttachmentRequest : RequestObjectBase, ISavableTo<AttachmentRequestDTO>
+    public class AttachmentRequest : RequestObjectBase, ISavableTo<AttachmentRequestInternalDTO>
     {
         public List<ActionRequest> Actions { get; set; }
 
@@ -51,17 +51,17 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Type { get; set; }
 
-        AttachmentRequestDTO ISavableTo<AttachmentRequestDTO>.SaveToDto() =>
-            new AttachmentRequestDTO
+        AttachmentRequestInternalDTO ISavableTo<AttachmentRequestInternalDTO>.SaveToDto() =>
+            new AttachmentRequestInternalDTO
             {
-                Actions = Actions.TrySaveToDtoCollection<ActionRequest, ActionRequestDTO>(),
+                Actions = Actions.TrySaveToDtoCollection<ActionRequest, ActionRequestInternalDTO>(),
                 AssetUrl = AssetUrl,
                 AuthorIcon = AuthorIcon,
                 AuthorLink = AuthorLink,
                 AuthorName = AuthorName,
                 Color = Color,
                 Fallback = Fallback,
-                Fields = Fields.TrySaveToDtoCollection<FieldRequest, FieldRequestDTO>(),
+                Fields = Fields.TrySaveToDtoCollection<FieldRequest, FieldRequestInternalDTO>(),
                 Footer = Footer,
                 FooterIcon = FooterIcon,
                 Giphy = Giphy.TrySaveToDto(),

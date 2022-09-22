@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class UpdateChannelResponse : ResponseObjectBase, ILoadableFrom<UpdateChannelResponseDTO, UpdateChannelResponse>
+    public partial class UpdateChannelResponse : ResponseObjectBase, ILoadableFrom<UpdateChannelResponseInternalDTO, UpdateChannelResponse>
     {
         public Channel Channel { get; set; }
 
@@ -18,12 +18,12 @@ namespace StreamChat.Core.Responses
 
         public Message Message { get; set; }
 
-        UpdateChannelResponse ILoadableFrom<UpdateChannelResponseDTO, UpdateChannelResponse>.LoadFromDto(UpdateChannelResponseDTO dto)
+        UpdateChannelResponse ILoadableFrom<UpdateChannelResponseInternalDTO, UpdateChannelResponse>.LoadFromDto(UpdateChannelResponseInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
-            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class MuteChannelResponse : ResponseObjectBase, ILoadableFrom<MuteChannelResponseDTO, MuteChannelResponse>
+    public partial class MuteChannelResponse : ResponseObjectBase, ILoadableFrom<MuteChannelResponseInternalDTO, MuteChannelResponse>
     {
         /// <summary>
         /// Object with channel mute (if one channel was muted)
@@ -28,12 +28,12 @@ namespace StreamChat.Core.Responses
         public OwnUser OwnUser { get; set; }
 
 
-        MuteChannelResponse ILoadableFrom<MuteChannelResponseDTO, MuteChannelResponse>.LoadFromDto(MuteChannelResponseDTO dto)
+        MuteChannelResponse ILoadableFrom<MuteChannelResponseInternalDTO, MuteChannelResponse>.LoadFromDto(MuteChannelResponseInternalDTO dto)
         {
             ChannelMute = ChannelMute.TryLoadFromDto(dto.ChannelMute);
             ChannelMutes = ChannelMutes.TryLoadFromDtoCollection(dto.ChannelMutes);
             Duration = dto.Duration;
-            OwnUser = OwnUser.TryLoadFromDto<OwnUserDTO, OwnUser>(dto.OwnUser);
+            OwnUser = OwnUser.TryLoadFromDto<OwnUserInternalDTO, OwnUser>(dto.OwnUser);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

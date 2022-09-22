@@ -16,16 +16,16 @@ namespace StreamChat.Core.API.Internal
         {
         }
 
-        public Task<UsersResponseDTO> QueryUsersAsync(QueryUsersRequestDTO queryUsersRequest)
-            => Get<QueryUsersRequestDTO, UsersResponseDTO>("/users", queryUsersRequest);
+        public Task<UsersResponseInternalDTO> QueryUsersAsync(QueryUsersRequestInternalDTO queryUsersRequest)
+            => Get<QueryUsersRequestInternalDTO, UsersResponseInternalDTO>("/users", queryUsersRequest);
 
-        public Task<GuestResponseDTO> CreateGuestAsync(GuestRequestDTO createGuestRequest)
-            => Post<GuestRequestDTO, GuestResponseDTO>("/guest", createGuestRequest);
+        public Task<GuestResponseInternalDTO> CreateGuestAsync(GuestRequestInternalDTO createGuestRequest)
+            => Post<GuestRequestInternalDTO, GuestResponseInternalDTO>("/guest", createGuestRequest);
 
-        public Task<UpdateUsersResponseDTO> UpsertManyUsersAsync(UpdateUsersRequestDTO updateUsersRequest)
-            => Post<UpdateUsersRequestDTO, UpdateUsersResponseDTO>("/users", updateUsersRequest);
+        public Task<UpdateUsersResponseInternalDTO> UpsertManyUsersAsync(UpdateUsersRequestInternalDTO updateUsersRequest)
+            => Post<UpdateUsersRequestInternalDTO, UpdateUsersResponseInternalDTO>("/users", updateUsersRequest);
 
-        public Task<UpdateUsersResponseDTO> UpdateUserPartialAsync(UpdateUserPartialRequestDTO updateUserPartialRequest)
-            => Patch<UpdateUserPartialRequestDTO, UpdateUsersResponseDTO>("/users", updateUserPartialRequest);
+        public Task<UpdateUsersResponseInternalDTO> UpdateUserPartialAsync(UpdateUserPartialRequestInternalDTO updateUserPartialRequest)
+            => Patch<UpdateUserPartialRequestInternalDTO, UpdateUsersResponseInternalDTO>("/users", updateUserPartialRequest);
     }
 }

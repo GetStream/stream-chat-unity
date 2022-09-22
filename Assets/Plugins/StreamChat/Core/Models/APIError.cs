@@ -4,7 +4,7 @@ using StreamChat.Core.DTO.Models;
 
 namespace StreamChat.Core.Models
 {
-    public partial class APIError : ModelBase, ILoadableFrom<APIErrorDTO, APIError>
+    public partial class APIError : ModelBase, ILoadableFrom<APIErrorInternalDTO, APIError>
     {
         /// <summary>
         /// Response HTTP status code
@@ -77,7 +77,7 @@ namespace StreamChat.Core.Models
             }
         }
 
-        APIError ILoadableFrom<APIErrorDTO, APIError>.LoadFromDto(APIErrorDTO dto)
+        APIError ILoadableFrom<APIErrorInternalDTO, APIError>.LoadFromDto(APIErrorInternalDTO dto)
         {
             StatusCode = dto.StatusCode;
             Code = dto.Code;

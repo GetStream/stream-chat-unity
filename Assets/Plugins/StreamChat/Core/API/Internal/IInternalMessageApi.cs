@@ -6,22 +6,22 @@ namespace StreamChat.Core.API.Internal
 {
     internal interface IInternalMessageApi
     {
-        Task<MessageResponseDTO> SendNewMessageAsync(string channelType, string channelId,
-            SendMessageRequestDTO sendMessageRequest);
+        Task<MessageResponseInternalDTO> SendNewMessageAsync(string channelType, string channelId,
+            SendMessageRequestInternalInternalDTO sendMessageRequest);
 
-        Task<MessageResponseDTO> UpdateMessageAsync(UpdateMessageRequestDTO updateMessageRequest);
+        Task<MessageResponseInternalDTO> UpdateMessageAsync(UpdateMessageRequestInternalInternalDTO updateMessageRequest);
 
-        Task<MessageResponseDTO> DeleteMessageAsync(string messageId, bool hard);
+        Task<MessageResponseInternalDTO> DeleteMessageAsync(string messageId, bool hard);
 
-        Task<ReactionResponseDTO> SendReactionAsync(string messageId, SendReactionRequestDTO sendReactionRequest);
+        Task<ReactionResponseInternalInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest);
 
-        Task<ReactionRemovalResponseDTO> DeleteReactionAsync(string messageId, string reactionType);
+        Task<ReactionRemovalResponseInternalDTO> DeleteReactionAsync(string messageId, string reactionType);
 
-        Task<FileUploadResponseDTO> UploadFileAsync(string channelType, string channelId,
+        Task<FileUploadResponseInternalDTO> UploadFileAsync(string channelType, string channelId,
             byte[] fileContent, string fileName);
 
-        Task<FileDeleteResponseDTO> DeleteFileAsync(string channelType, string channelId, string fileUrl);
+        Task<FileDeleteResponseInternalDTO> DeleteFileAsync(string channelType, string channelId, string fileUrl);
 
-        Task<SearchResponseDTO> SearchMessagesAsync(SearchRequestDTO searchRequest);
+        Task<SearchResponseInternalDTO> SearchMessagesAsync(SearchRequestInternalDTO searchRequest);
     }
 }

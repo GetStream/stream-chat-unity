@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public partial class EventHealthCheck : EventBase, ILoadableFrom<EventHealthCheckDTO, EventHealthCheck>
+    public partial class EventHealthCheck : EventBase, ILoadableFrom<EventHealthCheckInternalDTO, EventHealthCheck>
     {
         public string Cid { get; set; }
 
@@ -18,11 +18,11 @@ namespace StreamChat.Core.Events
         //Not in OpenAPI syntax but mentioned in docs
         public string ConnectionId { get; set; }
 
-        EventHealthCheck ILoadableFrom<EventHealthCheckDTO, EventHealthCheck>.LoadFromDto(EventHealthCheckDTO dto)
+        EventHealthCheck ILoadableFrom<EventHealthCheckInternalDTO, EventHealthCheck>.LoadFromDto(EventHealthCheckInternalDTO dto)
         {
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Me = Me.TryLoadFromDto<OwnUserDTO, OwnUser>(dto.Me);
+            Me = Me.TryLoadFromDto<OwnUserInternalDTO, OwnUser>(dto.Me);
             Type = dto.Type;
             AdditionalProperties = dto.AdditionalProperties;
 
@@ -35,7 +35,7 @@ namespace StreamChat.Core.Events
 
 namespace StreamChat.Core.DTO.Events
 {
-    internal partial class EventHealthCheckDTO
+    internal partial class EventHealthCheckInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.Default,
             NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public partial class EventMessageFlagged : EventBase, ILoadableFrom<EventMessageFlaggedDTO, EventMessageFlagged>
+    public partial class EventMessageFlagged : EventBase, ILoadableFrom<EventMessageFlaggedInternalDTO, EventMessageFlagged>
     {
         public string Cid { get; set; }
 
@@ -21,15 +21,15 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-        EventMessageFlagged ILoadableFrom<EventMessageFlaggedDTO, EventMessageFlagged>.LoadFromDto(EventMessageFlaggedDTO dto)
+        EventMessageFlagged ILoadableFrom<EventMessageFlaggedInternalDTO, EventMessageFlagged>.LoadFromDto(EventMessageFlaggedInternalDTO dto)
         {
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             Flag = Flag.TryLoadFromDto(dto.Flag);
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

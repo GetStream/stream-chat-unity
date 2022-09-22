@@ -16,25 +16,25 @@ namespace StreamChat.Core.API.Internal
         {
         }
 
-        public Task<MuteUserResponseDTO> MuteUserAsync(MuteUserRequestDTO muteUserRequest)
+        public Task<MuteUserResponseInternalDTO> MuteUserAsync(MuteUserRequestInternalDTO muteUserRequest)
         {
             var endpoint = ModerationEndpoints.MuteUser();
-            return Post<MuteUserRequestDTO, MuteUserResponseDTO>(endpoint, muteUserRequest);
+            return Post<MuteUserRequestInternalDTO, MuteUserResponseInternalDTO>(endpoint, muteUserRequest);
         }
 
-        public Task<UnmuteResponseDTO> UnmuteUserAsync(UnmuteUserRequestDTO unmuteUserRequest)
+        public Task<UnmuteResponseInternalDTO> UnmuteUserAsync(UnmuteUserRequestInternalDTO unmuteUserRequest)
         {
             var endpoint = ModerationEndpoints.UnmuteUser();
-            return Post<UnmuteUserRequestDTO, UnmuteResponseDTO>(endpoint, unmuteUserRequest);
+            return Post<UnmuteUserRequestInternalDTO, UnmuteResponseInternalDTO>(endpoint, unmuteUserRequest);
         }
 
-        public Task<ResponseDTO> BanUserAsync(BanRequestDTO banRequest)
+        public Task<ResponseInternalDTO> BanUserAsync(BanRequestInternalDTO banRequest)
         {
             const string endpoint = "/moderation/ban";
-            return Post<BanRequestDTO, ResponseDTO>(endpoint, banRequest);
+            return Post<BanRequestInternalDTO, ResponseInternalDTO>(endpoint, banRequest);
         }
 
-        public Task<ResponseDTO> UnbanUserAsync(string targetUserId, string type, string id)
+        public Task<ResponseInternalDTO> UnbanUserAsync(string targetUserId, string type, string id)
         {
             const string endpoint = "/moderation/ban";
 
@@ -43,52 +43,52 @@ namespace StreamChat.Core.API.Internal
                 .Append("type", type)
                 .Append("id", id);
 
-            return Delete<ResponseDTO>(endpoint, parameters);
+            return Delete<ResponseInternalDTO>(endpoint, parameters);
         }
 
-        public Task<ResponseDTO> ShadowBanUserAsync(BanRequestDTO shadowBanRequest)
+        public Task<ResponseInternalDTO> ShadowBanUserAsync(BanRequestInternalDTO shadowBanRequest)
         {
             const string endpoint = "/moderation/ban";
-            return Post<BanRequestDTO, ResponseDTO>(endpoint, shadowBanRequest);
+            return Post<BanRequestInternalDTO, ResponseInternalDTO>(endpoint, shadowBanRequest);
         }
 
-        public Task<ResponseDTO> RemoveUserShadowBanAsync(string targetUserId, string type, string id)
+        public Task<ResponseInternalDTO> RemoveUserShadowBanAsync(string targetUserId, string type, string id)
             => UnbanUserAsync(targetUserId, type, id);
 
-        public Task<QueryBannedUsersResponseDTO> QueryBannedUsersAsync(QueryBannedUsersRequestDTO queryBannedUsersRequest)
+        public Task<QueryBannedUsersResponseInternalDTO> QueryBannedUsersAsync(QueryBannedUsersRequestInternalDTO queryBannedUsersRequest)
         {
             const string endpoint = "/query_banned_users";
-            return Get<QueryBannedUsersRequestDTO, QueryBannedUsersResponseDTO>(endpoint, queryBannedUsersRequest);
+            return Get<QueryBannedUsersRequestInternalDTO, QueryBannedUsersResponseInternalDTO>(endpoint, queryBannedUsersRequest);
         }
 
-        public Task<FlagResponseDTO> FlagUserAsync(string targetUserId)
+        public Task<FlagResponseInternalDTO> FlagUserAsync(string targetUserId)
         {
             const string endpoint = "/moderation/flag";
 
-            var request = new FlagRequestDTO
+            var request = new FlagRequestInternalDTO
             {
                 TargetUserId = targetUserId
             };
 
-            return Post<FlagRequestDTO, FlagResponseDTO>(endpoint, request);
+            return Post<FlagRequestInternalDTO, FlagResponseInternalDTO>(endpoint, request);
         }
 
-        public Task<FlagResponseDTO> FlagMessageAsync(string targetMessageId)
+        public Task<FlagResponseInternalDTO> FlagMessageAsync(string targetMessageId)
         {
             const string endpoint = "/moderation/flag";
 
-            var request = new FlagRequestDTO
+            var request = new FlagRequestInternalDTO
             {
                 TargetMessageId = targetMessageId
             };
 
-            return Post<FlagRequestDTO, FlagResponseDTO>(endpoint, request);
+            return Post<FlagRequestInternalDTO, FlagResponseInternalDTO>(endpoint, request);
         }
 
-        public Task<QueryMessageFlagsResponseDTO> QueryMessageFlagsAsync(QueryMessageFlagsRequestDTO queryMessageFlagsRequest)
+        public Task<QueryMessageFlagsResponseInternalDTO> QueryMessageFlagsAsync(QueryMessageFlagsRequestInternalDTO queryMessageFlagsRequest)
         {
             const string endpoint = "/moderation/flags/message";
-            return Get<QueryMessageFlagsRequestDTO, QueryMessageFlagsResponseDTO>(endpoint, queryMessageFlagsRequest);
+            return Get<QueryMessageFlagsRequestInternalDTO, QueryMessageFlagsResponseInternalDTO>(endpoint, queryMessageFlagsRequest);
         }
     }
 }

@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class QueryMembersRequest : RequestObjectBase, ISavableTo<QueryMembersRequestDTO>
+    public partial class QueryMembersRequest : RequestObjectBase, ISavableTo<QueryMembersRequestInternalDTO>
     {
         public System.DateTimeOffset? CreatedAtAfter { get; set; }
 
@@ -58,8 +58,8 @@ namespace StreamChat.Core.Requests
 
         public string UserIdLte { get; set; }
 
-        QueryMembersRequestDTO ISavableTo<QueryMembersRequestDTO>.SaveToDto() =>
-            new QueryMembersRequestDTO
+        QueryMembersRequestInternalDTO ISavableTo<QueryMembersRequestInternalDTO>.SaveToDto() =>
+            new QueryMembersRequestInternalDTO
             {
                 CreatedAtAfter = CreatedAtAfter,
                 CreatedAtAfterOrEqual = CreatedAtAfterOrEqual,
@@ -68,9 +68,9 @@ namespace StreamChat.Core.Requests
                 FilterConditions = FilterConditions,
                 Id = Id,
                 Limit = Limit,
-                Members = Members.TrySaveToDtoCollection<ChannelMember, ChannelMemberDTO>(),
+                Members = Members.TrySaveToDtoCollection<ChannelMember, ChannelMemberInternalDTO>(),
                 Offset = Offset,
-                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamInternalDTO>(),
                 Type = Type,
                 UserIdGt = UserIdGt,
                 UserIdGte = UserIdGte,

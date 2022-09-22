@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class  ChannelConfig : ModelBase, ILoadableFrom<ChannelConfigWithInfoDTO, ChannelConfig>
+    public class  ChannelConfig : ModelBase, ILoadableFrom<ChannelConfigWithInfoInternalDTO, ChannelConfig>
     {
         /// <summary>
         /// Enables automatic message moderation
@@ -121,7 +121,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public bool? UrlEnrichment { get; set; }
 
-        ChannelConfig ILoadableFrom<ChannelConfigWithInfoDTO, ChannelConfig>.LoadFromDto(ChannelConfigWithInfoDTO dto)
+        ChannelConfig ILoadableFrom<ChannelConfigWithInfoInternalDTO, ChannelConfig>.LoadFromDto(ChannelConfigWithInfoInternalDTO dto)
         {
             Automod = dto.Automod;
             AutomodBehavior = dto.AutomodBehavior;

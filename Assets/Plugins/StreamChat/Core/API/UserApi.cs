@@ -18,13 +18,13 @@ namespace StreamChat.Core.API
         public async Task<UsersResponse> QueryUsersAsync(QueryUsersRequest queryUsersRequest)
         {
             var dto = await _internalUserApi.QueryUsersAsync(queryUsersRequest.TrySaveToDto());
-            return dto.ToDomain<UsersResponseDTO, UsersResponse>();
+            return dto.ToDomain<UsersResponseInternalDTO, UsersResponse>();
         }
 
         public async Task<GuestResponse> CreateGuestAsync(GuestRequest createGuestRequest)
         {
             var dto = await _internalUserApi.CreateGuestAsync(createGuestRequest.TrySaveToDto());
-            return dto.ToDomain<GuestResponseDTO, GuestResponse>();
+            return dto.ToDomain<GuestResponseInternalDTO, GuestResponse>();
         }
 
         public Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest)
@@ -33,13 +33,13 @@ namespace StreamChat.Core.API
         public async Task<UpdateUsersResponse> UpsertManyUsersAsync(UpdateUsersRequest updateUsersRequest)
         {
             var dto = await _internalUserApi.UpsertManyUsersAsync(updateUsersRequest.TrySaveToDto());
-            return dto.ToDomain<UpdateUsersResponseDTO, UpdateUsersResponse>();
+            return dto.ToDomain<UpdateUsersResponseInternalDTO, UpdateUsersResponse>();
         }
 
         public async Task<UpdateUsersResponse> UpdateUserPartialAsync(UpdateUserPartialRequest updateUserPartialRequest)
         {
             var dto = await _internalUserApi.UpdateUserPartialAsync(updateUserPartialRequest.TrySaveToDto());
-            return dto.ToDomain<UpdateUsersResponseDTO, UpdateUsersResponse>();
+            return dto.ToDomain<UpdateUsersResponseInternalDTO, UpdateUsersResponse>();
         }
 
         private readonly IInternalUserApi _internalUserApi;

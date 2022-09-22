@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Requests
 {
-    public partial class MessagePaginationParamsRequest : RequestObjectBase, ISavableTo<MessagePaginationParamsRequestDTO>
+    public partial class MessagePaginationParamsRequest : RequestObjectBase, ISavableTo<MessagePaginationParamsRequestInternalDTO>
     {
         public System.DateTimeOffset? CreatedAtAfter { get; set; }
 
@@ -28,8 +28,8 @@ namespace StreamChat.Core.Requests
 
         public int? Offset { get; set; }
 
-        MessagePaginationParamsRequestDTO ISavableTo<MessagePaginationParamsRequestDTO>.SaveToDto() =>
-            new MessagePaginationParamsRequestDTO
+        MessagePaginationParamsRequestInternalDTO ISavableTo<MessagePaginationParamsRequestInternalDTO>.SaveToDto() =>
+            new MessagePaginationParamsRequestInternalDTO
             {
                 AdditionalProperties = AdditionalProperties,
                 CreatedAtAfter = CreatedAtAfter,

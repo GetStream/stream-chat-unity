@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class ChannelMute : ModelBase, ILoadableFrom<ChannelMuteDTO, ChannelMute>
+    public class ChannelMute : ModelBase, ILoadableFrom<ChannelMuteInternalDTO, ChannelMute>
     {
         public Channel Channel { get; set; }
 
@@ -27,13 +27,13 @@ namespace StreamChat.Core.Models
         /// </summary>
         public User User { get; set; }
 
-        ChannelMute ILoadableFrom<ChannelMuteDTO, ChannelMute>.LoadFromDto(ChannelMuteDTO dto)
+        ChannelMute ILoadableFrom<ChannelMuteInternalDTO, ChannelMute>.LoadFromDto(ChannelMuteInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             CreatedAt = dto.CreatedAt;
             Expires = dto.Expires;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

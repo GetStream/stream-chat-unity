@@ -6,24 +6,24 @@ namespace StreamChat.Core.API.Internal
 {
     internal interface IInternalModerationApi
     {
-        Task<MuteUserResponseDTO> MuteUserAsync(MuteUserRequestDTO muteUserRequest);
+        Task<MuteUserResponseInternalDTO> MuteUserAsync(MuteUserRequestInternalDTO muteUserRequest);
 
-        Task<UnmuteResponseDTO> UnmuteUserAsync(UnmuteUserRequestDTO unmuteUserRequest);
+        Task<UnmuteResponseInternalDTO> UnmuteUserAsync(UnmuteUserRequestInternalDTO unmuteUserRequest);
 
-        Task<ResponseDTO> BanUserAsync(BanRequestDTO banRequest);
+        Task<ResponseInternalDTO> BanUserAsync(BanRequestInternalDTO banRequest);
 
-        Task<ResponseDTO> UnbanUserAsync(string targetUserId, string type, string id);
+        Task<ResponseInternalDTO> UnbanUserAsync(string targetUserId, string type, string id);
 
-        Task<ResponseDTO> ShadowBanUserAsync(BanRequestDTO shadowBanRequest);
+        Task<ResponseInternalDTO> ShadowBanUserAsync(BanRequestInternalDTO shadowBanRequest);
 
-        Task<ResponseDTO> RemoveUserShadowBanAsync(string targetUserId, string type, string id);
+        Task<ResponseInternalDTO> RemoveUserShadowBanAsync(string targetUserId, string type, string id);
 
-        Task<QueryBannedUsersResponseDTO> QueryBannedUsersAsync(QueryBannedUsersRequestDTO queryBannedUsersRequest);
+        Task<QueryBannedUsersResponseInternalDTO> QueryBannedUsersAsync(QueryBannedUsersRequestInternalDTO queryBannedUsersRequest);
 
-        Task<FlagResponseDTO> FlagUserAsync(string targetUserId);
+        Task<FlagResponseInternalDTO> FlagUserAsync(string targetUserId);
 
-        Task<FlagResponseDTO> FlagMessageAsync(string targetMessageId);
+        Task<FlagResponseInternalDTO> FlagMessageAsync(string targetMessageId);
 
-        Task<QueryMessageFlagsResponseDTO> QueryMessageFlagsAsync(QueryMessageFlagsRequestDTO queryMessageFlagsRequest);
+        Task<QueryMessageFlagsResponseInternalDTO> QueryMessageFlagsAsync(QueryMessageFlagsRequestInternalDTO queryMessageFlagsRequest);
     }
 }

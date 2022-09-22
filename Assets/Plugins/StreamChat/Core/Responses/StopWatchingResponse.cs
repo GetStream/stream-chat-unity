@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Responses
 {
-    public partial class StopWatchingResponse : ResponseObjectBase, ILoadableFrom<StopWatchingResponseDTO, StopWatchingResponse>
+    public partial class StopWatchingResponse : ResponseObjectBase, ILoadableFrom<StopWatchingResponseInternalDTO, StopWatchingResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -10,7 +10,7 @@ namespace StreamChat.Core.Responses
         public string Duration { get; set; }
 
 
-        StopWatchingResponse ILoadableFrom<StopWatchingResponseDTO, StopWatchingResponse>.LoadFromDto(StopWatchingResponseDTO dto)
+        StopWatchingResponse ILoadableFrom<StopWatchingResponseInternalDTO, StopWatchingResponse>.LoadFromDto(StopWatchingResponseInternalDTO dto)
         {
             Duration = dto.Duration;
             AdditionalProperties = dto.AdditionalProperties;

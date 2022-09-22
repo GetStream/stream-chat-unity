@@ -3,7 +3,7 @@ using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class DeleteChannelsRequest : ResponseObjectBase, ISavableTo<DeleteChannelsRequestDTO>
+    public partial class DeleteChannelsRequest : ResponseObjectBase, ISavableTo<DeleteChannelsRequestInternalDTO>
     {
         /// <summary>
         /// All channels that should be deleted
@@ -15,8 +15,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? HardDelete { get; set; }
 
-        DeleteChannelsRequestDTO ISavableTo<DeleteChannelsRequestDTO>.SaveToDto() =>
-            new DeleteChannelsRequestDTO
+        DeleteChannelsRequestInternalDTO ISavableTo<DeleteChannelsRequestInternalDTO>.SaveToDto() =>
+            new DeleteChannelsRequestInternalDTO
             {
                 Cids = Cids,
                 HardDelete = HardDelete,

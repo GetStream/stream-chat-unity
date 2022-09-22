@@ -2,15 +2,15 @@
 
 namespace StreamChat.Core.Requests
 {
-    public partial class HideChannelRequest : RequestObjectBase, ISavableTo<HideChannelRequestDTO>
+    public partial class HideChannelRequest : RequestObjectBase, ISavableTo<HideChannelRequestInternalDTO>
     {
         /// <summary>
         /// Whether to clear message history of the channel or not
         /// </summary>
         public bool? ClearHistory { get; set; }
 
-        HideChannelRequestDTO ISavableTo<HideChannelRequestDTO>.SaveToDto() =>
-            new HideChannelRequestDTO
+        HideChannelRequestInternalDTO ISavableTo<HideChannelRequestInternalDTO>.SaveToDto() =>
+            new HideChannelRequestInternalDTO
             {
                 ClearHistory = ClearHistory,
                 AdditionalProperties = AdditionalProperties,

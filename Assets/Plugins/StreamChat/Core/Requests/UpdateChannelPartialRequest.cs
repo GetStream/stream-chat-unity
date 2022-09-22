@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.Requests
 {
-    public partial class UpdateChannelPartialRequest : RequestObjectBase, ISavableTo<UpdateChannelPartialRequestDTO>
+    public partial class UpdateChannelPartialRequest : RequestObjectBase, ISavableTo<UpdateChannelPartialRequestInternalDTO>
     {
         /// <summary>
         /// Sets new field values
@@ -14,8 +14,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public System.Collections.Generic.List<string> Unset { get; set; } = new System.Collections.Generic.List<string>();
 
-        UpdateChannelPartialRequestDTO ISavableTo<UpdateChannelPartialRequestDTO>.SaveToDto() =>
-            new UpdateChannelPartialRequestDTO
+        UpdateChannelPartialRequestInternalDTO ISavableTo<UpdateChannelPartialRequestInternalDTO>.SaveToDto() =>
+            new UpdateChannelPartialRequestInternalDTO
             {
                 Set = Set,
                 Unset = Unset,

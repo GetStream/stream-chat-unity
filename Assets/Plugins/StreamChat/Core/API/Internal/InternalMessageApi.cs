@@ -17,40 +17,40 @@ namespace StreamChat.Core.API.Internal
         {
         }
 
-        public Task<MessageResponseDTO> SendNewMessageAsync(string channelType, string channelId,
-            SendMessageRequestDTO sendMessageRequest)
+        public Task<MessageResponseInternalDTO> SendNewMessageAsync(string channelType, string channelId,
+            SendMessageRequestInternalInternalDTO sendMessageRequest)
         {
             var endpoint = MessageEndpoints.SendMessage(channelType, channelId);
-            return Post<SendMessageRequestDTO, MessageResponseDTO>(endpoint, sendMessageRequest);
+            return Post<SendMessageRequestInternalInternalDTO, MessageResponseInternalDTO>(endpoint, sendMessageRequest);
         }
 
-        public Task<MessageResponseDTO> UpdateMessageAsync(UpdateMessageRequestDTO updateMessageRequest)
+        public Task<MessageResponseInternalDTO> UpdateMessageAsync(UpdateMessageRequestInternalInternalDTO updateMessageRequest)
         {
             var endpoint = MessageEndpoints.UpdateMessage(updateMessageRequest.Message.Id);
-            return Post<UpdateMessageRequestDTO, MessageResponseDTO>(endpoint, updateMessageRequest);
+            return Post<UpdateMessageRequestInternalInternalDTO, MessageResponseInternalDTO>(endpoint, updateMessageRequest);
         }
 
-        public Task<MessageResponseDTO> DeleteMessageAsync(string messageId, bool hard)
+        public Task<MessageResponseInternalDTO> DeleteMessageAsync(string messageId, bool hard)
         {
             var endpoint = MessageEndpoints.DeleteMessage(messageId);
             var parameters = QueryParameters.Default.Append("hard", hard);
 
-            return Delete<MessageResponseDTO>(endpoint, parameters);
+            return Delete<MessageResponseInternalDTO>(endpoint, parameters);
         }
 
-        public Task<ReactionResponseDTO> SendReactionAsync(string messageId, SendReactionRequestDTO sendReactionRequest)
+        public Task<ReactionResponseInternalInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest)
         {
             var endpoint = MessageEndpoints.SendReaction(messageId);
-            return Post<SendReactionRequestDTO, ReactionResponseDTO>(endpoint, sendReactionRequest);
+            return Post<SendReactionRequestInternalDTO, ReactionResponseInternalInternalDTO>(endpoint, sendReactionRequest);
         }
 
-        public Task<ReactionRemovalResponseDTO> DeleteReactionAsync(string messageId, string reactionType)
+        public Task<ReactionRemovalResponseInternalDTO> DeleteReactionAsync(string messageId, string reactionType)
         {
             var endpoint = MessageEndpoints.DeleteReaction(messageId, reactionType);
-            return Delete<ReactionRemovalResponseDTO>(endpoint);
+            return Delete<ReactionRemovalResponseInternalDTO>(endpoint);
         }
 
-        public Task<FileUploadResponseDTO> UploadFileAsync(string channelType, string channelId,
+        public Task<FileUploadResponseInternalDTO> UploadFileAsync(string channelType, string channelId,
             byte[] fileContent, string fileName)
         {
             var endpoint = $"/channels/{channelType}/{channelId}/file";
@@ -58,18 +58,18 @@ namespace StreamChat.Core.API.Internal
             var body = new MultipartFormDataContent();
             body.Add(new ByteArrayContent(fileContent), "file", fileName);
 
-            return Post<FileUploadResponseDTO>(endpoint, body);
+            return Post<FileUploadResponseInternalDTO>(endpoint, body);
         }
 
-        public Task<FileDeleteResponseDTO> DeleteFileAsync(string channelType, string channelId, string fileUrl)
+        public Task<FileDeleteResponseInternalDTO> DeleteFileAsync(string channelType, string channelId, string fileUrl)
         {
             var endpoint = $"channels/{channelType}/{channelId}/file";
             var parameters = QueryParameters.Default.Append("url", fileUrl);
 
-            return Delete<FileDeleteResponseDTO>(endpoint, parameters);
+            return Delete<FileDeleteResponseInternalDTO>(endpoint, parameters);
         }
 
-        public Task<SearchResponseDTO> SearchMessagesAsync(SearchRequestDTO searchRequest)
-            => Get<SearchRequestDTO, SearchResponseDTO>("/search", searchRequest);
+        public Task<SearchResponseInternalDTO> SearchMessagesAsync(SearchRequestInternalDTO searchRequest)
+            => Get<SearchRequestInternalDTO, SearchResponseInternalDTO>("/search", searchRequest);
     }
 }

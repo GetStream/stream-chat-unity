@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class Images : ModelBase, ILoadableFrom<ImagesDTO, Images>
+    public class Images : ModelBase, ILoadableFrom<ImagesInternalDTO, Images>
     {
         public ImageData FixedHeight { get; set; }
 
@@ -19,7 +19,7 @@ namespace StreamChat.Core.Models
 
         public ImageData Original { get; set; }
 
-        Images ILoadableFrom<ImagesDTO, Images>.LoadFromDto(ImagesDTO dto)
+        Images ILoadableFrom<ImagesInternalDTO, Images>.LoadFromDto(ImagesInternalDTO dto)
         {
             FixedHeight = FixedHeight.TryLoadFromDto(dto.FixedHeight);
             FixedHeightDownsampled = FixedHeightDownsampled.TryLoadFromDto(dto.FixedHeightDownsampled);

@@ -4,7 +4,7 @@ using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Models
 {
-    public partial class PendingMessage : ModelBase, ILoadableFrom<PendingMessageDTO, PendingMessage>
+    public partial class PendingMessage : ModelBase, ILoadableFrom<PendingMessageInternalDTO, PendingMessage>
     {
         /// <summary>
         /// The message
@@ -16,9 +16,9 @@ namespace StreamChat.Core.Models
         /// </summary>
         public System.Collections.Generic.Dictionary<string, string> Metadata { get; set; }
 
-        PendingMessage ILoadableFrom<PendingMessageDTO, PendingMessage>.LoadFromDto(PendingMessageDTO dto)
+        PendingMessage ILoadableFrom<PendingMessageInternalDTO, PendingMessage>.LoadFromDto(PendingMessageInternalDTO dto)
         {
-            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             Metadata = dto.Metadata;
             AdditionalProperties = dto.AdditionalProperties;
 

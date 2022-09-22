@@ -3,7 +3,7 @@ using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class MuteChannelRequest : ResponseObjectBase, ISavableTo<MuteChannelRequestDTO>
+    public partial class MuteChannelRequest : ResponseObjectBase, ISavableTo<MuteChannelRequestInternalDTO>
     {
         /// <summary>
         /// Channel CIDs to mute (if multiple channels)
@@ -15,8 +15,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public int? Expiration { get; set; }
 
-        MuteChannelRequestDTO ISavableTo<MuteChannelRequestDTO>.SaveToDto() =>
-            new MuteChannelRequestDTO
+        MuteChannelRequestInternalDTO ISavableTo<MuteChannelRequestInternalDTO>.SaveToDto() =>
+            new MuteChannelRequestInternalDTO
             {
                 ChannelCids = ChannelCids,
                 Expiration = Expiration,

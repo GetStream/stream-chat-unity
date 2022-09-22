@@ -4,7 +4,7 @@ using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class UpdateUserPartialRequestEntry : RequestObjectBase, ISavableTo<UpdateUserPartialRequestEntryDTO>
+    public partial class UpdateUserPartialRequestEntry : RequestObjectBase, ISavableTo<UpdateUserPartialRequestEntryInternalDTO>
     {
         /// <summary>
         /// User ID to update
@@ -21,9 +21,9 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public List<string> Unset { get; set; }
 
-        UpdateUserPartialRequestEntryDTO ISavableTo<UpdateUserPartialRequestEntryDTO>.SaveToDto()
+        UpdateUserPartialRequestEntryInternalDTO ISavableTo<UpdateUserPartialRequestEntryInternalDTO>.SaveToDto()
         {
-            return new UpdateUserPartialRequestEntryDTO
+            return new UpdateUserPartialRequestEntryInternalDTO
             {
                 Id = Id,
                 Set = Set,

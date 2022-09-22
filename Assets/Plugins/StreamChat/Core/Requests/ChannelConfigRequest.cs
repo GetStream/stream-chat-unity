@@ -3,7 +3,7 @@ using StreamChat.Core.DTO.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ChannelConfigRequest : RequestObjectBase, ISavableTo<ChannelConfigRequestDTO>
+    public partial class ChannelConfigRequest : RequestObjectBase, ISavableTo<ChannelConfigRequestInternalDTO>
     {
         public string Blocklist { get; set; }
 
@@ -48,8 +48,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? UrlEnrichment { get; set; }
 
-        ChannelConfigRequestDTO ISavableTo<ChannelConfigRequestDTO>.SaveToDto() =>
-            new ChannelConfigRequestDTO
+        ChannelConfigRequestInternalDTO ISavableTo<ChannelConfigRequestInternalDTO>.SaveToDto() =>
+            new ChannelConfigRequestInternalDTO
             {
                 Blocklist = Blocklist,
                 BlocklistBehavior = BlocklistBehavior,

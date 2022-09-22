@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ChannelGetOrCreateRequest : RequestObjectBase, ISavableTo<ChannelGetOrCreateRequestDTO>
+    public partial class ChannelGetOrCreateRequest : RequestObjectBase, ISavableTo<ChannelGetOrCreateRequestInternalDTO>
     {
         public ChannelRequest Data { get; set; }
 
@@ -28,9 +28,9 @@ namespace StreamChat.Core.Requests
 
         public PaginationParamsRequest Watchers { get; set; }
 
-        ChannelGetOrCreateRequestDTO ISavableTo<ChannelGetOrCreateRequestDTO>.SaveToDto()
+        ChannelGetOrCreateRequestInternalDTO ISavableTo<ChannelGetOrCreateRequestInternalDTO>.SaveToDto()
         {
-            return new ChannelGetOrCreateRequestDTO
+            return new ChannelGetOrCreateRequestInternalDTO
             {
                 AdditionalProperties = AdditionalProperties,
                 Data = Data.TrySaveToDto(),
