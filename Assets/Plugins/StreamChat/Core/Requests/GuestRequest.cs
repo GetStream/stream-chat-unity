@@ -10,7 +10,7 @@ namespace StreamChat.Core.Requests
         GuestRequestInternalDTO ISavableTo<GuestRequestInternalDTO>.SaveToDto() =>
             new GuestRequestInternalDTO
             {
-                User = User.TrySaveToDto<UserObjectRequestDTO>(),
+                User = User.TrySaveToDto(),
                 AdditionalProperties = AdditionalProperties,
             };
     }

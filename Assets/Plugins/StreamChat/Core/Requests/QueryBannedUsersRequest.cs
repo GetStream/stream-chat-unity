@@ -21,7 +21,7 @@ namespace StreamChat.Core.Requests
 
         public int? Offset { get; set; }
 
-        public System.Collections.Generic.List<SortParam> Sort { get; set; }
+        public System.Collections.Generic.List<SortParamRequest> Sort { get; set; }
 
         QueryBannedUsersRequestInternalDTO ISavableTo<QueryBannedUsersRequestInternalDTO>.SaveToDto()
         {
@@ -34,7 +34,7 @@ namespace StreamChat.Core.Requests
                 FilterConditions = FilterConditions,
                 Limit = Limit,
                 Offset = Offset,
-                Sort = Sort.TrySaveToDtoCollection<SortParam,SortParamInternalDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamInternalDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
         }
