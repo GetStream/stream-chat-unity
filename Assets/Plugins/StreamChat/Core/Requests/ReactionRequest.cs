@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public class ReactionRequest : RequestObjectBase, ISavableTo<ReactionRequestDTO>
+    public class ReactionRequest : RequestObjectBase, ISavableTo<ReactionRequestInternalDTO>
     {
         /// <summary>
         /// ID of a message user reacted to
@@ -27,8 +27,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string UserId { get; set; }
 
-        ReactionRequestDTO ISavableTo<ReactionRequestDTO>.SaveToDto() =>
-            new ReactionRequestDTO
+        ReactionRequestInternalDTO ISavableTo<ReactionRequestInternalDTO>.SaveToDto() =>
+            new ReactionRequestInternalDTO
             {
                 MessageId = MessageId,
                 Score = Score,

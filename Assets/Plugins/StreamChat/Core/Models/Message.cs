@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class Message : ModelBase, ILoadableFrom<MessageDTO, Message>, ILoadableFrom<SearchResultMessageDTO, Message>
+    public class Message : ModelBase, ILoadableFrom<MessageInternalDTO, Message>, ILoadableFrom<SearchResultMessageInternalDTO, Message>
     {
         /// <summary>
         /// Array of message attachments
@@ -170,7 +170,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public User User { get; set; }
 
-        Message ILoadableFrom<MessageDTO, Message>.LoadFromDto(MessageDTO dto)
+        Message ILoadableFrom<MessageInternalDTO, Message>.LoadFromDto(MessageInternalDTO dto)
         {
             Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);
             BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
@@ -191,8 +191,8 @@ namespace StreamChat.Core.Models
             PinExpires = dto.PinExpires;
             Pinned = dto.Pinned;
             PinnedAt = dto.PinnedAt;
-            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectDTO, User>(dto.PinnedBy);
-            QuotedMessage = QuotedMessage.TryLoadFromDto<MessageDTO, Message>(dto.QuotedMessage);
+            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.PinnedBy);
+            QuotedMessage = QuotedMessage.TryLoadFromDto<MessageInternalDTO, Message>(dto.QuotedMessage);
             QuotedMessageId = dto.QuotedMessageId;
             ReactionCounts = dto.ReactionCounts;
             ReactionScores = dto.ReactionScores;
@@ -204,13 +204,13 @@ namespace StreamChat.Core.Models
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }
 
-        Message ILoadableFrom<SearchResultMessageDTO, Message>.LoadFromDto(SearchResultMessageDTO dto)
+        Message ILoadableFrom<SearchResultMessageInternalDTO, Message>.LoadFromDto(SearchResultMessageInternalDTO dto)
         {
             Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);
             BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
@@ -231,8 +231,8 @@ namespace StreamChat.Core.Models
             PinExpires = dto.PinExpires;
             Pinned = dto.Pinned;
             PinnedAt = dto.PinnedAt;
-            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectDTO, User>(dto.PinnedBy);
-            QuotedMessage = QuotedMessage.TryLoadFromDto<MessageDTO, Message>(dto.QuotedMessage);
+            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.PinnedBy);
+            QuotedMessage = QuotedMessage.TryLoadFromDto<MessageInternalDTO, Message>(dto.QuotedMessage);
             QuotedMessageId = dto.QuotedMessageId;
             ReactionCounts = dto.ReactionCounts;
             ReactionScores = dto.ReactionScores;
@@ -244,7 +244,7 @@ namespace StreamChat.Core.Models
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

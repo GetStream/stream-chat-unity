@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ChannelRequest : RequestObjectBase, ISavableTo<ChannelRequestDTO>
+    public partial class ChannelRequest : RequestObjectBase, ISavableTo<ChannelRequestInternalDTO>
     {
         /// <summary>
         /// Enable or disable auto translation
@@ -43,8 +43,8 @@ namespace StreamChat.Core.Requests
 
         public string Name { get; set; }
 
-        ChannelRequestDTO ISavableTo<ChannelRequestDTO>.SaveToDto() =>
-            new ChannelRequestDTO
+        ChannelRequestInternalDTO ISavableTo<ChannelRequestInternalDTO>.SaveToDto() =>
+            new ChannelRequestInternalDTO
             {
                 AutoTranslationEnabled = AutoTranslationEnabled,
                 AutoTranslationLanguage = AutoTranslationLanguage,
@@ -52,7 +52,7 @@ namespace StreamChat.Core.Requests
                 CreatedBy = CreatedBy.TrySaveToDto(),
                 Disabled = Disabled,
                 Frozen = Frozen,
-                Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestDTO>(),
+                Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
                 OwnCapabilities = OwnCapabilities,
                 Team = Team,
                 TruncatedAt = TruncatedAt,

@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ShowChannelRequest : RequestObjectBase, ISavableTo<ShowChannelRequestDTO>
+    public partial class ShowChannelRequest : RequestObjectBase, ISavableTo<ShowChannelRequestInternalDTO>
     {
-        ShowChannelRequestDTO ISavableTo<ShowChannelRequestDTO>.SaveToDto() =>
-            new ShowChannelRequestDTO
+        ShowChannelRequestInternalDTO ISavableTo<ShowChannelRequestInternalDTO>.SaveToDto() =>
+            new ShowChannelRequestInternalDTO
             {
                 AdditionalProperties = AdditionalProperties,
             };

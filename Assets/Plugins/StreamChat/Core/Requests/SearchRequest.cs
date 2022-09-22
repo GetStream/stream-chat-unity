@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class SearchRequest : RequestObjectBase, ISavableTo<SearchRequestDTO>
+    public partial class SearchRequest : RequestObjectBase, ISavableTo<SearchRequestInternalDTO>
     {
         /// <summary>
         /// Channel filter conditions
@@ -42,8 +42,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public System.Collections.Generic.List<SortParam> Sort { get; set; }
 
-        SearchRequestDTO ISavableTo<SearchRequestDTO>.SaveToDto() =>
-            new SearchRequestDTO
+        SearchRequestInternalDTO ISavableTo<SearchRequestInternalDTO>.SaveToDto() =>
+            new SearchRequestInternalDTO
             {
                 FilterConditions = FilterConditions,
                 Limit = Limit,
@@ -51,7 +51,7 @@ namespace StreamChat.Core.Requests
                 Next = Next,
                 Offset = Offset,
                 Query = Query,
-                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamInternalDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
     }

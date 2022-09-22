@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
@@ -8,7 +8,7 @@ namespace StreamChat.Core.Requests
     /// <summary>
     /// Represents chat user
     /// </summary>
-    public class UserObjectRequest : RequestObjectBase, ISavableTo<UserObjectRequestDTO>
+    public class UserObjectRequest : RequestObjectBase, ISavableTo<UserObjectRequestInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -49,8 +49,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public List<string> Teams { get; set; }
 
-        UserObjectRequestDTO ISavableTo<UserObjectRequestDTO>.SaveToDto() =>
-            new UserObjectRequestDTO
+        UserObjectRequestInternalDTO ISavableTo<UserObjectRequestInternalDTO>.SaveToDto() =>
+            new UserObjectRequestInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,

@@ -1,10 +1,10 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class TruncateChannelRequest : ResponseObjectBase, ISavableTo<TruncateChannelRequestDTO>
+    public partial class TruncateChannelRequest : ResponseObjectBase, ISavableTo<TruncateChannelRequestInternalDTO>
     {
         /// <summary>
         /// Permanently delete channel data (messages, reactions, etc.)
@@ -23,8 +23,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public System.DateTimeOffset? TruncatedAt { get; set; }
 
-        TruncateChannelRequestDTO ISavableTo<TruncateChannelRequestDTO>.SaveToDto() =>
-            new TruncateChannelRequestDTO
+        TruncateChannelRequestInternalDTO ISavableTo<TruncateChannelRequestInternalDTO>.SaveToDto() =>
+            new TruncateChannelRequestInternalDTO
             {
                 HardDelete = HardDelete,
                 Message = Message.TrySaveToDto(),

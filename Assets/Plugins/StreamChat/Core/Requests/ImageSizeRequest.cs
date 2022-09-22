@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class ImageSizeRequest : RequestObjectBase, ISavableTo<ImageSizeRequestDTO>
+    public partial class ImageSizeRequest : RequestObjectBase, ISavableTo<ImageSizeRequestInternalDTO>
     {
         /// <summary>
         /// Crop mode
@@ -25,8 +25,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public int? Width { get; set; }
 
-        ImageSizeRequestDTO ISavableTo<ImageSizeRequestDTO>.SaveToDto() =>
-            new ImageSizeRequestDTO()
+        ImageSizeRequestInternalDTO ISavableTo<ImageSizeRequestInternalDTO>.SaveToDto() =>
+            new ImageSizeRequestInternalDTO()
             {
                 Crop = Crop,
                 Height = Height,

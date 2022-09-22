@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
-using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Web;
 using StreamChat.Libs.Http;
@@ -42,7 +42,7 @@ namespace StreamChat.Core.API.Internal
             {
                 LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: false);
 
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                var apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
                 throw new StreamApiException(apiError);
             }
 
@@ -82,7 +82,7 @@ namespace StreamChat.Core.API.Internal
             {
                 LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, requestContent);
 
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                var apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
                 throw new StreamApiException(apiError);
             }
 
@@ -121,7 +121,7 @@ namespace StreamChat.Core.API.Internal
             {
                 LogRestCall(uri, endpoint, HttpMethod.Post, responseContent, success: false, request.ToString());
 
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                var apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
                 throw new StreamApiException(apiError);
             }
 
@@ -150,7 +150,7 @@ namespace StreamChat.Core.API.Internal
             {
                 LogRestCall(uri, endpoint, new HttpMethod("PATCH"), responseContent, success: false, requestContent);
 
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                var apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
                 throw new StreamApiException(apiError);
             }
 
@@ -178,7 +178,7 @@ namespace StreamChat.Core.API.Internal
             {
                 LogRestCall(uri, endpoint, HttpMethod.Delete, responseContent, success: false);
 
-                var apiError = _serializer.Deserialize<APIErrorDTO>(responseContent);
+                var apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
                 throw new StreamApiException(apiError);
             }
 
@@ -196,8 +196,8 @@ namespace StreamChat.Core.API.Internal
         }
 
         protected Task PostEventAsync(string channelType, string channelId, object eventBodyDto)
-            => Post<SendEventRequestDTO, ResponseDTO>(
-                $"/channels/{channelType}/{channelId}/event", new SendEventRequestDTO
+            => Post<SendEventRequestInternalDTO, ResponseInternalDTO>(
+                $"/channels/{channelType}/{channelId}/event", new SendEventRequestInternalDTO
                 {
                     Event = eventBodyDto,
                 });

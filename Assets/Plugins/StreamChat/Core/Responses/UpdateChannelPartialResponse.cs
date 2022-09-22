@@ -1,10 +1,10 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class UpdateChannelPartialResponse : ResponseObjectBase, ILoadableFrom<UpdateChannelPartialResponseDTO, UpdateChannelPartialResponse>
+    public partial class UpdateChannelPartialResponse : ResponseObjectBase, ILoadableFrom<UpdateChannelPartialResponseInternalDTO, UpdateChannelPartialResponse>
     {
         public Channel Channel { get; set; }
 
@@ -15,7 +15,7 @@ namespace StreamChat.Core.Responses
 
         public System.Collections.Generic.List<ChannelMember> Members { get; set; }
 
-        UpdateChannelPartialResponse ILoadableFrom<UpdateChannelPartialResponseDTO, UpdateChannelPartialResponse>.LoadFromDto(UpdateChannelPartialResponseDTO dto)
+        UpdateChannelPartialResponse ILoadableFrom<UpdateChannelPartialResponseInternalDTO, UpdateChannelPartialResponse>.LoadFromDto(UpdateChannelPartialResponseInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;

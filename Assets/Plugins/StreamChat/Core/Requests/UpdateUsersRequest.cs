@@ -1,19 +1,19 @@
 ﻿using StreamChat.Core.Helpers;
-using StreamChat.Core.DTO.Requests;
+using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class UpdateUsersRequest : RequestObjectBase, ISavableTo<UpdateUsersRequestDTO>
+    public partial class UpdateUsersRequest : RequestObjectBase, ISavableTo<UpdateUsersRequestInternalDTO>
     {
         /// <summary>
         /// Object containing users
         /// </summary>
         public System.Collections.Generic.Dictionary<string, UserObjectRequest> Users { get; set; }
 
-        UpdateUsersRequestDTO ISavableTo<UpdateUsersRequestDTO>.SaveToDto() =>
-            new UpdateUsersRequestDTO
+        UpdateUsersRequestInternalDTO ISavableTo<UpdateUsersRequestInternalDTO>.SaveToDto() =>
+            new UpdateUsersRequestInternalDTO
             {
-                Users = Users.TrySaveToDtoDictionary<UserObjectRequestDTO, UserObjectRequest, string>(),
+                Users = Users.TrySaveToDtoDictionary<UserObjectRequestInternalDTO, UserObjectRequest, string>(),
                 AdditionalProperties = AdditionalProperties,
             };
     }

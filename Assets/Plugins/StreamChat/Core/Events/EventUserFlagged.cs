@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Events;
-using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public partial class EventUserFlagged : EventBase, ILoadableFrom<EventUserFlaggedDTO, EventUserFlagged>
+    public partial class EventUserFlagged : EventBase, ILoadableFrom<EventUserFlaggedInternalDTO, EventUserFlagged>
     {
         public System.DateTimeOffset? CreatedAt { get; set; }
 
@@ -17,13 +17,13 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-        EventUserFlagged ILoadableFrom<EventUserFlaggedDTO, EventUserFlagged>.LoadFromDto(EventUserFlaggedDTO dto)
+        EventUserFlagged ILoadableFrom<EventUserFlaggedInternalDTO, EventUserFlagged>.LoadFromDto(EventUserFlaggedInternalDTO dto)
         {
             CreatedAt = dto.CreatedAt;
             TargetUser = dto.TargetUser;
             TargetUsers = dto.TargetUsers;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

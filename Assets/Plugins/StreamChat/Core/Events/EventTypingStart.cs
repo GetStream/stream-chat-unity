@@ -1,12 +1,12 @@
-﻿using StreamChat.Core.DTO.Events;
-using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public partial class EventTypingStart : EventBase, ILoadableFrom<EventTypingStartDTO, EventTypingStart>,
-        ISavableTo<EventTypingStartDTO>
+    public partial class EventTypingStart : EventBase, ILoadableFrom<EventTypingStartInternalDTO, EventTypingStart>,
+        ISavableTo<EventTypingStartInternalDTO>
     {
         public string ChannelId { get; set; }
 
@@ -22,7 +22,7 @@ namespace StreamChat.Core.Events
 
         public User User { get; internal set; }
 
-        EventTypingStart ILoadableFrom<EventTypingStartDTO, EventTypingStart>.LoadFromDto(EventTypingStartDTO dto)
+        EventTypingStart ILoadableFrom<EventTypingStartInternalDTO, EventTypingStart>.LoadFromDto(EventTypingStartInternalDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
@@ -30,14 +30,14 @@ namespace StreamChat.Core.Events
             CreatedAt = dto.CreatedAt;
             ParentId = dto.ParentId;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }
 
-        EventTypingStartDTO ISavableTo<EventTypingStartDTO>.SaveToDto() =>
-            new EventTypingStartDTO
+        EventTypingStartInternalDTO ISavableTo<EventTypingStartInternalDTO>.SaveToDto() =>
+            new EventTypingStartInternalDTO
             {
                 ChannelId = ChannelId,
                 ChannelType = ChannelType,

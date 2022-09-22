@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using StreamChat.Core.DTO.Events;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
@@ -427,32 +427,32 @@ namespace StreamChat.Core
 
         private void RegisterEventHandlers()
         {
-            RegisterEventType<EventHealthCheckDTO, EventHealthCheck>(EventType.HealthCheck, HandleHealthCheckEvent);
+            RegisterEventType<EventHealthCheckInternalDTO, EventHealthCheck>(EventType.HealthCheck, HandleHealthCheckEvent);
 
-            RegisterEventType<EventMessageNewDTO, EventMessageNew>(EventType.MessageNew,
+            RegisterEventType<EventMessageNewInternalDTO, EventMessageNew>(EventType.MessageNew,
                 e => MessageReceived?.Invoke(e));
-            RegisterEventType<EventMessageDeletedDTO, EventMessageDeleted>(EventType.MessageDeleted,
+            RegisterEventType<EventMessageDeletedInternalDTO, EventMessageDeleted>(EventType.MessageDeleted,
                 e => MessageDeleted?.Invoke(e));
-            RegisterEventType<EventMessageUpdatedDTO, EventMessageUpdated>(EventType.MessageUpdated,
+            RegisterEventType<EventMessageUpdatedInternalDTO, EventMessageUpdated>(EventType.MessageUpdated,
                 e => MessageUpdated?.Invoke(e));
 
-            RegisterEventType<EventReactionNewDTO, EventReactionNew>(EventType.ReactionNew,
+            RegisterEventType<EventReactionNewInternalDTO, EventReactionNew>(EventType.ReactionNew,
                 e => ReactionReceived?.Invoke(e));
-            RegisterEventType<EventReactionUpdatedDTO, EventReactionUpdated>(EventType.ReactionUpdated,
+            RegisterEventType<EventReactionUpdatedInternalDTO, EventReactionUpdated>(EventType.ReactionUpdated,
                 e => ReactionUpdated?.Invoke(e));
-            RegisterEventType<EventReactionDeletedDTO, EventReactionDeleted>(EventType.ReactionDeleted,
+            RegisterEventType<EventReactionDeletedInternalDTO, EventReactionDeleted>(EventType.ReactionDeleted,
                 e => ReactionDeleted?.Invoke(e));
 
-            RegisterEventType<EventTypingStartDTO, EventTypingStart>(EventType.TypingStart,
+            RegisterEventType<EventTypingStartInternalDTO, EventTypingStart>(EventType.TypingStart,
                 e => TypingStarted?.Invoke(e));
-            RegisterEventType<EventTypingStopDTO, EventTypingStop>(EventType.TypingStop,
+            RegisterEventType<EventTypingStopInternalDTO, EventTypingStop>(EventType.TypingStop,
                 e => TypingStopped?.Invoke(e));
 
-            RegisterEventType<EventMessageReadDTO, EventMessageRead>(EventType.MessageRead,
+            RegisterEventType<EventMessageReadInternalDTO, EventMessageRead>(EventType.MessageRead,
                 e => MessageRead?.Invoke(e));
-            RegisterEventType<EventNotificationMarkReadDTO, EventNotificationMarkRead>(EventType.NotificationMarkRead,
+            RegisterEventType<EventNotificationMarkReadInternalDTO, EventNotificationMarkRead>(EventType.NotificationMarkRead,
                 e => NotificationMarkRead?.Invoke(e));
-            RegisterEventType<EventNotificationMessageNewDTO, EventNotificationMessageNew>(
+            RegisterEventType<EventNotificationMessageNewInternalDTO, EventNotificationMessageNew>(
                 EventType.NotificationMessageNew,
                 e => NotificationMessageReceived?.Invoke(e));
         }

@@ -1,8 +1,8 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.Models
 {
-    public partial class FlagMessageDetails : ModelBase, ILoadableFrom<FlagMessageDetailsDTO, FlagMessageDetails>
+    public partial class FlagMessageDetails : ModelBase, ILoadableFrom<FlagMessageDetailsInternalDTO, FlagMessageDetails>
     {
         public bool? PinChanged { get; set; }
 
@@ -12,7 +12,7 @@ namespace StreamChat.Core.Models
 
         public string UpdatedById { get; set; }
 
-        FlagMessageDetails ILoadableFrom<FlagMessageDetailsDTO, FlagMessageDetails>.LoadFromDto(FlagMessageDetailsDTO dto)
+        FlagMessageDetails ILoadableFrom<FlagMessageDetailsInternalDTO, FlagMessageDetails>.LoadFromDto(FlagMessageDetailsInternalDTO dto)
         {
             PinChanged = dto.PinChanged;
             ShouldEnrich = dto.ShouldEnrich;

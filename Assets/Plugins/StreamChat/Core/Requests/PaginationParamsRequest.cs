@@ -1,8 +1,8 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class PaginationParamsRequest : RequestObjectBase, ISavableTo<PaginationParamsRequestDTO>
+    public partial class PaginationParamsRequest : RequestObjectBase, ISavableTo<PaginationParamsRequestInternalDTO>
     {
         public int? IdGt { get; set; }
 
@@ -16,8 +16,8 @@ namespace StreamChat.Core.Requests
 
         public int? Offset { get; set; }
 
-        PaginationParamsRequestDTO ISavableTo<PaginationParamsRequestDTO>.SaveToDto() =>
-            new PaginationParamsRequestDTO
+        PaginationParamsRequestInternalDTO ISavableTo<PaginationParamsRequestInternalDTO>.SaveToDto() =>
+            new PaginationParamsRequestInternalDTO
             {
                 IdGt = IdGt,
                 IdGte = IdGte,

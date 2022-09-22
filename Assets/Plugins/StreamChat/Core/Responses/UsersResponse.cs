@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class UsersResponse : ResponseObjectBase, ILoadableFrom<UsersResponseDTO, UsersResponse>
+    public partial class UsersResponse : ResponseObjectBase, ILoadableFrom<UsersResponseInternalDTO, UsersResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -17,10 +17,10 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public List<User> Users { get; set; }
 
-        UsersResponse ILoadableFrom<UsersResponseDTO, UsersResponse>.LoadFromDto(UsersResponseDTO dto)
+        UsersResponse ILoadableFrom<UsersResponseInternalDTO, UsersResponse>.LoadFromDto(UsersResponseInternalDTO dto)
         {
             Duration = dto.Duration;
-            Users = Users.TryLoadFromDtoCollection<UserResponseDTO, User>(dto.Users);
+            Users = Users.TryLoadFromDtoCollection<UserResponseInternalDTO, User>(dto.Users);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

@@ -1,10 +1,10 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class QueryMessageFlagsRequest : RequestObjectBase, ISavableTo<QueryMessageFlagsRequestDTO>
+    public partial class QueryMessageFlagsRequest : RequestObjectBase, ISavableTo<QueryMessageFlagsRequestInternalDTO>
     {
         public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; }
 
@@ -12,8 +12,8 @@ namespace StreamChat.Core.Requests
 
         public int? Offset { get; set; }
 
-        QueryMessageFlagsRequestDTO ISavableTo<QueryMessageFlagsRequestDTO>.SaveToDto() =>
-            new QueryMessageFlagsRequestDTO
+        QueryMessageFlagsRequestInternalDTO ISavableTo<QueryMessageFlagsRequestInternalDTO>.SaveToDto() =>
+            new QueryMessageFlagsRequestInternalDTO
             {
                 FilterConditions = FilterConditions,
                 Limit = Limit,

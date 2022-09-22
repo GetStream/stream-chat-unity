@@ -1,16 +1,16 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.Models
 {
-    public class SortParam : RequestObjectBase, ISavableTo<SortParamDTO>
+    public class SortParam : RequestObjectBase, ISavableTo<SortParamInternalDTO>
     {
         public int? Direction { get; set; }
 
         public string Field { get; set; }
 
-        SortParamDTO ISavableTo<SortParamDTO>.SaveToDto() =>
-            new SortParamDTO
+        SortParamInternalDTO ISavableTo<SortParamInternalDTO>.SaveToDto() =>
+            new SortParamInternalDTO
             {
                 Direction = Direction,
                 Field = Field,

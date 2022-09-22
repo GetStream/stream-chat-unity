@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class BanRequest : RequestObjectBase, ISavableTo<BanRequestDTO>
+    public partial class BanRequest : RequestObjectBase, ISavableTo<BanRequestInternalDTO>
     {
         /// <summary>
         /// User who issued a ban
@@ -54,9 +54,9 @@ namespace StreamChat.Core.Requests
 
         public string UserId { get; set; }
 
-        BanRequestDTO ISavableTo<BanRequestDTO>.SaveToDto()
+        BanRequestInternalDTO ISavableTo<BanRequestInternalDTO>.SaveToDto()
         {
-            return new BanRequestDTO
+            return new BanRequestInternalDTO
             {
                 BannedBy = BannedBy.TrySaveToDto(),
                 BannedById = BannedById,

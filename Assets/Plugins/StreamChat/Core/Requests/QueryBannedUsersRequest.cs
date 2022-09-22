@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class QueryBannedUsersRequest : RequestObjectBase, ISavableTo<QueryBannedUsersRequestDTO>
+    public partial class QueryBannedUsersRequest : RequestObjectBase, ISavableTo<QueryBannedUsersRequestInternalDTO>
     {
         public System.DateTimeOffset? CreatedAtAfter { get; set; }
 
@@ -23,9 +23,9 @@ namespace StreamChat.Core.Requests
 
         public System.Collections.Generic.List<SortParam> Sort { get; set; }
 
-        QueryBannedUsersRequestDTO ISavableTo<QueryBannedUsersRequestDTO>.SaveToDto()
+        QueryBannedUsersRequestInternalDTO ISavableTo<QueryBannedUsersRequestInternalDTO>.SaveToDto()
         {
-            return new QueryBannedUsersRequestDTO
+            return new QueryBannedUsersRequestInternalDTO
             {
                 CreatedAtAfter = CreatedAtAfter,
                 CreatedAtAfterOrEqual = CreatedAtAfterOrEqual,
@@ -34,7 +34,7 @@ namespace StreamChat.Core.Requests
                 FilterConditions = FilterConditions,
                 Limit = Limit,
                 Offset = Offset,
-                Sort = Sort.TrySaveToDtoCollection<SortParam,SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParam,SortParamInternalDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
         }

@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class QueryChannelsRequest : RequestObjectBase, ISavableTo<QueryChannelsRequestDTO>
+    public partial class QueryChannelsRequest : RequestObjectBase, ISavableTo<QueryChannelsRequestInternalDTO>
     {
         public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; }
 
@@ -45,8 +45,8 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public bool? Watch { get; set; } = true;
 
-        QueryChannelsRequestDTO ISavableTo<QueryChannelsRequestDTO>.SaveToDto() =>
-            new QueryChannelsRequestDTO
+        QueryChannelsRequestInternalDTO ISavableTo<QueryChannelsRequestInternalDTO>.SaveToDto() =>
+            new QueryChannelsRequestInternalDTO
             {
                 FilterConditions = FilterConditions,
                 Limit = Limit,
@@ -54,7 +54,7 @@ namespace StreamChat.Core.Requests
                 MessageLimit = MessageLimit,
                 Offset = Offset,
                 Presence = Presence,
-                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamRequestDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamRequestInternalDTO>(),
                 State = State,
                 Watch = Watch,
                 AdditionalProperties = AdditionalProperties

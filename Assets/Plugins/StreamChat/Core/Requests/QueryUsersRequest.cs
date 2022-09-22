@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {
-    public partial class QueryUsersRequest : RequestObjectBase, ISavableTo<QueryUsersRequestDTO>
+    public partial class QueryUsersRequest : RequestObjectBase, ISavableTo<QueryUsersRequestInternalDTO>
     {
         /// <summary>
         /// User filters
@@ -52,9 +52,9 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public System.Collections.Generic.List<SortParam> Sort { get; set; } = new System.Collections.Generic.List<SortParam>();
 
-        QueryUsersRequestDTO ISavableTo<QueryUsersRequestDTO>.SaveToDto()
+        QueryUsersRequestInternalDTO ISavableTo<QueryUsersRequestInternalDTO>.SaveToDto()
         {
-            return new QueryUsersRequestDTO
+            return new QueryUsersRequestInternalDTO
             {
                 FilterConditions = FilterConditions,
                 IdGt = IdGt,
@@ -64,7 +64,7 @@ namespace StreamChat.Core.Requests
                 Limit = Limit,
                 Offset = Offset,
                 Presence = Presence,
-                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamInternalDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
         }

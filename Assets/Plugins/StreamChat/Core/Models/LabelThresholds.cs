@@ -1,8 +1,8 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.Models
 {
-    public class LabelThresholds : ModelBase, ILoadableFrom<LabelThresholdsDTO, LabelThresholds>
+    public class LabelThresholds : ModelBase, ILoadableFrom<LabelThresholdsInternalDTO, LabelThresholds>
     {
         /// <summary>
         /// Threshold for automatic message block
@@ -14,7 +14,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public float? Flag { get; set; }
 
-        LabelThresholds ILoadableFrom<LabelThresholdsDTO, LabelThresholds>.LoadFromDto(LabelThresholdsDTO dto)
+        LabelThresholds ILoadableFrom<LabelThresholdsInternalDTO, LabelThresholds>.LoadFromDto(LabelThresholdsInternalDTO dto)
         {
             Block = dto.Block;
             Flag = dto.Flag;

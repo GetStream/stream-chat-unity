@@ -1,4 +1,4 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
@@ -6,7 +6,7 @@ namespace StreamChat.Core.Models
     /// <summary>
     /// Sets thresholds for AI moderation
     /// </summary>
-    public class Thresholds : ModelBase, ILoadableFrom<ThresholdsDTO, Thresholds>
+    public class Thresholds : ModelBase, ILoadableFrom<ThresholdsInternalDTO, Thresholds>
     {
         /// <summary>
         /// Thresholds for explicit messages
@@ -23,7 +23,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public LabelThresholds Toxic { get; set; }
 
-        Thresholds ILoadableFrom<ThresholdsDTO, Thresholds>.LoadFromDto(ThresholdsDTO dto)
+        Thresholds ILoadableFrom<ThresholdsInternalDTO, Thresholds>.LoadFromDto(ThresholdsInternalDTO dto)
         {
             Explicit = Explicit.TryLoadFromDto(dto.Explicit);
             Spam = Explicit.TryLoadFromDto(dto.Spam);

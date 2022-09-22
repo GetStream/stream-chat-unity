@@ -1,9 +1,9 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Requests
 {
-    public class ImagesRequest : RequestObjectBase, ISavableTo<ImagesRequestDTO>
+    public class ImagesRequest : RequestObjectBase, ISavableTo<ImagesRequestInternalDTO>
     {
         public ImageDataRequest FixedHeight { get; set; }
 
@@ -19,8 +19,8 @@ namespace StreamChat.Core.Requests
 
         public ImageDataRequest Original { get; set; }
 
-        ImagesRequestDTO ISavableTo<ImagesRequestDTO>.SaveToDto() =>
-            new ImagesRequestDTO
+        ImagesRequestInternalDTO ISavableTo<ImagesRequestInternalDTO>.SaveToDto() =>
+            new ImagesRequestInternalDTO
             {
                 FixedHeight = FixedHeight.TrySaveToDto(),
                 FixedHeightDownsampled = FixedHeightDownsampled.TrySaveToDto(),

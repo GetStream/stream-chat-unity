@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Responses
 {
-    public partial class BanResponse : ResponseObjectBase, ILoadableFrom<BanResponseDTO, BanResponse>
+    public partial class BanResponse : ResponseObjectBase, ILoadableFrom<BanResponseInternalDTO, BanResponse>
     {
         public User BannedBy { get; set; }
 
@@ -21,15 +21,15 @@ namespace StreamChat.Core.Responses
 
         public User User { get; set; }
 
-        BanResponse ILoadableFrom<BanResponseDTO, BanResponse>.LoadFromDto(BanResponseDTO dto)
+        BanResponse ILoadableFrom<BanResponseInternalDTO, BanResponse>.LoadFromDto(BanResponseInternalDTO dto)
         {
-            BannedBy = User.TryLoadFromDto<UserObjectDTO, User>(dto.BannedBy);
+            BannedBy = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.BannedBy);
             Channel = Channel.TryLoadFromDto(dto.Channel);
             CreatedAt = dto.CreatedAt;
             Expires = dto.Expires;
             Reason = dto.Reason;
             Shadow = dto.Shadow;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

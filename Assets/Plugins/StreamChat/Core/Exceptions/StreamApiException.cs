@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using StreamChat.Core.DTO.Models;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.Exceptions
@@ -20,7 +20,7 @@ namespace StreamChat.Core.Exceptions
 
         public IReadOnlyDictionary<string, string> ExceptionFields => _exceptionFields;
 
-        internal StreamApiException(APIErrorDTO apiError)
+        internal StreamApiException(APIErrorInternalDTO apiError)
             : base($"{apiError.Message}, Error Code: {apiError.Code}, Http Status Code: {apiError.StatusCode}, More info: {apiError.MoreInfo}, Exception fields: {PrintExceptionFields(apiError)}")
         {
             StatusCode = apiError.StatusCode;
@@ -39,7 +39,7 @@ namespace StreamChat.Core.Exceptions
 
         private readonly Dictionary<string, string> _exceptionFields;
 
-        private static string PrintExceptionFields(APIErrorDTO apiError)
+        private static string PrintExceptionFields(APIErrorInternalDTO apiError)
         {
             if (apiError.ExceptionFields == null)
             {

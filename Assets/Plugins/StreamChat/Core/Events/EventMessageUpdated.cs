@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.DTO.Events;
-using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public partial class EventMessageUpdated : EventBase, ILoadableFrom<EventMessageUpdatedDTO, EventMessageUpdated>
+    public partial class EventMessageUpdated : EventBase, ILoadableFrom<EventMessageUpdatedInternalDTO, EventMessageUpdated>
     {
         public string ChannelId { get; set; }
 
@@ -25,17 +25,17 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-        EventMessageUpdated ILoadableFrom<EventMessageUpdatedDTO, EventMessageUpdated>.LoadFromDto(EventMessageUpdatedDTO dto)
+        EventMessageUpdated ILoadableFrom<EventMessageUpdatedInternalDTO, EventMessageUpdated>.LoadFromDto(EventMessageUpdatedInternalDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Message = Message.TryLoadFromDto<MessageDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             Team = dto.Team;
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

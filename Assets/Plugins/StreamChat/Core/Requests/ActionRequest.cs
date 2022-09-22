@@ -1,8 +1,8 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.Requests
 {
-    public class ActionRequest : RequestObjectBase, ISavableTo<ActionRequestDTO>
+    public class ActionRequest : RequestObjectBase, ISavableTo<ActionRequestInternalDTO>
     {
         public string Name { get; set; }
 
@@ -14,8 +14,8 @@ namespace StreamChat.Core.Requests
 
         public string Value { get; set; }
 
-        ActionRequestDTO ISavableTo<ActionRequestDTO>.SaveToDto() =>
-            new ActionRequestDTO
+        ActionRequestInternalDTO ISavableTo<ActionRequestInternalDTO>.SaveToDto() =>
+            new ActionRequestInternalDTO
             {
                 Name = Name,
                 Style = Style,
