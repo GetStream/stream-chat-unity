@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using StreamChat.Core.API.Internal;
-using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;

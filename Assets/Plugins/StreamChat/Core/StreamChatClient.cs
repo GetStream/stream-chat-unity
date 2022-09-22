@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using StreamChat.Core.DTO.Events;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;

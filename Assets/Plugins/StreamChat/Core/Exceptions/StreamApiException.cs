@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using StreamChat.Core.DTO.Models;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.Exceptions

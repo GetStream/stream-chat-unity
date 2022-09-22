@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using StreamChat.Core.DTO.Models;
-using StreamChat.Core.DTO.Responses;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models

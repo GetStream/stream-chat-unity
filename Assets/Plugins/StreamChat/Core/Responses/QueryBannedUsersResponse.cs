@@ -1,4 +1,4 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Responses

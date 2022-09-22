@@ -1,4 +1,4 @@
-﻿namespace StreamChat.Core.DTO.Models
+﻿namespace StreamChat.Core.InternalDTO.Models
 {
     /// <summary>
     /// Extra fields not defined in API spec

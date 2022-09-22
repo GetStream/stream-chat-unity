@@ -1,4 +1,4 @@
-﻿using StreamChat.Core.DTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.Models
 {

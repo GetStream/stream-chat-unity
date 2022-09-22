@@ -1,4 +1,4 @@
-﻿using StreamChat.Core.DTO.Requests;
+﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
 

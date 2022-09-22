@@ -1,4 +1,4 @@
-﻿using StreamChat.Core.DTO.Responses;
+﻿using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.Responses;
 
@@ -21,7 +21,7 @@ namespace StreamChat.Core.Responses
             Duration = dto.Duration;
             Event = Event.TryLoadFromDto(dto.Event);
             AdditionalProperties = dto.AdditionalProperties;
-                
+
             return this;
         }
     }
