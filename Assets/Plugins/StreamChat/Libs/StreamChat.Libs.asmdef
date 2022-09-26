@@ -1,7 +1,9 @@
 {
     "name": "StreamChat.Libs",
     "rootNamespace": "StreamChat.Libs",
-    "references": [],
+    "references": [
+        "endel.nativewebsocket"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

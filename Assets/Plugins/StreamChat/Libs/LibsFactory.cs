@@ -15,7 +15,12 @@ namespace StreamChat.Libs
             => new UnityLogs(logLevel);
 
         public static IWebsocketClient CreateDefaultWebsocketClient(ILogs logs, bool isDebugMode = false)
-            => new WebsocketClient(logs, isDebugMode: isDebugMode);
+        {
+#if UNITY_WEBGL
+            return new NativeWebSocketWrapper(logs);
+#endif
+            return new WebsocketClient(logs, isDebugMode: isDebugMode);
+        }
 
         public static IHttpClient CreateDefaultHttpClient()
         {
