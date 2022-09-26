@@ -36,7 +36,7 @@ namespace StreamChat.Core.API.Internal
             var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
 
             var httpResponse = await _httpClient.GetAsync(uri);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            var responseContent = httpResponse.Result;
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -65,7 +65,7 @@ namespace StreamChat.Core.API.Internal
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);
             var requestContent = _serializer.Serialize(request);
 
-            HttpResponseMessage httpResponse;
+            IHttpRequestResponse httpResponse;
             try
             {
                 httpResponse = await _httpClient.PostAsync(uri, requestContent);
@@ -76,7 +76,7 @@ namespace StreamChat.Core.API.Internal
                 throw;
             }
 
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            var responseContent = httpResponse.Result;
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -104,7 +104,7 @@ namespace StreamChat.Core.API.Internal
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);
 
-            HttpResponseMessage httpResponse;
+            IHttpRequestResponse httpResponse;
             try
             {
                 httpResponse = await _httpClient.PostAsync(uri, request);
@@ -115,7 +115,7 @@ namespace StreamChat.Core.API.Internal
                 throw;
             }
 
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            var responseContent = httpResponse.Result;
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -144,7 +144,7 @@ namespace StreamChat.Core.API.Internal
             var requestContent = _serializer.Serialize(request);
 
             var httpResponse = await _httpClient.PatchAsync(uri, requestContent);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            var responseContent = httpResponse.Result;
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -172,7 +172,7 @@ namespace StreamChat.Core.API.Internal
             var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
 
             var httpResponse = await _httpClient.DeleteAsync(uri);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            var responseContent = httpResponse.Result;
 
             if (!httpResponse.IsSuccessStatusCode)
             {

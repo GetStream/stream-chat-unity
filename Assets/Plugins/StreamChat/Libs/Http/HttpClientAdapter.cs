@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace StreamChat.Libs.Http
 {
     /// <summary>
-    /// .NET http client adapter
+    /// .NET <see cref="HttpClient"/> adapter
     /// </summary>
     public class HttpClientAdapter : IHttpClient
     {
@@ -21,27 +21,42 @@ namespace StreamChat.Libs.Http
         public void AddDefaultCustomHeader(string key, string value)
             => _httpClient.DefaultRequestHeaders.Add(key, value);
 
-        public Task<HttpResponseMessage> GetAsync(Uri uri)
-            => _httpClient.GetAsync(uri);
+        public async Task<IHttpRequestResponse> GetAsync(Uri uri)
+        {
+            var httpResponse = await _httpClient.GetAsync(uri);
+            var responseBody = await httpResponse.Content.ReadAsStringAsync();
+            return new NetHttpRequestResponse(responseBody, httpResponse);
+        }
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, string content)
-            => _httpClient.PostAsync(uri, new StringContent(content));
+        public async Task<IHttpRequestResponse> PostAsync(Uri uri, string content)
+        {
+            var httpResponse = await _httpClient.PostAsync(uri, new StringContent(content));
+            var responseBody = await httpResponse.Content.ReadAsStringAsync();
+            return new NetHttpRequestResponse(responseBody, httpResponse);
+        }
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content)
-            => _httpClient.PostAsync(uri, content);
+        public async Task<IHttpRequestResponse> PostAsync(Uri uri, HttpContent content)
+        {
+            var httpResponse = await _httpClient.PostAsync(uri, content);
+            var responseBody = await httpResponse.Content.ReadAsStringAsync();
+            return new NetHttpRequestResponse(responseBody, httpResponse);
+        }
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, MultipartFormDataContent content)
-            => _httpClient.PostAsync(uri, content);
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content)
-            => _httpClient.PostAsync(uri, content);
-
-        public Task<HttpResponseMessage> PatchAsync(Uri uri, string content)
-            => _httpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), uri)
+        public async Task<IHttpRequestResponse> PatchAsync(Uri uri, string content)
+        {
+            var httpResponse = await _httpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), uri)
                 { Content = new StringContent(content) });
+            var responseBody = await httpResponse.Content.ReadAsStringAsync();
+            return new NetHttpRequestResponse(responseBody, httpResponse);
+        }
 
-        public Task<HttpResponseMessage> DeleteAsync(Uri uri)
-            => _httpClient.DeleteAsync(uri);
+        public async Task<IHttpRequestResponse> DeleteAsync(Uri uri)
+        {
+            var httpResponse = await _httpClient.DeleteAsync(uri);
+            var responseBody = await httpResponse.Content.ReadAsStringAsync();
+            return new NetHttpRequestResponse(responseBody, httpResponse);
+        }
 
         private readonly HttpClient _httpClient;
     }

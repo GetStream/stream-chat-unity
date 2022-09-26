@@ -13,18 +13,14 @@ namespace StreamChat.Libs.Http
 
         void AddDefaultCustomHeader(string key, string value);
 
-        Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content);
+        Task<IHttpRequestResponse> PostAsync(Uri uri, string content);
 
-        Task<HttpResponseMessage> PostAsync(Uri uri, string content);
+        Task<IHttpRequestResponse> DeleteAsync(Uri uri);
 
-        Task<HttpResponseMessage> DeleteAsync(Uri uri);
+        Task<IHttpRequestResponse> GetAsync(Uri uri);
 
-        Task<HttpResponseMessage> GetAsync(Uri uri);
+        Task<IHttpRequestResponse> PatchAsync(Uri uri, string content);
 
-        Task<HttpResponseMessage> PatchAsync(Uri uri, string content);
-
-        Task<HttpResponseMessage> PostAsync(Uri uri, MultipartFormDataContent content);
-
-        Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content);
+        Task<IHttpRequestResponse> PostAsync(Uri uri, HttpContent content);
     }
 }

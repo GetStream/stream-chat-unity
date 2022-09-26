@@ -17,7 +17,13 @@ namespace StreamChat.Libs
         public static IWebsocketClient CreateDefaultWebsocketClient(ILogs logs, bool isDebugMode = false)
             => new WebsocketClient(logs, isDebugMode: isDebugMode);
 
-        public static IHttpClient CreateDefaultHttpClient() => new HttpClientAdapter();
+        public static IHttpClient CreateDefaultHttpClient()
+        {
+#if UNITY_WEBGL
+            return new UnityWebRequestHttpClient();
+#endif
+            return new HttpClientAdapter();
+        }
 
         public static ISerializer CreateDefaultSerializer() => new NewtonsoftJsonSerializer();
 
