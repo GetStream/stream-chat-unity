@@ -281,8 +281,7 @@ namespace StreamChat.Core
 
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
-
-        private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime;
+        private const int HealthCheckSendInterval = 27;
 
         private readonly IWebsocketClient _websocketClient;
         private readonly ISerializer _serializer;
