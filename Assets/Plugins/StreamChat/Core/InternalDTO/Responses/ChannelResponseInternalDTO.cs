@@ -59,7 +59,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Creator of the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO CreatedBy { get; set; }
+        public UserObjectInternalDTO CreatedBy { get; set; }
 
         /// <summary>
         /// Date/time of deletion
@@ -143,7 +143,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.DateTimeOffset? TruncatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("truncated_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO TruncatedBy { get; set; }
+        public UserObjectInternalDTO TruncatedBy { get; set; }
 
         /// <summary>
         /// Type of the channel

@@ -23,7 +23,7 @@ namespace StreamChat.Core.Events
             TargetUser = dto.TargetUser;
             TargetUsers = dto.TargetUsers;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

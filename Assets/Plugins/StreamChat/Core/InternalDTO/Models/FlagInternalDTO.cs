@@ -62,7 +62,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Flagged user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO TargetUser { get; set; }
+        public UserObjectInternalDTO TargetUser { get; set; }
 
         /// <summary>
         /// Date/time of the last update
@@ -74,7 +74,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// User who flagged a message or a user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

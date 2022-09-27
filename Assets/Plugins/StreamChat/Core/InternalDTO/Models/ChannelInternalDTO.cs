@@ -38,7 +38,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public System.DateTimeOffset? CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO CreatedBy { get; set; }
+        public UserObjectInternalDTO CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeletedAt { get; set; }
@@ -68,7 +68,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public string Team { get; set; }
 
         [Newtonsoft.Json.JsonProperty("truncated_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO TruncatedBy { get; set; }
+        public UserObjectInternalDTO TruncatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }

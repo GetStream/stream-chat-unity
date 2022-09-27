@@ -84,7 +84,7 @@ namespace StreamChat.Core.Models
 #pragma warning restore 0618
             ShadowBanned = dto.ShadowBanned;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
 

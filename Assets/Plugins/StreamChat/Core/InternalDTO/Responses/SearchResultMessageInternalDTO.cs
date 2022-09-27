@@ -92,7 +92,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalInternalDTO> MentionedUsers { get; set; }
+        public System.Collections.Generic.List<UserObjectInternalDTO> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -134,7 +134,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Contains user who pinned the message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO PinnedBy { get; set; }
+        public UserObjectInternalDTO PinnedBy { get; set; }
 
         /// <summary>
         /// Contains quoted message
@@ -191,7 +191,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of users who participate in thread
         /// </summary>
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalInternalDTO> ThreadParticipants { get; set; }
+        public System.Collections.Generic.List<UserObjectInternalDTO> ThreadParticipants { get; set; }
 
         /// <summary>
         /// Contains type of the message
@@ -210,7 +210,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Sender of the message. Required when using server-side API
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

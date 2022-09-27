@@ -35,7 +35,7 @@ namespace StreamChat.Core.Events
             Reaction = Reaction.TryLoadFromDto(dto.Reaction);
             Team = dto.Team;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

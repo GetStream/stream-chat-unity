@@ -88,7 +88,7 @@ namespace StreamChat.Core.Responses
             Cid = dto.Cid;
             ConnectionId = dto.ConnectionId;
             CreatedAt = dto.CreatedAt;
-            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.CreatedBy);
+            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.CreatedBy);
             Me = Me.TryLoadFromDto<OwnUserInternalDTO, OwnUser>(dto.Me);
             Member = Member.TryLoadFromDto(dto.Member);
             Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
@@ -97,7 +97,7 @@ namespace StreamChat.Core.Responses
             Reason = dto.Reason;
             Team = dto.Team;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             WatcherCount = dto.WatcherCount;
             AdditionalProperties = dto.AdditionalProperties;

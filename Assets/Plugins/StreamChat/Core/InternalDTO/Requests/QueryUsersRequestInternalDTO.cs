@@ -80,7 +80,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// **Server-side only**. User object which server acts upon
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         /// <summary>
         /// **Server-side only**. User ID which server acts upon

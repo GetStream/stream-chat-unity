@@ -32,7 +32,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// User who's muted
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO Target { get; set; }
+        public UserObjectInternalDTO Target { get; set; }
 
         /// <summary>
         /// Date/time of the last update
@@ -44,7 +44,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Owner of channel mute
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

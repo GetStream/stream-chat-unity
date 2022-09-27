@@ -50,7 +50,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public System.DateTimeOffset? UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         /// <summary>
         /// ID of a user who reacted to a message

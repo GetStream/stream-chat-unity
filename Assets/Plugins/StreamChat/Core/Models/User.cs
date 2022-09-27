@@ -4,7 +4,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class User : ModelBase, ILoadableFrom<UserObjectInternalInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>, ISavableTo<UserObjectInternalInternalDTO>
+    public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>, ISavableTo<UserObjectInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -79,7 +79,7 @@ namespace StreamChat.Core.Models
         public string Name;
         public string Image;
 
-        User ILoadableFrom<UserObjectInternalInternalDTO, User>.LoadFromDto(UserObjectInternalInternalDTO dto)
+        User ILoadableFrom<UserObjectInternalDTO, User>.LoadFromDto(UserObjectInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;
@@ -131,8 +131,8 @@ namespace StreamChat.Core.Models
             return this;
         }
 
-        UserObjectInternalInternalDTO ISavableTo<UserObjectInternalInternalDTO>.SaveToDto() =>
-            new UserObjectInternalInternalDTO
+        UserObjectInternalDTO ISavableTo<UserObjectInternalDTO>.SaveToDto() =>
+            new UserObjectInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,

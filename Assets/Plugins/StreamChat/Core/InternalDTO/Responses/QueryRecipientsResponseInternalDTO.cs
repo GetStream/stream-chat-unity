@@ -35,7 +35,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.Collections.Generic.Dictionary<string, SegmentInternalDTO> Segments { get; set; }
 
         [Newtonsoft.Json.JsonProperty("users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, UserObjectInternalInternalDTO> Users { get; set; }
+        public System.Collections.Generic.Dictionary<string, UserObjectInternalDTO> Users { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

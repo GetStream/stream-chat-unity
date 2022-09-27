@@ -30,7 +30,7 @@ namespace StreamChat.Core.Events
             CreatedAt = dto.CreatedAt;
             ParentId = dto.ParentId;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
