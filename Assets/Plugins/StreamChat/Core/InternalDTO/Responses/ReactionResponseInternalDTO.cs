@@ -5,19 +5,28 @@
 //----------------------
 
 
-using StreamChat.Core.InternalDTO.Responses;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 
-namespace StreamChat.Core.InternalDTO.Requests
+namespace StreamChat.Core.InternalDTO.Responses
 {
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    internal partial class SendUserCustomEventRequestInternalInternalDTO
+    internal partial class ReactionResponseInternalDTO
     {
-        [Newtonsoft.Json.JsonProperty("event", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserCustomEventRequestInternalDTO Event { get; set; } = new UserCustomEventRequestInternalDTO();
+        /// <summary>
+        /// Duration of the request in human-readable format
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Duration { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public MessageInternalDTO Message { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("reaction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ReactionInternalDTO Reaction { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     /// Contains all information needed to send new message
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    internal partial class SendMessageRequestInternalInternalDTO
+    internal partial class SendMessageRequestInternalDTO
     {
         /// <summary>
         /// Make the message a pending message. This message will not be viewable to others until it is committed.
@@ -26,7 +26,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public bool? IsPendingMessage { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageRequestInternalInternalDTO Message { get; set; } = new MessageRequestInternalInternalDTO();
+        public MessageRequestInternalDTO Message { get; set; } = new MessageRequestInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("pending_message_metadata", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, string> PendingMessageMetadata { get; set; }

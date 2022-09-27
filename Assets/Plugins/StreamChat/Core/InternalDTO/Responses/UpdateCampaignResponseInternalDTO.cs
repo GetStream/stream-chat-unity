@@ -14,16 +14,16 @@ namespace StreamChat.Core.InternalDTO.Responses
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    internal partial class CreateRoleResponseInternalInternalDTO
+    internal partial class UpdateCampaignResponseInternalDTO
     {
+        [Newtonsoft.Json.JsonProperty("campaign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public CampaignInternalDTO Campaign { get; set; }
+
         /// <summary>
         /// Duration of the request in human-readable format
         /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("role", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public RoleInternalDTO Role { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

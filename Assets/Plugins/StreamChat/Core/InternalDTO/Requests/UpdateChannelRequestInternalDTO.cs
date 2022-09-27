@@ -74,7 +74,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Message to send to the chat when channel is successfully updated
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageRequestInternalInternalDTO Message { get; set; }
+        public MessageRequestInternalDTO Message { get; set; }
 
         /// <summary>
         /// Set to `true` to reject the invite

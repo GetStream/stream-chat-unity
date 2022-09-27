@@ -14,7 +14,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    internal partial class ChannelMuteRequestInternalInternalDTO
+    internal partial class ChannelMuteRequestInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("channel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelResponseRequestInternalDTO Channel { get; set; }

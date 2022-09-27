@@ -71,7 +71,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public ChannelMemberRequestInternalDTO Member { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageRequestInternalInternalDTO Message { get; set; }
+        public MessageRequestInternalDTO Message { get; set; }
 
         /// <summary>
         /// ID of thread. Used in typing events
