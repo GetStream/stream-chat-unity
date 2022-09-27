@@ -88,6 +88,11 @@ namespace StreamChat.Core.InternalDTO.Responses
             set { _additionalProperties = value; }
         }
 
+        public ChannelStateResponseFieldsInternalDTO()
+        {
+        }
+
+
     }
 
 }

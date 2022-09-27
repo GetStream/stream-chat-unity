@@ -21,6 +21,12 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string MessageId { get; set; }
+        
+        public MarkReadRequestInternalDTO()
+        {
+        }
+
+
     }
 
 }

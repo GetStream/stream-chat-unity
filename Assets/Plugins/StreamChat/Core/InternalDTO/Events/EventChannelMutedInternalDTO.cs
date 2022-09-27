@@ -31,6 +31,11 @@ namespace StreamChat.Core.InternalDTO.Events
             set { _additionalProperties = value; }
         }
 
+        public EventChannelMutedInternalDTO()
+        {
+        }
+
+
     }
 
 }

@@ -5,9 +5,9 @@
 //----------------------
 
 
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Events;
-using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.InternalDTO.Models
 {
@@ -30,6 +30,11 @@ namespace StreamChat.Core.InternalDTO.Models
             get { return _additionalProperties; }
             set { _additionalProperties = value; }
         }
+
+        public ChannelMessagesInternalDTO()
+        {
+        }
+
 
     }
 

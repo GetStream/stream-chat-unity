@@ -40,6 +40,11 @@ namespace StreamChat.Core.InternalDTO.Models
             set { _additionalProperties = value; }
         }
 
+        public ImageDataInternalDTO()
+        {
+        }
+
+
     }
 
 }

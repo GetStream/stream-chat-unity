@@ -169,6 +169,11 @@ namespace StreamChat.Core.InternalDTO.Requests
             set { _additionalProperties = value; }
         }
 
+        public ChannelConfigWithInfoRequestInternalDTO()
+        {
+        }
+
+
     }
 
 }
