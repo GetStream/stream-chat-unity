@@ -224,22 +224,36 @@ namespace StreamChat.Libs.Websockets
 
         private async Task TryDisposeResourcesAsync(WebSocketCloseStatus closeStatus, string closeMessage)
         {
-            if (_connectionCts != null)
+            try
             {
-                _connectionCts.Cancel();
-                _connectionCts.Dispose();
-                _connectionCts = null;
+                if (_connectionCts != null)
+                {
+                    _connectionCts.Cancel();
+                    _connectionCts.Dispose();
+                    _connectionCts = null;
+                }
+            }
+            catch (Exception e)
+            {
+                LogExceptionIfDebugMode(e);
             }
 
-            if (_internalClient != null)
+            try
             {
-                if (!_clientClosedStates.Contains(_internalClient.State))
+                if (_internalClient != null)
                 {
-                    await _internalClient.CloseOutputAsync(closeStatus, closeMessage, CancellationToken.None);
-                }
+                    if (!_clientClosedStates.Contains(_internalClient.State))
+                    {
+                        await _internalClient.CloseOutputAsync(closeStatus, closeMessage, CancellationToken.None);
+                    }
 
-                _internalClient.Dispose();
-                _internalClient = null;
+                    _internalClient.Dispose();
+                    _internalClient = null;
+                }
+            }
+            catch (Exception e)
+            {
+                LogExceptionIfDebugMode(e);
             }
         }
 
