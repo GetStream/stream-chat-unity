@@ -21,6 +21,6 @@ namespace StreamChat.Libs.Websockets
 
         void Send(string message);
 
-        void Disconnect(WebSocketCloseStatus closeStatus, string closeMessage);
+        Task DisconnectAsync(WebSocketCloseStatus closeStatus, string closeMessage);
     }
 }
