@@ -47,7 +47,6 @@ namespace StreamChat.Core
             }
         }
 
-        public static bool IsDebugEnabled(this StreamLogLevel streamLogLevel) =>
-            (streamLogLevel & StreamLogLevel.Debug) != 0;
+        public static bool IsDebugEnabled(this StreamLogLevel streamLogLevel) => streamLogLevel == StreamLogLevel.Debug;
     }
 }
