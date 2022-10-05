@@ -2,6 +2,7 @@
 using StreamChat.Core.API;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Models;
+using StreamChat.Libs.Auth;
 
 namespace StreamChat.Core
 {
@@ -65,5 +66,7 @@ namespace StreamChat.Core
         /// <exception cref="ArgumentException">throws exception if intervals are less than or equal to zero</exception>
         void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval);
+
+        void ConnectUser(AuthCredentials userAuthCredentials);
     }
 }

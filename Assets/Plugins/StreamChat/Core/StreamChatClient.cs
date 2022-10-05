@@ -182,6 +182,12 @@ namespace StreamChat.Core
             LogErrorIfUpdateIsNotBeingCalled();
         }
 
+        public void ConnectUser(AuthCredentials userAuthCredentials)
+        {
+            SetUser(userAuthCredentials);
+            Connect();
+        }
+
         public void Connect()
         {
             SetUser(_authCredentials);
@@ -288,7 +294,6 @@ namespace StreamChat.Core
         private readonly ISerializer _serializer;
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
-        private readonly AuthCredentials _authCredentials;
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
         private readonly StringBuilder _errorSb = new StringBuilder();
@@ -299,6 +304,8 @@ namespace StreamChat.Core
             new Dictionary<string, Action<string>>();
 
         private readonly object _websocketConnectionFailedFlagLock = new object();
+
+        private AuthCredentials _authCredentials;
 
         private ConnectionState _connectionState;
         private string _connectionId;
@@ -592,6 +599,7 @@ namespace StreamChat.Core
                     "Please provide valid credentials: `Api Key`, 'User id`, `User token`");
             }
 
+            _authCredentials = credentials;
             _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
         }
 
