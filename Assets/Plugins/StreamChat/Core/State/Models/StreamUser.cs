@@ -1,10 +1,17 @@
-﻿using StreamChat.Core.Models;
-using StreamChat.Core.State;
-using StreamChat.Core.StreamChat.Core.State;
+﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.Models;
 
 namespace StreamChat.Core.State.Models
 {
-    public class StreamUser : StreamTrackedObjectBase<StreamUser>
+    //, ILoadableFrom<UserObjectInternalInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>
+
+    /// <summary>
+    /// Stream user represents a single chat user that can be a member of multiple channels
+    ///
+    /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
+    /// </summary>
+    public class StreamUser : StreamTrackedObjectBase<StreamUser>, IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -53,7 +60,7 @@ namespace StreamChat.Core.State.Models
         /// </summary>
         public bool? Online { get; set; }
 
-        public PushNotificationSettings PushNotifications { get; set; }
+        public PushNotificationSettings PushNotifications { get; set; } //Todo custom type?
 
         /// <summary>
         /// Revocation date for tokens
@@ -85,6 +92,30 @@ namespace StreamChat.Core.State.Models
         internal StreamUser(string uniqueId, IRepository<StreamUser> repository)
             : base(uniqueId, repository)
         {
+        }
+
+        void IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalInternalDTO dto, ICache cache)
+        {
+            //AdditionalProperties = dto.AdditionalProperties; //Todo: Add additional properties
+            BanExpires = dto.BanExpires;
+            Banned = dto.Banned;
+            CreatedAt = dto.CreatedAt;
+            DeactivatedAt = dto.DeactivatedAt;
+            DeletedAt = dto.DeletedAt;
+            Id = dto.Id;
+            Invisible = dto.Invisible;
+            Language = dto.Language;
+            LastActive = dto.LastActive;
+            Online = dto.Online;
+            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications);
+            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
+            Role = dto.Role;
+            Teams = dto.Teams;
+            UpdatedAt = dto.UpdatedAt;
+
+            //Not in API spec
+            Name = dto.Name;
+            Image = dto.Image;
         }
 
         protected override StreamUser Self => this;

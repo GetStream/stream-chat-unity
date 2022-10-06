@@ -1,11 +1,9 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.State;
-using StreamChat.Core.StreamChat.Core.State;
 
 namespace StreamChat.Core.State.Models
 {
-    public class StreamMessage : StreamTrackedObjectBase<StreamMessage>, ILoadableFrom<MessageInternalDTO, StreamMessage>
+    public class StreamMessage : StreamTrackedObjectBase<StreamMessage>, ILoadableFrom<MessageInternalDTO, StreamMessage>, IUpdateableFrom<MessageInternalDTO, StreamMessage>
     {
         /// <summary>
         /// Array of message attachments
@@ -213,6 +211,11 @@ namespace StreamChat.Core.State.Models
         internal StreamMessage(string uniqueId, IRepository<StreamMessage> repository)
             : base(uniqueId, repository)
         {
+        }
+
+        void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
+        {
+            throw new System.NotImplementedException();
         }
 
         protected override StreamMessage Self => this;

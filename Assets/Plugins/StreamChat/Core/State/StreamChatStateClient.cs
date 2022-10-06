@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using StreamChat.Core.Configs;
 using StreamChat.Core.Events;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.State.Models;
+using StreamChat.Core.State;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;
@@ -54,7 +56,7 @@ namespace StreamChat.Core.State
         /// </summary>
         /// <param name="config">Optional configuration</param>
         /// <returns>New instance of <see cref="IStreamChatStateClient"/></returns>
-        public IStreamChatStateClient CreateDefaultClient(IStreamClientConfig config = default)
+        public static IStreamChatStateClient CreateDefaultClient(IStreamClientConfig config = default)
         {
             config ??= StreamClientConfig.Default;
             var logs = LibsFactory.CreateDefaultLogs(config.LogLevel.ToLogLevel());
@@ -76,9 +78,6 @@ namespace StreamChat.Core.State
 
             _lowLevelClient = new StreamChatClient(authCredentials: default, websocketClient, httpClient, serializer,
                 _timeService, logs, config);
-
-            _channelsRepository
-                = new Repository<StreamChannel>((uniqueId, repository) => new StreamChannel(uniqueId, repository));
 
             SubscribeTo(_lowLevelClient);
         }
@@ -107,6 +106,9 @@ namespace StreamChat.Core.State
             return _connectUserTaskSource.Task;
         }
 
+        // TODO: Pagination should probably be removed here and only available through channel.GetNextMessages, channel.GetPreviousMessages
+        // Otherwise we have problem that you fetch old messages and then WS event delivers a new one
+
         //Todo: consider changing ChannelGetOrCreateRequest to custom request structure
         public async Task<StreamChannel> GetOrCreateChannelAsync(string channelType, string channelId,
             ChannelGetOrCreateRequest requestBody = default)
@@ -116,14 +118,22 @@ namespace StreamChat.Core.State
             requestBody.State = true;
             requestBody.Watch = true;
 
-            var channelResponse = await _lowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
+            var channelResponseDto = await _lowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
                 channelId, requestBody.TrySaveToDto());
 
-            var streamChannel = _channelsRepository.GetOrCreate(channelResponse.Channel.Cid);
-            streamChannel.UpdateFrom(channelResponse);
+            var uniqueId = GetUniqueId(channelResponseDto);
+            var streamChannel = _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(uniqueId, channelResponseDto);
+
+            // Todo: maybe add UpdateOrCreate channelResponse.Channel.Cid
+            // Todo: the ID mapping should be defined instead of manually passing the channel.Cid
+            // var streamChannel = _channelsRepository.GetOrCreate(channelResponseDto.Channel.Cid);
+            // streamChannel.UpdateFrom(channelResponseDto, repositories: this);
 
             return streamChannel;
         }
+
+        // Todo: Add TrackedId with ctors for all data structures, this way we can consistently pick the same field as ID
+        private string GetUniqueId(ChannelStateResponseInternalDTO dto) => dto.Channel.Cid;
 
         public Task<IEnumerable<StreamChannel>> QueryChannelsAsync()
         {
@@ -139,21 +149,12 @@ namespace StreamChat.Core.State
             }
         }
 
+
+
         private readonly StreamChatClient _lowLevelClient;
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
-
-        private readonly IRepository<StreamChannel> _channelsRepository
-            = new Repository<StreamChannel>(StreamChannel.Create);
-
-        private readonly IRepository<StreamMessage> _messagesRepository
-            = new Repository<StreamMessage>(StreamMessage.Create);
-
-        private readonly IRepository<StreamUser> _usersRepository
-            = new Repository<StreamUser>(StreamUser.Create);
-
-        private readonly IRepository<StreamLocalUser> _localUserRepository
-            = new Repository<StreamLocalUser>(StreamLocalUser.Create);
+        private readonly ICache _cache = new Cache();
 
         private TaskCompletionSource<StreamLocalUser> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -163,7 +164,7 @@ namespace StreamChat.Core.State
         private void OnLowLevelClientConnected(OwnUser ownUser)
         {
             //Todo: get from repository, perhaps we're reconnecting and this object is already tracked
-            LocalUser = _localUserRepository.GetOrCreate(ownUser.Id);
+            LocalUser = _cache.LocalUser.CreateOrUpdate<StreamLocalUser, OwnUser>(ownUser.Id, ownUser);
 
             if (_connectUserTaskSource == null)
             {
@@ -188,7 +189,7 @@ namespace StreamChat.Core.State
 
         private void OnLowLevelClientMessageDeleted(EventMessageDeleted eventMessageDeleted)
         {
-            if (_channelsRepository.TryGet(eventMessageDeleted.Cid, out var streamChannel))
+            if (_cache.Channels.TryGet(eventMessageDeleted.Cid, out var streamChannel))
             {
                 var isHardDelete = eventMessageDeleted.HardDelete.GetValueOrDefault(false);
                 streamChannel.DeleteMessage(eventMessageDeleted.Message.Id, isHardDelete);
@@ -197,7 +198,7 @@ namespace StreamChat.Core.State
 
         private void OnLowLevelClientMessageUpdated(EventMessageUpdated eventMessageUpdated)
         {
-            if (_channelsRepository.TryGet(eventMessageUpdated.Cid, out var streamChannel))
+            if (_cache.Channels.TryGet(eventMessageUpdated.Cid, out var streamChannel))
             {
                 //streamChannel.UpdateMessage();
             }
@@ -205,7 +206,7 @@ namespace StreamChat.Core.State
 
         private void OnLowLevelClientMessageReceived(EventMessageNew obj)
         {
-            if (_channelsRepository.TryGet(obj.Cid, out var streamChannel))
+            if (_cache.Channels.TryGet(obj.Cid, out var streamChannel))
             {
             }
         }

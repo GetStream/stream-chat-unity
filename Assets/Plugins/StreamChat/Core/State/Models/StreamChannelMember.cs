@@ -1,8 +1,9 @@
 ﻿using System;
+using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.State.Models
 {
-    public class StreamChannelMember
+    public class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>, IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -57,5 +58,86 @@ namespace StreamChat.Core.State.Models
         public DateTimeOffset? UpdatedAt { get; set; }
 
         public StreamUser User { get; set; }
+
+        public string UserId { get; set; }
+
+        internal static StreamChannelMember Create(string uniqueId, IRepository<StreamChannelMember> repository)
+            => new StreamChannelMember(uniqueId, repository);
+
+//         ChannelMember ILoadableFrom<ChannelMemberInternalDTO, ChannelMember>.LoadFromDto(ChannelMemberInternalDTO dto)
+//         {
+//             BanExpires = dto.BanExpires;
+//             Banned = dto.Banned;
+//             ChannelRole = dto.ChannelRole;
+//             CreatedAt = dto.CreatedAt;
+//             DeletedAt = dto.DeletedAt;
+//             InviteAcceptedAt = dto.InviteAcceptedAt;
+//             InviteRejectedAt = dto.InviteRejectedAt;
+//             Invited = dto.Invited;
+//             IsModerator = dto.IsModerator;
+// #pragma warning disable 0618
+//             Role = dto.Role;
+// #pragma warning restore 0618
+//             ShadowBanned = dto.ShadowBanned;
+//             UpdatedAt = dto.UpdatedAt;
+//             User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+//             UserId = dto.UserId;
+//             AdditionalProperties = dto.AdditionalProperties;
+//
+//             return this;
+//         }
+//
+//         ChannelMemberInternalDTO ISavableTo<ChannelMemberInternalDTO>.SaveToDto()
+//         {
+//             return new ChannelMemberInternalDTO
+//             {
+//                 BanExpires = BanExpires,
+//                 Banned = Banned,
+//                 ChannelRole = ChannelRole,
+//                 CreatedAt = CreatedAt,
+//                 DeletedAt = DeletedAt,
+//                 InviteAcceptedAt = InviteAcceptedAt,
+//                 InviteRejectedAt = InviteRejectedAt,
+//                 Invited = Invited,
+//                 IsModerator = IsModerator,
+// #pragma warning disable 0618
+//                 Role = Role,
+// #pragma warning restore 0618
+//                 ShadowBanned = ShadowBanned,
+//                 UpdatedAt = UpdatedAt,
+//                 User = User.TrySaveToDto(),
+//                 UserId = UserId,
+//                 AdditionalProperties = AdditionalProperties,
+//             };
+        internal StreamChannelMember(string uniqueId, IRepository<StreamChannelMember> repository)
+            : base(uniqueId, repository)
+        {
+        }
+
+        protected override string InternalUniqueId
+        {
+            get => UserId;
+            set => UserId = value;
+        }
+
+        protected override StreamChannelMember Self => this;
+
+        void IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>.UpdateFromDto(ChannelMemberInternalDTO dto, ICache cache)
+        {
+            BanExpires = dto.BanExpires;
+            Banned = dto.Banned;
+            ChannelRole = dto.ChannelRole;
+            CreatedAt = dto.CreatedAt;
+            DeletedAt = dto.DeletedAt;
+            InviteAcceptedAt = dto.InviteAcceptedAt;
+            InviteRejectedAt = dto.InviteRejectedAt;
+            Invited = dto.Invited;
+            IsModerator = dto.IsModerator;
+            ShadowBanned = dto.ShadowBanned;
+            UpdatedAt = dto.UpdatedAt;
+            User = cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalInternalDTO>(dto.User.Id, dto.User);
+            User.TryUpdateFromDto(dto.User, cache);
+            UserId = dto.UserId;
+        }
     }
 }

@@ -1,13 +1,11 @@
-﻿using StreamChat.Core.State;
-
-namespace StreamChat.Core.StreamChat.Core.State
+﻿namespace StreamChat.Core.State
 {
     /// <summary>
     /// Base class for tracked objects. Read more: <see cref="IStreamTrackedObject"/>
     /// </summary>
     /// <typeparam name="TTrackedObject">Type of tracked object</typeparam>
     public abstract class StreamTrackedObjectBase<TTrackedObject> : IStreamTrackedObject
-        where TTrackedObject : IStreamTrackedObject
+        where TTrackedObject : class, IStreamTrackedObject
     {
         string IStreamTrackedObject.UniqueId => InternalUniqueId;
 
