@@ -238,22 +238,26 @@ namespace StreamChat.Libs.Websockets
                 LogExceptionIfDebugMode(e);
             }
 
+            if (_internalClient == null)
+            {
+                return;
+            }
+
             try
             {
-                if (_internalClient != null)
+                if (!_clientClosedStates.Contains(_internalClient.State))
                 {
-                    if (!_clientClosedStates.Contains(_internalClient.State))
-                    {
-                        await _internalClient.CloseOutputAsync(closeStatus, closeMessage, CancellationToken.None);
-                    }
-
-                    _internalClient.Dispose();
-                    _internalClient = null;
+                    await _internalClient.CloseOutputAsync(closeStatus, closeMessage, CancellationToken.None);
                 }
             }
             catch (Exception e)
             {
                 LogExceptionIfDebugMode(e);
+            }
+            finally
+            {
+                _internalClient.Dispose();
+                _internalClient = null;
             }
         }
 
