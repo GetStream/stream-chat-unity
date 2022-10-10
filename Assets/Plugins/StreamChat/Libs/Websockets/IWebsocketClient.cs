@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace StreamChat.Libs.Websockets
@@ -20,6 +21,6 @@ namespace StreamChat.Libs.Websockets
 
         void Send(string message);
 
-        void Disconnect();
+        Task DisconnectAsync(WebSocketCloseStatus closeStatus, string closeMessage);
     }
 }
