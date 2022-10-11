@@ -60,6 +60,13 @@ namespace StreamChat.Core.API
             return dto.ToDomain<FileDeleteResponseInternalDTO, FileDeleteResponse>();
         }
 
+        public async Task<ImageUploadResponse> UploadImageAsync(string channelType, string channelId,
+            byte[] fileContent, string fileName)
+        {
+            var dto = await _internalMessageApi.UploadImageAsync(channelType, channelId, fileContent, fileName);
+            return dto.ToDomain<ImageUploadResponseInternalDTO, ImageUploadResponse>();
+        }
+
         public async Task<SearchResponse> SearchMessagesAsync(SearchRequest searchRequest)
         {
             var dto = await _internalMessageApi.SearchMessagesAsync(searchRequest.TrySaveToDto());

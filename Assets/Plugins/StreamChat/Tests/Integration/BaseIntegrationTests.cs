@@ -18,6 +18,7 @@ using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 using Random = UnityEngine.Random;
 
 namespace StreamChat.Tests.Integration
@@ -58,15 +59,12 @@ namespace StreamChat.Tests.Integration
         protected string OtherUserId { get; private set; }
 
         /// <summary>
-        ///  Create temp channel with random id that will be removed in [TearDown]
+        /// Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
         protected IEnumerator CreateTempUniqueChannel(string channelType,
             ChannelGetOrCreateRequest channelGetOrCreateRequest, Action<ChannelState> onChannelReturned = null)
         {
-            var channelId = "random-channel-" + Guid.NewGuid();
-
-            var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
+            var createChannelTask = CreateTempUniqueChannelAsync(channelType, channelGetOrCreateRequest);
 
             yield return createChannelTask.RunAsIEnumerator(response =>
             {
@@ -76,13 +74,15 @@ namespace StreamChat.Tests.Integration
         }
 
         /// <summary>
-        ///  Create temp channel with random id that will be removed in [TearDown]
+        /// Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
-        protected async Task<ChannelState> CreateTempUniqueChannelAsync(string channelType, ChannelGetOrCreateRequest channelGetOrCreateRequest)
+        protected async Task<ChannelState> CreateTempUniqueChannelAsync(string channelType,
+            ChannelGetOrCreateRequest channelGetOrCreateRequest)
         {
             var channelId = "random-channel-" + Guid.NewGuid();
 
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
+            var channelState
+                = await Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
             _tempChannelsToDelete.Add((channelState.Channel.Type, channelState.Channel.Id));
             return channelState;
         }
@@ -123,7 +123,8 @@ namespace StreamChat.Tests.Integration
             }
         }
 
-        protected string GenerateRandomMessage(int minWords = 2, int maxWords = 10, int minWordLength = 2, int maxWordLength = 8)
+        protected string GenerateRandomMessage(int minWords = 2, int maxWords = 10, int minWordLength = 2,
+            int maxWordLength = 8)
         {
             var wordsCount = Random.Range(minWords, maxWords);
             while (wordsCount-- > 0)
@@ -143,12 +144,33 @@ namespace StreamChat.Tests.Integration
             return result;
         }
 
-        const string WordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        public static async Task<Texture2D> DownloadTextureAsync(string url)
+        {
+            using (var www = UnityWebRequestTexture.GetTexture(url))
+            {
+                var sendWebRequest = www.SendWebRequest();
+
+                while (!sendWebRequest.isDone)
+                {
+                    await Task.Delay(1);
+                }
+
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    Debug.LogError($"{www.error}, URL:{www.url}");
+                    return null;
+                }
+
+                return DownloadHandlerTexture.GetContent(www);
+            }
+        }
+
+        private const string WordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
         private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =
             new List<(string ChannelType, string ChannelId)>();
-        private StringBuilder _sb = new StringBuilder();
 
+        private readonly StringBuilder _sb = new StringBuilder();
 
         private void DeleteTempChannels()
         {
