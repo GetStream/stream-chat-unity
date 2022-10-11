@@ -69,6 +69,17 @@ namespace StreamChat.Core.API.Internal
             return Delete<FileDeleteResponseInternalDTO>(endpoint, parameters);
         }
 
+        public Task<ImageUploadResponseInternalDTO> UploadImageAsync(string channelType, string channelId,
+            byte[] fileContent, string fileName)
+        {
+            var endpoint = $"/channels/{channelType}/{channelId}/image";
+
+            var body = new MultipartFormDataContent();
+            body.Add(new ByteArrayContent(fileContent), "file", fileName);
+
+            return Post<ImageUploadResponseInternalDTO>(endpoint, body);
+        }
+
         public Task<SearchResponseInternalDTO> SearchMessagesAsync(SearchRequestInternalDTO searchRequest)
             => Get<SearchRequestInternalDTO, SearchResponseInternalDTO>("/search", searchRequest);
     }
