@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
@@ -215,8 +216,6 @@ namespace StreamChat.Tests.Integration
             Assert.NotNull(videoFileContent);
             Assert.IsNotEmpty(videoFileContent);
 
-            var request = new ChannelGetOrCreateRequest();
-
             var channelType = "messaging";
 
             ChannelState channelState = null;
@@ -230,12 +229,12 @@ namespace StreamChat.Tests.Integration
             var fileUrl = "";
             yield return uploadFileTask.RunAsIEnumerator(response => { fileUrl = response.File; });
 
-            var sendMessageRequest = new SendMessageRequest()
+            var sendMessageRequest = new SendMessageRequest
             {
                 Message = new MessageRequest
                 {
                     Text = "Check out my cool video!",
-                    Attachments = new List<AttachmentRequest>()
+                    Attachments = new List<AttachmentRequest>
                     {
                         new AttachmentRequest
                         {
@@ -252,6 +251,63 @@ namespace StreamChat.Tests.Integration
             {
                 Assert.IsNotEmpty(response.Message.Attachments);
             });
+        }
+
+        [UnityTest]
+        public IEnumerator UploadImageWithResize()
+        {
+            yield return Client.WaitForClientToConnect();
+            yield return UploadImageWithResizeAsync().RunAsIEnumerator();
+        }
+
+        private async Task UploadImageWithResizeAsync()
+        {
+            var filename = "pexels-markus-spiske-360591.jpg"; // 1920 x 1280 photo
+            var imageFilePath = "Assets/Plugins/StreamChat/Tests/SampleFiles/" + filename;
+
+            var imageAsset = AssetDatabase.LoadAssetAtPath<Texture2D>(imageFilePath);
+            Assert.NotNull(imageAsset);
+
+            var imageFileContent = File.ReadAllBytes(imageFilePath);
+            Assert.NotNull(imageFileContent);
+            Assert.IsNotEmpty(imageFileContent);
+
+            const string ChannelType = "messaging";
+
+            var channelState = await CreateTempUniqueChannelAsync(ChannelType, new ChannelGetOrCreateRequest());
+            var channelId = channelState.Channel.Id;
+
+            var uploadImageResponse = await Client.MessageApi.UploadImageAsync(ChannelType, channelId, imageFileContent, filename);
+            var fileUrl = uploadImageResponse.File;
+
+            // Resize in scale mode to 500x500 pixels
+            fileUrl += "&w=500&h=500&resize=scale";
+
+            var sendMessageRequest = new SendMessageRequest
+            {
+                Message = new MessageRequest
+                {
+                    Text = "My image description",
+                    Attachments = new List<AttachmentRequest>
+                    {
+                        new AttachmentRequest
+                        {
+                            AssetUrl = fileUrl,
+                            Type = "image"
+                        }
+                    }
+                }
+            };
+
+            var sendMessageResponse = await Client.MessageApi.SendNewMessageAsync(ChannelType, channelId, sendMessageRequest);
+            Assert.IsNotEmpty(sendMessageResponse.Message.Attachments);
+
+            var imageUrl = sendMessageResponse.Message.Attachments[0].AssetUrl;
+            var image = await DownloadTextureAsync(imageUrl);
+            Assert.IsNotNull(image);
+
+            Assert.AreEqual(image.width, 500);
+            Assert.AreEqual(image.height, 500);
         }
 
         [UnityTest]

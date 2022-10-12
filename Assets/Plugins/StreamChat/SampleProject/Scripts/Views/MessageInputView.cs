@@ -51,6 +51,11 @@ namespace StreamChat.SampleProject.Views
             var sb = new StringBuilder();
             foreach (var sprite in ViewContext.AppConfig.Emojis.AllSprites)
             {
+                if (sprite == null)
+                {
+                    continue;
+                }
+
                 sb.Append(":");
                 sb.Append(sprite.name);
                 sb.Append(":");
@@ -118,6 +123,12 @@ namespace StreamChat.SampleProject.Views
             }
 
             var channelState = ViewContext.State.ActiveChannel;
+
+            if (channelState == null)
+            {
+                Debug.LogError("Failed to send message because the active channel is null");
+                return;
+            }
 
             var uploadedFileUrl = string.Empty;
             var uploadedFileType = "";

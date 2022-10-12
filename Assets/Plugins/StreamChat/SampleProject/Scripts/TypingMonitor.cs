@@ -69,7 +69,7 @@ namespace StreamChat.SampleProject
 
         private void OnInputValueChanged(string text)
         {
-            if (!_isActive())
+            if (!_isActive() || _chatState.ActiveChannel == null)
             {
                 return;
             }

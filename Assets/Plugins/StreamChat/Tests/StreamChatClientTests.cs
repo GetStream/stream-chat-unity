@@ -1,5 +1,6 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -152,10 +153,8 @@ namespace StreamChat.Tests
                 return Task.CompletedTask;
             });
 
-            _mockWebsocketClient.When(_ => _.Disconnect()).Do(callbackInfo =>
-            {
-                _mockWebsocketClient.Disconnected += Raise.Event<Action>();
-            });
+            _mockWebsocketClient.When(_ => _.DisconnectAsync(Arg.Any<WebSocketCloseStatus>(), Arg.Any<string>()))
+                .Do(callbackInfo => { _mockWebsocketClient.Disconnected += Raise.Event<Action>(); });
 
             _mockWebsocketClient.TryDequeueMessage(out Arg.Any<string>()).Returns(arg =>
             {

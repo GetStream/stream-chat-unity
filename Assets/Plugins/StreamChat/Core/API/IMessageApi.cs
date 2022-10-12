@@ -67,5 +67,8 @@ namespace StreamChat.Core.API
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/search/?language=unity</remarks>
         Task<SearchResponse> SearchMessagesAsync(SearchRequest searchRequest);
+
+        Task<ImageUploadResponse> UploadImageAsync(string channelType, string channelId,
+            byte[] fileContent, string fileName);
     }
 }

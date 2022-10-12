@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -35,8 +36,7 @@ namespace StreamChat.Libs.Websockets
             _bufferSegment = new ArraySegment<byte>(readBuffer);
         }
 
-        public bool TryDequeueMessage(out string message)
-            => _receiveQueue.TryDequeue(out message);
+        public bool TryDequeueMessage(out string message) => _receiveQueue.TryDequeue(out message);
 
         public async Task ConnectAsync(Uri serverUri)
         {
@@ -48,20 +48,28 @@ namespace StreamChat.Libs.Websockets
 
             _uri = serverUri ?? throw new ArgumentNullException(nameof(serverUri));
 
-            _connectionCts?.Dispose();
-            _connectionCts = new CancellationTokenSource();
-
             try
             {
+                await TryDisposeResourcesAsync(WebSocketCloseStatus.NormalClosure,
+                    "Clean up resources before connecting");
+                _connectionCts = new CancellationTokenSource();
+
                 _internalClient = new ClientWebSocket();
                 await _internalClient.ConnectAsync(_uri, _connectionCts.Token).ConfigureAwait(false);
             }
+            catch (OperationCanceledException e)
+            {
+                LogExceptionIfDebugMode(e);
+            }
             catch (WebSocketException e)
             {
-                if (_isDebugMode)
-                {
-                    _logs.Exception(e);
-                }
+                LogExceptionIfDebugMode(e);
+                OnConnectionFailed();
+                return;
+            }
+            catch (SocketException e)
+            {
+                LogExceptionIfDebugMode(e);
                 OnConnectionFailed();
                 return;
             }
@@ -89,52 +97,48 @@ namespace StreamChat.Libs.Websockets
 
             _sendQueue.Add(messageSegment);
         }
+
         public void Update()
         {
             var disconnect = false;
             while (_threadWebsocketExceptionsLog.TryDequeue(out var webSocketException))
             {
-                if (_isDebugMode)
-                {
-                    _logs.Exception(webSocketException);
-                }
+                LogExceptionIfDebugMode(webSocketException);
 
                 disconnect = true;
             }
 
             if (disconnect)
             {
-                Disconnect();
+                DisconnectAsync(WebSocketCloseStatus.ProtocolError, "WebSocket thrown an exception")
+                    .ContinueWith(_ => LogExceptionIfDebugMode(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
                 return;
             }
 
             while (_threadExceptionsLog.TryDequeue(out var exception))
             {
-                _logs.Exception(exception);
+                LogExceptionIfDebugMode(exception);
             }
         }
 
-        public void Disconnect()
+        public async Task DisconnectAsync(WebSocketCloseStatus closeStatus, string closeMessage)
         {
-            _logs.Info("Disconnect");
-            _connectionCts?.Dispose();
-
-            if (_internalClient != null && !_clientClosedStates.Contains(_internalClient.State))
-            {
-                _internalClient?.CloseOutputAsync(WebSocketCloseStatus.Empty, statusDescription: null, CancellationToken.None);
-                _internalClient?.Dispose();
-                _internalClient = null;
-            }
+            LogInfoIfDebugMode("Disconnect");
+            await TryDisposeResourcesAsync(closeStatus, closeMessage);
 
             Disconnected?.Invoke();
         }
 
         public void Dispose()
-            => Disconnect();
+        {
+            LogInfoIfDebugMode("Dispose");
+            DisconnectAsync(WebSocketCloseStatus.NormalClosure, "WebSocket client is disposed")
+                .ContinueWith(_ => LogExceptionIfDebugMode(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
+        }
 
         private static Encoding DefaultEncoding { get; } = Encoding.UTF8;
 
-        private readonly WebSocketState[] _clientClosedStates = new[]
+        private static readonly WebSocketState[] _clientClosedStates = new[]
             { WebSocketState.Closed, WebSocketState.CloseSent, WebSocketState.CloseReceived, WebSocketState.Aborted };
 
         private readonly ConcurrentQueue<string> _receiveQueue = new ConcurrentQueue<string>();
@@ -156,17 +160,20 @@ namespace StreamChat.Libs.Websockets
         private ClientWebSocket _internalClient;
         private CancellationTokenSource _connectionCts;
 
+        // Runs on a background thread
         private async Task SendMessagesLoopAsync()
         {
             while (IsConnected && !_connectionCts.IsCancellationRequested)
             {
-                while (!_sendQueue.IsCompleted)
+                while (_sendQueue.TryTake(out var msg))
                 {
-                    var msg = _sendQueue.Take();
-
                     try
                     {
-                        await _internalClient.SendAsync(msg, WebSocketMessageType.Text, true, CancellationToken.None);
+                        await _internalClient.SendAsync(msg, WebSocketMessageType.Text, true, _connectionCts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return;
                     }
                     catch (WebSocketException webSocketException)
                     {
@@ -178,9 +185,12 @@ namespace StreamChat.Libs.Websockets
                         _threadExceptionsLog.Enqueue(e);
                     }
                 }
+
+                await Task.Delay(1);
             }
         }
 
+        // Runs on a background thread
         private async Task ReceiveMessagesLoopAsync()
         {
             while (IsConnected && !_connectionCts.IsCancellationRequested)
@@ -194,6 +204,10 @@ namespace StreamChat.Libs.Websockets
                         continue;
                     }
                 }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
                 catch (WebSocketException webSocketException)
                 {
                     _threadWebsocketExceptionsLog.Enqueue(webSocketException);
@@ -204,14 +218,55 @@ namespace StreamChat.Libs.Websockets
                     _threadExceptionsLog.Enqueue(e);
                 }
 
-                Task.Delay(50).Wait();
+                await Task.Delay(1);
             }
         }
 
-        private void OnConnectionFailed()
-            => ConnectionFailed?.Invoke();
+        private async Task TryDisposeResourcesAsync(WebSocketCloseStatus closeStatus, string closeMessage)
+        {
+            try
+            {
+                if (_connectionCts != null)
+                {
+                    _connectionCts.Cancel();
+                    _connectionCts.Dispose();
+                    _connectionCts = null;
+                }
+            }
+            catch (Exception e)
+            {
+                LogExceptionIfDebugMode(e);
+            }
 
-        private void OnReceivedCloseMessage() => Disconnect();
+            if (_internalClient == null)
+            {
+                return;
+            }
+
+            try
+            {
+                if (!_clientClosedStates.Contains(_internalClient.State))
+                {
+                    await _internalClient.CloseOutputAsync(closeStatus, closeMessage, CancellationToken.None);
+                }
+            }
+            catch (Exception e)
+            {
+                LogExceptionIfDebugMode(e);
+            }
+            finally
+            {
+                _internalClient.Dispose();
+                _internalClient = null;
+            }
+        }
+
+        private void OnConnectionFailed() => ConnectionFailed?.Invoke();
+
+        // Called from a background thread
+        private void OnReceivedCloseMessage()
+            => DisconnectAsync(WebSocketCloseStatus.InternalServerError, "Server closed the connection")
+                .ContinueWith(_ => LogThreadExceptionIfDebugMode(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
 
         private async Task<string> TryReceiveSingleMessageAsync()
         {
@@ -237,6 +292,8 @@ namespace StreamChat.Libs.Websockets
                     ms.Write(_bufferSegment.Array, _bufferSegment.Offset, chunkResult.Count);
                 } while (!chunkResult.EndOfMessage && !_connectionCts.IsCancellationRequested);
 
+                _connectionCts.Token.ThrowIfCancellationRequested();
+
                 //reset position before reading from stream
                 ms.Seek(0, SeekOrigin.Begin);
 
@@ -254,6 +311,30 @@ namespace StreamChat.Libs.Websockets
                 }
 
                 return "";
+            }
+        }
+
+        private void LogExceptionIfDebugMode(Exception exception)
+        {
+            if (_isDebugMode)
+            {
+                _logs.Exception(exception);
+            }
+        }
+
+        private void LogThreadExceptionIfDebugMode(Exception exception)
+        {
+            if (_isDebugMode)
+            {
+                _threadExceptionsLog.Enqueue(exception);
+            }
+        }
+
+        private void LogInfoIfDebugMode(string info)
+        {
+            if (_isDebugMode)
+            {
+                _logs.Info(info);
             }
         }
     }

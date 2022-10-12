@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -77,8 +78,9 @@ namespace StreamChat.Core
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
 
-        [Obsolete("This property presents only initial state of the LocalUser when connection is made and is not being updated any further. " +
-                  "Please use the OwnUser object returned via StreamChatClient.Connected event. This property will  be removed in the future.")]
+        [Obsolete(
+            "This property presents only initial state of the LocalUser when connection is made and is not being updated any further. " +
+            "Please use the OwnUser object returned via StreamChatClient.Connected event. This property will  be removed in the future.")]
         public OwnUser LocalUser { get; private set; }
 
         public ConnectionState ConnectionState
@@ -114,7 +116,8 @@ namespace StreamChat.Core
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
         /// </summary>
         /// <param name="authCredentials">Authorization data with ApiKey, UserToken and UserId</param>
-        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials, IStreamClientConfig config = default)
+        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials,
+            IStreamClientConfig config = default)
         {
             config ??= StreamClientConfig.Default;
             var logs = LibsFactory.CreateDefaultLogs(config.LogLevel.ToLogLevel());
@@ -242,11 +245,9 @@ namespace StreamChat.Core
             }
         }
 
-        public bool IsLocalUser(User user)
-            => user.Id == _authCredentials.UserId;
+        public bool IsLocalUser(User user) => user.Id == _authCredentials.UserId;
 
-        public bool IsLocalUser(ChannelMember channelMember)
-            => channelMember.User.Id == _authCredentials.UserId;
+        public bool IsLocalUser(ChannelMember channelMember) => channelMember.User.Id == _authCredentials.UserId;
 
         public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval)
@@ -299,7 +300,7 @@ namespace StreamChat.Core
 
         internal IInternalChannelApi InternalChannelApi { get; }
         internal IInternalMessageApi InternalMessageApi { get; }
-        internal IInternalModerationApi InternalModerationApi { get;}
+        internal IInternalModerationApi InternalModerationApi { get; }
         internal InternalUserApi InternalUserApi { get; }
 
         private const string DefaultStreamAuthType = "jwt";
@@ -556,6 +557,7 @@ namespace StreamChat.Core
                 {
                     _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
                 }
+
                 return;
             }
 
@@ -579,7 +581,10 @@ namespace StreamChat.Core
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
                 _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, reset connection");
-                _websocketClient.Disconnect();
+                _websocketClient
+                    .DisconnectAsync(WebSocketCloseStatus.InternalServerError,
+                        $"Health check was not received since: {timeSinceLastHealthCheck}")
+                    .ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
             }
         }
 
@@ -610,8 +615,8 @@ namespace StreamChat.Core
             return r.IsMatch(userId);
         }
 
-        private static string Base64UrlEncode(byte[] input) =>
-            Convert.ToBase64String(input)
+        private static string Base64UrlEncode(byte[] input)
+            => Convert.ToBase64String(input)
                 .Replace('+', '-')
                 .Replace('/', '_')
                 .Trim('=');

@@ -22,6 +22,9 @@ namespace StreamChat.Core.API.Internal
 
         Task<FileDeleteResponseInternalDTO> DeleteFileAsync(string channelType, string channelId, string fileUrl);
 
+        Task<ImageUploadResponseInternalDTO> UploadImageAsync(string channelType, string channelId,
+            byte[] fileContent, string fileName);
+
         Task<SearchResponseInternalDTO> SearchMessagesAsync(SearchRequestInternalDTO searchRequest);
     }
 }
