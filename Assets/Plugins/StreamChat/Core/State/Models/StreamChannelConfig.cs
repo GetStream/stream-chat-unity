@@ -1,9 +1,8 @@
 ﻿using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.Helpers;
 
-namespace StreamChat.Core.Models
+namespace StreamChat.Core.State.Models
 {
-    public class ChannelConfig : ModelBase, ILoadableFrom<ChannelConfigWithInfoInternalDTO, ChannelConfig>
+    public class StreamChannelConfig : IStateLoadableFrom<ChannelConfigWithInfoInternalDTO, StreamChannelConfig>
     {
         /// <summary>
         /// Enables automatic message moderation
@@ -15,7 +14,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public AutomodBehaviourType? AutomodBehavior { get; set; }
 
-        public Thresholds AutomodThresholds { get; set; }
+        public StreamThresholds AutomodThresholds { get; set; }
 
         /// <summary>
         /// Name of the blocklist to use
@@ -30,7 +29,7 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// List of commands that channel supports
         /// </summary>
-        public System.Collections.Generic.List<Command> Commands { get; set; }
+        public System.Collections.Generic.List<StreamCommand> Commands { get; set; }
 
         /// <summary>
         /// Connect events support
@@ -121,14 +120,14 @@ namespace StreamChat.Core.Models
         /// </summary>
         public bool? UrlEnrichment { get; set; }
 
-        ChannelConfig ILoadableFrom<ChannelConfigWithInfoInternalDTO, ChannelConfig>.LoadFromDto(ChannelConfigWithInfoInternalDTO dto)
+        StreamChannelConfig IStateLoadableFrom<ChannelConfigWithInfoInternalDTO, StreamChannelConfig>.LoadFromDto(ChannelConfigWithInfoInternalDTO dto, ICache cache)
         {
             Automod = dto.Automod;
             AutomodBehavior = dto.AutomodBehavior;
-            AutomodThresholds = AutomodThresholds.TryLoadFromDto(dto.AutomodThresholds);
+            AutomodThresholds = AutomodThresholds.TryLoadFromDto(dto.AutomodThresholds, cache);
             Blocklist = dto.Blocklist;
             BlocklistBehavior = dto.BlocklistBehavior;
-            Commands = Commands.TryLoadFromDtoCollection(dto.Commands);
+            Commands = Commands.TryLoadFromDtoCollection(dto.Commands, cache);
             ConnectEvents = dto.ConnectEvents;
             CreatedAt = dto.CreatedAt;
             CustomEvents = dto.CustomEvents;
@@ -148,7 +147,6 @@ namespace StreamChat.Core.Models
             UpdatedAt = dto.UpdatedAt;
             Uploads = dto.Uploads;
             UrlEnrichment = dto.UrlEnrichment;
-            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }

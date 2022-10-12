@@ -2,7 +2,7 @@
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
 
-namespace StreamChat.Core.State.Models
+namespace StreamChat.Core.State.TrackedObjects
 {
     //, ILoadableFrom<UserObjectInternalInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>
 
@@ -96,7 +96,6 @@ namespace StreamChat.Core.State.Models
 
         void IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalInternalDTO dto, ICache cache)
         {
-            //AdditionalProperties = dto.AdditionalProperties; //Todo: Add additional properties
             BanExpires = dto.BanExpires;
             Banned = dto.Banned;
             CreatedAt = dto.CreatedAt;
@@ -116,6 +115,8 @@ namespace StreamChat.Core.State.Models
             //Not in API spec
             Name = dto.Name;
             Image = dto.Image;
+
+            LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
         protected override StreamUser Self => this;

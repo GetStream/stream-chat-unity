@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using StreamChat.Core.Requests;
-using StreamChat.Core.State.Models;
+using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Auth;
 
 namespace StreamChat.Core.State
@@ -12,7 +12,7 @@ namespace StreamChat.Core.State
         /// <summary>
         /// Triggered when connection with Stream Chat server is established
         /// </summary>
-        event Action<StreamLocalUser> Connected; // Todo: change to dedicated delegate?
+        event ConnectionMadeHandler Connected;
 
         /// <summary>
         /// Triggered when connection with Stream Chat server is lost
@@ -27,14 +27,19 @@ namespace StreamChat.Core.State
         /// <summary>
         /// Local user that is connected to the Stream Chat. This fields gets set after the client connection is established.
         /// </summary>
-        StreamLocalUser LocalUser { get; } //Todo: observable
+        StreamLocalUser LocalUser { get; }
 
         void Update();
 
         Task<StreamLocalUser> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default);
 
-        Task<StreamChannel> GetOrCreateChannelAsync(string channelType, string channelId,
-            ChannelGetOrCreateRequest requestBody = default);
+        Task<StreamChannel> GetOrCreateChannelAsync(string channelType, string channelId);
+
+        Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId);
+
+        Task MuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels, int? milliseconds = default);
+
+        Task UnmuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels);
     }
 }

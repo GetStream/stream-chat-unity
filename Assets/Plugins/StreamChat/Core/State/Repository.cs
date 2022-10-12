@@ -14,17 +14,6 @@ namespace StreamChat.Core.State
         public bool TryGet(string uniqueId, out TTrackedType trackedObject)
             => _trackedObjectById.TryGetValue(uniqueId, out trackedObject);
 
-        //Todo: probably remove?
-        // public TTrackedType GetOrCreate(string uniqueId)
-        // {
-        //     if (!TryGet(uniqueId, out var trackedObject))
-        //     {
-        //         trackedObject = _constructor(uniqueId, repository: this);
-        //     }
-        //
-        //     return trackedObject;
-        // }
-
         public string GetDtoTrackingId<TDto>(TDto dto)
         {
             var key = typeof(TDto);
@@ -55,7 +44,6 @@ namespace StreamChat.Core.State
 
             _dtoIdGetters.Add(key, Wrapper);
         }
-
 
         public TType CreateOrUpdate<TType, TDto>(string uniqueId, TDto tdo)
             where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
@@ -105,9 +93,7 @@ namespace StreamChat.Core.State
 
             if (_trackedObjectById.ContainsKey(trackedObject.UniqueId))
             {
-                //Todo: what if the arg object is more up to date than the tracked object?
-                // Maybe error?
-                return;
+                throw new InvalidOperationException($"Object of type `{typeof(TTrackedType)}` and id {trackedObject.UniqueId} is already tracked");
             }
 
             _trackedObjectById[trackedObject.UniqueId] = trackedObject;
@@ -126,7 +112,6 @@ namespace StreamChat.Core.State
         private readonly Dictionary<string, TTrackedType> _trackedObjectById = new Dictionary<string, TTrackedType>();
 
         private readonly Dictionary<Type, Func<object, string>> _dtoIdGetters = new Dictionary<Type, Func<object, string>>();
-
 
         private readonly ConstructorHandler _constructor;
         private readonly ICache _cache;

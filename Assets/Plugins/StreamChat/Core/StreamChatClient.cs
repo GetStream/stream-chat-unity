@@ -55,6 +55,23 @@ namespace StreamChat.Core
         public event Action<EventNotificationMarkRead> NotificationMarkRead;
         public event Action<EventNotificationMessageNew> NotificationMessageReceived;
 
+        #region Internal Events
+
+        internal event Action<EventHealthCheckInternalDTO> InternalConnected;
+        internal event Action<EventMessageNewInternalDTO> InternalMessageReceived;
+        internal event Action<EventMessageUpdatedInternalDTO> InternalMessageUpdated;
+        internal event Action<EventMessageDeletedInternalDTO> InternalMessageDeleted;
+        internal event Action<EventMessageReadInternalDTO> InternalMessageRead;
+        internal event Action<EventReactionNewInternalDTO> InternalReactionReceived;
+        internal event Action<EventReactionUpdatedInternalDTO> InternalReactionUpdated;
+        internal event Action<EventReactionDeletedInternalDTO> InternalReactionDeleted;
+        internal event Action<EventTypingStartInternalDTO> InternalTypingStarted;
+        internal event Action<EventTypingStopInternalDTO> InternalTypingStopped;
+        internal event Action<EventNotificationMarkReadInternalDTO> InternalNotificationMarkRead;
+        internal event Action<EventNotificationMessageNewInternalDTO> InternalNotificationMessageReceived;
+
+        #endregion
+
         public IChannelApi ChannelApi { get; }
         public IMessageApi MessageApi { get; }
         public IModerationApi ModerationApi { get; }
@@ -356,7 +373,8 @@ namespace StreamChat.Core
         /// <summary>
         /// Based on receiving initial health check event from the server
         /// </summary>
-        private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent)
+        private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent,
+            EventHealthCheckInternalDTO eventHealthCheckInternalDto)
         {
             _connectionId = healthCheckEvent.ConnectionId;
 #pragma warning disable 0618
@@ -368,6 +386,7 @@ namespace StreamChat.Core
 
             _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
             Connected?.Invoke(healthCheckEvent.Me);
+            InternalConnected?.Invoke(eventHealthCheckInternalDto);
         }
 
         private void TryToReconnect()
@@ -437,35 +456,35 @@ namespace StreamChat.Core
             RegisterEventType<EventHealthCheckInternalDTO, EventHealthCheck>(EventType.HealthCheck, HandleHealthCheckEvent);
 
             RegisterEventType<EventMessageNewInternalDTO, EventMessageNew>(EventType.MessageNew,
-                e => MessageReceived?.Invoke(e));
+                (e, dto) => MessageReceived?.Invoke(e), InternalMessageReceived);
             RegisterEventType<EventMessageDeletedInternalDTO, EventMessageDeleted>(EventType.MessageDeleted,
-                e => MessageDeleted?.Invoke(e));
+                (e, dto) => MessageDeleted?.Invoke(e), InternalMessageDeleted);
             RegisterEventType<EventMessageUpdatedInternalDTO, EventMessageUpdated>(EventType.MessageUpdated,
-                e => MessageUpdated?.Invoke(e));
+                (e, dto) => MessageUpdated?.Invoke(e), InternalMessageUpdated);
 
             RegisterEventType<EventReactionNewInternalDTO, EventReactionNew>(EventType.ReactionNew,
-                e => ReactionReceived?.Invoke(e));
+                (e, dto) => ReactionReceived?.Invoke(e), InternalReactionReceived);
             RegisterEventType<EventReactionUpdatedInternalDTO, EventReactionUpdated>(EventType.ReactionUpdated,
-                e => ReactionUpdated?.Invoke(e));
+                (e, dto) => ReactionUpdated?.Invoke(e), InternalReactionUpdated);
             RegisterEventType<EventReactionDeletedInternalDTO, EventReactionDeleted>(EventType.ReactionDeleted,
-                e => ReactionDeleted?.Invoke(e));
+                (e, dto) => ReactionDeleted?.Invoke(e), InternalReactionDeleted);
 
             RegisterEventType<EventTypingStartInternalDTO, EventTypingStart>(EventType.TypingStart,
-                e => TypingStarted?.Invoke(e));
+                (e, dto) => TypingStarted?.Invoke(e), InternalTypingStarted);
             RegisterEventType<EventTypingStopInternalDTO, EventTypingStop>(EventType.TypingStop,
-                e => TypingStopped?.Invoke(e));
+                (e, dto) => TypingStopped?.Invoke(e), InternalTypingStopped);
 
             RegisterEventType<EventMessageReadInternalDTO, EventMessageRead>(EventType.MessageRead,
-                e => MessageRead?.Invoke(e));
+                (e, dto) => MessageRead?.Invoke(e), InternalMessageRead);
             RegisterEventType<EventNotificationMarkReadInternalDTO, EventNotificationMarkRead>(EventType.NotificationMarkRead,
-                e => NotificationMarkRead?.Invoke(e));
+                (e, dto) => NotificationMarkRead?.Invoke(e), InternalNotificationMarkRead);
             RegisterEventType<EventNotificationMessageNewInternalDTO, EventNotificationMessageNew>(
                 EventType.NotificationMessageNew,
-                e => NotificationMessageReceived?.Invoke(e));
+                (e, dto) => NotificationMessageReceived?.Invoke(e), InternalNotificationMessageReceived);
         }
 
         private void RegisterEventType<TDto, TEvent>(string key,
-            Action<TEvent> handler)
+            Action<TEvent, TDto> handler, Action<TDto> internalHandler = null)
             where TEvent : ILoadableFrom<TDto, TEvent>, new()
         {
             if (_eventKeyToHandler.ContainsKey(key))
@@ -474,21 +493,27 @@ namespace StreamChat.Core
                 return;
             }
 
-            _eventKeyToHandler.Add(key, content =>
+            _eventKeyToHandler.Add(key, serializedContent =>
             {
-                var eventObj = DeserializeEvent<TDto, TEvent>(content);
-                handler?.Invoke(eventObj);
+                try
+                {
+                    var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
+                    handler?.Invoke(eventObj, dto);
+                    internalHandler?.Invoke(dto);
+                }
+                catch (Exception e)
+                {
+                    _logs.Exception(e);
+                }
             });
         }
 
-        private TEvent DeserializeEvent<TDto, TEvent>(string content)
+        private TEvent DeserializeEvent<TDto, TEvent>(string content, out TDto dto)
             where TEvent : ILoadableFrom<TDto, TEvent>, new()
         {
-            TDto responseDto;
-
             try
             {
-                responseDto = _serializer.Deserialize<TDto>(content);
+                dto = _serializer.Deserialize<TDto>(content);
             }
             catch (Exception e)
             {
@@ -496,7 +521,7 @@ namespace StreamChat.Core
             }
 
             var response = new TEvent();
-            response.LoadFromDto(responseDto);
+            response.LoadFromDto(dto);
 
             return response;
         }
@@ -569,13 +594,13 @@ namespace StreamChat.Core
             _lastHealthCheckSendTime = _timeService.Time;
         }
 
-        private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent)
+        private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, EventHealthCheckInternalDTO dto)
         {
             _lastHealthCheckReceivedTime = _timeService.Time;
 
             if (ConnectionState == ConnectionState.Connecting)
             {
-                OnConnectionConfirmed(healthCheckEvent);
+                OnConnectionConfirmed(healthCheckEvent, dto);
             }
         }
 

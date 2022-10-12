@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Responses;
-using StreamChat.Core.Models;
-using StreamChat.Core.State.Models;
+using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State
 {
@@ -19,7 +18,7 @@ namespace StreamChat.Core.State
 
             Users.RegisterDtoTrackingIdGetter<StreamUser, UserObjectInternalInternalDTO>(dto => dto.Id);
 
-            LocalUser.RegisterDtoTrackingIdGetter<StreamLocalUser, OwnUser>(dto => dto.Id);
+            LocalUser.RegisterDtoTrackingIdGetter<StreamLocalUser, OwnUserInternalDTO>(dto => dto.Id);
 
             ChannelMembers.RegisterDtoTrackingIdGetter<StreamChannelMember, ChannelMemberInternalDTO>(dto => dto.UserId);
         }

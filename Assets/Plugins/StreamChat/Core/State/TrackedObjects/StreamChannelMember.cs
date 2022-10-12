@@ -1,7 +1,7 @@
 ﻿using System;
 using StreamChat.Core.InternalDTO.Models;
 
-namespace StreamChat.Core.State.Models
+namespace StreamChat.Core.State.TrackedObjects
 {
     public class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>, IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>
     {

@@ -1,20 +1,21 @@
-﻿using StreamChat.Core.Models;
+﻿using System.Collections.Generic;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.Models;
+using StreamChat.Core.State.Models;
 
-namespace StreamChat.Core.State.Models
+namespace StreamChat.Core.State.TrackedObjects
 {
-    //Todo: we should depend on DTO and not OwnUser
-
-    public class StreamLocalUser : StreamTrackedObjectBase<StreamLocalUser>, IUpdateableFrom<OwnUser, StreamLocalUser>
+    public class StreamLocalUser : StreamTrackedObjectBase<StreamLocalUser>, IUpdateableFrom<OwnUserInternalDTO, StreamLocalUser>
     {
         #region OwnUser
 
-        public System.Collections.Generic.List<ChannelMute> ChannelMutes { get; set; }
+        public IReadOnlyList<StreamChannelMute> ChannelMutes => _channelMutes;
 
-        public System.Collections.Generic.List<Device> Devices { get; set; }
+        public IReadOnlyList<StreamDevice> Devices => _devices;
 
-        public System.Collections.Generic.List<string> LatestHiddenChannels { get; set; }
+        public IReadOnlyList<string> LatestHiddenChannels => _latestHiddenChannels;
 
-        public System.Collections.Generic.List<UserMute> Mutes { get; set; }
+        public IReadOnlyList<StreamUserMute> Mutes => _mutes;
 
         public int? TotalUnreadCount { get; set; }
 
@@ -88,7 +89,7 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// List of teams user is a part of
         /// </summary>
-        public System.Collections.Generic.List<string> Teams { get; set; }
+        public List<string> Teams { get; set; }
 
         /// <summary>
         /// Date/time of the last update
@@ -116,9 +117,21 @@ namespace StreamChat.Core.State.Models
         protected override string InternalUniqueId { get; set; }
         protected override StreamLocalUser Self => this;
 
-        void IUpdateableFrom<OwnUser, StreamLocalUser>.UpdateFromDto(OwnUser dto, ICache cache)
+        void IUpdateableFrom<OwnUserInternalDTO, StreamLocalUser>.UpdateFromDto(OwnUserInternalDTO dto, ICache cache)
         {
-            //AdditionalProperties = dto.AdditionalProperties; //Todo: Add additional properties
+            #region OwnUser
+
+            _channelMutes.TryReplaceCollectionFromDto(dto.ChannelMutes, cache);
+            _devices.TryReplaceCollectionFromDto(dto.Devices, cache);
+            //_latestHiddenChannels = dto.LatestHiddenChannels;
+            _mutes.TryReplaceCollectionFromDto(dto.Mutes, cache);
+
+            TotalUnreadCount = dto.TotalUnreadCount;
+            UnreadChannels = dto.UnreadChannels;
+            UnreadCount = dto.UnreadCount;
+
+            #endregion
+
             //BanExpires = dto.BanExpires;
             Banned = dto.Banned;
             CreatedAt = dto.CreatedAt;
@@ -138,6 +151,13 @@ namespace StreamChat.Core.State.Models
             //Not in API spec
             //Name = dto.Name;
             //Image = dto.Image;
+
+            LoadAdditionalProperties(dto.AdditionalProperties);
         }
+
+        private readonly List<StreamChannelMute> _channelMutes = new List<StreamChannelMute>();
+        private readonly List<StreamDevice> _devices = new List<StreamDevice>();
+        private readonly List<string> _latestHiddenChannels = new List<string>();
+        private readonly List<StreamUserMute> _mutes = new List<StreamUserMute>();
     }
 }

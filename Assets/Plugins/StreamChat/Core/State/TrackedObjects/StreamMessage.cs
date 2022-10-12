@@ -1,9 +1,11 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.State;
+using StreamChat.Core.State.Models;
 
-namespace StreamChat.Core.State.Models
+namespace StreamChat.Core.State.TrackedObjects
 {
-    public class StreamMessage : StreamTrackedObjectBase<StreamMessage>, ILoadableFrom<MessageInternalDTO, StreamMessage>, IUpdateableFrom<MessageInternalDTO, StreamMessage>
+    public class StreamMessage : StreamTrackedObjectBase<StreamMessage>, IStateLoadableFrom<MessageInternalDTO, StreamMessage>, IUpdateableFrom<MessageInternalDTO, StreamMessage>
     {
         /// <summary>
         /// Array of message attachments
@@ -167,9 +169,9 @@ namespace StreamChat.Core.State.Models
             //Todo: implement
         }
 
-        StreamMessage ILoadableFrom<MessageInternalDTO, StreamMessage>.LoadFromDto(MessageInternalDTO dto)
+        StreamMessage IStateLoadableFrom<MessageInternalDTO, StreamMessage>.LoadFromDto(MessageInternalDTO dto, ICache cache)
         {
-            Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);
+            Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments, cache);
             BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
             Cid = dto.Cid;
             Command = dto.Command;

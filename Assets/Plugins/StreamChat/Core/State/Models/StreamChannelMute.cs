@@ -1,10 +1,12 @@
 ﻿using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.Helpers;
+using StreamChat.Core.State.TrackedObjects;
 
-namespace StreamChat.Core.Models
+namespace StreamChat.Core.State.Models
 {
-    public class UserMute : ModelBase, ILoadableFrom<UserMuteInternalDTO, UserMute>
+    public class StreamChannelMute : IStateLoadableFrom<ChannelMuteInternalDTO, StreamChannelMute>
     {
+        public StreamChannel Channel { get; set; }
+
         /// <summary>
         /// Date/time of creation
         /// </summary>
@@ -16,11 +18,6 @@ namespace StreamChat.Core.Models
         public System.DateTimeOffset? Expires { get; set; }
 
         /// <summary>
-        /// User who's muted
-        /// </summary>
-        public User Target { get; set; }
-
-        /// <summary>
         /// Date/time of the last update
         /// </summary>
         public System.DateTimeOffset? UpdatedAt { get; set; }
@@ -28,16 +25,15 @@ namespace StreamChat.Core.Models
         /// <summary>
         /// Owner of channel mute
         /// </summary>
-        public User User { get; set; }
+        public StreamUser User { get; set; }
 
-        UserMute ILoadableFrom<UserMuteInternalDTO, UserMute>.LoadFromDto(UserMuteInternalDTO dto)
+        StreamChannelMute IStateLoadableFrom<ChannelMuteInternalDTO, StreamChannelMute>.LoadFromDto(ChannelMuteInternalDTO dto, ICache cache)
         {
+            Channel = cache.TryCreateOrUpdate(dto.Channel);
             CreatedAt = dto.CreatedAt;
             Expires = dto.Expires;
-            Target = Target.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.Target);
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
-            AdditionalProperties = dto.AdditionalProperties;
+            User = cache.TryCreateOrUpdate(dto.User);
 
             return this;
         }

@@ -1,9 +1,8 @@
-﻿using StreamChat.Core.Helpers;
-using StreamChat.Core.InternalDTO.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.State.Models
 {
-    public class StreamAttachmentImages : ILoadableFrom<ImagesInternalDTO, StreamAttachmentImages>
+    public class StreamAttachmentImages : IStateLoadableFrom<ImagesInternalDTO, StreamAttachmentImages>
     {
         public StreamImageData FixedHeight { get; set; }
 
@@ -19,15 +18,15 @@ namespace StreamChat.Core.State.Models
 
         public StreamImageData Original { get; set; }
 
-        StreamAttachmentImages ILoadableFrom<ImagesInternalDTO, StreamAttachmentImages>.LoadFromDto(ImagesInternalDTO dto)
+        StreamAttachmentImages IStateLoadableFrom<ImagesInternalDTO, StreamAttachmentImages>.LoadFromDto(ImagesInternalDTO dto, ICache cache)
         {
-            FixedHeight = FixedHeight.TryLoadFromDto(dto.FixedHeight);
-            FixedHeightDownsampled = FixedHeightDownsampled.TryLoadFromDto(dto.FixedHeightDownsampled);
-            FixedHeightStill = FixedHeightStill.TryLoadFromDto(dto.FixedHeightStill);
-            FixedWidth = FixedWidth.TryLoadFromDto(dto.FixedWidth);
-            FixedWidthDownsampled = FixedWidthDownsampled.TryLoadFromDto(dto.FixedWidthDownsampled);
-            FixedWidthStill = FixedWidthStill.TryLoadFromDto(dto.FixedWidthStill);
-            Original = Original.TryLoadFromDto(dto.Original);
+            FixedHeight = FixedHeight.TryLoadFromDto(dto.FixedHeight, cache);
+            FixedHeightDownsampled = FixedHeightDownsampled.TryLoadFromDto(dto.FixedHeightDownsampled, cache);
+            FixedHeightStill = FixedHeightStill.TryLoadFromDto(dto.FixedHeightStill, cache);
+            FixedWidth = FixedWidth.TryLoadFromDto(dto.FixedWidth, cache);
+            FixedWidthDownsampled = FixedWidthDownsampled.TryLoadFromDto(dto.FixedWidthDownsampled, cache);
+            FixedWidthStill = FixedWidthStill.TryLoadFromDto(dto.FixedWidthStill, cache);
+            Original = Original.TryLoadFromDto(dto.Original, cache);
 
             return this;
         }

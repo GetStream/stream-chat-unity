@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace StreamChat.Core.Helpers
 {
@@ -8,6 +9,7 @@ namespace StreamChat.Core.Helpers
     /// </summary>
     internal static class ICollectionExt
     {
+        [Pure]
         public static List<TDto> TrySaveToDtoCollection<TSource, TDto>(this List<TSource> source)
             where TSource : ISavableTo<TDto>
         {
@@ -26,8 +28,8 @@ namespace StreamChat.Core.Helpers
             return dtos;
         }
 
-        public static List<TSource> TryLoadFromDtoCollection<TDto, TSource>(this List<TSource> _,
-            List<TDto> dtos)
+        [Pure]
+        public static List<TSource> TryLoadFromDtoCollection<TDto, TSource>(this List<TSource> _, List<TDto> dtos)
             where TSource : ILoadableFrom<TDto, TSource>, new()
         {
             if (dtos == null)

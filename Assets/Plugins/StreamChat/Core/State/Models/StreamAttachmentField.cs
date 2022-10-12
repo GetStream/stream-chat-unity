@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.State.Models
 {
-    public class StreamAttachmentField : ILoadableFrom<FieldInternalDTO, StreamAttachmentField>
+    public class StreamAttachmentField : IStateLoadableFrom<FieldInternalDTO, StreamAttachmentField>
     {
         public bool? Short { get; set; }
 
@@ -10,7 +10,7 @@ namespace StreamChat.Core.State.Models
 
         public string Value { get; set; }
 
-        StreamAttachmentField ILoadableFrom<FieldInternalDTO, StreamAttachmentField>.LoadFromDto(FieldInternalDTO dto)
+        StreamAttachmentField IStateLoadableFrom<FieldInternalDTO, StreamAttachmentField>.LoadFromDto(FieldInternalDTO dto, ICache cache)
         {
             Short = dto.Short;
             Title = dto.Title;

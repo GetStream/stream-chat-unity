@@ -1,9 +1,11 @@
-﻿using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.Helpers;
+﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.Models;
+using StreamChat.Core.State;
 
-namespace StreamChat.Core.Models
+namespace StreamChat.Core.State.Models
 {
-    public class UserMute : ModelBase, ILoadableFrom<UserMuteInternalDTO, UserMute>
+    public class StreamUserMute : IStateLoadableFrom<UserMuteInternalDTO, StreamUserMute>
     {
         /// <summary>
         /// Date/time of creation
@@ -30,14 +32,13 @@ namespace StreamChat.Core.Models
         /// </summary>
         public User User { get; set; }
 
-        UserMute ILoadableFrom<UserMuteInternalDTO, UserMute>.LoadFromDto(UserMuteInternalDTO dto)
+        StreamUserMute IStateLoadableFrom<UserMuteInternalDTO, StreamUserMute>.LoadFromDto(UserMuteInternalDTO dto, ICache cache)
         {
             CreatedAt = dto.CreatedAt;
             Expires = dto.Expires;
             Target = Target.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.Target);
             UpdatedAt = dto.UpdatedAt;
             User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
-            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }

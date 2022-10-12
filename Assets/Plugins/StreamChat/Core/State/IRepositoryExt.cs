@@ -5,10 +5,8 @@ namespace StreamChat.Core.State
 {
     internal static class IRepositoryExt
     {
-        //Todo: SyncTrackedItems?
-
         /// <summary>
-        /// Replace target list with items created or updated according to passed DTO list
+        /// Clear target list and replace with items created or updated from DTO collection
         /// </summary>
         public static void TryReplaceTrackedItems<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
             IRepository<TTracked> repository)

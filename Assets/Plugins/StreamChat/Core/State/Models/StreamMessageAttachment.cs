@@ -3,7 +3,7 @@ using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.State.Models
 {
-    public class StreamMessageAttachment : ILoadableFrom<AttachmentInternalDTO, StreamMessageAttachment>
+    public class StreamMessageAttachment : IStateLoadableFrom<AttachmentInternalDTO, StreamMessageAttachment>
     {
         public System.Collections.Generic.List<StreamAttachmentAction> Actions { get; set; }
 
@@ -50,19 +50,19 @@ namespace StreamChat.Core.State.Models
         /// </summary>
         public string Type { get; set; }
 
-        StreamMessageAttachment ILoadableFrom<AttachmentInternalDTO, StreamMessageAttachment>.LoadFromDto(AttachmentInternalDTO dto)
+        StreamMessageAttachment IStateLoadableFrom<AttachmentInternalDTO, StreamMessageAttachment>.LoadFromDto(AttachmentInternalDTO dto, ICache cache)
         {
-            Actions = Actions.TryLoadFromDtoCollection(dto.Actions);
+            Actions = Actions.TryLoadFromDtoCollection(dto.Actions, cache);
             AssetUrl = dto.AssetUrl;
             AuthorIcon = dto.AuthorIcon;
             AuthorLink = dto.AuthorLink;
             AuthorName = dto.AuthorName;
             Color = dto.Color;
             Fallback = dto.Fallback;
-            Fields = Fields.TryLoadFromDtoCollection(dto.Fields);
+            Fields = Fields.TryLoadFromDtoCollection(dto.Fields, cache);
             Footer = dto.Footer;
             FooterIcon = dto.FooterIcon;
-            Giphy = Giphy.TryLoadFromDto(dto.Giphy);
+            Giphy = Giphy.TryLoadFromDto(dto.Giphy, cache);
             ImageUrl = dto.ImageUrl;
             OgScrapeUrl = dto.OgScrapeUrl;
             OriginalHeight = dto.OriginalHeight;

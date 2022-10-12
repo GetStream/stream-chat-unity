@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.State.Models
 {
-    public class StreamAttachmentAction : ILoadableFrom<ActionInternalDTO, StreamAttachmentAction>
+    public class StreamAttachmentAction : IStateLoadableFrom<ActionInternalDTO, StreamAttachmentAction>
     {
         public string Name { get; set; }
 
@@ -14,7 +14,7 @@ namespace StreamChat.Core.State.Models
 
         public string Value { get; set; }
 
-        StreamAttachmentAction ILoadableFrom<ActionInternalDTO, StreamAttachmentAction>.LoadFromDto(ActionInternalDTO dto)
+        StreamAttachmentAction IStateLoadableFrom<ActionInternalDTO, StreamAttachmentAction>.LoadFromDto(ActionInternalDTO dto, ICache cache)
         {
             Name = dto.Name;
             Style = dto.Style;

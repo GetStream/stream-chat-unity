@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.State.Models
 {
-    public class StreamImageData : ILoadableFrom<ImageDataInternalDTO, StreamImageData>
+    public class StreamImageData : IStateLoadableFrom<ImageDataInternalDTO, StreamImageData>
     {
         public string Frames { get; set; }
 
@@ -14,7 +14,7 @@ namespace StreamChat.Core.State.Models
 
         public string Width { get; set; }
 
-        StreamImageData ILoadableFrom<ImageDataInternalDTO, StreamImageData>.LoadFromDto(ImageDataInternalDTO dto)
+        StreamImageData IStateLoadableFrom<ImageDataInternalDTO, StreamImageData>.LoadFromDto(ImageDataInternalDTO dto, ICache cache)
         {
             Frames = dto.Frames;
             Height = dto.Height;
