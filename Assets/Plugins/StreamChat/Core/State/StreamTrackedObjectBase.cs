@@ -28,7 +28,7 @@ namespace StreamChat.Core.State
             }
             StreamChatStateClient = context.StreamChatStateClient ?? throw new ArgumentNullException(nameof(context.StreamChatStateClient));
             Logs = context.Logs ?? throw new ArgumentNullException(nameof(context.Logs));
-            Factory = context.TrackedObjectsFactory ?? throw new ArgumentNullException(nameof(context.TrackedObjectsFactory));
+            Cache = context.Cache ?? throw new ArgumentNullException(nameof(context.Cache));
 
             InternalUniqueId = uniqueId;
             repository.Track(Self);
@@ -40,7 +40,7 @@ namespace StreamChat.Core.State
         protected StreamChatStateClient StreamChatStateClient { get; }
         protected StreamChatClient LowLevelClient => StreamChatStateClient.LowLevelClient;
         protected ILogs Logs { get; }
-        internal ITrackedObjectsFactory Factory { get; }
+        internal ICache Cache { get; }
 
         protected void LoadAdditionalProperties(Dictionary<string, object> additionalProperties)
         {

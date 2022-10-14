@@ -16,7 +16,7 @@ namespace StreamChat.Core.State
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
-            _context = new TrackedObjectContext(this, streamChatStateClient, logs);
+            _context = new TrackedObjectContext(_cache, streamChatStateClient, logs);
         }
 
         public StreamChannel CreateStreamChannel(string uniqueId)

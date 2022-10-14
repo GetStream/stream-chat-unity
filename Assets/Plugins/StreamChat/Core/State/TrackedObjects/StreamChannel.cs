@@ -187,7 +187,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Basic send message method. If you want to set additional parameters use the other <see cref="SendNewMessageAsync"/> overload
         /// </summary>
-        public Task SendNewMessageAsync(string message)
+        public Task<StreamMessage> SendNewMessageAsync(string message)
             => SendNewMessageAsync(new StreamSendMessageRequest
             {
                 Text = message
@@ -196,19 +196,26 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         ///
         /// </summary>
-        public async Task SendNewMessageAsync(StreamSendMessageRequest requestBody)
+        public async Task<StreamMessage> SendNewMessageAsync(StreamSendMessageRequest requestBody)
         {
             //StreamTodo: unpack response?
             try
             {
                 var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id, requestBody.TrySaveToDto());
+
+                var streamMessage = Cache.TryCreateOrUpdate(response.Message);
+                if (!_messages.Contains(streamMessage))
+                {
+                    _messages.Add(streamMessage);
+                }
+
+                return streamMessage;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Logs.Exception(e);
                 throw;
             }
-
         }
 
         public void QueryMembers()
@@ -412,8 +419,12 @@ namespace StreamChat.Core.State.TrackedObjects
                 return;
             }
 
-            var streamMessage = Factory.CreateStreamMessage(dto.Message);
-            _messages.Add(streamMessage);
+            //StreamTodo: This could be optimized if we'd knew whether Cache created new object or just fetched an existing one. Also fix this in SendNewMessageAsync
+            var streamMessage = Cache.TryCreateOrUpdate(dto.Message);
+            if (!_messages.Contains(streamMessage))
+            {
+                _messages.Add(streamMessage);
+            }
         }
 
         internal void AddMessage(StreamMessage message)

@@ -1,11 +1,10 @@
-﻿using StreamChat.Core.State;
-using StreamChat.Libs.Logs;
+﻿using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
 {
     internal interface ITrackedObjectContext
     {
-        ITrackedObjectsFactory TrackedObjectsFactory { get; }
+        ICache Cache { get; }
         StreamChatStateClient StreamChatStateClient { get; }
         ILogs Logs { get; }
     }
