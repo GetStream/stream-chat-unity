@@ -8,7 +8,7 @@ namespace StreamChat.Core.State
         /// <summary>
         /// Clear target list and replace with items created or updated from DTO collection
         /// </summary>
-        public static void TryReplaceTrackedItems<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
+        public static void TryReplaceTrackedObjects<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
             IRepository<TTracked> repository)
             where TTracked : class, IStreamTrackedObject, IUpdateableFrom<TDto, TTracked>
         {

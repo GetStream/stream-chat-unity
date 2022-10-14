@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace StreamChat.Core.State
 {
@@ -26,5 +27,7 @@ namespace StreamChat.Core.State
 
         TType CreateOrUpdate<TType, TDto>(TDto dto)
             where TType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TType>;
+
+        IEnumerable<TTrackedObject> AllItems { get; }
     }
 }

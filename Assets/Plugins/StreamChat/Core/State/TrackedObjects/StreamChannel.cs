@@ -1,7 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.State.Models;
+using StreamChat.Core.State.Requests;
+using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
@@ -33,7 +39,7 @@ namespace StreamChat.Core.State.TrackedObjects
         public string AutoTranslationLanguage { get; private set; }
 
         /// <summary>
-        /// Channel CID (&lt;type&gt;:&lt;id&gt;)
+        /// Channel CID (type:id)
         /// </summary>
         public string Cid { get; private set; }
 
@@ -112,7 +118,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// List of channel capabilities of authenticated user
         /// </summary>
-        public List<string> OwnCapabilities { get; private set; }
+        public IReadOnlyList<string> OwnCapabilities => _ownCapabilities;
 
         /// <summary>
         /// Team the channel belongs to (multi-tenant only)
@@ -126,7 +132,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Type of the channel
         /// </summary>
-        public string Type { get; private set; }
+        public string Type { get; private set; } //StreamTodo replace with ChannelType custom type
 
         /// <summary>
         /// Date/time of the last update
@@ -138,21 +144,6 @@ namespace StreamChat.Core.State.TrackedObjects
         #endregion
 
         #region ChannelState
-
-        /// <summary>
-        /// Whether this channel is hidden or not
-        /// </summary>
-        //public bool? Hidden { get; private set; } // DUPLICATE
-
-        /// <summary>
-        /// Messages before this date are hidden from the user
-        /// </summary>
-        //public DateTimeOffset? HideMessagesBefore { get; private set; } // DUPLICATE
-
-        /// <summary>
-        /// List of channel members
-        /// </summary>
-        //public List<StreamChannelMember> Members { get; private set; } // DUPLICATE
 
         /// <summary>
         /// Current user membership object
@@ -167,7 +158,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Pending messages that this user has sent
         /// </summary>
-        //public System.Collections.Generic.List<PendingMessage> PendingMessages { get; private set; } //TODO: Re add
+        public IReadOnlyList<StreamPendingMessage> PendingMessages => _pendingMessages;
 
         /// <summary>
         /// List of pinned messages in the channel
@@ -193,8 +184,30 @@ namespace StreamChat.Core.State.TrackedObjects
 
         //Todo: IMPLEMENT
 
-        public void SendNewMessage()
+        /// <summary>
+        /// Basic send message method. If you want to set additional parameters use the other <see cref="SendNewMessageAsync"/> overload
+        /// </summary>
+        public Task SendNewMessageAsync(string message)
+            => SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = message
+            });
+
+        /// <summary>
+        ///
+        /// </summary>
+        public async Task SendNewMessageAsync(StreamSendMessageRequest requestBody)
         {
+            //StreamTodo: unpack response?
+            try
+            {
+                var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id, requestBody.TrySaveToDto());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
         }
 
@@ -286,12 +299,8 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
-
-        internal static StreamChannel Create(string uniqueId, IRepository<StreamChannel> repository)
-            => new StreamChannel(uniqueId, repository);
-
-        internal StreamChannel(string uniqueId, IRepository<StreamChannel> repository)
-            : base(uniqueId, repository)
+        internal StreamChannel(string uniqueId, IRepository<StreamChannel> repository, ITrackedObjectContext context)
+            : base(uniqueId, repository, context)
         {
         }
 
@@ -318,7 +327,7 @@ namespace StreamChat.Core.State.TrackedObjects
             // dto.Channel.Members handled below
             MuteExpiresAt = dto.Channel.MuteExpiresAt;
             Muted = dto.Channel.Muted;
-            OwnCapabilities = dto.Channel.OwnCapabilities;
+            _ownCapabilities.TryReplaceValuesFromDto(dto.Channel.OwnCapabilities);
             Team = dto.Channel.Team;
             TruncatedAt = dto.Channel.TruncatedAt;
             TruncatedBy = cache.TryCreateOrUpdate(dto.Channel.TruncatedBy);
@@ -336,13 +345,14 @@ namespace StreamChat.Core.State.TrackedObjects
 
             Hidden = dto.Hidden;
             HideMessagesBefore = dto.HideMessagesBefore;
-            _members.TryReplaceTrackedItems(dto.Members, cache.ChannelMembers);
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
             Membership = cache.TryCreateOrUpdate(dto.Membership);
-            _messages.TryReplaceTrackedItems(dto.Messages, cache.Messages);
-            _pinnedMessages.TryReplaceTrackedItems(dto.PinnedMessages, cache.Messages);
-            _read.TryReplaceCollectionFromDto(dto.Read, cache);
+            _messages.TryReplaceTrackedObjects(dto.Messages, cache.Messages);
+            _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
+            _pinnedMessages.TryReplaceTrackedObjects(dto.PinnedMessages, cache.Messages);
+            _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
             WatcherCount = dto.WatcherCount;
-            _watchers.TryReplaceTrackedItems(dto.Watchers, cache.Users);
+            _watchers.TryReplaceTrackedObjects(dto.Watchers, cache.Users);
 
             #endregion
         }
@@ -367,10 +377,10 @@ namespace StreamChat.Core.State.TrackedObjects
             Id = dto.Id;
             LastMessageAt = dto.LastMessageAt;
             MemberCount = dto.MemberCount;
-            // dto.Channel.Members handled below
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
             MuteExpiresAt = dto.MuteExpiresAt;
             Muted = dto.Muted;
-            OwnCapabilities = dto.OwnCapabilities;
+            _ownCapabilities.TryReplaceValuesFromDto(dto.OwnCapabilities);
             Team = dto.Team;
             TruncatedAt = dto.TruncatedAt;
             TruncatedBy = cache.TryCreateOrUpdate(dto.TruncatedBy);
@@ -385,12 +395,35 @@ namespace StreamChat.Core.State.TrackedObjects
             #endregion
         }
 
+        internal void HandleMessageNewEvent(EventMessageNewInternalDTO dto)
+        {
+            AssertCid(dto.Cid);
+            var messageId = dto.Message.Id;
+
+            for (int i = _messages.Count - 1; i >= 0; i--)
+            {
+                var message = _messages[i];
+                if (message.Id != messageId)
+                {
+                    continue;
+                }
+
+                message.TryUpdateFromDto(dto.Message, StreamChatStateClient.Cache);
+                return;
+            }
+
+            var streamMessage = Factory.CreateStreamMessage(dto.Message);
+            _messages.Add(streamMessage);
+        }
+
         internal void AddMessage(StreamMessage message)
         {
+            _messages.Add(message);
         }
 
         internal void UpdateMessage(StreamMessage message)
         {
+
         }
 
         internal void DeleteMessage(string messageId, bool isHardDelete)
@@ -427,5 +460,15 @@ namespace StreamChat.Core.State.TrackedObjects
         private readonly List<StreamMessage> _pinnedMessages = new List<StreamMessage>();
         private readonly List<StreamUser> _watchers = new List<StreamUser>();
         private readonly List<StreamRead> _read = new List<StreamRead>();
+        private readonly List<string> _ownCapabilities = new List<string>();
+        private readonly List<StreamPendingMessage> _pendingMessages = new List<StreamPendingMessage>();
+
+        private void AssertCid(string cid)
+        {
+            if (cid != Cid)
+            {
+                throw new InvalidOperationException($"Cid mismatch, received: `{cid}` but current channel is: {Cid}");
+            }
+        }
     }
 }

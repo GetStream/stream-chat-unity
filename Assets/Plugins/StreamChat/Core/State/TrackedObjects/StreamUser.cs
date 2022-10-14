@@ -1,6 +1,7 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
+using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
@@ -86,11 +87,8 @@ namespace StreamChat.Core.State.TrackedObjects
         public string Name;
         public string Image;
 
-        internal static StreamUser Create(string uniqueId, IRepository<StreamUser> repository)
-            => new StreamUser(uniqueId, repository);
-
-        internal StreamUser(string uniqueId, IRepository<StreamUser> repository)
-            : base(uniqueId, repository)
+        internal StreamUser(string uniqueId, IRepository<StreamUser> repository, ITrackedObjectContext context)
+            : base(uniqueId, repository, context)
         {
         }
 

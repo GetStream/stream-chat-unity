@@ -163,7 +163,7 @@ namespace StreamChat.Libs.Websockets
         // Runs on a background thread
         private async Task SendMessagesLoopAsync()
         {
-            while (IsConnected && !_connectionCts.IsCancellationRequested)
+            while (IsConnected && _connectionCts != null &&  !_connectionCts.IsCancellationRequested)
             {
                 while (_sendQueue.TryTake(out var msg))
                 {
@@ -193,7 +193,7 @@ namespace StreamChat.Libs.Websockets
         // Runs on a background thread
         private async Task ReceiveMessagesLoopAsync()
         {
-            while (IsConnected && !_connectionCts.IsCancellationRequested)
+            while (IsConnected && _connectionCts != null && !_connectionCts.IsCancellationRequested)
             {
                 try
                 {

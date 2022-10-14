@@ -2,6 +2,7 @@
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
 using StreamChat.Core.State.Models;
+using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
@@ -106,11 +107,8 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
-        internal static StreamLocalUser Create(string uniqueId, IRepository<StreamLocalUser> repository)
-            => new StreamLocalUser(uniqueId, repository);
-
-        internal StreamLocalUser(string uniqueId, IRepository<StreamLocalUser> repository)
-            : base(uniqueId, repository)
+        internal StreamLocalUser(string uniqueId, IRepository<StreamLocalUser> repository, ITrackedObjectContext context)
+            : base(uniqueId, repository, context)
         {
         }
 
@@ -121,10 +119,10 @@ namespace StreamChat.Core.State.TrackedObjects
         {
             #region OwnUser
 
-            _channelMutes.TryReplaceCollectionFromDto(dto.ChannelMutes, cache);
-            _devices.TryReplaceCollectionFromDto(dto.Devices, cache);
+            _channelMutes.TryReplaceRegularObjectsFromDto(dto.ChannelMutes, cache);
+            _devices.TryReplaceRegularObjectsFromDto(dto.Devices, cache);
             //_latestHiddenChannels = dto.LatestHiddenChannels;
-            _mutes.TryReplaceCollectionFromDto(dto.Mutes, cache);
+            _mutes.TryReplaceRegularObjectsFromDto(dto.Mutes, cache);
 
             TotalUnreadCount = dto.TotalUnreadCount;
             UnreadChannels = dto.UnreadChannels;

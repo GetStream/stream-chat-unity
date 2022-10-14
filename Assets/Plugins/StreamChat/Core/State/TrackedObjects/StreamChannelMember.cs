@@ -1,5 +1,6 @@
 ﻿using System;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
@@ -61,9 +62,6 @@ namespace StreamChat.Core.State.TrackedObjects
 
         public string UserId { get; set; }
 
-        internal static StreamChannelMember Create(string uniqueId, IRepository<StreamChannelMember> repository)
-            => new StreamChannelMember(uniqueId, repository);
-
 //         ChannelMember ILoadableFrom<ChannelMemberInternalDTO, ChannelMember>.LoadFromDto(ChannelMemberInternalDTO dto)
 //         {
 //             BanExpires = dto.BanExpires;
@@ -109,8 +107,9 @@ namespace StreamChat.Core.State.TrackedObjects
 //                 UserId = UserId,
 //                 AdditionalProperties = AdditionalProperties,
 //             };
-        internal StreamChannelMember(string uniqueId, IRepository<StreamChannelMember> repository)
-            : base(uniqueId, repository)
+
+        internal StreamChannelMember(string uniqueId, IRepository<StreamChannelMember> repository, ITrackedObjectContext context)
+            : base(uniqueId, repository, context)
         {
         }
 
@@ -135,7 +134,7 @@ namespace StreamChat.Core.State.TrackedObjects
             IsModerator = dto.IsModerator;
             ShadowBanned = dto.ShadowBanned;
             UpdatedAt = dto.UpdatedAt;
-            User = cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalInternalDTO>(dto.User.Id, dto.User);
+            User = cache.TryCreateOrUpdate(dto.User);
             User.TryUpdateFromDto(dto.User, cache);
             UserId = dto.UserId;
         }

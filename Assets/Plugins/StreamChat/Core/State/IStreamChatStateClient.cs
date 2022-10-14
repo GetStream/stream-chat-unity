@@ -25,9 +25,21 @@ namespace StreamChat.Core.State
         event ConnectionChangeHandler ConnectionStateChanged;
 
         /// <summary>
+        /// Current connection state
+        /// </summary>
+        ConnectionState ConnectionState { get; }
+
+        /// <summary>
         /// Local user that is connected to the Stream Chat. This fields gets set after the client connection is established.
         /// </summary>
         StreamLocalUser LocalUser { get; }
+
+        /// <summary>
+        /// Channels loaded via <see cref="GetOrCreateChannelAsync"/> and <see cref="QueryChannelsAsync"/>
+        ///
+        /// These channels are receiving automatic updates
+        /// </summary>
+        IEnumerable<StreamChannel> LoadedChannels { get; }
 
         void Update();
 
@@ -41,5 +53,14 @@ namespace StreamChat.Core.State
         Task MuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels, int? milliseconds = default);
 
         Task UnmuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels);
+
+        /// <summary>
+        /// Delete multiple channels
+        /// </summary>
+        /// <param name="cids">Collection of <see cref="StreamChannel.Cid"/></param>
+        /// <param name="isHardDelete">`Hard delete` removes channels entirely whereas `Soft Delete` deletes them from client but still allows to access them from the server-side SDK</param>
+        Task DeleteMultipleChannelsAsync(IEnumerable<string> cids, bool isHardDelete = false);
+
+        Task DisconnectUserAsync();
     }
 }

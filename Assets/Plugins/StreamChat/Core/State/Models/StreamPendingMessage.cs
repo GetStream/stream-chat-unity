@@ -1,24 +1,24 @@
 ﻿using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.Helpers;
 using StreamChat.Core.Models;
+using StreamChat.Core.State.TrackedObjects;
 
-namespace StreamChat.Core.Models
+namespace StreamChat.Core.State.Models
 {
-    public partial class PendingMessage : ModelBase, ILoadableFrom<PendingMessageInternalDTO, PendingMessage>
+    public partial class StreamPendingMessage : ModelBase, IStateLoadableFrom<PendingMessageInternalDTO, StreamPendingMessage>
     {
         /// <summary>
         /// The message
         /// </summary>
-        public Message Message { get; set; }
+        public StreamMessage Message { get; set; }
 
         /// <summary>
         /// Additional data attached to the pending message. This data is discarded once the pending message is committed.
         /// </summary>
         public System.Collections.Generic.Dictionary<string, string> Metadata { get; set; }
 
-        PendingMessage ILoadableFrom<PendingMessageInternalDTO, PendingMessage>.LoadFromDto(PendingMessageInternalDTO dto)
+        StreamPendingMessage IStateLoadableFrom<PendingMessageInternalDTO, StreamPendingMessage>.LoadFromDto(PendingMessageInternalDTO dto, ICache cache)
         {
-            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
+            Message = cache.TryCreateOrUpdate(dto.Message);
             Metadata = dto.Metadata;
             AdditionalProperties = dto.AdditionalProperties;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using StreamChat.Core.API;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Models;
@@ -72,5 +73,7 @@ namespace StreamChat.Core
             float? exponentialMaxInterval, float? constantInterval);
 
         void ConnectUser(AuthCredentials userAuthCredentials);
+
+        Task DisconnectAsync();
     }
 }

@@ -22,7 +22,7 @@ namespace StreamChat.Core.State
     {
         public bool IsValid => !_channelTypeKey.IsNullOrEmpty();
 
-        public static ChannelType Messaging => new ChannelType("messaging");
+        public static readonly ChannelType Messaging = new ChannelType("messaging");
         public static ChannelType Livestream => new ChannelType("livestream");
         public static ChannelType Team => new ChannelType("team");
         public static ChannelType Commerce => new ChannelType("commerce");

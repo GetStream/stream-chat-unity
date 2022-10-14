@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -208,6 +209,13 @@ namespace StreamChat.Core
             Connect();
         }
 
+        public async Task DisconnectAsync()
+        {
+            //StreamTodo: remove this hack, if user issues a disconnect it should gracefully switch to permanent disconnect and to automatically reconnect
+            NextReconnectTime = float.MaxValue;
+            await _websocketClient.DisconnectAsync(WebSocketCloseStatus.NormalClosure, "User called Disconnect");
+        }
+
         public void Connect()
         {
             SetUser(_authCredentials);
@@ -241,6 +249,7 @@ namespace StreamChat.Core
 
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
+                _logs.Info(msg);
                 HandleNewWebsocketMessage(msg);
             }
         }
@@ -457,31 +466,31 @@ namespace StreamChat.Core
             RegisterEventType<EventHealthCheckInternalDTO, EventHealthCheck>(EventType.HealthCheck, HandleHealthCheckEvent);
 
             RegisterEventType<EventMessageNewInternalDTO, EventMessageNew>(EventType.MessageNew,
-                (e, dto) => MessageReceived?.Invoke(e), InternalMessageReceived);
+                (e, dto) => MessageReceived?.Invoke(e), dto => InternalMessageReceived?.Invoke(dto));
             RegisterEventType<EventMessageDeletedInternalDTO, EventMessageDeleted>(EventType.MessageDeleted,
-                (e, dto) => MessageDeleted?.Invoke(e), InternalMessageDeleted);
+                (e, dto) => MessageDeleted?.Invoke(e), dto => InternalMessageDeleted?.Invoke(dto));
             RegisterEventType<EventMessageUpdatedInternalDTO, EventMessageUpdated>(EventType.MessageUpdated,
-                (e, dto) => MessageUpdated?.Invoke(e), InternalMessageUpdated);
+                (e, dto) => MessageUpdated?.Invoke(e), dto => InternalMessageUpdated?.Invoke(dto));
 
             RegisterEventType<EventReactionNewInternalDTO, EventReactionNew>(EventType.ReactionNew,
-                (e, dto) => ReactionReceived?.Invoke(e), InternalReactionReceived);
+                (e, dto) => ReactionReceived?.Invoke(e), dto => InternalReactionReceived?.Invoke(dto));
             RegisterEventType<EventReactionUpdatedInternalDTO, EventReactionUpdated>(EventType.ReactionUpdated,
-                (e, dto) => ReactionUpdated?.Invoke(e), InternalReactionUpdated);
+                (e, dto) => ReactionUpdated?.Invoke(e), dto => InternalReactionUpdated?.Invoke(dto));
             RegisterEventType<EventReactionDeletedInternalDTO, EventReactionDeleted>(EventType.ReactionDeleted,
-                (e, dto) => ReactionDeleted?.Invoke(e), InternalReactionDeleted);
+                (e, dto) => ReactionDeleted?.Invoke(e), dto => InternalReactionDeleted?.Invoke(dto));
 
             RegisterEventType<EventTypingStartInternalDTO, EventTypingStart>(EventType.TypingStart,
-                (e, dto) => TypingStarted?.Invoke(e), InternalTypingStarted);
+                (e, dto) => TypingStarted?.Invoke(e), dto => InternalTypingStarted?.Invoke(dto));
             RegisterEventType<EventTypingStopInternalDTO, EventTypingStop>(EventType.TypingStop,
-                (e, dto) => TypingStopped?.Invoke(e), InternalTypingStopped);
+                (e, dto) => TypingStopped?.Invoke(e), dto => InternalTypingStopped?.Invoke(dto));
 
             RegisterEventType<EventMessageReadInternalDTO, EventMessageRead>(EventType.MessageRead,
-                (e, dto) => MessageRead?.Invoke(e), InternalMessageRead);
+                (e, dto) => MessageRead?.Invoke(e), dto => InternalMessageRead?.Invoke(dto));
             RegisterEventType<EventNotificationMarkReadInternalDTO, EventNotificationMarkRead>(EventType.NotificationMarkRead,
-                (e, dto) => NotificationMarkRead?.Invoke(e), InternalNotificationMarkRead);
+                (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto));
             RegisterEventType<EventNotificationMessageNewInternalDTO, EventNotificationMessageNew>(
                 EventType.NotificationMessageNew,
-                (e, dto) => NotificationMessageReceived?.Invoke(e), InternalNotificationMessageReceived);
+                (e, dto) => NotificationMessageReceived?.Invoke(e), dto => InternalNotificationMessageReceived?.Invoke(dto));
         }
 
         private void RegisterEventType<TDto, TEvent>(string key,

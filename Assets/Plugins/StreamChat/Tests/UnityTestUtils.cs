@@ -1,7 +1,9 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using System.Collections;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.State;
 using UnityEditor;
 using UnityEngine;
 
@@ -43,10 +45,11 @@ namespace StreamChat.Tests
         }
 
         public static IEnumerator RunAsIEnumerator(this Task task,
-            Action onSuccess = null, Action<Exception> onFaulted = null)
+            Action onSuccess = null, Action<Exception> onFaulted = null, IStreamChatStateClient statefulClient = null)
         {
             while (!task.IsCompleted)
             {
+                statefulClient?.Update();
                 yield return null;
             }
 
@@ -118,3 +121,4 @@ namespace StreamChat.Tests
         }
     }
 }
+#endif

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using StreamChat.Core.State;
+using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
 {
@@ -16,8 +19,17 @@ namespace StreamChat.Core.State
         public bool TryGetCustomField(string key, out object value)
             => _additionalProperties.TryGetValue(key, out value);
 
-        internal StreamTrackedObjectBase(string uniqueId, IRepository<TTrackedObject> repository)
+        internal StreamTrackedObjectBase(string uniqueId, IRepository<TTrackedObject> repository,
+            ITrackedObjectContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+            StreamChatStateClient = context.StreamChatStateClient ?? throw new ArgumentNullException(nameof(context.StreamChatStateClient));
+            Logs = context.Logs ?? throw new ArgumentNullException(nameof(context.Logs));
+            Factory = context.TrackedObjectsFactory ?? throw new ArgumentNullException(nameof(context.TrackedObjectsFactory));
+
             InternalUniqueId = uniqueId;
             repository.Track(Self);
         }
@@ -25,6 +37,10 @@ namespace StreamChat.Core.State
         protected abstract string InternalUniqueId { get; set; }
 
         protected abstract TTrackedObject Self { get; }
+        protected StreamChatStateClient StreamChatStateClient { get; }
+        protected StreamChatClient LowLevelClient => StreamChatStateClient.LowLevelClient;
+        protected ILogs Logs { get; }
+        internal ITrackedObjectsFactory Factory { get; }
 
         protected void LoadAdditionalProperties(Dictionary<string, object> additionalProperties)
         {
@@ -37,6 +53,5 @@ namespace StreamChat.Core.State
         }
 
         private readonly Dictionary<string, object> _additionalProperties = new Dictionary<string, object>();
-
     }
 }

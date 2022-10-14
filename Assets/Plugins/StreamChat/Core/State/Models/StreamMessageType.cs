@@ -28,8 +28,13 @@ namespace StreamChat.Core.State.Models
 
     internal static class StreamMessageTypeExt
     {
-        public static StreamMessageType ToStreamMessageType(this MessageType messageType)
+        public static StreamMessageType? TryConvertToStreamMessageType(this MessageType? messageType)
         {
+            if (!messageType.HasValue)
+            {
+                return default;
+            }
+
             switch (messageType)
             {
                 case MessageType.Regular: return StreamMessageType.Regular;

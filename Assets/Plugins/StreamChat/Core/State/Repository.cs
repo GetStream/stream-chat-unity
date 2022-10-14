@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using StreamChat.Core.State;
 using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core.State
@@ -11,6 +12,8 @@ namespace StreamChat.Core.State
     internal class Repository<TTrackedType> : IRepository<TTrackedType>
         where TTrackedType : class, IStreamTrackedObject
     {
+        public IEnumerable<TTrackedType> AllItems => _trackedObjects;
+
         public bool TryGet(string uniqueId, out TTrackedType trackedObject)
             => _trackedObjectById.TryGetValue(uniqueId, out trackedObject);
 
@@ -18,7 +21,7 @@ namespace StreamChat.Core.State
         {
             var key = typeof(TDto);
 
-            if (_dtoIdGetters.ContainsKey(key))
+            if (!_dtoIdGetters.ContainsKey(key))
             {
                 throw new InvalidOperationException("Failed to find id getter for: " + key);
             }
@@ -115,5 +118,6 @@ namespace StreamChat.Core.State
 
         private readonly ConstructorHandler _constructor;
         private readonly ICache _cache;
+        private readonly ITrackedObjectsFactory _trackedObjectsFactory;
     }
 }

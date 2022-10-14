@@ -30,6 +30,8 @@ namespace StreamChat.Core.State
     /// </summary>
     public delegate void ConnectionChangeHandler(ConnectionState previous, ConnectionState current);
 
+    //StreamTodo: move all xml doc comments to interface and use <inheritdoc /> on implementation
+
     /// <summary>
     /// Stateful client for the Stream Chat API. This is the recommended client
     /// </summary>
@@ -51,9 +53,21 @@ namespace StreamChat.Core.State
         public event ConnectionChangeHandler ConnectionStateChanged;
 
         /// <summary>
+        /// Current connection state
+        /// </summary>
+        public ConnectionState ConnectionState => LowLevelClient.ConnectionState;
+
+        /// <summary>
         /// Local user that is connected to the Stream Chat. This fields gets set after the client connection is established.
         /// </summary>
         public StreamLocalUser LocalUser { get; private set; }
+
+        /// <summary>
+        /// Channels loaded via <see cref="GetOrCreateChannelAsync"/> and <see cref="QueryChannelsAsync"/>
+        ///
+        /// These channels are receiving automatic updates
+        /// </summary>
+        public IEnumerable<StreamChannel> LoadedChannels => _cache.Channels.AllItems;
 
         /// <summary>
         /// Use this method to create a default Stream Chat Client instance.
@@ -80,19 +94,19 @@ namespace StreamChat.Core.State
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
-            _lowLevelClient = new StreamChatClient(authCredentials: default, websocketClient, httpClient, serializer,
+            LowLevelClient = new StreamChatClient(authCredentials: default, websocketClient, httpClient, serializer,
                 _timeService, logs, config);
 
-            SubscribeTo(_lowLevelClient);
+            _cache = new Cache(this, _logs);
 
-            _cache = new Cache();
+            SubscribeTo(LowLevelClient);
         }
 
         public void Update()
         {
-            _lowLevelClient.Update(_timeService.DeltaTime);
+            LowLevelClient.Update(_timeService.DeltaTime);
 
-            if (_lowLevelClient.ConnectionState == ConnectionState.Connecting &&
+            if (LowLevelClient.ConnectionState == ConnectionState.Connecting &&
                 _connectUserCancellationToken.IsCancellationRequested)
             {
                 //Todo: cancel connection
@@ -103,12 +117,14 @@ namespace StreamChat.Core.State
         public Task<StreamLocalUser> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
         {
-            _lowLevelClient.ConnectUser(userAuthCredentials);
+            LowLevelClient.ConnectUser(userAuthCredentials);
 
             _connectUserCancellationToken = cancellationToken;
             _connectUserTaskSource = new TaskCompletionSource<StreamLocalUser>();
             return _connectUserTaskSource.Task;
         }
+
+        public Task DisconnectUserAsync() => LowLevelClient.DisconnectAsync();
 
         // TODO: Pagination should probably be removed here and only available through channel.GetNextMessages, channel.GetPreviousMessages
         // Otherwise we have problem that you fetch old messages and then WS event delivers a new one
@@ -123,7 +139,7 @@ namespace StreamChat.Core.State
                 Watch = true
             };
 
-            var channelResponseDto = await _lowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
+            var channelResponseDto = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
                 channelId, requestBody.TrySaveToDto());
 
             return _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(channelResponseDto);
@@ -157,8 +173,8 @@ namespace StreamChat.Core.State
                 throw new ArgumentException($"{nameof(channels)} is empty");
             }
 
-            // Todo: unpack response
-            var response = await _lowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
+            // StreamTodo: unpack response
+            var response = await LowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
             {
                 ChannelCids = channelCids,
                 Expiration = milliseconds
@@ -178,26 +194,42 @@ namespace StreamChat.Core.State
                 throw new ArgumentException($"{nameof(channels)} is empty");
             }
 
-            // Todo: unpack response
-            var response = await _lowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
+            // StreamTodo: unpack response
+            var response = await LowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
             {
                 ChannelCids = channelCids,
-                //Todo: what is this Expiration here?
+                //StreamTodo: what is this Expiration here?
+            });
+        }
+
+        /// <summary>
+        /// Delete multiple channels
+        /// </summary>
+        /// <param name="cids">Collection of <see cref="StreamChannel.Cid"/></param>
+        /// <param name="isHardDelete">Hard delete removes channels entirely whereas Soft Delete deletes them from client but still allows to access them from the server-side SDK</param>
+        public async Task DeleteMultipleChannelsAsync(IEnumerable<string> cids, bool isHardDelete = false)
+        {
+            // StreamTodo: unpack response
+            await LowLevelClient.InternalChannelApi.DeleteChannelsAsync(new DeleteChannelsRequestInternalDTO
+            {
+                Cids = cids.ToList(),
+                HardDelete = isHardDelete
             });
         }
 
         public void Dispose()
         {
-            if (_lowLevelClient != null)
+            if (LowLevelClient != null)
             {
-                UnsubscribeFrom(_lowLevelClient);
-                _lowLevelClient.Dispose();
+                UnsubscribeFrom(LowLevelClient);
+                LowLevelClient.Dispose();
             }
         }
 
-        internal IStreamChatClient LowLevelClient => _lowLevelClient;
+        internal ICache Cache => _cache;
 
-        private readonly StreamChatClient _lowLevelClient;
+        public StreamChatClient LowLevelClient { get; } //StreamTodo: change to internal
+
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
@@ -209,19 +241,23 @@ namespace StreamChat.Core.State
 
         private void OnLowLevelClientConnected(EventHealthCheckInternalDTO dto)
         {
-            var localUserDto = dto.Me;
-            LocalUser = _cache.TryCreateOrUpdate(localUserDto);
-
-            if (_connectUserTaskSource == null)
+            try
             {
-                _logs.Error($"{nameof(OnLowLevelClientConnected)} expected {nameof(_connectUserTaskSource)} not null");
+                var localUserDto = dto.Me;
+                LocalUser = _cache.TryCreateOrUpdate(localUserDto);
+                Connected?.Invoke(LocalUser);
             }
-            else
+            finally
             {
-                _connectUserTaskSource.SetResult(LocalUser);
+                if (_connectUserTaskSource == null)
+                {
+                    _logs.Error($"{nameof(OnLowLevelClientConnected)} expected {nameof(_connectUserTaskSource)} not null");
+                }
+                else
+                {
+                    _connectUserTaskSource.SetResult(LocalUser);
+                }
             }
-
-            Connected?.Invoke(LocalUser);
         }
 
         private void OnLowLevelClientDisconnected() => Disconnected?.Invoke();
@@ -250,10 +286,11 @@ namespace StreamChat.Core.State
             }
         }
 
-        private void OnLowLevelClientMessageReceived(EventMessageNewInternalDTO obj)
+        private void OnLowLevelClientMessageReceived(EventMessageNewInternalDTO eventDto)
         {
-            if (_cache.Channels.TryGet(obj.Cid, out var streamChannel))
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
+                streamChannel.HandleMessageNewEvent(eventDto);
             }
         }
 

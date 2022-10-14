@@ -6,6 +6,9 @@ namespace StreamChat.Core.State
 {
     internal static class ICacheExt
     {
+        public static StreamMessage TryCreateOrUpdate(this ICache cache, MessageInternalDTO dto)
+            => dto == null ? null : cache.Messages.CreateOrUpdate<StreamMessage, MessageInternalDTO>(dto);
+
         public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelResponseInternalDTO dto)
             => dto == null ? null : cache.Channels.CreateOrUpdate<StreamChannel, ChannelResponseInternalDTO>(dto);
 

@@ -1,24 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.State.TrackedObjects;
 
-namespace StreamChat.Core.Requests
+namespace StreamChat.Core.State.Requests
 {
-    /// <summary>
-    /// Represents any chat message
-    /// </summary>
-    public class MessageRequest : RequestObjectBase, ISavableTo<MessageRequestInternalInternalDTO>
+    public class StreamSendMessageRequest : ISavableTo<SendMessageRequestInternalInternalDTO>
     {
+        /// <summary>
+        /// Make the message a pending message. This message will not be viewable to others until it is committed.
+        /// </summary>
+        public bool? IsPendingMessage { get; set; }
+
+        public Dictionary<string, string> PendingMessageMetadata { get; set; }
+
+        /// <summary>
+        /// Do not try to enrich the links within message
+        /// </summary>
+        public bool? SkipEnrichUrl { get; set; }
+
+        /// <summary>
+        /// Disables all push notifications for this message
+        /// </summary>
+        public bool? SkipPush { get; set; }
+
+        #region MessageRequest
+
         /// <summary>
         /// Array of message attachments
         /// </summary>
-        public List<AttachmentRequest> Attachments { get; set; }
-
-        /// <summary>
-        /// Channel unique identifier in <type>:<id> format
-        /// </summary>
-        public string Cid { get; set; }
+        public List<StreamAttachmentRequest> Attachments { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -33,7 +45,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// List of mentioned users
         /// </summary>
-        public List<string> MentionedUsers { get; set; }
+        public List<StreamUser> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -63,15 +75,9 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
-        public string PinnedBy { get; set; }
+        public StreamUser PinnedBy { get; set; }
 
         public string QuotedMessageId { get; set; }
-
-        /// <summary>
-        /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
-        /// </summary>
-        [Obsolete("Has no effect and will be removed in a future release")]
-        public Dictionary<string, int> ReactionScores { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well
@@ -88,34 +94,36 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Text { get; set; }
 
-        /// <summary>
-        /// Sender of the message. Required when using server-side API
-        /// </summary>
-        public UserObjectRequest User { get; set; }
+        #endregion
 
-        public string UserId { get; set; }
-
-        MessageRequestInternalInternalDTO ISavableTo<MessageRequestInternalInternalDTO>.SaveToDto() =>
-            new MessageRequestInternalInternalDTO
+        SendMessageRequestInternalInternalDTO ISavableTo<SendMessageRequestInternalInternalDTO>.SaveToDto()
+        {
+            var messageRequestDto = new MessageRequestInternalInternalDTO()
             {
-                Attachments = Attachments?.TrySaveToDtoCollection<AttachmentRequest, AttachmentRequestInternalDTO>(),
-                Cid = Cid,
+                Attachments = Attachments?.TrySaveToDtoCollection<StreamAttachmentRequest, AttachmentRequestInternalDTO>(),
                 Html = Html,
                 Id = Id,
-                MentionedUsers = MentionedUsers,
+                MentionedUsers = MentionedUsers.ToUserIdsListOrNull(),
                 Mml = Mml,
                 ParentId = ParentId,
                 PinExpires = PinExpires,
                 Pinned = Pinned,
                 PinnedAt = PinnedAt,
-                PinnedBy = PinnedBy,
+                PinnedBy = PinnedBy?.Id,
                 QuotedMessageId = QuotedMessageId,
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,
-                User = User.TrySaveToDto(),
-                UserId = UserId,
-                AdditionalProperties = AdditionalProperties,
             };
+
+            return new SendMessageRequestInternalInternalDTO
+            {
+                IsPendingMessage = IsPendingMessage,
+                Message = messageRequestDto,
+                PendingMessageMetadata = PendingMessageMetadata,
+                SkipEnrichUrl = SkipEnrichUrl,
+                SkipPush = SkipPush,
+            };
+        }
     }
 }

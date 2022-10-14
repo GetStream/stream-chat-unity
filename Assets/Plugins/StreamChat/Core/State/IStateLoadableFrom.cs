@@ -50,7 +50,7 @@ namespace StreamChat.Core.State
             return items;
         }
 
-        public static void TryReplaceCollectionFromDto<TDto, TSource>(this List<TSource> target, List<TDto> dtos, ICache cache)
+        public static void TryReplaceRegularObjectsFromDto<TDto, TSource>(this List<TSource> target, List<TDto> dtos, ICache cache)
             where TSource : IStateLoadableFrom<TDto, TSource>, new()
         {
             if (typeof(TSource) is IStreamTrackedObject)
@@ -75,8 +75,51 @@ namespace StreamChat.Core.State
                 target.Add(new TSource().LoadFromDto(dto, cache));
             }
         }
+
+        public static void TryReplaceValuesFromDto<TKey, TValue>(this Dictionary<TKey, TValue> target, Dictionary<TKey, TValue> values)
+        {
+            if (values == null)
+            {
+                return;
+            }
+
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target));
+            }
+
+            target.Clear();
+
+            foreach (var keyValuePair in values)
+            {
+                target.Add(keyValuePair.Key, keyValuePair.Value);
+            }
+        }
+
+        public static void TryReplaceValuesFromDto(this List<string> target, List<string> values)
+            => TryReplaceValuesFromDto<string>(target, values);
+
+        public static void TryReplaceValuesFromDto(this List<int> target, List<int> values)
+            => TryReplaceValuesFromDto<int>(target, values);
+
+        private static void TryReplaceValuesFromDto<TValue>(this List<TValue> target, List<TValue> values)
+        {
+            if (values == null)
+            {
+                return;
+            }
+
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target));
+            }
+
+            target.Clear();
+
+            foreach (var dto in values)
+            {
+                target.Add(dto);
+            }
+        }
     }
-
-
-
 }
