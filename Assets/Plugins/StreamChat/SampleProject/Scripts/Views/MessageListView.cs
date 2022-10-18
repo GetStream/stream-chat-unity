@@ -172,7 +172,7 @@ namespace StreamChat.SampleProject.Views
             return result;
         }
 
-        //Todo: extract to ViewFactory
+        //StreamTodo: extract to ViewFactory
         private MessageView CreateMessageView(Message message)
         {
             var isLocal = Client.IsLocalUser(message.User);

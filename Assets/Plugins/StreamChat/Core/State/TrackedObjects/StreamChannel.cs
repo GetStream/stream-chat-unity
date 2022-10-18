@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
-using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    // Todo: add IStreamChannel interface
+    // StreamTodo: add IStreamChannel interface
     public interface IStreamChannel
     {
-
     }
 
     /// <summary>
@@ -24,7 +22,8 @@ namespace StreamChat.Core.State.TrackedObjects
     /// </summary>
     public class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
-        IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>, IStreamChannel
+        IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
+        IStreamChannel
     {
         #region Channel
 
@@ -182,10 +181,8 @@ namespace StreamChat.Core.State.TrackedObjects
 
         #endregion
 
-        //Todo: IMPLEMENT
-
         /// <summary>
-        /// Basic send message method. If you want to set additional parameters use the other <see cref="SendNewMessageAsync"/> overload
+        /// Basic send message method. If you want to set additional parameters like use the other <see cref="SendNewMessageAsync(StreamSendMessageRequest requestBody)"/> overload
         /// </summary>
         public Task<StreamMessage> SendNewMessageAsync(string message)
             => SendNewMessageAsync(new StreamSendMessageRequest
@@ -194,21 +191,22 @@ namespace StreamChat.Core.State.TrackedObjects
             });
 
         /// <summary>
-        ///
+        /// Advanced send message method. Check out the <see cref="StreamSendMessageRequest"/> to see all of the parameters
         /// </summary>
-        public async Task<StreamMessage> SendNewMessageAsync(StreamSendMessageRequest requestBody)
+        public async Task<StreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest)
         {
-            //StreamTodo: unpack response?
+            if (sendMessageRequest == null)
+            {
+                throw new ArgumentNullException(nameof(sendMessageRequest));
+            }
+
+            // StreamTodo: validate that Text and Mml should not be both set
             try
             {
-                var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id, requestBody.TrySaveToDto());
-
-                var streamMessage = Cache.TryCreateOrUpdate(response.Message);
-                if (!_messages.Contains(streamMessage))
-                {
-                    _messages.Add(streamMessage);
-                }
-
+                var response
+                    = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id,
+                        sendMessageRequest.TrySaveToDto());
+                var streamMessage = AppendOrUpdateMessage(response.Message);
                 return streamMessage;
             }
             catch (Exception e)
@@ -405,56 +403,39 @@ namespace StreamChat.Core.State.TrackedObjects
         internal void HandleMessageNewEvent(EventMessageNewInternalDTO dto)
         {
             AssertCid(dto.Cid);
-            var messageId = dto.Message.Id;
+            AppendOrUpdateMessage(dto.Message);
+        }
 
-            for (int i = _messages.Count - 1; i >= 0; i--)
+        internal void HandleMessageUpdatedEvent(EventMessageUpdatedInternalDTO dto)
+        {
+            AssertCid(dto.Cid);
+            if (!Cache.Messages.TryGet(dto.Message.Id, out var message))
             {
-                var message = _messages[i];
-                if (message.Id != messageId)
-                {
-                    continue;
-                }
-
-                message.TryUpdateFromDto(dto.Message, StreamChatStateClient.Cache);
                 return;
             }
 
-            //StreamTodo: This could be optimized if we'd knew whether Cache created new object or just fetched an existing one. Also fix this in SendNewMessageAsync
-            var streamMessage = Cache.TryCreateOrUpdate(dto.Message);
-            if (!_messages.Contains(streamMessage))
+            message.TryUpdateFromDto(dto.Message, Cache);
+        }
+
+        //StreamTodo: consider using structs for MessageId, ChannelId, etc. this way we control in 1 place from which fields they are created + there will be no mistake on user
+        internal void HandleMessageDeletedEvent(EventMessageDeletedInternalDTO dto)
+        {
+            AssertCid(dto.Cid);
+            if (!Cache.Messages.TryGet(dto.Message.Id, out var message))
             {
-                _messages.Add(streamMessage);
-            }
-        }
-
-        internal void AddMessage(StreamMessage message)
-        {
-            _messages.Add(message);
-        }
-
-        internal void UpdateMessage(StreamMessage message)
-        {
-
-        }
-
-        internal void DeleteMessage(string messageId, bool isHardDelete)
-        {
-            for (int i = _messages.Count - 1; i >= 0; i--)
-            {
-                var message = _messages[i];
-                if (message.Id != messageId)
-                {
-                    continue;
-                }
-
-                if (isHardDelete)
-                {
-                    _messages.RemoveAt(i);
-                    return;
-                }
-
-                message.SoftDelete();
                 return;
+            }
+
+            //StramTodo: consider moving this logic into StreamMessage.HandleMessageDeletedEvent
+            var isHardDelete = dto.HardDelete.GetValueOrDefault(false);
+            if (isHardDelete)
+            {
+                Cache.Messages.Remove(message);
+                _messages.Remove(message);
+            }
+            else
+            {
+                message.HandleSoftDelete();
             }
         }
 
@@ -480,6 +461,20 @@ namespace StreamChat.Core.State.TrackedObjects
             {
                 throw new InvalidOperationException($"Cid mismatch, received: `{cid}` but current channel is: {Cid}");
             }
+        }
+
+        private StreamMessage AppendOrUpdateMessage(MessageInternalDTO dto)
+        {
+            var streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
+            if (wasCreated)
+            {
+                if (!_messages.Contains(streamMessage))
+                {
+                    _messages.Add(streamMessage);
+                }
+            }
+
+            return streamMessage;
         }
     }
 }

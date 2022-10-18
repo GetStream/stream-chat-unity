@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class TestChatBehaviour : MonoBehaviour
 {
-    protected async void Awake()
+    protected void Awake()
     {
         _client = StreamChatStateClient.CreateDefaultClient();
 

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using StreamChat.Core.State;
 using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core.State
 {
+    //StreamTodo: CacheRepository?
     /// <summary>
     /// Tracked objects repository
     /// </summary>
@@ -67,13 +67,15 @@ namespace StreamChat.Core.State
             return typedTrackedObject;
         }
 
-        public TType CreateOrUpdate<TType, TDto>(TDto dto)
+        public TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
             where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
         {
+            wasCreated = false;
             var trackingId = GetDtoTrackingId(dto);
             if (!TryGet(trackingId, out var trackedObject))
             {
                 trackedObject = _constructor(trackingId, repository: this);
+                wasCreated = true;
             }
 
             var typedTrackedObject = trackedObject as TType;
@@ -87,6 +89,9 @@ namespace StreamChat.Core.State
             return typedTrackedObject;
         }
 
+        /// <summary>
+        /// This is called from tracked object constructor
+        /// </summary>
         public void Track(TTrackedType trackedObject)
         {
             if (trackedObject.UniqueId.IsNullOrEmpty())
@@ -101,6 +106,17 @@ namespace StreamChat.Core.State
 
             _trackedObjectById[trackedObject.UniqueId] = trackedObject;
             _trackedObjects.Add(trackedObject);
+        }
+
+        public void Remove(TTrackedType trackedObject)
+        {
+            if (trackedObject.UniqueId.IsNullOrEmpty())
+            {
+                throw new ArgumentException($"{trackedObject.UniqueId} cannot be empty");
+            }
+
+            _trackedObjects.Remove(trackedObject);
+            _trackedObjectById.Remove(trackedObject.UniqueId);
         }
 
         internal delegate TTrackedType ConstructorHandler(string uniqueId, IRepository<TTrackedType> repository);

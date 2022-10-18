@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using StreamChat.Core.State;
 using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
@@ -26,12 +25,14 @@ namespace StreamChat.Core.State
             {
                 throw new ArgumentNullException(nameof(context));
             }
+
             StreamChatStateClient = context.StreamChatStateClient ?? throw new ArgumentNullException(nameof(context.StreamChatStateClient));
             Logs = context.Logs ?? throw new ArgumentNullException(nameof(context.Logs));
             Cache = context.Cache ?? throw new ArgumentNullException(nameof(context.Cache));
+            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
             InternalUniqueId = uniqueId;
-            repository.Track(Self);
+            Repository.Track(Self);
         }
 
         protected abstract string InternalUniqueId { get; set; }
@@ -41,6 +42,7 @@ namespace StreamChat.Core.State
         protected StreamChatClient LowLevelClient => StreamChatStateClient.LowLevelClient;
         protected ILogs Logs { get; }
         internal ICache Cache { get; }
+        internal IRepository<TTrackedObject> Repository { get; }
 
         protected void LoadAdditionalProperties(Dictionary<string, object> additionalProperties)
         {

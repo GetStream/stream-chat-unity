@@ -6,13 +6,8 @@ using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State.Requests
 {
-    public class StreamSendMessageRequest : ISavableTo<SendMessageRequestInternalInternalDTO>
+    public class StreamUpdateMessageRequest : ISavableTo<UpdateMessageRequestInternalInternalDTO>
     {
-        /// <summary>
-        /// Make the message a pending message. This message will not be viewable to others until it is committed.
-        /// </summary>
-        public bool? IsPendingMessage { get; set; }
-
         public Dictionary<string, string> PendingMessageMetadata { get; set; }
 
         /// <summary>
@@ -20,27 +15,12 @@ namespace StreamChat.Core.State.Requests
         /// </summary>
         public bool? SkipEnrichUrl { get; set; }
 
-        /// <summary>
-        /// Disables all push notifications for this message
-        /// </summary>
-        public bool? SkipPush { get; set; }
-
         #region MessageRequest
 
         /// <summary>
         /// Array of message attachments
         /// </summary>
-        public List<StreamAttachmentRequest> Attachments { get; set; }
-
-        /// <summary>
-        /// Contains HTML markup of the message. Can only be set when using server-side API
-        /// </summary>
-        public string Html { get; set; }
-
-        /// <summary>
-        /// Message ID is unique string identifier of the message
-        /// </summary>
-        public string Id { get; set; }
+        public List<StreamAttachmentRequest> Attachments { get; set; } = new List<StreamAttachmentRequest>();
 
         /// <summary>
         /// List of mentioned users
@@ -96,14 +76,14 @@ namespace StreamChat.Core.State.Requests
 
         #endregion
 
-        SendMessageRequestInternalInternalDTO ISavableTo<SendMessageRequestInternalInternalDTO>.SaveToDto()
+        UpdateMessageRequestInternalInternalDTO ISavableTo<UpdateMessageRequestInternalInternalDTO>.SaveToDto()
         {
-            var messageRequestDto = new MessageRequestInternalInternalDTO()
+            var messageRequestDto = new MessageRequestInternalInternalDTO
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<StreamAttachmentRequest, AttachmentRequestInternalDTO>(),
                 // Cid = Cid, Purposely ignored because it has no effect and endpoint already contains channel type&id
-                Html = Html,
-                Id = Id,
+                //Html = Html, Only server-side field
+                //Id = Id, Purposely ignored so it can be set by the StreamMessage.UpdateAsync
                 MentionedUsers = MentionedUsers.ToUserIdsListOrNull(),
                 Mml = Mml,
                 ParentId = ParentId,
@@ -112,18 +92,17 @@ namespace StreamChat.Core.State.Requests
                 PinnedAt = PinnedAt,
                 PinnedBy = PinnedBy?.Id,
                 QuotedMessageId = QuotedMessageId,
+                //ReactionScores = ReactionScores, Purposely ignored because it has no effect, probably ignored by backend
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,
             };
 
-            return new SendMessageRequestInternalInternalDTO
+            return new UpdateMessageRequestInternalInternalDTO
             {
-                IsPendingMessage = IsPendingMessage,
                 Message = messageRequestDto,
                 PendingMessageMetadata = PendingMessageMetadata,
                 SkipEnrichUrl = SkipEnrichUrl,
-                SkipPush = SkipPush,
             };
         }
     }

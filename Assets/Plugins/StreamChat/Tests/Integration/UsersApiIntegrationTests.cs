@@ -187,7 +187,7 @@ namespace StreamChat.Tests.Integration
 
             yield return updateUsersTask2.RunAsIEnumerator(response => { });
 
-            //TOdo implement Ban User
+            //StreamTodo implement Ban User
 
             var queryUsersTask = Client.UserApi.QueryUsersAsync(new QueryUsersRequest
             {

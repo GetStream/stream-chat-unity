@@ -38,7 +38,7 @@ namespace StreamChat.SampleProject.Views
 
             foreach (var c in State.Channels)
             {
-                //Todo: move to ViewFactory
+                //StreamTodo: move to ViewFactory
                 var channelView = Instantiate(_channelViewPrefab, _listContainer);
                 channelView.Init(c, ViewContext);
                 channelView.Clicked += OnChannelClicked;

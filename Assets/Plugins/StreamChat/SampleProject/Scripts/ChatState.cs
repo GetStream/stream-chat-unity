@@ -258,7 +258,7 @@ namespace StreamChat.SampleProject
         private readonly IViewFactory _viewFactory;
         private readonly ILogs _unityLogger = new UnityLogs();
 
-        //Todo: get it initially from health check event
+        //StreamTodo: get it initially from health check event
         private OwnUser _localUser;
         private ChannelState _activeChannel;
 

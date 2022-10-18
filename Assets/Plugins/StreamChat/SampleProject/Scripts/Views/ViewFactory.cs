@@ -56,7 +56,7 @@ namespace StreamChat.SampleProject.Views
             {
                 options.Add(new MenuOptionEntry("Flag", () => throw new NotImplementedException("Flag")));
 
-                //Todo: muted ? => show unmute instead
+                //StreamTodo: muted ? => show unmute instead
                 var user = message.User;
                 options.Add(new MenuOptionEntry("Mute", () =>
                 {
@@ -65,7 +65,7 @@ namespace StreamChat.SampleProject.Views
                         TargetIds = new List<string> { user.Id }
                     };
 
-                    //Todo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
+                    //StreamTodo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
                     client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
                 }));
             }
@@ -106,7 +106,7 @@ namespace StreamChat.SampleProject.Views
             var instance = GameObject.Instantiate(prefab, _popupsContainer);
             var popup = instance.GetComponent<TPopup>();
 
-            //Todo: fix this dependency, some popups don't need view context like ErrorPopup
+            //StreamTodo: fix this dependency, some popups don't need view context like ErrorPopup
             if (_viewContext != null)
             {
                 popup.Init(_viewContext);

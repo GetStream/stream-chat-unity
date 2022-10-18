@@ -1,14 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.State.Models;
-using StreamChat.Libs.Logs;
+using StreamChat.Core.State.Requests;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
     /// <summary>
     /// Message belonging to a <see cref="StreamChannel"/>
     /// </summary>
-    public class StreamMessage : StreamTrackedObjectBase<StreamMessage>, IUpdateableFrom<MessageInternalDTO, StreamMessage>
+    public class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
+        IUpdateableFrom<MessageInternalDTO, StreamMessage>
     {
         /// <summary>
         /// Array of message attachments
@@ -33,12 +38,12 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public System.DateTimeOffset? CreatedAt { get; private set; }
+        public DateTimeOffset? CreatedAt { get; private set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
-        public System.DateTimeOffset? DeletedAt { get; private set; }
+        public DateTimeOffset? DeletedAt { get; private set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -48,7 +53,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Object with translations. Key `language` contains the original language key. Other keys contain translations
         /// </summary>
-        public System.Collections.Generic.Dictionary<string, string> I18n { get; private set; }
+        public IReadOnlyDictionary<string, string> I18n => _iI18n;
 
         /// <summary>
         /// Message ID is unique string identifier of the message
@@ -57,8 +62,9 @@ namespace StreamChat.Core.State.TrackedObjects
 
         /// <summary>
         /// Contains image moderation information
+        /// *** NOT IMPLEMENTED *** PLEASE SEND SUPPORT TICKET IF YOU NEED THIS FEATURE
         /// </summary>
-        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> ImageLabels { get; private set; }
+        public IReadOnlyDictionary<string, IReadOnlyList<string>> ImageLabels => throw new NotImplementedException();
 
         /// <summary>
         /// List of 10 latest reactions to this message
@@ -88,7 +94,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date when pinned message expires
         /// </summary>
-        public System.DateTimeOffset? PinExpires { get; private set; }
+        public DateTimeOffset? PinExpires { get; private set; }
 
         /// <summary>
         /// Whether message is pinned or not
@@ -98,7 +104,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date when message got pinned
         /// </summary>
-        public System.DateTimeOffset? PinnedAt { get; private set; }
+        public DateTimeOffset? PinnedAt { get; private set; }
 
         /// <summary>
         /// Contains user who pinned the message
@@ -160,7 +166,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date/time of the last update
         /// </summary>
-        public System.DateTimeOffset? UpdatedAt { get; private set; }
+        public DateTimeOffset? UpdatedAt { get; private set; }
 
         /// <summary>
         /// Sender of the message. Required when using server-side API
@@ -170,21 +176,73 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Clears the message text but leaves the rest of the message unchanged e.g. reaction, replies, attachments will be untouched
         ///
-        /// If you want to remove the message and all its components completely use the <see cref="HardDelete"/>
+        /// If you want to remove the message and all its components completely use the <see cref="HardDeleteAsync"/>
         /// </summary>
-        public void SoftDelete()
-        {
-            //Todo: implement
-        }
+        public Task SoftDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: false);
 
         /// <summary>
         /// Removes the message completely along with its reactions, replies, attachments, etc.
         ///
-        /// If you want to clear the text only use the <see cref="SoftDelete"/>
+        /// If you want to clear the text only use the <see cref="SoftDeleteAsync"/>
         /// </summary>
-        public void HardDelete()
+        public Task HardDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: true);
+
+        /// <summary>
+        /// Update message text or other parameters
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task<StreamMessage> UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
         {
-            // Todo: implement
+            if (streamUpdateMessageRequest == null)
+            {
+                throw new ArgumentNullException(nameof(streamUpdateMessageRequest));
+            }
+
+            // StreamTodo: validate that Text and Mml should not be both set
+
+            var requestDto = streamUpdateMessageRequest.TrySaveToDto();
+            requestDto.Message.Id = Id;
+
+            var response = await LowLevelClient.InternalMessageApi.UpdateMessageAsync(requestDto);
+            var streamMessage = Cache.TryCreateOrUpdate(response.Message, out _);
+            return streamMessage;
+        }
+
+        /// <summary>
+        /// Pin this message to a channel with optional expiration date
+        /// </summary>
+        /// <param name="expiresAt">[Optional] Exact datetime when pin will expire</param>
+        public async Task PinAsync(DateTime? expiresAt = null)
+        {
+            var requestDto = new UpdateMessagePartialRequestInternalDTO
+            {
+                Set = new Dictionary<string, object>
+                {
+                    { "pinned", true },
+                }
+            };
+
+            if (expiresAt.HasValue)
+            {
+                requestDto.Set["pin_expires"] = expiresAt;
+            }
+
+            await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id, requestDto);
+        }
+
+        /// <summary>
+        /// Unpin this message from a channel
+        /// </summary>
+        public async Task Unpin()
+        {
+            await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id,
+                new UpdateMessagePartialRequestInternalDTO
+                {
+                    Set = new Dictionary<string, object>
+                    {
+                        { "pinned", false },
+                    }
+                });
         }
 
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
@@ -196,9 +254,9 @@ namespace StreamChat.Core.State.TrackedObjects
             CreatedAt = dto.CreatedAt;
             DeletedAt = dto.DeletedAt;
             Html = dto.Html;
-            I18n = dto.I18n;
+            _iI18n.TryReplaceValuesFromDto(dto.I18n);
             Id = dto.Id;
-            ImageLabels = dto.ImageLabels;
+            //_imageLabels.TryReplaceValuesFromDto(dto.ImageLabels); //StreamTodo: NOT IMPLEMENTED
             _latestReactions.TryReplaceRegularObjectsFromDto(dto.LatestReactions, cache);
             _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
             Mml = dto.Mml;
@@ -229,6 +287,14 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
+        /// <summary>
+        /// Clears the text only. Does not make an API call
+        /// </summary>
+        internal void HandleSoftDelete()
+        {
+            Text = string.Empty;
+        }
+
         protected override StreamMessage Self => this;
 
         protected override string InternalUniqueId
@@ -245,5 +311,7 @@ namespace StreamChat.Core.State.TrackedObjects
         private readonly Dictionary<string, int> _reactionCounts = new Dictionary<string, int>();
         private readonly Dictionary<string, int> _reactionScores = new Dictionary<string, int>();
         private readonly List<StreamUser> _threadParticipants = new List<StreamUser>();
+
+        private readonly Dictionary<string, string> _iI18n = new Dictionary<string, string>();
     }
 }

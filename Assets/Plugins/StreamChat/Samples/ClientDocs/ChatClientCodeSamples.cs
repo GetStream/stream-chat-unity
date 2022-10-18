@@ -28,7 +28,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public void Disconnect()
         {
-            //Todo: implement disconnecting user without disposing a client
+            //StreamTodo: implement disconnecting user without disposing a client
 
             var authCredentials = new AuthCredentials(
                 apiKey: "STREAM_CHAT_API_KEY",

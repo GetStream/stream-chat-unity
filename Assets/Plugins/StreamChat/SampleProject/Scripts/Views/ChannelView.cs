@@ -71,7 +71,7 @@ namespace StreamChat.SampleProject.Views
                 ? channelCreatorName
                 : name;
 
-            //Todo: this breaks when instead of a regular character we have an emoji
+            //StreamTodo: this breaks when instead of a regular character we have an emoji
             var abbreviation = abbreviationSource.Length > 0 && char.IsLetterOrDigit(abbreviationSource.First())
                 ? abbreviationSource.Substring(0, 1).ToUpper()
                 : string.Empty;

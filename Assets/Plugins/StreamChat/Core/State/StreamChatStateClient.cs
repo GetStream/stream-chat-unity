@@ -126,10 +126,10 @@ namespace StreamChat.Core.State
 
         public Task DisconnectUserAsync() => LowLevelClient.DisconnectAsync();
 
-        // TODO: Pagination should probably be removed here and only available through channel.GetNextMessages, channel.GetPreviousMessages
+        // StreamTodo: Pagination should probably be removed here and only available through channel.GetNextMessages, channel.GetPreviousMessages
         // Otherwise we have problem that you fetch old messages and then WS event delivers a new one
 
-        //Todo: remove this method, use GetOrCreateChannelAsync only
+        //StreamTodo: remove this method, use GetOrCreateChannelAsync only
         public async Task<StreamChannel> GetOrCreateChannelAsync(string channelType, string channelId)
         {
             var requestBody = new ChannelGetOrCreateRequest
@@ -142,7 +142,7 @@ namespace StreamChat.Core.State
             var channelResponseDto = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
                 channelId, requestBody.TrySaveToDto());
 
-            return _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(channelResponseDto);
+            return _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(channelResponseDto, out _);
         }
 
         public Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId)
@@ -273,8 +273,7 @@ namespace StreamChat.Core.State
         {
             if (_cache.Channels.TryGet(eventMessageDeleted.Cid, out var streamChannel))
             {
-                var isHardDelete = eventMessageDeleted.HardDelete.GetValueOrDefault(false);
-                streamChannel.DeleteMessage(eventMessageDeleted.Message.Id, isHardDelete);
+                streamChannel.HandleMessageDeletedEvent(eventMessageDeleted);
             }
         }
 
@@ -282,7 +281,7 @@ namespace StreamChat.Core.State
         {
             if (_cache.Channels.TryGet(eventMessageUpdated.Cid, out var streamChannel))
             {
-                //streamChannel.UpdateMessage();
+                streamChannel.HandleMessageUpdatedEvent(eventMessageUpdated);
             }
         }
 

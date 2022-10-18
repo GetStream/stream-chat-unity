@@ -138,6 +138,46 @@ namespace StreamChat.Core.API.Internal
             }
         }
 
+        protected async Task<TResponse> Put<TRequest, TResponse>(string endpoint, TRequest request)
+        {
+            var uri = _requestUriFactory.CreateEndpointUri(endpoint);
+            var requestContent = _serializer.Serialize(request);
+
+            HttpResponseMessage httpResponse;
+            try
+            {
+                httpResponse = await _httpClient.PutAsync(uri, requestContent);
+            }
+            catch (Exception e)
+            {
+                _logs.Exception(e);
+                throw;
+            }
+
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                LogRestCall(uri, endpoint, HttpMethod.Put, responseContent, success: false, requestContent);
+
+                var apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
+                throw new StreamApiException(apiError);
+            }
+
+            try
+            {
+                var response = _serializer.Deserialize<TResponse>(responseContent);
+                LogRestCall(uri, endpoint, HttpMethod.Put, responseContent, success: true, requestContent);
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                LogRestCall(uri, endpoint, HttpMethod.Put, responseContent, success: false, requestContent);
+                throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
+            }
+        }
+
         protected async Task<TResponse> Patch<TRequest, TResponse>(string endpoint, TRequest request)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);

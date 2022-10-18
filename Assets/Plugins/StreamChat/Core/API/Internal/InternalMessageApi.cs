@@ -30,6 +30,13 @@ namespace StreamChat.Core.API.Internal
             return Post<UpdateMessageRequestInternalInternalDTO, MessageResponseInternalDTO>(endpoint, updateMessageRequest);
         }
 
+        public Task<MessageResponseInternalDTO> UpdateMessagePartialAsync(string messageId,
+            UpdateMessagePartialRequestInternalDTO updateMessagePartialRequest)
+        {
+            var endpoint = MessageEndpoints.UpdateMessage(messageId);
+            return Put<UpdateMessagePartialRequestInternalDTO, MessageResponseInternalDTO>(endpoint, updateMessagePartialRequest);
+        }
+
         public Task<MessageResponseInternalDTO> DeleteMessageAsync(string messageId, bool hard)
         {
             var endpoint = MessageEndpoints.DeleteMessage(messageId);

@@ -427,7 +427,7 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(2, response.Channel.AdditionalProperties["owned_dogs"]);
                 Assert.AreEqual(4, response.Channel.AdditionalProperties["owned_hamsters"]);
 
-                //Todo: add support - this array is Newtonsoft.Json.Linq.JArray
+                //StreamTodo: add support - this array is Newtonsoft.Json.Linq.JArray
                 // Assert.That(response.Channel.AdditionalProperties["breakfast"], Contains.Item("oatmeal"));
                 // Assert.That(response.Channel.AdditionalProperties["breakfast"], Contains.Item("juice"));
             });
@@ -461,7 +461,7 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(5, response.Channel.AdditionalProperties["owned_dogs"]);
                 Assert.That(response.Channel.AdditionalProperties, Does.Not.Contain("owned_hamsters"));
 
-                //Todo: add support - this array is Newtonsoft.Json.Linq.JArray
+                //StreamTodo: add support - this array is Newtonsoft.Json.Linq.JArray
                 //Assert.That(response.Channel.AdditionalProperties["breakfast"], Contains.Item("donuts"));
                 //Assert.That(response.Channel.AdditionalProperties["breakfast"], Has.Exactly(1).Count);
             });

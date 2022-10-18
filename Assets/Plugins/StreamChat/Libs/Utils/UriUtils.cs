@@ -21,7 +21,7 @@ namespace StreamChat.Libs.Utils
 
                 _sb.Append(item.Key);
                 _sb.Append("=");
-                _sb.Append(item.Value); //Todo: Uri.EscapeDataString ?
+                _sb.Append(item.Value); //StreamTodo: Uri.EscapeDataString ?
             }
 
             return _sb.ToString();

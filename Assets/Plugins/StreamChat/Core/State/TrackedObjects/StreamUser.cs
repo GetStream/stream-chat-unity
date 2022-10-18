@@ -61,7 +61,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public bool? Online { get; set; }
 
-        public PushNotificationSettings PushNotifications { get; set; } //Todo custom type?
+        public PushNotificationSettings PushNotifications { get; set; } //StreamTodo custom type?
 
         /// <summary>
         /// Revocation date for tokens

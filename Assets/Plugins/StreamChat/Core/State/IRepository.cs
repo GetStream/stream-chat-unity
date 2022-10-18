@@ -12,8 +12,6 @@ namespace StreamChat.Core.State
     {
         bool TryGet(string uniqueId, out TTrackedObject trackedObject);
 
-        //TTrackedObject GetOrCreate(string uniqueId);
-
         TTrackedType CreateOrUpdate<TTrackedType, TDto>(string uniqueId, TDto tdo)
             where TTrackedType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TTrackedType>;
 
@@ -25,9 +23,11 @@ namespace StreamChat.Core.State
             where TType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
             where TDto : class;
 
-        TType CreateOrUpdate<TType, TDto>(TDto dto)
+        TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
             where TType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TType>;
 
         IEnumerable<TTrackedObject> AllItems { get; }
+
+        void Remove(TTrackedObject trackedObject);
     }
 }

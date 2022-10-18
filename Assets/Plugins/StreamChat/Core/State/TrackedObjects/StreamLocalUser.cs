@@ -2,10 +2,11 @@
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
 using StreamChat.Core.State.Models;
-using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
+    // StreamTodo: !!! Serious issue that StreamLocalUser and StreamUser can represent the same user in separate instances
+    // We probably need to solve it by inheritance and keep them in the same Cache collection so that e.g. Message.PinnedBy can hold reference to StreamLocalUser
     public class StreamLocalUser : StreamTrackedObjectBase<StreamLocalUser>, IUpdateableFrom<OwnUserInternalDTO, StreamLocalUser>
     {
         #region OwnUser
@@ -75,7 +76,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public bool? Online { get; set; }
 
-        public PushNotificationSettings PushNotifications { get; set; } //Todo custom type?
+        public PushNotificationSettings PushNotifications { get; set; } //StreamTodo custom type?
 
         /// <summary>
         /// Revocation date for tokens
