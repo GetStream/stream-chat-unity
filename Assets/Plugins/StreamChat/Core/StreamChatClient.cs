@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -41,6 +40,8 @@ namespace StreamChat.Core
 
         public event Action<string> EventReceived;
 
+        public event Action<EventNotificationChannelMutesUpdated> ChannelMutesUpdated;
+
         public event Action<EventMessageNew> MessageReceived;
         public event Action<EventMessageUpdated> MessageUpdated;
         public event Action<EventMessageDeleted> MessageDeleted;
@@ -60,6 +61,7 @@ namespace StreamChat.Core
         #region Internal Events
 
         internal event Action<EventHealthCheckInternalDTO> InternalConnected;
+        internal event Action<EventNotificationChannelMutesUpdatedInternalDTO> InternalChannelMutesUpdated;
         internal event Action<EventMessageNewInternalDTO> InternalMessageReceived;
         internal event Action<EventMessageUpdatedInternalDTO> InternalMessageUpdated;
         internal event Action<EventMessageDeletedInternalDTO> InternalMessageDeleted;
@@ -483,6 +485,9 @@ namespace StreamChat.Core
                 (e, dto) => TypingStarted?.Invoke(e), dto => InternalTypingStarted?.Invoke(dto));
             RegisterEventType<EventTypingStopInternalDTO, EventTypingStop>(EventType.TypingStop,
                 (e, dto) => TypingStopped?.Invoke(e), dto => InternalTypingStopped?.Invoke(dto));
+
+            RegisterEventType<EventNotificationChannelMutesUpdatedInternalDTO, EventNotificationChannelMutesUpdated>(EventType.NotificationChannelMutesUpdated,
+                (e, dto) => ChannelMutesUpdated?.Invoke(e), dto => InternalChannelMutesUpdated?.Invoke(dto));
 
             RegisterEventType<EventMessageReadInternalDTO, EventMessageRead>(EventType.MessageRead,
                 (e, dto) => MessageRead?.Invoke(e), dto => InternalMessageRead?.Invoke(dto));

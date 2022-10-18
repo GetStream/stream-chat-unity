@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
@@ -201,19 +202,10 @@ namespace StreamChat.Core.State.TrackedObjects
             }
 
             // StreamTodo: validate that Text and Mml should not be both set
-            try
-            {
-                var response
-                    = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id,
-                        sendMessageRequest.TrySaveToDto());
-                var streamMessage = AppendOrUpdateMessage(response.Message);
-                return streamMessage;
-            }
-            catch (Exception e)
-            {
-                Logs.Exception(e);
-                throw;
-            }
+            var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id,
+                sendMessageRequest.TrySaveToDto());
+            var streamMessage = AppendOrUpdateMessage(response.Message);
+            return streamMessage;
         }
 
         public void QueryMembers()
@@ -280,13 +272,31 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
-        public void MuteChannel()
-        {
-        }
+        /// <summary>
+        /// Mute channel with optional duration in milliseconds
+        /// </summary>
+        /// <param name="milliseconds">[Optional] Duration in milliseconds</param>
+        public Task MuteChannelAsync(int? milliseconds = default)
+            => LowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
+            {
+                ChannelCids = new List<string>
+                {
+                    Cid
+                },
+                Expiration = milliseconds,
+            });
 
-        public void UnmuteChannel()
-        {
-        }
+        /// <summary>
+        /// Unmute channel
+        /// </summary>
+        public Task UnmuteChannel()
+            => LowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
+            {
+                ChannelCids = new List<string>
+                {
+                    Cid
+                },
+            });
 
         public void MuteUser()
         {

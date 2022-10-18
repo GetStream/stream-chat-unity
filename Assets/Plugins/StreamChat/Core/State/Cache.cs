@@ -18,6 +18,7 @@ namespace StreamChat.Core.State
             ChannelMembers = new Repository<StreamChannelMember>((uniqueId, repository) => trackedObjectsFactory.CreateStreamChannelMember(uniqueId), cache: this);
 
             Channels.RegisterDtoTrackingIdGetter<StreamChannel, ChannelStateResponseInternalDTO>(dto => dto.Channel.Cid);
+            Channels.RegisterDtoTrackingIdGetter<StreamChannel, ChannelResponseInternalDTO>(dto => dto.Cid);
 
             Users.RegisterDtoTrackingIdGetter<StreamUser, UserObjectInternalInternalDTO>(dto => dto.Id);
 

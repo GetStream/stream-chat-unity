@@ -86,7 +86,9 @@ namespace StreamChat.Core
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventNotificationMessageNew> NotificationMessageReceived;
 
+        //StreamTodo: Add descriptions
         event Action<EventTypingStart> TypingStarted;
         event Action<EventTypingStop> TypingStopped;
+        event Action<EventNotificationChannelMutesUpdated> ChannelMutesUpdated;
     }
 }

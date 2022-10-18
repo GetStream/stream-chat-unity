@@ -160,6 +160,11 @@ namespace StreamChat.Core.State
             return null;
         }
 
+        /// <summary>
+        /// Mute channels with optional duration in milliseconds
+        /// </summary>
+        /// <param name="channels">Channels to mute</param>
+        /// <param name="milliseconds">[Optional] Duration in milliseconds</param>
         public async Task MuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels, int? milliseconds = default)
         {
             if (channels == null)
@@ -295,6 +300,11 @@ namespace StreamChat.Core.State
 
         #endregion
 
+        private void OnLowLevelClientChannelMutesUpdated(EventNotificationChannelMutesUpdatedInternalDTO eventDto)
+        {
+            LocalUser.TryUpdateFromDto(eventDto.Me, Cache);
+        }
+
         private void SubscribeTo(StreamChatClient lowLevelClient)
         {
             lowLevelClient.InternalConnected += OnLowLevelClientConnected;
@@ -304,6 +314,8 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalMessageReceived += OnLowLevelClientMessageReceived;
             lowLevelClient.InternalMessageUpdated += OnLowLevelClientMessageUpdated;
             lowLevelClient.InternalMessageDeleted += OnLowLevelClientMessageDeleted;
+
+            lowLevelClient.InternalChannelMutesUpdated += OnLowLevelClientChannelMutesUpdated;
         }
 
         private void UnsubscribeFrom(StreamChatClient lowLevelClient)
