@@ -59,8 +59,7 @@ namespace StreamChat.Tests.StatefulClient
             //StreamTodo: resolve that User and LocalUser should be the same object
             Assert.AreEqual(channelMute.User.Id, StatefulClient.LocalUser.Id);
 
-            //StreamTodo: resolve this, perhaps there is a channel updated event that covers this
-            //Assert.AreEqual(true, channel.Muted);
+            Assert.AreEqual(true, channel.Muted);
         }
 
         [UnityTest]
@@ -79,6 +78,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var channelMute = StatefulClient.LocalUser.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNotNull(channelMute);
+            Assert.AreEqual(true, channel.Muted);
 
             //StreamTodo: resolve that User and LocalUser should be the same object
             Assert.AreEqual(channelMute.User.Id, StatefulClient.LocalUser.Id);
@@ -87,6 +87,7 @@ namespace StreamChat.Tests.StatefulClient
 
             channelMute = StatefulClient.LocalUser.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNull(channelMute);
+            Assert.AreEqual(false, channel.Muted);
         }
     }
 }

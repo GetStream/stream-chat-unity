@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using StreamChat.Core.Configs;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Requests;
@@ -231,9 +232,7 @@ namespace StreamChat.Core.State
             }
         }
 
-        internal ICache Cache => _cache;
-
-        public StreamChatClient LowLevelClient { get; } //StreamTodo: change to internal
+        internal StreamChatClient LowLevelClient { get; }
 
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
@@ -249,7 +248,7 @@ namespace StreamChat.Core.State
             try
             {
                 var localUserDto = dto.Me;
-                LocalUser = _cache.TryCreateOrUpdate(localUserDto);
+                UpdateLocalUser(localUserDto);
                 Connected?.Invoke(LocalUser);
             }
             finally
@@ -302,7 +301,20 @@ namespace StreamChat.Core.State
 
         private void OnLowLevelClientChannelMutesUpdated(EventNotificationChannelMutesUpdatedInternalDTO eventDto)
         {
-            LocalUser.TryUpdateFromDto(eventDto.Me, Cache);
+            UpdateLocalUser(eventDto.Me);
+        }
+
+        private void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
+        {
+            LocalUser = _cache.TryCreateOrUpdate(ownUserInternalDto);
+
+            //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
+            // This could be solved if ChannelMutes would be an observable collection
+            foreach (var channel in _cache.Channels.AllItems)
+            {
+                var isMuted = LocalUser.ChannelMutes.Any(_ => _.Channel == channel);
+                channel.SetMuted(isMuted);
+            }
         }
 
         private void SubscribeTo(StreamChatClient lowLevelClient)

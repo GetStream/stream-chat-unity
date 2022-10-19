@@ -449,6 +449,8 @@ namespace StreamChat.Core.State.TrackedObjects
             }
         }
 
+        internal void SetMuted(bool isMuted) => Muted = isMuted;
+
         protected override StreamChannel Self => this;
 
         protected override string InternalUniqueId

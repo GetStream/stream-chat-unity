@@ -122,7 +122,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
             _channelMutes.TryReplaceRegularObjectsFromDto(dto.ChannelMutes, cache);
             _devices.TryReplaceRegularObjectsFromDto(dto.Devices, cache);
-            //_latestHiddenChannels = dto.LatestHiddenChannels;
+            _latestHiddenChannels.TryReplaceValuesFromDto(dto.LatestHiddenChannels);
             _mutes.TryReplaceRegularObjectsFromDto(dto.Mutes, cache);
 
             TotalUnreadCount = dto.TotalUnreadCount;

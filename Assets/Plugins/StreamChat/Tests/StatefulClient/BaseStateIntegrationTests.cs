@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core;
+using StreamChat.Core.Configs;
 using StreamChat.Core.State;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs;
@@ -69,7 +71,10 @@ namespace StreamChat.Tests.StatefulClient
 
         private void InitClient(string forcedAdminId = null)
         {
-            StatefulClient = StreamChatStateClient.CreateDefaultClient();
+            StatefulClient = StreamChatStateClient.CreateDefaultClient(new StreamClientConfig
+            {
+                LogLevel = StreamLogLevel.Debug
+            });
         }
 
         private static AuthCredentials GetUserAuthCredentials(UserLevel level)
