@@ -29,7 +29,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
         /// </summary>
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<int> Cid { get; set; }
+        public string Cid { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -83,7 +83,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Contains user who pinned the message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<int> PinnedBy { get; set; }
+        public string PinnedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("quoted_message_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string QuotedMessageId { get; set; }
