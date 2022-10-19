@@ -18,7 +18,8 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Channel unique identifier in <type>:<id> format
         /// </summary>
-        public List<int> Cid { get; set; }
+        [Obsolete("Has no effect and will be removed in a future release")]
+        public string Cid { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -63,13 +64,14 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
-        public List<int> PinnedBy { get; set; }
+        public string PinnedBy { get; set; }
 
         public string QuotedMessageId { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
+        [Obsolete("Has no effect and will be removed in a future release")]
         public Dictionary<string, int> ReactionScores { get; set; }
 
         /// <summary>
@@ -98,7 +100,6 @@ namespace StreamChat.Core.Requests
             new MessageRequestInternalInternalDTO
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<AttachmentRequest, AttachmentRequestInternalDTO>(),
-                Cid = Cid,
                 Html = Html,
                 Id = Id,
                 MentionedUsers = MentionedUsers,
@@ -109,7 +110,6 @@ namespace StreamChat.Core.Requests
                 PinnedAt = PinnedAt,
                 PinnedBy = PinnedBy,
                 QuotedMessageId = QuotedMessageId,
-                ReactionScores = ReactionScores,
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,

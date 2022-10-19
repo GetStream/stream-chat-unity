@@ -1,6 +1,5 @@
 ﻿using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Requests
 {

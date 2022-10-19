@@ -24,6 +24,5 @@ namespace StreamChat.Core.Models
 
             return this;
         }
-
     }
 }

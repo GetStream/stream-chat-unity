@@ -3,7 +3,7 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Models
 {
-    public class  ChannelConfig : ModelBase, ILoadableFrom<ChannelConfigWithInfoInternalDTO, ChannelConfig>
+    public class ChannelConfig : ModelBase, ILoadableFrom<ChannelConfigWithInfoInternalDTO, ChannelConfig>
     {
         /// <summary>
         /// Enables automatic message moderation
