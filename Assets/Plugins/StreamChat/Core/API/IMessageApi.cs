@@ -25,6 +25,15 @@ namespace StreamChat.Core.API
         Task<MessageResponse> UpdateMessageAsync(UpdateMessageRequest updateMessageRequest);
 
         /// <summary>
+        /// <para>Partially updates a message.</para>
+        /// You can selectively update fields using the <see cref="UpdateMessagePartialRequest.Set"/> and <see cref="UpdateMessagePartialRequest.Unset"/>
+        ///
+        /// For full overwrite, use <see cref="UpdateMessageAsync"/> method.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/send_message/?language=unity#partial-update</remarks>
+        Task<MessageResponse> UpdateMessagePartialAsync(string messageId, UpdateMessagePartialRequest updateMessagePartialRequest);
+
+        /// <summary>
         /// Deletes a message.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/send_message/?language=unity</remarks>

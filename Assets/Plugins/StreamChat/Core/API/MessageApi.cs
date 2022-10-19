@@ -29,6 +29,12 @@ namespace StreamChat.Core.API
             return dto.ToDomain<MessageResponseInternalDTO, MessageResponse>();
         }
 
+        public async Task<MessageResponse> UpdateMessagePartialAsync(string messageId, UpdateMessagePartialRequest updateMessagePartialRequest)
+        {
+            var dto = await _internalMessageApi.UpdateMessagePartialAsync(messageId, updateMessagePartialRequest.TrySaveToDto());
+            return dto.ToDomain<MessageResponseInternalDTO, MessageResponse>();
+        }
+
         public async Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard)
         {
             var dto = await _internalMessageApi.DeleteMessageAsync(messageId, hard);
