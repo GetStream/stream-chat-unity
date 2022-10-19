@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using StreamChat.Core;
 using StreamChat.Libs.Serialization;
 
@@ -38,3 +39,4 @@ namespace StreamChat.Tests.Api
         private readonly ISerializer _serializer = new NewtonsoftJsonSerializer();
     }
 }
+#endif

@@ -2,8 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -11,10 +9,7 @@ using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
-using StreamChat.EditorTools;
 using StreamChat.Libs;
-using StreamChat.Libs.Auth;
-using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -47,9 +42,10 @@ namespace StreamChat.Tests.Integration
             Client = null;
         }
 
-        protected const string TestUserId = "integration-tests-role-user";
-        protected const string TestAdminId = "integration-tests-role-admin";
-        protected const string TestGuestId = "integration-tests-role-guest";
+        // StreamTodo: replace with admin ids fetched from loaded data set
+        protected const string TestUserId = TestUtils.TestUserId;
+        protected const string TestAdminId = TestUtils.TestAdminId;
+        protected const string TestGuestId = TestUtils.TestGuestId;
 
         protected IStreamChatClient Client { get; private set; }
 
@@ -199,7 +195,7 @@ namespace StreamChat.Tests.Integration
 
         private void InitClientAndConnect(string forcedAdminId = null)
         {
-            GetTestAuthCredentials(out var guestAuthCredentials, out var userAuthCredentials,
+            TestUtils.GetTestAuthCredentials(out var guestAuthCredentials, out var userAuthCredentials,
                 out var adminAuthCredentials, out var otherUserAuthCredentials, forcedAdminId);
 
             OtherUserId = otherUserAuthCredentials.UserId;
@@ -215,74 +211,6 @@ namespace StreamChat.Tests.Integration
             InitClientAndConnect(userId);
 
             yield return Client.WaitForClientToConnect();
-        }
-
-        private static void GetTestAuthCredentials(out AuthCredentials guestAuthCredentials,
-            out AuthCredentials userAuthCredentials, out AuthCredentials adminAuthCredentials,
-            out AuthCredentials otherUserAuthCredentials, string forcedAdminId = null)
-        {
-            const string TestAuthDataFilePath = "test_auth_data_xSpgxW.txt";
-
-            if (Application.isBatchMode)
-            {
-                Debug.Log("Batch mode, expecting data injected through CLI args");
-
-                var parser = new CommandLineParser();
-                var argsDict = parser.GetParsedCommandLineArguments();
-
-                var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
-
-                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
-
-                guestAuthCredentials = testAuthDataSet.TestGuestData;
-                userAuthCredentials = testAuthDataSet.TestUserData;
-                adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
-                otherUserAuthCredentials = testAuthDataSet.GetOtherThan(adminAuthCredentials);
-            }
-            else if (File.Exists(TestAuthDataFilePath))
-            {
-                var serializer = new NewtonsoftJsonSerializer();
-
-                var base64TestData = File.ReadAllText(TestAuthDataFilePath);
-                var decodedJsonTestData = Convert.FromBase64String(base64TestData);
-
-                var testAuthDataSet =
-                    serializer.Deserialize<TestAuthDataSet>(Encoding.UTF8.GetString(decodedJsonTestData));
-
-                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
-
-                guestAuthCredentials = testAuthDataSet.TestGuestData;
-                userAuthCredentials = testAuthDataSet.TestUserData;
-                adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
-                otherUserAuthCredentials = testAuthDataSet.GetOtherThan(adminAuthCredentials);
-            }
-            else
-            {
-                //Define manually
-
-                const string ApiKey = "";
-
-                guestAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestGuestId,
-                    userToken: "");
-
-                userAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestUserId,
-                    userToken: "");
-
-                adminAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestAdminId,
-                    userToken: "");
-
-                otherUserAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: "",
-                    userToken: "");
-                ;
-            }
         }
     }
 }
