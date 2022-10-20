@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using StreamChat.Core.Auth;

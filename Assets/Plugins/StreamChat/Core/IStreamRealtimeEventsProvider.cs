@@ -86,9 +86,28 @@ namespace StreamChat.Core
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventNotificationMessageNew> NotificationMessageReceived;
 
-        //StreamTodo: Add descriptions
+        /// <summary>
+        /// Event raised when a user in a channel started typing
+        ///
+        /// Use <see cref="EventTypingStart.Cid"/> & <see cref="EventTypingStart.User"/> to know which channel & user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventTypingStart> TypingStarted;
+
+        /// <summary>
+        /// Event raised when a user in a channel stopped typing
+        ///
+        /// Use <see cref="EventTypingStop.Cid"/> & <see cref="EventTypingStop.User"/> to know which channel & user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventTypingStop> TypingStopped;
+
+        /// <summary>
+        /// Notification Event raised when channel mutes are updated for local user.
+        ///
+        /// Use <see cref="EventNotificationChannelMutesUpdated.Me.ChannelMutes"/> to get info on which channels are muted
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventNotificationChannelMutesUpdated> ChannelMutesUpdated;
     }
 }

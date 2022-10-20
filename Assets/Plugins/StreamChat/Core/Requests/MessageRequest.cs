@@ -18,6 +18,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Channel unique identifier in <type>:<id> format
         /// </summary>
+        [Obsolete("Has no effect and will be removed in a future release")]
         public string Cid { get; set; }
 
         /// <summary>
@@ -99,7 +100,6 @@ namespace StreamChat.Core.Requests
             new MessageRequestInternalInternalDTO
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<AttachmentRequest, AttachmentRequestInternalDTO>(),
-                Cid = Cid,
                 Html = Html,
                 Id = Id,
                 MentionedUsers = MentionedUsers,
