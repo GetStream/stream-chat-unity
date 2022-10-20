@@ -38,12 +38,132 @@ namespace StreamChat.Core
         event Action<EventMessageDeleted> MessageDeleted;
 
         /// <summary>
-        /// Event raised when a when a watched channel is marked as read.
+        /// Event raised when a watched channel is marked as read.
         ///
         /// Use <see cref="EventMessageRead.Cid"/> to know which channel it belongs to.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
         event Action<EventMessageRead> MessageRead;
+
+        /// <summary>
+        /// Event raised when a channel is updated
+        ///
+        /// Use <see cref="EventChannelUpdated.Cid"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventChannelUpdated> ChannelUpdated;
+
+        /// <summary>
+        /// Event raised when a channel is deleted
+        ///
+        /// Use <see cref="EventChannelDeleted.Cid"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventChannelDeleted> ChannelDeleted;
+
+        /// <summary>
+        /// Event raised when a channel is truncated
+        ///
+        /// Use <see cref="EventChannelTruncated.Cid"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventChannelTruncated> ChannelTruncated;
+
+        /// <summary>
+        /// Event raised when a channel is made visible
+        ///
+        /// Use <see cref="EventChannelVisible.Cid"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventChannelVisible> ChannelVisible;
+
+        /// <summary>
+        /// Event raised when a channel is hidden
+        ///
+        /// Use <see cref="EventChannelHidden.Cid"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventChannelHidden> ChannelHidden;
+
+        /// <summary>
+        /// Event raised when a channel member is added to a channel
+        ///
+        /// Use <see cref="EventMemberAdded.Cid"/> & <see cref="EventMemberAdded.Member"/> to know which channel & member it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventMemberAdded> MemberAdded;
+
+        /// <summary>
+        /// Event raised when a channel member is removed from a channel
+        ///
+        /// Use <see cref="EventMemberRemoved.Cid"/> & <see cref="EventMemberRemoved.Member"/> to know which channel & member it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventMemberRemoved> MemberRemoved;
+
+        /// <summary>
+        /// Event raised when a channel member is updated (e.g. promoted to moderator, accepted/rejected the invite, etc.)
+        ///
+        /// Use <see cref="EventMemberUpdated.Cid"/> & <see cref="EventMemberUpdated.Member"/> to know which channel & member it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventMemberUpdated> MemberUpdated;
+
+        /// <summary>
+        /// Event raised when a user status changes (e.g online, offline, away, etc.)
+        ///
+        /// Use <see cref="EventUserPresenceChanged.User"/> to know which user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventUserPresenceChanged> UserPresenceChanged;
+
+        /// <summary>
+        /// Event raised when a user is updated
+        ///
+        /// Use <see cref="EventUserUpdated.User"/> to know which user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventUserUpdated> UserUpdated;
+
+        /// <summary>
+        /// Event raised when a user is deleted
+        ///
+        /// Use <see cref="EventUserDeleted.User"/> to know which user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventUserDeleted> UserDeleted;
+
+        /// <summary>
+        /// Event raised when a user is banned
+        ///
+        /// Use <see cref="EventUserBanned.User"/> to know which user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventUserBanned> UserBanned;
+
+        /// <summary>
+        /// Event raised when a user ban is lifted
+        ///
+        /// Use <see cref="EventUserUnbanned.User"/> to know which user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventUserUnbanned> UserUnbanned;
+
+        /// <summary>
+        /// Event raised when a user starts watching a channel
+        ///
+        /// Use <see cref="EventUserWatchingStart.Cid"/> & <see cref="EventUserWatchingStart.User"/> to know which channel & user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventUserWatchingStart> UserWatchingStart;
+
+        /// <summary>
+        /// Event raised when a user stops watching a channel
+        ///
+        /// Use <see cref="EventUserWatchingStop.Cid"/> & <see cref="EventUserWatchingStop.User"/> to know which channel & user it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventUserWatchingStop> UserWatchingStop;
 
         /// <summary>
         /// Event raised when a reaction has been added to the message of a watched channel.
@@ -105,9 +225,82 @@ namespace StreamChat.Core
         /// <summary>
         /// Notification Event raised when channel mutes are updated for local user.
         ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
         /// Use <see cref="EventNotificationChannelMutesUpdated.Me.ChannelMutes"/> to get info on which channels are muted
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
-        event Action<EventNotificationChannelMutesUpdated> ChannelMutesUpdated;
+        event Action<EventNotificationChannelMutesUpdated> NotificationChannelMutesUpdated;
+
+        /// <summary>
+        /// Notification Event raised when user mutes are updated
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationMutesUpdated.Me.Mutes"/> to get info on which users are muted
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationMutesUpdated> NotificationMutesUpdated;
+
+        /// <summary>
+        /// Notification Event raised when channel is deleted
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationChannelDeleted.Cid"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationChannelDeleted> NotificationChannelDeleted;
+
+        /// <summary>
+        /// Notification Event raised when channel is truncated
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationChannelTruncated.Cid"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationChannelTruncated> NotificationChannelTruncated;
+
+        /// <summary>
+        /// Notification Event raised when a member is added to a channel
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationAddedToChannel.Cid"/> & <see cref="EventNotificationAddedToChannel.Member"/> to know which channel & member it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationAddedToChannel> NotificationAddedToChannel;
+
+        /// <summary>
+        /// Notification Event raised when a member is removed from a channel
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationRemovedFromChannel.Cid"/> & <see cref="EventNotificationRemovedFromChannel.Member"/> to know which channel & member it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationRemovedFromChannel> NotificationRemovedFromChannel;
+
+        /// <summary>
+        /// Notification Event raised when the user is invited to join a channel
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationInvited.Channel"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationInvited> NotificationInvited;
+
+        /// <summary>
+        /// Notification Event raised when the user accepts an invite
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationInviteAccepted.Channel"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationInviteAccepted> NotificationInviteAccepted;
+
+        /// <summary>
+        /// Notification Event raised when the user rejects an invite
+        ///
+        /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.
+        /// Use <see cref="EventNotificationInviteRejected.Channel"/> to know which channel it belongs to.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity</remarks>
+        event Action<EventNotificationInviteRejected> NotificationInviteRejected;
     }
 }
