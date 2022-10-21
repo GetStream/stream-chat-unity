@@ -17,7 +17,8 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-        EventUserMuted ILoadableFrom<EventUserMutedInternalDTO, EventUserMuted>.LoadFromDto(EventUserMutedInternalDTO dto)
+        EventUserMuted ILoadableFrom<EventUserMutedInternalDTO, EventUserMuted>.LoadFromDto(
+            EventUserMutedInternalDTO dto)
         {
             CreatedAt = dto.CreatedAt;
             TargetUser = dto.TargetUser;
