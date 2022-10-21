@@ -19,7 +19,6 @@ namespace StreamChat.Core.Events
 
         public string Type { get; set; }
 
-
         EventNotificationChannelTruncated
             ILoadableFrom<EventNotificationChannelTruncatedInternalDTO, EventNotificationChannelTruncated>.LoadFromDto(
                 EventNotificationChannelTruncatedInternalDTO dto)

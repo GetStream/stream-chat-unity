@@ -20,7 +20,6 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-
         EventChannelVisible ILoadableFrom<EventChannelVisibleInternalDTO, EventChannelVisible>.LoadFromDto(
             EventChannelVisibleInternalDTO dto)
         {

@@ -34,9 +34,6 @@ namespace StreamChat.Core.Events
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
-            ;
-
-            return this;
         }
     }
 }

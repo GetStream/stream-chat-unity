@@ -14,7 +14,6 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-
         EventUserPresenceChanged ILoadableFrom<EventUserPresenceChangedInternalDTO, EventUserPresenceChanged>.
             LoadFromDto(EventUserPresenceChangedInternalDTO dto)
         {

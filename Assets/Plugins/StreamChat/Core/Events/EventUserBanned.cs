@@ -30,7 +30,6 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-
         EventUserBanned ILoadableFrom<EventUserBannedInternalDTO, EventUserBanned>.LoadFromDto(
             EventUserBannedInternalDTO dto)
         {

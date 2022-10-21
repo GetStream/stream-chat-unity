@@ -20,7 +20,6 @@ namespace StreamChat.Core.Events
 
         public User User { get; set; }
 
-
         EventUserDeleted ILoadableFrom<EventUserDeletedInternalDTO, EventUserDeleted>.LoadFromDto(
             EventUserDeletedInternalDTO dto)
         {
