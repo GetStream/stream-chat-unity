@@ -1,11 +1,11 @@
-﻿using StreamChat.Core.InternalDTO.Events;
-using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.Helpers;
+﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
 {
-    public partial class EventNotificationMessageNew : EventBase, ILoadableFrom<EventNotificationMessageNewInternalDTO, EventNotificationMessageNew>
+    public sealed class EventChannelTruncated : EventBase,
+        ILoadableFrom<EventChannelTruncatedInternalDTO, EventChannelTruncated>
     {
         public Channel Channel { get; set; }
 
@@ -17,21 +17,16 @@ namespace StreamChat.Core.Events
 
         public System.DateTimeOffset? CreatedAt { get; set; }
 
-        public Message Message { get; set; }
-
-        public string Team { get; set; }
-
         public string Type { get; set; }
 
-        EventNotificationMessageNew ILoadableFrom<EventNotificationMessageNewInternalDTO, EventNotificationMessageNew>.LoadFromDto(EventNotificationMessageNewInternalDTO dto)
+        EventChannelTruncated ILoadableFrom<EventChannelTruncatedInternalDTO, EventChannelTruncated>.LoadFromDto(
+            EventChannelTruncatedInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
-            Team = dto.Team;
             Type = dto.Type;
             AdditionalProperties = dto.AdditionalProperties;
 
