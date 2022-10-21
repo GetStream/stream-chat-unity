@@ -827,8 +827,9 @@ namespace StreamChat.Tests.Integration
             yield return ReconnectClient();
 
             //Should use Assert.AreEqual but there seems to be some delay with updating the values
-            Assert.GreaterOrEqual(Client.LocalUser.UnreadChannels, 2);
-            Assert.GreaterOrEqual(Client.LocalUser.TotalUnreadCount, 3);
+            Assert.IsNotNull(InitialLocalUser);
+            Assert.GreaterOrEqual(InitialLocalUser.UnreadChannels, 2);
+            Assert.GreaterOrEqual(InitialLocalUser.TotalUnreadCount, 3);
         }
 
         [UnityTest]
