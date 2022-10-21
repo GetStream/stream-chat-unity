@@ -37,9 +37,7 @@ namespace StreamChat.Tests.Integration
             Debug.Log("------------ TearDown");
 
             DeleteTempChannels();
-
-            Client.Dispose();
-            Client = null;
+            TryCleanupClient();
         }
 
         // StreamTodo: replace with admin ids fetched from loaded data set
@@ -48,6 +46,7 @@ namespace StreamChat.Tests.Integration
         protected const string TestGuestId = TestUtils.TestGuestId;
 
         protected IStreamChatClient Client { get; private set; }
+        protected OwnUser InitialLocalUser;
 
         /// <summary>
         /// Id of other user than currently logged one
@@ -151,7 +150,7 @@ namespace StreamChat.Tests.Integration
                     await Task.Delay(1);
                 }
 
-                if (www.isNetworkError || www.isHttpError)
+                if (www.error != null)
                 {
                     Debug.LogError($"{www.error}, URL:{www.url}");
                     return null;
@@ -201,13 +200,31 @@ namespace StreamChat.Tests.Integration
             OtherUserId = otherUserAuthCredentials.UserId;
 
             Client = StreamChatClient.CreateDefaultClient(adminAuthCredentials);
+            Client.Connected += OnClientConnected;
             Client.Connect();
+        }
+
+        private void TryCleanupClient()
+        {
+            if (Client == null)
+            {
+                return;
+            }
+
+            Client.Connected -= OnClientConnected;
+            Client.Dispose();
+            Client = null;
+        }
+
+        private void OnClientConnected(OwnUser localUser)
+        {
+            InitialLocalUser = localUser;
         }
 
         protected IEnumerator ReconnectClient()
         {
             var userId = Client.UserId;
-            Client.Dispose();
+            TryCleanupClient();
             InitClientAndConnect(userId);
 
             yield return Client.WaitForClientToConnect();
