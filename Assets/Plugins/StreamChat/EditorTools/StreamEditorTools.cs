@@ -34,6 +34,13 @@ namespace StreamChat.EditorTools
             window.Show();
         }
 
+        [MenuItem(MenuPrefix + "Open " + nameof(StreamPackageExportEditor))]
+        public static void ShowStreamPackageExportEditorWindow()
+        {
+            var window = EditorWindow.GetWindow<StreamPackageExportEditor>();
+            window.Show();
+        }
+
         public static void BuildSampleApp()
         {
             var parser = new CommandLineParser();
