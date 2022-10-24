@@ -1,3 +1,34 @@
+v3.9.0:
+Deprecated (will be removed in a future release):
+* EventNotificationMarkRead.UnreadCount - it duplicates the EventNotificationMarkRead.TotalUnreadCount
+* StreamChatClient.LocalUser - it is not updated after the connection  
+
+Fixes:
+* Fix tests to not use obsolete code and therefore show warnings in the logs/console 
+* Fix WS exception when disconnecting 
+* Remove UserMute json attributes & MessageRequest.PinnedBy type & mark invalid fields as obsolete 
+* Fix IsDebugEnabled - StreamLogLevel is not a flags enum 
+* Fix WebSocket token cancellation and resources cleanup  
+* Fix start/stop typing events not containing event type 
+* Fix Disconnected event not being triggered when mocking WS Client disconnection in unit test 
+* Fix when_stream_client_connection_failed_expect_reconnect not properly simulating scenario 
+* Fix invalid data types in DTOs 
+* Fix Limit & Offset field types for QueryMembersRequest 
+* Change code sample to not use method marked as obsolete 
+* Fix ArgumentOutOfRangeException when Closing state is checked 
+
+Improvements:
+* Implement missing real-time events and notifications that might come from the WebSocket connection 
+* Implement StreamChatClient.ChannelMutesUpdated event 
+* Implement StreamChatClient.MessageApi.UpdateMessagePartialAsync 
+* Implement StreamChatClient.MessageApi.UploadImageAsync endpoint + add upload image with resize integration test 
+* Update DTOs according to Stream Open API spec 
+* Remove server-side only fields from DTOs
+* Add detailed info to the Message of StreamApiException in order for Unity Console to present more info 
+* Add utility method to allow running Task as callback 
+* Add config option to control log level 
+* Add RunAsIEnumerator with argumentless Task
+
 v3.6.0:
 Deprecated (will be removed in a future release):
 * ChannelState's NewMessageAdded and AddMessage methods
