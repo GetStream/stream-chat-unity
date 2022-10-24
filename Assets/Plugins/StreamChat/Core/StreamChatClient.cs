@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Text;
@@ -179,7 +179,7 @@ namespace StreamChat.Core
         public float ReconnectExponentialMaxInterval { get; private set; } = 1024;
         public double? NextReconnectTime { get; private set; }
 
-        public static readonly Version SDKVersion = new Version(3, 6, 0);
+        public static readonly Version SDKVersion = new Version(3, 9, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
