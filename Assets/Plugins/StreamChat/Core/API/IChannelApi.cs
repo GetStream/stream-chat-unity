@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
@@ -64,6 +65,13 @@ namespace StreamChat.Core.API
         /// Deletes a channel.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
+        Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId, bool isHardDelete);
+
+        /// <summary>
+        /// Deletes a channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
+        [Obsolete("Please use the other overload. This method is deprecated and will be removed in a future release")]
         Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId);
 
         /// <summary>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Requests;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.TrackedObjects;
@@ -161,10 +162,10 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
-        public IEnumerator When_message_flag_requested_expected_no_errors()
-            => ConnectAndExecute(When_message_flag_requested_expected_no_errors_Async);
+        public IEnumerator When_message_flag_requested_expected_message_flag()
+            => ConnectAndExecute(When_message_flag_requested_expected_message_flag_Async);
 
-        public async Task When_message_flag_requested_expected_no_errors_Async()
+        public async Task When_message_flag_requested_expected_message_flag_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
 
@@ -175,7 +176,22 @@ namespace StreamChat.Tests.StatefulClient
 
             await sentMessage.FlagAsync();
 
-            // Currently there is no way to query flagged messages, they show up only in the dashboard
+            var response = await StatefulClient.LowLevelClient.InternalModerationApi.QueryMessageFlagsAsync(
+                new QueryMessageFlagsRequestInternalDTO
+                {
+                    FilterConditions = new Dictionary<string, object>()
+                    {
+                        {"channel_cid", new Dictionary<string, string>()
+                        {
+                            {"$eq", channel.Cid}
+                        }}
+                    },
+                    Limit = 30,
+                    Offset = 0,
+                });
+
+            var messageFlag = response.Flags.FirstOrDefault(_ => _.Message.Id == sentMessage.Id);
+            Assert.NotNull(messageFlag);
         }
     }
 }

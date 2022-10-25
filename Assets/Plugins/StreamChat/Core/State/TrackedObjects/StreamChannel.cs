@@ -7,6 +7,7 @@ using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
+using StreamChat.Core.Models;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 
@@ -26,6 +27,7 @@ namespace StreamChat.Core.State.TrackedObjects
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>,
+        IUpdateableFrom<UpdateChannelResponseInternalDTO, StreamChannel>,
         IStreamChannel
     {
         #region Channel
@@ -331,20 +333,40 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
-        public void MarkMessageRead()
+        /// <summary>
+        /// Mark this message as the last that was read by this user in this channel
+        /// If you want to mark whole channel as read use the <see cref="MarkChannelReadAsync"/>
+        ///
+        /// This feature allows to track to which message users have read the channel
+        /// </summary>
+        public Task MarkMessageReadAsync(StreamMessage message)
         {
+            StreamAsserts.AssertNotNull(message, nameof(message));
+            if (message.Cid != Cid)
+            {
+                throw new InvalidOperationException(
+                    $"Cid mismatch, expected: {Cid}, given: {message.Cid}. Passed {nameof(message)} does not belong to this channel.");
+            }
+
+            return message.MarkMessageReadAsync();
         }
 
-        public void MarkChannelRead()
-        {
-        }
+        //StreamTodo: remove empty request object
+        /// <summary>
+        /// Mark this channel completely as read
+        /// If you want to mark specific message as read use the <see cref="MarkMessageReadAsync"/>
+        ///
+        /// This feature allows to track to which message users have read the channel
+        /// </summary>
+        public Task MarkChannelReadAsync()
+            => LowLevelClient.InternalChannelApi.MarkReadAsync(Type, Id, new MarkReadRequestInternalDTO());
 
+        //StreamTodo: remove empty request object
         /// <summary>
         /// <para>Shows a previously hidden channel.</para>
         /// Use <see cref="HideAsync"/> to hide a channel.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity</remarks>
-        //StreamTodo: remove empty request object
         public Task ShowAsync()
             => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO()
             {
@@ -362,14 +384,37 @@ namespace StreamChat.Core.State.TrackedObjects
                 ClearHistory = clearHistory
             });
 
-
-
-        public void AddMembers()
+        public async Task AddMembersAsync(IEnumerable<StreamUser> users)
         {
+            StreamAsserts.AssertNotNull(users, nameof(users));
+
+            var membersRequest = new List<ChannelMemberRequestInternalDTO>();
+            foreach (var u in users)
+            {
+                membersRequest.Add(new ChannelMemberRequestInternalDTO
+                {
+                    UserId = u.Id,
+                });
+            }
+
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
+                new UpdateChannelRequestInternalDTO
+                {
+                    AddMembers = membersRequest
+                });
+            Cache.TryCreateOrUpdate(response);
         }
 
-        public void RemoveMembers()
+        public async Task RemoveMembersAsync(IEnumerable<ChannelMember> members)
         {
+            StreamAsserts.AssertNotNull(members, nameof(members));
+
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
+                new UpdateChannelRequestInternalDTO
+                {
+                    RemoveMembers = members.Select(_ => _.UserId).ToList()
+                });
+            Cache.TryCreateOrUpdate(response);
         }
 
         /// <summary>
@@ -393,7 +438,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Unmute channel
         /// </summary>
-        public Task UnmuteChannel()
+        public Task UnmuteChannelAsync()
             => LowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
             {
                 ChannelCids = new List<string>
@@ -402,25 +447,32 @@ namespace StreamChat.Core.State.TrackedObjects
                 },
             });
 
-        public void MuteUser()
+
+        //StreamTodo: write integration tests to check exactly how it works
+        public async Task TruncateAsync(DateTimeOffset truncatedAt, string message = "", bool skipPushNotifications = false, bool isHardDelete = false)
         {
+            var response = await LowLevelClient.InternalChannelApi.TruncateChannelAsync(Type, Id, new TruncateChannelRequestInternalDTO
+            {
+                HardDelete = isHardDelete,
+                Message = new MessageRequestInternalInternalDTO
+                {
+                    Text = message
+                },
+                SkipPush = skipPushNotifications,
+                TruncatedAt = truncatedAt,
+            });
         }
 
-        public void UnmuteUser()
-        {
-        }
+        /// <summary>
+        /// Delete this channel. By default channel is soft deleted. You may hard delete it by setting the <param name="isHardDelete"> argument to true
+        /// </summary>
+        /// <param name="isHardDelete">Hard delete completely removes channel with all its resources</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
+        public async Task DeleteAsync(bool isHardDelete) => LowLevelClient.ChannelApi.DeleteChannelAsync(Type, Id, isHardDelete);
 
-        public void NotifyTypingStarted()
-        {
-        }
+        public Task NotifyTypingStarted() => LowLevelClient.InternalChannelApi.SendTypingStartEventAsync(Type, Id);
 
-        public void NotifyTypingStopped()
-        {
-        }
-
-        public async Task StopWatchingAsync()
-        {
-        }
+        public Task NotifyTypingStopped() => LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
         internal StreamChannel(string uniqueId, IRepository<StreamChannel> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
@@ -567,6 +619,51 @@ namespace StreamChat.Core.State.TrackedObjects
 
             //Not in API spec
             Name = dto.Name;
+
+            #endregion
+        }
+
+        void IUpdateableFrom<UpdateChannelResponseInternalDTO, StreamChannel>.UpdateFromDto(
+            UpdateChannelResponseInternalDTO dto, ICache cache)
+        {
+            #region Channel
+
+            AutoTranslationEnabled = dto.Channel.AutoTranslationEnabled;
+            AutoTranslationLanguage = dto.Channel.AutoTranslationLanguage;
+            Cid = dto.Channel.Cid;
+            Config = Config.TryLoadFromDto(dto.Channel.Config, cache);
+            Cooldown = dto.Channel.Cooldown;
+            CreatedAt = dto.Channel.CreatedAt;
+            CreatedBy = cache.TryCreateOrUpdate(dto.Channel.CreatedBy);
+            DeletedAt = dto.Channel.DeletedAt;
+            Disabled = dto.Channel.Disabled;
+            Frozen = dto.Channel.Frozen;
+            Hidden = dto.Channel.Hidden;
+            HideMessagesBefore = dto.Channel.HideMessagesBefore;
+            Id = dto.Channel.Id;
+            LastMessageAt = dto.Channel.LastMessageAt;
+            MemberCount = dto.Channel.MemberCount;
+            // dto.Channel.Members handled below
+            MuteExpiresAt = dto.Channel.MuteExpiresAt;
+            Muted = dto.Channel.Muted;
+            _ownCapabilities.TryReplaceValuesFromDto(dto.Channel.OwnCapabilities);
+            Team = dto.Channel.Team;
+            TruncatedAt = dto.Channel.TruncatedAt;
+            TruncatedBy = cache.TryCreateOrUpdate(dto.Channel.TruncatedBy);
+            Type = dto.Channel.Type;
+            UpdatedAt = dto.Channel.UpdatedAt;
+
+            LoadAdditionalProperties(dto.Channel.AdditionalProperties);
+
+            //Not in API spec
+            Name = dto.Channel.Name;
+
+            #endregion
+
+            #region ChannelState
+
+            //StreamTodo: will this members list always contain all of them??
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
 
             #endregion
         }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
@@ -58,6 +59,14 @@ namespace StreamChat.Core.API.Internal
             return Post<DeleteChannelsRequestInternalDTO, DeleteChannelsResponseInternalDTO>(endpoint, deleteChannelsRequest);
         }
 
+        public Task<DeleteChannelResponseInternalDTO> DeleteChannelAsync(string channelType, string channelId, bool isHardDelete = false)
+        {
+            var endpoint = ChannelEndpoints.DeleteChannel(channelType, channelId);
+            var parameters = QueryParameters.Default.Append("hard_delete", isHardDelete);
+            return Delete<DeleteChannelResponseInternalDTO>(endpoint, parameters);
+        }
+
+        [Obsolete("Please use the other overload. This method is deprecated and will be removed in a future release")]
         public Task<DeleteChannelResponseInternalDTO> DeleteChannelAsync(string channelType, string channelId)
         {
             var endpoint = ChannelEndpoints.DeleteChannel(channelType, channelId);

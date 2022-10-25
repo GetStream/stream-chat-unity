@@ -27,6 +27,27 @@ namespace StreamChat.Core.State
             }
         }
 
+        public static void AssertNotNull<T>(T item, string argName)
+        {
+            if (item == null)
+            {
+                throw new ArgumentNullException(nameof(argName));
+            }
+        }
+
+        public static void AssertNotNullOrEmpty<T>(ICollection<T> items, string argName)
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(argName));
+            }
+
+            if (items.Count == 0)
+            {
+                throw new ArgumentException($"{argName} cannot be empty");
+            }
+        }
+
         public static void AssertNotNullOrEmpty<T>(IEnumerable<T> items, string argName)
         {
             if (items == null)

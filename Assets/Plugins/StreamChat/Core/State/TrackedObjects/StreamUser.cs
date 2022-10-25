@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
@@ -93,9 +94,43 @@ namespace StreamChat.Core.State.TrackedObjects
         public string Name;
         public string Image;
 
+        /// <summary>
+        /// Flag this user
+        /// </summary>
         public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagUserAsync(Id);
 
+        /// <summary>
+        /// Mark user as muted. Any user is allowed to mute another user. Mute will last until the <see cref="UnmuteAsync"/> is called or until mute expires.
+        /// Muted user messages will still be received by the <see cref="IStreamChatStateClient"/> so if you wish to hide muted users messages you need implement by yourself
+        ///
+        /// You can access mutes via <see cref="StreamLocalUser.Mutes"/> in <see cref="IStreamChatStateClient.LocalUser"/>
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#mutes</remarks>
+        public async Task MuteAsync()
+        {
+            var response = await LowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
+            {
+                TargetIds = new List<string>
+                {
+                    Id
+                },
+                Timeout = null,
+            });
 
+            StreamChatStateClient.UpdateLocalUser(response.OwnUser);
+        }
+
+        /// <summary>
+        /// Remove user mute. Any user is allowed to mute another user. Mute will last until the <see cref="UnmuteAsync"/> is called or until mute expires.
+        /// Muted user messages will still be received by the <see cref="IStreamChatStateClient"/> so if you wish to hide muted users messages you need implement by yourself
+        ///
+        /// You can access mutes via <see cref="StreamLocalUser.Mutes"/> in <see cref="IStreamChatStateClient.LocalUser"/>
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#mutes</remarks>
+        public Task UnmuteAsync() => LowLevelClient.InternalModerationApi.UnmuteUserAsync(new UnmuteUserRequestInternalDTO
+        {
+            TargetId = Id,
+        });
 
         internal StreamUser(string uniqueId, IRepository<StreamUser> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)

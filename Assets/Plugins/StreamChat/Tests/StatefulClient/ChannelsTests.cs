@@ -156,7 +156,7 @@ namespace StreamChat.Tests.StatefulClient
             //StreamTodo: resolve that User and LocalUser should be the same object
             Assert.AreEqual(channelMute.User.Id, StatefulClient.LocalUser.Id);
 
-            await channel.UnmuteChannel();
+            await channel.UnmuteChannelAsync();
 
             channelMute = StatefulClient.LocalUser.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNull(channelMute);

@@ -59,6 +59,13 @@ namespace StreamChat.Core.API
             return dto.ToDomain<DeleteChannelsResponseInternalDTO, DeleteChannelsResponse>();
         }
 
+        public async Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId, bool isHardDelete)
+        {
+            var dto = await _internalChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete);
+            return dto.ToDomain<DeleteChannelResponseInternalDTO, DeleteChannelResponse>();
+        }
+
+        [Obsolete("Please use the other overload. This method is deprecated and will be removed in a future release")]
         public async Task<DeleteChannelResponse> DeleteChannelAsync(string channelType, string channelId)
         {
             var dto = await _internalChannelApi.DeleteChannelAsync(channelType, channelId);

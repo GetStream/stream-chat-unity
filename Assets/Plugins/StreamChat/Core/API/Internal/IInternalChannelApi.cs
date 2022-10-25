@@ -25,6 +25,8 @@ namespace StreamChat.Core.API.Internal
 
         Task<DeleteChannelsResponseInternalDTO> DeleteChannelsAsync(DeleteChannelsRequestInternalDTO deleteChannelsRequest);
 
+        Task<DeleteChannelResponseInternalDTO> DeleteChannelAsync(string channelType, string channelId, bool isHardDelete);
+
         Task<DeleteChannelResponseInternalDTO> DeleteChannelAsync(string channelType, string channelId);
 
         Task<TruncateChannelResponseInternalDTO> TruncateChannelAsync(string channelType, string channelId,

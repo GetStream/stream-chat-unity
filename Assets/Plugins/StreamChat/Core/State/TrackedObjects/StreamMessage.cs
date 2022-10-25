@@ -249,8 +249,9 @@ namespace StreamChat.Core.State.TrackedObjects
 
         /// <summary>
         /// Add reaction to this message
+        /// You can view reactions via <see cref="ReactionScores"/>, <see cref="ReactionCounts"/>, <see cref="OwnReactions"/> and <see cref="LatestReactions"/>
         /// </summary>
-        /// <param name="type">Reaction custom key, examples: like, smile, laugh, etc.</param>
+        /// <param name="type">Reaction custom key, examples: like, smile, sad, etc. You can use any custom key</param>
         /// <param name="score">[Optional] Reaction score, by default it counts as 1</param>
         /// <param name="enforceUnique">[Optional] Whether to replace all existing user reactions</param>
         /// <param name="skipMobilePushNotifications">[Optional] Skips any mobile push notifications</param>
@@ -260,25 +261,24 @@ namespace StreamChat.Core.State.TrackedObjects
 
             var request = new SendReactionRequestInternalDTO
             {
-                //ID = null,
                 EnforceUnique = enforceUnique,
                 Reaction = new ReactionRequestInternalDTO
                 {
-                    //MessageId = null,
                     Score = score,
                     Type = type,
-                    //User = null,
-                    //UserId = null,
-                    //AdditionalProperties = null
                 },
                 SkipPush = skipMobilePushNotifications,
-                //AdditionalProperties = null
             };
 
             var response = await LowLevelClient.InternalMessageApi.SendReactionAsync(Id, request);
             Cache.TryCreateOrUpdate(response.Message);
         }
 
+        /// <summary>
+        /// Delete reaction
+        /// </summary>
+        /// <param name="type">Reaction custom key, examples: like, smile, sad, etc. You can use any custom key</param>
+        /// <returns></returns>
         public Task DeleteReactionAsync(string type)
         {
             StreamAsserts.AssertNotNullOrEmpty(type, nameof(type));
@@ -290,6 +290,24 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Any user is allowed to flag a message. This triggers the message.flagged webhook event and adds the message to the inbox of your Stream Dashboard Chat Moderation view.
         /// </summary>
         public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagMessageAsync(Id);
+
+        /// <summary>
+        /// Mark this message as the last that was read by this user in this channel
+        /// If you want to mark whole channel as read use the <see cref="StreamChannel.MarkChannelReadAsync"/>
+        ///
+        /// This feature allows to track to which message users have read the channel
+        /// </summary>
+        public Task MarkMessageReadAsync()
+        {
+            if (!Cache.Channels.TryGet(Cid, out var streamChannel))
+            {
+                throw new Exception($"Failed to get channel with id {Cid} from cache. Please report this issue");
+            }
+            return LowLevelClient.InternalChannelApi.MarkReadAsync(streamChannel.Type, streamChannel.Id, new MarkReadRequestInternalDTO()
+            {
+                MessageId = Id
+            });
+        }
 
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
         {

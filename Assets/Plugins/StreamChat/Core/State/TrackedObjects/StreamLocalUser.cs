@@ -11,12 +11,18 @@ namespace StreamChat.Core.State.TrackedObjects
     {
         #region OwnUser
 
+        /// <summary>
+        /// Muted channels
+        /// </summary>
         public IReadOnlyList<StreamChannelMute> ChannelMutes => _channelMutes;
 
         public IReadOnlyList<StreamDevice> Devices => _devices;
 
         public IReadOnlyList<string> LatestHiddenChannels => _latestHiddenChannels;
 
+        /// <summary>
+        /// Muted users
+        /// </summary>
         public IReadOnlyList<StreamUserMute> Mutes => _mutes;
 
         public int? TotalUnreadCount { get; set; }
