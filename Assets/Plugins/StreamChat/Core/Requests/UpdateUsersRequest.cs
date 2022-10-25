@@ -8,6 +8,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Object containing users
         /// </summary>
+        /// StreamTodo: Check if this could be list
         public System.Collections.Generic.Dictionary<string, UserObjectRequest> Users { get; set; }
 
         UpdateUsersRequestInternalDTO ISavableTo<UpdateUsersRequestInternalDTO>.SaveToDto() =>

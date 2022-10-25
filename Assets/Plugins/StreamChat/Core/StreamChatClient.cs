@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ using StreamChat.Core.API.Internal;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
+[assembly: InternalsVisibleTo("StreamChat.Tests")] //StreamTodo: verify which Unity version introduced this
 
 namespace StreamChat.Core
 {
@@ -100,7 +102,7 @@ namespace StreamChat.Core
 
         internal event Action<EventChannelUpdatedInternalDTO> InternalChannelUpdated;
         internal event Action<EventChannelDeletedInternalDTO> InternalChannelDeleted;
-        internal event Action<EventChannelTruncatedInternalDTO> InternalEventChannelTruncated;
+        internal event Action<EventChannelTruncatedInternalDTO> InternalEventChannelTruncated; //StreamTodo: remove "Event" from name
         internal event Action<EventChannelVisibleInternalDTO> InternalEventChannelVisible;
         internal event Action<EventChannelHiddenInternalDTO> InternalEventChannelHidden;
 
@@ -318,7 +320,7 @@ namespace StreamChat.Core
 
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
-                _logs.Info(msg);
+                _logs.Info(msg); //StreamTodo: Remove
                 HandleNewWebsocketMessage(msg);
             }
         }
@@ -708,7 +710,7 @@ namespace StreamChat.Core
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
-                if (_config.LogLevel.IsDebugEnabled())
+                //if (_config.LogLevel.IsDebugEnabled()) //StreamTodo: Uncomment
                 {
                     _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
                 }

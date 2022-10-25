@@ -1,10 +1,10 @@
 ﻿using System;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    public class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>, IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>
+    public class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>,
+        IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -108,20 +108,8 @@ namespace StreamChat.Core.State.TrackedObjects
 //                 AdditionalProperties = AdditionalProperties,
 //             };
 
-        internal StreamChannelMember(string uniqueId, IRepository<StreamChannelMember> repository, ITrackedObjectContext context)
-            : base(uniqueId, repository, context)
-        {
-        }
-
-        protected override string InternalUniqueId
-        {
-            get => UserId;
-            set => UserId = value;
-        }
-
-        protected override StreamChannelMember Self => this;
-
-        void IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>.UpdateFromDto(ChannelMemberInternalDTO dto, ICache cache)
+        void IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>.UpdateFromDto(ChannelMemberInternalDTO dto,
+            ICache cache)
         {
             BanExpires = dto.BanExpires;
             Banned = dto.Banned;
@@ -135,8 +123,21 @@ namespace StreamChat.Core.State.TrackedObjects
             ShadowBanned = dto.ShadowBanned;
             UpdatedAt = dto.UpdatedAt;
             User = cache.TryCreateOrUpdate(dto.User);
-            User.TryUpdateFromDto(dto.User, cache);
             UserId = dto.UserId;
         }
+
+        internal StreamChannelMember(string uniqueId, IRepository<StreamChannelMember> repository,
+            ITrackedObjectContext context)
+            : base(uniqueId, repository, context)
+        {
+        }
+
+        protected override string InternalUniqueId
+        {
+            get => UserId;
+            set => UserId = value;
+        }
+
+        protected override StreamChannelMember Self => this;
     }
 }

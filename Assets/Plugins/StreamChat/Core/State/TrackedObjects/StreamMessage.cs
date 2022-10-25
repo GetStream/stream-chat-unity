@@ -191,7 +191,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Update message text or other parameters
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<StreamMessage> UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
+        public async Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
         {
             if (streamUpdateMessageRequest == null)
             {
@@ -204,8 +204,7 @@ namespace StreamChat.Core.State.TrackedObjects
             requestDto.Message.Id = Id;
 
             var response = await LowLevelClient.InternalMessageApi.UpdateMessageAsync(requestDto);
-            var streamMessage = Cache.TryCreateOrUpdate(response.Message, out _);
-            return streamMessage;
+            Cache.TryCreateOrUpdate(response.Message, out _);
         }
 
         /// <summary>
@@ -227,7 +226,8 @@ namespace StreamChat.Core.State.TrackedObjects
                 requestDto.Set["pin_expires"] = expiresAt;
             }
 
-            await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id, requestDto);
+            var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id, requestDto);
+            Cache.TryCreateOrUpdate(response.Message);
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public async Task Unpin()
         {
-            await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id,
+            var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id,
                 new UpdateMessagePartialRequestInternalDTO
                 {
                     Set = new Dictionary<string, object>
@@ -243,7 +243,53 @@ namespace StreamChat.Core.State.TrackedObjects
                         { "pinned", false },
                     }
                 });
+
+            Cache.TryCreateOrUpdate(response.Message);
         }
+
+        /// <summary>
+        /// Add reaction to this message
+        /// </summary>
+        /// <param name="type">Reaction custom key, examples: like, smile, laugh, etc.</param>
+        /// <param name="score">[Optional] Reaction score, by default it counts as 1</param>
+        /// <param name="enforceUnique">[Optional] Whether to replace all existing user reactions</param>
+        /// <param name="skipMobilePushNotifications">[Optional] Skips any mobile push notifications</param>
+        public async Task SendReactionAsync(string type, int score = 1, bool enforceUnique = false, bool skipMobilePushNotifications = false)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(type, nameof(type));
+
+            var request = new SendReactionRequestInternalDTO
+            {
+                //ID = null,
+                EnforceUnique = enforceUnique,
+                Reaction = new ReactionRequestInternalDTO
+                {
+                    //MessageId = null,
+                    Score = score,
+                    Type = type,
+                    //User = null,
+                    //UserId = null,
+                    //AdditionalProperties = null
+                },
+                SkipPush = skipMobilePushNotifications,
+                //AdditionalProperties = null
+            };
+
+            var response = await LowLevelClient.InternalMessageApi.SendReactionAsync(Id, request);
+            Cache.TryCreateOrUpdate(response.Message);
+        }
+
+        public Task DeleteReactionAsync(string type)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(type, nameof(type));
+            return LowLevelClient.InternalMessageApi.DeleteReactionAsync(Id, type);
+        }
+
+        //StreamTodo: should we unwrap the response?
+        /// <summary>
+        /// Any user is allowed to flag a message. This triggers the message.flagged webhook event and adds the message to the inbox of your Stream Dashboard Chat Moderation view.
+        /// </summary>
+        public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagMessageAsync(Id);
 
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
         {
@@ -290,7 +336,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Clears the text only. Does not make an API call
         /// </summary>
-        internal void HandleSoftDelete()
+        internal void InternalHandleSoftDelete()
         {
             Text = string.Empty;
         }

@@ -33,11 +33,6 @@ namespace StreamChat.Core.State.Requests
         public List<StreamAttachmentRequest> Attachments { get; set; }
 
         /// <summary>
-        /// Contains HTML markup of the message. Can only be set when using server-side API
-        /// </summary>
-        public string Html { get; set; }
-
-        /// <summary>
         /// Message ID is unique string identifier of the message
         /// </summary>
         public string Id { get; set; }
@@ -77,7 +72,7 @@ namespace StreamChat.Core.State.Requests
         /// </summary>
         public StreamUser PinnedBy { get; set; }
 
-        public string QuotedMessageId { get; set; } //StreamTodo: change to StreamMessage QuotedMessage?
+        public StreamMessage QuotedMessage { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well
@@ -102,16 +97,16 @@ namespace StreamChat.Core.State.Requests
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<StreamAttachmentRequest, AttachmentRequestInternalDTO>(),
                 // Cid = Cid, Purposely ignored because it has no effect and endpoint already contains channel type&id
-                Html = Html,
+                //Html = Html, Marked in DTO as server-side only
                 Id = Id,
-                MentionedUsers = MentionedUsers.ToUserIdsListOrNull(),
+                MentionedUsers = MentionedUsers?.ToUserIdsListOrNull(),
                 Mml = Mml,
                 ParentId = ParentId,
                 PinExpires = PinExpires,
                 Pinned = Pinned,
                 PinnedAt = PinnedAt,
                 PinnedBy = PinnedBy?.Id,
-                QuotedMessageId = QuotedMessageId,
+                QuotedMessageId = QuotedMessage?.Id,
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,

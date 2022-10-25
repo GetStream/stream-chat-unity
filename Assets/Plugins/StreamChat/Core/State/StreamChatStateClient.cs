@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,7 +10,7 @@ using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
-using StreamChat.Core.Requests;
+using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
@@ -38,9 +39,7 @@ namespace StreamChat.Core.State
     /// </summary>
     public class StreamChatStateClient : IStreamChatStateClient
     {
-        /// <summary>
-        /// Triggered when connection with Stream Chat server is established
-        /// </summary>
+        /// <inheritdoc cref="IStreamChatStateClient.Connected"/>
         public event ConnectionMadeHandler Connected;
 
         /// <summary>
@@ -64,11 +63,13 @@ namespace StreamChat.Core.State
         public StreamLocalUser LocalUser { get; private set; }
 
         /// <summary>
-        /// Channels loaded via <see cref="GetOrCreateChannelAsync"/> and <see cref="QueryChannelsAsync"/>
+        /// Watched channels to which this client receives realtime events regarding messages, reactions and any other users activity
         ///
-        /// These channels are receiving automatic updates
+        /// These channels are being automatically updated by the StreamChatClient
+        ///
+        /// You can watch additional channels via <see cref="GetOrCreateChannelAsync"/> and <see cref="QueryChannelsAsync"/>
         /// </summary>
-        public IEnumerable<StreamChannel> LoadedChannels => _cache.Channels.AllItems;
+        public IEnumerable<StreamChannel> WatchedChannels => _cache.Channels.AllItems;
 
         /// <summary>
         /// Use this method to create a default Stream Chat Client instance.
@@ -110,11 +111,11 @@ namespace StreamChat.Core.State
             if (LowLevelClient.ConnectionState == ConnectionState.Connecting &&
                 _connectUserCancellationToken.IsCancellationRequested)
             {
-                //Todo: cancel connection
+                //StreamTodo: cancel connection
             }
         }
 
-        //Todo: timeout, like 5 seconds?
+        //StreamTodo: timeout, like 5 seconds?
         public Task<StreamLocalUser> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
         {
@@ -130,48 +131,115 @@ namespace StreamChat.Core.State
         // StreamTodo: Pagination should probably be removed here and only available through channel.GetNextMessages, channel.GetPreviousMessages
         // Otherwise we have problem that you fetch old messages and then WS event delivers a new one
 
-        //StreamTodo: remove this method, use GetOrCreateChannelAsync only
-        public async Task<StreamChannel> GetOrCreateChannelAsync(string channelType, string channelId)
+        public async Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
+            IChannelCustomData optionalCustomData = null)
         {
-            var requestBody = new ChannelGetOrCreateRequest
+            StreamAsserts.AssertChannelTypeIsValid(channelType);
+            StreamAsserts.AssertChannelIdLength(channelId);
+
+            var requestBodyDto = new ChannelGetOrCreateRequestInternalDTO
             {
                 Presence = true,
                 State = true,
-                Watch = true
+                Watch = true,
+                Data = new ChannelRequestInternalDTO
+                {
+                    AdditionalProperties = optionalCustomData?.Items.ToDictionary(x => x.Key, x => x.Value)
+                }
             };
 
             var channelResponseDto = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
-                channelId, requestBody.TrySaveToDto());
-
+                channelId, requestBodyDto);
             return _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(channelResponseDto, out _);
         }
 
-        public Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId)
+        public async Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType,
+            IEnumerable<StreamUser> members, IChannelCustomData optionalCustomData = null)
         {
-            if (!channelType.IsValid)
+            StreamAsserts.AssertChannelTypeIsValid(channelType);
+            StreamAsserts.AssertNotNullOrEmpty(members, nameof(members));
+
+            var membersRequest = new List<ChannelMemberRequestInternalDTO>();
+            foreach (var m in members)
             {
-                throw new ArgumentException($"Invalid {nameof(channelType)} - internal key is empty");
+                membersRequest.Add(new ChannelMemberRequestInternalDTO
+                {
+                    UserId = m.Id
+                });
             }
 
-            return GetOrCreateChannelAsync(channelType.ToString(), channelId);
+            var requestBodyDto = new ChannelGetOrCreateRequestInternalDTO
+            {
+                Presence = true,
+                State = true,
+                Watch = true,
+                Data = new ChannelRequestInternalDTO
+                {
+                    Members = membersRequest,
+                    //StreamTodo: avoid this allocation, maybe method to  pass dictionary and write all items?
+                    AdditionalProperties = optionalCustomData?.Items.ToDictionary(x => x.Key, x => x.Value)
+                }
+            };
+
+            var channelResponseDto = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
+            return _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(channelResponseDto, out _);
         }
 
-        public Task<IEnumerable<StreamChannel>> QueryChannelsAsync()
+        //StreamTodo: Filter object that contains a factory
+        public async Task<IEnumerable<StreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters)
         {
-            return null;
+            var requestBodyDto = new QueryChannelsRequestInternalDTO
+            {
+                Watch = true,
+                State = true,
+                Presence = true,
+                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value)
+
+            };
+
+            var channelsResponseDto = await LowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            if (channelsResponseDto.Channels != null && channelsResponseDto.Channels.Count == 0)
+            {
+                return Enumerable.Empty<StreamChannel>();
+            }
+
+            var result = new List<StreamChannel>();
+            foreach (var channelDto in channelsResponseDto.Channels)
+            {
+                result.Add(_cache.TryCreateOrUpdate(channelDto));
+            }
+
+            return result;
         }
 
-        /// <summary>
-        /// Mute channels with optional duration in milliseconds
-        /// </summary>
-        /// <param name="channels">Channels to mute</param>
-        /// <param name="milliseconds">[Optional] Duration in milliseconds</param>
+        public async Task<IEnumerable<StreamUser>> QueryUsersAsync(IDictionary<string, object> filters)
+        {
+            //StreamTodo: Missing filter, and stuff like IdGte etc
+            var requestBodyDto = new QueryUsersRequestInternalDTO
+            {
+                Presence = true,
+                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value)
+            };
+
+            var response = await LowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
+            if (response.Users != null && response.Users.Count == 0)
+            {
+                return Enumerable.Empty<StreamUser>();
+            }
+
+            var result = new List<StreamUser>();
+            foreach (var userDto in response.Users)
+            {
+                result.Add(_cache.TryCreateOrUpdate(userDto));
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc cref="IStreamChatStateClient.MuteMultipleChannelsAsync"/>
         public async Task MuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels, int? milliseconds = default)
         {
-            if (channels == null)
-            {
-                throw new ArgumentNullException(nameof(channels));
-            }
+            StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));
 
             var channelCids = channels.Select(_ => _.Cid).ToList();
             if (channelCids.Count == 0)
@@ -179,12 +247,14 @@ namespace StreamChat.Core.State
                 throw new ArgumentException($"{nameof(channels)} is empty");
             }
 
-            // StreamTodo: unpack response
             var response = await LowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
             {
                 ChannelCids = channelCids,
                 Expiration = milliseconds
             });
+
+            //StreamTodo: verify OwnUser object contents
+            UpdateLocalUser(response.OwnUser);
         }
 
         public async Task UnmuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels)
@@ -200,28 +270,47 @@ namespace StreamChat.Core.State
                 throw new ArgumentException($"{nameof(channels)} is empty");
             }
 
-            // StreamTodo: unpack response
-            var response = await LowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
+            await LowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
             {
                 ChannelCids = channelCids,
                 //StreamTodo: what is this Expiration here?
             });
         }
 
-        /// <summary>
-        /// Delete multiple channels
-        /// </summary>
-        /// <param name="cids">Collection of <see cref="StreamChannel.Cid"/></param>
-        /// <param name="isHardDelete">Hard delete removes channels entirely whereas Soft Delete deletes them from client but still allows to access them from the server-side SDK</param>
-        public async Task DeleteMultipleChannelsAsync(IEnumerable<string> cids, bool isHardDelete = false)
+        /// <inheritdoc />
+        public async Task<StreamDeleteChannelsResponse> DeleteMultipleChannelsAsync(IEnumerable<StreamChannel> channels, bool isHardDelete = false)
         {
-            // StreamTodo: unpack response
-            await LowLevelClient.InternalChannelApi.DeleteChannelsAsync(new DeleteChannelsRequestInternalDTO
+            StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));
+
+            var responseDto = await LowLevelClient.InternalChannelApi.DeleteChannelsAsync(new DeleteChannelsRequestInternalDTO
             {
-                Cids = cids.ToList(),
+                Cids = channels.Select(_ => _.Cid).ToList(),
                 HardDelete = isHardDelete
             });
+
+            //StreamTodo: unnecessary allocation - TryLoadFromDto creates new object internally
+            var response = new StreamDeleteChannelsResponse().TryLoadFromDto(responseDto);
+            return response;
         }
+
+        public async Task MuteMultipleUsersAsync(IEnumerable<StreamUser> users, int? timeoutMinutes = default)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(users, nameof(users));
+
+            var responseDto = await LowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
+            {
+                TargetIds = users.Select(_ => _.Id).ToList(),
+                Timeout = timeoutMinutes
+            });
+        }
+
+        public async Task<IEnumerable<StreamUser>> QueryBannedUsersAsync()
+        {
+            //StreamTodo: implement, should we allow for query
+            throw new NotImplementedException();
+        }
+
+        //StreamTODO: Check ChannelLogic.kt and implement reacting to all possible events
 
         public void Dispose()
         {
@@ -304,7 +393,7 @@ namespace StreamChat.Core.State
             UpdateLocalUser(eventDto.Me);
         }
 
-        private void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
+        internal void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
         {
             LocalUser = _cache.TryCreateOrUpdate(ownUserInternalDto);
 
@@ -327,7 +416,7 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalMessageUpdated += OnLowLevelClientMessageUpdated;
             lowLevelClient.InternalMessageDeleted += OnLowLevelClientMessageDeleted;
 
-            lowLevelClient.InternalChannelMutesUpdated += OnLowLevelClientChannelMutesUpdated;
+            lowLevelClient.InternalNotificationChannelMutesUpdated += OnLowLevelClientChannelMutesUpdated;
         }
 
         private void UnsubscribeFrom(StreamChatClient lowLevelClient)
@@ -339,6 +428,8 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalMessageReceived -= OnLowLevelClientMessageReceived;
             lowLevelClient.InternalMessageUpdated -= OnLowLevelClientMessageUpdated;
             lowLevelClient.InternalMessageDeleted -= OnLowLevelClientMessageDeleted;
+
+            lowLevelClient.InternalNotificationChannelMutesUpdated -= OnLowLevelClientChannelMutesUpdated;
         }
     }
 }

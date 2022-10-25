@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core.Requests;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.TrackedObjects;
 using UnityEngine.TestTools;
@@ -61,6 +62,8 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(messageInChannel);
 
             await messageInChannel.SoftDeleteAsync();
+
+            //StreamTodo: seems not deterministic, probably a race condition between WS event and Rest Call complete, we should wait max 500ms for the event
 
             messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.NotNull(messageInChannel);
@@ -155,6 +158,24 @@ namespace StreamChat.Tests.StatefulClient
             await messageInChannel.Unpin();
             messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.AreEqual(false, messageInChannel.Pinned);
+        }
+
+        [UnityTest]
+        public IEnumerator When_message_flag_requested_expected_no_errors()
+            => ConnectAndExecute(When_message_flag_requested_expected_no_errors_Async);
+
+        public async Task When_message_flag_requested_expected_no_errors_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            const string MessageText = "fds*fhjfdks9";
+
+            var sentMessage = await channel.SendNewMessageAsync(MessageText);
+            Assert.AreEqual(sentMessage.Text, MessageText);
+
+            await sentMessage.FlagAsync();
+
+            // Currently there is no way to query flagged messages, they show up only in the dashboard
         }
     }
 }

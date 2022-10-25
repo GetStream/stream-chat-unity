@@ -1,18 +1,19 @@
-﻿using StreamChat.Core.Helpers;
+﻿using System.Threading.Tasks;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Models;
-using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    //, ILoadableFrom<UserObjectInternalInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>
-
     /// <summary>
     /// Stream user represents a single chat user that can be a member of multiple channels
     ///
     /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
     /// </summary>
     public class StreamUser : StreamTrackedObjectBase<StreamUser>, IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>
+        , IUpdateableFrom<UserResponseInternalDTO, StreamUser>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -74,6 +75,11 @@ namespace StreamChat.Core.State.TrackedObjects
         public string Role { get; set; }
 
         /// <summary>
+        /// Whether user is shadow banned or not
+        /// </summary>
+        public bool? ShadowBanned { get; set; }
+
+        /// <summary>
         /// List of teams user is a part of
         /// </summary>
         public System.Collections.Generic.List<string> Teams { get; set; }
@@ -86,6 +92,10 @@ namespace StreamChat.Core.State.TrackedObjects
         //Not in API
         public string Name;
         public string Image;
+
+        public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagUserAsync(Id);
+
+
 
         internal StreamUser(string uniqueId, IRepository<StreamUser> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
@@ -107,6 +117,33 @@ namespace StreamChat.Core.State.TrackedObjects
             PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications);
             RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
             Role = dto.Role;
+            //ShadowBanned = dto.ShadowBanned; Missing in DTO
+            Teams = dto.Teams;
+            UpdatedAt = dto.UpdatedAt;
+
+            //Not in API spec
+            Name = dto.Name;
+            Image = dto.Image;
+
+            LoadAdditionalProperties(dto.AdditionalProperties);
+        }
+
+        void IUpdateableFrom<UserResponseInternalDTO, StreamUser>.UpdateFromDto(UserResponseInternalDTO dto, ICache cache)
+        {
+            BanExpires = dto.BanExpires;
+            Banned = dto.Banned;
+            CreatedAt = dto.CreatedAt;
+            DeactivatedAt = dto.DeactivatedAt;
+            DeletedAt = dto.DeletedAt;
+            Id = dto.Id;
+            Invisible = dto.Invisible;
+            Language = dto.Language;
+            LastActive = dto.LastActive;
+            Online = dto.Online;
+            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications);
+            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
+            Role = dto.Role;
+            ShadowBanned = dto.ShadowBanned;
             Teams = dto.Teams;
             UpdatedAt = dto.UpdatedAt;
 

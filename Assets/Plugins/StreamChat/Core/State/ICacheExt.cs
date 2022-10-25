@@ -18,8 +18,14 @@ namespace StreamChat.Core.State
         public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelResponseInternalDTO dto)
             => dto == null ? null : cache.Channels.CreateOrUpdate<StreamChannel, ChannelResponseInternalDTO>(dto, out _);
 
+        public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelStateResponseFieldsInternalDTO dto)
+            => dto == null ? null : cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseFieldsInternalDTO>(dto, out _);
+
         public static StreamChannelMember TryCreateOrUpdate(this ICache cache, ChannelMemberInternalDTO dto)
             => dto == null ? null : cache.ChannelMembers.CreateOrUpdate<StreamChannelMember, ChannelMemberInternalDTO>(dto, out _);
+
+        public static StreamUser TryCreateOrUpdate(this ICache cache, UserResponseInternalDTO dto)
+            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserResponseInternalDTO>(dto, out _);
 
         public static StreamUser TryCreateOrUpdate(this ICache cache, UserObjectInternalInternalDTO dto)
             => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalInternalDTO>(dto, out _);

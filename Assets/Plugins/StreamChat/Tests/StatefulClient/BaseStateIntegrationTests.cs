@@ -29,7 +29,7 @@ namespace StreamChat.Tests.StatefulClient
             StatefulClient = null;
         }
 
-        protected IStreamChatStateClient StatefulClient { get; private set; }
+        protected StreamChatStateClient StatefulClient { get; private set; }
 
         // StreamTodo: replace with admin ids fetched from loaded data set
         protected const string TestUserId = TestUtils.TestUserId;
@@ -63,15 +63,23 @@ namespace StreamChat.Tests.StatefulClient
             var channelId = "random-channel-" + Guid.NewGuid();
 
             var channelState = await StatefulClient.GetOrCreateChannelAsync(ChannelType.Messaging, channelId);
-            _tempChannelCids.Add(channelState.Cid);
+            _tempChannels.Add(channelState);
             return channelState;
         }
 
-        private readonly List<string> _tempChannelCids = new List<string>();
+        /// <summary>
+        /// Use only if you've successfully deleted the channel
+        /// </summary>
+        protected void SkipThisTempChannelDeletionInTearDown(StreamChannel channel)
+        {
+            _tempChannels.Remove(channel);
+        }
+
+        private readonly List<StreamChannel> _tempChannels = new List<StreamChannel>();
 
         private void InitClient(string forcedAdminId = null)
         {
-            StatefulClient = StreamChatStateClient.CreateDefaultClient(new StreamClientConfig
+            StatefulClient = (StreamChatStateClient)StreamChatStateClient.CreateDefaultClient(new StreamClientConfig
             {
                 LogLevel = StreamLogLevel.Debug
             });
@@ -98,15 +106,15 @@ namespace StreamChat.Tests.StatefulClient
 
         private void DeleteTempChannels()
         {
-            if (_tempChannelCids.Count == 0)
+            if (_tempChannels.Count == 0)
             {
                 return;
             }
 
             var unityLogs = LibsFactory.CreateDefaultLogs();
 
-            StatefulClient.DeleteMultipleChannelsAsync(_tempChannelCids, isHardDelete: true).LogIfFailed(unityLogs);
-            _tempChannelCids.Clear();
+            StatefulClient.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true).LogIfFailed(unityLogs);
+            _tempChannels.Clear();
         }
 
         protected IEnumerator ConnectAndExecute(Func<Task> test)

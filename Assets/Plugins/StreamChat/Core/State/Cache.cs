@@ -19,8 +19,10 @@ namespace StreamChat.Core.State
 
             Channels.RegisterDtoTrackingIdGetter<StreamChannel, ChannelStateResponseInternalDTO>(dto => dto.Channel.Cid);
             Channels.RegisterDtoTrackingIdGetter<StreamChannel, ChannelResponseInternalDTO>(dto => dto.Cid);
+            Channels.RegisterDtoTrackingIdGetter<StreamChannel, ChannelStateResponseFieldsInternalDTO>(dto => dto.Channel.Cid);
 
             Users.RegisterDtoTrackingIdGetter<StreamUser, UserObjectInternalInternalDTO>(dto => dto.Id);
+            Users.RegisterDtoTrackingIdGetter<StreamUser, UserResponseInternalDTO>(dto => dto.Id);
 
             LocalUser.RegisterDtoTrackingIdGetter<StreamLocalUser, OwnUserInternalDTO>(dto => dto.Id);
 

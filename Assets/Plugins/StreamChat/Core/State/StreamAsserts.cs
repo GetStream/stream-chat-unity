@@ -1,0 +1,56 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace StreamChat.Core.State
+{
+    internal static class StreamAsserts
+    {
+        /// <summary>
+        /// Docs states the ID max length is 64 characters
+        /// https://getstream.io/chat/docs/unity/creating_channels/?language=unity#channel-data
+        /// </summary>
+        /// <param name="channelId"></param>
+        public static void AssertChannelIdLength(string channelId)
+        {
+            if (channelId.Length > 64)
+            {
+                throw new ArgumentException($"{nameof(channelId)} cannot be longer than 64 characters");
+            }
+        }
+
+        public static void AssertChannelTypeIsValid(ChannelType channelType)
+        {
+            if (!channelType.IsValid)
+            {
+                throw new ArgumentException($"Invalid {nameof(channelType)} - internal key is empty");
+            }
+        }
+
+        public static void AssertNotNullOrEmpty<T>(IEnumerable<T> items, string argName)
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(argName));
+            }
+
+            if (!items.Any())
+            {
+                throw new ArgumentException($"{argName} cannot be empty");
+            }
+        }
+
+        public static void AssertNotNullOrEmpty(string value, string argName)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(argName));
+            }
+
+            if (value == string.Empty)
+            {
+                throw new ArgumentException($"{argName} cannot be empty");
+            }
+        }
+    }
+}

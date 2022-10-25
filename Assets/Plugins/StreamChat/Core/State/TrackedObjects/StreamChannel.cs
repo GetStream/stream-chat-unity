@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
@@ -24,6 +25,7 @@ namespace StreamChat.Core.State.TrackedObjects
     public class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
+        IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>,
         IStreamChannel
     {
         #region Channel
@@ -139,7 +141,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public DateTimeOffset? UpdatedAt { get; private set; }
 
-        public string Name { get; private set; }
+        public string Name { get; private set; } //StreamTodo: if custom name is not set should we return the ID?
 
         #endregion
 
@@ -168,7 +170,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// List of read states
         /// </summary>
-        public List<StreamRead> Read => _read;
+        public IReadOnlyList<StreamRead> Read => _read;
 
         /// <summary>
         /// Number of channel watchers
@@ -208,6 +210,57 @@ namespace StreamChat.Core.State.TrackedObjects
             return streamMessage;
         }
 
+        /// <summary>
+        /// Update channel in a complete overwrite mode.
+        /// Important! Any data that is present on the channel and not included in a full update will be deleted.
+        ///
+        /// If you want to update only some fields of the channel use the <see cref="UpdatePartialAsync"/>
+        /// </summary>
+        public async Task UpdateOverwriteAsync() //StreamTodo: NOT IMPLEMENTED
+        {
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
+                new UpdateChannelRequestInternalDTO
+                {
+                });
+
+            Cache.TryCreateOrUpdate(response.Channel);
+        }
+
+        /// <summary>
+        /// Update channel in a partial mode. You can selectively set and unset fields of the channel
+        ///
+        /// If you want to completely overwrite the channel use the <see cref="UpdateOverwriteAsync"/>
+        /// </summary>
+        /// StreamTodo: this should be more high level, maybe use enum with predefined field names?
+        public async Task UpdatePartialAsync(IDictionary<string, object> setFields,
+            IEnumerable<string> unsetFields = null)
+        {
+            if (setFields == null && unsetFields == null)
+            {
+                throw new ArgumentNullException(
+                    $"Either {nameof(setFields)} or {nameof(unsetFields)} must not be null");
+            }
+
+            if (unsetFields != null && !unsetFields.Any())
+            {
+                throw new ArgumentException($"{nameof(unsetFields)} cannot be empty");
+            }
+
+            if (setFields != null && !setFields.Any())
+            {
+                throw new ArgumentException($"{nameof(setFields)} cannot be empty");
+            }
+
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
+                new UpdateChannelPartialRequestInternalDTO
+                {
+                    Set = setFields?.ToDictionary(p => p.Key, p => p.Value),
+                    Unset = unsetFields?.ToList(),
+                });
+
+            Cache.TryCreateOrUpdate(response.Channel);
+        }
+
         public void QueryMembers()
         {
         }
@@ -216,12 +269,58 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
-        public void BanUser()
+        /// <summary>
+        /// Ban user from this channel
+        /// </summary>
+        /// <param name="user">User to ban from channel</param>
+        /// <param name="isShadowBan">Shadow banned user is not notified about the ban. Read more: <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks></param>
+        /// <param name="reason">[Optional] reason description why user got banned</param>
+        /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
+        /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public Task BanUserAsync(StreamUser user, bool isShadowBan, string reason = "", int? timeoutMinutes = default,
+            bool isIpBan = false)
         {
+            if (user == null)
+            {
+                throw new ArgumentNullException($"{nameof(user)} cannot be null");
+            }
+
+            if (timeoutMinutes <= 0)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(timeoutMinutes)} must be greater than 0");
+            }
+
+            return LowLevelClient.InternalModerationApi.BanUserAsync(new BanRequestInternalDTO
+            {
+                //BannedBy = null,
+                //BannedById = null,
+                Id = Id,
+                IpBan = isIpBan,
+                Reason = reason,
+                Shadow = isShadowBan,
+                TargetUserId = user.Id,
+                Timeout = timeoutMinutes,
+                Type = Type,
+                //User = null,
+                //UserId = null,
+                //AdditionalProperties = null
+            });
         }
 
-        public void UnbanUser()
+        /// <summary>
+        /// Remove ban from the user on this channel
+        /// </summary>
+        public Task UnbanUserAsync(StreamUser user)
         {
+            if (user == null)
+            {
+                throw new ArgumentNullException($"{nameof(user)} cannot be null");
+            }
+
+            return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
         }
 
         public void ShadowBanUser()
@@ -229,10 +328,6 @@ namespace StreamChat.Core.State.TrackedObjects
         }
 
         public void RemoveShadowBan()
-        {
-        }
-
-        public void QueryBannedUsers()
         {
         }
 
@@ -244,25 +339,30 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
-        public void Show()
-        {
-        }
+        /// <summary>
+        /// <para>Shows a previously hidden channel.</para>
+        /// Use <see cref="HideAsync"/> to hide a channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity</remarks>
+        //StreamTodo: remove empty request object
+        public Task ShowAsync()
+            => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO()
+            {
+            });
 
-        public void Hide()
-        {
-        }
+        /// <summary>
+        /// <para>Removes a channel from query channel requests for that user until a new message is added.</para>
+        /// Use <see cref="ShowAsync"/> to cancel this operation.
+        /// </summary>
+        /// <param name="clearHistory">Whether to clear message history of the channel or not</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity</remarks>
+        public Task HideAsync(bool? clearHistory = false)
+            => LowLevelClient.InternalChannelApi.HideChannelAsync(Type, Id, new HideChannelRequestInternalDTO
+            {
+                ClearHistory = clearHistory
+            });
 
-        public void SendReaction()
-        {
-        }
 
-        public void DeleteReaction()
-        {
-        }
-
-        public void GetReactions()
-        {
-        }
 
         public void AddMembers()
         {
@@ -276,8 +376,9 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Mute channel with optional duration in milliseconds
         /// </summary>
         /// <param name="milliseconds">[Optional] Duration in milliseconds</param>
-        public Task MuteChannelAsync(int? milliseconds = default)
-            => LowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
+        public async Task MuteChannelAsync(int? milliseconds = default)
+        {
+            var response = await LowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
             {
                 ChannelCids = new List<string>
                 {
@@ -285,6 +386,9 @@ namespace StreamChat.Core.State.TrackedObjects
                 },
                 Expiration = milliseconds,
             });
+
+            StreamChatStateClient.UpdateLocalUser(response.OwnUser);
+        }
 
         /// <summary>
         /// Unmute channel
@@ -314,6 +418,10 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
+        public async Task StopWatchingAsync()
+        {
+        }
+
         internal StreamChannel(string uniqueId, IRepository<StreamChannel> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {
@@ -321,6 +429,59 @@ namespace StreamChat.Core.State.TrackedObjects
 
         void IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>.UpdateFromDto(
             ChannelStateResponseInternalDTO dto, ICache cache)
+        {
+            #region Channel
+
+            AutoTranslationEnabled = dto.Channel.AutoTranslationEnabled;
+            AutoTranslationLanguage = dto.Channel.AutoTranslationLanguage;
+            Cid = dto.Channel.Cid;
+            Config = Config.TryLoadFromDto(dto.Channel.Config, cache);
+            Cooldown = dto.Channel.Cooldown;
+            CreatedAt = dto.Channel.CreatedAt;
+            CreatedBy = cache.TryCreateOrUpdate(dto.Channel.CreatedBy);
+            DeletedAt = dto.Channel.DeletedAt;
+            Disabled = dto.Channel.Disabled;
+            Frozen = dto.Channel.Frozen;
+            Hidden = dto.Channel.Hidden;
+            HideMessagesBefore = dto.Channel.HideMessagesBefore;
+            Id = dto.Channel.Id;
+            LastMessageAt = dto.Channel.LastMessageAt;
+            MemberCount = dto.Channel.MemberCount;
+            // dto.Channel.Members handled below
+            MuteExpiresAt = dto.Channel.MuteExpiresAt;
+            Muted = dto.Channel.Muted;
+            _ownCapabilities.TryReplaceValuesFromDto(dto.Channel.OwnCapabilities);
+            Team = dto.Channel.Team;
+            TruncatedAt = dto.Channel.TruncatedAt;
+            TruncatedBy = cache.TryCreateOrUpdate(dto.Channel.TruncatedBy);
+            Type = dto.Channel.Type;
+            UpdatedAt = dto.Channel.UpdatedAt;
+
+            LoadAdditionalProperties(dto.Channel.AdditionalProperties);
+
+            //Not in API spec
+            Name = dto.Channel.Name;
+
+            #endregion
+
+            #region ChannelState
+
+            Hidden = dto.Hidden;
+            HideMessagesBefore = dto.HideMessagesBefore;
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
+            Membership = cache.TryCreateOrUpdate(dto.Membership);
+            _messages.TryReplaceTrackedObjects(dto.Messages, cache.Messages);
+            _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
+            _pinnedMessages.TryReplaceTrackedObjects(dto.PinnedMessages, cache.Messages);
+            _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
+            WatcherCount = dto.WatcherCount;
+            _watchers.TryReplaceTrackedObjects(dto.Watchers, cache.Users);
+
+            #endregion
+        }
+
+        void IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>.UpdateFromDto(
+            ChannelStateResponseFieldsInternalDTO dto, ICache cache)
         {
             #region Channel
 
@@ -445,7 +606,7 @@ namespace StreamChat.Core.State.TrackedObjects
             }
             else
             {
-                message.HandleSoftDelete();
+                message.InternalHandleSoftDelete();
             }
         }
 

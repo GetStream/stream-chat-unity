@@ -5,6 +5,7 @@
     /// </summary>
     internal static class ILoadableFromExt
     {
+        //StreamTodo: rename to TryCreateFromDto? It's misleading because it creates new instance which you need to replace
         public static TDomain TryLoadFromDto<TDto, TDomain>(this ILoadableFrom<TDto, TDomain> loadable, TDto dto)
             where TDomain : class, ILoadableFrom<TDto, TDomain>, new()
         {
