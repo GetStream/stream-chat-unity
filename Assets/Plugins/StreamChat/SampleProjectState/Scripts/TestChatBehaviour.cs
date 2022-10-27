@@ -34,9 +34,9 @@ public class TestChatBehaviour : MonoBehaviour
 
     private async Task ConnectToStream()
     {
-        var localUser = await _client.ConnectUserAsync(_authCredentialsAsset.Credentials);
+        var localUserData = await _client.ConnectUserAsync(_authCredentialsAsset.Credentials);
 
-        Debug.Log("Logged in with user id: " + localUser.Id);
+        Debug.Log("Logged in with user id: " + localUserData.User);
 
         await FetchChannels();
     }

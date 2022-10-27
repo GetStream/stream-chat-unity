@@ -1,5 +1,7 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Models;
 
 namespace StreamChat.Core.Events
@@ -12,6 +14,7 @@ namespace StreamChat.Core.Events
         public string ChannelId { get; set; }
 
         public string ChannelType { get; set; }
+        public Message Message { get; set; }
 
         public string Cid { get; set; }
 
@@ -25,6 +28,7 @@ namespace StreamChat.Core.Events
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Type = dto.Type;

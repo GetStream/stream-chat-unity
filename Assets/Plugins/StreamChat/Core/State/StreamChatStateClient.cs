@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -32,6 +31,9 @@ namespace StreamChat.Core.State
     /// </summary>
     public delegate void ConnectionChangeHandler(ConnectionState previous, ConnectionState current);
 
+    public delegate void ChannelDeleteHandler(string channelCid, string channelId, string channelType);
+
+
     //StreamTodo: move all xml doc comments to interface and use <inheritdoc /> on implementation
 
     /// <summary>
@@ -53,14 +55,20 @@ namespace StreamChat.Core.State
         public event ConnectionChangeHandler ConnectionStateChanged;
 
         /// <summary>
+        /// Channel was deleted
+        /// </summary>
+        public event ChannelDeleteHandler ChannelDeleted;
+
+        /// <summary>
         /// Current connection state
         /// </summary>
         public ConnectionState ConnectionState => LowLevelClient.ConnectionState;
 
         /// <summary>
         /// Local user that is connected to the Stream Chat. This fields gets set after the client connection is established.
+        /// You can access the local <see cref="StreamUser"/> via <see cref="LocalUserData"/> <see cref="StreamLocalUser.User"/> property
         /// </summary>
-        public StreamLocalUser LocalUser { get; private set; }
+        public StreamLocalUser LocalUserData { get; private set; }
 
         /// <summary>
         /// Watched channels to which this client receives realtime events regarding messages, reactions and any other users activity
@@ -302,6 +310,8 @@ namespace StreamChat.Core.State
                 TargetIds = users.Select(_ => _.Id).ToList(),
                 Timeout = timeoutMinutes
             });
+
+            UpdateLocalUser(responseDto.OwnUser);
         }
 
         public async Task<IEnumerable<StreamUser>> QueryBannedUsersAsync()
@@ -323,6 +333,19 @@ namespace StreamChat.Core.State
 
         internal StreamChatClient LowLevelClient { get; }
 
+        internal void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
+        {
+            LocalUserData = _cache.TryCreateOrUpdate(ownUserInternalDto);
+
+            //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
+            // This could be solved if ChannelMutes would be an observable collection
+            foreach (var channel in _cache.Channels.AllItems)
+            {
+                var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
+                channel.Muted = isMuted;
+            }
+        }
+
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
@@ -338,7 +361,7 @@ namespace StreamChat.Core.State
             {
                 var localUserDto = dto.Me;
                 UpdateLocalUser(localUserDto);
-                Connected?.Invoke(LocalUser);
+                Connected?.Invoke(LocalUserData);
             }
             finally
             {
@@ -348,7 +371,7 @@ namespace StreamChat.Core.State
                 }
                 else
                 {
-                    _connectUserTaskSource.SetResult(LocalUser);
+                    _connectUserTaskSource.SetResult(LocalUserData);
                 }
             }
         }
@@ -388,22 +411,65 @@ namespace StreamChat.Core.State
 
         #endregion
 
+        private void OnLowLevelClientChannelTruncated(EventChannelTruncatedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.HandleChannelTruncatedEvent(eventDto);
+            }
+        }
+
+        private void OnLowLevelClientNotificationChannelDeleted(EventNotificationChannelDeletedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                DeleteChannel(streamChannel);
+            }
+        }
+
+        private void OnLowLevelClientChannelVisible(EventChannelVisibleInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.Hidden = false;
+            }
+        }
+
+        private void OnLowLevelClientChannelHidden(EventChannelHiddenInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.Hidden = true;
+            }
+        }
+
+        private void OnLowLevelClientChannelDeleted(EventChannelDeletedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                DeleteChannel(streamChannel);
+            }
+        }
+
+        private void OnLowLevelClientChannelUpdated(EventChannelUpdatedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.HandleChannelUpdatedEvent(eventDto);
+            }
+        }
+
+        private void LowLevelClientOnInternalNotificationChannelTruncated(EventNotificationChannelTruncatedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.HandleChannelTruncatedEvent(eventDto);
+            }
+        }
+
         private void OnLowLevelClientChannelMutesUpdated(EventNotificationChannelMutesUpdatedInternalDTO eventDto)
         {
             UpdateLocalUser(eventDto.Me);
-        }
-
-        internal void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
-        {
-            LocalUser = _cache.TryCreateOrUpdate(ownUserInternalDto);
-
-            //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
-            // This could be solved if ChannelMutes would be an observable collection
-            foreach (var channel in _cache.Channels.AllItems)
-            {
-                var isMuted = LocalUser.ChannelMutes.Any(_ => _.Channel == channel);
-                channel.SetMuted(isMuted);
-            }
         }
 
         private void SubscribeTo(StreamChatClient lowLevelClient)
@@ -415,8 +481,63 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalMessageReceived += OnLowLevelClientMessageReceived;
             lowLevelClient.InternalMessageUpdated += OnLowLevelClientMessageUpdated;
             lowLevelClient.InternalMessageDeleted += OnLowLevelClientMessageDeleted;
+            lowLevelClient.InternalMessageRead += OnLowLevelClientMessageRead;
+
+            lowLevelClient.InternalChannelUpdated += OnLowLevelClientChannelUpdated;
+            lowLevelClient.InternalChannelDeleted += OnLowLevelClientChannelDeleted;
+            lowLevelClient.InternalChannelTruncated += OnLowLevelClientChannelTruncated;
+            lowLevelClient.InternalChannelVisible += OnLowLevelClientChannelVisible;
+            lowLevelClient.InternalChannelHidden += OnLowLevelClientChannelHidden;
+
+            lowLevelClient.InternalMemberAdded += OnLowLevelClientMemberAdded;
+            lowLevelClient.InternalMemberRemoved += OnLowLevelClientMemberRemoved;
+            lowLevelClient.InternalMemberUpdated += OnLowLevelClientMemberUpdated;
+
+            lowLevelClient.InternalNotificationChannelDeleted += OnLowLevelClientNotificationChannelDeleted;
+            lowLevelClient.InternalNotificationChannelTruncated += LowLevelClientOnInternalNotificationChannelTruncated;
 
             lowLevelClient.InternalNotificationChannelMutesUpdated += OnLowLevelClientChannelMutesUpdated;
+        }
+
+        private void OnLowLevelClientMemberAdded(EventMemberAddedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                var member = _cache.TryCreateOrUpdate(eventDto.Member);
+                StreamAsserts.AssertNotNull(member, nameof(member));
+                streamChannel.InternalAddMember(member);
+            }
+        }
+
+        private void OnLowLevelClientMemberUpdated(EventMemberUpdatedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                var member = _cache.TryCreateOrUpdate(eventDto.Member);
+                StreamAsserts.AssertNotNull(member, nameof(member));
+                streamChannel.InternalUpdateMember(member);
+            }
+        }
+
+        private void OnLowLevelClientMemberRemoved(EventMemberRemovedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                var member = _cache.TryCreateOrUpdate(eventDto.Member);
+                StreamAsserts.AssertNotNull(member, nameof(member));
+                streamChannel.InternalRemoveMember(member);
+            }
+        }
+
+        private void OnLowLevelClientMessageRead(EventMessageReadInternalDTO obj)
+        {
+            //StreamTodo: IMPLEMENT
+            // is MessageReadEvent -> {
+            //     channelStateLogic.updateRead(ChannelUserRead(event.user, event.createdAt))
+            // }
+            // is NotificationMarkReadEvent -> {
+            //     channelStateLogic.updateRead(ChannelUserRead(event.user, event.createdAt))
+            // }
         }
 
         private void UnsubscribeFrom(StreamChatClient lowLevelClient)
@@ -429,7 +550,23 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalMessageUpdated -= OnLowLevelClientMessageUpdated;
             lowLevelClient.InternalMessageDeleted -= OnLowLevelClientMessageDeleted;
 
+            lowLevelClient.InternalChannelUpdated -= OnLowLevelClientChannelUpdated;
+            lowLevelClient.InternalChannelDeleted -= OnLowLevelClientChannelDeleted;
+            lowLevelClient.InternalChannelTruncated -= OnLowLevelClientChannelTruncated;
+            lowLevelClient.InternalChannelVisible -= OnLowLevelClientChannelVisible;
+            lowLevelClient.InternalChannelHidden -= OnLowLevelClientChannelHidden;
+
+            lowLevelClient.InternalNotificationChannelDeleted -= OnLowLevelClientNotificationChannelDeleted;
+            lowLevelClient.InternalNotificationChannelTruncated -= LowLevelClientOnInternalNotificationChannelTruncated;
+
             lowLevelClient.InternalNotificationChannelMutesUpdated -= OnLowLevelClientChannelMutesUpdated;
+        }
+
+        private void DeleteChannel(StreamChannel channel)
+        {
+            //StreamTodo: probably silent clear all internal data?
+            _cache.Channels.Remove(channel);
+            ChannelDeleted?.Invoke(channel.Cid, channel.Id, channel.Type);
         }
     }
 }

@@ -102,9 +102,9 @@ namespace StreamChat.Core
 
         internal event Action<EventChannelUpdatedInternalDTO> InternalChannelUpdated;
         internal event Action<EventChannelDeletedInternalDTO> InternalChannelDeleted;
-        internal event Action<EventChannelTruncatedInternalDTO> InternalEventChannelTruncated; //StreamTodo: remove "Event" from name
-        internal event Action<EventChannelVisibleInternalDTO> InternalEventChannelVisible;
-        internal event Action<EventChannelHiddenInternalDTO> InternalEventChannelHidden;
+        internal event Action<EventChannelTruncatedInternalDTO> InternalChannelTruncated;
+        internal event Action<EventChannelVisibleInternalDTO> InternalChannelVisible;
+        internal event Action<EventChannelHiddenInternalDTO> InternalChannelHidden;
 
         internal event Action<EventMemberAddedInternalDTO> InternalMemberAdded;
         internal event Action<EventMemberRemovedInternalDTO> InternalMemberRemoved;
@@ -551,11 +551,11 @@ namespace StreamChat.Core
             RegisterEventType<EventChannelDeletedInternalDTO, EventChannelDeleted>(EventType.ChannelDeleted,
                 (e, dto) => ChannelDeleted?.Invoke(e), dto => InternalChannelDeleted?.Invoke(dto));
             RegisterEventType<EventChannelTruncatedInternalDTO, EventChannelTruncated>(EventType.ChannelTruncated,
-                (e, dto) => ChannelTruncated?.Invoke(e), dto => InternalEventChannelTruncated?.Invoke(dto));
+                (e, dto) => ChannelTruncated?.Invoke(e), dto => InternalChannelTruncated?.Invoke(dto));
             RegisterEventType<EventChannelVisibleInternalDTO, EventChannelVisible>(EventType.ChannelVisible,
-                (e, dto) => ChannelVisible?.Invoke(e), dto => InternalEventChannelVisible?.Invoke(dto));
+                (e, dto) => ChannelVisible?.Invoke(e), dto => InternalChannelVisible?.Invoke(dto));
             RegisterEventType<EventChannelHiddenInternalDTO, EventChannelHidden>(EventType.ChannelHidden,
-                (e, dto) => ChannelHidden?.Invoke(e), dto => InternalEventChannelHidden?.Invoke(dto));
+                (e, dto) => ChannelHidden?.Invoke(e), dto => InternalChannelHidden?.Invoke(dto));
 
             RegisterEventType<EventReactionNewInternalDTO, EventReactionNew>(EventType.ReactionNew,
                 (e, dto) => ReactionReceived?.Invoke(e), dto => InternalReactionReceived?.Invoke(dto));

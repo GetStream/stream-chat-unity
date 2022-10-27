@@ -112,8 +112,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(true, messageInChannel.Pinned);
             Assert.IsNull(messageInChannel.PinExpires);
 
-            //StreamTodo: fix this when StatefulClient.LocalUser & messageInChannel.PinnedBy will have the same reference
-            Assert.AreEqual(StatefulClient.LocalUser.Id, messageInChannel.PinnedBy.Id);
+            Assert.AreEqual(StatefulClient.LocalUserData.User, messageInChannel.PinnedBy);
         }
 
         [UnityTest]

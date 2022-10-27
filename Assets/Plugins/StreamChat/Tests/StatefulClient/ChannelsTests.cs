@@ -126,13 +126,12 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.MuteChannelAsync();
 
-            Assert.IsNotEmpty(StatefulClient.LocalUser.ChannelMutes);
+            Assert.IsNotEmpty(StatefulClient.LocalUserData.ChannelMutes);
 
-            var channelMute = StatefulClient.LocalUser.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+            var channelMute = StatefulClient.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNotNull(channelMute);
 
-            //StreamTodo: resolve that User and LocalUser should be the same object
-            Assert.AreEqual(channelMute.User.Id, StatefulClient.LocalUser.Id);
+            Assert.AreEqual(channelMute.User, StatefulClient.LocalUserData.User);
 
             Assert.AreEqual(true, channel.Muted);
         }
@@ -147,18 +146,17 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.MuteChannelAsync();
 
-            Assert.IsNotEmpty(StatefulClient.LocalUser.ChannelMutes);
+            Assert.IsNotEmpty(StatefulClient.LocalUserData.ChannelMutes);
 
-            var channelMute = StatefulClient.LocalUser.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+            var channelMute = StatefulClient.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNotNull(channelMute);
             Assert.AreEqual(true, channel.Muted);
 
-            //StreamTodo: resolve that User and LocalUser should be the same object
-            Assert.AreEqual(channelMute.User.Id, StatefulClient.LocalUser.Id);
+            Assert.AreEqual(channelMute.User, StatefulClient.LocalUserData.User);
 
             await channel.UnmuteChannelAsync();
 
-            channelMute = StatefulClient.LocalUser.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+            channelMute = StatefulClient.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNull(channelMute);
             Assert.AreEqual(false, channel.Muted);
         }
@@ -185,7 +183,57 @@ namespace StreamChat.Tests.StatefulClient
             SkipThisTempChannelDeletionInTearDown(channel);
             SkipThisTempChannelDeletionInTearDown(channel2);
 
+            int i = 0;
+            while (StatefulClient.WatchedChannels.Any() && i < 1000)
+            {
+                i++;
+                await Task.Delay(1);
+            }
+
             Assert.IsEmpty(StatefulClient.WatchedChannels);
+        }
+
+        [UnityTest]
+        public IEnumerator When_truncate_channel_with_past_created_at_expect_no_messages_cleared()
+            => ConnectAndExecute(When_truncate_channel_expect_messages_cleared_Async);
+
+        private async Task When_truncate_channel_expect_messages_cleared_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            await channel.SendNewMessageAsync("Hello");
+            await channel.SendNewMessageAsync("Hello 2");
+            await channel.SendNewMessageAsync("Hello 3");
+
+            Assert.AreEqual(3, channel.Messages.Count);
+
+            var beforeDate = DateTimeOffset.UtcNow.AddHours(-1);
+
+            await channel.TruncateAsync(beforeDate, "Hi sorry for deleting all", isHardDelete: true);
+
+            //expect no messages removed + system message added
+            Assert.AreEqual(4, channel.Messages.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator When_truncate_channel_with_system_message_expect_only_system_message()
+            => ConnectAndExecute(When_truncate_channel_with_system_message_expect_only_system_message_Async);
+
+        private async Task When_truncate_channel_with_system_message_expect_only_system_message_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            await channel.SendNewMessageAsync("Hello");
+            await channel.SendNewMessageAsync("Hello 2");
+            await channel.SendNewMessageAsync("Hello 3");
+
+            Assert.AreEqual(3, channel.Messages.Count);
+
+            const string systemMessage = "Hi sorry for deleting all";
+            await channel.TruncateAsync(systemMessage: systemMessage);
+
+            Assert.AreEqual(1, channel.Messages.Count);
+            Assert.AreEqual(systemMessage, channel.Messages[0].Text);
         }
     }
 }

@@ -33,7 +33,7 @@ namespace StreamChat.Core.State
         /// <summary>
         /// Local user that is connected to the Stream Chat. This fields gets set after the client connection is established.
         /// </summary>
-        StreamLocalUser LocalUser { get; }
+        StreamLocalUser LocalUserData { get; }
 
         /// <summary>
         /// Channels loaded via <see cref="GetOrCreateChannelAsync"/> and <see cref="QueryChannelsAsync"/>

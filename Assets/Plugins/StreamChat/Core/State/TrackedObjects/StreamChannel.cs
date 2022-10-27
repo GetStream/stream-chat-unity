@@ -18,6 +18,17 @@ namespace StreamChat.Core.State.TrackedObjects
     {
     }
 
+    public delegate void ChannelVisibilityHandler(StreamChannel channel, bool isHidden);
+    public delegate void ChannelMuteHandler(StreamChannel channel, bool isMuted);
+
+    public delegate void ChannelChangeHandler(StreamChannel channel);
+
+    public delegate void ChannelMemberChangeHandler(StreamChannel channel, StreamChannelMember member);
+
+    // StreamTodo: consider how will the client consume objects. we probably need to add events like:
+    // MessageReceived, MessageUpdated, MessageDeleted, Truncated, etc etc.
+    // In the long run we'll introduce observable collections and INotifyPropertyChanged
+
     /// <summary>
     /// Stream channel where a group of <see cref="StreamUser"/>'s can chat
     ///
@@ -30,6 +41,15 @@ namespace StreamChat.Core.State.TrackedObjects
         IUpdateableFrom<UpdateChannelResponseInternalDTO, StreamChannel>,
         IStreamChannel
     {
+        public event ChannelVisibilityHandler VisibilityChanged;
+        public event ChannelMuteHandler MuteChanged;
+        public event ChannelChangeHandler Truncated;
+        public event ChannelChangeHandler Updated;
+        public event ChannelMemberChangeHandler MemberAdded;
+        public event ChannelMemberChangeHandler MemberRemoved;
+        public event ChannelMemberChangeHandler MemberUpdated;
+
+
         #region Channel
 
         /// <summary>
@@ -82,7 +102,18 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Whether this channel is hidden by current user or not
         /// </summary>
-        public bool? Hidden { get; private set; }
+        public bool Hidden
+        {
+            get => _hidden;
+            internal set
+            {
+                if (TrySet(ref _hidden, value))
+                {
+                    VisibilityChanged?.Invoke(this, Hidden);
+                }
+                _hidden = value;
+            }
+        }
 
         /// <summary>
         /// Date since when the message history is accessible
@@ -117,7 +148,20 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Whether this channel is muted or not
         /// </summary>
-        public bool? Muted { get; private set; }
+        public bool? Muted
+        {
+            get => _muted;
+            internal set
+            {
+                if (_muted == value)
+                {
+                    return;
+                }
+
+                _muted = value;
+                MuteChanged?.Invoke(this, value.Value);
+            }
+        }
 
         /// <summary>
         /// List of channel capabilities of authenticated user
@@ -208,7 +252,7 @@ namespace StreamChat.Core.State.TrackedObjects
             // StreamTodo: validate that Text and Mml should not be both set
             var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id,
                 sendMessageRequest.TrySaveToDto());
-            var streamMessage = AppendOrUpdateMessage(response.Message);
+            var streamMessage = InternalAppendOrUpdateMessage(response.Message);
             return streamMessage;
         }
 
@@ -279,9 +323,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <param name="reason">[Optional] reason description why user got banned</param>
         /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
         /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
         public Task BanUserAsync(StreamUser user, bool isShadowBan, string reason = "", int? timeoutMinutes = default,
             bool isIpBan = false)
         {
@@ -384,6 +426,10 @@ namespace StreamChat.Core.State.TrackedObjects
                 ClearHistory = clearHistory
             });
 
+        /// <summary>
+        /// Add users as members to this channel
+        /// </summary>
+        /// <param name="users">Users to become members of this channel</param>
         public async Task AddMembersAsync(IEnumerable<StreamUser> users)
         {
             StreamAsserts.AssertNotNull(users, nameof(users));
@@ -405,6 +451,10 @@ namespace StreamChat.Core.State.TrackedObjects
             Cache.TryCreateOrUpdate(response);
         }
 
+        /// <summary>
+        /// Remove members from this channel
+        /// </summary>
+        /// <param name="members">Members to remove</param>
         public async Task RemoveMembersAsync(IEnumerable<ChannelMember> members)
         {
             StreamAsserts.AssertNotNull(members, nameof(members));
@@ -448,19 +498,28 @@ namespace StreamChat.Core.State.TrackedObjects
             });
 
 
-        //StreamTodo: write integration tests to check exactly how it works
-        public async Task TruncateAsync(DateTimeOffset truncatedAt, string message = "", bool skipPushNotifications = false, bool isHardDelete = false)
+        /// <summary>
+        /// Truncate removes all of the messages but does not affect the channel data or channel members. If you want to delete both messages and channel data then use the <see cref="DeleteAsync"/> method instead.
+        /// </summary>
+        /// <param name="truncatedAt">[Optional]To truncate channel up to given time.</param>
+        /// <param name="systemMessage">A system message to be added via truncation.</param>
+        /// <param name="skipPushNotifications">Don't send a push notification for <param name="systemMessage"/>.</param>
+        /// <param name="isHardDelete">if truncation should delete messages instead of hiding</param>
+        public async Task TruncateAsync(DateTimeOffset? truncatedAt = default, string systemMessage = "",
+            bool skipPushNotifications = false, bool isHardDelete = false)
         {
-            var response = await LowLevelClient.InternalChannelApi.TruncateChannelAsync(Type, Id, new TruncateChannelRequestInternalDTO
-            {
-                HardDelete = isHardDelete,
-                Message = new MessageRequestInternalInternalDTO
+            var response = await LowLevelClient.InternalChannelApi.TruncateChannelAsync(Type, Id,
+                new TruncateChannelRequestInternalDTO
                 {
-                    Text = message
-                },
-                SkipPush = skipPushNotifications,
-                TruncatedAt = truncatedAt,
-            });
+                    HardDelete = isHardDelete,
+                    Message = new MessageRequestInternalInternalDTO
+                    {
+                        Text = systemMessage
+                    },
+                    SkipPush = skipPushNotifications,
+                    TruncatedAt = truncatedAt,
+                });
+            Cache.TryCreateOrUpdate(response.Channel);
         }
 
         /// <summary>
@@ -468,8 +527,13 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         /// <param name="isHardDelete">Hard delete completely removes channel with all its resources</param>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
-        public async Task DeleteAsync(bool isHardDelete) => LowLevelClient.ChannelApi.DeleteChannelAsync(Type, Id, isHardDelete);
+        public async Task DeleteAsync(bool isHardDelete)
+            => LowLevelClient.ChannelApi.DeleteChannelAsync(Type, Id, isHardDelete);
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
         public Task NotifyTypingStarted() => LowLevelClient.InternalChannelApi.SendTypingStartEventAsync(Type, Id);
 
         public Task NotifyTypingStopped() => LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
@@ -494,7 +558,7 @@ namespace StreamChat.Core.State.TrackedObjects
             DeletedAt = dto.Channel.DeletedAt;
             Disabled = dto.Channel.Disabled;
             Frozen = dto.Channel.Frozen;
-            Hidden = dto.Channel.Hidden;
+            Hidden = dto.Channel.Hidden.GetValueOrDefault();
             HideMessagesBefore = dto.Channel.HideMessagesBefore;
             Id = dto.Channel.Id;
             LastMessageAt = dto.Channel.LastMessageAt;
@@ -518,7 +582,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
             #region ChannelState
 
-            Hidden = dto.Hidden;
+            Hidden = dto.Hidden.GetValueOrDefault();
             HideMessagesBefore = dto.HideMessagesBefore;
             _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
             Membership = cache.TryCreateOrUpdate(dto.Membership);
@@ -547,7 +611,7 @@ namespace StreamChat.Core.State.TrackedObjects
             DeletedAt = dto.Channel.DeletedAt;
             Disabled = dto.Channel.Disabled;
             Frozen = dto.Channel.Frozen;
-            Hidden = dto.Channel.Hidden;
+            Hidden = dto.Channel.Hidden.GetValueOrDefault();
             HideMessagesBefore = dto.Channel.HideMessagesBefore;
             Id = dto.Channel.Id;
             LastMessageAt = dto.Channel.LastMessageAt;
@@ -571,7 +635,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
             #region ChannelState
 
-            Hidden = dto.Hidden;
+            Hidden = dto.Hidden.GetValueOrDefault();
             HideMessagesBefore = dto.HideMessagesBefore;
             _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
             Membership = cache.TryCreateOrUpdate(dto.Membership);
@@ -600,7 +664,7 @@ namespace StreamChat.Core.State.TrackedObjects
             DeletedAt = dto.DeletedAt;
             Disabled = dto.Disabled;
             Frozen = dto.Frozen;
-            Hidden = dto.Hidden;
+            Hidden = dto.Hidden.GetValueOrDefault();
             HideMessagesBefore = dto.HideMessagesBefore;
             Id = dto.Id;
             LastMessageAt = dto.LastMessageAt;
@@ -638,7 +702,7 @@ namespace StreamChat.Core.State.TrackedObjects
             DeletedAt = dto.Channel.DeletedAt;
             Disabled = dto.Channel.Disabled;
             Frozen = dto.Channel.Frozen;
-            Hidden = dto.Channel.Hidden;
+            Hidden = dto.Channel.Hidden.GetValueOrDefault();
             HideMessagesBefore = dto.Channel.HideMessagesBefore;
             Id = dto.Channel.Id;
             LastMessageAt = dto.Channel.LastMessageAt;
@@ -671,7 +735,7 @@ namespace StreamChat.Core.State.TrackedObjects
         internal void HandleMessageNewEvent(EventMessageNewInternalDTO dto)
         {
             AssertCid(dto.Cid);
-            AppendOrUpdateMessage(dto.Message);
+            InternalAppendOrUpdateMessage(dto.Message);
         }
 
         internal void HandleMessageUpdatedEvent(EventMessageUpdatedInternalDTO dto)
@@ -707,7 +771,55 @@ namespace StreamChat.Core.State.TrackedObjects
             }
         }
 
-        internal void SetMuted(bool isMuted) => Muted = isMuted;
+        internal void HandleChannelUpdatedEvent(EventChannelUpdatedInternalDTO eventDto)
+        {
+            Cache.TryCreateOrUpdate(eventDto.Channel);
+            Updated?.Invoke(this);
+        }
+
+        internal void HandleChannelTruncatedEvent(EventChannelTruncatedInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            InternalTruncateMessages(eventDto.CreatedAt, eventDto.Message);
+        }
+
+        internal void HandleChannelTruncatedEvent(EventNotificationChannelTruncatedInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            InternalTruncateMessages(eventDto.CreatedAt);
+        }
+
+        internal void InternalAddMember(StreamChannelMember member)
+        {
+            if (_members.Contains(member))
+            {
+                return;
+            }
+
+            _members.Add(member);
+            MemberAdded?.Invoke(this, member);
+        }
+
+        internal void InternalRemoveMember(StreamChannelMember member)
+        {
+            if (!_members.Contains(member))
+            {
+                return;
+            }
+
+            _members.Remove(member);
+            MemberRemoved?.Invoke(this, member);
+        }
+
+        public void InternalUpdateMember(StreamChannelMember member)
+        {
+            if (!_members.Contains(member))
+            {
+                _members.Add(member);
+            }
+
+            MemberUpdated?.Invoke(this, member);
+        }
 
         protected override StreamChannel Self => this;
 
@@ -725,6 +837,9 @@ namespace StreamChat.Core.State.TrackedObjects
         private readonly List<string> _ownCapabilities = new List<string>();
         private readonly List<StreamPendingMessage> _pendingMessages = new List<StreamPendingMessage>();
 
+        private bool? _muted;
+        private bool _hidden;
+
         private void AssertCid(string cid)
         {
             if (cid != Cid)
@@ -733,7 +848,7 @@ namespace StreamChat.Core.State.TrackedObjects
             }
         }
 
-        private StreamMessage AppendOrUpdateMessage(MessageInternalDTO dto)
+        private StreamMessage InternalAppendOrUpdateMessage(MessageInternalDTO dto)
         {
             var streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
             if (wasCreated)
@@ -745,6 +860,37 @@ namespace StreamChat.Core.State.TrackedObjects
             }
 
             return streamMessage;
+        }
+
+        private void InternalTruncateMessages(DateTimeOffset? deleteBeforeCreatedAt = null, MessageInternalDTO systemMessageDto = null)
+        {
+            if (deleteBeforeCreatedAt.HasValue)
+            {
+                for (int i = _messages.Count - 1; i >= 0; i--)
+                {
+                    var msg = _messages[i];
+                    if (msg.CreatedAt < deleteBeforeCreatedAt)
+                    {
+                        _messages.RemoveAt(i);
+                        Cache.Messages.Remove(msg);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = _messages.Count - 1; i >= 0; i--)
+                {
+                    _messages.RemoveAt(i);
+                    Cache.Messages.Remove(_messages[i]);
+                }
+            }
+
+            if (systemMessageDto != null)
+            {
+                InternalAppendOrUpdateMessage(systemMessageDto);
+            }
+
+            Truncated?.Invoke(this);
         }
     }
 }

@@ -204,7 +204,7 @@ namespace StreamChat.Core.State.TrackedObjects
             requestDto.Message.Id = Id;
 
             var response = await LowLevelClient.InternalMessageApi.UpdateMessageAsync(requestDto);
-            Cache.TryCreateOrUpdate(response.Message, out _);
+            Cache.TryCreateOrUpdate(response.Message);
         }
 
         /// <summary>

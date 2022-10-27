@@ -115,6 +115,9 @@ namespace StreamChat.Core.State
                 throw new ArgumentException($"{trackedObject.UniqueId} cannot be empty");
             }
 
+            //StreamTodo: we could notify object that its being removed, perhaps IDIsposable?
+            //This way object can release some memory before object is GCed
+
             _trackedObjects.Remove(trackedObject);
             _trackedObjectById.Remove(trackedObject.UniqueId);
         }

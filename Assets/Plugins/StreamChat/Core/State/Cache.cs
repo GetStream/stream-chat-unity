@@ -23,6 +23,7 @@ namespace StreamChat.Core.State
 
             Users.RegisterDtoTrackingIdGetter<StreamUser, UserObjectInternalInternalDTO>(dto => dto.Id);
             Users.RegisterDtoTrackingIdGetter<StreamUser, UserResponseInternalDTO>(dto => dto.Id);
+            Users.RegisterDtoTrackingIdGetter<StreamUser, OwnUserInternalDTO>(dto => dto.Id);
 
             LocalUser.RegisterDtoTrackingIdGetter<StreamLocalUser, OwnUserInternalDTO>(dto => dto.Id);
 

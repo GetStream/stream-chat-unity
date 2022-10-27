@@ -54,6 +54,17 @@ namespace StreamChat.Core.State
             }
         }
 
+        protected static bool TrySet<T>(ref T storage, T value)
+        {
+            if (EqualityComparer<T>.Default.Equals(storage, value))
+            {
+                return false;
+            }
+
+            storage = value;
+            return true;
+        }
+
         private readonly Dictionary<string, object> _additionalProperties = new Dictionary<string, object>();
     }
 }
