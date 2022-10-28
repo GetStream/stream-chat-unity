@@ -52,14 +52,21 @@ namespace StreamChat.Core.State
         ///
         /// Use this to create general purpose channel for unspecified group of users
         ///
-        /// If you want to create a channel for a dedicated group of users e.g. private conversation use the other overload <see cref="GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,IEnumerable{string})"/>
+        /// If you want to create a channel for a dedicated group of users e.g. private conversation use the <see cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.StreamUser},IStreamChannelCustomData)"/> overload
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity#1.-creating-a-channel-using-a-channel-id</remarks>
         Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
-            IChannelCustomData optionalCustomData = null);
+            IStreamChannelCustomData optionalCustomData = null);
 
+        /// <summary>
+        /// Hello my friend StreamTodo:
+        /// </summary>
+        /// <param name="channelType"></param>
+        /// <param name="members"></param>
+        /// <param name="optionalCustomData"></param>
+        /// <returns></returns>
         Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, IEnumerable<StreamUser> members,
-            IChannelCustomData optionalCustomData = null);
+            IStreamChannelCustomData optionalCustomData = null);
 
         /// <summary>
         /// Mute channels with optional duration in milliseconds

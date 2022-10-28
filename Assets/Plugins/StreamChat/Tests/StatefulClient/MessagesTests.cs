@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.InternalDTO.Requests;
-using StreamChat.Core.Requests;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.TrackedObjects;
 using UnityEngine.TestTools;

@@ -94,7 +94,6 @@ namespace StreamChat.Core
 
         internal event Action<EventHealthCheckInternalDTO> InternalConnected;
 
-
         internal event Action<EventMessageNewInternalDTO> InternalMessageReceived;
         internal event Action<EventMessageUpdatedInternalDTO> InternalMessageUpdated;
         internal event Action<EventMessageDeletedInternalDTO> InternalMessageDeleted;

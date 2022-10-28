@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.State.Models;
@@ -210,10 +211,10 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Pin this message to a channel with optional expiration date
         /// </summary>
-        /// <param name="expiresAt">[Optional] Exact datetime when pin will expire</param>
+        /// <param name="expiresAt">[Optional] UTC DateTime when pin will expire</param>
         public async Task PinAsync(DateTime? expiresAt = null)
         {
-            var requestDto = new UpdateMessagePartialRequestInternalDTO
+            var request = new UpdateMessagePartialRequestInternalDTO
             {
                 Set = new Dictionary<string, object>
                 {
@@ -223,10 +224,10 @@ namespace StreamChat.Core.State.TrackedObjects
 
             if (expiresAt.HasValue)
             {
-                requestDto.Set["pin_expires"] = expiresAt;
+                request.Set["pin_expires"] = expiresAt;
             }
 
-            var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id, requestDto);
+            var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id, request);
             Cache.TryCreateOrUpdate(response.Message);
         }
 
@@ -235,15 +236,14 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public async Task Unpin()
         {
-            var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id,
-                new UpdateMessagePartialRequestInternalDTO
+            var request = new UpdateMessagePartialRequestInternalDTO
+            {
+                Set = new Dictionary<string, object>
                 {
-                    Set = new Dictionary<string, object>
-                    {
-                        { "pinned", false },
-                    }
-                });
-
+                    { "pinned", false },
+                }
+            };
+            var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id, request);
             Cache.TryCreateOrUpdate(response.Message);
         }
 
@@ -255,7 +255,8 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <param name="score">[Optional] Reaction score, by default it counts as 1</param>
         /// <param name="enforceUnique">[Optional] Whether to replace all existing user reactions</param>
         /// <param name="skipMobilePushNotifications">[Optional] Skips any mobile push notifications</param>
-        public async Task SendReactionAsync(string type, int score = 1, bool enforceUnique = false, bool skipMobilePushNotifications = false)
+        public async Task SendReactionAsync(string type, int score = 1, bool enforceUnique = false,
+            bool skipMobilePushNotifications = false)
         {
             StreamAsserts.AssertNotNullOrEmpty(type, nameof(type));
 
@@ -303,10 +304,12 @@ namespace StreamChat.Core.State.TrackedObjects
             {
                 throw new Exception($"Failed to get channel with id {Cid} from cache. Please report this issue");
             }
-            return LowLevelClient.InternalChannelApi.MarkReadAsync(streamChannel.Type, streamChannel.Id, new MarkReadRequestInternalDTO()
-            {
-                MessageId = Id
-            });
+
+            return LowLevelClient.InternalChannelApi.MarkReadAsync(streamChannel.Type, streamChannel.Id,
+                new MarkReadRequestInternalDTO()
+                {
+                    MessageId = Id
+                });
         }
 
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
@@ -359,6 +362,40 @@ namespace StreamChat.Core.State.TrackedObjects
             Text = string.Empty;
         }
 
+        internal void HandleReactionNewEvent(EventReactionNewInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            AssertMessageId(eventDto.Message.Id);
+
+            //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
+            Cache.TryCreateOrUpdate(eventDto.Message);
+        }
+
+        internal void HandleReactionUpdatedEvent(EventReactionUpdatedInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            AssertMessageId(eventDto.Message.Id);
+
+            //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
+
+            //Figure out what is this??? in Android SDK
+            // // make sure we don't lose ownReactions
+            // getMessage(message.id)?.let {
+            //     message.ownReactions = it.ownReactions
+            // }
+
+            Cache.TryCreateOrUpdate(eventDto.Message);
+        }
+
+        internal void HandleReactionDeletedEvent(EventReactionDeletedInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            AssertMessageId(eventDto.Message.Id);
+
+            //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
+            Cache.TryCreateOrUpdate(eventDto.Message);
+        }
+
         protected override StreamMessage Self => this;
 
         protected override string InternalUniqueId
@@ -377,5 +414,21 @@ namespace StreamChat.Core.State.TrackedObjects
         private readonly List<StreamUser> _threadParticipants = new List<StreamUser>();
 
         private readonly Dictionary<string, string> _iI18n = new Dictionary<string, string>();
+
+        private void AssertMessageId(string messageId)
+        {
+            if (messageId != Id)
+            {
+                throw new InvalidOperationException($"ID mismatch, received: `{messageId}` but current message ID is: {Id}");
+            }
+        }
+
+        private void AssertCid(string cid)
+        {
+            if (cid != Cid)
+            {
+                throw new InvalidOperationException($"Cid mismatch, received: `{cid}` but current channel is: {Cid}");
+            }
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace StreamChat.Core.State
         public bool TryGet(string uniqueId, out TTrackedType trackedObject)
             => _trackedObjectById.TryGetValue(uniqueId, out trackedObject);
 
-        public string GetDtoTrackingId<TDto>(TDto dto)
+        private string GetDtoTrackingId<TDto>(TDto dto)
         {
             var key = typeof(TDto);
 
@@ -48,24 +48,24 @@ namespace StreamChat.Core.State
             _dtoIdGetters.Add(key, Wrapper);
         }
 
-        public TType CreateOrUpdate<TType, TDto>(string uniqueId, TDto tdo)
-            where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
-        {
-            if (!TryGet(uniqueId, out var trackedObject))
-            {
-                trackedObject = _constructor(uniqueId, repository: this);
-            }
-
-            var typedTrackedObject = trackedObject as TType;
-            if (typedTrackedObject == null)
-            {
-                throw new InvalidOperationException($"Failed to cast {typeof(TTrackedType)} to {typeof(TType)}");
-            }
-
-            typedTrackedObject.UpdateFromDto(tdo, _cache);
-
-            return typedTrackedObject;
-        }
+        // public TType CreateOrUpdate<TType, TDto>(string uniqueId, TDto tdo)
+        //     where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
+        // {
+        //     if (!TryGet(uniqueId, out var trackedObject))
+        //     {
+        //         trackedObject = _constructor(uniqueId, repository: this);
+        //     }
+        //
+        //     var typedTrackedObject = trackedObject as TType;
+        //     if (typedTrackedObject == null)
+        //     {
+        //         throw new InvalidOperationException($"Failed to cast {typeof(TTrackedType)} to {typeof(TType)}");
+        //     }
+        //
+        //     typedTrackedObject.UpdateFromDto(tdo, _cache);
+        //
+        //     return typedTrackedObject;
+        // }
 
         public TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
             where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>

@@ -9,58 +9,58 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Expiration date of the ban
         /// </summary>
-        public DateTimeOffset? BanExpires { get; set; }
+        public DateTimeOffset? BanExpires { get; private set; }
 
         /// <summary>
         /// Whether member is banned this channel or not
         /// </summary>
-        public bool? Banned { get; set; }
+        public bool? Banned { get; private set; }
 
         /// <summary>
         /// Role of the member in the channel
         /// </summary>
-        public string ChannelRole { get; set; }
+        public string ChannelRole { get; private set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public DateTimeOffset? CreatedAt { get; set; }
+        public DateTimeOffset? CreatedAt { get; private set; }
 
-        public DateTimeOffset? DeletedAt { get; set; }
+        public DateTimeOffset? DeletedAt { get; private set; }
 
         /// <summary>
         /// Date when invite was accepted
         /// </summary>
-        public DateTimeOffset? InviteAcceptedAt { get; set; }
+        public DateTimeOffset? InviteAcceptedAt { get; private set; }
 
         /// <summary>
         /// Date when invite was rejected
         /// </summary>
-        public DateTimeOffset? InviteRejectedAt { get; set; }
+        public DateTimeOffset? InviteRejectedAt { get; private set; }
 
         /// <summary>
         /// Whether member was invited or not
         /// </summary>
-        public bool? Invited { get; set; }
+        public bool? Invited { get; private set; }
 
         /// <summary>
         /// Whether member is channel moderator or not
         /// </summary>
-        public bool? IsModerator { get; set; }
+        public bool? IsModerator { get; private set; }
 
         /// <summary>
         /// Whether member is shadow banned in this channel or not
         /// </summary>
-        public bool? ShadowBanned { get; set; }
+        public bool? ShadowBanned { get; private set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
-        public DateTimeOffset? UpdatedAt { get; set; }
+        public DateTimeOffset? UpdatedAt { get; private set; }
 
-        public StreamUser User { get; set; }
+        public StreamUser User { get; private set; }
 
-        public string UserId { get; set; }
+        public string UserId { get; private set; }
 
 //         ChannelMember ILoadableFrom<ChannelMemberInternalDTO, ChannelMember>.LoadFromDto(ChannelMemberInternalDTO dto)
 //         {

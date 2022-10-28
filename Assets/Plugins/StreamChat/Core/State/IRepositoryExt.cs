@@ -26,9 +26,7 @@ namespace StreamChat.Core.State
 
             foreach (var dto in dtos)
             {
-                var id = repository.GetDtoTrackingId(dto);
-
-                var trackedItem = repository.CreateOrUpdate<TTracked, TDto>(id, dto);
+                var trackedItem = repository.CreateOrUpdate<TTracked, TDto>(dto, out _);
                 target.Add(trackedItem);
             }
         }

@@ -224,7 +224,7 @@ namespace StreamChat.SampleProject
                         Messages = new MessagePaginationParamsRequest
                         {
                             IdLt = firstMessage.Id,
-                            Limit = 50,
+                            Limit = 50, //StreamTodo: this should be passed in some config
                         },
                     });
 

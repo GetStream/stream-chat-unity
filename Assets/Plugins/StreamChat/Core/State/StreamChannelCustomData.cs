@@ -3,17 +3,17 @@ using System.Linq;
 
 namespace StreamChat.Core.State
 {
-    public class ChannelCustomData : IChannelCustomData
+    public class StreamChannelCustomData : IStreamChannelCustomData
     {
         public int Count => _internalDictionary.Count;
         public IEnumerable<(string Key, object Value)> Items => _internalDictionary.Select(_ => (_.Key, _.Value));
 
-        public ChannelCustomData()
+        public StreamChannelCustomData()
         {
             _internalDictionary = new Dictionary<string, object>();
         }
 
-        public ChannelCustomData(Dictionary<string, object> internalDictionary)
+        public StreamChannelCustomData(Dictionary<string, object> internalDictionary)
         {
             _internalDictionary = internalDictionary ?? new Dictionary<string, object>();
         }

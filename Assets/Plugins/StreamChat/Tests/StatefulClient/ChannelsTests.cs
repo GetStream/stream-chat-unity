@@ -237,4 +237,5 @@ namespace StreamChat.Tests.StatefulClient
         }
     }
 }
+
 #endif

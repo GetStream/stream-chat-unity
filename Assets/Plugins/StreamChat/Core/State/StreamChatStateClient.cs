@@ -9,6 +9,7 @@ using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
+using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs;
@@ -139,8 +140,9 @@ namespace StreamChat.Core.State
         // StreamTodo: Pagination should probably be removed here and only available through channel.GetNextMessages, channel.GetPreviousMessages
         // Otherwise we have problem that you fetch old messages and then WS event delivers a new one
 
+        /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,string,IStreamChannelCustomData)"/>
         public async Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
-            IChannelCustomData optionalCustomData = null)
+            IStreamChannelCustomData optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
             StreamAsserts.AssertChannelIdLength(channelId);
@@ -161,8 +163,9 @@ namespace StreamChat.Core.State
             return _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(channelResponseDto, out _);
         }
 
+        /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.StreamUser},IStreamChannelCustomData)"/>
         public async Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType,
-            IEnumerable<StreamUser> members, IChannelCustomData optionalCustomData = null)
+            IEnumerable<StreamUser> members, IStreamChannelCustomData optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
             StreamAsserts.AssertNotNullOrEmpty(members, nameof(members));
@@ -196,13 +199,19 @@ namespace StreamChat.Core.State
         //StreamTodo: Filter object that contains a factory
         public async Task<IEnumerable<StreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters)
         {
+            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
             var requestBodyDto = new QueryChannelsRequestInternalDTO
             {
-                Watch = true,
-                State = true,
+                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
+                Limit = null,
+                MemberLimit = null,
+                MessageLimit = null,
+                Offset = null,
                 Presence = true,
-                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value)
-
+                Sort = null,
+                State = true,
+                Watch = true,
+                AdditionalProperties = null
             };
 
             var channelsResponseDto = await LowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
@@ -237,6 +246,26 @@ namespace StreamChat.Core.State
 
             var result = new List<StreamUser>();
             foreach (var userDto in response.Users)
+            {
+                result.Add(_cache.TryCreateOrUpdate(userDto));
+            }
+
+            return result;
+        }
+
+        public async Task<IEnumerable<StreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(userRequests, nameof(userRequests));
+
+            var requestDtos = userRequests.Select(_ => _.TrySaveToDto()).ToDictionary(_ => _.Id, _ => _);
+
+            var response = await LowLevelClient.InternalUserApi.UpsertManyUsersAsync(new UpdateUsersRequestInternalDTO
+            {
+                Users = requestDtos
+            });
+
+            var result = new List<StreamUser>();
+            foreach (var userDto in response.Users.Values)
             {
                 result.Add(_cache.TryCreateOrUpdate(userDto));
             }
@@ -301,6 +330,11 @@ namespace StreamChat.Core.State
             return response;
         }
 
+        /// <summary>
+        /// You mute single user by using <see cref="StreamUser.MuteAsync"/>
+        /// </summary>
+        /// <param name="users"></param>
+        /// <param name="timeoutMinutes"></param>
         public async Task MuteMultipleUsersAsync(IEnumerable<StreamUser> users, int? timeoutMinutes = default)
         {
             StreamAsserts.AssertNotNullOrEmpty(users, nameof(users));
@@ -319,8 +353,6 @@ namespace StreamChat.Core.State
             //StreamTodo: implement, should we allow for query
             throw new NotImplementedException();
         }
-
-        //StreamTODO: Check ChannelLogic.kt and implement reacting to all possible events
 
         public void Dispose()
         {
@@ -423,7 +455,7 @@ namespace StreamChat.Core.State
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
-                DeleteChannel(streamChannel);
+                InternalDeleteChannel(streamChannel);
             }
         }
 
@@ -447,7 +479,7 @@ namespace StreamChat.Core.State
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
-                DeleteChannel(streamChannel);
+                InternalDeleteChannel(streamChannel);
             }
         }
 
@@ -492,6 +524,22 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalMemberAdded += OnLowLevelClientMemberAdded;
             lowLevelClient.InternalMemberRemoved += OnLowLevelClientMemberRemoved;
             lowLevelClient.InternalMemberUpdated += OnLowLevelClientMemberUpdated;
+
+            lowLevelClient.InternalUserPresenceChanged += OnLowLevelClientUserPresenceChanged;
+            lowLevelClient.InternalUserUpdated += OnLowLevelUserUpdated;
+            lowLevelClient.InternalUserDeleted += OnLowLevelClientUserDeleted;
+            lowLevelClient.InternalUserBanned += OnLowLevelClientUserBanned;
+            lowLevelClient.InternalUserUnbanned += OnLowLevelClientUserUnbanned;
+
+            lowLevelClient.InternalUserWatchingStart += OnLowLevelClientUserWatchingStart;
+            lowLevelClient.InternalUserWatchingStop += OnLowLevelClientUserWatchingStop;
+
+            lowLevelClient.InternalReactionReceived += OnLowLevelClientReactionReceived;
+            lowLevelClient.InternalReactionUpdated += OnLowLevelClientReactionUpdated;
+            lowLevelClient.InternalReactionDeleted += OnLowLevelClientReactionDeleted;
+
+            lowLevelClient.InternalTypingStarted += OnLowLevelClientTypingStarted;
+            lowLevelClient.InternalTypingStopped += OnLowLevelClientTypingStopped;
 
             lowLevelClient.InternalNotificationChannelDeleted += OnLowLevelClientNotificationChannelDeleted;
             lowLevelClient.InternalNotificationChannelTruncated += LowLevelClientOnInternalNotificationChannelTruncated;
@@ -556,13 +604,102 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalChannelVisible -= OnLowLevelClientChannelVisible;
             lowLevelClient.InternalChannelHidden -= OnLowLevelClientChannelHidden;
 
+            lowLevelClient.InternalMemberAdded -= OnLowLevelClientMemberAdded;
+            lowLevelClient.InternalMemberRemoved -= OnLowLevelClientMemberRemoved;
+            lowLevelClient.InternalMemberUpdated -= OnLowLevelClientMemberUpdated;
+
+            lowLevelClient.InternalUserPresenceChanged -= OnLowLevelClientUserPresenceChanged;
+            lowLevelClient.InternalUserUpdated -= OnLowLevelUserUpdated;
+            lowLevelClient.InternalUserDeleted -= OnLowLevelClientUserDeleted;
+            lowLevelClient.InternalUserBanned -= OnLowLevelClientUserBanned;
+            lowLevelClient.InternalUserUnbanned -= OnLowLevelClientUserUnbanned;
+
+            lowLevelClient.InternalUserWatchingStart -= OnLowLevelClientUserWatchingStart;
+            lowLevelClient.InternalUserWatchingStop -= OnLowLevelClientUserWatchingStop;
+
+            lowLevelClient.InternalReactionReceived -= OnLowLevelClientReactionReceived;
+            lowLevelClient.InternalReactionUpdated -= OnLowLevelClientReactionUpdated;
+            lowLevelClient.InternalReactionDeleted -= OnLowLevelClientReactionDeleted;
+
+            lowLevelClient.InternalTypingStarted -= OnLowLevelClientTypingStarted;
+            lowLevelClient.InternalTypingStopped -= OnLowLevelClientTypingStopped;
+
             lowLevelClient.InternalNotificationChannelDeleted -= OnLowLevelClientNotificationChannelDeleted;
             lowLevelClient.InternalNotificationChannelTruncated -= LowLevelClientOnInternalNotificationChannelTruncated;
 
             lowLevelClient.InternalNotificationChannelMutesUpdated -= OnLowLevelClientChannelMutesUpdated;
         }
 
-        private void DeleteChannel(StreamChannel channel)
+        private void OnLowLevelClientReactionReceived(EventReactionNewInternalDTO eventDto)
+        {
+            if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
+            {
+                message.HandleReactionNewEvent(eventDto);
+            }
+        }
+
+        private void OnLowLevelClientReactionDeleted(EventReactionDeletedInternalDTO eventDto)
+        {
+            if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
+            {
+                message.HandleReactionDeletedEvent(eventDto);
+            }
+        }
+
+        private void OnLowLevelClientReactionUpdated(EventReactionUpdatedInternalDTO eventDto)
+        {
+            if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
+            {
+                message.HandleReactionUpdatedEvent(eventDto);
+            }
+        }
+
+        private void OnLowLevelClientUserWatchingStop(EventUserWatchingStopInternalDTO obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnLowLevelClientUserWatchingStart(EventUserWatchingStartInternalDTO obj)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void OnLowLevelClientUserUnbanned(EventUserUnbannedInternalDTO obj)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void OnLowLevelClientUserBanned(EventUserBannedInternalDTO obj)
+        {
+
+        }
+
+        private void OnLowLevelClientUserDeleted(EventUserDeletedInternalDTO obj)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void OnLowLevelUserUpdated(EventUserUpdatedInternalDTO obj)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void OnLowLevelClientUserPresenceChanged(EventUserPresenceChangedInternalDTO obj)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void OnLowLevelClientTypingStopped(EventTypingStopInternalDTO obj)
+        {
+            //StreamTodo: IMPLEMENT
+        }
+
+        private void OnLowLevelClientTypingStarted(EventTypingStartInternalDTO obj)
+        {
+            //StreamTodo: IMPLEMENT
+        }
+
+        private void InternalDeleteChannel(StreamChannel channel)
         {
             //StreamTodo: probably silent clear all internal data?
             _cache.Channels.Remove(channel);

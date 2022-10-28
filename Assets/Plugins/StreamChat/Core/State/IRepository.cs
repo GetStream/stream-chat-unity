@@ -12,12 +12,12 @@ namespace StreamChat.Core.State
     {
         bool TryGet(string uniqueId, out TTrackedObject trackedObject);
 
-        TTrackedType CreateOrUpdate<TTrackedType, TDto>(string uniqueId, TDto tdo)
-            where TTrackedType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TTrackedType>;
+        // TTrackedType CreateOrUpdate<TTrackedType, TDto>(string uniqueId, TDto tdo)
+        //     where TTrackedType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TTrackedType>;
 
         void Track(TTrackedObject trackedObject);
 
-        string GetDtoTrackingId<TDto>(TDto dto);
+        //string GetDtoTrackingId<TDto>(TDto dto);
 
         void RegisterDtoTrackingIdGetter<TType, TDto>(Func<TDto, string> idGetter)
             where TType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TType>

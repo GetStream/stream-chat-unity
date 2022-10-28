@@ -7,6 +7,10 @@ using StreamChat.Core.State.Models;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
+    public interface IStreamUser
+    {
+
+    }
     /// <summary>
     /// Stream user represents a single chat user that can be a member of multiple channels
     ///
@@ -130,6 +134,9 @@ namespace StreamChat.Core.State.TrackedObjects
         {
             TargetId = Id,
         });
+
+
+        //StreamTodo: Update and PartialUpdate
 
         internal StreamUser(string uniqueId, IRepository<StreamUser> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)

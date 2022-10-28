@@ -345,6 +345,20 @@ namespace StreamChat.Tests.Integration
                 fileUrl = response.File;
             });
 
+            byte[] result = null;
+            yield return DownloadVideoAsync(fileUrl).RunAsIEnumerator(response =>
+            {
+                result = response;
+            });
+
+            bool isEqual = videoFileContent.SequenceEqual(result);
+            Debug.Log($"resultsEqual: {isEqual}, videoFileContent: {videoFileContent.Length}, result: {result.Length}");
+
+
+            var _pathToFile = Path.Combine(Application.persistentDataPath, "video.mp4");
+            Debug.Log("m" + _pathToFile);
+            File.WriteAllBytes(_pathToFile, result);
+
             var deleteFileTask = Client.MessageApi.DeleteFileAsync(channelType, channelId, fileUrl);
 
             yield return deleteFileTask.RunAsIEnumerator(response => { });

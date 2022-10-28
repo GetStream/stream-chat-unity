@@ -13,10 +13,13 @@ namespace StreamChat.Core.State
     {
         string IStreamTrackedObject.UniqueId => InternalUniqueId;
 
+        //StreamTodo: probably more intuitive to have CustomData property
         public void SetCustomField(string key, object value) => _additionalProperties[key] = value;
 
         public bool TryGetCustomField(string key, out object value)
             => _additionalProperties.TryGetValue(key, out value);
+
+        public object GetCustomDataItem(string key) => _additionalProperties[key];
 
         internal StreamTrackedObjectBase(string uniqueId, IRepository<TTrackedObject> repository,
             ITrackedObjectContext context)
@@ -64,6 +67,18 @@ namespace StreamChat.Core.State
             storage = value;
             return true;
         }
+
+        protected static T GetOrDefault<T>(T? source, T defaultValue)
+            where T : struct
+            => source ?? defaultValue;
+
+        protected static T? GetOrDefault<T>(T? source, T? defaultValue)
+            where T : struct
+            => source ?? defaultValue;
+
+        protected static T GetOrDefault<T>(T source, T defaultValue)
+            where T : class
+            => source ?? defaultValue;
 
         private readonly Dictionary<string, object> _additionalProperties = new Dictionary<string, object>();
     }

@@ -160,6 +160,27 @@ namespace StreamChat.Tests.Integration
             }
         }
 
+        public static async Task<byte[]> DownloadVideoAsync(string url)
+        {
+            using (var www = UnityWebRequest.Get(url))
+            {
+                var sendWebRequest = www.SendWebRequest();
+
+                while (!sendWebRequest.isDone)
+                {
+                    await Task.Delay(1);
+                }
+
+                if (www.error != null)
+                {
+                    Debug.LogError($"{www.error}, URL:{www.url}");
+                    return null;
+                }
+
+                return www.downloadHandler.data;
+            }
+        }
+
         private const string WordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
         private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =

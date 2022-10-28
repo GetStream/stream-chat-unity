@@ -73,5 +73,13 @@ namespace StreamChat.Core.State
                 throw new ArgumentException($"{argName} cannot be empty");
             }
         }
+
+        public static void AssertGreaterThanZero(int? value, string argName)
+        {
+            if (value <= 0)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(argName)} must be greater than 0");
+            }
+        }
     }
 }

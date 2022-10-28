@@ -3,12 +3,8 @@ using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State
 {
-    /// <summary>
-    /// <see cref="StreamChannel"/>'s custom data. Use it to assign any additional data to the channel.
-    ///
-    /// Common examples of custom data: image_url, clan_id, description, additional stats, etc.
-    /// </summary>
-    public interface IChannelCustomData
+    //StreamTodo:
+    public interface IStreamCustomData
     {
         int Count { get; }
         IEnumerable<(string Key, object Value)> Items { get; }
@@ -24,5 +20,20 @@ namespace StreamChat.Core.State
         object this[string key] { get; set; }
 
         void Clear();
+    }
+
+    public interface IStreamUserCustomData : IStreamCustomData
+    {
+
+    }
+
+    /// <summary>
+    /// <see cref="StreamChannel"/>'s custom data. Use it to assign any additional data to the channel.
+    ///
+    /// Common examples of custom data: image_url, clan_id, description, additional stats, etc.
+    /// </summary>
+    public interface IStreamChannelCustomData : IStreamCustomData
+    {
+
     }
 }

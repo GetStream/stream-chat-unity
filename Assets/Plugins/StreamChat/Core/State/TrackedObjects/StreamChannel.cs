@@ -8,6 +8,7 @@ using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Models;
+using StreamChat.Core.Requests;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 
@@ -19,6 +20,7 @@ namespace StreamChat.Core.State.TrackedObjects
     }
 
     public delegate void ChannelVisibilityHandler(StreamChannel channel, bool isHidden);
+
     public delegate void ChannelMuteHandler(StreamChannel channel, bool isMuted);
 
     public delegate void ChannelChangeHandler(StreamChannel channel);
@@ -48,7 +50,6 @@ namespace StreamChat.Core.State.TrackedObjects
         public event ChannelMemberChangeHandler MemberAdded;
         public event ChannelMemberChangeHandler MemberRemoved;
         public event ChannelMemberChangeHandler MemberUpdated;
-
 
         #region Channel
 
@@ -80,7 +81,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public DateTimeOffset? CreatedAt { get; private set; }
+        public DateTimeOffset CreatedAt { get; private set; }
 
         /// <summary>
         /// Creator of the channel
@@ -92,15 +93,15 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public DateTimeOffset? DeletedAt { get; private set; }
 
-        public bool? Disabled { get; private set; }
+        public bool Disabled { get; private set; }
 
         /// <summary>
         /// Whether channel is frozen or not
         /// </summary>
-        public bool? Frozen { get; private set; }
+        public bool Frozen { get; private set; }
 
         /// <summary>
-        /// Whether this channel is hidden by current user or not
+        /// Whether this channel is hidden by current user or not. Subscribe to <see cref="VisibilityChanged"/> to get notified when this property changes
         /// </summary>
         public bool Hidden
         {
@@ -111,6 +112,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 {
                     VisibilityChanged?.Invoke(this, Hidden);
                 }
+
                 _hidden = value;
             }
         }
@@ -133,7 +135,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Number of members in the channel
         /// </summary>
-        public int? MemberCount { get; private set; }
+        public int MemberCount { get; private set; }
 
         /// <summary>
         /// List of channel members (max 100)
@@ -146,9 +148,9 @@ namespace StreamChat.Core.State.TrackedObjects
         public DateTimeOffset? MuteExpiresAt { get; private set; }
 
         /// <summary>
-        /// Whether this channel is muted or not
+        /// Whether this channel is muted or not. Subscribe to <see cref="MuteChanged"/> to get notified when this property changes
         /// </summary>
-        public bool? Muted
+        public bool Muted
         {
             get => _muted;
             internal set
@@ -159,7 +161,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 }
 
                 _muted = value;
-                MuteChanged?.Invoke(this, value.Value);
+                MuteChanged?.Invoke(this, value);
             }
         }
 
@@ -187,7 +189,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public DateTimeOffset? UpdatedAt { get; private set; }
 
-        public string Name { get; private set; } //StreamTodo: if custom name is not set should we return the ID?
+        public string Name { get; private set; }
 
         #endregion
 
@@ -327,15 +329,8 @@ namespace StreamChat.Core.State.TrackedObjects
         public Task BanUserAsync(StreamUser user, bool isShadowBan, string reason = "", int? timeoutMinutes = default,
             bool isIpBan = false)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException($"{nameof(user)} cannot be null");
-            }
-
-            if (timeoutMinutes <= 0)
-            {
-                throw new ArgumentOutOfRangeException($"{nameof(timeoutMinutes)} must be greater than 0");
-            }
+            StreamAsserts.AssertNotNull(user, nameof(user));
+            StreamAsserts.AssertGreaterThanZero(timeoutMinutes, nameof(timeoutMinutes));
 
             return LowLevelClient.InternalModerationApi.BanUserAsync(new BanRequestInternalDTO
             {
@@ -359,13 +354,50 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public Task UnbanUserAsync(StreamUser user)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException($"{nameof(user)} cannot be null");
-            }
-
+            StreamAsserts.AssertNotNull(user, nameof(user));
             return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
         }
+
+        public async Task LoadOlderMessagesAsync()
+        {
+            var oldestMessage = _messages.OrderBy(_ => _.CreatedAt).FirstOrDefault();
+
+            var request = new ChannelGetOrCreateRequestInternalDTO
+            {
+                Data = null,
+                Members = null,
+                Messages = new MessagePaginationParamsRequestInternalDTO
+                {
+                    CreatedAtAfter = null,
+                    CreatedAtAfterOrEqual = null,
+                    CreatedAtAround = null,
+                    CreatedAtBefore = null,
+                    CreatedAtBeforeOrEqual = null,
+                    IdAround = null,
+                    IdGt = null,
+                    IdGte = null,
+                    IdLt = null,
+                    IdLte = null,
+                    Limit = null,
+                    Offset = null,
+                },
+                Presence = true, //StreamTodo: presence could be optional in config
+                State = true,
+                Watch = true,
+            };
+
+            if (oldestMessage != null)
+            {
+                request.Messages = new MessagePaginationParamsRequestInternalDTO()
+                {
+                    IdLt = oldestMessage.Id,
+                };
+            }
+
+            var response = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(Type, Id, request);
+        }
+
+        //StreamTodo: LoadNewerMessages? This would only make sense if we would start somewhere in the history
 
         public void ShadowBanUser()
         {
@@ -481,7 +513,6 @@ namespace StreamChat.Core.State.TrackedObjects
                 },
                 Expiration = milliseconds,
             });
-
             StreamChatStateClient.UpdateLocalUser(response.OwnUser);
         }
 
@@ -501,7 +532,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Truncate removes all of the messages but does not affect the channel data or channel members. If you want to delete both messages and channel data then use the <see cref="DeleteAsync"/> method instead.
         /// </summary>
-        /// <param name="truncatedAt">[Optional]To truncate channel up to given time.</param>
+        /// <param name="truncatedAt">[Optional]truncate channel up to given time. If not set then all messages are truncated</param>
         /// <param name="systemMessage">A system message to be added via truncation.</param>
         /// <param name="skipPushNotifications">Don't send a push notification for <param name="systemMessage"/>.</param>
         /// <param name="isHardDelete">if truncation should delete messages instead of hiding</param>
@@ -520,6 +551,8 @@ namespace StreamChat.Core.State.TrackedObjects
                     TruncatedAt = truncatedAt,
                 });
             Cache.TryCreateOrUpdate(response.Channel);
+
+            //StreamTodo:
         }
 
         /// <summary>
@@ -528,7 +561,8 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <param name="isHardDelete">Hard delete completely removes channel with all its resources</param>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
         public async Task DeleteAsync(bool isHardDelete)
-            => LowLevelClient.ChannelApi.DeleteChannelAsync(Type, Id, isHardDelete);
+            => LowLevelClient.ChannelApi.DeleteChannelAsync(Type, Id,
+                isHardDelete); //StreamTodo: call StateClient.InternalDeleteCHannel?
 
         /// <summary>
         ///
@@ -546,45 +580,14 @@ namespace StreamChat.Core.State.TrackedObjects
         void IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>.UpdateFromDto(
             ChannelStateResponseInternalDTO dto, ICache cache)
         {
-            #region Channel
-
-            AutoTranslationEnabled = dto.Channel.AutoTranslationEnabled;
-            AutoTranslationLanguage = dto.Channel.AutoTranslationLanguage;
-            Cid = dto.Channel.Cid;
-            Config = Config.TryLoadFromDto(dto.Channel.Config, cache);
-            Cooldown = dto.Channel.Cooldown;
-            CreatedAt = dto.Channel.CreatedAt;
-            CreatedBy = cache.TryCreateOrUpdate(dto.Channel.CreatedBy);
-            DeletedAt = dto.Channel.DeletedAt;
-            Disabled = dto.Channel.Disabled;
-            Frozen = dto.Channel.Frozen;
-            Hidden = dto.Channel.Hidden.GetValueOrDefault();
-            HideMessagesBefore = dto.Channel.HideMessagesBefore;
-            Id = dto.Channel.Id;
-            LastMessageAt = dto.Channel.LastMessageAt;
-            MemberCount = dto.Channel.MemberCount;
-            // dto.Channel.Members handled below
-            MuteExpiresAt = dto.Channel.MuteExpiresAt;
-            Muted = dto.Channel.Muted;
-            _ownCapabilities.TryReplaceValuesFromDto(dto.Channel.OwnCapabilities);
-            Team = dto.Channel.Team;
-            TruncatedAt = dto.Channel.TruncatedAt;
-            TruncatedBy = cache.TryCreateOrUpdate(dto.Channel.TruncatedBy);
-            Type = dto.Channel.Type;
-            UpdatedAt = dto.Channel.UpdatedAt;
-
-            LoadAdditionalProperties(dto.Channel.AdditionalProperties);
-
-            //Not in API spec
-            Name = dto.Channel.Name;
-
-            #endregion
+            UpdateChannelFieldsFromDto(dto.Channel, cache);
 
             #region ChannelState
 
-            Hidden = dto.Hidden.GetValueOrDefault();
-            HideMessagesBefore = dto.HideMessagesBefore;
-            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
+            //StreamTodo: this could be partial state so we can't just completely replace all the info
+            //Hidden = dto.Hidden.GetValueOrDefault(); Updated from Channel
+            //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
+            //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from Channel
             Membership = cache.TryCreateOrUpdate(dto.Membership);
             _messages.TryReplaceTrackedObjects(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
@@ -594,50 +597,19 @@ namespace StreamChat.Core.State.TrackedObjects
             _watchers.TryReplaceTrackedObjects(dto.Watchers, cache.Users);
 
             #endregion
+
+            //StreamTodo probably every UpdateFromDto should trigger Updated event
         }
 
         void IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>.UpdateFromDto(
             ChannelStateResponseFieldsInternalDTO dto, ICache cache)
         {
-            #region Channel
-
-            AutoTranslationEnabled = dto.Channel.AutoTranslationEnabled;
-            AutoTranslationLanguage = dto.Channel.AutoTranslationLanguage;
-            Cid = dto.Channel.Cid;
-            Config = Config.TryLoadFromDto(dto.Channel.Config, cache);
-            Cooldown = dto.Channel.Cooldown;
-            CreatedAt = dto.Channel.CreatedAt;
-            CreatedBy = cache.TryCreateOrUpdate(dto.Channel.CreatedBy);
-            DeletedAt = dto.Channel.DeletedAt;
-            Disabled = dto.Channel.Disabled;
-            Frozen = dto.Channel.Frozen;
-            Hidden = dto.Channel.Hidden.GetValueOrDefault();
-            HideMessagesBefore = dto.Channel.HideMessagesBefore;
-            Id = dto.Channel.Id;
-            LastMessageAt = dto.Channel.LastMessageAt;
-            MemberCount = dto.Channel.MemberCount;
-            // dto.Channel.Members handled below
-            MuteExpiresAt = dto.Channel.MuteExpiresAt;
-            Muted = dto.Channel.Muted;
-            _ownCapabilities.TryReplaceValuesFromDto(dto.Channel.OwnCapabilities);
-            Team = dto.Channel.Team;
-            TruncatedAt = dto.Channel.TruncatedAt;
-            TruncatedBy = cache.TryCreateOrUpdate(dto.Channel.TruncatedBy);
-            Type = dto.Channel.Type;
-            UpdatedAt = dto.Channel.UpdatedAt;
-
-            LoadAdditionalProperties(dto.Channel.AdditionalProperties);
-
-            //Not in API spec
-            Name = dto.Channel.Name;
-
-            #endregion
+            UpdateChannelFieldsFromDto(dto.Channel, cache);
 
             #region ChannelState
-
-            Hidden = dto.Hidden.GetValueOrDefault();
-            HideMessagesBefore = dto.HideMessagesBefore;
-            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
+            //Hidden = dto.Hidden.GetValueOrDefault(); Updated from Channel
+            //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
+            //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from dto.Channel
             Membership = cache.TryCreateOrUpdate(dto.Membership);
             _messages.TryReplaceTrackedObjects(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
@@ -645,90 +617,20 @@ namespace StreamChat.Core.State.TrackedObjects
             _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
             WatcherCount = dto.WatcherCount;
             _watchers.TryReplaceTrackedObjects(dto.Watchers, cache.Users);
-
             #endregion
         }
 
         void IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>.UpdateFromDto(ChannelResponseInternalDTO dto,
             ICache cache)
-        {
-            #region Channel
-
-            AutoTranslationEnabled = dto.AutoTranslationEnabled;
-            AutoTranslationLanguage = dto.AutoTranslationLanguage;
-            Cid = dto.Cid;
-            Config = Config.TryLoadFromDto(dto.Config, cache);
-            Cooldown = dto.Cooldown;
-            CreatedAt = dto.CreatedAt;
-            CreatedBy = cache.TryCreateOrUpdate(dto.CreatedBy);
-            DeletedAt = dto.DeletedAt;
-            Disabled = dto.Disabled;
-            Frozen = dto.Frozen;
-            Hidden = dto.Hidden.GetValueOrDefault();
-            HideMessagesBefore = dto.HideMessagesBefore;
-            Id = dto.Id;
-            LastMessageAt = dto.LastMessageAt;
-            MemberCount = dto.MemberCount;
-            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
-            MuteExpiresAt = dto.MuteExpiresAt;
-            Muted = dto.Muted;
-            _ownCapabilities.TryReplaceValuesFromDto(dto.OwnCapabilities);
-            Team = dto.Team;
-            TruncatedAt = dto.TruncatedAt;
-            TruncatedBy = cache.TryCreateOrUpdate(dto.TruncatedBy);
-            Type = dto.Type;
-            UpdatedAt = dto.UpdatedAt;
-
-            LoadAdditionalProperties(dto.AdditionalProperties);
-
-            //Not in API spec
-            Name = dto.Name;
-
-            #endregion
-        }
+            => UpdateChannelFieldsFromDto(dto, cache);
 
         void IUpdateableFrom<UpdateChannelResponseInternalDTO, StreamChannel>.UpdateFromDto(
             UpdateChannelResponseInternalDTO dto, ICache cache)
         {
-            #region Channel
-
-            AutoTranslationEnabled = dto.Channel.AutoTranslationEnabled;
-            AutoTranslationLanguage = dto.Channel.AutoTranslationLanguage;
-            Cid = dto.Channel.Cid;
-            Config = Config.TryLoadFromDto(dto.Channel.Config, cache);
-            Cooldown = dto.Channel.Cooldown;
-            CreatedAt = dto.Channel.CreatedAt;
-            CreatedBy = cache.TryCreateOrUpdate(dto.Channel.CreatedBy);
-            DeletedAt = dto.Channel.DeletedAt;
-            Disabled = dto.Channel.Disabled;
-            Frozen = dto.Channel.Frozen;
-            Hidden = dto.Channel.Hidden.GetValueOrDefault();
-            HideMessagesBefore = dto.Channel.HideMessagesBefore;
-            Id = dto.Channel.Id;
-            LastMessageAt = dto.Channel.LastMessageAt;
-            MemberCount = dto.Channel.MemberCount;
-            // dto.Channel.Members handled below
-            MuteExpiresAt = dto.Channel.MuteExpiresAt;
-            Muted = dto.Channel.Muted;
-            _ownCapabilities.TryReplaceValuesFromDto(dto.Channel.OwnCapabilities);
-            Team = dto.Channel.Team;
-            TruncatedAt = dto.Channel.TruncatedAt;
-            TruncatedBy = cache.TryCreateOrUpdate(dto.Channel.TruncatedBy);
-            Type = dto.Channel.Type;
-            UpdatedAt = dto.Channel.UpdatedAt;
-
-            LoadAdditionalProperties(dto.Channel.AdditionalProperties);
-
-            //Not in API spec
-            Name = dto.Channel.Name;
-
-            #endregion
+            UpdateChannelFieldsFromDto(dto.Channel, cache);
 
             #region ChannelState
-
-            //StreamTodo: will this members list always contain all of them??
-            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
-
+            //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); //Updated from Channel
             #endregion
         }
 
@@ -837,7 +739,7 @@ namespace StreamChat.Core.State.TrackedObjects
         private readonly List<string> _ownCapabilities = new List<string>();
         private readonly List<StreamPendingMessage> _pendingMessages = new List<StreamPendingMessage>();
 
-        private bool? _muted;
+        private bool _muted;
         private bool _hidden;
 
         private void AssertCid(string cid)
@@ -862,7 +764,8 @@ namespace StreamChat.Core.State.TrackedObjects
             return streamMessage;
         }
 
-        private void InternalTruncateMessages(DateTimeOffset? deleteBeforeCreatedAt = null, MessageInternalDTO systemMessageDto = null)
+        private void InternalTruncateMessages(DateTimeOffset? deleteBeforeCreatedAt = null,
+            MessageInternalDTO systemMessageDto = null)
         {
             if (deleteBeforeCreatedAt.HasValue)
             {
@@ -891,6 +794,46 @@ namespace StreamChat.Core.State.TrackedObjects
             }
 
             Truncated?.Invoke(this);
+        }
+
+        private void UpdateChannelFieldsFromDto(ChannelResponseInternalDTO dto, ICache cache)
+        {
+            #region Channel
+
+            AutoTranslationEnabled = GetOrDefault(dto.AutoTranslationEnabled, AutoTranslationEnabled);
+            AutoTranslationLanguage = GetOrDefault(dto.AutoTranslationLanguage, AutoTranslationLanguage);
+            Cid = GetOrDefault(dto.Cid, Cid);
+            //StreamTodo: how to know if something is purposely null or was not present in Json?
+            Config = Config.TryLoadFromDto(dto.Config, cache);
+            Cooldown = GetOrDefault(dto.Cooldown, Cooldown);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            CreatedBy = cache.TryCreateOrUpdate(dto.CreatedBy);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Disabled = GetOrDefault(dto.Disabled, Disabled);
+            Frozen = GetOrDefault(dto.Frozen, Frozen);
+            Hidden = dto.Hidden.GetValueOrDefault();
+            HideMessagesBefore = GetOrDefault(dto.HideMessagesBefore, HideMessagesBefore);
+            Id = GetOrDefault(dto.Id, Id);
+            LastMessageAt = GetOrDefault(dto.LastMessageAt, LastMessageAt);
+            MemberCount = GetOrDefault(dto.MemberCount, MemberCount);
+            //StreamTodo: probably only add unique and not delete previous
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
+            MuteExpiresAt = GetOrDefault(dto.MuteExpiresAt, MuteExpiresAt);
+            Muted = GetOrDefault(dto.Muted, Muted);
+            //StreamTodo: probably only add unique and not delete previous
+            _ownCapabilities.TryReplaceValuesFromDto(dto.OwnCapabilities);
+            Team = GetOrDefault(dto.Team, Team);
+            TruncatedAt = GetOrDefault(dto.TruncatedAt, TruncatedAt);
+            TruncatedBy = cache.TryCreateOrUpdate(dto.TruncatedBy);
+            Type = GetOrDefault(dto.Type, Type);
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
+
+            LoadAdditionalProperties(dto.AdditionalProperties);
+
+            //Not in API spec
+            Name = dto.Name;
+
+            #endregion
         }
     }
 }
