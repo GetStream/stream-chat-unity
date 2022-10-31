@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
@@ -9,14 +11,15 @@ namespace StreamChat.Core.State.TrackedObjects
 {
     public interface IStreamUser
     {
-
     }
+
     /// <summary>
     /// Stream user represents a single chat user that can be a member of multiple channels
     ///
     /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
     /// </summary>
-    public class StreamUser : StreamTrackedObjectBase<StreamUser>, IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>
+    public class StreamUser : StreamTrackedObjectBase<StreamUser>,
+        IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>
         , IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>
     {
         /// <summary>
@@ -49,6 +52,12 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public string Id { get; private set; }
 
+        /// <summary>
+        /// Invisible user will appear as offline to other users
+        ///
+        /// You can change user visibility with <see cref="ChangeVisibilityAsync"/>
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity</remarks>
         public bool? Invisible { get; private set; }
 
         /// <summary>
@@ -124,23 +133,55 @@ namespace StreamChat.Core.State.TrackedObjects
         }
 
         /// <summary>
+        /// Mark user as invisible. Invisible user will appear as offline to other users.
+        /// User will remain invisible even if you disconnect and reconnect again. You must explicitly call <see cref="MarkVisible"/> in order to become visible again.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity#invisible</remarks>
+        public async Task MarkInvisible()
+        {
+            var response = await LowLevelClient.InternalUserApi.UpdateUserPartialAsync(
+                new UpdateUserPartialRequestInternalDTO
+                {
+                    Set = new Dictionary<string, object>
+                    {
+                        { "invisible", true }
+                    }
+                });
+            Cache.TryCreateOrUpdate(response.Users.First().Value);
+        }
+
+        /// <summary>
+        /// Mark user visible again if he was previously marked as invisible with <see cref="MarkInvisible"/>
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity#invisible</remarks>
+        public async Task MarkVisible()
+        {
+            var response = await LowLevelClient.InternalUserApi.UpdateUserPartialAsync(
+                new UpdateUserPartialRequestInternalDTO
+                {
+                    Unset = new List<string>
+                    {
+                        "invisible"
+                    }
+                });
+            Cache.TryCreateOrUpdate(response.Users.First().Value);
+        }
+
+        /// <summary>
         /// Remove user mute. Any user is allowed to mute another user. Mute will last until the <see cref="UnmuteAsync"/> is called or until mute expires.
         /// Muted user messages will still be received by the <see cref="IStreamChatStateClient"/> so if you wish to hide muted users messages you need implement by yourself
         ///
         /// You can access mutes via <see cref="StreamLocalUser.Mutes"/> in <see cref="IStreamChatStateClient.LocalUserData"/>
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#mutes</remarks>
-        public Task UnmuteAsync() => LowLevelClient.InternalModerationApi.UnmuteUserAsync(new UnmuteUserRequestInternalDTO
-        {
-            TargetId = Id,
-        });
+        public Task UnmuteAsync()
+            => LowLevelClient.InternalModerationApi.UnmuteUserAsync(new UnmuteUserRequestInternalDTO
+            {
+                TargetId = Id,
+            });
 
-        internal StreamUser(string uniqueId, IRepository<StreamUser> repository, ITrackedObjectContext context)
-            : base(uniqueId, repository, context)
-        {
-        }
-
-        void IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalInternalDTO dto, ICache cache)
+        void IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalInternalDTO dto,
+            ICache cache)
         {
             BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
             Banned = GetOrDefault(dto.Banned, Banned);
@@ -166,7 +207,8 @@ namespace StreamChat.Core.State.TrackedObjects
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
-        void IUpdateableFrom<UserResponseInternalDTO, StreamUser>.UpdateFromDto(UserResponseInternalDTO dto, ICache cache)
+        void IUpdateableFrom<UserResponseInternalDTO, StreamUser>.UpdateFromDto(UserResponseInternalDTO dto,
+            ICache cache)
         {
             BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
             Banned = GetOrDefault(dto.Banned, Banned);
@@ -228,6 +270,19 @@ namespace StreamChat.Core.State.TrackedObjects
             //Image = GetOrDefault(dto.Image, Image);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
+        }
+
+        internal StreamUser(string uniqueId, IRepository<StreamUser> repository, ITrackedObjectContext context)
+            : base(uniqueId, repository, context)
+        {
+        }
+
+        internal void InternalHandlePresenceChanged(EventUserPresenceChangedInternalDTO eventDto)
+        {
+            var prevOnline = Online;
+            var prevLastActive = LastActive;
+            Cache.TryCreateOrUpdate(eventDto.User);
+            //StreamTodo: verify with test how presence notifications work
         }
 
         protected override StreamUser Self => this;

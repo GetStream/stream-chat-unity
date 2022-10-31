@@ -32,7 +32,10 @@ namespace StreamChat.Core.State
     /// </summary>
     public delegate void ConnectionChangeHandler(ConnectionState previous, ConnectionState current);
 
-    public delegate void ChannelDeleteHandler(string channelCid, string channelId, string channelType);
+    /// <summary>
+    /// Channel was deleted
+    /// </summary>
+    public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
 
 
     //StreamTodo: move all xml doc comments to interface and use <inheritdoc /> on implementation
@@ -664,14 +667,20 @@ namespace StreamChat.Core.State
             }
         }
 
-        private void OnLowLevelClientUserWatchingStop(EventUserWatchingStopInternalDTO obj)
+        private void OnLowLevelClientUserWatchingStop(EventUserWatchingStopInternalDTO eventDto)
         {
-            throw new NotImplementedException();
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleUserWatchingStop(eventDto);
+            }
         }
 
-        private void OnLowLevelClientUserWatchingStart(EventUserWatchingStartInternalDTO obj)
+        private void OnLowLevelClientUserWatchingStart(EventUserWatchingStartInternalDTO eventDto)
         {
-            //throw new NotImplementedException();
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleUserWatchingStart(eventDto);
+            }
         }
 
         private void OnLowLevelClientUserUnbanned(EventUserUnbannedInternalDTO obj)
@@ -687,26 +696,39 @@ namespace StreamChat.Core.State
         private void OnLowLevelClientUserDeleted(EventUserDeletedInternalDTO obj)
         {
             //throw new NotImplementedException();
+
         }
 
-        private void OnLowLevelUserUpdated(EventUserUpdatedInternalDTO obj)
+        private void OnLowLevelUserUpdated(EventUserUpdatedInternalDTO eventDto)
         {
-            //throw new NotImplementedException();
+            if (_cache.Users.TryGet(eventDto.User.Id, out var streamUser))
+            {
+                _cache.TryCreateOrUpdate(eventDto.User);
+            }
         }
 
-        private void OnLowLevelClientUserPresenceChanged(EventUserPresenceChangedInternalDTO obj)
+        private void OnLowLevelClientUserPresenceChanged(EventUserPresenceChangedInternalDTO eventDto)
         {
-            //throw new NotImplementedException();
+            if (_cache.Users.TryGet(eventDto.User.Id, out var streamUser))
+            {
+                streamUser.InternalHandlePresenceChanged(eventDto);
+            }
         }
 
-        private void OnLowLevelClientTypingStopped(EventTypingStopInternalDTO obj)
+        private void OnLowLevelClientTypingStopped(EventTypingStopInternalDTO eventDto)
         {
-            //StreamTodo: IMPLEMENT
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleTypingStopped(eventDto);
+            }
         }
 
-        private void OnLowLevelClientTypingStarted(EventTypingStartInternalDTO obj)
+        private void OnLowLevelClientTypingStarted(EventTypingStartInternalDTO eventDto)
         {
-            //StreamTodo: IMPLEMENT
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleTypingStarted(eventDto);
+            }
         }
 
         private void InternalDeleteChannel(StreamChannel channel)

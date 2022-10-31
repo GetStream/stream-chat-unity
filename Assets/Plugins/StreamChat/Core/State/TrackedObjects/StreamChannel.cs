@@ -23,9 +23,12 @@ namespace StreamChat.Core.State.TrackedObjects
     public delegate void ChannelMuteHandler(StreamChannel channel, bool isMuted);
 
     public delegate void ChannelMessageHandler(StreamChannel channel, StreamMessage message);
+
     public delegate void MessageDeleteHandler(StreamChannel channel, StreamMessage message, bool isHardDelete);
 
     public delegate void ChannelChangeHandler(StreamChannel channel);
+
+    public delegate void ChannelUserChangeHandler(StreamChannel channel, StreamUser user);
 
     public delegate void ChannelMemberChangeHandler(StreamChannel channel, StreamChannelMember member);
 
@@ -52,6 +55,30 @@ namespace StreamChat.Core.State.TrackedObjects
         public event ChannelMemberChangeHandler MemberAdded;
         public event ChannelMemberChangeHandler MemberRemoved;
         public event ChannelMemberChangeHandler MemberUpdated;
+
+        /// <summary>
+        /// Triggered when a user in this channel starts typing
+        /// </summary>
+        public event ChannelUserChangeHandler UserStartedTyping;
+
+        /// <summary>
+        /// Triggered when a user in this channel stops typing
+        /// </summary>
+        public event ChannelUserChangeHandler UserStoppedTyping;
+
+        /// <summary>
+        /// Triggered when a user starts watching this channel
+        ///
+        /// See also <see cref="see cref="WatcherCount"/>"/> and <see cref="Watchers"/>
+        /// </summary>
+        public event ChannelUserChangeHandler WatcherAdded;
+
+        /// <summary>
+        /// Triggered when a user stops watching this channel
+        ///
+        /// See also <see cref="see cref="WatcherCount"/>"/> and <see cref="Watchers"/>
+        /// </summary>
+        public event ChannelUserChangeHandler WatcherRemoved;
 
         public event ChannelMessageHandler NewMessageReceived;
         public event ChannelMessageHandler MessageUpdated;
@@ -207,7 +234,7 @@ namespace StreamChat.Core.State.TrackedObjects
         public StreamChannelMember Membership { get; private set; }
 
         /// <summary>
-        /// List of channel messages
+        /// List of channel messages. By default only latest messages are loaded. If you wish to load older messages user the <see cref="LoadOlderMessagesAsync"/>
         /// </summary>
         public IReadOnlyList<StreamMessage> Messages => _messages;
 
@@ -229,12 +256,20 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Number of channel watchers
         /// </summary>
-        public int? WatcherCount { get; private set; }
+        public int WatcherCount { get; private set; }
 
         /// <summary>
         /// List of user who is watching the channel
+        ///
+        /// Subscribe to <see cref="WatcherAdded"/> and <see cref="WatcherRemoved"/> events to know when this list changes.
         /// </summary>
-        public IReadOnlyList<StreamUser> Watchers => _watchers;
+        public IReadOnlyList<StreamUser> Watchers => _watchers; //StreamTodo: Mention that this is paginatable
+
+        /// <summary>
+        /// List of currently typing users.
+        /// Subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/> events to know when this list changes.
+        /// </summary>
+        public IReadOnlyList<StreamUser> TypingUsers => _typingUsers;
 
         #endregion
 
@@ -262,106 +297,6 @@ namespace StreamChat.Core.State.TrackedObjects
                 sendMessageRequest.TrySaveToDto());
             var streamMessage = InternalAppendOrUpdateMessage(response.Message);
             return streamMessage;
-        }
-
-        /// <summary>
-        /// Update channel in a complete overwrite mode.
-        /// Important! Any data that is present on the channel and not included in a full update will be deleted.
-        ///
-        /// If you want to update only some fields of the channel use the <see cref="UpdatePartialAsync"/>
-        /// </summary>
-        public async Task UpdateOverwriteAsync() //StreamTodo: NOT IMPLEMENTED
-        {
-            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
-                new UpdateChannelRequestInternalDTO
-                {
-                });
-
-            Cache.TryCreateOrUpdate(response.Channel);
-        }
-
-        /// <summary>
-        /// Update channel in a partial mode. You can selectively set and unset fields of the channel
-        ///
-        /// If you want to completely overwrite the channel use the <see cref="UpdateOverwriteAsync"/>
-        /// </summary>
-        /// StreamTodo: this should be more high level, maybe use enum with predefined field names?
-        public async Task UpdatePartialAsync(IDictionary<string, object> setFields,
-            IEnumerable<string> unsetFields = null)
-        {
-            if (setFields == null && unsetFields == null)
-            {
-                throw new ArgumentNullException(
-                    $"Either {nameof(setFields)} or {nameof(unsetFields)} must not be null");
-            }
-
-            if (unsetFields != null && !unsetFields.Any())
-            {
-                throw new ArgumentException($"{nameof(unsetFields)} cannot be empty");
-            }
-
-            if (setFields != null && !setFields.Any())
-            {
-                throw new ArgumentException($"{nameof(setFields)} cannot be empty");
-            }
-
-            var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
-                new UpdateChannelPartialRequestInternalDTO
-                {
-                    Set = setFields?.ToDictionary(p => p.Key, p => p.Value),
-                    Unset = unsetFields?.ToList(),
-                });
-
-            Cache.TryCreateOrUpdate(response.Channel);
-        }
-
-        public void QueryMembers() //StreamTodo: IMPLEMENT
-        {
-        }
-
-        public void QueryWatchers() //StreamTodo: IMPLEMENT
-        {
-        }
-
-        /// <summary>
-        /// Ban user from this channel
-        /// </summary>
-        /// <param name="user">User to ban from channel</param>
-        /// <param name="isShadowBan">Shadow banned user is not notified about the ban. Read more: <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks></param>
-        /// <param name="reason">[Optional] reason description why user got banned</param>
-        /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
-        /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
-        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
-        public Task BanUserAsync(StreamUser user, bool isShadowBan = false, string reason = "", int? timeoutMinutes = default,
-            bool isIpBan = false)
-        {
-            StreamAsserts.AssertNotNull(user, nameof(user));
-            StreamAsserts.AssertGreaterThanZero(timeoutMinutes, nameof(timeoutMinutes));
-
-            return LowLevelClient.InternalModerationApi.BanUserAsync(new BanRequestInternalDTO
-            {
-                //BannedBy = null,
-                //BannedById = null,
-                Id = Id,
-                IpBan = isIpBan,
-                Reason = reason,
-                Shadow = isShadowBan,
-                TargetUserId = user.Id,
-                Timeout = timeoutMinutes,
-                Type = Type,
-                //User = null,
-                //UserId = null,
-                //AdditionalProperties = null
-            });
-        }
-
-        /// <summary>
-        /// Remove ban from the user on this channel
-        /// </summary>
-        public Task UnbanUserAsync(StreamUser user)
-        {
-            StreamAsserts.AssertNotNull(user, nameof(user));
-            return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
         }
 
         public async Task LoadOlderMessagesAsync()
@@ -404,7 +339,108 @@ namespace StreamChat.Core.State.TrackedObjects
             Cache.TryCreateOrUpdate(response);
         }
 
-        //StreamTodo: LoadNewerMessages? This would only make sense if we would start somewhere in the history
+        //StreamTodo: LoadNewerMessages? This would only make sense if we would start somewhere in the history. Maybe its possible with search? You jump in to past message and scroll to load newer
+
+        /// <summary>
+        /// Update channel in a complete overwrite mode.
+        /// Important! Any data that is present on the channel and not included in a full update will be deleted.
+        ///
+        /// If you want to update only some fields of the channel use the <see cref="UpdatePartialAsync"/>
+        /// </summary>
+        public async Task UpdateOverwriteAsync() //StreamTodo: NOT IMPLEMENTED
+        {
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
+                new UpdateChannelRequestInternalDTO
+                {
+                });
+
+            Cache.TryCreateOrUpdate(response.Channel);
+        }
+
+        /// <summary>
+        /// Update channel in a partial mode. You can selectively set and unset fields of the channel
+        ///
+        /// If you want to completely overwrite the channel use the <see cref="UpdateOverwriteAsync"/>
+        /// </summary>
+        /// StreamTodo: this should be more high level, maybe use enum with predefined field names?
+        public async Task UpdatePartialAsync(IDictionary<string, object> setFields,
+            IEnumerable<string> unsetFields = null)
+        {
+            if (setFields == null && unsetFields == null)
+            {
+                throw new ArgumentNullException(
+                    $"{nameof(setFields)} and {nameof(unsetFields)} cannot be both null");
+            }
+
+            if (unsetFields != null && !unsetFields.Any())
+            {
+                throw new ArgumentException($"{nameof(unsetFields)} cannot be empty");
+            }
+
+            if (setFields != null && !setFields.Any())
+            {
+                throw new ArgumentException($"{nameof(setFields)} cannot be empty");
+            }
+
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
+                new UpdateChannelPartialRequestInternalDTO
+                {
+                    Set = setFields?.ToDictionary(p => p.Key, p => p.Value),
+                    Unset = unsetFields?.ToList(),
+                });
+
+            Cache.TryCreateOrUpdate(response.Channel);
+        }
+
+        public void QueryMembers() //StreamTodo: IMPLEMENT
+        {
+        }
+
+        public void QueryWatchers() //StreamTodo: IMPLEMENT
+        {
+        }
+
+        /// <summary>
+        /// Ban user from this channel
+        /// </summary>
+        /// <param name="user">User to ban from channel</param>
+        /// <param name="isShadowBan">Shadow banned user is not notified about the ban. Read more: <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks></param>
+        /// <param name="reason">[Optional] reason description why user got banned</param>
+        /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
+        /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
+        public Task BanUserAsync(StreamUser user, bool isShadowBan = false, string reason = "",
+            int? timeoutMinutes = default,
+            bool isIpBan = false)
+        {
+            StreamAsserts.AssertNotNull(user, nameof(user));
+            StreamAsserts.AssertGreaterThanZero(timeoutMinutes, nameof(timeoutMinutes));
+
+            return LowLevelClient.InternalModerationApi.BanUserAsync(new BanRequestInternalDTO
+            {
+                //BannedBy = null,
+                //BannedById = null,
+                Id = Id,
+                IpBan = isIpBan,
+                Reason = reason,
+                Shadow = isShadowBan,
+                TargetUserId = user.Id,
+                Timeout = timeoutMinutes,
+                Type = Type,
+                //User = null,
+                //UserId = null,
+                //AdditionalProperties = null
+            });
+        }
+
+        /// <summary>
+        /// Remove ban from the user on this channel
+        /// </summary>
+        public Task UnbanUserAsync(StreamUser user)
+        {
+            StreamAsserts.AssertNotNull(user, nameof(user));
+            return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
+        }
 
         public void ShadowBanUser()
         {
@@ -600,7 +636,7 @@ namespace StreamChat.Core.State.TrackedObjects
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
             _pinnedMessages.TryReplaceTrackedObjects(dto.PinnedMessages, cache.Messages);
             _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
-            WatcherCount = dto.WatcherCount;
+            WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
             _watchers.TryAppendUniqueTrackedObjects(dto.Watchers, cache.Users);
 
             #endregion
@@ -614,6 +650,7 @@ namespace StreamChat.Core.State.TrackedObjects
             UpdateChannelFieldsFromDto(dto.Channel, cache);
 
             #region ChannelState
+
             //Hidden = dto.Hidden.GetValueOrDefault(); Updated from Channel
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
             //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from dto.Channel
@@ -622,8 +659,9 @@ namespace StreamChat.Core.State.TrackedObjects
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
             _pinnedMessages.TryReplaceTrackedObjects(dto.PinnedMessages, cache.Messages);
             _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
-            WatcherCount = dto.WatcherCount;
+            WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
             _watchers.TryAppendUniqueTrackedObjects(dto.Watchers, cache.Users);
+
             #endregion
         }
 
@@ -637,7 +675,9 @@ namespace StreamChat.Core.State.TrackedObjects
             UpdateChannelFieldsFromDto(dto.Channel, cache);
 
             #region ChannelState
+
             //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); //Updated from Channel
+
             #endregion
         }
 
@@ -655,8 +695,8 @@ namespace StreamChat.Core.State.TrackedObjects
                 return;
             }
 
-            //StreamTodo: updated event?
             message.TryUpdateFromDto(dto.Message, Cache);
+            MessageUpdated?.Invoke(this, message);
         }
 
         //StreamTodo: consider using structs for MessageId, ChannelId, etc. this way we control in 1 place from which fields they are created + there will be no mistake on user
@@ -679,6 +719,8 @@ namespace StreamChat.Core.State.TrackedObjects
             {
                 message.InternalHandleSoftDelete();
             }
+
+            MessageDeleted?.Invoke(this, message, isHardDelete);
         }
 
         internal void HandleChannelUpdatedEvent(EventChannelUpdatedInternalDTO eventDto)
@@ -766,6 +808,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 if (!_messages.Contains(streamMessage))
                 {
                     _messages.Add(streamMessage);
+                    NewMessageReceived?.Invoke(this, streamMessage);
                 }
             }
 
@@ -842,5 +885,67 @@ namespace StreamChat.Core.State.TrackedObjects
 
             #endregion
         }
+
+        internal void InternalHandleUserWatchingStart(EventUserWatchingStartInternalDTO eventDto)
+        {
+            var user = Cache.TryCreateOrUpdate(eventDto.User, out var wasCreated);
+            if (wasCreated || !_watchers.Contains(user))
+            {
+                WatcherCount += 1;
+                _watchers.Add(user);
+                WatcherAdded?.Invoke(this, user);
+            }
+        }
+
+        internal void InternalHandleUserWatchingStop(EventUserWatchingStopInternalDTO eventDto)
+        {
+            bool wasRemoved = false;
+
+            //We always reduce because watchers are paginatable so our partial _watchers state may not contain the removed on but count reflects all of them
+            WatcherCount -= 1;
+
+            for (int i = _watchers.Count - 1; i >= 0; i--)
+            {
+                if (_watchers[i].Id == eventDto.User.Id)
+                {
+                    var user = Cache.TryCreateOrUpdate(eventDto.User, out var wasCreated);
+                    _watchers.RemoveAt(i);
+                    WatcherRemoved?.Invoke(this, user);
+                    return;
+                }
+            }
+        }
+
+        internal void InternalHandleTypingStopped(EventTypingStopInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            var user = Cache.TryCreateOrUpdate(eventDto.User);
+            StreamAsserts.AssertNotNull(user, nameof(user));
+
+            for (int i = _typingUsers.Count - 1; i >= 0; i--)
+            {
+                if (_typingUsers[i].Id == eventDto.User.Id)
+                {
+                    _typingUsers.RemoveAt(i);
+                    UserStoppedTyping?.Invoke(this, user);
+                    return;
+                }
+            }
+        }
+
+        internal void InternalHandleTypingStarted(EventTypingStartInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            var user = Cache.TryCreateOrUpdate(eventDto.User);
+            StreamAsserts.AssertNotNull(user, nameof(user));
+
+            if (!_typingUsers.Contains(user))
+            {
+                _typingUsers.Add(user);
+                UserStartedTyping?.Invoke(this, user);
+            }
+        }
+
+        private readonly List<StreamUser> _typingUsers = new List<StreamUser>();
     }
 }
