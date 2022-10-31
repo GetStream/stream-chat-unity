@@ -1,9 +1,8 @@
 ﻿using StreamChat.Core;
-using StreamChat.SampleProject.Configs;
-using StreamChat.SampleProject.Views;
+using StreamChat.SampleProject_StateClient.Views;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Configs
+namespace StreamChat.SampleProject_StateClient.Configs
 {
     /// <summary>
     /// Asset to keep <see cref="IViewFactory"/> config

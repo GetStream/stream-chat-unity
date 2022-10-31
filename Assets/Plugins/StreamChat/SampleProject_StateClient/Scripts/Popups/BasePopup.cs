@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using StreamChat.SampleProject.Views;
+using StreamChat.SampleProject_StateClient.Views;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace StreamChat.SampleProject.Popups
+namespace StreamChat.SampleProject_StateClient.Popups
 {
     /// <summary>
     /// Popup window base

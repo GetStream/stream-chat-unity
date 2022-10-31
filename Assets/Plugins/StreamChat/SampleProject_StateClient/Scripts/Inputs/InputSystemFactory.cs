@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StreamChat.SampleProject.Inputs
+namespace StreamChat.SampleProject_StateClient.Inputs
 {
     /// <summary>
     /// <see cref="IInputSystem"/>

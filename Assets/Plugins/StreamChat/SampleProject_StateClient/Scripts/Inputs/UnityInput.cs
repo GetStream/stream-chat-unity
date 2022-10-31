@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Inputs
+namespace StreamChat.SampleProject_StateClient.Inputs
 {
     /// <summary>
     /// Legacy input system https://docs.unity3d.com/ScriptReference/Input.html

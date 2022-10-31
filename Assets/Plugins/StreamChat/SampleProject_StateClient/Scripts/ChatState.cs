@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,11 +8,11 @@ using StreamChat.Core.Exceptions;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Libs.Logs;
-using StreamChat.SampleProject.Utils;
-using StreamChat.SampleProject.Views;
+using StreamChat.SampleProject_StateClient.Utils;
+using StreamChat.SampleProject_StateClient.Views;
 using UnityEngine;
 
-namespace StreamChat.SampleProject
+namespace StreamChat.SampleProject_StateClient
 {
     /// <summary>
     /// Implementation of <see cref="IChatState"/>

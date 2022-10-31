@@ -1,10 +1,10 @@
 ﻿using System;
 using StreamChat.Core;
-using StreamChat.SampleProject.Inputs;
-using StreamChat.SampleProject.Utils;
+using StreamChat.SampleProject_StateClient.Inputs;
+using StreamChat.SampleProject_StateClient.Utils;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Base class for view

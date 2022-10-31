@@ -3,12 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Libs.Utils;
-using StreamChat.SampleProject.Utils;
+using StreamChat.SampleProject_StateClient.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Single channel entry view

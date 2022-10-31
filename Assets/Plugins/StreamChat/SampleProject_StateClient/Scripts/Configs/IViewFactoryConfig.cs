@@ -1,6 +1,7 @@
-﻿using StreamChat.SampleProject.Popups;
+﻿using StreamChat.SampleProject_StateClient.Popups;
+using StreamChat.SampleProject_StateClient.Views;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Configs
 {
     /// <summary>
     /// Config for <see cref="IViewFactory"/>

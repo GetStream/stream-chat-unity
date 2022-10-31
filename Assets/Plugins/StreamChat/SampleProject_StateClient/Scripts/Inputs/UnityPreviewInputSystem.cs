@@ -3,7 +3,7 @@ using System;
 using UnityEngine.InputSystem;
 #endif
 
-namespace StreamChat.SampleProject.Inputs
+namespace StreamChat.SampleProject_StateClient.Inputs
 {
     /// <summary>
     /// New input system https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/index.html

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace SampleProject.Scripts.Popups
+namespace StreamChat.SampleProject_StateClient.Popups
 {
     public readonly struct EmojiOptionEntry
     {

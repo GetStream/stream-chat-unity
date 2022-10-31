@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace StreamChat.SampleProject.Inputs
+namespace StreamChat.SampleProject_StateClient.Inputs
 {
     /// <summary>
     /// Input system

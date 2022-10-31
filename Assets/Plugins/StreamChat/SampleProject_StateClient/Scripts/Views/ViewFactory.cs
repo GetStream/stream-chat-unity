@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SampleProject.Scripts.Popups;
 using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
-using StreamChat.SampleProject.Configs;
-using StreamChat.SampleProject.Popups;
-using StreamChat.SampleProject.Utils;
+using StreamChat.SampleProject_StateClient.Configs;
+using StreamChat.SampleProject_StateClient.Utils;
+using StreamChat.SampleProject_StateClient.Popups;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Default implementation of <see cref="IViewFactory"/>

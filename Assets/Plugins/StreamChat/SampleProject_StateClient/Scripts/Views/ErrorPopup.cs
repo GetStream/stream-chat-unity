@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Error popup

@@ -5,7 +5,7 @@ using StreamChat.Core.Models;
 using TMPro;
 using UnityEngine;
 
-namespace StreamChat.SampleProject
+namespace StreamChat.SampleProject_StateClient
 {
     public class TypingMonitor : IDisposable
     {

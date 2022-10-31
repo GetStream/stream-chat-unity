@@ -1,9 +1,9 @@
 ﻿using System;
-using StreamChat.SampleProject.Popups;
-using StreamChat.SampleProject.Views;
+using StreamChat.SampleProject_StateClient.Popups;
+using StreamChat.SampleProject_StateClient.Views;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Configs
+namespace StreamChat.SampleProject_StateClient.Configs
 {
     [Serializable]
     public struct ViewFactoryConfig : IViewFactoryConfig

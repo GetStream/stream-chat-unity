@@ -1,6 +1,6 @@
 using System;
 
-namespace StreamChat.SampleProject.Popups
+namespace StreamChat.SampleProject_StateClient.Popups
 {
     /// <summary>
     /// Option entry for <see cref="MessageOptionsPopup"/>

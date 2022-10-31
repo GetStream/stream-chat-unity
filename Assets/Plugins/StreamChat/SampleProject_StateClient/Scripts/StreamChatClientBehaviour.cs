@@ -1,22 +1,22 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+#endif
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using StreamChat.Core;
 using StreamChat.Core.Exceptions;
 using StreamChat.Libs.Auth;
-using StreamChat.SampleProject.Inputs;
-using StreamChat.SampleProject.Configs;
-using StreamChat.SampleProject.Utils;
-using StreamChat.SampleProject.Views;
+using StreamChat.SampleProject_StateClient.Configs;
+using StreamChat.SampleProject_StateClient.Inputs;
+using StreamChat.SampleProject_StateClient.Utils;
+using StreamChat.SampleProject_StateClient.Views;
 using TMPro;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
-namespace StreamChat.SampleProject
+namespace StreamChat.SampleProject_StateClient
 {
     /// <summary>
     /// Stream Chat Client MonoBehaviour

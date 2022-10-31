@@ -2,7 +2,7 @@
 using StreamChat.Core.Exceptions;
 using StreamChat.Libs.Logs;
 
-namespace StreamChat.SampleProject.Utils
+namespace StreamChat.SampleProject_StateClient.Utils
 {
     /// <summary>
     /// Extensions for <see cref="StreamApiException"/>

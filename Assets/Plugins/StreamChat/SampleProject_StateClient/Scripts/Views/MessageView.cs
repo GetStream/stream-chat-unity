@@ -4,15 +4,15 @@ using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
 using StreamChat.Libs.Utils;
-using StreamChat.SampleProject.Utils;
-using StreamChat.SampleProject.Popups;
+using StreamChat.SampleProject_StateClient.Popups;
+using StreamChat.SampleProject_StateClient.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Message view

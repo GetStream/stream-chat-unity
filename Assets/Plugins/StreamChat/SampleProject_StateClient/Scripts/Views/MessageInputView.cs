@@ -6,15 +6,15 @@ using System.Text;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Libs.Utils;
-using StreamChat.SampleProject.Utils;
+using StreamChat.SampleProject_StateClient.Utils;
 using TMPro;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+#endif
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Message input view

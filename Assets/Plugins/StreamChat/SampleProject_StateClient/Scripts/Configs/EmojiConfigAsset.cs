@@ -2,13 +2,13 @@
 using System.Linq;
 using StreamChat.Core;
 using TMPro;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.Serialization;
+#if UNITY_EDITOR
+#endif
 
-namespace StreamChat.SampleProject.Configs
+namespace StreamChat.SampleProject_StateClient.Configs
 {
     [CreateAssetMenu(fileName = "EmojiConfig",
         menuName = StreamChatClient.MenuPrefix + "Demo/Create emoji config asset", order = 1)]

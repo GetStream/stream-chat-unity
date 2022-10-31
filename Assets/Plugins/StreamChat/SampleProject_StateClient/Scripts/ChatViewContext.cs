@@ -1,12 +1,11 @@
 ﻿using System;
 using StreamChat.Core;
-using StreamChat.SampleProject.Inputs;
-using StreamChat.SampleProject.Configs;
-using StreamChat.SampleProject.Utils;
-using StreamChat.SampleProject.Views;
-using UnityEngine;
+using StreamChat.SampleProject_StateClient.Configs;
+using StreamChat.SampleProject_StateClient.Inputs;
+using StreamChat.SampleProject_StateClient.Utils;
+using StreamChat.SampleProject_StateClient.Views;
 
-namespace StreamChat.SampleProject
+namespace StreamChat.SampleProject_StateClient
 {
     /// <inheritdoc />
     public class ChatViewContext : IChatViewContext

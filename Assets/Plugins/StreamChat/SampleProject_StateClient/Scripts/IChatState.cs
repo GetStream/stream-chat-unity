@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Models;
-using StreamChat.SampleProject.Views;
+using StreamChat.SampleProject_StateClient.Views;
 
-namespace StreamChat.SampleProject
+namespace StreamChat.SampleProject_StateClient
 {
     /// <summary>
     /// Keep chat state

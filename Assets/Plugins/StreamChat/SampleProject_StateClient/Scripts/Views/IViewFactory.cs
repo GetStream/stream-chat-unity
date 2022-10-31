@@ -1,8 +1,8 @@
-﻿using StreamChat.SampleProject.Popups;
+﻿using StreamChat.SampleProject_StateClient.Popups;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Factory for views

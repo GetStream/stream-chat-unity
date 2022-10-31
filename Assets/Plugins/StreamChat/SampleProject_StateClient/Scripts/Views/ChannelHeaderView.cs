@@ -4,7 +4,7 @@ using StreamChat.Core.Events;
 using TMPro;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Active channel header

@@ -1,4 +1,4 @@
-﻿namespace StreamChat.SampleProject.Views
+﻿namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Root view. This class finds and initializes all child <see cref="BaseView"/> instances

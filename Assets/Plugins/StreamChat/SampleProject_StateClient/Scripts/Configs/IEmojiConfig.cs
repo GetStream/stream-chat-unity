@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Configs
+namespace StreamChat.SampleProject_StateClient.Configs
 {
     public interface IEmojiConfig
     {

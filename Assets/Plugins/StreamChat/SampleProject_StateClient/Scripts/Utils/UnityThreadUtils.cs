@@ -2,7 +2,7 @@
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Utils;
 
-namespace StreamChat.SampleProject.Utils
+namespace StreamChat.SampleProject_StateClient.Utils
 {
     public static class UnityThreadUtils
     {

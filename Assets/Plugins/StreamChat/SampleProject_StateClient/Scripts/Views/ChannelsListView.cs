@@ -2,7 +2,7 @@
 using StreamChat.Core.Models;
 using UnityEngine;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Channels view - presents list of channels

@@ -1,8 +1,7 @@
-using StreamChat.SampleProject.Views;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace StreamChat.SampleProject
+namespace StreamChat.SampleProject_StateClient.Views
 {
     /// <summary>
     /// Channels view

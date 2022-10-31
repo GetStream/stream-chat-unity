@@ -1,6 +1,4 @@
-﻿using StreamChat.SampleProject.Views;
-
-namespace StreamChat.SampleProject.Configs
+﻿namespace StreamChat.SampleProject_StateClient.Configs
 {
     public interface IAppConfig
     {
