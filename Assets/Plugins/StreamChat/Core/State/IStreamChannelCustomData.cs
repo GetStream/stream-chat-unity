@@ -22,6 +22,7 @@ namespace StreamChat.Core.State
         void Clear();
     }
 
+    //StreamTodo: do we really need custom interfaces?? probably not
     public interface IStreamUserCustomData : IStreamCustomData
     {
 

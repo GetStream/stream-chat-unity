@@ -50,6 +50,10 @@ namespace StreamChat.Core.State
             return items;
         }
 
+
+        /// <summary>
+        /// Regular = non tracked objects
+        /// </summary>
         public static void TryReplaceRegularObjectsFromDto<TDto, TSource>(this List<TSource> target, List<TDto> dtos, ICache cache)
             where TSource : IStateLoadableFrom<TDto, TSource>, new()
         {
@@ -76,6 +80,9 @@ namespace StreamChat.Core.State
             }
         }
 
+        /// <summary>
+        /// Values = value types
+        /// </summary>
         public static void TryReplaceValuesFromDto<TKey, TValue>(this Dictionary<TKey, TValue> target, Dictionary<TKey, TValue> values)
         {
             if (values == null)

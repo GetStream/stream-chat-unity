@@ -129,8 +129,8 @@ namespace StreamChat.Core.State.TrackedObjects
             _latestHiddenChannels.TryReplaceValuesFromDto(dto.LatestHiddenChannels);
             _mutes.TryReplaceRegularObjectsFromDto(dto.Mutes, cache);
 
-            TotalUnreadCount = dto.TotalUnreadCount;
-            UnreadChannels = dto.UnreadChannels;
+            TotalUnreadCount = GetOrDefault(dto.TotalUnreadCount, TotalUnreadCount);
+            UnreadChannels = GetOrDefault(dto.UnreadChannels, UnreadChannels);
             //UnreadCount = dto.UnreadCount; Deprecated
 
             #endregion

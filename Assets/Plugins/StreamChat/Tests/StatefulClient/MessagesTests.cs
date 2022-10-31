@@ -160,6 +160,46 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
+        public IEnumerator When_message_pin_expected_message_appear_in_channel_pinned_messages()
+            => ConnectAndExecute(When_message_pin_expected_message_appear_in_channel_pinned_messages_Async);
+
+        public async Task When_message_pin_expected_message_appear_in_channel_pinned_messages_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            const string MessageText = "fds*fhjfdks9";
+
+            var sentMessage = await channel.SendNewMessageAsync(MessageText);
+            Assert.AreEqual(sentMessage.Text, MessageText);
+
+            await sentMessage.PinAsync();
+
+            var pinnedMessage = channel.PinnedMessages.FirstOrDefault(m => m == sentMessage);
+            Assert.NotNull(pinnedMessage);
+        }
+
+        [UnityTest]
+        public IEnumerator When_pinned_message_unpinned_expected_message_removed_from_channel_pinned_messages()
+            => ConnectAndExecute(When_pinned_message_unpinned_expected_message_removed_from_channel_pinned_messages_Async);
+
+        public async Task When_pinned_message_unpinned_expected_message_removed_from_channel_pinned_messages_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            const string MessageText = "fds*fhjfdks9";
+
+            var sentMessage = await channel.SendNewMessageAsync(MessageText);
+            Assert.AreEqual(sentMessage.Text, MessageText);
+
+            await sentMessage.PinAsync();
+
+            await sentMessage.Unpin();
+
+            var pinnedMessage = channel.PinnedMessages.FirstOrDefault(m => m == sentMessage);
+            Assert.IsNull(pinnedMessage);
+        }
+
+        [UnityTest]
         public IEnumerator When_message_flag_requested_expected_message_flag()
             => ConnectAndExecute(When_message_flag_requested_expected_message_flag_Async);
 

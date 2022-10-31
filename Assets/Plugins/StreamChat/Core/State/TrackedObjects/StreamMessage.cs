@@ -229,6 +229,9 @@ namespace StreamChat.Core.State.TrackedObjects
 
             var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id, request);
             Cache.TryCreateOrUpdate(response.Message);
+
+            //StreamTodo: is this needed? How are other users notified about message pin?
+            await StreamChatStateClient.RefreshChannelState(Cid);
         }
 
         /// <summary>
@@ -245,6 +248,9 @@ namespace StreamChat.Core.State.TrackedObjects
             };
             var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(Id, request);
             Cache.TryCreateOrUpdate(response.Message);
+
+            //StreamTodo: is this needed? How are other users notified about message pin?
+            await StreamChatStateClient.RefreshChannelState(Cid);
         }
 
         /// <summary>
@@ -315,37 +321,37 @@ namespace StreamChat.Core.State.TrackedObjects
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
         {
             _attachments.TryReplaceRegularObjectsFromDto(dto.Attachments, cache);
-            BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
-            Cid = dto.Cid;
-            Command = dto.Command;
-            CreatedAt = dto.CreatedAt;
-            DeletedAt = dto.DeletedAt;
-            Html = dto.Html;
+            BeforeMessageSendFailed = GetOrDefault(dto.BeforeMessageSendFailed, BeforeMessageSendFailed);
+            Cid = GetOrDefault(dto.Cid, Cid);
+            Command = GetOrDefault(dto.Command, Command);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Html = GetOrDefault(dto.Html, Html);
             _iI18n.TryReplaceValuesFromDto(dto.I18n);
-            Id = dto.Id;
+            Id = GetOrDefault(dto.Id, Id);
             //_imageLabels.TryReplaceValuesFromDto(dto.ImageLabels); //StreamTodo: NOT IMPLEMENTED
             _latestReactions.TryReplaceRegularObjectsFromDto(dto.LatestReactions, cache);
             _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
-            Mml = dto.Mml;
+            Mml = GetOrDefault(dto.Mml, Mml);
             _ownReactions.TryReplaceRegularObjectsFromDto(dto.OwnReactions, cache);
-            ParentId = dto.ParentId;
-            PinExpires = dto.PinExpires;
-            Pinned = dto.Pinned;
-            PinnedAt = dto.PinnedAt;
+            ParentId = GetOrDefault(dto.ParentId, ParentId);
+            PinExpires = GetOrDefault(dto.PinExpires, PinExpires);
+            Pinned = GetOrDefault(dto.Pinned, Pinned);
+            PinnedAt = GetOrDefault(dto.PinnedAt, PinnedAt);
             PinnedBy = cache.TryCreateOrUpdate(dto.PinnedBy);
             QuotedMessage = cache.TryCreateOrUpdate(dto.QuotedMessage);
-            QuotedMessageId = dto.QuotedMessageId;
-            _reactionCounts.TryReplaceValuesFromDto(dto.ReactionCounts);
+            QuotedMessageId = GetOrDefault(dto.QuotedMessageId, QuotedMessageId);
+            _reactionCounts.TryReplaceValuesFromDto(dto.ReactionCounts); //StreamTodo: is this append only?
             _reactionScores.TryReplaceValuesFromDto(dto.ReactionScores);
-            ReplyCount = dto.ReplyCount;
-            Shadowed = dto.Shadowed;
-            ShowInChannel = dto.ShowInChannel;
-            Silent = dto.Silent;
-            Text = dto.Text;
+            ReplyCount = GetOrDefault(dto.ReplyCount, ReplyCount);
+            Shadowed = GetOrDefault(dto.Shadowed, Shadowed);
+            ShowInChannel = GetOrDefault(dto.ShowInChannel, ShowInChannel);
+            Silent = GetOrDefault(dto.Silent, Silent);
+            Text = GetOrDefault(dto.Text, Text);
             _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
             _threadParticipants.TryReplaceTrackedObjects(dto.ThreadParticipants, cache.Users);
             Type = dto.Type.TryConvertToStreamMessageType();
-            UpdatedAt = dto.UpdatedAt;
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
             User = cache.TryCreateOrUpdate(dto.User);
         }
 

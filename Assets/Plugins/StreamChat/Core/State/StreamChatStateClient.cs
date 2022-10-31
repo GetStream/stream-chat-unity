@@ -211,7 +211,6 @@ namespace StreamChat.Core.State
                 Sort = null,
                 State = true,
                 Watch = true,
-                AdditionalProperties = null
             };
 
             var channelsResponseDto = await LowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
@@ -376,6 +375,17 @@ namespace StreamChat.Core.State
                 var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
                 channel.Muted = isMuted;
             }
+        }
+
+        internal Task RefreshChannelState(string cid)
+        {
+            if (!_cache.Channels.TryGet(cid, out var channel))
+            {
+                _logs.Error($"Tried to refresh state of channel with {cid} but no such channel was found in the cache");
+                return Task.CompletedTask;
+            }
+
+            return GetOrCreateChannelAsync(channel.Type, channel.Id);
         }
 
         private readonly ILogs _logs;

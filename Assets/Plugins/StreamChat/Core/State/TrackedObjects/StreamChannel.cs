@@ -8,7 +8,6 @@ using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 
@@ -22,6 +21,9 @@ namespace StreamChat.Core.State.TrackedObjects
     public delegate void ChannelVisibilityHandler(StreamChannel channel, bool isHidden);
 
     public delegate void ChannelMuteHandler(StreamChannel channel, bool isMuted);
+
+    public delegate void ChannelMessageHandler(StreamChannel channel, StreamMessage message);
+    public delegate void MessageDeleteHandler(StreamChannel channel, StreamMessage message, bool isHardDelete);
 
     public delegate void ChannelChangeHandler(StreamChannel channel);
 
@@ -50,6 +52,10 @@ namespace StreamChat.Core.State.TrackedObjects
         public event ChannelMemberChangeHandler MemberAdded;
         public event ChannelMemberChangeHandler MemberRemoved;
         public event ChannelMemberChangeHandler MemberUpdated;
+
+        public event ChannelMessageHandler NewMessageReceived;
+        public event ChannelMessageHandler MessageUpdated;
+        public event MessageDeleteHandler MessageDeleted;
 
         #region Channel
 
@@ -182,7 +188,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Type of the channel
         /// </summary>
-        public string Type { get; private set; } //StreamTodo replace with ChannelType custom type
+        public ChannelType Type { get; private set; }
 
         /// <summary>
         /// Date/time of the last update
@@ -309,11 +315,11 @@ namespace StreamChat.Core.State.TrackedObjects
             Cache.TryCreateOrUpdate(response.Channel);
         }
 
-        public void QueryMembers()
+        public void QueryMembers() //StreamTodo: IMPLEMENT
         {
         }
 
-        public void QueryWatchers()
+        public void QueryWatchers() //StreamTodo: IMPLEMENT
         {
         }
 
@@ -326,7 +332,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
         /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
-        public Task BanUserAsync(StreamUser user, bool isShadowBan, string reason = "", int? timeoutMinutes = default,
+        public Task BanUserAsync(StreamUser user, bool isShadowBan = false, string reason = "", int? timeoutMinutes = default,
             bool isIpBan = false)
         {
             StreamAsserts.AssertNotNull(user, nameof(user));
@@ -388,13 +394,14 @@ namespace StreamChat.Core.State.TrackedObjects
 
             if (oldestMessage != null)
             {
-                request.Messages = new MessagePaginationParamsRequestInternalDTO()
+                request.Messages = new MessagePaginationParamsRequestInternalDTO
                 {
                     IdLt = oldestMessage.Id,
                 };
             }
 
             var response = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(Type, Id, request);
+            Cache.TryCreateOrUpdate(response);
         }
 
         //StreamTodo: LoadNewerMessages? This would only make sense if we would start somewhere in the history
@@ -589,12 +596,12 @@ namespace StreamChat.Core.State.TrackedObjects
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
             //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from Channel
             Membership = cache.TryCreateOrUpdate(dto.Membership);
-            _messages.TryReplaceTrackedObjects(dto.Messages, cache.Messages);
+            _messages.TryAppendUniqueTrackedObjects(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
             _pinnedMessages.TryReplaceTrackedObjects(dto.PinnedMessages, cache.Messages);
             _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
             WatcherCount = dto.WatcherCount;
-            _watchers.TryReplaceTrackedObjects(dto.Watchers, cache.Users);
+            _watchers.TryAppendUniqueTrackedObjects(dto.Watchers, cache.Users);
 
             #endregion
 
@@ -611,12 +618,12 @@ namespace StreamChat.Core.State.TrackedObjects
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
             //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from dto.Channel
             Membership = cache.TryCreateOrUpdate(dto.Membership);
-            _messages.TryReplaceTrackedObjects(dto.Messages, cache.Messages);
+            _messages.TryAppendUniqueTrackedObjects(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
             _pinnedMessages.TryReplaceTrackedObjects(dto.PinnedMessages, cache.Messages);
             _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
             WatcherCount = dto.WatcherCount;
-            _watchers.TryReplaceTrackedObjects(dto.Watchers, cache.Users);
+            _watchers.TryAppendUniqueTrackedObjects(dto.Watchers, cache.Users);
             #endregion
         }
 
@@ -648,6 +655,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 return;
             }
 
+            //StreamTodo: updated event?
             message.TryUpdateFromDto(dto.Message, Cache);
         }
 
@@ -816,8 +824,7 @@ namespace StreamChat.Core.State.TrackedObjects
             Id = GetOrDefault(dto.Id, Id);
             LastMessageAt = GetOrDefault(dto.LastMessageAt, LastMessageAt);
             MemberCount = GetOrDefault(dto.MemberCount, MemberCount);
-            //StreamTodo: probably only add unique and not delete previous
-            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
+            _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers);
             MuteExpiresAt = GetOrDefault(dto.MuteExpiresAt, MuteExpiresAt);
             Muted = GetOrDefault(dto.Muted, Muted);
             //StreamTodo: probably only add unique and not delete previous
@@ -825,13 +832,13 @@ namespace StreamChat.Core.State.TrackedObjects
             Team = GetOrDefault(dto.Team, Team);
             TruncatedAt = GetOrDefault(dto.TruncatedAt, TruncatedAt);
             TruncatedBy = cache.TryCreateOrUpdate(dto.TruncatedBy);
-            Type = GetOrDefault(dto.Type, Type);
+            Type = new ChannelType(GetOrDefault(dto.Type, Type));
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
 
             //Not in API spec
-            Name = dto.Name;
+            Name = GetOrDefault(dto.Name, Name);
 
             #endregion
         }

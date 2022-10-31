@@ -27,12 +27,12 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Whether a user is banned or not
         /// </summary>
-        public bool? Banned { get; private set; }
+        public bool Banned { get; private set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public System.DateTimeOffset? CreatedAt { get; private set; }
+        public System.DateTimeOffset CreatedAt { get; private set; }
 
         /// <summary>
         /// Date of deactivation
@@ -86,7 +86,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// List of teams user is a part of
         /// </summary>
-        public System.Collections.Generic.List<string> Teams { get; private set; }
+        public IReadOnlyList<string> Teams => _teams;
 
         /// <summary>
         /// Date/time of the last update
@@ -94,8 +94,8 @@ namespace StreamChat.Core.State.TrackedObjects
         public System.DateTimeOffset? UpdatedAt { get; private set; }
 
         //Not in API
-        public string Name;
-        public string Image;
+        public string Name { get; private set; }
+        public string Image { get; private set; }
 
         /// <summary>
         /// Flag this user
@@ -135,9 +135,6 @@ namespace StreamChat.Core.State.TrackedObjects
             TargetId = Id,
         });
 
-
-        //StreamTodo: Update and PartialUpdate
-
         internal StreamUser(string uniqueId, IRepository<StreamUser> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {
@@ -145,52 +142,52 @@ namespace StreamChat.Core.State.TrackedObjects
 
         void IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalInternalDTO dto, ICache cache)
         {
-            BanExpires = dto.BanExpires;
-            Banned = dto.Banned;
-            CreatedAt = dto.CreatedAt;
-            DeactivatedAt = dto.DeactivatedAt;
-            DeletedAt = dto.DeletedAt;
-            Id = dto.Id;
-            Invisible = dto.Invisible;
-            Language = dto.Language;
-            LastActive = dto.LastActive;
-            Online = dto.Online;
+            BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
+            Banned = GetOrDefault(dto.Banned, Banned);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            DeactivatedAt = GetOrDefault(dto.DeactivatedAt, DeactivatedAt);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Id = GetOrDefault(dto.Id, Id);
+            Invisible = GetOrDefault(dto.Invisible, Invisible);
+            Language = GetOrDefault(dto.Language, Language);
+            LastActive = GetOrDefault(dto.LastActive, LastActive);
+            Online = GetOrDefault(dto.Online, Online);
             PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications, cache);
-            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
-            Role = dto.Role;
+            RevokeTokensIssuedBefore = GetOrDefault(dto.RevokeTokensIssuedBefore, RevokeTokensIssuedBefore);
+            Role = GetOrDefault(dto.Role, Role);
             //ShadowBanned = dto.ShadowBanned; Missing in DTO
-            Teams = dto.Teams;
-            UpdatedAt = dto.UpdatedAt;
+            _teams.TryReplaceValuesFromDto(dto.Teams);
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
             //Not in API spec
-            Name = dto.Name;
-            Image = dto.Image;
+            Name = GetOrDefault(dto.Name, Name);
+            Image = GetOrDefault(dto.Image, Image);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
         void IUpdateableFrom<UserResponseInternalDTO, StreamUser>.UpdateFromDto(UserResponseInternalDTO dto, ICache cache)
         {
-            BanExpires = dto.BanExpires;
-            Banned = dto.Banned;
-            CreatedAt = dto.CreatedAt;
-            DeactivatedAt = dto.DeactivatedAt;
-            DeletedAt = dto.DeletedAt;
-            Id = dto.Id;
-            Invisible = dto.Invisible;
-            Language = dto.Language;
-            LastActive = dto.LastActive;
-            Online = dto.Online;
+            BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
+            Banned = GetOrDefault(dto.Banned, Banned);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            DeactivatedAt = GetOrDefault(dto.DeactivatedAt, DeactivatedAt);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Id = GetOrDefault(dto.Id, Id);
+            Invisible = GetOrDefault(dto.Invisible, Invisible);
+            Language = GetOrDefault(dto.Language, Language);
+            LastActive = GetOrDefault(dto.LastActive, LastActive);
+            Online = GetOrDefault(dto.Online, Online);
             PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications, cache);
-            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
-            Role = dto.Role;
-            ShadowBanned = dto.ShadowBanned;
-            Teams = dto.Teams;
-            UpdatedAt = dto.UpdatedAt;
+            RevokeTokensIssuedBefore = GetOrDefault(dto.RevokeTokensIssuedBefore, RevokeTokensIssuedBefore);
+            Role = GetOrDefault(dto.Role, Role);
+            ShadowBanned = GetOrDefault(dto.ShadowBanned, ShadowBanned);
+            _teams.TryReplaceValuesFromDto(dto.Teams);
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
             //Not in API spec
-            Name = dto.Name;
-            Image = dto.Image;
+            Name = GetOrDefault(dto.Name, Name);
+            Image = GetOrDefault(dto.Image, Image);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
@@ -210,25 +207,25 @@ namespace StreamChat.Core.State.TrackedObjects
 
             #endregion
 
-            //BanExpires = dto.BanExpires;
-            Banned = dto.Banned;
-            CreatedAt = dto.CreatedAt;
-            DeactivatedAt = dto.DeactivatedAt;
-            DeletedAt = dto.DeletedAt;
-            Id = dto.Id;
-            Invisible = dto.Invisible;
-            Language = dto.Language;
-            LastActive = dto.LastActive;
-            Online = dto.Online;
+            //BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
+            Banned = GetOrDefault(dto.Banned, Banned);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            DeactivatedAt = GetOrDefault(dto.DeactivatedAt, DeactivatedAt);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Id = GetOrDefault(dto.Id, Id);
+            Invisible = GetOrDefault(dto.Invisible, Invisible);
+            Language = GetOrDefault(dto.Language, Language);
+            LastActive = GetOrDefault(dto.LastActive, LastActive);
+            Online = GetOrDefault(dto.Online, Online);
             PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications, cache);
             //RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore; //Not present in this DTO
-            Role = dto.Role;
+            Role = GetOrDefault(dto.Role, Role);
             _teams.TryReplaceValuesFromDto(dto.Teams);
-            UpdatedAt = dto.UpdatedAt;
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
-            //Not in API spec
-            //Name = dto.Name;
-            //Image = dto.Image;
+            //Not in API spec //StreamTodo: Add to DTO?
+            //Name = GetOrDefault(dto.Name, Name);
+            //Image = GetOrDefault(dto.Image, Image);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
