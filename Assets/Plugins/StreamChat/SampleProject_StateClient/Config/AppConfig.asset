@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632fc3a4ff5e49b0b6bb9b75ba67e650, type: 3}
+  m_Name: AppConfig
+  m_EditorClassIdentifier: 
+  _viewFactoryConfig:
+    _messageOptionsPopupPrefab: {fileID: 5378343205483587087, guid: 53e67c14181e3584193d5c627106bd94, type: 3}
+    _createNewChannelPopupPrefab: {fileID: 8926528666989219657, guid: ac25a8d916d27de4aa3d0dba48ba0d2c, type: 3}
+    _errorPopupPrefab: {fileID: 6615067076462953508, guid: a4f9699057cc9444ba6eac7e2068925e, type: 3}
+  _emojiConfig: {fileID: 11400000, guid: 964e9bb5916fddf4cacf722cd54dc11d, type: 2}
