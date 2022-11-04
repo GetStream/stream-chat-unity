@@ -146,6 +146,7 @@ namespace StreamChat.Core
         public IMessageApi MessageApi { get; }
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
+        public IDeviceApi DeviceApi { get; }
 
         [Obsolete(
             "This property presents only initial state of the LocalUser when connection is made and is not ever updated. " +
@@ -261,11 +262,13 @@ namespace StreamChat.Core
             InternalMessageApi = new InternalMessageApi(httpClient, serializer, logs, _requestUriFactory);
             InternalModerationApi = new InternalModerationApi(httpClient, serializer, logs, _requestUriFactory);
             InternalUserApi = new InternalUserApi(httpClient, serializer, logs, _requestUriFactory);
+            InternalDeviceApi = new InternalDeviceApi(httpClient, serializer, logs, _requestUriFactory);
 
             ChannelApi = new ChannelApi(InternalChannelApi);
             MessageApi = new MessageApi(InternalMessageApi);
             ModerationApi = new ModerationApi(InternalModerationApi);
             UserApi = new UserApi(InternalUserApi);
+            DeviceApi = new DeviceApi(InternalDeviceApi);
 
             RegisterEventHandlers();
 
@@ -365,7 +368,8 @@ namespace StreamChat.Core
         internal IInternalChannelApi InternalChannelApi { get; }
         internal IInternalMessageApi InternalMessageApi { get; }
         internal IInternalModerationApi InternalModerationApi { get; }
-        internal InternalUserApi InternalUserApi { get; }
+        internal IInternalUserApi InternalUserApi { get; }
+        internal IInternalDeviceApi InternalDeviceApi { get; }
 
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;

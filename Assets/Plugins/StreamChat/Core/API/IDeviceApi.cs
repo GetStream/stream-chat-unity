@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
-
+        
 namespace StreamChat.Core.API
 {
-    internal interface IDeviceApi
+    public interface IDeviceApi
     {
         Task<ApiResponse> AddDeviceAsync(CreateDeviceRequest device);
 
