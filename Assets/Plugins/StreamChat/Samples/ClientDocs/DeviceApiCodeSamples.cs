@@ -23,8 +23,8 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task ListDevicesAsync()
         {
-            var listDevicesResponse = await Client.DeviceApi.ListDevicesAsync(Client.UserId);
-            foreach (var userDevice in listDevicesResponse.Devices)
+            var response = await Client.DeviceApi.ListDevicesAsync(Client.UserId);
+            foreach (var userDevice in response.Devices)
             {
                 Debug.Log(userDevice.Id); // Unique Device ID provided by push notifications provider
                 Debug.Log(userDevice.CreatedAt);
