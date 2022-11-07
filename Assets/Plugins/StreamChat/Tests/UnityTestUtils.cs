@@ -107,6 +107,28 @@ namespace StreamChat.Tests
             }
         }
 
+        public static IEnumerator RunTaskAsEnumerator(this Task task, IStreamChatClient client)
+        {
+            while (!task.IsCompleted)
+            {
+                client.Update(0.1f);
+                yield return null;
+            }
+            
+            if (!task.IsFaulted)
+            {
+                yield break;
+            }
+            
+            if (task.Exception is AggregateException aggregateException &&
+                aggregateException.InnerExceptions.Count == 1)
+            {
+                throw task.Exception.InnerException;
+            }
+
+            throw task.Exception;
+        }
+
         public static IEnumerator WaitForSeconds(float seconds)
         {
             var timeStarted = Time.realtimeSinceStartup;

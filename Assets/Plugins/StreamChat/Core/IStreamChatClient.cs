@@ -37,6 +37,7 @@ namespace StreamChat.Core
         IMessageApi MessageApi { get; }
         IModerationApi ModerationApi { get; }
         IUserApi UserApi { get; }
+        IDeviceApi DeviceApi { get; }
 
         [Obsolete(
             "This property presents only initial state of the LocalUser when connection is made and is not being updated any further. " +
