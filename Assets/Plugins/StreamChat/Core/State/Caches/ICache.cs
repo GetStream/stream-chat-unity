@@ -1,6 +1,6 @@
 ﻿using StreamChat.Core.State.TrackedObjects;
 
-namespace StreamChat.Core.State
+namespace StreamChat.Core.State.Caches
 {
     internal interface ICache
     {

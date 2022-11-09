@@ -2,7 +2,7 @@
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.State.TrackedObjects;
 
-namespace StreamChat.Core.State
+namespace StreamChat.Core.State.Caches
 {
     internal static class ICacheExt
     {

@@ -1,9 +1,10 @@
 ﻿using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Responses;
+using StreamChat.Core.State;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Logs;
 
-namespace StreamChat.Core.State
+namespace StreamChat.Core.State.Caches
 {
     internal sealed class Cache : ICache
     {

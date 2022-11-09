@@ -12,6 +12,7 @@ using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
+using StreamChat.Core.State.Caches;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;

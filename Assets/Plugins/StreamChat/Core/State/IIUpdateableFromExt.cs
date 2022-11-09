@@ -1,4 +1,6 @@
-﻿namespace StreamChat.Core.State
+﻿using StreamChat.Core.State.Caches;
+
+namespace StreamChat.Core.State
 {
     internal static class IIUpdateableFromExt
     {

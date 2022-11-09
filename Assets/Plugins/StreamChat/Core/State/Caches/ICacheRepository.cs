@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using StreamChat.Core.State;
 
-namespace StreamChat.Core.State
+namespace StreamChat.Core.State.Caches
 {
     /// <summary>
     /// Repository for tracked objects

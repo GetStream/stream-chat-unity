@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using StreamChat.Core.State.Caches;
 
 namespace StreamChat.Core.State
 {
