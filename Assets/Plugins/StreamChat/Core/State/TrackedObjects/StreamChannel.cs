@@ -10,8 +10,9 @@ using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Models;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
+using StreamChat.Core.State.Responses;
 
-namespace StreamChat.Core.State.TrackedObjects
+namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more intuitive namespace? Models? StateModels?
 {
     // StreamTodo: add IStreamChannel interface
     public interface IStreamChannel
@@ -80,7 +81,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public event ChannelUserChangeHandler WatcherRemoved;
 
-        public event ChannelMessageHandler NewMessageReceived;
+        public event ChannelMessageHandler MessageReceived;
         public event ChannelMessageHandler MessageUpdated;
         public event MessageDeleteHandler MessageDeleted;
 
@@ -272,6 +273,12 @@ namespace StreamChat.Core.State.TrackedObjects
         public IReadOnlyList<StreamUser> TypingUsers => _typingUsers;
 
         #endregion
+        
+        /// <summary>
+        /// Is this a direct message channel between the local and some other user
+        /// </summary>
+        public bool IsDirectMessage =>
+            Members.Count == 2 && Members.Any(m => m.User == StreamChatStateClient.LocalUserData.User);
 
         /// <summary>
         /// Basic send message method. If you want to set additional parameters like use the other <see cref="SendNewMessageAsync(StreamSendMessageRequest requestBody)"/> overload
@@ -392,6 +399,48 @@ namespace StreamChat.Core.State.TrackedObjects
             Cache.TryCreateOrUpdate(response.Channel);
         }
 
+        /// <summary>
+        /// Upload file to stream CDN. Returned file URL can be used as a message attachment.
+        /// For image files use <see cref="UploadImageAsync"/> as it will generate the thumbnail and allow for image resize and crop operations
+        /// </summary>
+        /// <param name="fileContent">File bytes content (e.g. returned from <see cref="System.IO.File.ReadAllBytes"/></param>
+        /// <param name="fileName">Name of the file</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity</remarks>
+        public async Task<StreamFileUploadResponse> UploadFileAsync(byte[] fileContent, string fileName)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(fileContent, nameof(fileContent));
+            StreamAsserts.AssertNotNullOrEmpty(fileName, nameof(fileName));
+
+            var response = await LowLevelClient.InternalMessageApi.UploadFileAsync(Type, Id, fileContent, fileName);
+            return new StreamFileUploadResponse(response.File);
+        }
+
+        /// <summary>
+        /// Delete file of any type that was send to Stream CDN.
+        /// This handles both files sent via <see cref="UploadFileAsync"/> and images sent via <see cref="UploadImageAsync"/>
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity#deleting-files-and-images</remarks>
+        public Task DeleteFileAsync(string fileUrl)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(fileUrl, nameof(fileUrl));
+            return LowLevelClient.InternalMessageApi.DeleteFileAsync(Type, Id, fileUrl);
+        }
+
+        /// <summary>
+        /// Upload image file to stream CDN. The returned image URL can be injected into <see cref="StreamAttachmentRequest"/> when sending new message.
+        /// </summary>
+        /// <param name="imageContent"></param>
+        /// <param name="imageName"></param>
+        /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity#how-to-upload-a-file-or-image</remarks>
+        public async Task<StreamImageUploadResponse> UploadImageAsync(byte[] imageContent, string imageName)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(imageContent, nameof(imageContent));
+            StreamAsserts.AssertNotNullOrEmpty(imageName, nameof(imageName));
+
+            var response = await LowLevelClient.InternalMessageApi.UploadImageAsync(Type, Id, imageContent, imageName);
+            return new StreamImageUploadResponse().LoadFromDto(response, Cache);
+        }
+
         public void QueryMembers() //StreamTodo: IMPLEMENT
         {
         }
@@ -399,9 +448,10 @@ namespace StreamChat.Core.State.TrackedObjects
         public void QueryWatchers() //StreamTodo: IMPLEMENT
         {
         }
-
+        
         /// <summary>
-        /// Ban user from this channel
+        /// Ban user from this channel.
+        /// If you wish to ban user completely from all of the channels, this can be done only by server-side SDKs.
         /// </summary>
         /// <param name="user">User to ban from channel</param>
         /// <param name="isShadowBan">Shadow banned user is not notified about the ban. Read more: <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks></param>
@@ -409,9 +459,8 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
         /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
-        public Task BanUserAsync(StreamUser user, bool isShadowBan = false, string reason = "",
-            int? timeoutMinutes = default,
-            bool isIpBan = false)
+        public Task BanUserFromChannelAsync(StreamUser user, bool isShadowBan = false, string reason = "",
+            int? timeoutMinutes = default, bool isIpBan = false)
         {
             StreamAsserts.AssertNotNull(user, nameof(user));
             StreamAsserts.AssertGreaterThanZero(timeoutMinutes, nameof(timeoutMinutes));
@@ -436,7 +485,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Remove ban from the user on this channel
         /// </summary>
-        public Task UnbanUserAsync(StreamUser user)
+        public Task UnbanUserInChannelAsync(StreamUser user)
         {
             StreamAsserts.AssertNotNull(user, nameof(user));
             return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
@@ -465,7 +514,7 @@ namespace StreamChat.Core.State.TrackedObjects
                     $"Cid mismatch, expected: {Cid}, given: {message.Cid}. Passed {nameof(message)} does not belong to this channel.");
             }
 
-            return message.MarkMessageReadAsync();
+            return message.MarkMessageAsLastReadAsync();
         }
 
         //StreamTodo: remove empty request object
@@ -611,9 +660,11 @@ namespace StreamChat.Core.State.TrackedObjects
         ///
         /// </summary>
         /// <returns></returns>
-        public Task NotifyTypingStarted() => LowLevelClient.InternalChannelApi.SendTypingStartEventAsync(Type, Id);
+        public Task SendTypingStartedEventAsync() =>
+            LowLevelClient.InternalChannelApi.SendTypingStartEventAsync(Type, Id);
 
-        public Task NotifyTypingStopped() => LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
+        public Task SendTypingStoppedEventAsync() =>
+            LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
         internal StreamChannel(string uniqueId, IRepository<StreamChannel> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
@@ -685,6 +736,7 @@ namespace StreamChat.Core.State.TrackedObjects
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
+            WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
         }
 
         internal void HandleMessageUpdatedEvent(EventMessageUpdatedInternalDTO dto)
@@ -694,7 +746,7 @@ namespace StreamChat.Core.State.TrackedObjects
             {
                 return;
             }
-
+            
             message.TryUpdateFromDto(dto.Message, Cache);
             MessageUpdated?.Invoke(this, message);
         }
@@ -763,7 +815,7 @@ namespace StreamChat.Core.State.TrackedObjects
             MemberRemoved?.Invoke(this, member);
         }
 
-        public void InternalUpdateMember(StreamChannelMember member)
+        internal void InternalUpdateMember(StreamChannelMember member)
         {
             if (!_members.Contains(member))
             {
@@ -780,7 +832,7 @@ namespace StreamChat.Core.State.TrackedObjects
             get => Cid;
             set => Cid = value;
         }
-
+        
         private readonly List<StreamChannelMember> _members = new List<StreamChannelMember>();
         private readonly List<StreamMessage> _messages = new List<StreamMessage>();
         private readonly List<StreamMessage> _pinnedMessages = new List<StreamMessage>();
@@ -808,7 +860,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 if (!_messages.Contains(streamMessage))
                 {
                     _messages.Add(streamMessage);
-                    NewMessageReceived?.Invoke(this, streamMessage);
+                    MessageReceived?.Invoke(this, streamMessage);
                 }
             }
 
@@ -886,8 +938,26 @@ namespace StreamChat.Core.State.TrackedObjects
             #endregion
         }
 
+        internal void InternalHandleMessageReadEvent(EventMessageReadInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            //we can only mark messages based on created_at
+            //we mark this per user
+
+            var userRead = _read.FirstOrDefault(_ => _.User.Id == eventDto.User.Id);
+            if (userRead == null)
+            {
+                return; //StreamTodo: do we add this user? We don't have his UnreadMessages count
+            }
+
+            userRead.Update(eventDto.CreatedAt.Value);
+            //StreamTodo: raise event? 
+        }
+
         internal void InternalHandleUserWatchingStart(EventUserWatchingStartInternalDTO eventDto)
         {
+            AssertCid(eventDto.Cid);
+
             var user = Cache.TryCreateOrUpdate(eventDto.User, out var wasCreated);
             if (wasCreated || !_watchers.Contains(user))
             {
@@ -899,6 +969,8 @@ namespace StreamChat.Core.State.TrackedObjects
 
         internal void InternalHandleUserWatchingStop(EventUserWatchingStopInternalDTO eventDto)
         {
+            AssertCid(eventDto.Cid);
+
             bool wasRemoved = false;
 
             //We always reduce because watchers are paginatable so our partial _watchers state may not contain the removed on but count reflects all of them

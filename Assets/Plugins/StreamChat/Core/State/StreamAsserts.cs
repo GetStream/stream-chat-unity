@@ -47,6 +47,19 @@ namespace StreamChat.Core.State
                 throw new ArgumentException($"{argName} cannot be empty");
             }
         }
+        
+        public static void AssertNotNullOrEmpty<T>(T[] items, string argName)
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(argName));
+            }
+
+            if (items.Length == 0)
+            {
+                throw new ArgumentException($"{argName} cannot be empty");
+            }
+        }
 
         public static void AssertNotNullOrEmpty<T>(IEnumerable<T> items, string argName)
         {

@@ -6,7 +6,7 @@
     public interface IStreamClientConfig
     {
         /// <summary>
-        /// Configure what type of logs are being emitted.
+        /// What type of logs are being emitted.
         /// </summary>
         StreamLogLevel LogLevel { get; set; }
     }

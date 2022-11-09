@@ -30,6 +30,22 @@ namespace StreamChat.Core.State
 
             return new TDomain().LoadFromDto(dto, cache);
         }
+        
+        public static TDomain LoadFromDto<TDto, TDomain>(this IStateLoadableFrom<TDto, TDomain> loadable, TDto dto, ICache cache)
+            where TDomain : class, IStateLoadableFrom<TDto, TDomain>, new()
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            if (loadable == null)
+            {
+                throw new ArgumentException(nameof(loadable));
+            }
+
+            return loadable.LoadFromDto(dto, cache);
+        }
 
         [Pure]
         public static List<TSource> TryLoadFromDtoCollection<TDto, TSource>(this List<TSource> _, List<TDto> dtos, ICache cache)

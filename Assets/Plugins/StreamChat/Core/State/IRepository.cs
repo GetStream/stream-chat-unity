@@ -26,7 +26,7 @@ namespace StreamChat.Core.State
         TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
             where TType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TType>;
 
-        IEnumerable<TTrackedObject> AllItems { get; }
+        IReadOnlyList<TTrackedObject> AllItems { get; }
 
         void Remove(TTrackedObject trackedObject);
     }

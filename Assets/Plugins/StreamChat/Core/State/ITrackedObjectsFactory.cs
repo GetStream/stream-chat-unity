@@ -1,5 +1,4 @@
-﻿using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.State.TrackedObjects;
+﻿using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State
 {
@@ -14,7 +13,5 @@ namespace StreamChat.Core.State
         StreamMessage CreateStreamMessage(string uniqueId);
 
         StreamUser CreateStreamUser(string uniqueId);
-
-        StreamMessage CreateStreamMessage(MessageInternalDTO dto);
     }
 }

@@ -31,6 +31,9 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public string Cid { get; private set; }
 
+        //StreamTodo: best to add StreamChannel reference
+        public StreamChannel Channel { get; private set; }
+
         /// <summary>
         /// Contains provided slash command
         /// </summary>
@@ -39,7 +42,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public DateTimeOffset? CreatedAt { get; private set; }
+        public DateTimeOffset CreatedAt { get; private set; }
 
         /// <summary>
         /// Date/time of deletion
@@ -173,6 +176,8 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Sender of the message. Required when using server-side API
         /// </summary>
         public StreamUser User { get; private set; }
+        
+        public bool IsDeleted => Type == StreamMessageType.Deleted;
 
         /// <summary>
         /// Clears the message text but leaves the rest of the message unchanged e.g. reaction, replies, attachments will be untouched
@@ -257,7 +262,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Add reaction to this message
         /// You can view reactions via <see cref="ReactionScores"/>, <see cref="ReactionCounts"/>, <see cref="OwnReactions"/> and <see cref="LatestReactions"/>
         /// </summary>
-        /// <param name="type">Reaction custom key, examples: like, smile, sad, etc. You can use any custom key</param>
+        /// <param name="type">Reaction custom key, examples: like, smile, sad, etc. or any custom string</param>
         /// <param name="score">[Optional] Reaction score, by default it counts as 1</param>
         /// <param name="enforceUnique">[Optional] Whether to replace all existing user reactions</param>
         /// <param name="skipMobilePushNotifications">[Optional] Skips any mobile push notifications</param>
@@ -299,12 +304,12 @@ namespace StreamChat.Core.State.TrackedObjects
         public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagMessageAsync(Id);
 
         /// <summary>
-        /// Mark this message as the last that was read by this user in this channel
+        /// Mark this message as the last that was read by local user in this channel
         /// If you want to mark whole channel as read use the <see cref="StreamChannel.MarkChannelReadAsync"/>
         ///
         /// This feature allows to track to which message users have read the channel
         /// </summary>
-        public Task MarkMessageReadAsync()
+        public Task MarkMessageAsLastReadAsync()
         {
             if (!Cache.Channels.TryGet(Cid, out var streamChannel))
             {

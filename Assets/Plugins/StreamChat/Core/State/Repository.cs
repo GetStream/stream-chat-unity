@@ -12,7 +12,7 @@ namespace StreamChat.Core.State
     internal class Repository<TTrackedType> : IRepository<TTrackedType>
         where TTrackedType : class, IStreamTrackedObject
     {
-        public IEnumerable<TTrackedType> AllItems => _trackedObjects;
+        public IReadOnlyList<TTrackedType> AllItems => _trackedObjects;
 
         public bool TryGet(string uniqueId, out TTrackedType trackedObject)
             => _trackedObjectById.TryGetValue(uniqueId, out trackedObject);
@@ -48,6 +48,7 @@ namespace StreamChat.Core.State
             _dtoIdGetters.Add(key, Wrapper);
         }
 
+        //StreamTodo
         // public TType CreateOrUpdate<TType, TDto>(string uniqueId, TDto tdo)
         //     where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
         // {

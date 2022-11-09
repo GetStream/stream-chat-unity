@@ -34,7 +34,9 @@ namespace StreamChat.Core.State
         {
             if (channelTypeKey.IsNullOrEmpty())
             {
-                throw new ArgumentException($"{channelTypeKey} cannot be null or empty");
+                throw new ArgumentException(
+                    $"{channelTypeKey} cannot be null or empty. Use predefined channel types: {nameof(Messaging)}, " +
+                    $"{nameof(Livestream)}, {nameof(Team)}, {nameof(Commerce)}, {nameof(Gaming)}, or create custom one in your Dashboard and use {nameof(Custom)}");
             }
 
             _channelTypeKey = channelTypeKey;

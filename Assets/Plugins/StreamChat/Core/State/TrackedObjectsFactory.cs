@@ -31,13 +31,6 @@ namespace StreamChat.Core.State
         public StreamMessage CreateStreamMessage(string uniqueId)
             => new StreamMessage(uniqueId, _cache.Messages, _context);
 
-        public StreamMessage CreateStreamMessage(MessageInternalDTO dto)
-        {
-            var message = new StreamMessage(dto.Id, _cache.Messages, _context);
-            message.TryUpdateFromDto(dto, _cache);
-            return message;
-        }
-
         public StreamUser CreateStreamUser(string uniqueId)
             => new StreamUser(uniqueId, _cache.Users, _context);
 
