@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using StreamChat.Core.Models;
+using StreamChat.Core.State.TrackedObjects;
 using UnityEngine;
 
 namespace StreamChat.SampleProject_StateClient.Views
@@ -46,7 +47,7 @@ namespace StreamChat.SampleProject_StateClient.Views
             }
         }
 
-        private void OnChannelClicked(ChannelState channel) => State.OpenChannel(channel);
+        private void OnChannelClicked(StreamChannel channel) => State.OpenChannel(channel);
 
         private void ClearAll()
         {

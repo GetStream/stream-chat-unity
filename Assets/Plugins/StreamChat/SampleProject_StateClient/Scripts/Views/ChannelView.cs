@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Models;
+using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProject_StateClient.Utils;
 using TMPro;
@@ -15,11 +16,11 @@ namespace StreamChat.SampleProject_StateClient.Views
     /// </summary>
     public class ChannelView : MonoBehaviour
     {
-        public event Action<ChannelState> Clicked;
+        public event Action<StreamChannel> Clicked;
 
-        public void Init(ChannelState channel, IChatViewContext context)
+        public void Init(StreamChannel channel, IChatViewContext context)
         {
-            _channelState = channel ?? throw new ArgumentNullException(nameof(channel));
+            _channel = channel ?? throw new ArgumentNullException(nameof(channel));
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
             _isDirectMessage = channel.IsDirectMessage;
@@ -35,7 +36,7 @@ namespace StreamChat.SampleProject_StateClient.Views
 
         private const int PreviewMessageLenght = 30;
 
-        private ChannelState _channelState;
+        private StreamChannel _channel;
         private bool _isDirectMessage;
 
         [SerializeField]
@@ -55,14 +56,14 @@ namespace StreamChat.SampleProject_StateClient.Views
 
         private IChatViewContext _context;
 
-        private void OnClicked() => Clicked?.Invoke(_channelState);
+        private void OnClicked() => Clicked?.Invoke(_channel);
 
         private void UpdateMessagePreview()
         {
-            var channelCreator = _channelState.Channel.CreatedBy;
+            var channelCreator = _channel.CreatedBy;
             var channelCreatorName = channelCreator.Name.IsNullOrEmpty() ? channelCreator.Id : channelCreator.Name;
 
-            var name = _isDirectMessage ? channelCreatorName : _channelState.Channel.Name;
+            var name = _isDirectMessage ? channelCreatorName : _channel.Name;
 
             _headerText.text = name;
             _messagePreviewText.text = GetLastMessagePreview();
@@ -81,7 +82,7 @@ namespace StreamChat.SampleProject_StateClient.Views
 
         private string GetLastMessagePreview()
         {
-            var lastMessage = _channelState.Messages.LastOrDefault();
+            var lastMessage = _channel.Messages.LastOrDefault();
 
             if (lastMessage == null)
             {
@@ -105,7 +106,7 @@ namespace StreamChat.SampleProject_StateClient.Views
                 return;
             }
 
-            var otherMember = _channelState.Members.FirstOrDefault(_ => !_context.Client.IsLocalUser(_));
+            var otherMember = _channel.Members.FirstOrDefault(_ => _.User != _context.Client.LocalUserData.User);
 
             if (otherMember == null || otherMember.User.Image.IsNullOrEmpty())
             {

@@ -1,5 +1,5 @@
 ﻿using System;
-using StreamChat.Core;
+using StreamChat.Core.State;
 using StreamChat.SampleProject_StateClient.Configs;
 using StreamChat.SampleProject_StateClient.Inputs;
 using StreamChat.SampleProject_StateClient.Utils;
@@ -10,7 +10,7 @@ namespace StreamChat.SampleProject_StateClient
     /// <inheritdoc />
     public class ChatViewContext : IChatViewContext
     {
-        public IStreamChatClient Client { get; }
+        public IStreamChatStateClient Client { get; }
         public IImageLoader ImageLoader { get; }
         public IViewFactory Factory { get; }
         public IInputSystem InputSystem { get; }
@@ -18,7 +18,7 @@ namespace StreamChat.SampleProject_StateClient
         public IChatState State { get; }
         public IAppConfig AppConfig { get; }
 
-        public ChatViewContext(IStreamChatClient client, IImageLoader imageLoader, ViewFactory viewFactory,
+        public ChatViewContext(IStreamChatStateClient client, IImageLoader imageLoader, ViewFactory viewFactory,
             IInputSystem inputSystem, IAppConfig appConfig)
         {
             Client = client ?? throw new ArgumentNullException(nameof(client));

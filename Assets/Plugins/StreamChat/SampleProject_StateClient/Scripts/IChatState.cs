@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using StreamChat.Core;
 using StreamChat.Core.Models;
+using StreamChat.Core.State;
+using StreamChat.Core.State.TrackedObjects;
 using StreamChat.SampleProject_StateClient.Views;
 
 namespace StreamChat.SampleProject_StateClient
@@ -12,20 +13,19 @@ namespace StreamChat.SampleProject_StateClient
     /// </summary>
     public interface IChatState : IDisposable
     {
-        event Action<ChannelState> ActiveChanelChanged;
-        event Action<ChannelState, Message> ActiveChanelMessageReceived;
+        event Action<StreamChannel> ActiveChanelChanged;
         event Action ChannelsUpdated;
-        event Action<Message> MessageEditRequested;
+        event Action<StreamMessage> MessageEditRequested;
 
-        ChannelState ActiveChannel { get; }
-        IReadOnlyList<ChannelState> Channels { get; }
-        IStreamChatClient Client { get; }
+        StreamChannel ActiveChannel { get; }
+        IReadOnlyList<StreamChannel> Channels { get; }
+        IStreamChatStateClient Client { get; }
 
-        void OpenChannel(ChannelState channel);
+        void OpenChannel(StreamChannel channel);
 
-        void EditMessage(Message message);
+        void EditMessage(StreamMessage message);
 
-        Task<ChannelState> CreateNewChannelAsync(string channelName);
+        Task<StreamChannel> CreateNewChannelAsync(string channelName);
 
         void ShowPopup<TPopup>()
             where TPopup : BaseFullscreenPopup;
@@ -36,7 +36,5 @@ namespace StreamChat.SampleProject_StateClient
         Task UpdateChannelsAsync();
 
         Task LoadPreviousMessagesAsync();
-
-        void MarkMessageAsLastRead(Message message);
     }
 }

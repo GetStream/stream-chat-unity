@@ -4,6 +4,7 @@ using System.Linq;
 using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
+using StreamChat.Core.State.TrackedObjects;
 using StreamChat.SampleProject_StateClient.Configs;
 using StreamChat.SampleProject_StateClient.Utils;
 using StreamChat.SampleProject_StateClient.Popups;
@@ -57,26 +58,17 @@ namespace StreamChat.SampleProject_StateClient.Views
 
                 //StreamTodo: muted ? => show unmute instead
                 var user = message.User;
-                options.Add(new MenuOptionEntry("Mute", () =>
-                {
-                    var muteUserRequest = new MuteUserRequest
-                    {
-                        TargetIds = new List<string> { user.Id }
-                    };
-
-                    //StreamTodo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
-                    client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
-                }));
+                options.Add(new MenuOptionEntry("Mute", () => user.MuteAsync().LogStreamExceptionIfFailed()));
             }
 
-            options.Add(new MenuOptionEntry("Mark as read", () => state.MarkMessageAsLastRead(message)));
+            options.Add(new MenuOptionEntry("Mark as read", () => message.MarkMessageAsLastReadAsync()));
 
             options.Add(new MenuOptionEntry("Delete",
-                () => client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
+                () => message.SoftDeleteAsync().LogStreamExceptionIfFailed()));
 
             var emojis = new List<EmojiOptionEntry>();
 
-            AddReactionsEmojiOptions(emojis, message, client);
+            AddReactionsEmojiOptions(emojis, message);
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options, emojis);
             popup.Show(args);
@@ -120,8 +112,7 @@ namespace StreamChat.SampleProject_StateClient.Views
 
         private IChatViewContext _viewContext;
 
-        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message,
-            IStreamChatClient client)
+        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, StreamMessage message)
         {
             foreach (var sprite in _appConfig.Emojis.ReactionSprites)
             {
@@ -133,17 +124,11 @@ namespace StreamChat.SampleProject_StateClient.Views
                  {
                      if (isAdded)
                      {
-                         client.MessageApi.DeleteReactionAsync(message.Id, key);
+                         message.DeleteReactionAsync(key);
                      }
                      else
                      {
-                         client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
-                         {
-                             Reaction = new ReactionRequest
-                             {
-                                 Type = key,
-                             }
-                         });
+                         message.SendReactionAsync(key);
                      }
                  }));
             }

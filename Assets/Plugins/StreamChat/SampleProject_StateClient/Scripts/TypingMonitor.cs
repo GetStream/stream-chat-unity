@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using StreamChat.Core;
 using StreamChat.Core.Models;
+using StreamChat.Core.State;
+using StreamChat.Core.State.TrackedObjects;
 using TMPro;
 using UnityEngine;
 
@@ -9,7 +11,7 @@ namespace StreamChat.SampleProject_StateClient
 {
     public class TypingMonitor : IDisposable
     {
-        public TypingMonitor(TMP_InputField source, IStreamChatClient client, IChatState chatState, Func<bool> isActive)
+        public TypingMonitor(TMP_InputField source, IStreamChatStateClient client, IChatState chatState, Func<bool> isActive)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _source = source ?? throw new ArgumentNullException(nameof(source));
@@ -39,7 +41,7 @@ namespace StreamChat.SampleProject_StateClient
             }
         }
 
-        public void NotifyChannelStoppedTyping(Channel channel)
+        public void NotifyChannelStoppedTyping(StreamChannel channel)
             => TrySendStopTypingEvent(channel);
 
         public void Dispose()
@@ -58,14 +60,14 @@ namespace StreamChat.SampleProject_StateClient
         private const float TypingStopEventTimeout = 15;
 
         private readonly TMP_InputField _source;
-        private readonly IStreamChatClient _client;
+        private readonly IStreamChatStateClient _client;
         private readonly Func<bool> _isActive;
         private readonly IChatState _chatState;
 
         private readonly Dictionary<string, float> _channelCidToTypingStartEventSentTime =
             new Dictionary<string, float>();
 
-        private readonly List<Channel> _startedTypingChannels = new List<Channel>();
+        private readonly List<StreamChannel> _startedTypingChannels = new List<StreamChannel>();
 
         private void OnInputValueChanged(string text)
         {
@@ -74,12 +76,12 @@ namespace StreamChat.SampleProject_StateClient
                 return;
             }
 
-            var activeChannel = _chatState.ActiveChannel.Channel;
+            var activeChannel = _chatState.ActiveChannel;
 
             TrySendStartTypingEvent(activeChannel);
         }
 
-        private void TrySendStartTypingEvent(Channel channel)
+        private void TrySendStartTypingEvent(StreamChannel channel)
         {
             if (_channelCidToTypingStartEventSentTime.TryGetValue(channel.Cid, out var typingStartSentTime) &&
                 Time.time - typingStartSentTime < TypingStartEventThrottleInterval)
@@ -87,7 +89,7 @@ namespace StreamChat.SampleProject_StateClient
                 return;
             }
 
-            _client.ChannelApi.SendTypingStartEventAsync(channel.Type, channel.Id);
+            channel.SendTypingStartedEventAsync();
 
             if (!_channelCidToTypingStartEventSentTime.ContainsKey(channel.Cid))
             {
@@ -97,14 +99,14 @@ namespace StreamChat.SampleProject_StateClient
             _channelCidToTypingStartEventSentTime[channel.Cid] = Time.time;
         }
 
-        private void TrySendStopTypingEvent(Channel channel)
+        private void TrySendStopTypingEvent(StreamChannel channel)
         {
             if (!_channelCidToTypingStartEventSentTime.ContainsKey(channel.Cid))
             {
                 return;
             }
 
-            _client.ChannelApi.SendTypingStopEventAsync(channel.Type, channel.Id);
+            channel.SendTypingStoppedEventAsync();
 
             _channelCidToTypingStartEventSentTime.Remove(channel.Cid);
 

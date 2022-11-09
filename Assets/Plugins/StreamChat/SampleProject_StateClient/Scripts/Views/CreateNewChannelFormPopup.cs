@@ -34,11 +34,9 @@ namespace StreamChat.SampleProject_StateClient.Views
             }
         }
 
-        [SerializeField]
-        private TMP_InputField _channelIdInput;
+        [SerializeField] private TMP_InputField _channelIdInput;
 
-        [SerializeField]
-        private Button _createButton;
+        [SerializeField] private Button _createButton;
 
         private bool _isProcessing;
 
@@ -68,27 +66,16 @@ namespace StreamChat.SampleProject_StateClient.Views
                     return;
                 }
 
-                var channelState = task.Result;
-                var channel = channelState.Channel;
+                var channel = task.Result;
 
                 Debug.Log("Added new channel with id: " + channel.Id);
 
-                Client.ChannelApi.UpdateChannelAsync(channel.Type, channel.Id, new UpdateChannelRequest()
-                {
-                    AddMembers = new List<ChannelMemberRequest>()
-                    {
-                        new ChannelMemberRequest()
-                        {
-                            UserId = Client.UserId
-                        }
-                    }
-                }).ContinueWith(_ =>
+                channel.AddMembersAsync(new[] {Client.LocalUserData.User}).ContinueWith(_ =>
                 {
                     State.UpdateChannelsAsync().LogIfFailed();
 
                     Hide();
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-
+                });
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
     }

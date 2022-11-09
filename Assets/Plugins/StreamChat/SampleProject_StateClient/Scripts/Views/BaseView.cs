@@ -1,5 +1,6 @@
 ﻿using System;
 using StreamChat.Core;
+using StreamChat.Core.State;
 using StreamChat.SampleProject_StateClient.Inputs;
 using StreamChat.SampleProject_StateClient.Utils;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace StreamChat.SampleProject_StateClient.Views
             OnInited();
         }
 
-        protected IStreamChatClient Client => ViewContext.Client;
+        protected IStreamChatStateClient Client => ViewContext.Client;
         protected IImageLoader ImageLoader => ViewContext.ImageLoader;
         protected IViewFactory Factory => ViewContext.Factory;
         protected IChatViewContext ViewContext { get; private set; }

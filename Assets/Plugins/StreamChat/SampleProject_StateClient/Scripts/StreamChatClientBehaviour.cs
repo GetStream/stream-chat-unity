@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using StreamChat.Core;
 using StreamChat.Core.Exceptions;
+using StreamChat.Core.State;
 using StreamChat.Libs.Auth;
 using StreamChat.SampleProject_StateClient.Configs;
 using StreamChat.SampleProject_StateClient.Inputs;
@@ -34,8 +35,8 @@ namespace StreamChat.SampleProject_StateClient
 
             try
             {
-                _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
-                _client.Connect();
+                _client = StreamChatStateClient.CreateDefaultClient();
+                _client.ConnectUserAsync(_authCredentialsAsset.Credentials);
 
                 var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory,
                     defaultInputSystem, _appConfig);
@@ -77,7 +78,7 @@ namespace StreamChat.SampleProject_StateClient
                 return;
             }
 
-            _client.Update(Time.deltaTime);
+            _client.Update();
 
             var isClientConnectedOrConnecting = _client.ConnectionState == ConnectionState.Connected ||
                                                 _client.ConnectionState == ConnectionState.Connecting;
@@ -89,13 +90,13 @@ namespace StreamChat.SampleProject_StateClient
             if (!isClientConnectedOrConnecting && isNetworkReachable)
             {
                 Debug.LogWarning("Client is not connected, but network is reachable. Force reconnect.");
-                _client.Connect();
+                _client.ConnectUserAsync(_authCredentialsAsset.Credentials);
             }
         }
 
         protected void OnDestroy() => _client?.Dispose();
 
-        private IStreamChatClient _client;
+        private IStreamChatStateClient _client;
 
         [SerializeField]
         private RootView _rootView;

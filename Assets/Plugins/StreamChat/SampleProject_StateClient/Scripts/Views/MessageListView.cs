@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Models;
+using StreamChat.Core.State.TrackedObjects;
 using StreamChat.SampleProject_StateClient.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,7 +20,6 @@ namespace StreamChat.SampleProject_StateClient.Views
             base.OnInited();
 
             State.ActiveChanelChanged += OnActiveChannelChanged;
-            State.ActiveChanelMessageReceived += OnActiveChanelMessageReceived;
 
             _scrollRect = GetComponent<ScrollRect>();
         }
@@ -37,7 +37,6 @@ namespace StreamChat.SampleProject_StateClient.Views
         protected override void OnDisposing()
         {
             State.ActiveChanelChanged -= OnActiveChannelChanged;
-            State.ActiveChanelMessageReceived -= OnActiveChanelMessageReceived;
 
             ClearAll();
 
@@ -59,27 +58,41 @@ namespace StreamChat.SampleProject_StateClient.Views
 
         private int _scrollListLastUpdateFrame;
         private Task _loadPreviousMessagesTask;
-        private string _lastChannelCId;
+        private StreamChannel _activeChannel;
 
         //we wait 2 frames before depending on scroll list position in order for the list to render and update its internal state
         private bool IsScrollListRebuilding => _scrollListLastUpdateFrame + 2 > Time.frameCount;
 
-        private void OnActiveChannelChanged(ChannelState channel)
+        private void OnActiveChannelChanged(StreamChannel channel)
         {
+            if (_activeChannel != null)
+            {
+                _activeChannel.MessageReceived -= OnMessageReceived;
+                _activeChannel.MessageDeleted -= OnMessageDeleted; 
+                _activeChannel.MessageUpdated -= OnMessageUpdated;
+            }
+            
             if (channel == null)
             {
                 ClearAll();
                 return;
             }
 
-            var channelChanged = _lastChannelCId != channel.Channel.Cid;
-
-            _lastChannelCId = channel.Channel.Cid;
-
-            RebuildMessages(channel, scrollToBottom: channelChanged);
+            channel.MessageReceived += OnMessageReceived;
+            channel.MessageDeleted += OnMessageDeleted;
+            channel.MessageUpdated += OnMessageUpdated;
+            _activeChannel = channel;
+            
+            RebuildMessages(channel, scrollToBottom: true);
         }
 
-        private void OnActiveChanelMessageReceived(ChannelState channel, Message message)
+        private void OnMessageUpdated(StreamChannel channel, StreamMessage message)
+            => RebuildMessages(channel, scrollToBottom: false);
+
+        private void OnMessageDeleted(StreamChannel channel, StreamMessage message, bool isharddelete)
+            => RebuildMessages(channel, scrollToBottom: false);
+
+        private void OnMessageReceived(StreamChannel channel, StreamMessage message)
             => RebuildMessages(channel, scrollToBottom: false);
 
         private void ClearAll()
@@ -92,7 +105,7 @@ namespace StreamChat.SampleProject_StateClient.Views
             _messages.Clear();
         }
 
-        private void RebuildMessages(ChannelState channel, bool scrollToBottom)
+        private void RebuildMessages(StreamChannel channel, bool scrollToBottom)
         {
             ClearAll();
 
@@ -173,7 +186,7 @@ namespace StreamChat.SampleProject_StateClient.Views
         }
 
         //StreamTodo: extract to ViewFactory
-        private MessageView CreateMessageView(Message message)
+        private MessageView CreateMessageView(StreamMessage message)
         {
             var isLocal = Client.IsLocalUser(message.User);
             var prefab = isLocal ? _localUserMessageViewPrefab : _messageViewPrefab;

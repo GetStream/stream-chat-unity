@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
+using StreamChat.Core.State.Models;
+using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProject_StateClient.Popups;
 using StreamChat.SampleProject_StateClient.Utils;
@@ -19,9 +21,9 @@ namespace StreamChat.SampleProject_StateClient.Views
     /// </summary>
     public class MessageView : BaseView, IPointerDownHandler
     {
-        public Message Message { get; private set; }
+        public StreamMessage Message { get; private set; }
 
-        public void UpdateData(Message message, IImageLoader imageLoader)
+        public void UpdateData(StreamMessage message, IImageLoader imageLoader)
         {
             imageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
             Message = message ?? throw new ArgumentNullException(nameof(message));
@@ -134,7 +136,7 @@ namespace StreamChat.SampleProject_StateClient.Views
             _avatar.sprite = sprite;
         }
 
-        private void ShowReactions(Message message)
+        private void ShowReactions(StreamMessage message)
         {
             foreach (var reactionCount in message.ReactionCounts)
             {
@@ -162,10 +164,10 @@ namespace StreamChat.SampleProject_StateClient.Views
             }
         }
 
-        private static string GetMessageText(Message message)
-            => message.Type == MessageType.Deleted ? ChatState.MessageDeletedInfo : message.Text;
+        private static string GetMessageText(StreamMessage message)
+            => message.IsDeleted ? ChatState.MessageDeletedInfo : message.Text;
 
-        private bool HasVideoAttachment(Message message, out Attachment videoAttachment)
+        private bool HasVideoAttachment(StreamMessage message, out StreamMessageAttachment videoAttachment)
         {
             for (int i = 0; i < message.Attachments.Count; i++)
             {
