@@ -21,7 +21,7 @@ namespace StreamChat.Core.State
 
         public object GetCustomDataItem(string key) => _additionalProperties[key];
 
-        internal StreamTrackedObjectBase(string uniqueId, IRepository<TTrackedObject> repository,
+        internal StreamTrackedObjectBase(string uniqueId, ICacheRepository<TTrackedObject> repository,
             ITrackedObjectContext context)
         {
             if (context == null)
@@ -45,7 +45,7 @@ namespace StreamChat.Core.State
         protected StreamChatClient LowLevelClient => StreamChatStateClient.LowLevelClient;
         protected ILogs Logs { get; }
         internal ICache Cache { get; }
-        internal IRepository<TTrackedObject> Repository { get; }
+        internal ICacheRepository<TTrackedObject> Repository { get; }
 
         protected void LoadAdditionalProperties(Dictionary<string, object> additionalProperties)
         {

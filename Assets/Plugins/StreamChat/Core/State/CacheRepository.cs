@@ -4,12 +4,11 @@ using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core.State
 {
-    //StreamTodo: CacheRepository?
     /// <summary>
     /// Tracked objects repository
     /// </summary>
     /// <typeparam name="TTrackedType">Tracked object type</typeparam>
-    internal class Repository<TTrackedType> : IRepository<TTrackedType>
+    internal sealed class CacheRepository<TTrackedType> : ICacheRepository<TTrackedType>
         where TTrackedType : class, IStreamTrackedObject
     {
         public IReadOnlyList<TTrackedType> AllItems => _trackedObjects;
@@ -48,26 +47,6 @@ namespace StreamChat.Core.State
             _dtoIdGetters.Add(key, Wrapper);
         }
 
-        //StreamTodo
-        // public TType CreateOrUpdate<TType, TDto>(string uniqueId, TDto tdo)
-        //     where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
-        // {
-        //     if (!TryGet(uniqueId, out var trackedObject))
-        //     {
-        //         trackedObject = _constructor(uniqueId, repository: this);
-        //     }
-        //
-        //     var typedTrackedObject = trackedObject as TType;
-        //     if (typedTrackedObject == null)
-        //     {
-        //         throw new InvalidOperationException($"Failed to cast {typeof(TTrackedType)} to {typeof(TType)}");
-        //     }
-        //
-        //     typedTrackedObject.UpdateFromDto(tdo, _cache);
-        //
-        //     return typedTrackedObject;
-        // }
-
         public TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
             where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
         {
@@ -75,7 +54,7 @@ namespace StreamChat.Core.State
             var trackingId = GetDtoTrackingId(dto);
             if (!TryGet(trackingId, out var trackedObject))
             {
-                trackedObject = _constructor(trackingId, repository: this);
+                trackedObject = _constructor(trackingId);
                 wasCreated = true;
             }
 
@@ -123,9 +102,9 @@ namespace StreamChat.Core.State
             _trackedObjectById.Remove(trackedObject.UniqueId);
         }
 
-        internal delegate TTrackedType ConstructorHandler(string uniqueId, IRepository<TTrackedType> repository);
+        internal delegate TTrackedType ConstructorHandler(string uniqueId);
 
-        internal Repository(ConstructorHandler constructor, ICache cache)
+        internal CacheRepository(ConstructorHandler constructor, ICache cache)
         {
             _constructor = constructor ?? throw new ArgumentNullException(nameof(constructor));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));

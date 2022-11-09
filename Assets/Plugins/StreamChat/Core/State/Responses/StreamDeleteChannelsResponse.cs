@@ -8,12 +8,12 @@ namespace StreamChat.Core.State.Responses
     /// </summary>
     public sealed class StreamDeleteChannelsResponse : ILoadableFrom<DeleteChannelsResponseInternalDTO, StreamDeleteChannelsResponse>
     {
-        public System.Collections.Generic.Dictionary<string, StreamDeleteChannelsResult> Result { get; set; }
+        public System.Collections.Generic.Dictionary<string, StreamDeleteChannelsResult> Result { get; private set; }
 
         /// <summary>
         /// ID of the channels delete request server task. This can be used to check the status of this operation.
         /// </summary>
-        public string TaskId { get; set; }
+        public string TaskId { get; private set; }
 
         StreamDeleteChannelsResponse ILoadableFrom<DeleteChannelsResponseInternalDTO, StreamDeleteChannelsResponse>.LoadFromDto(DeleteChannelsResponseInternalDTO dto)
         {

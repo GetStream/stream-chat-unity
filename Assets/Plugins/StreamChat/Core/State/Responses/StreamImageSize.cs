@@ -2,33 +2,33 @@ using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.State.Responses
 {
-    public partial class StreamImageSize  : IStateLoadableFrom<ImageSizeInternalDTO, StreamImageSize>
+    public sealed class StreamImageSize  : IStateLoadableFrom<ImageSizeInternalDTO, StreamImageSize>
     {
         /// <summary>
         /// Crop mode
         /// </summary>
-        public ImageCropType? Crop { get; set; } //StreamTodo
+        public StreamImageCropType? Crop { get; private set; }
 
         /// <summary>
         /// Target image height
         /// </summary>
-        public int? Height { get; set; }
+        public int? Height { get; private set; }
 
         /// <summary>
         /// Resize method
         /// </summary>
-        public ImageResizeType? Resize { get; set; } //StreamTodo
+        public StreamImageResizeType? Resize { get; private set; }
 
         /// <summary>
         /// Target image width
         /// </summary>
-        public int? Width { get; set; }
+        public int? Width { get; private set; }
 
         StreamImageSize IStateLoadableFrom<ImageSizeInternalDTO, StreamImageSize>.LoadFromDto(ImageSizeInternalDTO dto, ICache cache)
         {
-            Crop = dto.Crop;
+            Crop = dto.Crop?.ToStreamImageCropType();
             Height = dto.Height;
-            Resize = dto.Resize;
+            Resize = dto.Resize?.ToStreamImageResizeType();
             Width = dto.Width;
 
             return this;

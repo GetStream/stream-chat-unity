@@ -13,7 +13,7 @@ namespace StreamChat.Core.State.TrackedObjects
     /// <summary>
     /// Message belonging to a <see cref="StreamChannel"/>
     /// </summary>
-    public class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
+    public sealed class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
         IUpdateableFrom<MessageInternalDTO, StreamMessage>
     {
         /// <summary>
@@ -360,7 +360,7 @@ namespace StreamChat.Core.State.TrackedObjects
             User = cache.TryCreateOrUpdate(dto.User);
         }
 
-        internal StreamMessage(string uniqueId, IRepository<StreamMessage> repository, ITrackedObjectContext context)
+        internal StreamMessage(string uniqueId, ICacheRepository<StreamMessage> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {
         }

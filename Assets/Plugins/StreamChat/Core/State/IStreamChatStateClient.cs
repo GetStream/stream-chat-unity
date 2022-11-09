@@ -33,9 +33,9 @@ namespace StreamChat.Core.State
         /// <summary>
         /// Local user that is connected to the Stream Chat. This property is set after the client connection is established.
         /// You can subscribe to <see cref="Connected"/> or <see cref="ConnectionStateChanged"/> events to know when the connection is established.
-        /// You can access the local <see cref="StreamUser"/> via <see cref="LocalUserData"/> <see cref="StreamLocalUser.User"/> property
+        /// You can access the local <see cref="StreamUser"/> via <see cref="LocalUserData"/> <see cref="StreamLocalUserData.User"/> property
         /// </summary>
-        StreamLocalUser LocalUserData { get; }
+        StreamLocalUserData LocalUserData { get; }
 
         /// <summary>
         /// Watched channels receive updates on all users activity like new messages, reactions, etc.
@@ -50,7 +50,7 @@ namespace StreamChat.Core.State
         /// </summary>
         void Update();
 
-        Task<StreamLocalUser> ConnectUserAsync(AuthCredentials userAuthCredentials,
+        Task<StreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default);
 
         /// <summary>

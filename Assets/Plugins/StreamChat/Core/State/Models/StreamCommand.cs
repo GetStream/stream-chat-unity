@@ -7,32 +7,32 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// Arguments help text, shown in commands auto-completion
         /// </summary>
-        public string Args { get; set; }
+        public string Args { get; private set; }
 
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset? CreatedAt { get; private set; }
 
         /// <summary>
         /// Description, shown in commands auto-completion
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; private set; }
 
         /// <summary>
         /// Unique command name
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Set name used for grouping commands
         /// </summary>
-        public string Set { get; set; }
+        public string Set { get; private set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset? UpdatedAt { get; private set; }
 
         StreamCommand IStateLoadableFrom<CommandInternalDTO, StreamCommand>.LoadFromDto(CommandInternalDTO dto, ICache cache)
         {

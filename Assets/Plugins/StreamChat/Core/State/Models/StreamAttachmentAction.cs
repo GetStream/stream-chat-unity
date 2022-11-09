@@ -4,15 +4,15 @@ namespace StreamChat.Core.State.Models
 {
     public class StreamAttachmentAction : IStateLoadableFrom<ActionInternalDTO, StreamAttachmentAction>
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
-        public string Style { get; set; }
+        public string Style { get; private set; }
 
-        public string Text { get; set; }
+        public string Text { get; private set; }
 
-        public string Type { get; set; }
+        public string Type { get; private set; }
 
-        public string Value { get; set; }
+        public string Value { get; private set; }
 
         StreamAttachmentAction IStateLoadableFrom<ActionInternalDTO, StreamAttachmentAction>.LoadFromDto(ActionInternalDTO dto, ICache cache)
         {

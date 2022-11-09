@@ -6,7 +6,7 @@
     /// This means that this objects corresponds to an object on the Stream Chat server with the same ID
     /// its state will be automatically updated whenever new information is received from the server
     /// </summary>
-    public interface IStreamTrackedObject
+    public interface IStreamTrackedObject //StreamTodo: better name? IStreamStateObject, IStreamStatefulObject
     {
         string UniqueId { get; }
     }

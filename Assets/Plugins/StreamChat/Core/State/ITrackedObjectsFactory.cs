@@ -8,7 +8,7 @@ namespace StreamChat.Core.State
 
         StreamChannelMember CreateStreamChannelMember(string uniqueId);
 
-        StreamLocalUser CreateStreamLocalUser(string uniqueId);
+        StreamLocalUserData CreateStreamLocalUser(string uniqueId);
 
         StreamMessage CreateStreamMessage(string uniqueId);
 

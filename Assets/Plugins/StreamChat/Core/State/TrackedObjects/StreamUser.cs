@@ -18,9 +18,9 @@ namespace StreamChat.Core.State.TrackedObjects
     ///
     /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
     /// </summary>
-    public class StreamUser : StreamTrackedObjectBase<StreamUser>,
-        IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>
-        , IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>
+    public sealed class StreamUser : StreamTrackedObjectBase<StreamUser>,
+        IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>,
+        IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -115,7 +115,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Mark user as muted. Any user is allowed to mute another user. Mute will last until the <see cref="UnmuteAsync"/> is called or until mute expires.
         /// Muted user messages will still be received by the <see cref="IStreamChatStateClient"/> so if you wish to hide muted users messages you need implement by yourself
         ///
-        /// You can access mutes via <see cref="StreamLocalUser.Mutes"/> in <see cref="IStreamChatStateClient.LocalUserData"/>
+        /// You can access mutes via <see crefStreamLocalUserDatata.Mutes"/> in <see cref="IStreamChatStateClient.LocalUserData"/>
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#mutes</remarks>
         public async Task MuteAsync()
@@ -144,7 +144,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 {
                     Set = new Dictionary<string, object>
                     {
-                        { "invisible", true }
+                        {"invisible", true}
                     }
                 });
             Cache.TryCreateOrUpdate(response.Users.First().Value);
@@ -171,7 +171,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Remove user mute. Any user is allowed to mute another user. Mute will last until the <see cref="UnmuteAsync"/> is called or until mute expires.
         /// Muted user messages will still be received by the <see cref="IStreamChatStateClient"/> so if you wish to hide muted users messages you need implement by yourself
         ///
-        /// You can access mutes via <see cref="StreamLocalUser.Mutes"/> in <see cref="IStreamChatStateClient.LocalUserData"/>
+        /// You can access mutes via <see crefStreamLocalUserDatata.Mutes"/> in <see cref="IStreamChatStateClient.LocalUserData"/>
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#mutes</remarks>
         public Task UnmuteAsync()
@@ -272,7 +272,7 @@ namespace StreamChat.Core.State.TrackedObjects
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
-        internal StreamUser(string uniqueId, IRepository<StreamUser> repository, ITrackedObjectContext context)
+        internal StreamUser(string uniqueId, ICacheRepository<StreamUser> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {
         }

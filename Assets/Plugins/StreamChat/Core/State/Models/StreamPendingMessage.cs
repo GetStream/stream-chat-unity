@@ -9,12 +9,12 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// The message
         /// </summary>
-        public StreamMessage Message { get; set; }
+        public StreamMessage Message { get; private set; }
 
         /// <summary>
         /// Additional data attached to the pending message. This data is discarded once the pending message is committed.
         /// </summary>
-        public System.Collections.Generic.Dictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> Metadata { get; private set; }
 
         StreamPendingMessage IStateLoadableFrom<PendingMessageInternalDTO, StreamPendingMessage>.LoadFromDto(PendingMessageInternalDTO dto, ICache cache)
         {

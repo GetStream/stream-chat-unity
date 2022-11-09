@@ -42,7 +42,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
     ///
     /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
     /// </summary>
-    public class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
+    public sealed class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>,
@@ -666,7 +666,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         public Task SendTypingStoppedEventAsync() =>
             LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
-        internal StreamChannel(string uniqueId, IRepository<StreamChannel> repository, ITrackedObjectContext context)
+        internal StreamChannel(string uniqueId, ICacheRepository<StreamChannel> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {
         }

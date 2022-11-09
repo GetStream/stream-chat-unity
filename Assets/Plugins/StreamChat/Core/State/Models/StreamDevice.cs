@@ -7,26 +7,26 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset? CreatedAt { get; private set; }
 
         /// <summary>
         /// Whether device is disabled or not
         /// </summary>
-        public bool? Disabled { get; set; }
+        public bool? Disabled { get; private set; }
 
         /// <summary>
         /// Reason explaining why device had been disabled
         /// </summary>
-        public string DisabledReason { get; set; }
+        public string DisabledReason { get; private set; }
 
         /// <summary>
         /// Device ID
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; private set; }
 
-        public PushProviderType? PushProvider { get; set; }
+        public PushProviderType? PushProvider { get; private set; }
 
-        public string UserId { get; set; }
+        public string UserId { get; private set; }
 
         StreamDevice IStateLoadableFrom<DeviceInternalDTO, StreamDevice>.LoadFromDto(DeviceInternalDTO dto, ICache cache)
         {

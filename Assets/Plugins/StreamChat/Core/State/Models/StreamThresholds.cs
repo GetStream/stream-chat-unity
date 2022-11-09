@@ -10,17 +10,17 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// Thresholds for explicit messages
         /// </summary>
-        public StreamLabelThresholds Explicit { get; set; }
+        public StreamLabelThresholds Explicit { get; private set; }
 
         /// <summary>
         /// Thresholds for spam
         /// </summary>
-        public StreamLabelThresholds Spam { get; set; }
+        public StreamLabelThresholds Spam { get; private set; }
 
         /// <summary>
         /// Thresholds for toxic messages
         /// </summary>
-        public StreamLabelThresholds Toxic { get; set; }
+        public StreamLabelThresholds Toxic { get; private set; }
 
         StreamThresholds IStateLoadableFrom<ThresholdsInternalDTO, StreamThresholds>.LoadFromDto(ThresholdsInternalDTO dto, ICache cache)
         {

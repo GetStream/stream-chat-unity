@@ -9,7 +9,7 @@ namespace StreamChat.Core.State
         /// Clear target list and replace with items created or updated from DTO collection
         /// </summary>
         public static void TryReplaceTrackedObjects<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
-            IRepository<TTracked> repository)
+            ICacheRepository<TTracked> repository)
             where TTracked : class, IStreamTrackedObject, IUpdateableFrom<TDto, TTracked>
         {
             if (target == null)
@@ -35,7 +35,7 @@ namespace StreamChat.Core.State
         /// Clear target list and replace with items created or updated from DTO collection
         /// </summary>
         public static void TryAppendUniqueTrackedObjects<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
-            IRepository<TTracked> repository)
+            ICacheRepository<TTracked> repository)
             where TTracked : class, IStreamTrackedObject, IUpdateableFrom<TDto, TTracked>
         {
             if (target == null)

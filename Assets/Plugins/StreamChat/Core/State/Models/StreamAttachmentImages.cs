@@ -4,19 +4,19 @@ namespace StreamChat.Core.State.Models
 {
     public class StreamAttachmentImages : IStateLoadableFrom<ImagesInternalDTO, StreamAttachmentImages>
     {
-        public StreamImageData FixedHeight { get; set; }
+        public StreamImageData FixedHeight { get; private set; }
 
-        public StreamImageData FixedHeightDownsampled { get; set; }
+        public StreamImageData FixedHeightDownsampled { get; private set; }
 
-        public StreamImageData FixedHeightStill { get; set; }
+        public StreamImageData FixedHeightStill { get; private set; }
 
-        public StreamImageData FixedWidth { get; set; }
+        public StreamImageData FixedWidth { get; private set; }
 
-        public StreamImageData FixedWidthDownsampled { get; set; }
+        public StreamImageData FixedWidthDownsampled { get; private set; }
 
-        public StreamImageData FixedWidthStill { get; set; }
+        public StreamImageData FixedWidthStill { get; private set; }
 
-        public StreamImageData Original { get; set; }
+        public StreamImageData Original { get; private set; }
 
         StreamAttachmentImages IStateLoadableFrom<ImagesInternalDTO, StreamAttachmentImages>.LoadFromDto(ImagesInternalDTO dto, ICache cache)
         {

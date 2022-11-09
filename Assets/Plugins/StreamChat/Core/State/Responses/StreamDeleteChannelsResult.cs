@@ -4,9 +4,9 @@ namespace StreamChat.Core.State.Responses
 {
     public sealed class StreamDeleteChannelsResult : ILoadableFrom<DeleteChannelsResultInternalDTO, StreamDeleteChannelsResult>
     {
-        public string Error { get; set; }
+        public string Error { get; private set; }
 
-        public string Status { get; set; }
+        public string Status { get; private set; }
 
         StreamDeleteChannelsResult ILoadableFrom<DeleteChannelsResultInternalDTO, StreamDeleteChannelsResult>.LoadFromDto(DeleteChannelsResultInternalDTO dto)
         {

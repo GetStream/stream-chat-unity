@@ -5,17 +5,17 @@ using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
 {
-    internal class Cache : ICache
+    internal sealed class Cache : ICache
     {
         public Cache(StreamChatStateClient stateClient, ILogs logs)
         {
             var trackedObjectsFactory = new TrackedObjectsFactory(stateClient, logs, this);
 
-            Channels = new Repository<StreamChannel>((uniqueId, repository) => trackedObjectsFactory.CreateStreamChannel(uniqueId), cache: this);
-            Messages = new Repository<StreamMessage>((uniqueId, repository) => trackedObjectsFactory.CreateStreamMessage(uniqueId), cache: this);
-            Users = new Repository<StreamUser>((uniqueId, repository) => trackedObjectsFactory.CreateStreamUser(uniqueId), cache: this);
-            LocalUser = new Repository<StreamLocalUser>((uniqueId, repository) => trackedObjectsFactory.CreateStreamLocalUser(uniqueId), cache: this);
-            ChannelMembers = new Repository<StreamChannelMember>((uniqueId, repository) => trackedObjectsFactory.CreateStreamChannelMember(uniqueId), cache: this);
+            Channels = new CacheRepository<StreamChannel>(trackedObjectsFactory.CreateStreamChannel, cache: this);
+            Messages = new CacheRepository<StreamMessage>(trackedObjectsFactory.CreateStreamMessage, cache: this);
+            Users = new CacheRepository<StreamUser>(trackedObjectsFactory.CreateStreamUser, cache: this);
+            LocalUser = new CacheRepository<StreamLocalUserData>(trackedObjectsFactory.CreateStreamLocalUser, cache: this);
+            ChannelMembers = new CacheRepository<StreamChannelMember>(trackedObjectsFactory.CreateStreamChannelMember, cache: this);
 
             Channels.RegisterDtoTrackingIdGetter<StreamChannel, ChannelStateResponseInternalDTO>(dto => dto.Channel.Cid);
             Channels.RegisterDtoTrackingIdGetter<StreamChannel, ChannelResponseInternalDTO>(dto => dto.Cid);
@@ -26,21 +26,21 @@ namespace StreamChat.Core.State
             Users.RegisterDtoTrackingIdGetter<StreamUser, UserResponseInternalDTO>(dto => dto.Id);
             Users.RegisterDtoTrackingIdGetter<StreamUser, OwnUserInternalDTO>(dto => dto.Id);
 
-            LocalUser.RegisterDtoTrackingIdGetter<StreamLocalUser, OwnUserInternalDTO>(dto => dto.Id);
+            LocalUser.RegisterDtoTrackingIdGetter<StreamLocalUserData, OwnUserInternalDTO>(dto => dto.Id);
 
             ChannelMembers.RegisterDtoTrackingIdGetter<StreamChannelMember, ChannelMemberInternalDTO>(dto => dto.UserId);
 
             Messages.RegisterDtoTrackingIdGetter<StreamMessage, MessageInternalDTO>(dto => dto.Id);
         }
 
-        public IRepository<StreamChannel> Channels { get; }
+        public ICacheRepository<StreamChannel> Channels { get; }
 
-        public IRepository<StreamMessage> Messages { get; }
+        public ICacheRepository<StreamMessage> Messages { get; }
 
-        public IRepository<StreamUser> Users { get; }
+        public ICacheRepository<StreamUser> Users { get; }
 
-        public IRepository<StreamLocalUser> LocalUser { get; }
+        public ICacheRepository<StreamLocalUserData> LocalUser { get; }
 
-        public IRepository<StreamChannelMember> ChannelMembers { get; }
+        public ICacheRepository<StreamChannelMember> ChannelMembers { get; }
     }
 }

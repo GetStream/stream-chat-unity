@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace StreamChat.Core.State
 {
-    public class StreamChannelCustomData : IStreamChannelCustomData
+    public sealed class StreamChannelCustomData : IStreamChannelCustomData
     {
         public int Count => _internalDictionary.Count;
         public IEnumerable<(string Key, object Value)> Items => _internalDictionary.Select(_ => (_.Key, _.Value));

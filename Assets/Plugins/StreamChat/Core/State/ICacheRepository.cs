@@ -7,26 +7,21 @@ namespace StreamChat.Core.State
     /// Repository for tracked objects
     /// </summary>
     /// <typeparam name="TTrackedObject">Tracked object type</typeparam>
-    internal interface IRepository<TTrackedObject>
+    internal interface ICacheRepository<TTrackedObject>
         where TTrackedObject : class, IStreamTrackedObject
     {
+        IReadOnlyList<TTrackedObject> AllItems { get; }
+
         bool TryGet(string uniqueId, out TTrackedObject trackedObject);
-
-        // TTrackedType CreateOrUpdate<TTrackedType, TDto>(string uniqueId, TDto tdo)
-        //     where TTrackedType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TTrackedType>;
-
+        
         void Track(TTrackedObject trackedObject);
-
-        //string GetDtoTrackingId<TDto>(TDto dto);
-
+        
         void RegisterDtoTrackingIdGetter<TType, TDto>(Func<TDto, string> idGetter)
             where TType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
             where TDto : class;
 
         TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
             where TType : class, TTrackedObject, IStreamTrackedObject, IUpdateableFrom<TDto, TType>;
-
-        IReadOnlyList<TTrackedObject> AllItems { get; }
 
         void Remove(TTrackedObject trackedObject);
     }

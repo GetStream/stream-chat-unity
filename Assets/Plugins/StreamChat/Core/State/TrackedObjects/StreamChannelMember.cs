@@ -3,7 +3,7 @@ using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    public class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>,
+    public sealed class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>,
         IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>
     {
         /// <summary>
@@ -80,7 +80,7 @@ namespace StreamChat.Core.State.TrackedObjects
             UserId = GetOrDefault(dto.UserId, UserId);
         }
 
-        internal StreamChannelMember(string uniqueId, IRepository<StreamChannelMember> repository,
+        internal StreamChannelMember(string uniqueId, ICacheRepository<StreamChannelMember> repository,
             ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {

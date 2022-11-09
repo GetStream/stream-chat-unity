@@ -1,6 +1,5 @@
-﻿using StreamChat.Core.Helpers;
-using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.Models;
+﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State.Models
 {
@@ -12,34 +11,37 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset? CreatedAt { get; private set; }
 
         /// <summary>
         /// ID of a message user reacted to
         /// </summary>
-        public string MessageId { get; set; }
+        public string MessageId { get; private set; }
 
         /// <summary>
         /// Reaction score. If not specified reaction has score of 1
         /// </summary>
-        public int? Score { get; set; }
+        public int? Score { get; private set; }
 
         /// <summary>
         /// The type of reaction (e.g. 'like', 'laugh', 'wow')
         /// </summary>
-        public string Type { get; set; }
+        public string Type { get; private set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset? UpdatedAt { get; private set; }
 
-        public User User { get; set; }
+        /// <summary>
+        /// User who reacted to a message
+        /// </summary>
+        public StreamUser User { get; private set; }
 
         /// <summary>
         /// ID of a user who reacted to a message
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; private set; }
 
         StreamReaction IStateLoadableFrom<ReactionInternalDTO, StreamReaction>.LoadFromDto(ReactionInternalDTO dto, ICache cache)
         {
@@ -48,7 +50,7 @@ namespace StreamChat.Core.State.Models
             Score = dto.Score;
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = cache.TryCreateOrUpdate(dto.User);
             UserId = dto.UserId;
 
             return this;

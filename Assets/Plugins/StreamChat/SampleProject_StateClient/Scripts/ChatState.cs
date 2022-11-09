@@ -183,7 +183,7 @@ namespace StreamChat.SampleProject_StateClient
         private Task _activeLoadPreviousMessagesTask;
         private bool _restoreStateAfterReconnect;
 
-        private async void OnClientConnected(StreamLocalUser localUser)
+        private async void OnClientConnected(StreamLocalUserData localUserData)
         {
             await UpdateChannelsAsync();
 

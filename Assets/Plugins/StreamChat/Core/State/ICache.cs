@@ -4,10 +4,10 @@ namespace StreamChat.Core.State
 {
     internal interface ICache
     {
-        IRepository<StreamChannel> Channels { get; }
-        IRepository<StreamMessage> Messages { get; }
-        IRepository<StreamUser> Users { get; }
-        IRepository<StreamLocalUser> LocalUser { get; }
-        IRepository<StreamChannelMember> ChannelMembers { get; }
+        ICacheRepository<StreamChannel> Channels { get; }
+        ICacheRepository<StreamMessage> Messages { get; }
+        ICacheRepository<StreamUser> Users { get; }
+        ICacheRepository<StreamLocalUserData> LocalUser { get; }
+        ICacheRepository<StreamChannelMember> ChannelMembers { get; }
     }
 }

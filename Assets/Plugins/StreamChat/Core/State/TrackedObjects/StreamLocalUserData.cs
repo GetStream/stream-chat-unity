@@ -6,9 +6,7 @@ namespace StreamChat.Core.State.TrackedObjects
 {
     //StreamTodo: Rename to LocalUserData?
 
-    // StreamTodo: !!! Serious issue that StreamLocalUser and StreamUser can represent the same user in separate instances
-    // We probably need to solve it by inheritance and keep them in the same Cache collection so that e.g. Message.PinnedBy can hold reference to StreamLocalUser
-    public class StreamLocalUser : StreamTrackedObjectBase<StreamLocalUser>, IUpdateableFrom<OwnUserInternalDTO, StreamLocalUser>
+    public sealed class StreamLocalUserData : StreamTrackedObjectBase<StreamLocalUserData>, IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>
     {
         #region OwnUser
 
@@ -111,15 +109,15 @@ namespace StreamChat.Core.State.TrackedObjects
 
         #endregion
 
-        internal StreamLocalUser(string uniqueId, IRepository<StreamLocalUser> repository, ITrackedObjectContext context)
+        internal StreamLocalUserData(string uniqueId, ICacheRepository<StreamLocalUserData> repository, ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {
         }
 
         protected override string InternalUniqueId { get; set; }
-        protected override StreamLocalUser Self => this;
+        protected override StreamLocalUserData Self => this;
 
-        void IUpdateableFrom<OwnUserInternalDTO, StreamLocalUser>.UpdateFromDto(OwnUserInternalDTO dto, ICache cache)
+        void IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>.UpdateFromDto(OwnUserInternalDTO dto, ICache cache)
         {
             #region OwnUser
 

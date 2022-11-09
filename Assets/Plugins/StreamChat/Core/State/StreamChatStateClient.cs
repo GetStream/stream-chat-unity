@@ -26,7 +26,7 @@ namespace StreamChat.Core.State
     /// Connection state has changed
     /// You can always access local user data via <see cref="StreamChatStateClient.LocalUserData"/>
     /// </summary>
-    public delegate void ConnectionMadeHandler(StreamLocalUser localUser);
+    public delegate void ConnectionMadeHandler(StreamLocalUserData localUserData);
 
     /// <summary>
     /// Connection state has changed
@@ -46,7 +46,7 @@ namespace StreamChat.Core.State
     /// <summary>
     /// Stateful client for the Stream Chat API. This is the recommended client
     /// </summary>
-    public class StreamChatStateClient : IStreamChatStateClient
+    public sealed class StreamChatStateClient : IStreamChatStateClient
     {
         /// <inheritdoc cref="IStreamChatStateClient.Connected"/>
         public event ConnectionMadeHandler Connected;
@@ -72,7 +72,7 @@ namespace StreamChat.Core.State
         public ConnectionState ConnectionState => LowLevelClient.ConnectionState;
 
         /// <inheritdoc cref="IStreamChatStateClient.LocalUserData"/>
-        public StreamLocalUser LocalUserData { get; private set; }
+        public StreamLocalUserData LocalUserData { get; private set; }
 
         /// <inheritdoc cref="IStreamChatStateClient.WatchedChannels"/>
         public IReadOnlyList<StreamChannel> WatchedChannels => _cache.Channels.AllItems;
@@ -128,13 +128,13 @@ namespace StreamChat.Core.State
         }
 
         //StreamTodo: timeout, like 5 seconds?
-        public Task<StreamLocalUser> ConnectUserAsync(AuthCredentials userAuthCredentials,
+        public Task<StreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
         {
             LowLevelClient.ConnectUser(userAuthCredentials);
 
             _connectUserCancellationToken = cancellationToken;
-            _connectUserTaskSource = new TaskCompletionSource<StreamLocalUser>();
+            _connectUserTaskSource = new TaskCompletionSource<StreamLocalUserData>();
             return _connectUserTaskSource.Task;
         }
 
@@ -404,7 +404,7 @@ namespace StreamChat.Core.State
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
 
-        private TaskCompletionSource<StreamLocalUser> _connectUserTaskSource;
+        private TaskCompletionSource<StreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
 
         #region Connection Events

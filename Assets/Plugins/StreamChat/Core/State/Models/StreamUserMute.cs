@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
-using StreamChat.Core.State;
 
 namespace StreamChat.Core.State.Models
 {
@@ -10,27 +9,27 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset? CreatedAt { get; private set; }
 
         /// <summary>
         /// Date/time of mute expiration
         /// </summary>
-        public System.DateTimeOffset? Expires { get; set; }
+        public System.DateTimeOffset? Expires { get; private set; }
 
         /// <summary>
         /// User who's muted
         /// </summary>
-        public User Target { get; set; }
+        public User Target { get; private set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset? UpdatedAt { get; private set; }
 
         /// <summary>
         /// Owner of channel mute
         /// </summary>
-        public User User { get; set; }
+        public User User { get; private set; }
 
         StreamUserMute IStateLoadableFrom<UserMuteInternalDTO, StreamUserMute>.LoadFromDto(UserMuteInternalDTO dto, ICache cache)
         {

@@ -8,7 +8,7 @@ namespace StreamChat.Core.State
     /// <summary>
     /// Factory for <see cref="IStreamTrackedObject"/>
     /// </summary>
-    internal class TrackedObjectsFactory : ITrackedObjectsFactory
+    internal sealed class TrackedObjectsFactory : ITrackedObjectsFactory
     {
         public TrackedObjectsFactory(StreamChatStateClient streamChatStateClient, ILogs logs, Cache cache)
         {
@@ -25,8 +25,8 @@ namespace StreamChat.Core.State
         public StreamChannelMember CreateStreamChannelMember(string uniqueId)
             => new StreamChannelMember(uniqueId, _cache.ChannelMembers, _context);
 
-        public StreamLocalUser CreateStreamLocalUser(string uniqueId)
-            => new StreamLocalUser(uniqueId, _cache.LocalUser, _context);
+        public StreamLocalUserData CreateStreamLocalUser(string uniqueId)
+            => new StreamLocalUserData(uniqueId, _cache.LocalUser, _context);
 
         public StreamMessage CreateStreamMessage(string uniqueId)
             => new StreamMessage(uniqueId, _cache.Messages, _context);

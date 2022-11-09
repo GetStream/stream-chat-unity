@@ -57,7 +57,7 @@ namespace StreamChat.Core.State
                 : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalInternalDTO>(dto, out wasCreated);
         }
 
-        public static StreamLocalUser TryCreateOrUpdate(this ICache cache, OwnUserInternalDTO dto)
-            => dto == null ? null : cache.LocalUser.CreateOrUpdate<StreamLocalUser, OwnUserInternalDTO>(dto, out _);
+        public static StreamLocalUserData TryCreateOrUpdate(this ICache cache, OwnUserInternalDTO dto)
+            => dto == null ? null : cache.LocalUser.CreateOrUpdate<StreamLocalUserData, OwnUserInternalDTO>(dto, out _);
     }
 }

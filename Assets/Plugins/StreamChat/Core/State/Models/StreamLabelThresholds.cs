@@ -7,12 +7,12 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// Threshold for automatic message block
         /// </summary>
-        public float? Block { get; set; }
+        public float? Block { get; private set; }
 
         /// <summary>
         /// Threshold for automatic message flag
         /// </summary>
-        public float? Flag { get; set; }
+        public float? Flag { get; private set; }
 
         StreamLabelThresholds IStateLoadableFrom<LabelThresholdsInternalDTO, StreamLabelThresholds>.LoadFromDto(LabelThresholdsInternalDTO dto, ICache cache)
         {

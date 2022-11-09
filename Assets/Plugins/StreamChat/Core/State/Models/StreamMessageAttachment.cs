@@ -4,50 +4,50 @@ namespace StreamChat.Core.State.Models
 {
     public class StreamMessageAttachment : IStateLoadableFrom<AttachmentInternalDTO, StreamMessageAttachment>
     {
-        public System.Collections.Generic.List<StreamAttachmentAction> Actions { get; set; }
+        public System.Collections.Generic.List<StreamAttachmentAction> Actions { get; private set; }
 
-        public string AssetUrl { get; set; }
+        public string AssetUrl { get; private set; }
 
-        public string AuthorIcon { get; set; }
+        public string AuthorIcon { get; private set; }
 
-        public string AuthorLink { get; set; }
+        public string AuthorLink { get; private set; }
 
-        public string AuthorName { get; set; }
+        public string AuthorName { get; private set; }
 
-        public string Color { get; set; }
+        public string Color { get; private set; }
 
-        public string Fallback { get; set; }
+        public string Fallback { get; private set; }
 
-        public System.Collections.Generic.List<StreamAttachmentField> Fields { get; set; }
+        public System.Collections.Generic.List<StreamAttachmentField> Fields { get; private set; }
 
-        public string Footer { get; set; }
+        public string Footer { get; private set; }
 
-        public string FooterIcon { get; set; }
+        public string FooterIcon { get; private set; }
 
-        public StreamAttachmentImages Giphy { get; set; }
+        public StreamAttachmentImages Giphy { get; private set; }
 
-        public string ImageUrl { get; set; }
+        public string ImageUrl { get; private set; }
 
-        public string OgScrapeUrl { get; set; }
+        public string OgScrapeUrl { get; private set; }
 
-        public int? OriginalHeight { get; set; }
+        public int? OriginalHeight { get; private set; }
 
-        public int? OriginalWidth { get; set; }
+        public int? OriginalWidth { get; private set; }
 
-        public string Pretext { get; set; }
+        public string Pretext { get; private set; }
 
-        public string Text { get; set; }
+        public string Text { get; private set; }
 
-        public string ThumbUrl { get; set; }
+        public string ThumbUrl { get; private set; }
 
-        public string Title { get; set; }
+        public string Title { get; private set; }
 
-        public string TitleLink { get; set; }
+        public string TitleLink { get; private set; }
 
         /// <summary>
         /// Attachment type (e.g. image, video, url)
         /// </summary>
-        public string Type { get; set; }
+        public string Type { get; private set; }
 
         StreamMessageAttachment IStateLoadableFrom<AttachmentInternalDTO, StreamMessageAttachment>.LoadFromDto(AttachmentInternalDTO dto, ICache cache)
         {
