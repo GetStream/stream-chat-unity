@@ -8,7 +8,6 @@ using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
-using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
@@ -145,12 +144,10 @@ namespace StreamChat.Core.State
 
         // StreamTodo: Pagination should probably be removed here and only available through channel.GetNextMessages, channel.GetPreviousMessages
         // Otherwise we have problem that you fetch old messages and then WS event delivers a new one
-
-        //StreamTodo: how about we add name as argument?
+        
         /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,string,IStreamChannelCustomData)"/>
         public async Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
-            string name = null,
-            IStreamChannelCustomData optionalCustomData = null)
+            string name = null, Dictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
             StreamAsserts.AssertChannelIdLength(channelId);
@@ -163,19 +160,22 @@ namespace StreamChat.Core.State
                 Data = new ChannelRequestInternalDTO
                 {
                     Name = name,
-                    AdditionalProperties = optionalCustomData?.Items.ToDictionary(x => x.Key, x => x.Value)
                 },
             };
+            
+            if (optionalCustomData != null && optionalCustomData.Any())
+            {
+                requestBodyDto.Data.AdditionalProperties = optionalCustomData;
+            }
 
             var channelResponseDto = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
                 channelId, requestBodyDto);
-            return _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(channelResponseDto,
-                out _);
+            return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
         /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.StreamUser},IStreamChannelCustomData)"/>
         public async Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType,
-            IEnumerable<StreamUser> members, IStreamChannelCustomData optionalCustomData = null)
+            IEnumerable<StreamUser> members, Dictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
             StreamAsserts.AssertNotNullOrEmpty(members, nameof(members));
@@ -197,15 +197,16 @@ namespace StreamChat.Core.State
                 Data = new ChannelRequestInternalDTO
                 {
                     Members = membersRequest,
-                    //StreamTodo: avoid this allocation, maybe method to  pass dictionary and write all items?
-                    AdditionalProperties = optionalCustomData?.Items.ToDictionary(x => x.Key, x => x.Value)
                 }
             };
 
-            var channelResponseDto =
-                await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
-            return _cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseInternalDTO>(channelResponseDto,
-                out _);
+            if (optionalCustomData != null && optionalCustomData.Any())
+            {
+                requestBodyDto.Data.AdditionalProperties = optionalCustomData;
+            }
+
+            var channelResponseDto = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
+            return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
         //StreamTodo: Filter object that contains a factory
@@ -301,7 +302,6 @@ namespace StreamChat.Core.State
                 Expiration = milliseconds
             });
 
-            //StreamTodo: verify OwnUser object contents
             UpdateLocalUser(response.OwnUser);
         }
 

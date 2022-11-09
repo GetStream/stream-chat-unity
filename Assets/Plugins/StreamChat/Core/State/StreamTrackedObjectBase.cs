@@ -12,15 +12,12 @@ namespace StreamChat.Core.State
     public abstract class StreamTrackedObjectBase<TTrackedObject> : IStreamTrackedObject
         where TTrackedObject : class, IStreamTrackedObject
     {
+        public IDictionary<string, object> CustomData => _additionalProperties;
+        
         string IStreamTrackedObject.UniqueId => InternalUniqueId;
 
-        //StreamTodo: probably more intuitive to have CustomData property
-        public void SetCustomField(string key, object value) => _additionalProperties[key] = value;
-
-        public bool TryGetCustomField(string key, out object value)
-            => _additionalProperties.TryGetValue(key, out value);
-
-        public object GetCustomDataItem(string key) => _additionalProperties[key];
+        public object SetCustomData(string key, object value) => _additionalProperties[key] = value;
+        public object GetCustomData(string key) => _additionalProperties[key];
 
         internal StreamTrackedObjectBase(string uniqueId, ICacheRepository<TTrackedObject> repository,
             ITrackedObjectContext context)

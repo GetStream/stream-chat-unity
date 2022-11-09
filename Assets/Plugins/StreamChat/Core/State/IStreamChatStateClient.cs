@@ -60,7 +60,7 @@ namespace StreamChat.Core.State
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity#1.-creating-a-channel-using-a-channel-id</remarks>
         Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId, string name = null,
-            IStreamChannelCustomData optionalCustomData = null);
+            Dictionary<string, object> optionalCustomData = null);
 
         /// <summary>
         /// Create or get a channel with a given type for a given groups of members.
@@ -72,7 +72,7 @@ namespace StreamChat.Core.State
         /// <param name="optionalCustomData"></param>
         /// <returns></returns>
         Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, IEnumerable<StreamUser> members,
-            IStreamChannelCustomData optionalCustomData = null);
+            Dictionary<string, object> optionalCustomData = null);
 
         Task<IEnumerable<StreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters);
 
