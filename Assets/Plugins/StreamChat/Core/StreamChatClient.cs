@@ -22,7 +22,9 @@ using StreamChat.Core.API.Internal;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
+#if STREAM_TESTS_ENABLED
 [assembly: InternalsVisibleTo("StreamChat.Tests")] //StreamTodo: verify which Unity version introduced this
+#endif
 
 namespace StreamChat.Core
 {

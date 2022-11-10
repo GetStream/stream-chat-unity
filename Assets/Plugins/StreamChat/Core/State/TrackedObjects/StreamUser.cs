@@ -55,7 +55,6 @@ namespace StreamChat.Core.State.TrackedObjects
 
         /// <summary>
         /// Invisible user will appear as offline to other users
-        ///
         /// You can change user visibility with <see cref="ChangeVisibilityAsync"/>
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity</remarks>

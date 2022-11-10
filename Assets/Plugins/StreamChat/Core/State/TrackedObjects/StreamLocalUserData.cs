@@ -5,8 +5,6 @@ using StreamChat.Core.State.Caches;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    //StreamTodo: Rename to LocalUserData?
-
     public sealed class StreamLocalUserData : StreamTrackedObjectBase<StreamLocalUserData>, IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>
     {
         #region OwnUser
@@ -135,26 +133,6 @@ namespace StreamChat.Core.State.TrackedObjects
 
             User = cache.Users.CreateOrUpdate<StreamUser, OwnUserInternalDTO>(dto, out _);
 
-            // //BanExpires = dto.BanExpires;
-            // Banned = dto.Banned;
-            // CreatedAt = dto.CreatedAt;
-            // DeactivatedAt = dto.DeactivatedAt;
-            // DeletedAt = dto.DeletedAt;
-            // Id = dto.Id;
-            // Invisible = dto.Invisible;
-            // Language = dto.Language;
-            // LastActive = dto.LastActive;
-            // Online = dto.Online;
-            // PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications, cache);
-            // //RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
-            // Role = dto.Role;
-            // _teams.TryReplaceValuesFromDto(dto.Teams);
-            // UpdatedAt = dto.UpdatedAt;
-
-            //Not in API spec
-            //Name = dto.Name;
-            //Image = dto.Image;
-
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
@@ -162,6 +140,5 @@ namespace StreamChat.Core.State.TrackedObjects
         private readonly List<StreamDevice> _devices = new List<StreamDevice>();
         private readonly List<string> _latestHiddenChannels = new List<string>();
         private readonly List<StreamUserMute> _mutes = new List<StreamUserMute>();
-        //private readonly List<string> _teams = new List<string>();
     }
 }

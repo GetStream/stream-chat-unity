@@ -34,15 +34,11 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
     public delegate void ChannelMemberChangeHandler(StreamChannel channel, StreamChannelMember member);
 
-    // StreamTodo: consider how will the client consume objects. we probably need to add events like:
-    // MessageReceived, MessageUpdated, MessageDeleted, Truncated, etc etc.
-    // In the long run we'll introduce observable collections and INotifyPropertyChanged
-
     /// <summary>
-    /// Stream channel where a group of <see cref="StreamUser"/>'s can chat
-    ///
-    /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
+    /// Channel is where group of <see cref="StreamChannelMember"/> can chat with each other.
+    /// Depending on <see cref="StreamChannel.Type"/>
     /// </summary>
+    /// <remarks>https://getstream.io/chat/docs/unity/permissions_reference/?language=unity&q=hidden#default-grants</remarks>
     public sealed class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
@@ -50,41 +46,78 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         IUpdateableFrom<UpdateChannelResponseInternalDTO, StreamChannel>,
         IStreamChannel
     {
-        public event ChannelVisibilityHandler VisibilityChanged;
-        public event ChannelMuteHandler MuteChanged;
-        public event ChannelChangeHandler Truncated;
-        public event ChannelChangeHandler Updated;
+        /// <summary>
+        /// Event fired when a new <see cref="StreamMessage"/> was received on this channel
+        /// </summary>
+        public event ChannelMessageHandler MessageReceived;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamMessage"/> from this channel was updated
+        /// </summary>
+        public event ChannelMessageHandler MessageUpdated;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamMessage"/> from this channel was deleted
+        /// </summary>
+        public event MessageDeleteHandler MessageDeleted;
+        
+        /// <summary>
+        /// Event fired when a new <see cref="StreamChannelMember"/> joined this channel
+        /// </summary>
         public event ChannelMemberChangeHandler MemberAdded;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamChannelMember"/> left this channel
+        /// </summary>
         public event ChannelMemberChangeHandler MemberRemoved;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamChannelMember"/> was updated
+        /// </summary>
         public event ChannelMemberChangeHandler MemberUpdated;
-
+        
         /// <summary>
-        /// Triggered when a user in this channel starts typing
+        /// Event fired when visibility of this channel changed. Check <see cref="Hidden"/> to know if channel is hidden
         /// </summary>
-        public event ChannelUserChangeHandler UserStartedTyping;
-
+        /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity&q=hidden#hiding-a-channel</remarks>
+        public event ChannelVisibilityHandler VisibilityChanged;
+        
         /// <summary>
-        /// Triggered when a user in this channel stops typing
+        /// Event fired when channel got muted on unmuted. Check <see cref="Muted"/> and <see cref="MuteExpiresAt"/> to know if channel is muted
         /// </summary>
-        public event ChannelUserChangeHandler UserStoppedTyping;
-
+        public event ChannelMuteHandler MuteChanged;
+        
         /// <summary>
-        /// Triggered when a user starts watching this channel
-        ///
+        /// Event fired when this channel was truncated meaning that all or part of the messages where removed
+        /// </summary>
+        public event ChannelChangeHandler Truncated;
+        
+        /// <summary>
+        /// Event fired when this channel data was updated
+        /// </summary>
+        public event ChannelChangeHandler Updated;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamUser"/> started watching this channel
         /// See also <see cref="see cref="WatcherCount"/>"/> and <see cref="Watchers"/>
         /// </summary>
         public event ChannelUserChangeHandler WatcherAdded;
 
         /// <summary>
-        /// Triggered when a user stops watching this channel
-        ///
+        /// Event fired when a <see cref="StreamUser"/> stopped watching this channel
         /// See also <see cref="see cref="WatcherCount"/>"/> and <see cref="Watchers"/>
         /// </summary>
         public event ChannelUserChangeHandler WatcherRemoved;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamUser"/> in this channel starts typing
+        /// </summary>
+        public event ChannelUserChangeHandler UserStartedTyping;
 
-        public event ChannelMessageHandler MessageReceived;
-        public event ChannelMessageHandler MessageUpdated;
-        public event MessageDeleteHandler MessageDeleted;
+        /// <summary>
+        /// Event fired when a <see cref="StreamUser"/> in this channel stops typing
+        /// </summary>
+        public event ChannelUserChangeHandler UserStoppedTyping;
 
         #region Channel
 

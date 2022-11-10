@@ -3,6 +3,7 @@ using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.State.Responses
 {
+    //StreamTodo: replace all ILoadableFrom to IStateLoadableFrom so we can separate the interfaces
     /// <summary>
     /// Response for <see cref="StreamChatStateClient.DeleteMultipleChannelsAsync"/>
     /// </summary>
