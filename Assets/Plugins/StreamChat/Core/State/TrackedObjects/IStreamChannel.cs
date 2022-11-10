@@ -8,7 +8,7 @@ using StreamChat.Core.State.Responses;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    public interface IStreamChannel
+    public interface IStreamChannel : IStreamTrackedObject
     {
         /// <summary>
         /// Event fired when a new <see cref="StreamMessage"/> was received on this channel
@@ -62,24 +62,24 @@ namespace StreamChat.Core.State.TrackedObjects
         event ChannelChangeHandler Updated;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamUser"/> started watching this channel
+        /// Event fired when a <see cref="IStreamUser"/> started watching this channel
         /// See also <see cref="WatcherCount"/> and <see cref="Watchers"/>
         /// </summary>
         event ChannelUserChangeHandler WatcherAdded;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamUser"/> stopped watching this channel
+        /// Event fired when a <see cref="IStreamUser"/> stopped watching this channel
         /// See also <see cref="WatcherCount"/> and <see cref="Watchers"/>
         /// </summary>
         event ChannelUserChangeHandler WatcherRemoved;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamUser"/> in this channel starts typing
+        /// Event fired when a <see cref="IStreamUser"/> in this channel starts typing
         /// </summary>
         event ChannelUserChangeHandler UserStartedTyping;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamUser"/> in this channel stops typing
+        /// Event fired when a <see cref="IStreamUser"/> in this channel stops typing
         /// </summary>
         event ChannelUserChangeHandler UserStoppedTyping;
 
@@ -116,7 +116,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Creator of the channel
         /// </summary>
-        StreamUser CreatedBy { get; }
+        IStreamUser CreatedBy { get; }
 
         /// <summary>
         /// Date/time of deletion
@@ -181,7 +181,7 @@ namespace StreamChat.Core.State.TrackedObjects
         string Team { get; }
 
         DateTimeOffset? TruncatedAt { get; }
-        StreamUser TruncatedBy { get; }
+        IStreamUser TruncatedBy { get; }
 
         /// <summary>
         /// Type of the channel
@@ -229,13 +229,13 @@ namespace StreamChat.Core.State.TrackedObjects
         /// List of user who is watching the channel
         /// Subscribe to <see cref="WatcherAdded"/> and <see cref="WatcherRemoved"/> events to know when this list changes.
         /// </summary>
-        IReadOnlyList<StreamUser> Watchers { get; }
+        IReadOnlyList<IStreamUser> Watchers { get; }
 
         /// <summary>
         /// List of currently typing users.
         /// Subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/> events to know when this list changes.
         /// </summary>
-        IReadOnlyList<StreamUser> TypingUsers { get; }
+        IReadOnlyList<IStreamUser> TypingUsers { get; }
 
         /// <summary>
         /// Is this a direct message channel between the local and some other user
@@ -311,13 +311,13 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
         /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
-        Task BanUserFromChannelAsync(StreamUser user, bool isShadowBan = false, string reason = "",
+        Task BanUserFromChannelAsync(IStreamUser user, bool isShadowBan = false, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false);
 
         /// <summary>
         /// Remove ban from the user on this channel
         /// </summary>
-        Task UnbanUserInChannelAsync(StreamUser user);
+        Task UnbanUserInChannelAsync(IStreamUser user);
 
         /// <summary>
         /// Mark this message as the last that was read by this user in this channel
@@ -354,7 +354,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Add users as members to this channel
         /// </summary>
         /// <param name="users">Users to become members of this channel</param>
-        Task AddMembersAsync(IEnumerable<StreamUser> users);
+        Task AddMembersAsync(IEnumerable<IStreamUser> users);
 
         /// <summary>
         /// Remove members from this channel

@@ -12,7 +12,7 @@ namespace StreamChat.Core.State.Models
 
         public int UnreadMessages { get; private set; }
 
-        public StreamUser User { get; private set; }
+        public IStreamUser User { get; private set; }
 
         StreamRead IStateLoadableFrom<ReadInternalDTO, StreamRead>.LoadFromDto(ReadInternalDTO dto, ICache cache)
         {

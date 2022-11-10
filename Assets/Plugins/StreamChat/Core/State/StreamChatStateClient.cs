@@ -139,7 +139,7 @@ namespace StreamChat.Core.State
 
         public Task DisconnectUserAsync() => LowLevelClient.DisconnectAsync();
 
-        public bool IsLocalUser(StreamUser user) => LocalUserData.User == user;
+        public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
 
         /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,string,IStreamChannelCustomData)"/>
         public async Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
@@ -169,9 +169,10 @@ namespace StreamChat.Core.State
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
-        /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.StreamUser},IStreamChannelCustomData)"/>
+        //TOdo: invalid cref
+        /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.IStreamUser},IStreamChannelCustomData)"/>
         public async Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType,
-            IEnumerable<StreamUser> members, Dictionary<string, object> optionalCustomData = null)
+            IEnumerable<IStreamUser> members, Dictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
             StreamAsserts.AssertNotNullOrEmpty(members, nameof(members));
@@ -238,7 +239,7 @@ namespace StreamChat.Core.State
             return result;
         }
 
-        public async Task<IEnumerable<StreamUser>> QueryUsersAsync(IDictionary<string, object> filters)
+        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters)
         {
             //StreamTodo: Missing filter, and stuff like IdGte etc
             var requestBodyDto = new QueryUsersRequestInternalDTO
@@ -250,10 +251,10 @@ namespace StreamChat.Core.State
             var response = await LowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
             if (response.Users != null && response.Users.Count == 0)
             {
-                return Enumerable.Empty<StreamUser>();
+                return Enumerable.Empty<IStreamUser>();
             }
 
-            var result = new List<StreamUser>();
+            var result = new List<IStreamUser>();
             foreach (var userDto in response.Users)
             {
                 result.Add(_cache.TryCreateOrUpdate(userDto));
@@ -262,7 +263,7 @@ namespace StreamChat.Core.State
             return result;
         }
 
-        public async Task<IEnumerable<StreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests)
+        public async Task<IEnumerable<IStreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests)
         {
             StreamAsserts.AssertNotNullOrEmpty(userRequests, nameof(userRequests));
 
@@ -273,7 +274,7 @@ namespace StreamChat.Core.State
                 Users = requestDtos
             });
 
-            var result = new List<StreamUser>();
+            var result = new List<IStreamUser>();
             foreach (var userDto in response.Users.Values)
             {
                 result.Add(_cache.TryCreateOrUpdate(userDto));
@@ -340,11 +341,11 @@ namespace StreamChat.Core.State
         }
 
         /// <summary>
-        /// You mute single user by using <see cref="StreamUser.MuteAsync"/>
+        /// You mute single user by using <see cref="IStreamUser.MuteAsync"/>
         /// </summary>
         /// <param name="users"></param>
         /// <param name="timeoutMinutes"></param>
-        public async Task MuteMultipleUsersAsync(IEnumerable<StreamUser> users, int? timeoutMinutes = default)
+        public async Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default)
         {
             StreamAsserts.AssertNotNullOrEmpty(users, nameof(users));
 
@@ -357,7 +358,7 @@ namespace StreamChat.Core.State
             UpdateLocalUser(responseDto.OwnUser);
         }
 
-        public async Task<IEnumerable<StreamUser>> QueryBannedUsersAsync()
+        public async Task<IEnumerable<IStreamUser>> QueryBannedUsersAsync()
         {
             //StreamTodo: implement, should we allow for query
             throw new NotImplementedException();

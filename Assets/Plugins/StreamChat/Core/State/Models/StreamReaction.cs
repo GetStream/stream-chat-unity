@@ -37,7 +37,7 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// User who reacted to a message
         /// </summary>
-        public StreamUser User { get; private set; }
+        public IStreamUser User { get; private set; }
 
         /// <summary>
         /// ID of a user who reacted to a message

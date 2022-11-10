@@ -11,18 +11,13 @@ using StreamChat.Core.State.Caches;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    public interface IStreamUser
-    {
-    }
+    public delegate void StreamUserPresenceHandler(IStreamUser user, bool isOnline, DateTimeOffset? lastActive);
 
-    public delegate void StreamUserPresenceHandler(StreamUser user, bool isOnline, DateTimeOffset? lastActive);
-
-    
     /// <summary>
     /// Stream user represents a single chat user that can be a member of multiple <see cref="IStreamChannel"/>
     /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
     /// </summary>
-    public sealed class StreamUser : StreamTrackedObjectBase<StreamUser>,
+    internal sealed class StreamUser : StreamTrackedObjectBase<StreamUser>,
         IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>,
         IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>, IStreamUser
     {

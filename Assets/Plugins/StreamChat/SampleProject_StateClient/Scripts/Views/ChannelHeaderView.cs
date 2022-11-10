@@ -62,9 +62,9 @@ namespace StreamChat.SampleProject_StateClient.Views
             base.OnDisposing();
         }
 
-        private void OnTypingStopped(IStreamChannel channel, StreamUser user) => UpdateTypingUsersPreview();
+        private void OnTypingStopped(IStreamChannel channel, IStreamUser user) => UpdateTypingUsersPreview();
 
-        private void OnTypingStarted(IStreamChannel channel, StreamUser user) => UpdateTypingUsersPreview();
+        private void OnTypingStarted(IStreamChannel channel, IStreamUser user) => UpdateTypingUsersPreview();
 
         private const float UpdateInterval = 0.3f;
 

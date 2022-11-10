@@ -79,7 +79,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// List of mentioned users
         /// </summary>
-        public IReadOnlyList<StreamUser> MentionedUsers => _mentionedUsers;
+        public IReadOnlyList<IStreamUser> MentionedUsers => _mentionedUsers;
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -114,7 +114,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
-        public StreamUser PinnedBy { get; private set; }
+        public IStreamUser PinnedBy { get; private set; }
 
         /// <summary>
         /// Contains quoted message
@@ -161,7 +161,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// List of users who participate in thread
         /// </summary>
-        public IReadOnlyList<StreamUser> ThreadParticipants => _threadParticipants;
+        public IReadOnlyList<IStreamUser> ThreadParticipants => _threadParticipants;
 
         /// <summary>
         /// Contains type of the message
@@ -176,7 +176,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Sender of the message. Required when using server-side API
         /// </summary>
-        public StreamUser User { get; private set; }
+        public IStreamUser User { get; private set; }
         
         public bool IsDeleted => Type == StreamMessageType.Deleted;
 

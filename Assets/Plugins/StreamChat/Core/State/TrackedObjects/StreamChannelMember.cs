@@ -59,7 +59,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public DateTimeOffset? UpdatedAt { get; private set; }
 
-        public StreamUser User { get; private set; }
+        public IStreamUser User { get; private set; }
 
         public string UserId { get; private set; }
 

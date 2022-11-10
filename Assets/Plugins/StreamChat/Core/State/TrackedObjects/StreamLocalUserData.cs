@@ -27,7 +27,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
         public int? UnreadChannels { get; private set; }
 
-        public StreamUser User { get; private set; }
+        public IStreamUser User { get; private set; }
 
         #endregion
 

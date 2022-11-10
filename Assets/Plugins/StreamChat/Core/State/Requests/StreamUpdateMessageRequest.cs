@@ -25,7 +25,7 @@ namespace StreamChat.Core.State.Requests
         /// <summary>
         /// List of mentioned users
         /// </summary>
-        public List<StreamUser> MentionedUsers { get; set; }
+        public List<IStreamUser> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -55,7 +55,7 @@ namespace StreamChat.Core.State.Requests
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
-        public StreamUser PinnedBy { get; set; }
+        public IStreamUser PinnedBy { get; set; }
 
         //StreamTodo: best to have StreamMessage QuotedMessage but we may not always have it in our cache
         public string QuotedMessageId { get; set; }

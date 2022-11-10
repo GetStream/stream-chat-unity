@@ -26,7 +26,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
     public delegate void ChannelChangeHandler(IStreamChannel channel);
 
-    public delegate void ChannelUserChangeHandler(IStreamChannel channel, StreamUser user);
+    public delegate void ChannelUserChangeHandler(IStreamChannel channel, IStreamUser user);
 
     public delegate void ChannelMemberChangeHandler(IStreamChannel channel, StreamChannelMember member);
 
@@ -94,24 +94,24 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         public event ChannelChangeHandler Updated;
         
         /// <summary>
-        /// Event fired when a <see cref="StreamUser"/> started watching this channel
+        /// Event fired when a <see cref="IStreamUser"/> started watching this channel
         /// See also <see cref="see cref="WatcherCount"/>"/> and <see cref="Watchers"/>
         /// </summary>
         public event ChannelUserChangeHandler WatcherAdded;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamUser"/> stopped watching this channel
+        /// Event fired when a <see cref="IStreamUser"/> stopped watching this channel
         /// See also <see cref="see cref="WatcherCount"/>"/> and <see cref="Watchers"/>
         /// </summary>
         public event ChannelUserChangeHandler WatcherRemoved;
         
         /// <summary>
-        /// Event fired when a <see cref="StreamUser"/> in this channel starts typing
+        /// Event fired when a <see cref="IStreamUser"/> in this channel starts typing
         /// </summary>
         public event ChannelUserChangeHandler UserStartedTyping;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamUser"/> in this channel stops typing
+        /// Event fired when a <see cref="IStreamUser"/> in this channel stops typing
         /// </summary>
         public event ChannelUserChangeHandler UserStoppedTyping;
 
@@ -150,7 +150,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// Creator of the channel
         /// </summary>
-        public StreamUser CreatedBy { get; private set; }
+        public IStreamUser CreatedBy { get; private set; }
 
         /// <summary>
         /// Date/time of deletion
@@ -241,7 +241,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
         public DateTimeOffset? TruncatedAt { get; private set; }
 
-        public StreamUser TruncatedBy { get; private set; }
+        public IStreamUser TruncatedBy { get; private set; }
 
         /// <summary>
         /// Type of the channel
@@ -293,13 +293,13 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// List of user who is watching the channel
         /// Subscribe to <see cref="WatcherAdded"/> and <see cref="WatcherRemoved"/> events to know when this list changes.
         /// </summary>
-        public IReadOnlyList<StreamUser> Watchers => _watchers; //StreamTodo: Mention that this is paginatable
+        public IReadOnlyList<IStreamUser> Watchers => _watchers; //StreamTodo: Mention that this is paginatable
 
         /// <summary>
         /// List of currently typing users.
         /// Subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/> events to know when this list changes.
         /// </summary>
-        public IReadOnlyList<StreamUser> TypingUsers => _typingUsers;
+        public IReadOnlyList<IStreamUser> TypingUsers => _typingUsers;
 
         #endregion
         
@@ -488,7 +488,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
         /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
-        public Task BanUserFromChannelAsync(StreamUser user, bool isShadowBan = false, string reason = "",
+        public Task BanUserFromChannelAsync(IStreamUser user, bool isShadowBan = false, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false)
         {
             StreamAsserts.AssertNotNull(user, nameof(user));
@@ -514,7 +514,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// Remove ban from the user on this channel
         /// </summary>
-        public Task UnbanUserInChannelAsync(StreamUser user)
+        public Task UnbanUserInChannelAsync(IStreamUser user)
         {
             StreamAsserts.AssertNotNull(user, nameof(user));
             return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
@@ -575,7 +575,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// Add users as members to this channel
         /// </summary>
         /// <param name="users">Users to become members of this channel</param>
-        public async Task AddMembersAsync(IEnumerable<StreamUser> users)
+        public async Task AddMembersAsync(IEnumerable<IStreamUser> users)
         {
             StreamAsserts.AssertNotNull(users, nameof(users));
 
@@ -1037,6 +1037,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         }
 
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
-        private readonly List<StreamUser> _typingUsers = new List<StreamUser>();
+        private readonly List<IStreamUser> _typingUsers = new List<IStreamUser>();
     }
 }

@@ -26,7 +26,7 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// Owner of channel mute
         /// </summary>
-        public StreamUser User { get; private set; }
+        public IStreamUser User { get; private set; }
 
         StreamChannelMute IStateLoadableFrom<ChannelMuteInternalDTO, StreamChannelMute>.LoadFromDto(ChannelMuteInternalDTO dto, ICache cache)
         {
