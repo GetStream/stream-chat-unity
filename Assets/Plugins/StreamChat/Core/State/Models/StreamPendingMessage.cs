@@ -10,7 +10,7 @@ namespace StreamChat.Core.State.Models
         /// <summary>
         /// The message
         /// </summary>
-        public StreamMessage Message { get; private set; }
+        public IStreamMessage Message { get; private set; }
 
         /// <summary>
         /// Additional data attached to the pending message. This data is discarded once the pending message is committed.

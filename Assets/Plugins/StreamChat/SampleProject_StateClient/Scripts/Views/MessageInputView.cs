@@ -83,7 +83,7 @@ namespace StreamChat.SampleProject_StateClient.Views
             base.OnDisposing();
         }
 
-        private void OnMessageEditRequested(StreamMessage message)
+        private void OnMessageEditRequested(IStreamMessage message)
         {
             _currentEditMessage = message;
             _mode = Mode.Edit;
@@ -112,7 +112,7 @@ namespace StreamChat.SampleProject_StateClient.Views
         private Button _attachmentButton;
 
         private Mode _mode;
-        private StreamMessage _currentEditMessage;
+        private IStreamMessage _currentEditMessage;
         private string _lastAttachmentUrl;
         private TypingMonitor _typingMonitor;
 

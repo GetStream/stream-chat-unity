@@ -154,7 +154,7 @@ namespace StreamChat.Tests.StatefulClient
             var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.AreEqual(true, messageInChannel.Pinned);
 
-            await messageInChannel.Unpin();
+            await messageInChannel.UnpinAsync();
             messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.AreEqual(false, messageInChannel.Pinned);
         }
@@ -193,7 +193,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await sentMessage.PinAsync();
 
-            await sentMessage.Unpin();
+            await sentMessage.UnpinAsync();
 
             var pinnedMessage = channel.PinnedMessages.FirstOrDefault(m => m == sentMessage);
             Assert.IsNull(pinnedMessage);

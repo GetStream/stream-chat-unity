@@ -112,7 +112,7 @@ namespace StreamChat.SampleProject_StateClient.Views
 
         private IChatViewContext _viewContext;
 
-        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, StreamMessage message)
+        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, IStreamMessage message)
         {
             foreach (var sprite in _appConfig.Emojis.ReactionSprites)
             {

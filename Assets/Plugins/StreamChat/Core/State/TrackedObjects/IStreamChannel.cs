@@ -8,20 +8,25 @@ using StreamChat.Core.State.Responses;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
+    /// <summary>
+    /// Channel is where group of <see cref="IStreamChannelMember"/>s can send messages.
+    /// Default permissions and configuration is based on <see cref="StreamChannel.Type"/>
+    /// </summary>
+    /// <remarks>https://getstream.io/chat/docs/unity/permissions_reference/?language=unity&q=hidden#default-grants</remarks>
     public interface IStreamChannel : IStreamTrackedObject
     {
         /// <summary>
-        /// Event fired when a new <see cref="StreamMessage"/> was received on this channel
+        /// Event fired when a new <see cref="IStreamMessage"/> was received on this channel
         /// </summary>
         event ChannelMessageHandler MessageReceived;
         
         /// <summary>
-        /// Event fired when a <see cref="StreamMessage"/> from this channel was updated
+        /// Event fired when a <see cref="IStreamMessage"/> from this channel was updated
         /// </summary>
         event ChannelMessageHandler MessageUpdated;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamMessage"/> from this channel was deleted
+        /// Event fired when a <see cref="IStreamMessage"/> from this channel was deleted
         /// </summary>
         event MessageDeleteHandler MessageDeleted;
 
@@ -203,7 +208,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// List of channel messages. By default only latest messages are loaded. If you wish to load older messages user the <see cref="LoadOlderMessagesAsync"/>
         /// </summary>
-        IReadOnlyList<StreamMessage> Messages { get; }
+        IReadOnlyList<IStreamMessage> Messages { get; }
 
         /// <summary>
         /// Pending messages that this user has sent
@@ -213,7 +218,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// List of pinned messages in the channel
         /// </summary>
-        IReadOnlyList<StreamMessage> PinnedMessages { get; }
+        IReadOnlyList<IStreamMessage> PinnedMessages { get; }
 
         /// <summary>
         /// List of read states
@@ -245,12 +250,12 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Basic send message method. If you want to set additional parameters like use the other <see cref="IStreamChannel.SendNewMessageAsync(StreamChat.Core.State.Requests.StreamSendMessageRequest)"/> overload
         /// </summary>
-        Task<StreamMessage> SendNewMessageAsync(string message);
+        Task<IStreamMessage> SendNewMessageAsync(string message);
 
         /// <summary>
         /// Advanced send message method. Check out the <see cref="StreamSendMessageRequest"/> to see all of the parameters
         /// </summary>
-        Task<StreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest);
+        Task<IStreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest);
 
         Task LoadOlderMessagesAsync();
 
@@ -325,7 +330,7 @@ namespace StreamChat.Core.State.TrackedObjects
         ///
         /// This feature allows to track to which message users have read the channel
         /// </summary>
-        Task MarkMessageReadAsync(StreamMessage message);
+        Task MarkMessageReadAsync(IStreamMessage message);
 
         /// <summary>
         /// Mark this channel completely as read

@@ -72,7 +72,7 @@ namespace StreamChat.Core.State.Requests
         /// </summary>
         public IStreamUser PinnedBy { get; set; }
 
-        public StreamMessage QuotedMessage { get; set; }
+        public IStreamMessage QuotedMessage { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well

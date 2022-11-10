@@ -21,9 +21,9 @@ namespace StreamChat.SampleProject_StateClient.Views
     /// </summary>
     public class MessageView : BaseView, IPointerDownHandler
     {
-        public StreamMessage Message { get; private set; }
+        public IStreamMessage Message { get; private set; }
 
-        public void UpdateData(StreamMessage message, IImageLoader imageLoader)
+        public void UpdateData(IStreamMessage message, IImageLoader imageLoader)
         {
             imageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
             Message = message ?? throw new ArgumentNullException(nameof(message));
@@ -136,7 +136,7 @@ namespace StreamChat.SampleProject_StateClient.Views
             _avatar.sprite = sprite;
         }
 
-        private void ShowReactions(StreamMessage message)
+        private void ShowReactions(IStreamMessage message)
         {
             foreach (var reactionCount in message.ReactionCounts)
             {
@@ -164,10 +164,10 @@ namespace StreamChat.SampleProject_StateClient.Views
             }
         }
 
-        private static string GetMessageText(StreamMessage message)
+        private static string GetMessageText(IStreamMessage message)
             => message.IsDeleted ? ChatState.MessageDeletedInfo : message.Text;
 
-        private bool HasVideoAttachment(StreamMessage message, out StreamMessageAttachment videoAttachment)
+        private bool HasVideoAttachment(IStreamMessage message, out StreamMessageAttachment videoAttachment)
         {
             for (int i = 0; i < message.Attachments.Count; i++)
             {

@@ -26,7 +26,7 @@ namespace StreamChat.SampleProject_StateClient
         public event Action<IStreamChannel> ActiveChanelChanged;
         public event Action ChannelsUpdated;
 
-        public event Action<StreamMessage> MessageEditRequested;
+        public event Action<IStreamMessage> MessageEditRequested;
 
         public IStreamChannel ActiveChannel
         {
@@ -88,7 +88,7 @@ namespace StreamChat.SampleProject_StateClient
 
         public void OpenChannel(IStreamChannel channel) => ActiveChannel = channel;
 
-        public void EditMessage(StreamMessage message) => MessageEditRequested?.Invoke(message);
+        public void EditMessage(IStreamMessage message) => MessageEditRequested?.Invoke(message);
 
         public async Task UpdateChannelsAsync()
         {

@@ -86,13 +86,13 @@ namespace StreamChat.SampleProject_StateClient.Views
             RebuildMessages(channel, scrollToBottom: true);
         }
 
-        private void OnMessageUpdated(IStreamChannel channel, StreamMessage message)
+        private void OnMessageUpdated(IStreamChannel channel, IStreamMessage message)
             => RebuildMessages(channel, scrollToBottom: false);
 
-        private void OnMessageDeleted(IStreamChannel channel, StreamMessage message, bool isharddelete)
+        private void OnMessageDeleted(IStreamChannel channel, IStreamMessage message, bool isharddelete)
             => RebuildMessages(channel, scrollToBottom: false);
 
-        private void OnMessageReceived(IStreamChannel channel, StreamMessage message)
+        private void OnMessageReceived(IStreamChannel channel, IStreamMessage message)
             => RebuildMessages(channel, scrollToBottom: false);
 
         private void ClearAll()
@@ -186,7 +186,7 @@ namespace StreamChat.SampleProject_StateClient.Views
         }
 
         //StreamTodo: extract to ViewFactory
-        private MessageView CreateMessageView(StreamMessage message)
+        private MessageView CreateMessageView(IStreamMessage message)
         {
             var isLocal = Client.IsLocalUser(message.User);
             var prefab = isLocal ? _localUserMessageViewPrefab : _messageViewPrefab;

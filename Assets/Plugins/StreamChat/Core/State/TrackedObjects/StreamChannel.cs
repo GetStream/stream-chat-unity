@@ -20,9 +20,9 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
     public delegate void ChannelMuteHandler(IStreamChannel channel, bool isMuted);
 
-    public delegate void ChannelMessageHandler(IStreamChannel channel, StreamMessage message);
+    public delegate void ChannelMessageHandler(IStreamChannel channel, IStreamMessage message);
 
-    public delegate void MessageDeleteHandler(IStreamChannel channel, StreamMessage message, bool isHardDelete);
+    public delegate void MessageDeleteHandler(IStreamChannel channel, IStreamMessage message, bool isHardDelete);
 
     public delegate void ChannelChangeHandler(IStreamChannel channel);
 
@@ -30,11 +30,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
     public delegate void ChannelMemberChangeHandler(IStreamChannel channel, IStreamChannelMember member);
 
-    /// <summary>
-    /// Channel is where group of <see cref="IStreamChannelMember"/>s can chat with each other.
-    /// Depending on <see cref="StreamChannel.Type"/>
-    /// </summary>
-    /// <remarks>https://getstream.io/chat/docs/unity/permissions_reference/?language=unity&q=hidden#default-grants</remarks>
+    /// <inheritdoc cref="IStreamChannel"/>
     internal sealed class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
@@ -43,17 +39,17 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         IStreamChannel
     {
         /// <summary>
-        /// Event fired when a new <see cref="StreamMessage"/> was received on this channel
+        /// Event fired when a new <see cref="IStreamMessage"/> was received on this channel
         /// </summary>
         public event ChannelMessageHandler MessageReceived;
         
         /// <summary>
-        /// Event fired when a <see cref="StreamMessage"/> from this channel was updated
+        /// Event fired when a <see cref="IStreamMessage"/> from this channel was updated
         /// </summary>
         public event ChannelMessageHandler MessageUpdated;
         
         /// <summary>
-        /// Event fired when a <see cref="StreamMessage"/> from this channel was deleted
+        /// Event fired when a <see cref="IStreamMessage"/> from this channel was deleted
         /// </summary>
         public event MessageDeleteHandler MessageDeleted;
         
@@ -267,7 +263,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// List of channel messages. By default only latest messages are loaded. If you wish to load older messages user the <see cref="LoadOlderMessagesAsync"/>
         /// </summary>
-        public IReadOnlyList<StreamMessage> Messages => _messages;
+        public IReadOnlyList<IStreamMessage> Messages => _messages;
 
         /// <summary>
         /// Pending messages that this user has sent
@@ -277,7 +273,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// List of pinned messages in the channel
         /// </summary>
-        public IReadOnlyList<StreamMessage> PinnedMessages => _pinnedMessages;
+        public IReadOnlyList<IStreamMessage> PinnedMessages => _pinnedMessages;
 
         /// <summary>
         /// List of read states
@@ -312,7 +308,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// Basic send message method. If you want to set additional parameters like use the other <see cref="SendNewMessageAsync(StreamSendMessageRequest requestBody)"/> overload
         /// </summary>
-        public Task<StreamMessage> SendNewMessageAsync(string message)
+        public Task<IStreamMessage> SendNewMessageAsync(string message)
             => SendNewMessageAsync(new StreamSendMessageRequest
             {
                 Text = message
@@ -321,7 +317,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// Advanced send message method. Check out the <see cref="StreamSendMessageRequest"/> to see all of the parameters
         /// </summary>
-        public async Task<StreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest)
+        public async Task<IStreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest)
         {
             if (sendMessageRequest == null)
             {
@@ -526,7 +522,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         ///
         /// This feature allows to track to which message users have read the channel
         /// </summary>
-        public Task MarkMessageReadAsync(StreamMessage message)
+        public Task MarkMessageReadAsync(IStreamMessage message)
         {
             StreamAsserts.AssertNotNull(message, nameof(message));
             if (message.Cid != Cid)

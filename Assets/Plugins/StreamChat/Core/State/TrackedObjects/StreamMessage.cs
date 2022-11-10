@@ -8,14 +8,12 @@ using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Caches;
+using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    /// <summary>
-    /// Message belonging to a <see cref="IStreamChannel"/>
-    /// </summary>
-    public sealed class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
-        IUpdateableFrom<MessageInternalDTO, StreamMessage>
+    internal sealed class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
+        IUpdateableFrom<MessageInternalDTO, StreamMessage>, IStreamMessage
     {
         /// <summary>
         /// Array of message attachments
@@ -25,16 +23,13 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
         /// </summary>
-        public bool? BeforeMessageSendFailed { get; private set; }
+        //public bool? BeforeMessageSendFailed { get; private set; } //StreamTodo: verify this property
 
         /// <summary>
         /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
         /// </summary>
         public string Cid { get; private set; }
-
-        //StreamTodo: best to add StreamChannel reference
-        public IStreamChannel Channel { get; private set; }
-
+        
         /// <summary>
         /// Contains provided slash command
         /// </summary>
@@ -104,7 +99,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Whether message is pinned or not
         /// </summary>
-        public bool? Pinned { get; private set; }
+        public bool Pinned { get; private set; }
 
         /// <summary>
         /// Date when message got pinned
@@ -119,7 +114,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Contains quoted message
         /// </summary>
-        public StreamMessage QuotedMessage { get; private set; }
+        public IStreamMessage QuotedMessage { get; private set; }
 
         public string QuotedMessageId { get; private set; }
 
@@ -243,7 +238,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Unpin this message from a channel
         /// </summary>
-        public async Task Unpin()
+        public async Task UnpinAsync()
         {
             var request = new UpdateMessagePartialRequestInternalDTO
             {
@@ -327,7 +322,7 @@ namespace StreamChat.Core.State.TrackedObjects
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
         {
             _attachments.TryReplaceRegularObjectsFromDto(dto.Attachments, cache);
-            BeforeMessageSendFailed = GetOrDefault(dto.BeforeMessageSendFailed, BeforeMessageSendFailed);
+            //BeforeMessageSendFailed = GetOrDefault(dto.BeforeMessageSendFailed, BeforeMessageSendFailed);
             Cid = GetOrDefault(dto.Cid, Cid);
             Command = GetOrDefault(dto.Command, Command);
             CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
