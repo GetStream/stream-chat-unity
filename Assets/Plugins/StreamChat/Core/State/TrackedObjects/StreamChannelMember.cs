@@ -1,11 +1,12 @@
 ﻿using System;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.State.Caches;
+using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    public sealed class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>,
-        IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>
+    internal sealed class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>,
+        IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>, IStreamChannelMember
     {
         /// <summary>
         /// Expiration date of the ban
@@ -15,7 +16,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Whether member is banned this channel or not
         /// </summary>
-        public bool? Banned { get; private set; }
+        public bool Banned { get; private set; }
 
         /// <summary>
         /// Role of the member in the channel
@@ -25,7 +26,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public DateTimeOffset? CreatedAt { get; private set; }
+        public DateTimeOffset CreatedAt { get; private set; }
 
         public DateTimeOffset? DeletedAt { get; private set; }
 
@@ -59,10 +60,11 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         public DateTimeOffset? UpdatedAt { get; private set; }
 
+        /// <summary>
+        /// This member's <see cref="IStreamUser"/> reference
+        /// </summary>
         public IStreamUser User { get; private set; }
-
-        public string UserId { get; private set; }
-
+        
         void IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>.UpdateFromDto(ChannelMemberInternalDTO dto,
             ICache cache)
         {
@@ -80,6 +82,8 @@ namespace StreamChat.Core.State.TrackedObjects
             User = cache.TryCreateOrUpdate(dto.User);
             UserId = GetOrDefault(dto.UserId, UserId);
         }
+        
+        internal string UserId { get; private set; }
 
         internal StreamChannelMember(string uniqueId, ICacheRepository<StreamChannelMember> repository,
             ITrackedObjectContext context)

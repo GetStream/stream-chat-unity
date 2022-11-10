@@ -28,10 +28,10 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
     public delegate void ChannelUserChangeHandler(IStreamChannel channel, IStreamUser user);
 
-    public delegate void ChannelMemberChangeHandler(IStreamChannel channel, StreamChannelMember member);
+    public delegate void ChannelMemberChangeHandler(IStreamChannel channel, IStreamChannelMember member);
 
     /// <summary>
-    /// Channel is where group of <see cref="StreamChannelMember"/> can chat with each other.
+    /// Channel is where group of <see cref="IStreamChannelMember"/>s can chat with each other.
     /// Depending on <see cref="StreamChannel.Type"/>
     /// </summary>
     /// <remarks>https://getstream.io/chat/docs/unity/permissions_reference/?language=unity&q=hidden#default-grants</remarks>
@@ -58,17 +58,17 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         public event MessageDeleteHandler MessageDeleted;
         
         /// <summary>
-        /// Event fired when a new <see cref="StreamChannelMember"/> joined this channel
+        /// Event fired when a new <see cref="IStreamChannelMember"/> joined this channel
         /// </summary>
         public event ChannelMemberChangeHandler MemberAdded;
         
         /// <summary>
-        /// Event fired when a <see cref="StreamChannelMember"/> left this channel
+        /// Event fired when a <see cref="IStreamChannelMember"/> left this channel
         /// </summary>
         public event ChannelMemberChangeHandler MemberRemoved;
         
         /// <summary>
-        /// Event fired when a <see cref="StreamChannelMember"/> was updated
+        /// Event fired when a <see cref="IStreamChannelMember"/> was updated
         /// </summary>
         public event ChannelMemberChangeHandler MemberUpdated;
         
@@ -204,7 +204,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// List of channel members (max 100)
         /// </summary>
-        public IReadOnlyList<StreamChannelMember> Members => _members;
+        public IReadOnlyList<IStreamChannelMember> Members => _members;
 
         /// <summary>
         /// Date of mute expiration
@@ -262,7 +262,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// Current user membership object
         /// </summary>
-        public StreamChannelMember Membership { get; private set; }
+        public IStreamChannelMember Membership { get; private set; }
 
         /// <summary>
         /// List of channel messages. By default only latest messages are loaded. If you wish to load older messages user the <see cref="LoadOlderMessagesAsync"/>

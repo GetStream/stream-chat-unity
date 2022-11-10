@@ -91,8 +91,8 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(channelForMembers.Members);
             Assert.AreEqual(2, channelForMembers.Members.Count);
 
-            var steveMember = channelForMembers.Members.FirstOrDefault(_ => _.UserId == userSteveId);
-            var daveMember = channelForMembers.Members.FirstOrDefault(_ => _.UserId == userDaveId);
+            var steveMember = channelForMembers.Members.FirstOrDefault(_ => _.User.Id == userSteveId);
+            var daveMember = channelForMembers.Members.FirstOrDefault(_ => _.User.Id == userDaveId);
 
             Assert.NotNull(steveMember);
             Assert.NotNull(daveMember);

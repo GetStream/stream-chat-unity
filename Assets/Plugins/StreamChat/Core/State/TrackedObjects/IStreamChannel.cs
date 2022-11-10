@@ -26,17 +26,17 @@ namespace StreamChat.Core.State.TrackedObjects
         event MessageDeleteHandler MessageDeleted;
 
         /// <summary>
-        /// Event fired when a new <see cref="StreamChannelMember"/> joined this channel
+        /// Event fired when a new <see cref="IStreamChannelMember"/> joined this channel
         /// </summary>
         event ChannelMemberChangeHandler MemberAdded;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamChannelMember"/> left this channel
+        /// Event fired when a <see cref="IStreamChannelMember"/> left this channel
         /// </summary>
         event ChannelMemberChangeHandler MemberRemoved;
 
         /// <summary>
-        /// Event fired when a <see cref="StreamChannelMember"/> was updated
+        /// Event fired when a <see cref="IStreamChannelMember"/> was updated
         /// </summary>
         event ChannelMemberChangeHandler MemberUpdated;
 
@@ -158,7 +158,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// List of channel members (max 100)
         /// </summary>
-        IReadOnlyList<StreamChannelMember> Members { get; }
+        IReadOnlyList<IStreamChannelMember> Members { get; }
 
         /// <summary>
         /// Date of mute expiration
@@ -198,7 +198,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Current user membership object
         /// </summary>
-        StreamChannelMember Membership { get; }
+        IStreamChannelMember Membership { get; }
 
         /// <summary>
         /// List of channel messages. By default only latest messages are loaded. If you wish to load older messages user the <see cref="LoadOlderMessagesAsync"/>
