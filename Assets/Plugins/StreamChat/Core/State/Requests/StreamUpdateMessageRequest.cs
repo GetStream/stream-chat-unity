@@ -57,7 +57,8 @@ namespace StreamChat.Core.State.Requests
         /// </summary>
         public StreamUser PinnedBy { get; set; }
 
-        public string QuotedMessageId { get; set; } //StreamTodo: change to StreamMessage QuotedMessage?
+        //StreamTodo: best to have StreamMessage QuotedMessage but we may not always have it in our cache
+        public string QuotedMessageId { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well

@@ -321,7 +321,6 @@ namespace StreamChat.Core
 
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
-                _logs.Info(msg); //StreamTodo: Remove
                 HandleNewWebsocketMessage(msg);
             }
         }
@@ -711,7 +710,7 @@ namespace StreamChat.Core
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
-                //if (_config.LogLevel.IsDebugEnabled()) //StreamTodo: Uncomment
+                if (_config.LogLevel.IsDebugEnabled())
                 {
                     _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
                 }

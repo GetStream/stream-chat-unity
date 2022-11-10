@@ -20,6 +20,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
     {
     }
 
+    //StreamTodo: rename all to add Stream prefix
     public delegate void ChannelVisibilityHandler(StreamChannel channel, bool isHidden);
 
     public delegate void ChannelMuteHandler(StreamChannel channel, bool isMuted);
@@ -295,7 +296,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
         /// <summary>
         /// List of user who is watching the channel
-        ///
         /// Subscribe to <see cref="WatcherAdded"/> and <see cref="WatcherRemoved"/> events to know when this list changes.
         /// </summary>
         public IReadOnlyList<StreamUser> Watchers => _watchers; //StreamTodo: Mention that this is paginatable
@@ -525,14 +525,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
         }
 
-        public void ShadowBanUser()
-        {
-        }
-
-        public void RemoveShadowBan()
-        {
-        }
-
         /// <summary>
         /// Mark this message as the last that was read by this user in this channel
         /// If you want to mark whole channel as read use the <see cref="MarkChannelReadAsync"/>
@@ -677,8 +669,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
                     TruncatedAt = truncatedAt,
                 });
             Cache.TryCreateOrUpdate(response.Channel);
-
-            //StreamTodo:
+            //StreamTodo: check if we need to add response.Message or was it already contained in response.Channel
         }
 
         /// <summary>
@@ -687,8 +678,8 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <param name="isHardDelete">Hard delete completely removes channel with all its resources</param>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
         public async Task DeleteAsync(bool isHardDelete)
-            => LowLevelClient.ChannelApi.DeleteChannelAsync(Type, Id,
-                isHardDelete); //StreamTodo: call StateClient.InternalDeleteCHannel?
+            => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id,
+                isHardDelete);
 
         /// <summary>
         ///
@@ -712,7 +703,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
             #region ChannelState
 
-            //StreamTodo: this could be partial state so we can't just completely replace all the info
             //Hidden = dto.Hidden.GetValueOrDefault(); Updated from Channel
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
             //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from Channel
@@ -937,10 +927,10 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         {
             #region Channel
 
+            //StreamTodo: we need to tell if something is purposely null or not available in json, check the nullable ref types or wrap reference type in custom nullable type
             AutoTranslationEnabled = GetOrDefault(dto.AutoTranslationEnabled, AutoTranslationEnabled);
             AutoTranslationLanguage = GetOrDefault(dto.AutoTranslationLanguage, AutoTranslationLanguage);
             Cid = GetOrDefault(dto.Cid, Cid);
-            //StreamTodo: how to know if something is purposely null or was not present in Json?
             Config = Config.TryLoadFromDto(dto.Config, cache);
             Cooldown = GetOrDefault(dto.Cooldown, Cooldown);
             CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
@@ -956,7 +946,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers);
             MuteExpiresAt = GetOrDefault(dto.MuteExpiresAt, MuteExpiresAt);
             Muted = GetOrDefault(dto.Muted, Muted);
-            //StreamTodo: probably only add unique and not delete previous
             _ownCapabilities.TryReplaceValuesFromDto(dto.OwnCapabilities);
             Team = GetOrDefault(dto.Team, Team);
             TruncatedAt = GetOrDefault(dto.TruncatedAt, TruncatedAt);
@@ -985,7 +974,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             }
 
             userRead.Update(eventDto.CreatedAt.Value);
-            //StreamTodo: raise event? 
+            //StreamTodo: IMPLEMENT we need to recalculate the unread counts and raise some event
         }
 
         internal void InternalHandleUserWatchingStart(EventUserWatchingStartInternalDTO eventDto)

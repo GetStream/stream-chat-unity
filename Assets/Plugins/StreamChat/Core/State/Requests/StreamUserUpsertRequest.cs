@@ -49,7 +49,7 @@ namespace StreamChat.Core.State.Requests
         public string Name;
         public string Image;
 
-        public Dictionary<string, object> CustomData { get; set; } //StreamTodo: replace with IStreamUserCustomData
+        public Dictionary<string, object> CustomData { get; set; }
 
         UserObjectRequestInternalDTO ISavableTo<UserObjectRequestInternalDTO>.SaveToDto()
             => new UserObjectRequestInternalDTO
@@ -67,23 +67,5 @@ namespace StreamChat.Core.State.Requests
                 Image = Image,
                 AdditionalProperties = CustomData
             };
-    }
-}
-
-//StreamTodo: move somewhere else?
-namespace StreamChat.Core.InternalDTO.Requests
-{
-    /// <summary>
-    /// Extra fields not defined in API spec
-    /// </summary>
-    internal partial class UserObjectRequestInternalDTO
-    {
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default,
-            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("image", Required = Newtonsoft.Json.Required.Default,
-            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Image { get; set; }
     }
 }

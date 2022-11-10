@@ -1,6 +1,6 @@
 ﻿namespace StreamChat.Core
 {
-    //StreamTodo: change to internal type in 4.0
+    //StreamTodo: change to internal type in 4.0 or event to StreamEventType?
     /// <summary>
     /// Event types that can be received from server
     /// </summary>

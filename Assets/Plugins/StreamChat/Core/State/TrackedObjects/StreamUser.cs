@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Events;
@@ -14,9 +15,11 @@ namespace StreamChat.Core.State.TrackedObjects
     {
     }
 
+    public delegate void StreamUserPresenceHandler(StreamUser user, bool isOnline, DateTimeOffset? lastActive);
+
+    
     /// <summary>
-    /// Stream user represents a single chat user that can be a member of multiple channels
-    ///
+    /// Stream user represents a single chat user that can be a member of multiple <see cref="StreamChannel"/>
     /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
     /// </summary>
     public sealed class StreamUser : StreamTrackedObjectBase<StreamUser>,
@@ -24,9 +27,14 @@ namespace StreamChat.Core.State.TrackedObjects
         IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>
     {
         /// <summary>
+        /// Event fired when the user online state changed. Check <see cref="Online"/> and <see cref="LastActive"/> to know if the user is online or when was last active
+        /// </summary>
+        public event StreamUserPresenceHandler PresenceChanged;
+        
+        /// <summary>
         /// Expiration date of the ban
         /// </summary>
-        public System.DateTimeOffset? BanExpires { get; private set; }
+        public DateTimeOffset? BanExpires { get; private set; }
 
         /// <summary>
         /// Whether a user is banned or not
@@ -36,17 +44,17 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date/time of creation
         /// </summary>
-        public System.DateTimeOffset CreatedAt { get; private set; }
+        public DateTimeOffset CreatedAt { get; private set; }
 
         /// <summary>
         /// Date of deactivation
         /// </summary>
-        public System.DateTimeOffset? DeactivatedAt { get; private set; }
+        public DateTimeOffset? DeactivatedAt { get; private set; }
 
         /// <summary>
         /// Date/time of deletion
         /// </summary>
-        public System.DateTimeOffset? DeletedAt { get; private set; }
+        public DateTimeOffset? DeletedAt { get; private set; }
 
         /// <summary>
         /// Unique user identifier
@@ -68,19 +76,19 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date of last activity
         /// </summary>
-        public System.DateTimeOffset? LastActive { get; private set; }
+        public DateTimeOffset? LastActive { get; private set; }
 
         /// <summary>
         /// Whether a user online or not
         /// </summary>
-        public bool? Online { get; private set; }
+        public bool Online { get; private set; }
 
         public StreamPushNotificationSettings PushNotifications { get; private set; }
 
         /// <summary>
         /// Revocation date for tokens
         /// </summary>
-        public System.DateTimeOffset? RevokeTokensIssuedBefore { get; private set; }
+        public DateTimeOffset? RevokeTokensIssuedBefore { get; private set; }
 
         /// <summary>
         /// Determines the set of user permissions
@@ -100,7 +108,7 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Date/time of the last update
         /// </summary>
-        public System.DateTimeOffset? UpdatedAt { get; private set; }
+        public DateTimeOffset? UpdatedAt { get; private set; }
 
         //Not in API
         public string Name { get; private set; }
@@ -279,10 +287,8 @@ namespace StreamChat.Core.State.TrackedObjects
 
         internal void InternalHandlePresenceChanged(EventUserPresenceChangedInternalDTO eventDto)
         {
-            var prevOnline = Online;
-            var prevLastActive = LastActive;
             Cache.TryCreateOrUpdate(eventDto.User);
-            //StreamTodo: verify with test how presence notifications work
+            PresenceChanged?.Invoke(this, Online, LastActive);
         }
 
         protected override StreamUser Self => this;

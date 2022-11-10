@@ -31,9 +31,9 @@ namespace StreamChat.Core.State
         ConnectionState ConnectionState { get; }
 
         /// <summary>
-        /// Local user that is connected to the Stream Chat. This property is set after the client connection is established.
-        /// You can subscribe to <see cref="Connected"/> or <see cref="ConnectionStateChanged"/> events to know when the connection is established.
-        /// You can access the local <see cref="StreamUser"/> via <see cref="LocalUserData"/> <see cref="StreamLocalUserData.User"/> property
+        /// Data of the user that is connected to the Stream Chat using the local device. This property is set after the client connection is established.
+        /// YSubscribe to <see cref="Connected"/> to know when the connection is established.
+        /// Use <see cref="StreamLocalUserData.User"/> to access the local <see cref="StreamUser"/> object
         /// </summary>
         StreamLocalUserData LocalUserData { get; }
 
