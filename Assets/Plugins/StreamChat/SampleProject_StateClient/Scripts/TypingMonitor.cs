@@ -41,7 +41,7 @@ namespace StreamChat.SampleProject_StateClient
             }
         }
 
-        public void NotifyChannelStoppedTyping(StreamChannel channel)
+        public void NotifyChannelStoppedTyping(IStreamChannel channel)
             => TrySendStopTypingEvent(channel);
 
         public void Dispose()
@@ -67,7 +67,7 @@ namespace StreamChat.SampleProject_StateClient
         private readonly Dictionary<string, float> _channelCidToTypingStartEventSentTime =
             new Dictionary<string, float>();
 
-        private readonly List<StreamChannel> _startedTypingChannels = new List<StreamChannel>();
+        private readonly List<IStreamChannel> _startedTypingChannels = new List<IStreamChannel>();
 
         private void OnInputValueChanged(string text)
         {
@@ -81,7 +81,7 @@ namespace StreamChat.SampleProject_StateClient
             TrySendStartTypingEvent(activeChannel);
         }
 
-        private void TrySendStartTypingEvent(StreamChannel channel)
+        private void TrySendStartTypingEvent(IStreamChannel channel)
         {
             if (_channelCidToTypingStartEventSentTime.TryGetValue(channel.Cid, out var typingStartSentTime) &&
                 Time.time - typingStartSentTime < TypingStartEventThrottleInterval)
@@ -99,7 +99,7 @@ namespace StreamChat.SampleProject_StateClient
             _channelCidToTypingStartEventSentTime[channel.Cid] = Time.time;
         }
 
-        private void TrySendStopTypingEvent(StreamChannel channel)
+        private void TrySendStopTypingEvent(IStreamChannel channel)
         {
             if (!_channelCidToTypingStartEventSentTime.ContainsKey(channel.Cid))
             {

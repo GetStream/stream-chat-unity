@@ -16,9 +16,9 @@ namespace StreamChat.SampleProject_StateClient.Views
     /// </summary>
     public class ChannelView : MonoBehaviour
     {
-        public event Action<StreamChannel> Clicked;
+        public event Action<IStreamChannel> Clicked;
 
-        public void Init(StreamChannel channel, IChatViewContext context)
+        public void Init(IStreamChannel channel, IChatViewContext context)
         {
             _channel = channel ?? throw new ArgumentNullException(nameof(channel));
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -36,7 +36,7 @@ namespace StreamChat.SampleProject_StateClient.Views
 
         private const int PreviewMessageLenght = 30;
 
-        private StreamChannel _channel;
+        private IStreamChannel _channel;
         private bool _isDirectMessage;
 
         [SerializeField]

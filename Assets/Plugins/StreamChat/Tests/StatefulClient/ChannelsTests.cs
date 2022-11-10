@@ -174,7 +174,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(StatefulClient.WatchedChannels.Contains(channel2));
 
             var response
-                = await StatefulClient.DeleteMultipleChannelsAsync(new StreamChannel[] { channel, channel2 },
+                = await StatefulClient.DeleteMultipleChannelsAsync(new IStreamChannel[] { channel, channel2 },
                     isHardDelete: true);
 
             Assert.That(response.Result, Contains.Key(channel.Cid));

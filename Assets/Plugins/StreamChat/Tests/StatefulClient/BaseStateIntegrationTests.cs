@@ -58,7 +58,7 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
-        protected async Task<StreamChannel> CreateUniqueTempChannelAsync()
+        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync()
         {
             var channelId = "random-channel-" + Guid.NewGuid();
 
@@ -70,12 +70,12 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Use only if you've successfully deleted the channel
         /// </summary>
-        protected void SkipThisTempChannelDeletionInTearDown(StreamChannel channel)
+        protected void SkipThisTempChannelDeletionInTearDown(IStreamChannel channel)
         {
             _tempChannels.Remove(channel);
         }
 
-        private readonly List<StreamChannel> _tempChannels = new List<StreamChannel>();
+        private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
 
         private void InitClient(string forcedAdminId = null)
         {

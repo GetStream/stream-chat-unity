@@ -23,12 +23,12 @@ namespace StreamChat.SampleProject_StateClient
     {
         public const string MessageDeletedInfo = "This message was deleted...";
 
-        public event Action<StreamChannel> ActiveChanelChanged;
+        public event Action<IStreamChannel> ActiveChanelChanged;
         public event Action ChannelsUpdated;
 
         public event Action<StreamMessage> MessageEditRequested;
 
-        public StreamChannel ActiveChannel
+        public IStreamChannel ActiveChannel
         {
             get => _activeChannel;
             private set
@@ -43,7 +43,7 @@ namespace StreamChat.SampleProject_StateClient
             }
         }
 
-        public IReadOnlyList<StreamChannel> Channels => _channels;
+        public IReadOnlyList<IStreamChannel> Channels => _channels;
 
         public IStreamChatStateClient Client { get; }
 
@@ -83,10 +83,10 @@ namespace StreamChat.SampleProject_StateClient
             GameObject.Destroy(instance.gameObject);
         }
 
-        public Task<StreamChannel> CreateNewChannelAsync(string channelName)
+        public Task<IStreamChannel> CreateNewChannelAsync(string channelName)
             => Client.GetOrCreateChannelAsync(ChannelType.Messaging, channelId: Guid.NewGuid().ToString(), channelName);
 
-        public void OpenChannel(StreamChannel channel) => ActiveChannel = channel;
+        public void OpenChannel(IStreamChannel channel) => ActiveChannel = channel;
 
         public void EditMessage(StreamMessage message) => MessageEditRequested?.Invoke(message);
 
@@ -171,14 +171,14 @@ namespace StreamChat.SampleProject_StateClient
             return ActiveChannel.LoadOlderMessagesAsync();
         }
         
-        private readonly List<StreamChannel> _channels = new List<StreamChannel>();
+        private readonly List<IStreamChannel> _channels = new List<IStreamChannel>();
 
         private readonly IViewFactory _viewFactory;
         private readonly ILogs _unityLogger = new UnityLogs();
 
         //StreamTodo: get it initially from health check event
         private OwnUser _localUser;
-        private StreamChannel _activeChannel;
+        private IStreamChannel _activeChannel;
 
         private Task _activeLoadPreviousMessagesTask;
         private bool _restoreStateAfterReconnect;

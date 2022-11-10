@@ -13,19 +13,19 @@ namespace StreamChat.SampleProject_StateClient
     /// </summary>
     public interface IChatState : IDisposable
     {
-        event Action<StreamChannel> ActiveChanelChanged;
+        event Action<IStreamChannel> ActiveChanelChanged;
         event Action ChannelsUpdated;
         event Action<StreamMessage> MessageEditRequested;
 
-        StreamChannel ActiveChannel { get; }
-        IReadOnlyList<StreamChannel> Channels { get; }
+        IStreamChannel ActiveChannel { get; }
+        IReadOnlyList<IStreamChannel> Channels { get; }
         IStreamChatStateClient Client { get; }
 
-        void OpenChannel(StreamChannel channel);
+        void OpenChannel(IStreamChannel channel);
 
         void EditMessage(StreamMessage message);
 
-        Task<StreamChannel> CreateNewChannelAsync(string channelName);
+        Task<IStreamChannel> CreateNewChannelAsync(string channelName);
 
         void ShowPopup<TPopup>()
             where TPopup : BaseFullscreenPopup;

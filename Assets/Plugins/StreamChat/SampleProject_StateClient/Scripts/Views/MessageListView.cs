@@ -58,12 +58,12 @@ namespace StreamChat.SampleProject_StateClient.Views
 
         private int _scrollListLastUpdateFrame;
         private Task _loadPreviousMessagesTask;
-        private StreamChannel _activeChannel;
+        private IStreamChannel _activeChannel;
 
         //we wait 2 frames before depending on scroll list position in order for the list to render and update its internal state
         private bool IsScrollListRebuilding => _scrollListLastUpdateFrame + 2 > Time.frameCount;
 
-        private void OnActiveChannelChanged(StreamChannel channel)
+        private void OnActiveChannelChanged(IStreamChannel channel)
         {
             if (_activeChannel != null)
             {
@@ -86,13 +86,13 @@ namespace StreamChat.SampleProject_StateClient.Views
             RebuildMessages(channel, scrollToBottom: true);
         }
 
-        private void OnMessageUpdated(StreamChannel channel, StreamMessage message)
+        private void OnMessageUpdated(IStreamChannel channel, StreamMessage message)
             => RebuildMessages(channel, scrollToBottom: false);
 
-        private void OnMessageDeleted(StreamChannel channel, StreamMessage message, bool isharddelete)
+        private void OnMessageDeleted(IStreamChannel channel, StreamMessage message, bool isharddelete)
             => RebuildMessages(channel, scrollToBottom: false);
 
-        private void OnMessageReceived(StreamChannel channel, StreamMessage message)
+        private void OnMessageReceived(IStreamChannel channel, StreamMessage message)
             => RebuildMessages(channel, scrollToBottom: false);
 
         private void ClearAll()
@@ -105,7 +105,7 @@ namespace StreamChat.SampleProject_StateClient.Views
             _messages.Clear();
         }
 
-        private void RebuildMessages(StreamChannel channel, bool scrollToBottom)
+        private void RebuildMessages(IStreamChannel channel, bool scrollToBottom)
         {
             ClearAll();
 

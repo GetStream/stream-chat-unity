@@ -15,11 +15,11 @@ namespace StreamChat.Core.State
         
         /// <summary>
         /// Custom data (max 5KB) that you can assign to:
-        /// - <see cref="StreamChannel"/>
+        /// - <see cref="IStreamChannel"/>
         /// - <see cref="StreamMessage"/>
         /// - <see cref="StreamUser"/>
         /// - <see cref="StreamChannelMember"/>
-        /// If you want to have images or files as custom data, upload them using <see cref="StreamChannel.UploadFileAsync"/> and <see cref="StreamChannel.UploadImageAsync"/> and put only file URL as a custom data
+        /// If you want to have images or files as custom data, upload them using <see cref="IStreamChannel.UploadFileAsync"/> and <see cref="IStreamChannel.UploadImageAsync"/> and put only file URL as a custom data
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity</remarks>
         IDictionary<string, object> CustomData { get; }

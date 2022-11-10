@@ -12,7 +12,7 @@ using StreamChat.Core.State.Caches;
 namespace StreamChat.Core.State.TrackedObjects
 {
     /// <summary>
-    /// Message belonging to a <see cref="StreamChannel"/>
+    /// Message belonging to a <see cref="IStreamChannel"/>
     /// </summary>
     public sealed class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
         IUpdateableFrom<MessageInternalDTO, StreamMessage>
@@ -33,7 +33,7 @@ namespace StreamChat.Core.State.TrackedObjects
         public string Cid { get; private set; }
 
         //StreamTodo: best to add StreamChannel reference
-        public StreamChannel Channel { get; private set; }
+        public IStreamChannel Channel { get; private set; }
 
         /// <summary>
         /// Contains provided slash command
@@ -306,7 +306,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
         /// <summary>
         /// Mark this message as the last that was read by local user in this channel
-        /// If you want to mark whole channel as read use the <see cref="StreamChannel.MarkChannelReadAsync"/>
+        /// If you want to mark whole channel as read use the <see cref="IStreamChannel.MarkChannelReadAsync"/>
         ///
         /// This feature allows to track to which message users have read the channel
         /// </summary>

@@ -74,7 +74,7 @@ namespace StreamChat.Core.State
         public StreamLocalUserData LocalUserData { get; private set; }
 
         /// <inheritdoc cref="IStreamChatStateClient.WatchedChannels"/>
-        public IReadOnlyList<StreamChannel> WatchedChannels => _cache.Channels.AllItems;
+        public IReadOnlyList<IStreamChannel> WatchedChannels => _cache.Channels.AllItems;
 
         public double? NextReconnectTime => LowLevelClient.NextReconnectTime;
 
@@ -142,7 +142,7 @@ namespace StreamChat.Core.State
         public bool IsLocalUser(StreamUser user) => LocalUserData.User == user;
 
         /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,string,IStreamChannelCustomData)"/>
-        public async Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
+        public async Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
             string name = null, Dictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
@@ -170,7 +170,7 @@ namespace StreamChat.Core.State
         }
 
         /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.StreamUser},IStreamChannelCustomData)"/>
-        public async Task<StreamChannel> GetOrCreateChannelAsync(ChannelType channelType,
+        public async Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType,
             IEnumerable<StreamUser> members, Dictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
@@ -207,7 +207,7 @@ namespace StreamChat.Core.State
         }
 
         //StreamTodo: Filter object that contains a factory
-        public async Task<IEnumerable<StreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters)
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters)
         {
             //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
             var requestBodyDto = new QueryChannelsRequestInternalDTO
@@ -229,7 +229,7 @@ namespace StreamChat.Core.State
                 return Enumerable.Empty<StreamChannel>();
             }
 
-            var result = new List<StreamChannel>();
+            var result = new List<IStreamChannel>();
             foreach (var channelDto in channelsResponseDto.Channels)
             {
                 result.Add(_cache.TryCreateOrUpdate(channelDto));
@@ -283,7 +283,7 @@ namespace StreamChat.Core.State
         }
 
         /// <inheritdoc cref="IStreamChatStateClient.MuteMultipleChannelsAsync"/>
-        public async Task MuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels, int? milliseconds = default)
+        public async Task MuteMultipleChannelsAsync(IEnumerable<IStreamChannel> channels, int? milliseconds = default)
         {
             StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));
 
@@ -302,7 +302,7 @@ namespace StreamChat.Core.State
             UpdateLocalUser(response.OwnUser);
         }
 
-        public async Task UnmuteMultipleChannelsAsync(IEnumerable<StreamChannel> channels)
+        public async Task UnmuteMultipleChannelsAsync(IEnumerable<IStreamChannel> channels)
         {
             if (channels == null)
             {
@@ -323,7 +323,7 @@ namespace StreamChat.Core.State
         }
 
         /// <inheritdoc />
-        public async Task<StreamDeleteChannelsResponse> DeleteMultipleChannelsAsync(IEnumerable<StreamChannel> channels,
+        public async Task<StreamDeleteChannelsResponse> DeleteMultipleChannelsAsync(IEnumerable<IStreamChannel> channels,
             bool isHardDelete = false)
         {
             StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));

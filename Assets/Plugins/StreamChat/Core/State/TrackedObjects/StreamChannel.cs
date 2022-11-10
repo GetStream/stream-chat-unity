@@ -15,32 +15,27 @@ using StreamChat.Core.State.Caches;
 
 namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more intuitive namespace? Models? StateModels?
 {
-    // StreamTodo: add IStreamChannel interface
-    public interface IStreamChannel
-    {
-    }
-
     //StreamTodo: rename all to add Stream prefix
-    public delegate void ChannelVisibilityHandler(StreamChannel channel, bool isHidden);
+    public delegate void ChannelVisibilityHandler(IStreamChannel channel, bool isHidden);
 
-    public delegate void ChannelMuteHandler(StreamChannel channel, bool isMuted);
+    public delegate void ChannelMuteHandler(IStreamChannel channel, bool isMuted);
 
-    public delegate void ChannelMessageHandler(StreamChannel channel, StreamMessage message);
+    public delegate void ChannelMessageHandler(IStreamChannel channel, StreamMessage message);
 
-    public delegate void MessageDeleteHandler(StreamChannel channel, StreamMessage message, bool isHardDelete);
+    public delegate void MessageDeleteHandler(IStreamChannel channel, StreamMessage message, bool isHardDelete);
 
-    public delegate void ChannelChangeHandler(StreamChannel channel);
+    public delegate void ChannelChangeHandler(IStreamChannel channel);
 
-    public delegate void ChannelUserChangeHandler(StreamChannel channel, StreamUser user);
+    public delegate void ChannelUserChangeHandler(IStreamChannel channel, StreamUser user);
 
-    public delegate void ChannelMemberChangeHandler(StreamChannel channel, StreamChannelMember member);
+    public delegate void ChannelMemberChangeHandler(IStreamChannel channel, StreamChannelMember member);
 
     /// <summary>
     /// Channel is where group of <see cref="StreamChannelMember"/> can chat with each other.
     /// Depending on <see cref="StreamChannel.Type"/>
     /// </summary>
     /// <remarks>https://getstream.io/chat/docs/unity/permissions_reference/?language=unity&q=hidden#default-grants</remarks>
-    public sealed class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
+    internal sealed class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>,
@@ -125,7 +120,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         /// <summary>
         /// Whether auto translation is enabled or not
         /// </summary>
-        public bool? AutoTranslationEnabled { get; private set; }
+        public bool AutoTranslationEnabled { get; private set; }
 
         /// <summary>
         /// Language to translate to when auto translation is active
@@ -1041,6 +1036,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             }
         }
 
+        //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
         private readonly List<StreamUser> _typingUsers = new List<StreamUser>();
     }
 }

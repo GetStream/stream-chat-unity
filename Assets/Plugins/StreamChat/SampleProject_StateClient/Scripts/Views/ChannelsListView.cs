@@ -47,7 +47,7 @@ namespace StreamChat.SampleProject_StateClient.Views
             }
         }
 
-        private void OnChannelClicked(StreamChannel channel) => State.OpenChannel(channel);
+        private void OnChannelClicked(IStreamChannel channel) => State.OpenChannel(channel);
 
         private void ClearAll()
         {

@@ -6,7 +6,7 @@ namespace StreamChat.Core.State.Models
 {
     public class StreamChannelMute : IStateLoadableFrom<ChannelMuteInternalDTO, StreamChannelMute>
     {
-        public StreamChannel Channel { get; private set; }
+        public IStreamChannel Channel { get; private set; }
 
         /// <summary>
         /// Date/time of creation
