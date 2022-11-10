@@ -26,7 +26,7 @@ namespace StreamChat.Core.State
     /// Connection has been established
     /// You can access local user data via <see cref="StreamChatStateClient.LocalUserData"/>
     /// </summary>
-    public delegate void ConnectionMadeHandler(StreamLocalUserData localUserData);
+    public delegate void ConnectionMadeHandler(IStreamLocalUserData localUserData);
 
     /// <summary>
     /// Connection state change handler
@@ -71,7 +71,7 @@ namespace StreamChat.Core.State
         public ConnectionState ConnectionState => LowLevelClient.ConnectionState;
 
         /// <inheritdoc cref="IStreamChatStateClient.LocalUserData"/>
-        public StreamLocalUserData LocalUserData { get; private set; }
+        public IStreamLocalUserData LocalUserData { get; private set; }
 
         /// <inheritdoc cref="IStreamChatStateClient.WatchedChannels"/>
         public IReadOnlyList<IStreamChannel> WatchedChannels => _cache.Channels.AllItems;
@@ -126,14 +126,14 @@ namespace StreamChat.Core.State
             }
         }
 
-        public Task<StreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
+        public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
         {
             LowLevelClient.ConnectUser(userAuthCredentials);
 
             //StreamTodo: timeout, like 5 seconds?
             _connectUserCancellationToken = cancellationToken;
-            _connectUserTaskSource = new TaskCompletionSource<StreamLocalUserData>();
+            _connectUserTaskSource = new TaskCompletionSource<IStreamLocalUserData>();
             return _connectUserTaskSource.Task;
         }
 
@@ -403,7 +403,7 @@ namespace StreamChat.Core.State
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
 
-        private TaskCompletionSource<StreamLocalUserData> _connectUserTaskSource;
+        private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
 
         #region Connection Events

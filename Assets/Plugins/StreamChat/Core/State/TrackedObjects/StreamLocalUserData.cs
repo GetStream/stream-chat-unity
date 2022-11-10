@@ -2,10 +2,12 @@
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Caches;
+using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
-    public sealed class StreamLocalUserData : StreamTrackedObjectBase<StreamLocalUserData>, IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>
+    internal sealed class StreamLocalUserData : StreamTrackedObjectBase<StreamLocalUserData>,
+        IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>, IStreamLocalUserData
     {
         #region OwnUser
 
@@ -108,7 +110,8 @@ namespace StreamChat.Core.State.TrackedObjects
 
         #endregion
 
-        internal StreamLocalUserData(string uniqueId, ICacheRepository<StreamLocalUserData> repository, ITrackedObjectContext context)
+        internal StreamLocalUserData(string uniqueId, ICacheRepository<StreamLocalUserData> repository,
+            ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {
         }
@@ -116,7 +119,8 @@ namespace StreamChat.Core.State.TrackedObjects
         protected override string InternalUniqueId { get; set; }
         protected override StreamLocalUserData Self => this;
 
-        void IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>.UpdateFromDto(OwnUserInternalDTO dto, ICache cache)
+        void IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>.UpdateFromDto(OwnUserInternalDTO dto,
+            ICache cache)
         {
             #region OwnUser
 
