@@ -14,6 +14,21 @@ namespace StreamChat.Core.State.TrackedObjects
     public interface IStreamMessage : IStreamTrackedObject
     {
         /// <summary>
+        /// Event fired when a new <see cref="StreamReaction"/> was added to <see cref="IStreamMessage"/>
+        /// </summary>
+        event StreamMessageReactionHandler ReactionAdded;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamReaction"/> was removed from a <see cref="IStreamMessage"/>
+        /// </summary>
+        event StreamMessageReactionHandler ReactionRemoved;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamReaction"/> was updated on a <see cref="IStreamMessage"/>
+        /// </summary>
+        event StreamMessageReactionHandler ReactionUpdated;
+        
+        /// <summary>
         /// Array of message attachments
         /// </summary>
         IReadOnlyList<StreamMessageAttachment> Attachments { get; }
@@ -68,11 +83,6 @@ namespace StreamChat.Core.State.TrackedObjects
         /// List of mentioned users
         /// </summary>
         IReadOnlyList<IStreamUser> MentionedUsers { get; }
-
-        /// <summary>
-        /// Should be empty if `text` is provided. Can only be set when using server-side API
-        /// </summary>
-        string Mml { get; }
 
         /// <summary>
         /// List of 10 latest reactions of authenticated user to this message
@@ -142,7 +152,7 @@ namespace StreamChat.Core.State.TrackedObjects
         bool? Silent { get; }
 
         /// <summary>
-        /// Text of the message. Should be empty if `mml` is provided
+        /// Text of the message
         /// </summary>
         string Text { get; }
 

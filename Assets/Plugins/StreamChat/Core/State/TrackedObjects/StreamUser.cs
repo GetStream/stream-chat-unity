@@ -13,114 +13,51 @@ namespace StreamChat.Core.State.TrackedObjects
 {
     public delegate void StreamUserPresenceHandler(IStreamUser user, bool isOnline, DateTimeOffset? lastActive);
 
-    /// <summary>
-    /// Stream user represents a single chat user that can be a member of multiple <see cref="IStreamChannel"/>
-    /// This object is tracked by <see cref="StreamChatStateClient"/> meaning its state will be automatically updated
-    /// </summary>
+    /// <inheritdoc cref="IStreamUser"/>
     internal sealed class StreamUser : StreamTrackedObjectBase<StreamUser>,
         IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>,
         IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>, IStreamUser
     {
-        /// <summary>
-        /// Event fired when the user online state changed. Check <see cref="Online"/> and <see cref="LastActive"/> to know if the user is online or when was last active
-        /// </summary>
         public event StreamUserPresenceHandler PresenceChanged;
         
-        /// <summary>
-        /// Expiration date of the ban
-        /// </summary>
         public DateTimeOffset? BanExpires { get; private set; }
 
-        /// <summary>
-        /// Whether a user is banned or not
-        /// </summary>
         public bool Banned { get; private set; }
 
-        /// <summary>
-        /// Date/time of creation
-        /// </summary>
         public DateTimeOffset CreatedAt { get; private set; }
 
-        /// <summary>
-        /// Date of deactivation
-        /// </summary>
         public DateTimeOffset? DeactivatedAt { get; private set; }
 
-        /// <summary>
-        /// Date/time of deletion
-        /// </summary>
         public DateTimeOffset? DeletedAt { get; private set; }
 
-        /// <summary>
-        /// Unique user identifier
-        /// </summary>
         public string Id { get; private set; }
-
-        /// <summary>
-        /// Invisible user will appear as offline to other users
-        /// You can change user visibility with <see cref="ChangeVisibilityAsync"/>
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity</remarks>
+        
         public bool Invisible { get; private set; }
 
-        /// <summary>
-        /// Preferred language of a user
-        /// </summary>
         public string Language { get; private set; }
 
-        /// <summary>
-        /// Date of last activity
-        /// </summary>
         public DateTimeOffset? LastActive { get; private set; }
 
-        /// <summary>
-        /// Whether a user online or not
-        /// </summary>
         public bool Online { get; private set; }
 
         public StreamPushNotificationSettings PushNotifications { get; private set; }
 
-        /// <summary>
-        /// Revocation date for tokens
-        /// </summary>
         public DateTimeOffset? RevokeTokensIssuedBefore { get; private set; }
 
-        /// <summary>
-        /// Determines the set of user permissions
-        /// </summary>
         public string Role { get; private set; }
 
-        /// <summary>
-        /// Whether user is shadow banned or not
-        /// </summary>
         public bool ShadowBanned { get; private set; }
 
-        /// <summary>
-        /// List of teams user is a part of
-        /// </summary>
         public IReadOnlyList<string> Teams => _teams;
 
-        /// <summary>
-        /// Date/time of the last update
-        /// </summary>
         public DateTimeOffset? UpdatedAt { get; private set; }
 
         //Not in API
         public string Name { get; private set; }
         public string Image { get; private set; }
 
-        /// <summary>
-        /// Flag this user
-        /// </summary>
         public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagUserAsync(Id);
-
-        /// <summary>
-        /// Mark user as muted. Any user is allowed to mute another user. Mute will last until the <see cref="UnmuteAsync"/> is called or until mute expires.
-        /// Muted user messages will still be received by the <see cref="IStreamChatStateClient"/> so if you wish to hide muted users messages you need implement by yourself
-        ///
-        /// You can access mutes via <see cref="IStreamLocalUserData.Mutes"/> in <see cref="IStreamChatStateClient.LocalUserData"/>
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#mutes</remarks>
+        
         public async Task MuteAsync()
         {
             var response = await LowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
@@ -135,26 +72,13 @@ namespace StreamChat.Core.State.TrackedObjects
             StreamChatStateClient.UpdateLocalUser(response.OwnUser);
         }
         
-        /// <summary>
-        /// Remove user mute. Any user is allowed to mute another user. Mute will last until the <see cref="UnmuteAsync"/> is called or until mute expires.
-        /// Muted user messages will still be received by the <see cref="IStreamChatStateClient"/> so if you wish to hide muted users messages you need implement by yourself
-        ///
-        /// You can access mutes via <see crefStreamLocalUserDatata.Mutes"/> in <see cref="IStreamChatStateClient.LocalUserData"/>
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#mutes</remarks>
         public Task UnmuteAsync()
             => LowLevelClient.InternalModerationApi.UnmuteUserAsync(new UnmuteUserRequestInternalDTO
             {
                 TargetId = Id,
             });
-
-
-        /// <summary>
-        /// Mark user as invisible. Invisible user will appear as offline to other users.
-        /// User will remain invisible even if you disconnect and reconnect again. You must explicitly call <see cref="MarkVisible"/> in order to become visible again.
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity#invisible</remarks>
-        public async Task MarkInvisible()
+        
+        public async Task MarkInvisibleAsync()
         {
             var response = await LowLevelClient.InternalUserApi.UpdateUserPartialAsync(
                 new UpdateUserPartialRequestInternalDTO
@@ -164,14 +88,11 @@ namespace StreamChat.Core.State.TrackedObjects
                         {"invisible", true}
                     }
                 });
+            //StreamTodo: probably better to fetch by id or throw exception
             Cache.TryCreateOrUpdate(response.Users.First().Value);
         }
 
-        /// <summary>
-        /// Mark user visible again if he was previously marked as invisible with <see cref="MarkInvisible"/>
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity#invisible</remarks>
-        public async Task MarkVisible()
+        public async Task MarkVisibleAsync()
         {
             var response = await LowLevelClient.InternalUserApi.UpdateUserPartialAsync(
                 new UpdateUserPartialRequestInternalDTO
@@ -181,6 +102,7 @@ namespace StreamChat.Core.State.TrackedObjects
                         "invisible"
                     }
                 });
+            //StreamTodo: probably better to fetch by id or throw exception
             Cache.TryCreateOrUpdate(response.Users.First().Value);
         }
 

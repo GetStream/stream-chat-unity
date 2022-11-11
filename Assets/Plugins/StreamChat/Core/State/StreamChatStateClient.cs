@@ -12,6 +12,7 @@ using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Core.State.Caches;
+using StreamChat.Core.State.Models;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;
@@ -725,25 +726,40 @@ namespace StreamChat.Core.State
 
         private void OnLowLevelClientReactionReceived(EventReactionNewInternalDTO eventDto)
         {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
+            {
+                return;
+            }
             if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
             {
-                message.HandleReactionNewEvent(eventDto);
+                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                message.HandleReactionNewEvent(eventDto, channel, reaction);
+            }
+        }
+        
+        private void OnLowLevelClientReactionUpdated(EventReactionUpdatedInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
+            {
+                return;
+            }
+            if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
+            {
+                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                message.HandleReactionUpdatedEvent(eventDto, channel, reaction);
             }
         }
 
         private void OnLowLevelClientReactionDeleted(EventReactionDeletedInternalDTO eventDto)
         {
-            if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
             {
-                message.HandleReactionDeletedEvent(eventDto);
+                return;
             }
-        }
-
-        private void OnLowLevelClientReactionUpdated(EventReactionUpdatedInternalDTO eventDto)
-        {
             if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
             {
-                message.HandleReactionUpdatedEvent(eventDto);
+                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                message.HandleReactionDeletedEvent(eventDto, channel, reaction);
             }
         }
 

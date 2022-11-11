@@ -15,9 +15,11 @@ namespace StreamChat.Core.State.TrackedObjects
     internal sealed class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
         IUpdateableFrom<MessageInternalDTO, StreamMessage>, IStreamMessage
     {
-        /// <summary>
-        /// Array of message attachments
-        /// </summary>
+        //StreamTodo: add to interface
+        public event StreamMessageReactionHandler ReactionAdded;
+        public event StreamMessageReactionHandler ReactionRemoved;
+        public event StreamMessageReactionHandler ReactionUpdated;
+
         public IReadOnlyList<StreamMessageAttachment> Attachments => _attachments;
 
         /// <summary>
@@ -25,183 +27,77 @@ namespace StreamChat.Core.State.TrackedObjects
         /// </summary>
         //public bool? BeforeMessageSendFailed { get; private set; } //StreamTodo: verify this property
 
-        /// <summary>
-        /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
-        /// </summary>
         public string Cid { get; private set; }
-        
-        /// <summary>
-        /// Contains provided slash command
-        /// </summary>
+
         public string Command { get; private set; }
 
-        /// <summary>
-        /// Date/time of creation
-        /// </summary>
         public DateTimeOffset CreatedAt { get; private set; }
 
-        /// <summary>
-        /// Date/time of deletion
-        /// </summary>
         public DateTimeOffset? DeletedAt { get; private set; }
 
-        /// <summary>
-        /// Contains HTML markup of the message. Can only be set when using server-side API
-        /// </summary>
         public string Html { get; private set; }
 
-        /// <summary>
-        /// Object with translations. Key `language` contains the original language key. Other keys contain translations
-        /// </summary>
         public IReadOnlyDictionary<string, string> I18n => _iI18n;
 
-        /// <summary>
-        /// Message ID is unique string identifier of the message
-        /// </summary>
         public string Id { get; private set; }
 
-        /// <summary>
-        /// Contains image moderation information
-        /// *** NOT IMPLEMENTED *** PLEASE SEND SUPPORT TICKET IF YOU NEED THIS FEATURE
-        /// </summary>
         public IReadOnlyDictionary<string, IReadOnlyList<string>> ImageLabels => throw new NotImplementedException();
 
-        /// <summary>
-        /// List of 10 latest reactions to this message
-        /// </summary>
         public IReadOnlyList<StreamReaction> LatestReactions => _latestReactions;
 
-        /// <summary>
-        /// List of mentioned users
-        /// </summary>
         public IReadOnlyList<IStreamUser> MentionedUsers => _mentionedUsers;
 
-        /// <summary>
-        /// Should be empty if `text` is provided. Can only be set when using server-side API
-        /// </summary>
-        public string Mml { get; private set; }
-
-        /// <summary>
-        /// List of 10 latest reactions of authenticated user to this message
-        /// </summary>
         public IReadOnlyList<StreamReaction> OwnReactions => _ownReactions;
 
-        /// <summary>
-        /// ID of parent message (thread)
-        /// </summary>
         public string ParentId { get; private set; }
 
-        /// <summary>
-        /// Date when pinned message expires
-        /// </summary>
         public DateTimeOffset? PinExpires { get; private set; }
 
-        /// <summary>
-        /// Whether message is pinned or not
-        /// </summary>
         public bool Pinned { get; private set; }
 
-        /// <summary>
-        /// Date when message got pinned
-        /// </summary>
         public DateTimeOffset? PinnedAt { get; private set; }
 
-        /// <summary>
-        /// Contains user who pinned the message
-        /// </summary>
         public IStreamUser PinnedBy { get; private set; }
 
-        /// <summary>
-        /// Contains quoted message
-        /// </summary>
         public IStreamMessage QuotedMessage { get; private set; }
 
         public string QuotedMessageId { get; private set; }
 
-        /// <summary>
-        /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
-        /// </summary>
         public IReadOnlyDictionary<string, int> ReactionCounts => _reactionCounts;
 
-        /// <summary>
-        /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
-        /// </summary>
         public IReadOnlyDictionary<string, int> ReactionScores => _reactionScores;
 
-        /// <summary>
-        /// Number of replies to this message
-        /// </summary>
         public int? ReplyCount { get; private set; }
 
-        /// <summary>
-        /// Whether the message was shadowed or not
-        /// </summary>
         public bool? Shadowed { get; private set; }
 
-        /// <summary>
-        /// Whether thread reply should be shown in the channel as well
-        /// </summary>
         public bool? ShowInChannel { get; private set; }
 
-        /// <summary>
-        /// Whether message is silent or not
-        /// </summary>
         public bool? Silent { get; private set; }
 
-        /// <summary>
-        /// Text of the message. Should be empty if `mml` is provided
-        /// </summary>
         public string Text { get; private set; }
 
-        /// <summary>
-        /// List of users who participate in thread
-        /// </summary>
         public IReadOnlyList<IStreamUser> ThreadParticipants => _threadParticipants;
 
-        /// <summary>
-        /// Contains type of the message
-        /// </summary>
         public StreamMessageType? Type { get; private set; }
 
-        /// <summary>
-        /// Date/time of the last update
-        /// </summary>
         public DateTimeOffset? UpdatedAt { get; private set; }
 
-        /// <summary>
-        /// Sender of the message. Required when using server-side API
-        /// </summary>
         public IStreamUser User { get; private set; }
         
         public bool IsDeleted => Type == StreamMessageType.Deleted;
 
-        /// <summary>
-        /// Clears the message text but leaves the rest of the message unchanged e.g. reaction, replies, attachments will be untouched
-        ///
-        /// If you want to remove the message and all its components completely use the <see cref="HardDeleteAsync"/>
-        /// </summary>
         public Task SoftDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: false);
 
-        /// <summary>
-        /// Removes the message completely along with its reactions, replies, attachments, etc.
-        ///
-        /// If you want to clear the text only use the <see cref="SoftDeleteAsync"/>
-        /// </summary>
         public Task HardDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: true);
 
-        /// <summary>
-        /// Update message text or other parameters
-        /// </summary>
-        /// <exception cref="ArgumentNullException"></exception>
         public async Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
         {
             if (streamUpdateMessageRequest == null)
             {
                 throw new ArgumentNullException(nameof(streamUpdateMessageRequest));
             }
-
-            // StreamTodo: validate that Text and Mml should not be both set
-
+            
             var requestDto = streamUpdateMessageRequest.TrySaveToDto();
             requestDto.Message.Id = Id;
 
@@ -209,10 +105,6 @@ namespace StreamChat.Core.State.TrackedObjects
             Cache.TryCreateOrUpdate(response.Message);
         }
 
-        /// <summary>
-        /// Pin this message to a channel with optional expiration date
-        /// </summary>
-        /// <param name="expiresAt">[Optional] UTC DateTime when pin will expire</param>
         public async Task PinAsync(DateTime? expiresAt = null)
         {
             var request = new UpdateMessagePartialRequestInternalDTO
@@ -235,9 +127,6 @@ namespace StreamChat.Core.State.TrackedObjects
             await StreamChatStateClient.RefreshChannelState(Cid);
         }
 
-        /// <summary>
-        /// Unpin this message from a channel
-        /// </summary>
         public async Task UnpinAsync()
         {
             var request = new UpdateMessagePartialRequestInternalDTO
@@ -254,14 +143,6 @@ namespace StreamChat.Core.State.TrackedObjects
             await StreamChatStateClient.RefreshChannelState(Cid);
         }
 
-        /// <summary>
-        /// Add reaction to this message
-        /// You can view reactions via <see cref="ReactionScores"/>, <see cref="ReactionCounts"/>, <see cref="OwnReactions"/> and <see cref="LatestReactions"/>
-        /// </summary>
-        /// <param name="type">Reaction custom key, examples: like, smile, sad, etc. or any custom string</param>
-        /// <param name="score">[Optional] Reaction score, by default it counts as 1</param>
-        /// <param name="enforceUnique">[Optional] Whether to replace all existing user reactions</param>
-        /// <param name="skipMobilePushNotifications">[Optional] Skips any mobile push notifications</param>
         public async Task SendReactionAsync(string type, int score = 1, bool enforceUnique = false,
             bool skipMobilePushNotifications = false)
         {
@@ -282,11 +163,6 @@ namespace StreamChat.Core.State.TrackedObjects
             Cache.TryCreateOrUpdate(response.Message);
         }
 
-        /// <summary>
-        /// Delete reaction
-        /// </summary>
-        /// <param name="type">Reaction custom key, examples: like, smile, sad, etc. You can use any custom key</param>
-        /// <returns></returns>
         public Task DeleteReactionAsync(string type)
         {
             StreamAsserts.AssertNotNullOrEmpty(type, nameof(type));
@@ -294,17 +170,8 @@ namespace StreamChat.Core.State.TrackedObjects
         }
 
         //StreamTodo: should we unwrap the response?
-        /// <summary>
-        /// Any user is allowed to flag a message. This triggers the message.flagged webhook event and adds the message to the inbox of your Stream Dashboard Chat Moderation view.
-        /// </summary>
         public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagMessageAsync(Id);
 
-        /// <summary>
-        /// Mark this message as the last that was read by local user in this channel
-        /// If you want to mark whole channel as read use the <see cref="IStreamChannel.MarkChannelReadAsync"/>
-        ///
-        /// This feature allows to track to which message users have read the channel
-        /// </summary>
         public Task MarkMessageAsLastReadAsync()
         {
             if (!Cache.Channels.TryGet(Cid, out var streamChannel))
@@ -333,7 +200,7 @@ namespace StreamChat.Core.State.TrackedObjects
             //_imageLabels.TryReplaceValuesFromDto(dto.ImageLabels); //StreamTodo: NOT IMPLEMENTED
             _latestReactions.TryReplaceRegularObjectsFromDto(dto.LatestReactions, cache);
             _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
-            Mml = GetOrDefault(dto.Mml, Mml);
+            //dto.Mml ignored because its only server-side
             _ownReactions.TryReplaceRegularObjectsFromDto(dto.OwnReactions, cache);
             ParentId = GetOrDefault(dto.ParentId, ParentId);
             PinExpires = GetOrDefault(dto.PinExpires, PinExpires);
@@ -361,46 +228,44 @@ namespace StreamChat.Core.State.TrackedObjects
         {
         }
 
-        /// <summary>
-        /// Clears the text only. Does not make an API call
-        /// </summary>
         internal void InternalHandleSoftDelete()
         {
             Text = string.Empty;
         }
 
-        internal void HandleReactionNewEvent(EventReactionNewInternalDTO eventDto)
+        internal void HandleReactionNewEvent(EventReactionNewInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
         {
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);
 
             //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
             Cache.TryCreateOrUpdate(eventDto.Message);
+            ReactionAdded?.Invoke(channel, this, reaction);
         }
 
-        internal void HandleReactionUpdatedEvent(EventReactionUpdatedInternalDTO eventDto)
+        internal void HandleReactionUpdatedEvent(EventReactionUpdatedInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
         {
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);
-
-            //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
 
             //Figure out what is this??? in Android SDK
             // // make sure we don't lose ownReactions
             // getMessage(message.id)?.let {
             //     message.ownReactions = it.ownReactions
             // }
+            //StreamTodo: ask android team about this code
 
             Cache.TryCreateOrUpdate(eventDto.Message);
+            ReactionUpdated?.Invoke(channel, this, reaction);
         }
 
-        internal void HandleReactionDeletedEvent(EventReactionDeletedInternalDTO eventDto)
+        internal void HandleReactionDeletedEvent(EventReactionDeletedInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
         {
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);
 
-            //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
             Cache.TryCreateOrUpdate(eventDto.Message);
+            ReactionRemoved?.Invoke(channel, this, reaction);
         }
 
         protected override StreamMessage Self => this;

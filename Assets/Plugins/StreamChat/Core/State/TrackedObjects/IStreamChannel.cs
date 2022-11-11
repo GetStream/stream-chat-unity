@@ -18,75 +18,75 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Event fired when a new <see cref="IStreamMessage"/> was received on this channel
         /// </summary>
-        event ChannelMessageHandler MessageReceived;
+        event StreamChannelMessageHandler MessageReceived;
         
         /// <summary>
         /// Event fired when a <see cref="IStreamMessage"/> from this channel was updated
         /// </summary>
-        event ChannelMessageHandler MessageUpdated;
+        event StreamChannelMessageHandler MessageUpdated;
 
         /// <summary>
         /// Event fired when a <see cref="IStreamMessage"/> from this channel was deleted
         /// </summary>
-        event MessageDeleteHandler MessageDeleted;
+        event StreamMessageDeleteHandler MessageDeleted;
 
         /// <summary>
         /// Event fired when a new <see cref="IStreamChannelMember"/> joined this channel
         /// </summary>
-        event ChannelMemberChangeHandler MemberAdded;
+        event StreamChannelMemberChangeHandler MemberAdded;
 
         /// <summary>
         /// Event fired when a <see cref="IStreamChannelMember"/> left this channel
         /// </summary>
-        event ChannelMemberChangeHandler MemberRemoved;
+        event StreamChannelMemberChangeHandler MemberRemoved; //StreamTodo: Unifiy Removed or Deleted
 
         /// <summary>
         /// Event fired when a <see cref="IStreamChannelMember"/> was updated
         /// </summary>
-        event ChannelMemberChangeHandler MemberUpdated;
+        event StreamChannelMemberChangeHandler MemberUpdated;
 
         /// <summary>
         /// Event fired when visibility of this channel changed. Check <see cref="IStreamChannel.Hidden"/> to know if channel is hidden
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity&q=hidden#hiding-a-channel</remarks>
-        event ChannelVisibilityHandler VisibilityChanged;
+        event StreamChannelVisibilityHandler VisibilityChanged;
 
         /// <summary>
         /// Event fired when channel got muted on unmuted. Check <see cref="IStreamChannel.Muted"/> and <see cref="IStreamChannel.MuteExpiresAt"/> to know if channel is muted
         /// </summary>
-        event ChannelMuteHandler MuteChanged;
+        event StreamChannelMuteHandler MuteChanged;
 
         /// <summary>
         /// Event fired when this channel was truncated meaning that all or part of the messages where removed
         /// </summary>
-        event ChannelChangeHandler Truncated;
+        event StreamChannelChangeHandler Truncated;
 
         /// <summary>
         /// Event fired when this channel data was updated
         /// </summary>
-        event ChannelChangeHandler Updated;
+        event StreamChannelChangeHandler Updated;
 
         /// <summary>
         /// Event fired when a <see cref="IStreamUser"/> started watching this channel
         /// See also <see cref="WatcherCount"/> and <see cref="Watchers"/>
         /// </summary>
-        event ChannelUserChangeHandler WatcherAdded;
+        event StreamChannelUserChangeHandler WatcherAdded;
 
         /// <summary>
         /// Event fired when a <see cref="IStreamUser"/> stopped watching this channel
         /// See also <see cref="WatcherCount"/> and <see cref="Watchers"/>
         /// </summary>
-        event ChannelUserChangeHandler WatcherRemoved;
+        event StreamChannelUserChangeHandler WatcherRemoved;
 
         /// <summary>
         /// Event fired when a <see cref="IStreamUser"/> in this channel starts typing
         /// </summary>
-        event ChannelUserChangeHandler UserStartedTyping;
+        event StreamChannelUserChangeHandler UserStartedTyping;
 
         /// <summary>
         /// Event fired when a <see cref="IStreamUser"/> in this channel stops typing
         /// </summary>
-        event ChannelUserChangeHandler UserStoppedTyping;
+        event StreamChannelUserChangeHandler UserStoppedTyping;
 
         /// <summary>
         /// Whether auto translation is enabled or not

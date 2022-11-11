@@ -13,24 +13,26 @@ using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.Caches;
 
-namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more intuitive namespace? Models? StateModels?
+//StreamTodo: maybe some more intuitive namespace? Models? StateModels?
+namespace StreamChat.Core.State.TrackedObjects
 {
-    //StreamTodo: rename all to add Stream prefix
-    public delegate void ChannelVisibilityHandler(IStreamChannel channel, bool isHidden);
+    public delegate void StreamChannelVisibilityHandler(IStreamChannel channel, bool isHidden);
 
-    public delegate void ChannelMuteHandler(IStreamChannel channel, bool isMuted);
+    public delegate void StreamChannelMuteHandler(IStreamChannel channel, bool isMuted);
 
-    public delegate void ChannelMessageHandler(IStreamChannel channel, IStreamMessage message);
+    public delegate void StreamChannelMessageHandler(IStreamChannel channel, IStreamMessage message);
 
-    public delegate void MessageDeleteHandler(IStreamChannel channel, IStreamMessage message, bool isHardDelete);
+    public delegate void StreamMessageDeleteHandler(IStreamChannel channel, IStreamMessage message, bool isHardDelete);
 
-    public delegate void ChannelChangeHandler(IStreamChannel channel);
+    public delegate void StreamChannelChangeHandler(IStreamChannel channel);
 
-    public delegate void ChannelUserChangeHandler(IStreamChannel channel, IStreamUser user);
+    public delegate void StreamChannelUserChangeHandler(IStreamChannel channel, IStreamUser user);
 
-    public delegate void ChannelMemberChangeHandler(IStreamChannel channel, IStreamChannelMember member);
+    public delegate void StreamChannelMemberChangeHandler(IStreamChannel channel, IStreamChannelMember member);
 
-    /// <inheritdoc cref="IStreamChannel"/>
+    public delegate void StreamMessageReactionHandler(IStreamChannel channel, IStreamMessage message,
+        StreamReaction reaction);
+
     internal sealed class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
@@ -38,131 +40,56 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         IUpdateableFrom<UpdateChannelResponseInternalDTO, StreamChannel>,
         IStreamChannel
     {
-        /// <summary>
-        /// Event fired when a new <see cref="IStreamMessage"/> was received on this channel
-        /// </summary>
-        public event ChannelMessageHandler MessageReceived;
-        
-        /// <summary>
-        /// Event fired when a <see cref="IStreamMessage"/> from this channel was updated
-        /// </summary>
-        public event ChannelMessageHandler MessageUpdated;
-        
-        /// <summary>
-        /// Event fired when a <see cref="IStreamMessage"/> from this channel was deleted
-        /// </summary>
-        public event MessageDeleteHandler MessageDeleted;
-        
-        /// <summary>
-        /// Event fired when a new <see cref="IStreamChannelMember"/> joined this channel
-        /// </summary>
-        public event ChannelMemberChangeHandler MemberAdded;
-        
-        /// <summary>
-        /// Event fired when a <see cref="IStreamChannelMember"/> left this channel
-        /// </summary>
-        public event ChannelMemberChangeHandler MemberRemoved;
-        
-        /// <summary>
-        /// Event fired when a <see cref="IStreamChannelMember"/> was updated
-        /// </summary>
-        public event ChannelMemberChangeHandler MemberUpdated;
-        
-        /// <summary>
-        /// Event fired when visibility of this channel changed. Check <see cref="Hidden"/> to know if channel is hidden
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity&q=hidden#hiding-a-channel</remarks>
-        public event ChannelVisibilityHandler VisibilityChanged;
-        
-        /// <summary>
-        /// Event fired when channel got muted on unmuted. Check <see cref="Muted"/> and <see cref="MuteExpiresAt"/> to know if channel is muted
-        /// </summary>
-        public event ChannelMuteHandler MuteChanged;
-        
-        /// <summary>
-        /// Event fired when this channel was truncated meaning that all or part of the messages where removed
-        /// </summary>
-        public event ChannelChangeHandler Truncated;
-        
-        /// <summary>
-        /// Event fired when this channel data was updated
-        /// </summary>
-        public event ChannelChangeHandler Updated;
-        
-        /// <summary>
-        /// Event fired when a <see cref="IStreamUser"/> started watching this channel
-        /// See also <see cref="see cref="WatcherCount"/>"/> and <see cref="Watchers"/>
-        /// </summary>
-        public event ChannelUserChangeHandler WatcherAdded;
+        public event StreamChannelMessageHandler MessageReceived;
 
-        /// <summary>
-        /// Event fired when a <see cref="IStreamUser"/> stopped watching this channel
-        /// See also <see cref="see cref="WatcherCount"/>"/> and <see cref="Watchers"/>
-        /// </summary>
-        public event ChannelUserChangeHandler WatcherRemoved;
-        
-        /// <summary>
-        /// Event fired when a <see cref="IStreamUser"/> in this channel starts typing
-        /// </summary>
-        public event ChannelUserChangeHandler UserStartedTyping;
+        public event StreamChannelMessageHandler MessageUpdated;
 
-        /// <summary>
-        /// Event fired when a <see cref="IStreamUser"/> in this channel stops typing
-        /// </summary>
-        public event ChannelUserChangeHandler UserStoppedTyping;
+        public event StreamMessageDeleteHandler MessageDeleted;
+
+        public event StreamChannelMemberChangeHandler MemberAdded;
+
+        public event StreamChannelMemberChangeHandler MemberRemoved;
+
+        public event StreamChannelMemberChangeHandler MemberUpdated;
+
+        public event StreamChannelVisibilityHandler VisibilityChanged;
+
+        public event StreamChannelMuteHandler MuteChanged;
+
+        public event StreamChannelChangeHandler Truncated;
+
+        public event StreamChannelChangeHandler Updated;
+
+        public event StreamChannelUserChangeHandler WatcherAdded;
+
+        public event StreamChannelUserChangeHandler WatcherRemoved;
+
+        public event StreamChannelUserChangeHandler UserStartedTyping;
+
+        public event StreamChannelUserChangeHandler UserStoppedTyping;
 
         #region Channel
 
-        /// <summary>
-        /// Whether auto translation is enabled or not
-        /// </summary>
         public bool AutoTranslationEnabled { get; private set; }
 
-        /// <summary>
-        /// Language to translate to when auto translation is active
-        /// </summary>
         public string AutoTranslationLanguage { get; private set; }
 
-        /// <summary>
-        /// Channel CID (type:id)
-        /// </summary>
         public string Cid { get; private set; }
 
-        /// <summary>
-        /// Channel configuration
-        /// </summary>
         public StreamChannelConfig Config { get; private set; }
 
-        /// <summary>
-        /// Cooldown period after sending each message
-        /// </summary>
         public int? Cooldown { get; private set; }
 
-        /// <summary>
-        /// Date/time of creation
-        /// </summary>
         public DateTimeOffset CreatedAt { get; private set; }
 
-        /// <summary>
-        /// Creator of the channel
-        /// </summary>
         public IStreamUser CreatedBy { get; private set; }
 
-        /// <summary>
-        /// Date/time of deletion
-        /// </summary>
         public DateTimeOffset? DeletedAt { get; private set; }
 
         public bool Disabled { get; private set; }
 
-        /// <summary>
-        /// Whether channel is frozen or not
-        /// </summary>
         public bool Frozen { get; private set; }
 
-        /// <summary>
-        /// Whether this channel is hidden by current user or not. Subscribe to <see cref="VisibilityChanged"/> to get notified when this property changes
-        /// </summary>
         public bool Hidden
         {
             get => _hidden;
@@ -177,39 +104,18 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             }
         }
 
-        /// <summary>
-        /// Date since when the message history is accessible
-        /// </summary>
         public DateTimeOffset? HideMessagesBefore { get; private set; }
 
-        /// <summary>
-        /// Channel unique ID
-        /// </summary>
         public string Id { get; private set; }
 
-        /// <summary>
-        /// Date of the last message sent
-        /// </summary>
         public DateTimeOffset? LastMessageAt { get; private set; }
 
-        /// <summary>
-        /// Number of members in the channel
-        /// </summary>
         public int MemberCount { get; private set; }
 
-        /// <summary>
-        /// List of channel members (max 100)
-        /// </summary>
         public IReadOnlyList<IStreamChannelMember> Members => _members;
 
-        /// <summary>
-        /// Date of mute expiration
-        /// </summary>
         public DateTimeOffset? MuteExpiresAt { get; private set; }
 
-        /// <summary>
-        /// Whether this channel is muted or not. Subscribe to <see cref="MuteChanged"/> to get notified when this property changes
-        /// </summary>
         public bool Muted
         {
             get => _muted;
@@ -225,28 +131,16 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             }
         }
 
-        /// <summary>
-        /// List of channel capabilities of authenticated user
-        /// </summary>
         public IReadOnlyList<string> OwnCapabilities => _ownCapabilities;
 
-        /// <summary>
-        /// Team the channel belongs to (multi-tenant only)
-        /// </summary>
         public string Team { get; private set; }
 
         public DateTimeOffset? TruncatedAt { get; private set; }
 
         public IStreamUser TruncatedBy { get; private set; }
 
-        /// <summary>
-        /// Type of the channel
-        /// </summary>
         public ChannelType Type { get; private set; }
 
-        /// <summary>
-        /// Date/time of the last update
-        /// </summary>
         public DateTimeOffset? UpdatedAt { get; private set; }
 
         public string Name { get; private set; }
@@ -255,68 +149,33 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
 
         #region ChannelState
 
-        /// <summary>
-        /// Current user membership object
-        /// </summary>
         public IStreamChannelMember Membership { get; private set; }
 
-        /// <summary>
-        /// List of channel messages. By default only latest messages are loaded. If you wish to load older messages user the <see cref="LoadOlderMessagesAsync"/>
-        /// </summary>
         public IReadOnlyList<IStreamMessage> Messages => _messages;
 
-        /// <summary>
-        /// Pending messages that this user has sent
-        /// </summary>
         public IReadOnlyList<StreamPendingMessage> PendingMessages => _pendingMessages;
 
-        /// <summary>
-        /// List of pinned messages in the channel
-        /// </summary>
         public IReadOnlyList<IStreamMessage> PinnedMessages => _pinnedMessages;
 
-        /// <summary>
-        /// List of read states
-        /// </summary>
         public IReadOnlyList<StreamRead> Read => _read;
 
-        /// <summary>
-        /// Number of channel watchers
-        /// </summary>
         public int WatcherCount { get; private set; }
 
-        /// <summary>
-        /// List of user who is watching the channel
-        /// Subscribe to <see cref="WatcherAdded"/> and <see cref="WatcherRemoved"/> events to know when this list changes.
-        /// </summary>
         public IReadOnlyList<IStreamUser> Watchers => _watchers; //StreamTodo: Mention that this is paginatable
 
-        /// <summary>
-        /// List of currently typing users.
-        /// Subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/> events to know when this list changes.
-        /// </summary>
         public IReadOnlyList<IStreamUser> TypingUsers => _typingUsers;
 
         #endregion
-        
-        /// <summary>
-        /// Is this a direct message channel between the local and some other user
-        /// </summary>
+
         public bool IsDirectMessage =>
             Members.Count == 2 && Members.Any(m => m.User == StreamChatStateClient.LocalUserData.User);
 
-        /// <summary>
-        /// Basic send message method. If you want to set additional parameters like use the other <see cref="SendNewMessageAsync(StreamSendMessageRequest requestBody)"/> overload
-        /// </summary>
         public Task<IStreamMessage> SendNewMessageAsync(string message)
             => SendNewMessageAsync(new StreamSendMessageRequest
             {
                 Text = message
             });
 
-        /// <summary>
-        /// Advanced send message method. Check out the <see cref="StreamSendMessageRequest"/> to see all of the parameters
-        /// </summary>
         public async Task<IStreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest)
         {
             if (sendMessageRequest == null)
@@ -354,7 +213,8 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
                     Limit = null,
                     Offset = null,
                 },
-                Presence = true, //StreamTodo: presence could be optional in config
+                //StreamTodo: presence could be optional in config
+                Presence = true,
                 State = true,
                 Watch = true,
             };
@@ -372,13 +232,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         }
 
         //StreamTodo: LoadNewerMessages? This would only make sense if we would start somewhere in the history. Maybe its possible with search? You jump in to past message and scroll to load newer
-
-        /// <summary>
-        /// Update channel in a complete overwrite mode.
-        /// Important! Any data that is present on the channel and not included in a full update will be deleted.
-        ///
-        /// If you want to update only some fields of the channel use the <see cref="UpdatePartialAsync"/>
-        /// </summary>
         public async Task UpdateOverwriteAsync() //StreamTodo: NOT IMPLEMENTED
         {
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
@@ -389,12 +242,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             Cache.TryCreateOrUpdate(response.Channel);
         }
 
-        /// <summary>
-        /// Update channel in a partial mode. You can selectively set and unset fields of the channel
-        ///
-        /// If you want to completely overwrite the channel use the <see cref="UpdateOverwriteAsync"/>
-        /// </summary>
-        /// StreamTodo: this should be more high level, maybe use enum with predefined field names?
         public async Task UpdatePartialAsync(IDictionary<string, object> setFields,
             IEnumerable<string> unsetFields = null)
         {
@@ -424,13 +271,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             Cache.TryCreateOrUpdate(response.Channel);
         }
 
-        /// <summary>
-        /// Upload file to stream CDN. Returned file URL can be used as a message attachment.
-        /// For image files use <see cref="UploadImageAsync"/> as it will generate the thumbnail and allow for image resize and crop operations
-        /// </summary>
-        /// <param name="fileContent">File bytes content (e.g. returned from <see cref="System.IO.File.ReadAllBytes"/></param>
-        /// <param name="fileName">Name of the file</param>
-        /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity</remarks>
         public async Task<StreamFileUploadResponse> UploadFileAsync(byte[] fileContent, string fileName)
         {
             StreamAsserts.AssertNotNullOrEmpty(fileContent, nameof(fileContent));
@@ -440,23 +280,12 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             return new StreamFileUploadResponse(response.File);
         }
 
-        /// <summary>
-        /// Delete file of any type that was send to Stream CDN.
-        /// This handles both files sent via <see cref="UploadFileAsync"/> and images sent via <see cref="UploadImageAsync"/>
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity#deleting-files-and-images</remarks>
         public Task DeleteFileAsync(string fileUrl)
         {
             StreamAsserts.AssertNotNullOrEmpty(fileUrl, nameof(fileUrl));
             return LowLevelClient.InternalMessageApi.DeleteFileAsync(Type, Id, fileUrl);
         }
 
-        /// <summary>
-        /// Upload image file to stream CDN. The returned image URL can be injected into <see cref="StreamAttachmentRequest"/> when sending new message.
-        /// </summary>
-        /// <param name="imageContent"></param>
-        /// <param name="imageName"></param>
-        /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity#how-to-upload-a-file-or-image</remarks>
         public async Task<StreamImageUploadResponse> UploadImageAsync(byte[] imageContent, string imageName)
         {
             StreamAsserts.AssertNotNullOrEmpty(imageContent, nameof(imageContent));
@@ -473,17 +302,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         public void QueryWatchers() //StreamTodo: IMPLEMENT
         {
         }
-        
-        /// <summary>
-        /// Ban user from this channel.
-        /// If you wish to ban user completely from all of the channels, this can be done only by server-side SDKs.
-        /// </summary>
-        /// <param name="user">User to ban from channel</param>
-        /// <param name="isShadowBan">Shadow banned user is not notified about the ban. Read more: <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks></param>
-        /// <param name="reason">[Optional] reason description why user got banned</param>
-        /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
-        /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
-        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
+
         public Task BanUserFromChannelAsync(IStreamUser user, bool isShadowBan = false, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false)
         {
@@ -507,21 +326,12 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             });
         }
 
-        /// <summary>
-        /// Remove ban from the user on this channel
-        /// </summary>
         public Task UnbanUserInChannelAsync(IStreamUser user)
         {
             StreamAsserts.AssertNotNull(user, nameof(user));
             return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
         }
 
-        /// <summary>
-        /// Mark this message as the last that was read by this user in this channel
-        /// If you want to mark whole channel as read use the <see cref="MarkChannelReadAsync"/>
-        ///
-        /// This feature allows to track to which message users have read the channel
-        /// </summary>
         public Task MarkMessageReadAsync(IStreamMessage message)
         {
             StreamAsserts.AssertNotNull(message, nameof(message));
@@ -535,42 +345,21 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
         }
 
         //StreamTodo: remove empty request object
-        /// <summary>
-        /// Mark this channel completely as read
-        /// If you want to mark specific message as read use the <see cref="MarkMessageReadAsync"/>
-        ///
-        /// This feature allows to track to which message users have read the channel
-        /// </summary>
         public Task MarkChannelReadAsync()
             => LowLevelClient.InternalChannelApi.MarkReadAsync(Type, Id, new MarkReadRequestInternalDTO());
 
         //StreamTodo: remove empty request object
-        /// <summary>
-        /// <para>Shows a previously hidden channel.</para>
-        /// Use <see cref="HideAsync"/> to hide a channel.
-        /// </summary>
-        /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity</remarks>
         public Task ShowAsync()
             => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO()
             {
             });
 
-        /// <summary>
-        /// <para>Removes a channel from query channel requests for that user until a new message is added.</para>
-        /// Use <see cref="ShowAsync"/> to cancel this operation.
-        /// </summary>
-        /// <param name="clearHistory">Whether to clear message history of the channel or not</param>
-        /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity</remarks>
         public Task HideAsync(bool? clearHistory = false)
             => LowLevelClient.InternalChannelApi.HideChannelAsync(Type, Id, new HideChannelRequestInternalDTO
             {
                 ClearHistory = clearHistory
             });
 
-        /// <summary>
-        /// Add users as members to this channel
-        /// </summary>
-        /// <param name="users">Users to become members of this channel</param>
         public async Task AddMembersAsync(IEnumerable<IStreamUser> users)
         {
             StreamAsserts.AssertNotNull(users, nameof(users));
@@ -592,10 +381,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             Cache.TryCreateOrUpdate(response);
         }
 
-        /// <summary>
-        /// Remove members from this channel
-        /// </summary>
-        /// <param name="members">Members to remove</param>
         public async Task RemoveMembersAsync(IEnumerable<ChannelMember> members)
         {
             StreamAsserts.AssertNotNull(members, nameof(members));
@@ -608,10 +393,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             Cache.TryCreateOrUpdate(response);
         }
 
-        /// <summary>
-        /// Mute channel with optional duration in milliseconds
-        /// </summary>
-        /// <param name="milliseconds">[Optional] Duration in milliseconds</param>
         public async Task MuteChannelAsync(int? milliseconds = default)
         {
             var response = await LowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
@@ -625,9 +406,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             StreamChatStateClient.UpdateLocalUser(response.OwnUser);
         }
 
-        /// <summary>
-        /// Unmute channel
-        /// </summary>
         public Task UnmuteChannelAsync()
             => LowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
             {
@@ -637,14 +415,6 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
                 },
             });
 
-
-        /// <summary>
-        /// Truncate removes all of the messages but does not affect the channel data or channel members. If you want to delete both messages and channel data then use the <see cref="DeleteAsync"/> method instead.
-        /// </summary>
-        /// <param name="truncatedAt">[Optional]truncate channel up to given time. If not set then all messages are truncated</param>
-        /// <param name="systemMessage">A system message to be added via truncation.</param>
-        /// <param name="skipPushNotifications">Don't send a push notification for <param name="systemMessage"/>.</param>
-        /// <param name="isHardDelete">if truncation should delete messages instead of hiding</param>
         public async Task TruncateAsync(DateTimeOffset? truncatedAt = default, string systemMessage = "",
             bool skipPushNotifications = false, bool isHardDelete = false)
         {
@@ -663,26 +433,17 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             //StreamTodo: check if we need to add response.Message or was it already contained in response.Channel
         }
 
-        /// <summary>
-        /// Delete this channel. By default channel is soft deleted. You may hard delete it by setting the <param name="isHardDelete"> argument to true
-        /// </summary>
-        /// <param name="isHardDelete">Hard delete completely removes channel with all its resources</param>
-        /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
         public async Task DeleteAsync(bool isHardDelete)
-            => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id,
-                isHardDelete);
+            => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete);
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         public Task SendTypingStartedEventAsync() =>
             LowLevelClient.InternalChannelApi.SendTypingStartEventAsync(Type, Id);
 
         public Task SendTypingStoppedEventAsync() =>
             LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
-        internal StreamChannel(string uniqueId, ICacheRepository<StreamChannel> repository, ITrackedObjectContext context)
+        internal StreamChannel(string uniqueId, ICacheRepository<StreamChannel> repository,
+            ITrackedObjectContext context)
             : base(uniqueId, repository, context)
         {
         }
@@ -761,12 +522,11 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             {
                 return;
             }
-            
+
             message.TryUpdateFromDto(dto.Message, Cache);
             MessageUpdated?.Invoke(this, message);
         }
 
-        //StreamTodo: consider using structs for MessageId, ChannelId, etc. this way we control in 1 place from which fields they are created + there will be no mistake on user
         internal void HandleMessageDeletedEvent(EventMessageDeletedInternalDTO dto)
         {
             AssertCid(dto.Cid);
@@ -775,7 +535,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
                 return;
             }
 
-            //StramTodo: consider moving this logic into StreamMessage.HandleMessageDeletedEvent
+            //StreamTodo: consider moving this logic into StreamMessage.HandleMessageDeletedEvent
             var isHardDelete = dto.HardDelete.GetValueOrDefault(false);
             if (isHardDelete)
             {
@@ -847,7 +607,7 @@ namespace StreamChat.Core.State.TrackedObjects //StreamTodo: maybe some more int
             get => Cid;
             set => Cid = value;
         }
-        
+
         private readonly List<StreamChannelMember> _members = new List<StreamChannelMember>();
         private readonly List<StreamMessage> _messages = new List<StreamMessage>();
         private readonly List<StreamMessage> _pinnedMessages = new List<StreamMessage>();

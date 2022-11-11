@@ -5,6 +5,10 @@ using StreamChat.Core.State.Models;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
+    /// <summary>
+    /// <para>Users can become <see cref="IStreamChannelMember"/> of <see cref="IStreamChannel"/> and send messages</para>
+    /// <b>State of this object is automatically updated</b>
+    /// </summary>
     public interface IStreamUser : IStreamTrackedObject
     {
         /// <summary>
@@ -119,15 +123,15 @@ namespace StreamChat.Core.State.TrackedObjects
 
         /// <summary>
         /// Mark user as invisible. Invisible user will appear as offline to other users.
-        /// User will remain invisible even if you disconnect and reconnect again. You must explicitly call <see cref="IStreamUser.MarkVisible"/> in order to become visible again.
+        /// User will remain invisible even if you disconnect and reconnect again. You must call <see cref="MarkVisibleAsync"/> in order to become visible again.
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity#invisible</remarks>
-        Task MarkInvisible();
+        Task MarkInvisibleAsync();
 
         /// <summary>
-        /// Mark user visible again if he was previously marked as invisible with <see cref="IStreamUser.MarkInvisible"/>
+        /// Mark user visible again if he was previously marked as invisible with <see cref="MarkInvisibleAsync"/>
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity#invisible</remarks>
-        Task MarkVisible();
+        Task MarkVisibleAsync();
     }
 }
