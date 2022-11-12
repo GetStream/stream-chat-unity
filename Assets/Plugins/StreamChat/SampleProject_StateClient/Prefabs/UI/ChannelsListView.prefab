@@ -119,11 +119,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2043474341236294699}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 566ba6a4e7cd44728a5d90c8233b58b5, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b804afadce56704da89bfcc53848e19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _listContainer: {fileID: 4003089251862257243}
-  _channelViewPrefab: {fileID: -1595051670629529283, guid: 209d60424fd27644182e5f2a21607796, type: 3}
+  _channelViewPrefab: {fileID: -1595051670629529283, guid: aec90154556e73a40b770b4867632d92, type: 3}
 --- !u!1 &2359340113851006901
 GameObject:
   m_ObjectHideFlags: 0

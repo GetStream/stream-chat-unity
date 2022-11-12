@@ -64,13 +64,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1049992203156561061}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b215aff690b1446ebf1d365b7cf1f18c, type: 3}
+  m_Script: {fileID: 11500000, guid: 5bcbec3e52eb3964ead5cc0e85b3842c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _buttonsContainer: {fileID: 3693054601433710326}
   _emojiButtonsContainer: {fileID: 8125841932265674400}
-  _buttonPrefab: {fileID: 7936303130292056960, guid: ff34342901ea6ca4398b795f88ec3e15, type: 3}
-  _emojiButtonPrefab: {fileID: 8594848421842668539, guid: 58a38d4b6eafc50488f03eaf3d431f15, type: 3}
+  _buttonPrefab: {fileID: 7936303130292056960, guid: 7b7388079ecaa864a829b8038b7ec278, type: 3}
+  _emojiButtonPrefab: {fileID: 8594848421842668539, guid: 49804f830786dda4eaa2de09c7cb1189, type: 3}
 --- !u!114 &8596703659045510173
 MonoBehaviour:
   m_ObjectHideFlags: 0

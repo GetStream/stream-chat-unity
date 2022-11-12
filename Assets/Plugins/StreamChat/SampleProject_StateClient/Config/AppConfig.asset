@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 632fc3a4ff5e49b0b6bb9b75ba67e650, type: 3}
+  m_Script: {fileID: 11500000, guid: 8a9aed2403a83c84280ffa41b78c5b19, type: 3}
   m_Name: AppConfig
   m_EditorClassIdentifier: 
   _viewFactoryConfig:
-    _messageOptionsPopupPrefab: {fileID: 5378343205483587087, guid: 53e67c14181e3584193d5c627106bd94, type: 3}
-    _createNewChannelPopupPrefab: {fileID: 8926528666989219657, guid: ac25a8d916d27de4aa3d0dba48ba0d2c, type: 3}
-    _errorPopupPrefab: {fileID: 6615067076462953508, guid: a4f9699057cc9444ba6eac7e2068925e, type: 3}
-  _emojiConfig: {fileID: 11400000, guid: 964e9bb5916fddf4cacf722cd54dc11d, type: 2}
+    _messageOptionsPopupPrefab: {fileID: 5378343205483587087, guid: b6c7f64cd6c991f48b045099bdd324a7, type: 3}
+    _createNewChannelPopupPrefab: {fileID: 8926528666989219657, guid: 8d705e1b929f52f469855a34297cc5a9, type: 3}
+    _errorPopupPrefab: {fileID: 6615067076462953508, guid: 8751c971eb857264a92846caef344d49, type: 3}
+  _emojiConfig: {fileID: 11400000, guid: 21c7de3d66787c8428964e6da1fdad93, type: 2}
