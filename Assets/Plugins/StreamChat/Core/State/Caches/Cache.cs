@@ -29,7 +29,8 @@ namespace StreamChat.Core.State.Caches
 
             LocalUser.RegisterDtoTrackingIdGetter<StreamLocalUserData, OwnUserInternalDTO>(dto => dto.Id);
 
-            ChannelMembers.RegisterDtoTrackingIdGetter<StreamChannelMember, ChannelMemberInternalDTO>(dto => dto.UserId);
+            //In some cases the ChannelMemberInternalDTO.UserId was null
+            ChannelMembers.RegisterDtoTrackingIdGetter<StreamChannelMember, ChannelMemberInternalDTO>(dto => dto.User.Id);
 
             Messages.RegisterDtoTrackingIdGetter<StreamMessage, MessageInternalDTO>(dto => dto.Id);
         }
