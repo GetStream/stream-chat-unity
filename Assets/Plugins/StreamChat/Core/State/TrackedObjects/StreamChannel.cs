@@ -68,6 +68,8 @@ namespace StreamChat.Core.State.TrackedObjects
 
         public event StreamChannelUserChangeHandler UserStoppedTyping;
 
+        public event StreamChannelChangeHandler TypingUsersChanged;
+
         #region Channel
 
         public bool AutoTranslationEnabled { get; private set; }
@@ -399,10 +401,13 @@ namespace StreamChat.Core.State.TrackedObjects
                         Text = systemMessage
                     },
                     SkipPush = skipPushNotifications,
-                    TruncatedAt = truncatedAt,
+                    TruncatedAt = truncatedAt
                 });
             Cache.TryCreateOrUpdate(response.Channel);
-            //StreamTodo: check if we need to add response.Message or was it already contained in response.Channel
+            
+            //StreamTodo: this should not be needed but the truncate response doesn't contain messages nor any events are sent
+            //so we can only query the channel to get the messages
+            await StreamChatStateClient.GetOrCreateChannelAsync(Type, Id);
         }
 
         public Task DeleteAsync(bool isHardDelete)
@@ -430,7 +435,9 @@ namespace StreamChat.Core.State.TrackedObjects
 
             //Hidden = dto.Hidden.GetValueOrDefault(); Updated from Channel
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
-            //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from Channel
+            
+            //This is needed because Channel.Members can be null while this is filled
+            _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers); 
             Membership = cache.TryCreateOrUpdate(dto.Membership);
             _messages.TryAppendUniqueTrackedObjects(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
@@ -509,6 +516,8 @@ namespace StreamChat.Core.State.TrackedObjects
             {
                 return;
             }
+
+            Cache.TryCreateOrUpdate(dto.Message);
 
             //StreamTodo: consider moving this logic into StreamMessage.HandleMessageDeletedEvent
             var isHardDelete = dto.HardDelete.GetValueOrDefault(false);
@@ -617,6 +626,8 @@ namespace StreamChat.Core.State.TrackedObjects
             return streamMessage;
         }
 
+        //StreamTodo: This deleteBeforeCreatedAt date is the date of event, it does not equal the passed TruncatedAt
+        //Therefore the only way to detect partial truncate in the past would be to query the history
         private void InternalTruncateMessages(DateTimeOffset? deleteBeforeCreatedAt = null,
             MessageInternalDTO systemMessageDto = null)
         {
@@ -747,6 +758,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 {
                     _typingUsers.RemoveAt(i);
                     UserStoppedTyping?.Invoke(this, user);
+                    TypingUsersChanged?.Invoke(this);
                     return;
                 }
             }
@@ -762,6 +774,7 @@ namespace StreamChat.Core.State.TrackedObjects
             {
                 _typingUsers.Add(user);
                 UserStartedTyping?.Invoke(this, user);
+                TypingUsersChanged?.Invoke(this);
             }
         }
 

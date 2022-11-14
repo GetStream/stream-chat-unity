@@ -8,6 +8,7 @@ using NUnit.Framework;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.TrackedObjects;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
@@ -63,10 +64,10 @@ namespace StreamChat.Tests.StatefulClient
 
             await messageInChannel.SoftDeleteAsync();
 
-            //StreamTodo: seems not deterministic, probably a race condition between WS event and Rest Call complete, we should wait max 500ms for the event
+            await WaitWhileConditionTrue(() => !messageInChannel.DeletedAt.HasValue);
 
-            messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.NotNull(messageInChannel);
+            Assert.IsNotNull(messageInChannel.DeletedAt);
             Assert.IsEmpty(messageInChannel.Text);
         }
 
@@ -87,6 +88,8 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(messageInChannel);
 
             await messageInChannel.HardDeleteAsync();
+            
+            await WaitWhileConditionTrue(() => !messageInChannel.DeletedAt.HasValue);
 
             messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.IsNull(messageInChannel);

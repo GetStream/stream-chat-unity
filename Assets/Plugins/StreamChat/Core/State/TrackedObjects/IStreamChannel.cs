@@ -87,6 +87,12 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Event fired when a <see cref="IStreamUser"/> in this channel stops typing
         /// </summary>
         event StreamChannelUserChangeHandler UserStoppedTyping;
+        
+        /// <summary>
+        /// Event fired when a <see cref="TypingUsers"/> the list of typing users has changed.
+        /// If you want to exactly know when a users started or stopped typing subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/>
+        /// </summary>
+        event StreamChannelChangeHandler TypingUsersChanged;
 
         /// <summary>
         /// Whether auto translation is enabled or not
@@ -238,7 +244,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
         /// <summary>
         /// List of currently typing users
-        /// Subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/> events to know when this list changes.
+        /// Subscribe to <see cref="TypingUsersChanged"/> or <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/> events to know when this list changes.
         /// </summary>
         IReadOnlyList<IStreamUser> TypingUsers { get; }
 
@@ -391,10 +397,13 @@ namespace StreamChat.Core.State.TrackedObjects
         Task DeleteAsync(bool isHardDelete);
 
         /// <summary>
-        /// Send a notification that the local user started typing in this channel. You can access currently typing 
+        /// Send a notification that the local user started typing in this channel. You can access currently typing users via <see cref="TypingUsers"/>
         /// </summary>
         Task SendTypingStartedEventAsync();
 
+        /// <summary>
+        /// Send a notification that the local user stopped typing in this channel. You can access currently typing users via <see cref="TypingUsers"/>
+        /// </summary>
         Task SendTypingStoppedEventAsync();
     }
 }

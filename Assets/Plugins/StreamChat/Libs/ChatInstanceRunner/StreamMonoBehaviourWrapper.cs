@@ -16,13 +16,21 @@ namespace StreamChat.Libs.ChatInstanceRunner
         {
             public void RunChatInstance(IStreamChatClientEventsListener streamChatInstance)
             {
+                if (!Application.isPlaying)
+                {
+                    Debug.LogWarning($"Application is not playing. The MonoBehaviour {nameof(UnityStreamChatClientRunner)} wrapper will not execute." +
+                              $" You need to call Stream Chat Client's {nameof(IStreamChatClientEventsListener.Update)} and {nameof(IStreamChatClientEventsListener.Destroy)} by yourself");
+                    DestroyImmediate(gameObject);
+                    return;
+                }
+                
                 _streamChatInstance = streamChatInstance ?? throw new ArgumentNullException(nameof(streamChatInstance));
                 _streamChatInstance.Disposed += OnStreamChatInstanceDisposed;
                 StartCoroutine(UpdateCoroutine());
             }
 
             private IStreamChatClientEventsListener _streamChatInstance;
-
+            
             // Called by Unity
             private void Awake()
             {
@@ -62,8 +70,13 @@ namespace StreamChat.Libs.ChatInstanceRunner
                 _streamChatInstance.Disposed -= OnStreamChatInstanceDisposed;
                 _streamChatInstance = null;
                 StopCoroutine(UpdateCoroutine());
+
+#if STREAM_DEBUG_ENABLED
+                Debug.Log($"Stream Chat Client Disposed - destroy {nameof(UnityStreamChatClientRunner)} instance");
+#endif
                 Destroy(gameObject);
             }
+
         }
     }
 }

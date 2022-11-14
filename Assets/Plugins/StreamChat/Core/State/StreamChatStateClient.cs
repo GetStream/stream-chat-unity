@@ -20,7 +20,6 @@ using StreamChat.Libs.Logs;
 using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
-using StreamChat.Libs.Utils;
 using StreamChat.Libs.Websockets;
 
 namespace StreamChat.Core.State
@@ -50,7 +49,6 @@ namespace StreamChat.Core.State
     /// </summary>
     public sealed class StreamChatStateClient : IStreamChatStateClient
     {
-        /// <inheritdoc cref="IStreamChatStateClient.Connected"/>
         public event ConnectionMadeHandler Connected;
 
         /// <summary>
@@ -104,7 +102,6 @@ namespace StreamChat.Core.State
             return client;
         }
 
-        //StreamTodo: why force customer to update, we could just create GameObject by default with DontDestroy 
         //StreamTodo: consider having constructor private and add static CreateCustomizedClient()
         /// <summary>
         /// Use this only if you wish to provide non default arguments. Otherwise use the <see cref="CreateDefaultClient"/> to create the client instance.
@@ -123,14 +120,21 @@ namespace StreamChat.Core.State
 
             SubscribeTo(LowLevelClient);
         }
-        
+
         public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
         {
             LowLevelClient.ConnectUser(userAuthCredentials);
+            
+            //StreamTodo: test calling this method multiple times in a row
 
             //StreamTodo: timeout, like 5 seconds?
             _connectUserCancellationToken = cancellationToken;
+
+            _connectUserCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_connectUserCancellationToken);
+            _connectUserCancellationTokenSource.Token.Register(TryCancelWaitingForUserConnection);
+            
+            //StreamTodo: check if we can pass the cancellation token here
             _connectUserTaskSource = new TaskCompletionSource<IStreamLocalUserData>();
             return _connectUserTaskSource.Task;
         }
@@ -281,7 +285,6 @@ namespace StreamChat.Core.State
             return result;
         }
 
-        /// <inheritdoc cref="IStreamChatStateClient.MuteMultipleChannelsAsync"/>
         public async Task MuteMultipleChannelsAsync(IEnumerable<IStreamChannel> channels, int? milliseconds = default)
         {
             StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));
@@ -322,7 +325,8 @@ namespace StreamChat.Core.State
         }
 
         /// <inheritdoc />
-        public async Task<StreamDeleteChannelsResponse> DeleteMultipleChannelsAsync(IEnumerable<IStreamChannel> channels,
+        public async Task<StreamDeleteChannelsResponse> DeleteMultipleChannelsAsync(
+            IEnumerable<IStreamChannel> channels,
             bool isHardDelete = false)
         {
             StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));
@@ -338,6 +342,7 @@ namespace StreamChat.Core.State
             return response;
         }
 
+        //StreamTodo: add to interface
         /// <summary>
         /// You mute single user by using <see cref="IStreamUser.MuteAsync"/>
         /// </summary>
@@ -368,15 +373,16 @@ namespace StreamChat.Core.State
             {
                 return;
             }
-            
-            _isDisposed = true;
-            
+
+            TryCancelWaitingForUserConnection();
+
             if (LowLevelClient != null)
             {
                 UnsubscribeFrom(LowLevelClient);
                 LowLevelClient.Dispose();
             }
-            
+
+            _isDisposed = true;
             Disposed?.Invoke();
         }
 
@@ -389,7 +395,7 @@ namespace StreamChat.Core.State
                     _logs.Exception(t.Exception);
                     return;
                 }
-                
+
                 Dispose();
             });
         }
@@ -397,12 +403,6 @@ namespace StreamChat.Core.State
         void IStreamChatClientEventsListener.Update()
         {
             LowLevelClient.Update(_timeService.DeltaTime);
-
-            if (LowLevelClient.ConnectionState == ConnectionState.Connecting &&
-                _connectUserCancellationToken.IsCancellationRequested)
-            {
-                //StreamTodo: cancel connection
-            }
         }
 
         internal StreamChatClient LowLevelClient { get; }
@@ -437,6 +437,7 @@ namespace StreamChat.Core.State
 
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
+        private CancellationTokenSource _connectUserCancellationTokenSource;
         private bool _isDisposed;
 
         #region Connection Events
@@ -608,7 +609,7 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalNotificationInviteRejected -= LowLevelClientOnInternalNotificationInviteRejected;
         }
 
-                private void OnLowLevelClientChannelTruncated(EventChannelTruncatedInternalDTO eventDto)
+        private void OnLowLevelClientChannelTruncated(EventChannelTruncatedInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -736,7 +737,8 @@ namespace StreamChat.Core.State
             //StreamTodo: IMPLEMENT
         }
 
-        private void LowLevelClientOnInternalNotificationRemovedFromChannel(EventNotificationRemovedFromChannelInternalDTO obj)
+        private void LowLevelClientOnInternalNotificationRemovedFromChannel(
+            EventNotificationRemovedFromChannelInternalDTO obj)
         {
 //StreamTodo: IMPLEMENT
         }
@@ -762,19 +764,21 @@ namespace StreamChat.Core.State
             {
                 return;
             }
+
             if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
             {
                 var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
                 message.HandleReactionNewEvent(eventDto, channel, reaction);
             }
         }
-        
+
         private void OnLowLevelClientReactionUpdated(EventReactionUpdatedInternalDTO eventDto)
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
             {
                 return;
             }
+
             if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
             {
                 var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
@@ -788,6 +792,7 @@ namespace StreamChat.Core.State
             {
                 return;
             }
+
             if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
             {
                 var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
@@ -863,6 +868,20 @@ namespace StreamChat.Core.State
             //StreamTodo: probably silent clear all internal data?
             _cache.Channels.Remove(channel);
             ChannelDeleted?.Invoke(channel.Cid, channel.Id, channel.Type);
+        }
+
+        private void TryCancelWaitingForUserConnection()
+        {
+            var isConnectTaskRunning = _connectUserTaskSource?.Task != null && !_connectUserTaskSource.Task.IsCompleted;
+            var isCancellationRequested = _connectUserCancellationTokenSource.IsCancellationRequested;
+
+            if (isConnectTaskRunning && !isCancellationRequested)
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Info($"Try Cancel {_connectUserTaskSource}");
+#endif
+                 _connectUserTaskSource.TrySetCanceled();
+            }
         }
     }
 }

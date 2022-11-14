@@ -85,8 +85,10 @@ namespace StreamChat.Core.State.TrackedObjects
         
         public bool IsDeleted => Type == StreamMessageType.Deleted;
 
+        //Do not update message from response, the WS event might have been processed and we would overwrite it with an old state
         public Task SoftDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: false);
 
+        //Do not update message from response, the WS event might have been processed and we would overwrite it with an old state
         public Task HardDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: true);
 
         public async Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)

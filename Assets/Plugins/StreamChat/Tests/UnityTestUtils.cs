@@ -47,6 +47,12 @@ namespace StreamChat.Tests
         public static IEnumerator RunAsIEnumerator(this Task task,
             Action onSuccess = null, Action<Exception> onFaulted = null, IStreamChatStateClient statefulClient = null)
         {
+            while (!task.IsCompleted)
+            {
+                statefulClient?.Update();
+                yield return null;
+            }
+
             if (task.IsFaulted)
             {
                 if (onFaulted != null)

@@ -8,10 +8,8 @@ using StreamChat.Core;
 using StreamChat.Core.Configs;
 using StreamChat.Core.State;
 using StreamChat.Core.State.TrackedObjects;
-using StreamChat.Libs;
 using StreamChat.Libs.Auth;
-using StreamChat.Libs.ChatInstanceRunner;
-using StreamChat.Libs.Utils;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
@@ -24,7 +22,7 @@ namespace StreamChat.Tests.StatefulClient
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            DeleteTempChannels();
+            DeleteTempChannelsAsync().RunAsIEnumerator();
             yield return StatefulClient.DisconnectUserAsync().RunAsIEnumerator();
             StatefulClient.Dispose();
             StatefulClient = null;
@@ -44,10 +42,19 @@ namespace StreamChat.Tests.StatefulClient
             Guest
         }
 
-        protected Task ConnectUserAsync(UserLevel level = UserLevel.Admin)
+        protected async Task ConnectUserAsync(UserLevel level = UserLevel.Admin)
         {
             var userCredentials = GetUserAuthCredentials(level);
-            return StatefulClient.ConnectUserAsync(userCredentials);
+            var connectTask = StatefulClient.ConnectUserAsync(userCredentials);
+            while (!connectTask.IsCompleted)
+            {
+#if STREAM_DEBUG_ENABLED
+                Debug.Log($"Wait for {nameof(StatefulClient)} to connect");
+#endif
+
+                await Task.Delay(1);
+            }
+            Debug.Log("Connection made: " + StatefulClient.ConnectionState);
         }
 
         /// <summary>
@@ -55,7 +62,7 @@ namespace StreamChat.Tests.StatefulClient
         /// </summary>
         protected async Task<IStreamChannel> CreateUniqueTempChannelAsync()
         {
-            var channelId = "random-channel-" + Guid.NewGuid();
+            var channelId = "random-channel-11111-" + Guid.NewGuid();
 
             var channelState = await StatefulClient.GetOrCreateChannelAsync(ChannelType.Messaging, channelId);
             _tempChannels.Add(channelState);
@@ -68,6 +75,32 @@ namespace StreamChat.Tests.StatefulClient
         protected void SkipThisTempChannelDeletionInTearDown(IStreamChannel channel)
         {
             _tempChannels.Remove(channel);
+        }
+        
+        protected IEnumerator ConnectAndExecute(Func<Task> test)
+        {
+            yield return ConnectUserAsync().RunAsIEnumerator(statefulClient: StatefulClient);
+            yield return test().RunAsIEnumerator(statefulClient: StatefulClient);
+        }
+        
+        //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible
+        /// <summary>
+        /// Use this if state update depends on receiving WS event that might come after the REST call was completed
+        /// </summary>
+        protected static async Task WaitWhileConditionTrue(Func<bool> condition, int maxIterations = 50)
+        {
+            if (!condition())
+            {
+                return;
+            }
+
+            for (int i = 0; i < maxIterations; i++)
+            {
+                if (condition())
+                {
+                    await Task.Delay(1);
+                }
+            }
         }
 
         private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
@@ -99,23 +132,15 @@ namespace StreamChat.Tests.StatefulClient
             }
         }
 
-        private void DeleteTempChannels()
+        private async Task DeleteTempChannelsAsync()
         {
             if (_tempChannels.Count == 0)
             {
                 return;
             }
-
-            var unityLogs = LibsFactory.CreateDefaultLogs();
-
-            StatefulClient.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true).LogIfFailed(unityLogs);
+            
+            await StatefulClient.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
             _tempChannels.Clear();
-        }
-
-        protected IEnumerator ConnectAndExecute(Func<Task> test)
-        {
-            yield return ConnectUserAsync().RunAsIEnumerator();
-            yield return test().RunAsIEnumerator(statefulClient: StatefulClient);
         }
     }
 }

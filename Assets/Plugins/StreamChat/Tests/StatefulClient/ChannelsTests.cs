@@ -156,7 +156,12 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.UnmuteChannelAsync();
 
-            channelMute = StatefulClient.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+            await WaitWhileConditionTrue(() =>
+            {
+                channelMute = StatefulClient.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+                return channelMute != null;
+            });
+
             Assert.IsNull(channelMute);
             Assert.AreEqual(false, channel.Muted);
         }
@@ -182,13 +187,8 @@ namespace StreamChat.Tests.StatefulClient
 
             SkipThisTempChannelDeletionInTearDown(channel);
             SkipThisTempChannelDeletionInTearDown(channel2);
-
-            int i = 0;
-            while (StatefulClient.WatchedChannels.Any() && i < 1000)
-            {
-                i++;
-                await Task.Delay(1);
-            }
+            
+            await WaitWhileConditionTrue(() => StatefulClient.WatchedChannels.Any());
 
             Assert.IsEmpty(StatefulClient.WatchedChannels);
         }
