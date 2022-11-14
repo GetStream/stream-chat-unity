@@ -6,6 +6,7 @@ using System.Text;
 using StreamChat.EditorTools.Builders;
 using StreamChat.Core;
 using StreamChat.EditorTools.DefineSymbols;
+using StreamChat.EditorTools.GuidRemapper;
 using UnityEditor;
 using UnityEngine;
 
@@ -27,6 +28,13 @@ namespace StreamChat.EditorTools
             SetStreamTestsEnabledCompilerFlag(nextState);
         }
 
+        [MenuItem(MenuPrefix + "Open " + nameof(GuidRemappingEditorWindow))]
+        public static void ShowGuidRemapperEditorWindowEditorWindow()
+        {
+            var window = EditorWindow.GetWindow<GuidRemappingEditorWindow>();
+            window.Show();
+        }
+        
         [MenuItem(MenuPrefix + "Open " + nameof(SpriteAtlasUtilityEditor))]
         public static void ShowSpriteAtlasUtilityEditorWindow()
         {
