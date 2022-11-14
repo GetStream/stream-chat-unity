@@ -17,8 +17,10 @@ using StreamChat.Libs;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
+using StreamChat.Libs.Utils;
 using StreamChat.Libs.Websockets;
 
 namespace StreamChat.Core.State
@@ -55,6 +57,8 @@ namespace StreamChat.Core.State
         /// Triggered when connection with Stream Chat server is lost
         /// </summary>
         public event Action Disconnected;
+
+        public event Action Disposed;
 
         /// <summary>
         /// Triggered when connection state with Stream Chat server has changed
@@ -93,10 +97,14 @@ namespace StreamChat.Core.State
             var httpClient = LibsFactory.CreateDefaultHttpClient();
             var serializer = LibsFactory.CreateDefaultSerializer();
             var timeService = LibsFactory.CreateDefaultTimeService();
+            var gameObjectRunner = LibsFactory.CreateChatClientRunner();
 
-            return new StreamChatStateClient(websocketClient, httpClient, serializer, timeService, logs, config);
+            var client = new StreamChatStateClient(websocketClient, httpClient, serializer, timeService, logs, config);
+            gameObjectRunner.RunChatInstance(client);
+            return client;
         }
 
+        //StreamTodo: why force customer to update, we could just create GameObject by default with DontDestroy 
         //StreamTodo: consider having constructor private and add static CreateCustomizedClient()
         /// <summary>
         /// Use this only if you wish to provide non default arguments. Otherwise use the <see cref="CreateDefaultClient"/> to create the client instance.
@@ -115,18 +123,7 @@ namespace StreamChat.Core.State
 
             SubscribeTo(LowLevelClient);
         }
-
-        public void Update()
-        {
-            LowLevelClient.Update(_timeService.DeltaTime);
-
-            if (LowLevelClient.ConnectionState == ConnectionState.Connecting &&
-                _connectUserCancellationToken.IsCancellationRequested)
-            {
-                //StreamTodo: cancel connection
-            }
-        }
-
+        
         public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
         {
@@ -359,7 +356,7 @@ namespace StreamChat.Core.State
             UpdateLocalUser(responseDto.OwnUser);
         }
 
-        public async Task<IEnumerable<IStreamUser>> QueryBannedUsersAsync()
+        public Task<IEnumerable<IStreamUser>> QueryBannedUsersAsync()
         {
             //StreamTodo: implement, should we allow for query
             throw new NotImplementedException();
@@ -367,10 +364,44 @@ namespace StreamChat.Core.State
 
         public void Dispose()
         {
+            if (_isDisposed)
+            {
+                return;
+            }
+            
+            _isDisposed = true;
+            
             if (LowLevelClient != null)
             {
                 UnsubscribeFrom(LowLevelClient);
                 LowLevelClient.Dispose();
+            }
+            
+            Disposed?.Invoke();
+        }
+
+        void IStreamChatClientEventsListener.Destroy()
+        {
+            DisconnectUserAsync().ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Exception(t.Exception);
+                    return;
+                }
+                
+                Dispose();
+            });
+        }
+
+        void IStreamChatClientEventsListener.Update()
+        {
+            LowLevelClient.Update(_timeService.DeltaTime);
+
+            if (LowLevelClient.ConnectionState == ConnectionState.Connecting &&
+                _connectUserCancellationToken.IsCancellationRequested)
+            {
+                //StreamTodo: cancel connection
             }
         }
 
@@ -406,6 +437,7 @@ namespace StreamChat.Core.State
 
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
+        private bool _isDisposed;
 
         #region Connection Events
 

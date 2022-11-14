@@ -14,17 +14,6 @@ public class TestChatBehaviour : MonoBehaviour
         ConnectToStream().LogIfFailed(_unityLogger);
     }
 
-    protected void Update()
-    {
-        _client.Update();
-    }
-
-    protected void OnDestroy()
-    {
-        _client.Dispose();
-        _client = null;
-    }
-
     private readonly ILogs _unityLogger = new UnityLogs();
 
     [SerializeField]

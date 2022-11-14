@@ -433,7 +433,7 @@ namespace StreamChat.Core.State.TrackedObjects
             //StreamTodo: check if we need to add response.Message or was it already contained in response.Channel
         }
 
-        public async Task DeleteAsync(bool isHardDelete)
+        public Task DeleteAsync(bool isHardDelete)
             => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete);
 
         public Task SendTypingStartedEventAsync() =>
@@ -745,9 +745,7 @@ namespace StreamChat.Core.State.TrackedObjects
         {
             AssertCid(eventDto.Cid);
 
-            bool wasRemoved = false;
-
-            //We always reduce because watchers are paginatable so our partial _watchers state may not contain the removed on but count reflects all of them
+            //We always reduce because watchers are paginatable so our partial _watchers state may not contain the removed one but count reflects all
             WatcherCount -= 1;
 
             for (int i = _watchers.Count - 1; i >= 0; i--)

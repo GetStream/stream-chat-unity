@@ -78,8 +78,6 @@ namespace StreamChat.SampleProject_StateClient
                 return;
             }
 
-            _client.Update();
-
             var isClientConnectedOrConnecting = _client.ConnectionState == ConnectionState.Connected ||
                                                 _client.ConnectionState == ConnectionState.Connecting;
 
@@ -93,8 +91,6 @@ namespace StreamChat.SampleProject_StateClient
                 _client.ConnectUserAsync(_authCredentialsAsset.Credentials);
             }
         }
-
-        protected void OnDestroy() => _client?.Dispose();
 
         private IStreamChatStateClient _client;
 

@@ -52,7 +52,7 @@ namespace StreamChat.Core.State.TrackedObjects
         event StreamChannelVisibilityHandler VisibilityChanged;
 
         /// <summary>
-        /// Event fired when channel got muted on unmuted. Check <see cref="IStreamChannel.Muted"/> and <see cref="IStreamChannel.MuteExpiresAt"/> to know if channel is muted
+        /// Event fired when channel got muted on unmuted. Check <see cref="IStreamChannel.Muted"/> and <see cref="IStreamChannel.MuteExpiresAt"/> 
         /// </summary>
         event StreamChannelMuteHandler MuteChanged;
 

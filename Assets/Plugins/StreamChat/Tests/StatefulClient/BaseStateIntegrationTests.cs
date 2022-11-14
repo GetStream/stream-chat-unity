@@ -10,6 +10,7 @@ using StreamChat.Core.State;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
+using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Utils;
 using UnityEngine.TestTools;
 
@@ -43,16 +44,10 @@ namespace StreamChat.Tests.StatefulClient
             Guest
         }
 
-        protected async Task ConnectUserAsync(UserLevel level = UserLevel.Admin)
+        protected Task ConnectUserAsync(UserLevel level = UserLevel.Admin)
         {
             var userCredentials = GetUserAuthCredentials(level);
-
-            var connectTask = StatefulClient.ConnectUserAsync(userCredentials);
-            while (!connectTask.IsCompleted)
-            {
-                StatefulClient.Update();
-                await Task.Delay(1);
-            }
+            return StatefulClient.ConnectUserAsync(userCredentials);
         }
 
         /// <summary>

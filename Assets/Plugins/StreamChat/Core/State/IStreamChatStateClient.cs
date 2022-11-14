@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Auth;
+using StreamChat.Libs.ChatInstanceRunner;
+using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core.State
 {
-    public interface IStreamChatStateClient : IDisposable
+    public interface IStreamChatStateClient : IDisposable, IStreamChatClientEventsListener
     {
         /// <summary>
         /// Triggered when connection with Stream Chat server is established
@@ -44,11 +46,6 @@ namespace StreamChat.Core.State
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
 
         double? NextReconnectTime { get; }
-
-        /// <summary>
-        /// Update needs to be called every frame 
-        /// </summary>
-        void Update();
 
         Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default);

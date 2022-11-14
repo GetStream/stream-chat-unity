@@ -212,7 +212,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         public async Task DeleteChannel()
         {
             var deleteChannelResponse =
-                await Client.ChannelApi.DeleteChannelAsync(channelType: "messaging", channelId: "channel-id-1");
+                await Client.ChannelApi.DeleteChannelAsync(channelType: "messaging", channelId: "channel-id-1", isHardDelete: false);
         }
 
         public async Task DeletingManyChannels()

@@ -47,12 +47,6 @@ namespace StreamChat.Tests
         public static IEnumerator RunAsIEnumerator(this Task task,
             Action onSuccess = null, Action<Exception> onFaulted = null, IStreamChatStateClient statefulClient = null)
         {
-            while (!task.IsCompleted)
-            {
-                statefulClient?.Update();
-                yield return null;
-            }
-
             if (task.IsFaulted)
             {
                 if (onFaulted != null)
@@ -60,16 +54,14 @@ namespace StreamChat.Tests
                     onFaulted(task.Exception);
                     yield break;
                 }
-                else
+                
+                if (task.Exception is AggregateException aggregateException &&
+                    aggregateException.InnerExceptions.Count == 1)
                 {
-                    if (task.Exception is AggregateException aggregateException &&
-                        aggregateException.InnerExceptions.Count == 1)
-                    {
-                        throw task.Exception.InnerException;
-                    }
-
-                    throw task.Exception;
+                    throw task.Exception.InnerException;
                 }
+
+                throw task.Exception;
             }
 
             onSuccess?.Invoke();
