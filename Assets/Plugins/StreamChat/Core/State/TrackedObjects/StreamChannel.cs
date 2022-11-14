@@ -161,7 +161,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
         public int WatcherCount { get; private set; }
 
-        public IReadOnlyList<IStreamUser> Watchers => _watchers; //StreamTodo: Mention that this is paginatable
+        public IReadOnlyList<IStreamUser> Watchers => _watchers;
 
         public IReadOnlyList<IStreamUser> TypingUsers => _typingUsers;
 
@@ -196,23 +196,6 @@ namespace StreamChat.Core.State.TrackedObjects
 
             var request = new ChannelGetOrCreateRequestInternalDTO
             {
-                Data = null,
-                Members = null,
-                Messages = new MessagePaginationParamsRequestInternalDTO
-                {
-                    CreatedAtAfter = null,
-                    CreatedAtAfterOrEqual = null,
-                    CreatedAtAround = null,
-                    CreatedAtBefore = null,
-                    CreatedAtBeforeOrEqual = null,
-                    IdAround = null,
-                    IdGt = null,
-                    IdGte = null,
-                    IdLt = null,
-                    IdLte = null,
-                    Limit = null,
-                    Offset = null,
-                },
                 //StreamTodo: presence could be optional in config
                 Presence = true,
                 State = true,
@@ -280,7 +263,7 @@ namespace StreamChat.Core.State.TrackedObjects
             return new StreamFileUploadResponse(response.File);
         }
 
-        public Task DeleteFileAsync(string fileUrl)
+        public Task DeleteFileOrImageAsync(string fileUrl)
         {
             StreamAsserts.AssertNotNullOrEmpty(fileUrl, nameof(fileUrl));
             return LowLevelClient.InternalMessageApi.DeleteFileAsync(Type, Id, fileUrl);
@@ -295,11 +278,13 @@ namespace StreamChat.Core.State.TrackedObjects
             return new StreamImageUploadResponse().LoadFromDto(response, Cache);
         }
 
-        public void QueryMembers() //StreamTodo: IMPLEMENT
+        //StreamTodo: IMPLEMENT, this should probably work like LoadNextMembers, LoadPreviousMembers? what about sorting - in config?
+        public void QueryMembers() 
         {
         }
 
-        public void QueryWatchers() //StreamTodo: IMPLEMENT
+        //StreamTodo: IMPLEMENT, perhap Load Prev/Next Watchers? sorting in config?
+        public void QueryWatchers() 
         {
         }
 
@@ -326,22 +311,11 @@ namespace StreamChat.Core.State.TrackedObjects
             });
         }
 
+        //StreamTodo: check what happens if user doesn't belong to this channel
         public Task UnbanUserInChannelAsync(IStreamUser user)
         {
             StreamAsserts.AssertNotNull(user, nameof(user));
             return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
-        }
-
-        public Task MarkMessageReadAsync(IStreamMessage message)
-        {
-            StreamAsserts.AssertNotNull(message, nameof(message));
-            if (message.Cid != Cid)
-            {
-                throw new InvalidOperationException(
-                    $"Cid mismatch, expected: {Cid}, given: {message.Cid}. Passed {nameof(message)} does not belong to this channel.");
-            }
-
-            return message.MarkMessageAsLastReadAsync();
         }
 
         //StreamTodo: remove empty request object
@@ -350,9 +324,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
         //StreamTodo: remove empty request object
         public Task ShowAsync()
-            => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO()
-            {
-            });
+            => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO());
 
         public Task HideAsync(bool? clearHistory = false)
             => LowLevelClient.InternalChannelApi.HideChannelAsync(Type, Id, new HideChannelRequestInternalDTO
@@ -436,6 +408,7 @@ namespace StreamChat.Core.State.TrackedObjects
         public Task DeleteAsync(bool isHardDelete)
             => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete);
 
+        //StreamTodo: auto send TypingStopped after timeout + timeout received typing users in case they've lost connection and never sent the stop event
         public Task SendTypingStartedEventAsync() =>
             LowLevelClient.InternalChannelApi.SendTypingStartEventAsync(Type, Id);
 
@@ -512,6 +485,8 @@ namespace StreamChat.Core.State.TrackedObjects
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
+            
+            //StreamTodo: how can user react to this change? WatcherCount could internally fire WatchCountChanged event
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
         }
 
@@ -745,7 +720,7 @@ namespace StreamChat.Core.State.TrackedObjects
         {
             AssertCid(eventDto.Cid);
 
-            //We always reduce because watchers are paginatable so our partial _watchers state may not contain the removed one but count reflects all
+            //We always reduce because watchers are paginated so our partial _watchers state may not contain the removed one but count reflects all
             WatcherCount -= 1;
 
             for (int i = _watchers.Count - 1; i >= 0; i--)

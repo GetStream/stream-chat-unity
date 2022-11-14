@@ -179,15 +179,13 @@ namespace StreamChat.Core.State.TrackedObjects
         bool IsDeleted { get; }
 
         /// <summary>
-        /// Clears the message text but leaves the rest of the message unchanged e.g. reaction, replies, attachments will be untouched
-        ///
+        /// Clears the message text but leaves the rest of the message data like: reactions, replies, attachments unchanged
         /// If you want to remove the message and all its components completely use the <see cref="IStreamMessage.HardDeleteAsync"/>
         /// </summary>
         Task SoftDeleteAsync();
 
         /// <summary>
-        /// Removes the message completely along with its reactions, replies, attachments, etc.
-        ///
+        /// Removes the message completely along with its reactions, replies, attachments, and all other message data
         /// If you want to clear the text only use the <see cref="IStreamMessage.SoftDeleteAsync"/>
         /// </summary>
         Task HardDeleteAsync();
@@ -195,7 +193,6 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Update message text or other parameters
         /// </summary>
-        /// <exception cref="ArgumentNullException"></exception>
         Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest);
 
         /// <summary>
@@ -205,13 +202,17 @@ namespace StreamChat.Core.State.TrackedObjects
         Task PinAsync(DateTime? expiresAt = null);
 
         /// <summary>
-        /// Unpin this message from a channel
+        /// Unpin this message from its channel
         /// </summary>
         Task UnpinAsync();
 
         /// <summary>
         /// Add reaction to this message
-        /// You can view reactions via <see cref="IStreamMessage.ReactionScores"/>, <see cref="IStreamMessage.ReactionCounts"/>, <see cref="IStreamMessage.ReactionScores"/> and <see cref="StreamMessage.ReactionCounts"/>
+        /// You can view reactions with:
+        /// - <see cref="IStreamMessage.ReactionScores"/>,
+        /// - <see cref="IStreamMessage.ReactionCounts"/>,
+        /// - <see cref="IStreamMessage.ReactionScores"/>,
+        /// and <see cref="IStreamMessage.ReactionCounts"/>
         /// </summary>
         /// <param name="type">Reaction custom key, examples: like, smile, sad, etc. or any custom string</param>
         /// <param name="score">[Optional] Reaction score, by default it counts as 1</param>
@@ -223,20 +224,20 @@ namespace StreamChat.Core.State.TrackedObjects
         /// <summary>
         /// Delete reaction
         /// </summary>
-        /// <param name="type">Reaction custom key, examples: like, smile, sad, etc. You can use any custom key</param>
+        /// <param name="type">Reaction custom key, examples: like, smile, sad, or any custom key</param>
         /// <returns></returns>
         Task DeleteReactionAsync(string type);
 
         /// <summary>
-        /// Any user is allowed to flag a message. This triggers the message.flagged webhook event and adds the message to the inbox of your Stream Dashboard Chat Moderation view.
+        /// Any user is allowed to flag a message. This triggers the message.flagged webhook event and adds the message to the inbox of your Stream Dashboard Chat Moderation webpage.
         /// </summary>
         Task FlagAsync();
 
         /// <summary>
-        /// Mark this message as the last that was read by local user in this channel
+        /// Mark this message as the last that was read by local user in its channel
         /// If you want to mark whole channel as read use the <see cref="IStreamChannel.MarkChannelReadAsync"/>
         ///
-        /// This feature allows to track to which message users have read the channel
+        /// This feature allows to track to which messages users have read in the channel
         /// </summary>
         Task MarkMessageAsLastReadAsync();
     }

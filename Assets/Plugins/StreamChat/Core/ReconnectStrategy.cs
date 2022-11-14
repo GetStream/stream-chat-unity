@@ -16,7 +16,7 @@
         Constant,
 
         /// <summary>
-        /// The client will never attempt to reconnect. The application will have manage calling Connect() when connection is lost
+        /// The Stream Chat Client will never attempt to reconnect. You need to call the <see cref="IStreamChatClient.Connect"/> on your own
         /// </summary>
         Never,
     }

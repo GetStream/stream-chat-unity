@@ -8,14 +8,12 @@ using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Caches;
-using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
     internal sealed class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
         IUpdateableFrom<MessageInternalDTO, StreamMessage>, IStreamMessage
     {
-        //StreamTodo: add to interface
         public event StreamMessageReactionHandler ReactionAdded;
         public event StreamMessageReactionHandler ReactionRemoved;
         public event StreamMessageReactionHandler ReactionUpdated;

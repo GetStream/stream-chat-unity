@@ -16,17 +16,17 @@ namespace StreamChat.Core.State.TrackedObjects
     public interface IStreamChannel : IStreamTrackedObject
     {
         /// <summary>
-        /// Event fired when a new <see cref="IStreamMessage"/> was received on this channel
+        /// Event fired when a new <see cref="IStreamMessage"/> was received in this channel
         /// </summary>
         event StreamChannelMessageHandler MessageReceived;
         
         /// <summary>
-        /// Event fired when a <see cref="IStreamMessage"/> from this channel was updated
+        /// Event fired when a <see cref="IStreamMessage"/> was updated in this channel 
         /// </summary>
         event StreamChannelMessageHandler MessageUpdated;
 
         /// <summary>
-        /// Event fired when a <see cref="IStreamMessage"/> from this channel was deleted
+        /// Event fired when a <see cref="IStreamMessage"/> was deleted from this channel
         /// </summary>
         event StreamMessageDeleteHandler MessageDeleted;
 
@@ -57,7 +57,7 @@ namespace StreamChat.Core.State.TrackedObjects
         event StreamChannelMuteHandler MuteChanged;
 
         /// <summary>
-        /// Event fired when this channel was truncated meaning that all or part of the messages where removed
+        /// Event fired when this channel was truncated meaning that all or some of the messages were removed
         /// </summary>
         event StreamChannelChangeHandler Truncated;
 
@@ -136,7 +136,7 @@ namespace StreamChat.Core.State.TrackedObjects
         bool Frozen { get; }
 
         /// <summary>
-        /// Whether this channel is hidden by current user or not. Subscribe to <see cref="VisibilityChanged"/> to get notified when this property changes
+        /// Whether this channel is hidden by the local user or not. Subscribe to <see cref="VisibilityChanged"/> to get notified when this property changes
         /// </summary>
         bool Hidden { get; }
 
@@ -201,7 +201,7 @@ namespace StreamChat.Core.State.TrackedObjects
         string Name { get; }
 
         /// <summary>
-        /// Current user membership object
+        /// Local user membership object
         /// </summary>
         IStreamChannelMember Membership { get; }
 
@@ -231,13 +231,13 @@ namespace StreamChat.Core.State.TrackedObjects
         int WatcherCount { get; }
 
         /// <summary>
-        /// List of user who is watching the channel
+        /// Paginated list of user who are watching this channel
         /// Subscribe to <see cref="WatcherAdded"/> and <see cref="WatcherRemoved"/> events to know when this list changes.
         /// </summary>
         IReadOnlyList<IStreamUser> Watchers { get; }
 
         /// <summary>
-        /// List of currently typing users.
+        /// List of currently typing users
         /// Subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/> events to know when this list changes.
         /// </summary>
         IReadOnlyList<IStreamUser> TypingUsers { get; }
@@ -248,12 +248,12 @@ namespace StreamChat.Core.State.TrackedObjects
         bool IsDirectMessage { get; }
 
         /// <summary>
-        /// Basic send message method. If you want to set additional parameters like use the other <see cref="IStreamChannel.SendNewMessageAsync(StreamChat.Core.State.Requests.StreamSendMessageRequest)"/> overload
+        /// Basic send message method. If you want to set additional parameters use the <see cref="IStreamChannel.SendNewMessageAsync(StreamChat.Core.State.Requests.StreamSendMessageRequest)"/> overload
         /// </summary>
         Task<IStreamMessage> SendNewMessageAsync(string message);
 
         /// <summary>
-        /// Advanced send message method. Check out the <see cref="StreamSendMessageRequest"/> to see all of the parameters
+        /// Advanced send message method. Check out the <see cref="StreamSendMessageRequest"/> to see all of the possible parameters
         /// </summary>
         Task<IStreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest);
 
@@ -277,8 +277,9 @@ namespace StreamChat.Core.State.TrackedObjects
             IEnumerable<string> unsetFields = null);
 
         /// <summary>
-        /// Upload file to stream CDN. Returned file URL can be used as a message attachment.
-        /// For image files use <see cref="IStreamChannel.UploadImageAsync"/> as it will generate the thumbnail and allow for image resize and crop operations
+        /// Upload file to the Stream CDN. Returned file URL can be used as a message attachment.
+        /// For image files use <see cref="IStreamChannel.UploadImageAsync"/> as it will generate the thumbnail and allow for image resize and crop operations.
+        /// If you wish to delete this file, user <see cref="DeleteFileOrImageAsync"/>
         /// </summary>
         /// <param name="fileContent">File bytes content (e.g. returned from <see cref="System.IO.File.ReadAllBytes"/></param>
         /// <param name="fileName">Name of the file</param>
@@ -286,14 +287,16 @@ namespace StreamChat.Core.State.TrackedObjects
         Task<StreamFileUploadResponse> UploadFileAsync(byte[] fileContent, string fileName);
 
         /// <summary>
-        /// Delete file of any type that was send to Stream CDN.
+        /// Delete file of any type that was send to the Stream CDN.
         /// This handles both files sent via <see cref="IStreamChannel.UploadFileAsync"/> and images sent via <see cref="IStreamChannel.UploadImageAsync"/>
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity#deleting-files-and-images</remarks>
-        Task DeleteFileAsync(string fileUrl);
+        Task DeleteFileOrImageAsync(string fileUrl);
 
         /// <summary>
-        /// Upload image file to stream CDN. The returned image URL can be injected into <see cref="StreamAttachmentRequest"/> when sending new message.
+        /// Upload image file to the Stream CDN. The returned image URL can be injected into <see cref="StreamAttachmentRequest"/> when sending new message.
+        /// For regular files use <see cref="IStreamChannel.UploadFileAsync"/>
+        /// If you wish to delete this file, user <see cref="DeleteFileOrImageAsync"/>
         /// </summary>
         /// <param name="imageContent"></param>
         /// <param name="imageName"></param>
@@ -323,18 +326,10 @@ namespace StreamChat.Core.State.TrackedObjects
         /// Remove ban from the user on this channel
         /// </summary>
         Task UnbanUserInChannelAsync(IStreamUser user);
-
-        /// <summary>
-        /// Mark this message as the last that was read by this user in this channel
-        /// If you want to mark whole channel as read use the <see cref="IStreamChannel.MarkChannelReadAsync"/>
-        ///
-        /// This feature allows to track to which message users have read the channel
-        /// </summary>
-        Task MarkMessageReadAsync(IStreamMessage message);
-
+        
         /// <summary>
         /// Mark this channel completely as read
-        /// If you want to mark specific message as read use the <see cref="IStreamChannel.MarkMessageReadAsync"/>
+        /// If you want to mark specific message as read use the <see cref="IStreamMessage.MarkMessageAsLastReadAsync"/>
         ///
         /// This feature allows to track to which message users have read the channel
         /// </summary>
@@ -396,9 +391,8 @@ namespace StreamChat.Core.State.TrackedObjects
         Task DeleteAsync(bool isHardDelete);
 
         /// <summary>
-        ///
+        /// Send a notification that the local user started typing in this channel. You can access currently typing 
         /// </summary>
-        /// <returns></returns>
         Task SendTypingStartedEventAsync();
 
         Task SendTypingStoppedEventAsync();
