@@ -496,6 +496,12 @@ namespace StreamChat.Core.State.TrackedObjects
             //StreamTodo: how can user react to this change? WatcherCount could internally fire WatchCountChanged event
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
         }
+        
+        internal void InternalHandleMessageNewNotification(EventNotificationMessageNewInternalDTO dto)
+        {
+            AssertCid(dto.Cid);
+            InternalAppendOrUpdateMessage(dto.Message);
+        }
 
         internal void HandleMessageUpdatedEvent(EventMessageUpdatedInternalDTO dto)
         {
@@ -701,20 +707,18 @@ namespace StreamChat.Core.State.TrackedObjects
         internal void InternalHandleMessageReadEvent(EventMessageReadInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            //we can only mark messages based on created_at
-            //we mark this per user
-
-            var userRead = _read.FirstOrDefault(_ => _.User.Id == eventDto.User.Id);
-            if (userRead == null)
-            {
-                return; //StreamTodo: do we add this user? We don't have his UnreadMessages count
-            }
-
-            userRead.Update(eventDto.CreatedAt.Value);
-            //StreamTodo: IMPLEMENT we need to recalculate the unread counts and raise some event
+            AssertCid(eventDto.Cid);
+            HandleMessageRead(eventDto.User, eventDto.CreatedAt.Value);
+        }
+        
+        internal void InternalHandleMessageReadNotification(EventNotificationMarkReadInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            HandleMessageRead(eventDto.User, eventDto.CreatedAt.Value);
+            //StreamTodo: update eventDto.Channel as well?
         }
 
-        internal void InternalHandleUserWatchingStart(EventUserWatchingStartInternalDTO eventDto)
+        internal void InternalHandleUserWatchingStartEvent(EventUserWatchingStartInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
 
@@ -780,5 +784,20 @@ namespace StreamChat.Core.State.TrackedObjects
 
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
         private readonly List<IStreamUser> _typingUsers = new List<IStreamUser>();
+        
+        private void HandleMessageRead(UserObjectInternalInternalDTO userDto, DateTimeOffset createAt)
+        {
+            //we can only mark messages based on created_at
+            //we mark this per user
+
+            var userRead = _read.FirstOrDefault(_ => _.User.Id == userDto.Id);
+            if (userRead == null)
+            {
+                return; //StreamTodo: do we add this user? We don't have his UnreadMessages count
+            }
+
+            userRead.Update(createAt);
+            //StreamTodo: IMPLEMENT we need to recalculate the unread counts and raise some event
+        }
     }
 }

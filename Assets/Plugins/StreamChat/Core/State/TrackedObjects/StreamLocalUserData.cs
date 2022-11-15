@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Caches;
-using StreamChat.Core.State.TrackedObjects;
 
 namespace StreamChat.Core.State.TrackedObjects
 {
@@ -27,15 +27,6 @@ namespace StreamChat.Core.State.TrackedObjects
         
         public IStreamUser User { get; private set; }
 
-        internal StreamLocalUserData(string uniqueId, ICacheRepository<StreamLocalUserData> repository,
-            ITrackedObjectContext context)
-            : base(uniqueId, repository, context)
-        {
-        }
-
-        protected override string InternalUniqueId { get; set; }
-        protected override StreamLocalUserData Self => this;
-
         void IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>.UpdateFromDto(OwnUserInternalDTO dto,
             ICache cache)
         {
@@ -56,6 +47,22 @@ namespace StreamChat.Core.State.TrackedObjects
 
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
+        
+        internal StreamLocalUserData(string uniqueId, ICacheRepository<StreamLocalUserData> repository,
+            ITrackedObjectContext context)
+            : base(uniqueId, repository, context)
+        {
+        }
+        
+        internal void InternalHandleMarkReadNotification(EventNotificationMarkReadInternalDTO eventDto)
+        {
+            TotalUnreadCount = GetOrDefault(eventDto.TotalUnreadCount, TotalUnreadCount);
+            UnreadChannels = GetOrDefault(eventDto.UnreadChannels, UnreadChannels);
+            //UnreadCount = dto.UnreadCount; Deprecated
+        }
+        
+        protected override string InternalUniqueId { get; set; }
+        protected override StreamLocalUserData Self => this;
 
         private readonly List<StreamChannelMute> _channelMutes = new List<StreamChannelMute>();
         private readonly List<StreamDevice> _devices = new List<StreamDevice>();
