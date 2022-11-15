@@ -87,7 +87,7 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Use this if state update depends on receiving WS event that might come after the REST call was completed
         /// </summary>
-        protected static async Task WaitWhileConditionTrue(Func<bool> condition, int maxIterations = 50)
+        protected static async Task WaitWhileConditionTrue(Func<bool> condition, int maxIterations = 150)
         {
             if (!condition())
             {

@@ -61,6 +61,7 @@ namespace StreamChat.Core.API
         /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
         Task<DeleteChannelsResponse> DeleteChannelsAsync(DeleteChannelsRequest deleteChannelsRequest);
 
+        //StreamTodo: deprecate isHardDelete since it's no longer available in client-side SDK
         /// <summary>
         /// Deletes a channel.
         /// </summary>

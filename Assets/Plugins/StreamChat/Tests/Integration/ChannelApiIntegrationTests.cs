@@ -35,7 +35,7 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(channelType, response.Channel.Type);
             });
 
-            yield return Client.ChannelApi.DeleteChannelAsync(channelType, channelId).RunAsIEnumerator();
+            yield return Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false).RunAsIEnumerator();
         }
 
         [UnityTest]
@@ -109,7 +109,7 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(channelType, response.Channel.Type);
             });
 
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId);
+            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
 
             yield return deleteChannelTask.RunAsIEnumerator(response =>
             {
@@ -319,7 +319,7 @@ namespace StreamChat.Tests.Integration
                 state => channelState = state);
             var channelId = channelState.Channel.Id;
 
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId);
+            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
             yield return deleteChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(response.Channel.Id, channelId);
@@ -342,13 +342,13 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(response.Channel.Id, channelId);
             });
 
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId);
+            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
             yield return deleteChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(response.Channel.Id, channelId);
             });
 
-            var deleteChannelTask2 = Client.ChannelApi.DeleteChannelAsync(channelType, channelId);
+            var deleteChannelTask2 = Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
 
             deleteChannelTask2.RunAsIEnumerator(onFaulted: exception =>
             {

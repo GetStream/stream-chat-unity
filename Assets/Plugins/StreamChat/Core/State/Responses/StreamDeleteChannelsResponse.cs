@@ -7,7 +7,8 @@ namespace StreamChat.Core.State.Responses
     /// <summary>
     /// Response for <see cref="StreamChatStateClient.DeleteMultipleChannelsAsync"/>
     /// </summary>
-    public sealed class StreamDeleteChannelsResponse : ILoadableFrom<DeleteChannelsResponseInternalDTO, StreamDeleteChannelsResponse>
+    public sealed class
+        StreamDeleteChannelsResponse : ILoadableFrom<DeleteChannelsResponseInternalDTO, StreamDeleteChannelsResponse>
     {
         public System.Collections.Generic.Dictionary<string, StreamDeleteChannelsResult> Result { get; private set; }
 
@@ -16,7 +17,8 @@ namespace StreamChat.Core.State.Responses
         /// </summary>
         public string TaskId { get; private set; }
 
-        StreamDeleteChannelsResponse ILoadableFrom<DeleteChannelsResponseInternalDTO, StreamDeleteChannelsResponse>.LoadFromDto(DeleteChannelsResponseInternalDTO dto)
+        StreamDeleteChannelsResponse ILoadableFrom<DeleteChannelsResponseInternalDTO, StreamDeleteChannelsResponse>.
+            LoadFromDto(DeleteChannelsResponseInternalDTO dto)
         {
             Result = Result.TryLoadFromDtoDictionary(dto.Result);
             TaskId = dto.TaskId;

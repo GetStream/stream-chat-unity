@@ -324,7 +324,6 @@ namespace StreamChat.Core.State
             });
         }
 
-        /// <inheritdoc />
         public async Task<StreamDeleteChannelsResponse> DeleteMultipleChannelsAsync(
             IEnumerable<IStreamChannel> channels,
             bool isHardDelete = false)

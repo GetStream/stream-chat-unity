@@ -410,8 +410,8 @@ namespace StreamChat.Core.State.TrackedObjects
             await StreamChatStateClient.GetOrCreateChannelAsync(Type, Id);
         }
 
-        public Task DeleteAsync(bool isHardDelete)
-            => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete);
+        public Task DeleteAsync()
+            => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete: false);
 
         //StreamTodo: auto send TypingStopped after timeout + timeout received typing users in case they've lost connection and never sent the stop event
         public Task SendTypingStartedEventAsync() =>
@@ -448,7 +448,7 @@ namespace StreamChat.Core.State.TrackedObjects
 
             #endregion
 
-            //StreamTodo probably every UpdateFromDto should trigger Updated event
+            //StreamTodo should every UpdateFromDto trigger Updated event?
         }
 
         void IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>.UpdateFromDto(

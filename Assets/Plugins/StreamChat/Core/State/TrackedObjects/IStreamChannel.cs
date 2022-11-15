@@ -390,11 +390,10 @@ namespace StreamChat.Core.State.TrackedObjects
             bool skipPushNotifications = false, bool isHardDelete = false);
 
         /// <summary>
-        /// Delete this channel. By default channel is soft deleted. You may hard delete it by setting the <param name="isHardDelete"> argument to true
+        /// Delete this channel. By default channel is soft deleted. You can hard delete it only by using a server-side SDK due to security
         /// </summary>
-        /// <param name="isHardDelete">Hard delete completely removes channel with all its resources</param>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
-        Task DeleteAsync(bool isHardDelete);
+        Task DeleteAsync();
 
         /// <summary>
         /// Send a notification that the local user started typing in this channel. You can access currently typing users via <see cref="TypingUsers"/>
