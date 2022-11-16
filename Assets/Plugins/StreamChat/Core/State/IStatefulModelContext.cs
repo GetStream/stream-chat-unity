@@ -3,7 +3,7 @@ using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
 {
-    internal interface ITrackedObjectContext
+    internal interface IStatefulModelContext
     {
         ICache Cache { get; }
         StreamChatClient Client { get; }

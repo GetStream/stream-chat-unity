@@ -38,7 +38,7 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Event fired when a <see cref="IStreamChannelMember"/> left this channel
         /// </summary>
-        event StreamChannelMemberChangeHandler MemberRemoved; //StreamTodo: Unifiy Removed or Deleted
+        event StreamChannelMemberChangeHandler MemberRemoved;
 
         /// <summary>
         /// Event fired when a <see cref="IStreamChannelMember"/> was updated

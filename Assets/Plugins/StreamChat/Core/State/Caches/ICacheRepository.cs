@@ -16,7 +16,7 @@ namespace StreamChat.Core.State.Caches
         
         void Track(TTrackedObject trackedObject);
         
-        void RegisterDtoTrackingIdGetter<TType, TDto>(Func<TDto, string> idGetter)
+        void RegisterDtoIdMapping<TType, TDto>(Func<TDto, string> idGetter)
             where TType : class, TTrackedObject, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
             where TDto : class;
 

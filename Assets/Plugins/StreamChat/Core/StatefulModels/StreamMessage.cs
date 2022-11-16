@@ -224,7 +224,7 @@ namespace StreamChat.Core.StatefulModels
             User = cache.TryCreateOrUpdate(dto.User);
         }
 
-        internal StreamMessage(string uniqueId, ICacheRepository<StreamMessage> repository, ITrackedObjectContext context)
+        internal StreamMessage(string uniqueId, ICacheRepository<StreamMessage> repository, IStatefulModelContext context)
             : base(uniqueId, repository, context)
         {
         }

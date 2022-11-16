@@ -8,15 +8,15 @@ namespace StreamChat.Core.State
     /// <summary>
     /// Factory for <see cref="IStreamStatefulModel"/>
     /// </summary>
-    internal sealed class TrackedObjectsFactory : ITrackedObjectsFactory
+    internal sealed class StatefulModelsFactory : IStatefulModelsFactory
     {
-        public TrackedObjectsFactory(StreamChatClient streamChatClient, ILogs logs, Cache cache)
+        public StatefulModelsFactory(StreamChatClient streamChatClient, ILogs logs, Cache cache)
         {
             _streamChatClient = streamChatClient ?? throw new ArgumentNullException(nameof(streamChatClient));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
-            _context = new TrackedObjectContext(_cache, streamChatClient, logs);
+            _context = new StatefulModelContext(_cache, streamChatClient, logs);
         }
 
         public StreamChannel CreateStreamChannel(string uniqueId)
@@ -36,7 +36,7 @@ namespace StreamChat.Core.State
 
         private readonly ILogs _logs;
         private readonly StreamChatClient _streamChatClient;
-        private readonly ITrackedObjectContext _context;
+        private readonly IStatefulModelContext _context;
         private readonly Cache _cache;
     }
 }

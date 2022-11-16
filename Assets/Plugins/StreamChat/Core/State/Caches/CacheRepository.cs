@@ -7,16 +7,16 @@ namespace StreamChat.Core.State.Caches
     /// <summary>
     /// Tracked objects repository
     /// </summary>
-    /// <typeparam name="TTrackedType">Tracked object type</typeparam>
-    internal sealed class CacheRepository<TTrackedType> : ICacheRepository<TTrackedType>
-        where TTrackedType : class, IStreamStatefulModel
+    /// <typeparam name="TStatefulModel">Tracked object type</typeparam>
+    internal sealed class CacheRepository<TStatefulModel> : ICacheRepository<TStatefulModel>
+        where TStatefulModel : class, IStreamStatefulModel
     {
-        public IReadOnlyList<TTrackedType> AllItems => _trackedObjects;
+        public IReadOnlyList<TStatefulModel> AllItems => _statefulModels;
 
-        public bool TryGet(string uniqueId, out TTrackedType trackedObject)
-            => _trackedObjectById.TryGetValue(uniqueId, out trackedObject);
+        public bool TryGet(string uniqueId, out TStatefulModel trackedObject)
+            => _statefulModelById.TryGetValue(uniqueId, out trackedObject);
 
-        private string GetDtoTrackingId<TDto>(TDto dto)
+        private string GetDtoMappingId<TDto>(TDto dto)
         {
             var key = typeof(TDto);
 
@@ -31,8 +31,8 @@ namespace StreamChat.Core.State.Caches
         /// <summary>
         /// Tracking ID will be used to retrieve cached object to which this DTO is mapped
         /// </summary>
-        public void RegisterDtoTrackingIdGetter<TType, TDto>(Func<TDto, string> idGetter)
-            where TType : class, TTrackedType, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
+        public void RegisterDtoIdMapping<TType, TDto>(Func<TDto, string> idGetter)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
             where TDto : class
         {
             var key = typeof(TDto);
@@ -48,47 +48,47 @@ namespace StreamChat.Core.State.Caches
         }
 
         public TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
-            where TType : class, TTrackedType, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
         {
             wasCreated = false;
-            var trackingId = GetDtoTrackingId(dto);
+            var trackingId = GetDtoMappingId(dto);
             if (!TryGet(trackingId, out var trackedObject))
             {
                 trackedObject = _constructor(trackingId);
                 wasCreated = true;
             }
 
-            var typedTrackedObject = trackedObject as TType;
-            if (typedTrackedObject == null)
+            var typedStatefulModel = trackedObject as TType;
+            if (typedStatefulModel == null)
             {
-                throw new InvalidOperationException($"Failed to cast {typeof(TTrackedType)} to {typeof(TType)}");
+                throw new InvalidOperationException($"Failed to cast {typeof(TStatefulModel)} to {typeof(TType)}");
             }
 
-            typedTrackedObject.UpdateFromDto(dto, _cache);
+            typedStatefulModel.UpdateFromDto(dto, _cache);
 
-            return typedTrackedObject;
+            return typedStatefulModel;
         }
 
         /// <summary>
-        /// This is called from tracked object constructor
+        /// This is called from <see cref="IStreamStatefulModel"/> constructor
         /// </summary>
-        public void Track(TTrackedType trackedObject)
+        public void Track(TStatefulModel trackedObject)
         {
             if (trackedObject.UniqueId.IsNullOrEmpty())
             {
                 throw new ArgumentException($"{trackedObject.UniqueId} cannot be empty");
             }
 
-            if (_trackedObjectById.ContainsKey(trackedObject.UniqueId))
+            if (_statefulModelById.ContainsKey(trackedObject.UniqueId))
             {
-                throw new InvalidOperationException($"Object of type `{typeof(TTrackedType)}` and id {trackedObject.UniqueId} is already tracked");
+                throw new InvalidOperationException($"Object of type `{typeof(TStatefulModel)}` and id {trackedObject.UniqueId} is already tracked");
             }
 
-            _trackedObjectById[trackedObject.UniqueId] = trackedObject;
-            _trackedObjects.Add(trackedObject);
+            _statefulModelById[trackedObject.UniqueId] = trackedObject;
+            _statefulModels.Add(trackedObject);
         }
 
-        public void Remove(TTrackedType trackedObject)
+        public void Remove(TStatefulModel trackedObject)
         {
             if (trackedObject.UniqueId.IsNullOrEmpty())
             {
@@ -98,11 +98,11 @@ namespace StreamChat.Core.State.Caches
             //StreamTodo: we could notify object that its being removed, perhaps IDIsposable?
             //This way object can release some memory before object is GCed
 
-            _trackedObjects.Remove(trackedObject);
-            _trackedObjectById.Remove(trackedObject.UniqueId);
+            _statefulModels.Remove(trackedObject);
+            _statefulModelById.Remove(trackedObject.UniqueId);
         }
 
-        internal delegate TTrackedType ConstructorHandler(string uniqueId);
+        internal delegate TStatefulModel ConstructorHandler(string uniqueId);
 
         internal CacheRepository(ConstructorHandler constructor, ICache cache)
         {
@@ -110,13 +110,13 @@ namespace StreamChat.Core.State.Caches
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        private readonly List<TTrackedType> _trackedObjects = new List<TTrackedType>();
-        private readonly Dictionary<string, TTrackedType> _trackedObjectById = new Dictionary<string, TTrackedType>();
+        private readonly List<TStatefulModel> _statefulModels = new List<TStatefulModel>();
+        private readonly Dictionary<string, TStatefulModel> _statefulModelById = new Dictionary<string, TStatefulModel>();
 
         private readonly Dictionary<Type, Func<object, string>> _dtoIdGetters = new Dictionary<Type, Func<object, string>>();
 
         private readonly ConstructorHandler _constructor;
         private readonly ICache _cache;
-        private readonly ITrackedObjectsFactory _trackedObjectsFactory;
+        private readonly IStatefulModelsFactory _statefulModelsFactory;
     }
 }

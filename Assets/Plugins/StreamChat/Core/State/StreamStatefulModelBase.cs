@@ -7,11 +7,11 @@ using StreamChat.Libs.Logs;
 namespace StreamChat.Core.State
 {
     /// <summary>
-    /// Base class for tracked objects. Read more: <see cref="IStreamStatefulModel"/>
+    /// Base class for <see cref="IStreamStatefulModel"/>
     /// </summary>
-    /// <typeparam name="TTrackedObject">Type of tracked object</typeparam>
-    internal abstract class StreamStatefulModelBase<TTrackedObject> : IStreamStatefulModel
-        where TTrackedObject : class, IStreamStatefulModel
+    /// <typeparam name="TStatefulModel">Type of tracked object</typeparam>
+    internal abstract class StreamStatefulModelBase<TStatefulModel> : IStreamStatefulModel
+        where TStatefulModel : class, IStreamStatefulModel
     {
         public IDictionary<string, object> CustomData => _additionalProperties;
         
@@ -20,8 +20,8 @@ namespace StreamChat.Core.State
         public object SetCustomData(string key, object value) => _additionalProperties[key] = value;
         public object GetCustomData(string key) => _additionalProperties[key];
 
-        internal StreamStatefulModelBase(string uniqueId, ICacheRepository<TTrackedObject> repository,
-            ITrackedObjectContext context)
+        internal StreamStatefulModelBase(string uniqueId, ICacheRepository<TStatefulModel> repository,
+            IStatefulModelContext context)
         {
             if (context == null)
             {
@@ -39,12 +39,12 @@ namespace StreamChat.Core.State
 
         protected abstract string InternalUniqueId { get; set; }
 
-        protected abstract TTrackedObject Self { get; }
+        protected abstract TStatefulModel Self { get; }
         protected StreamChatClient Client { get; }
         protected StreamChatLowLevelClient LowLevelClient => Client.LowLevelClient;
         protected ILogs Logs { get; }
         internal ICache Cache { get; }
-        internal ICacheRepository<TTrackedObject> Repository { get; }
+        internal ICacheRepository<TStatefulModel> Repository { get; }
 
         protected void LoadAdditionalProperties(Dictionary<string, object> additionalProperties)
         {

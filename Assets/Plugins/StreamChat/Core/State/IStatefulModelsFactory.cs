@@ -2,7 +2,7 @@
 
 namespace StreamChat.Core.State
 {
-    internal interface ITrackedObjectsFactory
+    internal interface IStatefulModelsFactory
     {
         StreamChannel CreateStreamChannel(string uniqueId);
 

@@ -50,7 +50,7 @@ namespace StreamChat.Core.StatefulModels
         }
         
         internal StreamLocalUserData(string uniqueId, ICacheRepository<StreamLocalUserData> repository,
-            ITrackedObjectContext context)
+            IStatefulModelContext context)
             : base(uniqueId, repository, context)
         {
         }

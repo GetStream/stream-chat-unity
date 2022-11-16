@@ -199,7 +199,7 @@ namespace StreamChat.Core.StatefulModels
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
-        internal StreamUser(string uniqueId, ICacheRepository<StreamUser> repository, ITrackedObjectContext context)
+        internal StreamUser(string uniqueId, ICacheRepository<StreamUser> repository, IStatefulModelContext context)
             : base(uniqueId, repository, context)
         {
         }

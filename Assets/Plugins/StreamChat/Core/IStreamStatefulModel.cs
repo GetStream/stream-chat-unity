@@ -4,7 +4,7 @@ using StreamChat.Core.StatefulModels;
 namespace StreamChat.Core
 {
     /// <summary>
-    /// Object with its state being automatically tracked by the <see cref="StreamChatClient"/>
+    /// Model with its state being automatically updated by the <see cref="StreamChatClient"/>
     ///
     /// This means that this objects corresponds to an object on the Stream Chat server with the same ID
     /// its state will be automatically updated whenever new information is received from the server

@@ -53,7 +53,7 @@ namespace StreamChat.Core.StatefulModels
         internal string UserId { get; private set; }
 
         internal StreamChannelMember(string uniqueId, ICacheRepository<StreamChannelMember> repository,
-            ITrackedObjectContext context)
+            IStatefulModelContext context)
             : base(uniqueId, repository, context)
         {
         }
