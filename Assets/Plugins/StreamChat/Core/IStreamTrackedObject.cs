@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using StreamChat.Core.State.TrackedObjects;
+using StreamChat.Core.TrackedObjects;
 
 namespace StreamChat.Core
 {

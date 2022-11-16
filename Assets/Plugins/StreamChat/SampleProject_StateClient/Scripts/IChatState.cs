@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.State;
-using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Core;
+using StreamChat.Core.TrackedObjects;
 using StreamChat.SampleProject_StateClient.Views;
 
 namespace StreamChat.SampleProject_StateClient

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using StreamChat.Core.State.TrackedObjects;
+using StreamChat.Core.TrackedObjects;
 
 namespace StreamChat.Core.State
 {

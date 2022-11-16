@@ -1,7 +1,7 @@
 using System;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.State.Models;
-using StreamChat.Core.State.Responses;
+using StreamChat.Core.Models;
+using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.State
 {

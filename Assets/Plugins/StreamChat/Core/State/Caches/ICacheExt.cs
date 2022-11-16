@@ -1,6 +1,6 @@
 ﻿using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Responses;
-using StreamChat.Core.State.TrackedObjects;
+using StreamChat.Core.TrackedObjects;
 
 namespace StreamChat.Core.State.Caches
 {

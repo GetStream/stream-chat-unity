@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core;
+using StreamChat.Core.TrackedObjects;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient

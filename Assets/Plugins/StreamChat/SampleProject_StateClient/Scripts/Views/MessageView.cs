@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.State.Models;
-using StreamChat.Core.State.TrackedObjects;
+using StreamChat.Core.Models;
+using StreamChat.Core.TrackedObjects;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProject_StateClient.Popups;
 using StreamChat.SampleProject_StateClient.Utils;

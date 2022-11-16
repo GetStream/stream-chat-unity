@@ -1,6 +1,6 @@
 ﻿using System;
-using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Core.State.Caches;
+using StreamChat.Core.TrackedObjects;
 using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
