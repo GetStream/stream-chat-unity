@@ -9,7 +9,7 @@ namespace StreamChat.Core.State.Caches
     /// </summary>
     /// <typeparam name="TTrackedType">Tracked object type</typeparam>
     internal sealed class CacheRepository<TTrackedType> : ICacheRepository<TTrackedType>
-        where TTrackedType : class, IStreamTrackedObject
+        where TTrackedType : class, IStreamStatefulModel
     {
         public IReadOnlyList<TTrackedType> AllItems => _trackedObjects;
 
@@ -32,7 +32,7 @@ namespace StreamChat.Core.State.Caches
         /// Tracking ID will be used to retrieve cached object to which this DTO is mapped
         /// </summary>
         public void RegisterDtoTrackingIdGetter<TType, TDto>(Func<TDto, string> idGetter)
-            where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
+            where TType : class, TTrackedType, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
             where TDto : class
         {
             var key = typeof(TDto);
@@ -48,7 +48,7 @@ namespace StreamChat.Core.State.Caches
         }
 
         public TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
-            where TType : class, TTrackedType, IStreamTrackedObject, IUpdateableFrom<TDto, TType>
+            where TType : class, TTrackedType, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
         {
             wasCreated = false;
             var trackingId = GetDtoTrackingId(dto);

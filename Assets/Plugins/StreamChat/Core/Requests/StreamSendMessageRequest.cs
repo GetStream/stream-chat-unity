@@ -4,7 +4,7 @@ using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.Requests
 {

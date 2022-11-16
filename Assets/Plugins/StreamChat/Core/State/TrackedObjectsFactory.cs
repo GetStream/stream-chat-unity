@@ -1,12 +1,12 @@
 ﻿using System;
 using StreamChat.Core.State.Caches;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
 {
     /// <summary>
-    /// Factory for <see cref="IStreamTrackedObject"/>
+    /// Factory for <see cref="IStreamStatefulModel"/>
     /// </summary>
     internal sealed class TrackedObjectsFactory : ITrackedObjectsFactory
     {

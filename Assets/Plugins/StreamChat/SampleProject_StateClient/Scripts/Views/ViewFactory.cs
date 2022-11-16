@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 using StreamChat.SampleProject_StateClient.Configs;
 using StreamChat.SampleProject_StateClient.Utils;
 using StreamChat.SampleProject_StateClient.Popups;

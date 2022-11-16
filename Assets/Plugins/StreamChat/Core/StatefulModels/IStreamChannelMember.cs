@@ -1,11 +1,11 @@
 using System;
 
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
     /// <summary>
     /// <see cref="IStreamUser"/> that became a member of the <see cref="IStreamChannel"/>. Check <see cref="IStreamChannel.Members"/>
     /// </summary>
-    public interface IStreamChannelMember : IStreamTrackedObject
+    public interface IStreamChannelMember : IStreamStatefulModel
     {
         /// <summary>
         /// Expiration date of the ban

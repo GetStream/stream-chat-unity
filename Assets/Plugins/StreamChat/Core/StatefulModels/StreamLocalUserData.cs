@@ -5,9 +5,9 @@ using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
 
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
-    internal sealed class StreamLocalUserData : StreamTrackedObjectBase<StreamLocalUserData>,
+    internal sealed class StreamLocalUserData : StreamStatefulModelBase<StreamLocalUserData>,
         IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>, IStreamLocalUserData
     {
         #region OwnUser

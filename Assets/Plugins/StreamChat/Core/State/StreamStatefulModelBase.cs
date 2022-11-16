@@ -7,20 +7,20 @@ using StreamChat.Libs.Logs;
 namespace StreamChat.Core.State
 {
     /// <summary>
-    /// Base class for tracked objects. Read more: <see cref="IStreamTrackedObject"/>
+    /// Base class for tracked objects. Read more: <see cref="IStreamStatefulModel"/>
     /// </summary>
     /// <typeparam name="TTrackedObject">Type of tracked object</typeparam>
-    internal abstract class StreamTrackedObjectBase<TTrackedObject> : IStreamTrackedObject
-        where TTrackedObject : class, IStreamTrackedObject
+    internal abstract class StreamStatefulModelBase<TTrackedObject> : IStreamStatefulModel
+        where TTrackedObject : class, IStreamStatefulModel
     {
         public IDictionary<string, object> CustomData => _additionalProperties;
         
-        string IStreamTrackedObject.UniqueId => InternalUniqueId;
+        string IStreamStatefulModel.UniqueId => InternalUniqueId;
 
         public object SetCustomData(string key, object value) => _additionalProperties[key] = value;
         public object GetCustomData(string key) => _additionalProperties[key];
 
-        internal StreamTrackedObjectBase(string uniqueId, ICacheRepository<TTrackedObject> repository,
+        internal StreamStatefulModelBase(string uniqueId, ICacheRepository<TTrackedObject> repository,
             ITrackedObjectContext context)
         {
             if (context == null)

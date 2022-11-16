@@ -15,7 +15,7 @@ using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 
 //StreamTodo: maybe some more intuitive namespace? Models? StateModels?
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
     public delegate void StreamChannelVisibilityHandler(IStreamChannel channel, bool isHidden);
 
@@ -34,7 +34,7 @@ namespace StreamChat.Core.TrackedObjects
     public delegate void StreamMessageReactionHandler(IStreamChannel channel, IStreamMessage message,
         StreamReaction reaction);
 
-    internal sealed class StreamChannel : StreamTrackedObjectBase<StreamChannel>,
+    internal sealed class StreamChannel : StreamStatefulModelBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
         IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>,

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core
 {
@@ -9,7 +9,7 @@ namespace StreamChat.Core
     /// This means that this objects corresponds to an object on the Stream Chat server with the same ID
     /// its state will be automatically updated whenever new information is received from the server
     /// </summary>
-    public interface IStreamTrackedObject //StreamTodo: better name? IStreamStateObject, IStreamStatefulObject, IStreamManagedObject?
+    public interface IStreamStatefulModel
     {
         string UniqueId { get; }
         

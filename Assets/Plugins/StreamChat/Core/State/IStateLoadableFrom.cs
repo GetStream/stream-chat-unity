@@ -74,7 +74,7 @@ namespace StreamChat.Core.State
         public static void TryReplaceRegularObjectsFromDto<TDto, TSource>(this List<TSource> target, List<TDto> dtos, ICache cache)
             where TSource : IStateLoadableFrom<TDto, TSource>, new()
         {
-            if (typeof(TSource) is IStreamTrackedObject)
+            if (typeof(TSource) is IStreamStatefulModel)
             {
                 throw new InvalidOperationException("This method should not be used for tracked objects");
             }

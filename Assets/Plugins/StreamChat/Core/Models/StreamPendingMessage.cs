@@ -2,7 +2,7 @@
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.Models
 {

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using StreamChat.Core.Requests;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProject_StateClient.Utils;
 using TMPro;

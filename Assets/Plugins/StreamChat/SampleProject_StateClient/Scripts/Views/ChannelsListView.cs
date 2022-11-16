@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 using UnityEngine;
 
 namespace StreamChat.SampleProject_StateClient.Views

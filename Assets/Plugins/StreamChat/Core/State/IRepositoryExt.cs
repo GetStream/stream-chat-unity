@@ -11,7 +11,7 @@ namespace StreamChat.Core.State
         /// </summary>
         public static void TryReplaceTrackedObjects<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
             ICacheRepository<TTracked> repository)
-            where TTracked : class, IStreamTrackedObject, IUpdateableFrom<TDto, TTracked>
+            where TTracked : class, IStreamStatefulModel, IUpdateableFrom<TDto, TTracked>
         {
             if (target == null)
             {
@@ -37,7 +37,7 @@ namespace StreamChat.Core.State
         /// </summary>
         public static void TryAppendUniqueTrackedObjects<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
             ICacheRepository<TTracked> repository)
-            where TTracked : class, IStreamTrackedObject, IUpdateableFrom<TDto, TTracked>
+            where TTracked : class, IStreamStatefulModel, IUpdateableFrom<TDto, TTracked>
         {
             if (target == null)
             {

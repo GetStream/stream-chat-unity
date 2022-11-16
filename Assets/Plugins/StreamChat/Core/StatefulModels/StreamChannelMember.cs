@@ -3,9 +3,9 @@ using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
-    internal sealed class StreamChannelMember : StreamTrackedObjectBase<StreamChannelMember>,
+    internal sealed class StreamChannelMember : StreamStatefulModelBase<StreamChannelMember>,
         IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>, IStreamChannelMember
     {
         public DateTimeOffset? BanExpires { get; private set; }

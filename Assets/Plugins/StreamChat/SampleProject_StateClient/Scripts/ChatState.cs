@@ -8,7 +8,7 @@ using StreamChat.Core.State;
 using StreamChat.Core.LowLevelClient.Events;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Logs;
 using StreamChat.SampleProject_StateClient.Utils;
 using StreamChat.SampleProject_StateClient.Views;

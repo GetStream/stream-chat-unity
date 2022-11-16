@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Configs;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Auth;
 using UnityEngine;
 using UnityEngine.TestTools;

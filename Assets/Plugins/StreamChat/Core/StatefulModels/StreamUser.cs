@@ -10,12 +10,12 @@ using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
 
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
     public delegate void StreamUserPresenceHandler(IStreamUser user, bool isOnline, DateTimeOffset? lastActive);
 
     /// <inheritdoc cref="IStreamUser"/>
-    internal sealed class StreamUser : StreamTrackedObjectBase<StreamUser>,
+    internal sealed class StreamUser : StreamStatefulModelBase<StreamUser>,
         IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>,
         IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>, IStreamUser
     {

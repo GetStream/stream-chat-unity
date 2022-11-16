@@ -10,9 +10,9 @@ using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
-    internal sealed class StreamMessage : StreamTrackedObjectBase<StreamMessage>,
+    internal sealed class StreamMessage : StreamStatefulModelBase<StreamMessage>,
         IUpdateableFrom<MessageInternalDTO, StreamMessage>, IStreamMessage
     {
         public event StreamMessageReactionHandler ReactionAdded;

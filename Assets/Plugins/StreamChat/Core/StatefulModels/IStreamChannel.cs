@@ -6,14 +6,14 @@ using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
     /// <summary>
     /// Channel is where group of <see cref="IStreamChannelMember"/>s can send messages.
     /// Default permissions and configuration is based on <see cref="StreamChannel.Type"/>
     /// </summary>
     /// <remarks>https://getstream.io/chat/docs/unity/permissions_reference/?language=unity&q=hidden#default-grants</remarks>
-    public interface IStreamChannel : IStreamTrackedObject
+    public interface IStreamChannel : IStreamStatefulModel
     {
         /// <summary>
         /// Event fired when a new <see cref="IStreamMessage"/> was received in this channel

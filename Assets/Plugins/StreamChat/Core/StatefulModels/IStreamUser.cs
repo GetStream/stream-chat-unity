@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.Models;
 
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
     /// <summary>
     /// <para>Users can become <see cref="IStreamChannelMember"/> of <see cref="IStreamChannel"/> and send messages</para>
     /// <b>State of this object is automatically updated</b>
     /// </summary>
-    public interface IStreamUser : IStreamTrackedObject
+    public interface IStreamUser : IStreamStatefulModel
     {
         /// <summary>
         /// Event fired when the user online state changed. Check <see cref="IStreamUser.Online"/> and <see cref="IStreamUser.LastActive"/> to know if the user is online or when was last active

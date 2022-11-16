@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 
-namespace StreamChat.Core.TrackedObjects
+namespace StreamChat.Core.StatefulModels
 {
     /// <summary>
     /// Messages are sent by <see cref="IStreamUser"/> or <see cref="IStreamChannelMember"/> to <see cref="IStreamChannel"/>
     /// </summary>
-    public interface IStreamMessage : IStreamTrackedObject
+    public interface IStreamMessage : IStreamStatefulModel
     {
         /// <summary>
         /// Event fired when a new <see cref="StreamReaction"/> was added to <see cref="IStreamMessage"/>

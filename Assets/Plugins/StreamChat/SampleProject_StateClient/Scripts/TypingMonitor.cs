@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using StreamChat.Core;
 using StreamChat.Core.State;
-using StreamChat.Core.TrackedObjects;
+using StreamChat.Core.StatefulModels;
 using TMPro;
 using UnityEngine;
 
