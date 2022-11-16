@@ -145,7 +145,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                     {
                         "members", new Dictionary<string, object>
                         {
-                            { "$in", new[] { user_id } }
+                            {"$in", new[] {user_id}}
                         }
                     }
                 },
@@ -189,7 +189,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                     {
                         "members", new Dictionary<string, object>
                         {
-                            { "$in", new[] { user_id } }
+                            {"$in", new[] {user_id}}
                         }
                     }
                 }
@@ -212,7 +212,8 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         public async Task DeleteChannel()
         {
             var deleteChannelResponse =
-                await Client.ChannelApi.DeleteChannelAsync(channelType: "messaging", channelId: "channel-id-1", isHardDelete: false);
+                await Client.ChannelApi.DeleteChannelAsync(channelType: "messaging", channelId: "channel-id-1",
+                    isHardDelete: false);
         }
 
         public async Task DeletingManyChannels()
@@ -239,7 +240,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 {
                     Set = new Dictionary<string, object>
                     {
-                        { "owned_dogs", 5 },
+                        {"owned_dogs", 5},
                         {
                             "breakfast", new string[]
                             {
@@ -314,11 +315,12 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             Message message = default;
             ChannelState channelState = default;
 
-            var markReadResponse = await Client.ChannelApi.MarkReadAsync(channelState.Channel.Type, channelState.Channel.Id, new MarkReadRequest
-            {
-                //Optional Message ID to mark user last read message, if no Message ID is passed the whole channel is marked as read
-                MessageId = message.Id
-            });
+            var markReadResponse = await Client.ChannelApi.MarkReadAsync(channelState.Channel.Type,
+                channelState.Channel.Id, new MarkReadRequest
+                {
+                    //Optional Message ID to mark user last read message, if no Message ID is passed the whole channel is marked as read
+                    MessageId = message.Id
+                });
         }
 
         public void ListenToMarkReadStateEvents()
@@ -355,7 +357,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task GetChannelReadState()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id",
+                    new ChannelGetOrCreateRequest());
 
             foreach (var readState in channelState.Read)
             {
@@ -368,7 +372,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         public async Task GetChannelLocalUserReadState()
         {
             //Get desired channel
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id", new ChannelGetOrCreateRequest());
+            var channelState =
+                await Client.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id",
+                    new ChannelGetOrCreateRequest());
 
             Read localUserReadState = default;
 
@@ -400,7 +406,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                         //Get channels to which local user has joined as a member
                         "members", new Dictionary<string, object>
                         {
-                            { "$in", new [] { Client.UserId } }
+                            {"$in", new[] {Client.UserId}}
                         }
                     }
                 },
@@ -460,6 +466,26 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Debug.Log(eventTypingStop.Cid); //Channel CID
                 Debug.Log(eventTypingStop.User); //User that stopped typing
             }
+        }
+
+        private async Task AddMember()
+        {
+            ChannelState channelState = default;
+            User user = default;
+
+            //Make API call
+            var response = await Client.ChannelApi.UpdateChannelAsync(channelState.Channel.Type,
+                channelState.Channel.Id,
+                new UpdateChannelRequest
+                {
+                    AddMembers = new List<ChannelMemberRequest>
+                    {
+                        new ChannelMemberRequest
+                        {
+                            UserId = user.Id,
+                        }
+                    }
+                });
         }
 
         private IStreamChatClient Client;

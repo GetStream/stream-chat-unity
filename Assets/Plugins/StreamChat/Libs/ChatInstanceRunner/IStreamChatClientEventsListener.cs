@@ -21,7 +21,7 @@ namespace StreamChat.Libs.ChatInstanceRunner
 
         /// <summary>
         /// Call per application frame update. Calling Update every frame is critical for Stream Chat Client to work properly
-        /// E.g. for Unity call when MonoBehaviour.Update is called by the engine or call from coroutine
+        /// E.g. for Unity call when MonoBehaviour.Update is called by the engine or call from coroutine.
         /// </summary>
         void Update();
     }

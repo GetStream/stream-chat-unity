@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Auth;
@@ -13,19 +14,24 @@ namespace StreamChat.Core.State
     public interface IStreamChatStateClient : IDisposable, IStreamChatClientEventsListener
     {
         /// <summary>
-        /// Triggered when connection with Stream Chat server is established
+        /// Event fired when connection with Stream Chat server is established
         /// </summary>
         event ConnectionMadeHandler Connected;
 
         /// <summary>
-        /// Triggered when connection with Stream Chat server is lost
+        /// Event fired when connection with Stream Chat server is lost
         /// </summary>
         event Action Disconnected;
 
         /// <summary>
-        /// Triggered when connection state with Stream Chat server has changed
+        /// Event fired when connection state with Stream Chat server has changed
         /// </summary>
         event ConnectionChangeHandler ConnectionStateChanged;
+        
+        /// <summary>
+        /// Channel was deleted
+        /// </summary>
+        event ChannelDeleteHandler ChannelDeleted;
 
         /// <summary>
         /// Current connection state
@@ -71,8 +77,13 @@ namespace StreamChat.Core.State
         Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType, IEnumerable<IStreamUser> members,
             Dictionary<string, object> optionalCustomData = null);
 
+        //StreamTodo: add missing descriptions
         Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters);
 
+        Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters);
+
+        Task<IEnumerable<IStreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests);
+        
         /// <summary>
         /// Mute channels with optional duration in milliseconds
         /// </summary>
@@ -92,8 +103,16 @@ namespace StreamChat.Core.State
         Task<StreamDeleteChannelsResponse> DeleteMultipleChannelsAsync(IEnumerable<IStreamChannel> channels,
             bool isHardDelete = false);
 
+        /// <summary>
+        /// You mute single user by using <see cref="IStreamUser.MuteAsync"/>
+        /// </summary>
+        /// <param name="users">Users to mute</param>
+        /// <param name="timeoutMinutes">Optional timeout. Without timeout users will stay muted indefinitely</param>
+        Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default);
+        
         Task DisconnectUserAsync();
         
         bool IsLocalUser(IStreamUser messageUser);
+
     }
 }

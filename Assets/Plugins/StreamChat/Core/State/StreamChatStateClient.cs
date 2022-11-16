@@ -39,9 +39,7 @@ namespace StreamChat.Core.State
     /// Channel deletion handler
     /// </summary>
     public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
-
-
-    //StreamTodo: move all xml doc comments to interface and use <inheritdoc /> on implementation
+    
     //StreamTodo: Handle restoring state after lost connection + include Unity Network Monitor
 
     /// <summary>
@@ -50,45 +48,30 @@ namespace StreamChat.Core.State
     public sealed class StreamChatStateClient : IStreamChatStateClient
     {
         public event ConnectionMadeHandler Connected;
-
-        /// <summary>
-        /// Triggered when connection with Stream Chat server is lost
-        /// </summary>
+        
         public event Action Disconnected;
 
         public event Action Disposed;
-
-        /// <summary>
-        /// Triggered when connection state with Stream Chat server has changed
-        /// </summary>
+        
         public event ConnectionChangeHandler ConnectionStateChanged;
-
-        /// <summary>
-        /// Channel was deleted
-        /// </summary>
+        
         public event ChannelDeleteHandler ChannelDeleted;
-
-        /// <summary>
-        /// Current connection state
-        /// </summary>
+        
         public ConnectionState ConnectionState => LowLevelClient.ConnectionState;
 
-        /// <inheritdoc cref="IStreamChatStateClient.LocalUserData"/>
         public IStreamLocalUserData LocalUserData => _localUserData;
 
         private StreamLocalUserData _localUserData;
 
-        /// <inheritdoc cref="IStreamChatStateClient.WatchedChannels"/>
         public IReadOnlyList<IStreamChannel> WatchedChannels => _cache.Channels.AllItems;
 
         public double? NextReconnectTime => LowLevelClient.NextReconnectTime;
 
         /// <summary>
         /// Recommended method to create an instance of <see cref="IStreamChatStateClient"/>
-        /// If you wish to create an instance with non default dependencies you can use the constructor
+        /// If you wish to create an instance with non default dependencies you can use the <see cref="CreateClientWithCustomDependencies"/>
         /// </summary>
         /// <param name="config">[Optional] configuration</param>
-        /// <returns></returns>
         public static IStreamChatStateClient CreateDefaultClient(IStreamClientConfig config = default)
         {
             config ??= StreamClientConfig.Default;
@@ -104,24 +87,15 @@ namespace StreamChat.Core.State
             return client;
         }
 
-        //StreamTodo: consider having constructor private and add static CreateCustomizedClient()
         /// <summary>
-        /// Use this only if you wish to provide non default arguments. Otherwise use the <see cref="CreateDefaultClient"/> to create the client instance.
+        /// Create a new instance of <see cref="IStreamChatClient"/> with custom provided dependencies.
+        /// If you want to create a default new instance then just use the <see cref="CreateDefaultClient"/>.
+        /// Important! Custom created client require calling the <see cref="Update"/> and <see cref="Destroy"/> methods.
         /// </summary>
-        public StreamChatStateClient(IWebsocketClient websocketClient,
+        public static IStreamChatStateClient CreateClientWithCustomDependencies(IWebsocketClient websocketClient,
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
-            IStreamClientConfig config)
-        {
-            _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
-            _logs = logs ?? throw new ArgumentNullException(nameof(logs));
-
-            LowLevelClient = new StreamChatClient(authCredentials: default, websocketClient, httpClient, serializer,
-                _timeService, logs, config);
-
-            _cache = new Cache(this, _logs);
-
-            SubscribeTo(LowLevelClient);
-        }
+            IStreamClientConfig config) =>
+            new StreamChatStateClient(websocketClient, httpClient, serializer, timeService, logs, config);
 
         public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
@@ -146,7 +120,6 @@ namespace StreamChat.Core.State
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
 
-        /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,string,IStreamChannelCustomData)"/>
         public async Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
             string name = null, Dictionary<string, object> optionalCustomData = null)
         {
@@ -174,8 +147,6 @@ namespace StreamChat.Core.State
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
-        //TOdo: invalid cref
-        /// <inheritdoc cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.IStreamUser},IStreamChannelCustomData)"/>
         public async Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType,
             IEnumerable<IStreamUser> members, Dictionary<string, object> optionalCustomData = null)
         {
@@ -272,6 +243,7 @@ namespace StreamChat.Core.State
         {
             StreamAsserts.AssertNotNullOrEmpty(userRequests, nameof(userRequests));
 
+            //StreamTodo: items could be null
             var requestDtos = userRequests.Select(_ => _.TrySaveToDto()).ToDictionary(_ => _.Id, _ => _);
 
             var response = await LowLevelClient.InternalUserApi.UpsertManyUsersAsync(new UpdateUsersRequestInternalDTO
@@ -343,13 +315,7 @@ namespace StreamChat.Core.State
             var response = new StreamDeleteChannelsResponse().UpdateFromDto(responseDto);
             return response;
         }
-
-        //StreamTodo: add to interface
-        /// <summary>
-        /// You mute single user by using <see cref="IStreamUser.MuteAsync"/>
-        /// </summary>
-        /// <param name="users"></param>
-        /// <param name="timeoutMinutes"></param>
+        
         public async Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default)
         {
             StreamAsserts.AssertNotNullOrEmpty(users, nameof(users));
@@ -363,9 +329,9 @@ namespace StreamChat.Core.State
             UpdateLocalUser(responseDto.OwnUser);
         }
 
-        public Task<IEnumerable<IStreamUser>> QueryBannedUsersAsync()
+        private Task<IEnumerable<IStreamUser>> QueryBannedUsersAsync()
         {
-            //StreamTodo: implement, should we allow for query
+            //StreamTodo: IMPLEMENT, should we allow for query
             throw new NotImplementedException();
         }
 
@@ -375,6 +341,8 @@ namespace StreamChat.Core.State
             {
                 return;
             }
+            
+            //StreamTodo: disconnect current user
 
             TryCancelWaitingForUserConnection();
 
@@ -390,6 +358,7 @@ namespace StreamChat.Core.State
 
         void IStreamChatClientEventsListener.Destroy()
         {
+            //StreamTodo: we should probably check: if waiting for connection -> cancel, if connected -> disconnect, etc
             DisconnectUserAsync().ContinueWith(t =>
             {
                 if (t.IsFaulted)
@@ -402,10 +371,7 @@ namespace StreamChat.Core.State
             });
         }
 
-        void IStreamChatClientEventsListener.Update()
-        {
-            LowLevelClient.Update(_timeService.DeltaTime);
-        }
+        void IStreamChatClientEventsListener.Update() => LowLevelClient.Update(_timeService.DeltaTime);
 
         internal StreamChatClient LowLevelClient { get; }
 
@@ -441,10 +407,28 @@ namespace StreamChat.Core.State
         private CancellationToken _connectUserCancellationToken;
         private CancellationTokenSource _connectUserCancellationTokenSource;
         private bool _isDisposed;
+        
+        /// <summary>
+        /// Use the <see cref="CreateDefaultClient"/> to create the client instance
+        /// </summary>
+        private StreamChatStateClient(IWebsocketClient websocketClient,
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
+            IStreamClientConfig config)
+        {
+            _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
+            _logs = logs ?? throw new ArgumentNullException(nameof(logs));
+
+            LowLevelClient = new StreamChatClient(authCredentials: default, websocketClient, httpClient, serializer,
+                _timeService, logs, config);
+
+            _cache = new Cache(this, _logs);
+
+            SubscribeTo(LowLevelClient);
+        }
 
         private void InternalDeleteChannel(StreamChannel channel)
         {
-            //StreamTodo: probably silent clear all internal data?
+            //StreamTodo: mark StreamChannel object as deleted + probably silent clear all internal data?
             _cache.Channels.Remove(channel);
             ChannelDeleted?.Invoke(channel.Cid, channel.Id, channel.Type);
         }
