@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State.Caches;
+using StreamChat.Core;
 using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
@@ -28,7 +29,7 @@ namespace StreamChat.Core.State
                 throw new ArgumentNullException(nameof(context));
             }
 
-            StreamChatStateClient = context.StreamChatStateClient ?? throw new ArgumentNullException(nameof(context.StreamChatStateClient));
+            Client = context.Client ?? throw new ArgumentNullException(nameof(context.Client));
             Logs = context.Logs ?? throw new ArgumentNullException(nameof(context.Logs));
             Cache = context.Cache ?? throw new ArgumentNullException(nameof(context.Cache));
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
@@ -40,8 +41,8 @@ namespace StreamChat.Core.State
         protected abstract string InternalUniqueId { get; set; }
 
         protected abstract TTrackedObject Self { get; }
-        protected StreamChatStateClient StreamChatStateClient { get; }
-        protected StreamChatLowLevelClient LowLevelClient => StreamChatStateClient.LowLevelClient;
+        protected StreamChatClient Client { get; }
+        protected StreamChatLowLevelClient LowLevelClient => Client.LowLevelClient;
         protected ILogs Logs { get; }
         internal ICache Cache { get; }
         internal ICacheRepository<TTrackedObject> Repository { get; }

@@ -1,4 +1,5 @@
 using System;
+using StreamChat.Core;
 
 namespace StreamChat.Core.State.TrackedObjects
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using StreamChat.Libs.Utils;
 
-namespace StreamChat.Core.State
+namespace StreamChat.Core
 {
     /// <summary>
     /// Channel Type determines default permission settings

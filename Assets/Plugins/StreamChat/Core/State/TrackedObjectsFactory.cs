@@ -2,6 +2,7 @@
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Core.State.Caches;
+using StreamChat.Core;
 using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State
@@ -11,13 +12,13 @@ namespace StreamChat.Core.State
     /// </summary>
     internal sealed class TrackedObjectsFactory : ITrackedObjectsFactory
     {
-        public TrackedObjectsFactory(StreamChatStateClient streamChatStateClient, ILogs logs, Cache cache)
+        public TrackedObjectsFactory(StreamChatClient streamChatClient, ILogs logs, Cache cache)
         {
-            _streamChatStateClient = streamChatStateClient ?? throw new ArgumentNullException(nameof(streamChatStateClient));
+            _streamChatClient = streamChatClient ?? throw new ArgumentNullException(nameof(streamChatClient));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
-            _context = new TrackedObjectContext(_cache, streamChatStateClient, logs);
+            _context = new TrackedObjectContext(_cache, streamChatClient, logs);
         }
 
         public StreamChannel CreateStreamChannel(string uniqueId)
@@ -36,7 +37,7 @@ namespace StreamChat.Core.State
             => new StreamUser(uniqueId, _cache.Users, _context);
 
         private readonly ILogs _logs;
-        private readonly StreamChatStateClient _streamChatStateClient;
+        private readonly StreamChatClient _streamChatClient;
         private readonly ITrackedObjectContext _context;
         private readonly Cache _cache;
     }

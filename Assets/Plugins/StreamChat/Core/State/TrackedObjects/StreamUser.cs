@@ -69,7 +69,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 Timeout = null,
             });
 
-            StreamChatStateClient.UpdateLocalUser(response.OwnUser);
+            Client.UpdateLocalUser(response.OwnUser);
         }
         
         public Task UnmuteAsync()

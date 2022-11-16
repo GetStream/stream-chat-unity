@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using StreamChat.Core.State.TrackedObjects;
 
-namespace StreamChat.Core.State
+namespace StreamChat.Core
 {
     /// <summary>
-    /// Object with its state being automatically tracked by the <see cref="StreamChatStateClient"/>
+    /// Object with its state being automatically tracked by the <see cref="StreamChatClient"/>
     ///
     /// This means that this objects corresponds to an object on the Stream Chat server with the same ID
     /// its state will be automatically updated whenever new information is received from the server
     /// </summary>
-    public interface IStreamTrackedObject //StreamTodo: better name? IStreamStateObject, IStreamStatefulObject
+    public interface IStreamTrackedObject //StreamTodo: better name? IStreamStateObject, IStreamStatefulObject, IStreamManagedObject?
     {
         string UniqueId { get; }
         

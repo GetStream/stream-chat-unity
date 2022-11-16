@@ -8,7 +8,7 @@ namespace StreamChat.Core.State.Caches
 {
     internal sealed class Cache : ICache
     {
-        public Cache(StreamChatStateClient stateClient, ILogs logs)
+        public Cache(StreamChatClient stateClient, ILogs logs)
         {
             var trackedObjectsFactory = new TrackedObjectsFactory(stateClient, logs, this);
 

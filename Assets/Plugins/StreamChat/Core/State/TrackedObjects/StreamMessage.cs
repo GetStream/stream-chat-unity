@@ -124,7 +124,7 @@ namespace StreamChat.Core.State.TrackedObjects
             Cache.TryCreateOrUpdate(response.Message);
 
             //StreamTodo: is this needed? How are other users notified about message pin?
-            await StreamChatStateClient.RefreshChannelState(Cid);
+            await Client.RefreshChannelState(Cid);
         }
 
         public async Task UnpinAsync()
@@ -140,7 +140,7 @@ namespace StreamChat.Core.State.TrackedObjects
             Cache.TryCreateOrUpdate(response.Message);
 
             //StreamTodo: is this needed? How are other users notified about message pin?
-            await StreamChatStateClient.RefreshChannelState(Cid);
+            await Client.RefreshChannelState(Cid);
         }
 
         public async Task SendReactionAsync(string type, int score = 1, bool enforceUnique = false,

@@ -9,25 +9,27 @@ using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.State;
+using StreamChat.Core.State.Caches;
+using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
-using StreamChat.Core.State.Caches;
-using StreamChat.Core.State.Models;
+using StreamChat.Core;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
+using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
-using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
 
-namespace StreamChat.Core.State
+namespace StreamChat.Core
 {
     /// <summary>
     /// Connection has been established
-    /// You can access local user data via <see cref="StreamChatStateClient.LocalUserData"/>
+    /// You can access local user data via <see cref="StreamChatClient.LocalUserData"/>
     /// </summary>
     public delegate void ConnectionMadeHandler(IStreamLocalUserData localUserData);
 
@@ -46,7 +48,7 @@ namespace StreamChat.Core.State
     /// <summary>
     /// Stateful client for the Stream Chat API. This is the recommended client
     /// </summary>
-    public sealed class StreamChatStateClient : IStreamChatStateClient
+    public sealed class StreamChatClient : IStreamChatClient
     {
         public event ConnectionMadeHandler Connected;
         
@@ -69,11 +71,11 @@ namespace StreamChat.Core.State
         public double? NextReconnectTime => LowLevelClient.NextReconnectTime;
 
         /// <summary>
-        /// Recommended method to create an instance of <see cref="IStreamChatStateClient"/>
+        /// Recommended method to create an instance of <see cref="IStreamChatClient"/>
         /// If you wish to create an instance with non default dependencies you can use the <see cref="CreateClientWithCustomDependencies"/>
         /// </summary>
         /// <param name="config">[Optional] configuration</param>
-        public static IStreamChatStateClient CreateDefaultClient(IStreamClientConfig config = default)
+        public static IStreamChatClient CreateDefaultClient(IStreamClientConfig config = default)
         {
             config ??= StreamClientConfig.Default;
             var logs = LibsFactory.CreateDefaultLogs(config.LogLevel.ToLogLevel());
@@ -83,7 +85,7 @@ namespace StreamChat.Core.State
             var timeService = LibsFactory.CreateDefaultTimeService();
             var gameObjectRunner = LibsFactory.CreateChatClientRunner();
 
-            var client = new StreamChatStateClient(websocketClient, httpClient, serializer, timeService, logs, config);
+            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, logs, config);
             gameObjectRunner.RunChatInstance(client);
             return client;
         }
@@ -93,10 +95,10 @@ namespace StreamChat.Core.State
         /// If you want to create a default new instance then just use the <see cref="CreateDefaultClient"/>.
         /// Important! Custom created client require calling the <see cref="Update"/> and <see cref="Destroy"/> methods.
         /// </summary>
-        public static IStreamChatStateClient CreateClientWithCustomDependencies(IWebsocketClient websocketClient,
+        public static IStreamChatClient CreateClientWithCustomDependencies(IWebsocketClient websocketClient,
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
             IStreamClientConfig config) =>
-            new StreamChatStateClient(websocketClient, httpClient, serializer, timeService, logs, config);
+            new StreamChatClient(websocketClient, httpClient, serializer, timeService, logs, config);
 
         public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
@@ -412,7 +414,7 @@ namespace StreamChat.Core.State
         /// <summary>
         /// Use the <see cref="CreateDefaultClient"/> to create the client instance
         /// </summary>
-        private StreamChatStateClient(IWebsocketClient websocketClient,
+        private StreamChatClient(IWebsocketClient websocketClient,
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
             IStreamClientConfig config)
         {

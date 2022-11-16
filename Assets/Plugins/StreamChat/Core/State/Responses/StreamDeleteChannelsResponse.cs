@@ -5,7 +5,7 @@ namespace StreamChat.Core.State.Responses
 {
     //StreamTodo: replace all ILoadableFrom to IStateLoadableFrom so we can separate the interfaces
     /// <summary>
-    /// Response for <see cref="StreamChatStateClient.DeleteMultipleChannelsAsync"/>
+    /// Response for <see cref="StreamChatClient.DeleteMultipleChannelsAsync"/>
     /// </summary>
     public sealed class
         StreamDeleteChannelsResponse : ILoadableFrom<DeleteChannelsResponseInternalDTO, StreamDeleteChannelsResponse>

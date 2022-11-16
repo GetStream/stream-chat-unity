@@ -6,13 +6,13 @@ namespace StreamChat.Core.State
     internal sealed class TrackedObjectContext : ITrackedObjectContext
     {
         public ICache Cache { get; }
-        public StreamChatStateClient StreamChatStateClient { get; }
+        public StreamChatClient Client { get; }
         public ILogs Logs { get; }
 
-        public TrackedObjectContext(ICache cache, StreamChatStateClient streamChatStateClient, ILogs logs)
+        public TrackedObjectContext(ICache cache, StreamChatClient streamChatClient, ILogs logs)
         {
             Cache = cache;
-            StreamChatStateClient = streamChatStateClient;
+            Client = streamChatClient;
             Logs = logs;
         }
     }

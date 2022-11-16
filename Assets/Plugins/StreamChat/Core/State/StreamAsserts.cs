@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using StreamChat.Core;
 
 namespace StreamChat.Core.State
 {

@@ -35,7 +35,7 @@ namespace StreamChat.SampleProject_StateClient
 
             try
             {
-                _client = StreamChatStateClient.CreateDefaultClient();
+                _client = StreamChatClient.CreateDefaultClient();
                 _client.ConnectUserAsync(_authCredentialsAsset.Credentials);
 
                 var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory,
@@ -92,7 +92,7 @@ namespace StreamChat.SampleProject_StateClient
             }
         }
 
-        private IStreamChatStateClient _client;
+        private IStreamChatClient _client;
 
         [SerializeField]
         private RootView _rootView;

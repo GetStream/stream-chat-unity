@@ -12,6 +12,7 @@ using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core;
 
 //StreamTodo: maybe some more intuitive namespace? Models? StateModels?
 namespace StreamChat.Core.State.TrackedObjects
@@ -170,7 +171,7 @@ namespace StreamChat.Core.State.TrackedObjects
         #endregion
 
         public bool IsDirectMessage =>
-            Members.Count == 2 && Members.Any(m => m.User == StreamChatStateClient.LocalUserData.User);
+            Members.Count == 2 && Members.Any(m => m.User == Client.LocalUserData.User);
 
         public Task<IStreamMessage> SendNewMessageAsync(string message)
             => SendNewMessageAsync(new StreamSendMessageRequest
@@ -377,7 +378,7 @@ namespace StreamChat.Core.State.TrackedObjects
                 },
                 Expiration = milliseconds,
             });
-            StreamChatStateClient.UpdateLocalUser(response.OwnUser);
+            Client.UpdateLocalUser(response.OwnUser);
         }
 
         public Task UnmuteChannelAsync()
@@ -407,7 +408,7 @@ namespace StreamChat.Core.State.TrackedObjects
             
             //StreamTodo: this should not be needed but the truncate response doesn't contain messages nor any events are sent
             //so we can only query the channel to get the messages
-            await StreamChatStateClient.GetOrCreateChannelAsync(Type, Id);
+            await Client.GetOrCreateChannelAsync(Type, Id);
         }
 
         public Task DeleteAsync()

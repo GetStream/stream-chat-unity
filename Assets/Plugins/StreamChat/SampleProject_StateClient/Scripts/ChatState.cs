@@ -45,9 +45,9 @@ namespace StreamChat.SampleProject_StateClient
 
         public IReadOnlyList<IStreamChannel> Channels => _channels;
 
-        public IStreamChatStateClient Client { get; }
+        public IStreamChatClient Client { get; }
 
-        public ChatState(IStreamChatStateClient client, IViewFactory viewFactory)
+        public ChatState(IStreamChatClient client, IViewFactory viewFactory)
         {
             Client = client ?? throw new ArgumentNullException(nameof(client));
             _viewFactory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));

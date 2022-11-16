@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using StreamChat.Core;
 using StreamChat.Core.State;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Logs;
@@ -9,7 +10,7 @@ public class TestChatBehaviour : MonoBehaviour
 {
     protected void Awake()
     {
-        _client = StreamChatStateClient.CreateDefaultClient();
+        _client = StreamChatClient.CreateDefaultClient();
 
         ConnectToStream().LogIfFailed(_unityLogger);
     }
@@ -19,7 +20,7 @@ public class TestChatBehaviour : MonoBehaviour
     [SerializeField]
     private AuthCredentialsAsset _authCredentialsAsset;
 
-    private IStreamChatStateClient _client;
+    private IStreamChatClient _client;
 
     private async Task ConnectToStream()
     {

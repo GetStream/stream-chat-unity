@@ -5,6 +5,7 @@ using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core;
 
 namespace StreamChat.Core.State.TrackedObjects
 {

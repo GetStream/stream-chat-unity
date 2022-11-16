@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.State;
 using StreamChat.Core.State.TrackedObjects;
+using StreamChat.Core;
 using StreamChat.SampleProject_StateClient.Views;
 
 namespace StreamChat.SampleProject_StateClient
@@ -18,7 +19,7 @@ namespace StreamChat.SampleProject_StateClient
 
         IStreamChannel ActiveChannel { get; }
         IReadOnlyList<IStreamChannel> Channels { get; }
-        IStreamChatStateClient Client { get; }
+        IStreamChatClient Client { get; }
 
         void OpenChannel(IStreamChannel channel);
 

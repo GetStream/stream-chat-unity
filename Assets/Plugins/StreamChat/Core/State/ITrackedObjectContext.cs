@@ -6,7 +6,7 @@ namespace StreamChat.Core.State
     internal interface ITrackedObjectContext
     {
         ICache Cache { get; }
-        StreamChatStateClient StreamChatStateClient { get; }
+        StreamChatClient Client { get; }
         ILogs Logs { get; }
     }
 }

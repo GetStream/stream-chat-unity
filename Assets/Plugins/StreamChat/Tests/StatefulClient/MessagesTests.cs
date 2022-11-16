@@ -8,7 +8,6 @@ using NUnit.Framework;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.TrackedObjects;
-using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient

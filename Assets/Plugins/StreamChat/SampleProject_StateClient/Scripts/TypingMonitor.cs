@@ -10,7 +10,7 @@ namespace StreamChat.SampleProject_StateClient
 {
     public class TypingMonitor : IDisposable
     {
-        public TypingMonitor(TMP_InputField source, IStreamChatStateClient client, IChatState chatState, Func<bool> isActive)
+        public TypingMonitor(TMP_InputField source, IStreamChatClient client, IChatState chatState, Func<bool> isActive)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _source = source ?? throw new ArgumentNullException(nameof(source));
@@ -59,7 +59,7 @@ namespace StreamChat.SampleProject_StateClient
         private const float TypingStopEventTimeout = 15;
 
         private readonly TMP_InputField _source;
-        private readonly IStreamChatStateClient _client;
+        private readonly IStreamChatClient _client;
         private readonly Func<bool> _isActive;
         private readonly IChatState _chatState;
 

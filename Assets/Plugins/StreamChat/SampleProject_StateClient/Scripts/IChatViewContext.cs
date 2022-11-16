@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core.State;
+using StreamChat.Core;
 using StreamChat.SampleProject_StateClient.Configs;
 using StreamChat.SampleProject_StateClient.Inputs;
 using StreamChat.SampleProject_StateClient.Utils;
@@ -11,7 +12,7 @@ namespace StreamChat.SampleProject_StateClient
     /// </summary>
     public interface IChatViewContext
     {
-        IStreamChatStateClient Client { get; }
+        IStreamChatClient Client { get; }
         IImageLoader ImageLoader { get; }
         IViewFactory Factory { get; }
         IChatState State { get; }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Configs;
-using StreamChat.Core.State;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Auth;
 using UnityEngine;
@@ -28,7 +27,7 @@ namespace StreamChat.Tests.StatefulClient
             StatefulClient = null;
         }
 
-        protected StreamChatStateClient StatefulClient { get; private set; }
+        protected StreamChatClient StatefulClient { get; private set; }
 
         // StreamTodo: replace with admin ids fetched from loaded data set
         protected const string TestUserId = TestUtils.TestUserId;
@@ -107,7 +106,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private void InitClient(string forcedAdminId = null)
         {
-            StatefulClient = (StreamChatStateClient)StreamChatStateClient.CreateDefaultClient(new StreamClientConfig
+            StatefulClient = (StreamChatClient)StreamChatClient.CreateDefaultClient(new StreamClientConfig
             {
                 LogLevel = StreamLogLevel.Debug
             });

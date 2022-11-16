@@ -7,11 +7,10 @@ using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.ChatInstanceRunner;
-using StreamChat.Libs.Utils;
 
-namespace StreamChat.Core.State
+namespace StreamChat.Core
 {
-    public interface IStreamChatStateClient : IDisposable, IStreamChatClientEventsListener
+    public interface IStreamChatClient : IDisposable, IStreamChatClientEventsListener
     {
         /// <summary>
         /// Event fired when connection with Stream Chat server is established
@@ -59,7 +58,7 @@ namespace StreamChat.Core.State
         /// <summary>
         /// Create or get a channel with a given type and id
         /// Use this to create general purpose channel for unspecified group of users
-        /// If you want to create a channel for a dedicated group of users e.g. private conversation use the <see cref="IStreamChatStateClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.IStreamUser},IStreamChannelCustomData)"/> overload
+        /// If you want to create a channel for a dedicated group of users e.g. private conversation use the <see cref="IStreamChatClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{StreamChat.Core.State.TrackedObjects.IStreamUser},IStreamChannelCustomData)"/> overload
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity#1.-creating-a-channel-using-a-channel-id</remarks>
         Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId, string name = null,
