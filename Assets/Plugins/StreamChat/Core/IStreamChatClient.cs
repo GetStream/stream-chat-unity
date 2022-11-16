@@ -10,6 +10,14 @@ using StreamChat.Libs.ChatInstanceRunner;
 
 namespace StreamChat.Core
 {
+    /// <summary>
+    /// The official Stream Chat API Client. This client is stateful meaning that the state of:
+    /// - <see cref="IStreamChannel"/> 
+    /// - <see cref="IStreamChannelMember"/> 
+    /// - <see cref="IStreamUser"/> 
+    /// - <see cref="IStreamLocalUserData"/>
+    /// is automatically updated by the client and they always represent the most updated state.
+    /// </summary>
     public interface IStreamChatClient : IDisposable, IStreamChatClientEventsListener
     {
         /// <summary>

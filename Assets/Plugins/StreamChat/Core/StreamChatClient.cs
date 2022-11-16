@@ -43,10 +43,7 @@ namespace StreamChat.Core
     public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
     
     //StreamTodo: Handle restoring state after lost connection + include Unity Network Monitor
-
-    /// <summary>
-    /// Stateful client for the Stream Chat API. This is the recommended client
-    /// </summary>
+    
     public sealed class StreamChatClient : IStreamChatClient
     {
         public event ConnectionMadeHandler Connected;
@@ -98,6 +95,12 @@ namespace StreamChat.Core
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
             IStreamClientConfig config) =>
             new StreamChatClient(websocketClient, httpClient, serializer, timeService, logs, config);
+
+        /// <inheritdoc cref="StreamChatLowLevelClient.CreateDeveloperAuthToken"/>
+        public static string CreateDeveloperAuthToken(string userId) => StreamChatLowLevelClient.CreateDeveloperAuthToken(userId);
+
+        /// <inheritdoc cref="StreamChatLowLevelClient.SanitizeUserId"/>
+        public static string SanitizeUserId(string userId) => StreamChatLowLevelClient.SanitizeUserId(userId);
 
         public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
