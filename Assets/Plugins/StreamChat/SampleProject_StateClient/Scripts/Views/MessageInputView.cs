@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using StreamChat.Core.Requests;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Utils;

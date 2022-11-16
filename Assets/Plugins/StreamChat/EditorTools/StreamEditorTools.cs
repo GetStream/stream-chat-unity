@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using StreamChat.EditorTools.Builders;
 using StreamChat.Core;
+using StreamChat.Core.LowLevelClient;
 using StreamChat.EditorTools.DefineSymbols;
 using UnityEditor;
 using UnityEngine;

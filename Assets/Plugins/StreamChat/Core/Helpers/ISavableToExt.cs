@@ -1,4 +1,6 @@
-﻿namespace StreamChat.Core.Helpers
+﻿using StreamChat.Core.LowLevelClient;
+
+namespace StreamChat.Core.Helpers
 {
     /// <summary>
     /// Extensions for <see cref="ISavableTo{TDto}"/>

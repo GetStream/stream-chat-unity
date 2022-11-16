@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.Events;
-using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
+using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.LowLevelClient.Events;
+using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Libs.Auth;
 using UnityEngine;
 

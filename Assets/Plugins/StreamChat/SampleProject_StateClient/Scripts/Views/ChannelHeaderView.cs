@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Text;
-using StreamChat.Core.Events;
 using StreamChat.Core.State.TrackedObjects;
 using TMPro;
 using UnityEngine;

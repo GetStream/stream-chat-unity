@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using StreamChat.Core.Requests;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProject_StateClient.Utils;
 using TMPro;

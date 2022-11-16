@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using StreamChat.Core.Models;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.SampleProject_StateClient.Utils;
 using UnityEngine;

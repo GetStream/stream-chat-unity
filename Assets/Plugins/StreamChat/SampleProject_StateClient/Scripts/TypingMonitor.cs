@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using StreamChat.Core;
-using StreamChat.Core.Models;
 using StreamChat.Core.State;
 using StreamChat.Core.State.TrackedObjects;
 using TMPro;

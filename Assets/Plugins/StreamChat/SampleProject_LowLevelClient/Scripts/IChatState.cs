@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.Models;
+using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.SampleProject.Views;
 
 namespace StreamChat.SampleProject

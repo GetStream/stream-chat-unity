@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core;
+using StreamChat.Core.LowLevelClient;
 using StreamChat.Libs.Auth;
 
 namespace Plugins.StreamChat.Samples.ClientDocs

@@ -1,6 +1,7 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System;
 using StreamChat.Core;
+using StreamChat.Core.LowLevelClient;
 using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Tests.Api

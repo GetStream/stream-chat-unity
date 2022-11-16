@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-using StreamChat.Core.Requests;
+using StreamChat.Core.LowLevelClient.Requests;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration

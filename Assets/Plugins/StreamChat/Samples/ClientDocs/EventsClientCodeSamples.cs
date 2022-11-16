@@ -1,5 +1,6 @@
 ﻿using StreamChat.Core;
-using StreamChat.Core.Events;
+using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.LowLevelClient.Events;
 
 namespace Plugins.StreamChat.Samples.ClientDocs
 {

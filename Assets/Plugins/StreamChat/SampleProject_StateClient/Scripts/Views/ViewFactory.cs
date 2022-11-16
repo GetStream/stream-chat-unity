@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core;
-using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.SampleProject_StateClient.Configs;
 using StreamChat.SampleProject_StateClient.Utils;

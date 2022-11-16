@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core;
+using StreamChat.Core.LowLevelClient;
 using TMPro;
 using UnityEditor;
 using UnityEngine;

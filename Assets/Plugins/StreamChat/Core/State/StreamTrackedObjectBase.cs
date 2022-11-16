@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State.Caches;
 using StreamChat.Libs.Logs;
 

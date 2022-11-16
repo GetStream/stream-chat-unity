@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.Models;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.TrackedObjects;
 using StreamChat.Libs.Utils;

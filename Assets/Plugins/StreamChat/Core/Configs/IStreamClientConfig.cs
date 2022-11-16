@@ -1,4 +1,6 @@
-﻿namespace StreamChat.Core.Configs
+﻿using StreamChat.Core.LowLevelClient;
+
+namespace StreamChat.Core.Configs
 {
     /// <summary>
     /// Configuration for <see cref="IStreamChatClient"/>

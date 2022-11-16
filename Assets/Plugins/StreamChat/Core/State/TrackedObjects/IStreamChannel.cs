@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using StreamChat.Core.Models;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
+using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.State.TrackedObjects
 {

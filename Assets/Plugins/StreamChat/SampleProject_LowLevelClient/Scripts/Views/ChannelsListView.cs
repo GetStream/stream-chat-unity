@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using StreamChat.Core.Models;
+using StreamChat.Core.LowLevelClient.Models;
 using UnityEngine;
 
 namespace StreamChat.SampleProject.Views

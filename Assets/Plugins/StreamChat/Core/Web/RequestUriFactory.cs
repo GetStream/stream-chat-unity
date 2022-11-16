@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using StreamChat.Core.Auth;
-using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
-using StreamChat.Core.Requests.DTO;
+using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Core.LowLevelClient.Requests.DTO;
 
 namespace StreamChat.Core.Web
 {

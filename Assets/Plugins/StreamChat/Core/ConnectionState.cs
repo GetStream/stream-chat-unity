@@ -1,4 +1,5 @@
 ﻿using System;
+using StreamChat.Core.LowLevelClient;
 
 namespace StreamChat.Core
 {

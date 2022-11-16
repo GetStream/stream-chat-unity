@@ -1,4 +1,5 @@
-﻿using StreamChat.Libs.Auth;
+﻿using StreamChat.Core.LowLevelClient;
+using StreamChat.Libs.Auth;
 using UnityEngine;
 
 namespace StreamChat.Core.Samples

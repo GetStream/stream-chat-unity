@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.Requests;
+using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.LowLevelClient.Requests;
 
 namespace Plugins.StreamChat.Samples.ClientDocs
 {

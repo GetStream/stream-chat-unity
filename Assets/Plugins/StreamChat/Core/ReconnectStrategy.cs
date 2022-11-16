@@ -1,4 +1,6 @@
-﻿namespace StreamChat.Core
+﻿using StreamChat.Core.LowLevelClient;
+
+namespace StreamChat.Core
 {
     /// <summary>
     /// Strategy for <see cref="IStreamChatClient"/> when connection is lost

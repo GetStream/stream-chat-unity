@@ -1,5 +1,6 @@
 ﻿using System;
 using StreamChat.Core;
+using StreamChat.Core.LowLevelClient;
 using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Utils;
 using UnityEngine;

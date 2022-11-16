@@ -4,9 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
-using StreamChat.Core.Responses;
+using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Core.LowLevelClient.Responses;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.Integration

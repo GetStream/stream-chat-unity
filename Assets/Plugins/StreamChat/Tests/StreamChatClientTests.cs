@@ -6,6 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Configs;
+using StreamChat.Core.LowLevelClient;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;

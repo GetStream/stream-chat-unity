@@ -7,11 +7,11 @@ using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
-using StreamChat.Core.Models;
 using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.Caches;
+using StreamChat.Core.LowLevelClient.Models;
 
 //StreamTodo: maybe some more intuitive namespace? Models? StateModels?
 namespace StreamChat.Core.State.TrackedObjects
