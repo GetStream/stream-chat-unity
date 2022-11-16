@@ -125,13 +125,13 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         public Task SendTypingStartEventAsync(string channelType, string channelId)
             => PostEventAsync(channelType, channelId, new EventTypingStartInternalDTO
             {
-                Type = EventType.TypingStart
+                Type = WSEventType.TypingStart
             });
 
         public Task SendTypingStopEventAsync(string channelType, string channelId)
             => PostEventAsync(channelType, channelId, new EventTypingStopInternalDTO
             {
-                Type = EventType.TypingStop
+                Type = WSEventType.TypingStop
             });
     }
 }

@@ -18,7 +18,7 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string ParentId { get; set; }
 
-        public string Type { get; internal set; } = EventType.TypingStop;
+        public string Type { get; internal set; } = WSEventType.TypingStop;
 
         public User User { get; internal set; }
 

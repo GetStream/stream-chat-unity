@@ -1,10 +1,9 @@
 ﻿namespace StreamChat.Core
 {
-    //StreamTodo: change to internal type in 4.0 or event to StreamEventType?
     /// <summary>
-    /// Event types that can be received from server
+    /// Event types that can be received from WebSocket connection
     /// </summary>
-    public static class EventType
+    internal static class WSEventType
     {
         public const string UserPresenceChanged = "user.presence.changed";
         public const string UserWatchingStart = "user.watching.start";
