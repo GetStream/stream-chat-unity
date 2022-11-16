@@ -20,8 +20,8 @@ namespace StreamChat.SampleProject.Views
         {
             base.OnInited();
 
-            Client.TypingStarted += OnTypingStarted;
-            Client.TypingStopped += OnTypingStopped;
+            LowLevelClient.TypingStarted += OnTypingStarted;
+            LowLevelClient.TypingStopped += OnTypingStopped;
         }
 
         protected override void OnUpdate()
@@ -36,8 +36,8 @@ namespace StreamChat.SampleProject.Views
 
         protected override void OnDisposing()
         {
-            Client.TypingStarted -= OnTypingStarted;
-            Client.TypingStopped -= OnTypingStopped;
+            LowLevelClient.TypingStarted -= OnTypingStarted;
+            LowLevelClient.TypingStopped -= OnTypingStopped;
 
             base.OnDisposing();
         }

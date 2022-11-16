@@ -20,7 +20,7 @@ namespace StreamChat.SampleProject.Views
             OnInited();
         }
 
-        protected IStreamChatClient Client => ViewContext.Client;
+        protected IStreamChatLowLevelClient LowLevelClient => ViewContext.LowLevelClient;
         protected IImageLoader ImageLoader => ViewContext.ImageLoader;
         protected IViewFactory Factory => ViewContext.Factory;
         protected IChatViewContext ViewContext { get; private set; }

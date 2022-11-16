@@ -89,7 +89,7 @@ namespace StreamChat.Core.State
         }
 
         /// <summary>
-        /// Create a new instance of <see cref="IStreamChatClient"/> with custom provided dependencies.
+        /// Create a new instance of <see cref="IStreamChatLowLevelClient"/> with custom provided dependencies.
         /// If you want to create a default new instance then just use the <see cref="CreateDefaultClient"/>.
         /// Important! Custom created client require calling the <see cref="Update"/> and <see cref="Destroy"/> methods.
         /// </summary>
@@ -374,7 +374,7 @@ namespace StreamChat.Core.State
 
         void IStreamChatClientEventsListener.Update() => LowLevelClient.Update(_timeService.DeltaTime);
 
-        internal StreamChatClient LowLevelClient { get; }
+        internal StreamChatLowLevelClient LowLevelClient { get; }
 
         internal void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
         {
@@ -419,7 +419,7 @@ namespace StreamChat.Core.State
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
-            LowLevelClient = new StreamChatClient(authCredentials: default, websocketClient, httpClient, serializer,
+            LowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient, serializer,
                 _timeService, logs, config);
 
             _cache = new Cache(this, _logs);
@@ -755,7 +755,7 @@ namespace StreamChat.Core.State
             }
         }
 
-        private void SubscribeTo(StreamChatClient lowLevelClient)
+        private void SubscribeTo(StreamChatLowLevelClient lowLevelClient)
         {
             lowLevelClient.InternalConnected += OnConnected;
             lowLevelClient.Disconnected += OnDisconnected;
@@ -809,7 +809,7 @@ namespace StreamChat.Core.State
             lowLevelClient.InternalNotificationInviteRejected += OnInviteRejectedNotification;
         }
 
-        private void UnsubscribeFrom(StreamChatClient lowLevelClient)
+        private void UnsubscribeFrom(StreamChatLowLevelClient lowLevelClient)
         {
             lowLevelClient.InternalConnected -= OnConnected;
             lowLevelClient.Disconnected -= OnDisconnected;

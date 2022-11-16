@@ -75,7 +75,7 @@ namespace StreamChat.EditorTools
             Debug.Log($"Editor scripting define symbols have been modified from: `{prevCombined}` to: `{currentCombined}` for named build target: `{Enum.GetName(typeof(BuildTarget), activeBuildTarget)}`");
         }
 
-        private const string MenuPrefix = "Tools/" + StreamChatClient.MenuPrefix;
+        private const string MenuPrefix = "Tools/" + StreamChatLowLevelClient.MenuPrefix;
 
         private const string StreamTestsEnabledCompilerFlag = "STREAM_TESTS_ENABLED";
     }

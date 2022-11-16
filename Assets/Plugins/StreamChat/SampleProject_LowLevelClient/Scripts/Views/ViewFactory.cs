@@ -35,7 +35,7 @@ namespace StreamChat.SampleProject.Views
 
         public MessageOptionsPopup CreateMessageOptionsPopup(MessageView messageView, IChatState state)
         {
-            var client = state.Client;
+            var client = state.LowLevelClient;
             var message = messageView.Message;
 
             var isSelfMessage = client.IsLocalUser(message.User);
@@ -123,7 +123,7 @@ namespace StreamChat.SampleProject.Views
         private IChatViewContext _viewContext;
 
         private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message,
-            IStreamChatClient client)
+            IStreamChatLowLevelClient lowLevelClient)
         {
             foreach (var sprite in _appConfig.Emojis.ReactionSprites)
             {
@@ -135,11 +135,11 @@ namespace StreamChat.SampleProject.Views
                  {
                      if (isAdded)
                      {
-                         client.MessageApi.DeleteReactionAsync(message.Id, key);
+                         lowLevelClient.MessageApi.DeleteReactionAsync(message.Id, key);
                      }
                      else
                      {
-                         client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
+                         lowLevelClient.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
                          {
                              Reaction = new ReactionRequest
                              {

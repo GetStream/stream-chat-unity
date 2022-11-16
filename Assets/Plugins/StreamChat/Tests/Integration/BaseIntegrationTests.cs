@@ -46,7 +46,7 @@ namespace StreamChat.Tests.Integration
         protected const string TestAdminId = TestUtils.TestAdminId;
         protected const string TestGuestId = TestUtils.TestGuestId;
 
-        protected IStreamChatClient Client { get; private set; }
+        protected IStreamChatLowLevelClient LowLevelClient { get; private set; }
         protected OwnUser InitialLocalUser;
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace StreamChat.Tests.Integration
             var channelId = "random-channel-" + Guid.NewGuid();
 
             var channelState
-                = await Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
+                = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
             _tempChannelsToDelete.Add((channelState.Channel.Type, channelState.Channel.Id));
             return channelState;
         }
@@ -103,7 +103,7 @@ namespace StreamChat.Tests.Integration
         {
             for (int i = 0; i < count; i++)
             {
-                var sendMessageTask = Client.MessageApi.SendNewMessageAsync(channelState.Channel.Type,
+                var sendMessageTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelState.Channel.Type,
                     channelState.Channel.Id, new SendMessageRequest
                     {
                         Message = new MessageRequest
@@ -207,7 +207,7 @@ namespace StreamChat.Tests.Integration
 
             _tempChannelsToDelete.Clear();
 
-            Client.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+            LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
             {
                 Cids = cids,
                 HardDelete = true
@@ -221,21 +221,21 @@ namespace StreamChat.Tests.Integration
 
             OtherUserId = otherUserAuthCredentials.UserId;
 
-            Client = StreamChatClient.CreateDefaultClient(adminAuthCredentials);
-            Client.Connected += OnClientConnected;
-            Client.Connect();
+            LowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(adminAuthCredentials);
+            LowLevelClient.Connected += OnClientConnected;
+            LowLevelClient.Connect();
         }
 
         private void TryCleanupClient()
         {
-            if (Client == null)
+            if (LowLevelClient == null)
             {
                 return;
             }
 
-            Client.Connected -= OnClientConnected;
-            Client.Dispose();
-            Client = null;
+            LowLevelClient.Connected -= OnClientConnected;
+            LowLevelClient.Dispose();
+            LowLevelClient = null;
         }
 
         private void OnClientConnected(OwnUser localUser)
@@ -245,11 +245,11 @@ namespace StreamChat.Tests.Integration
 
         protected IEnumerator ReconnectClient()
         {
-            var userId = Client.UserId;
+            var userId = LowLevelClient.UserId;
             TryCleanupClient();
             InitClientAndConnect(userId);
 
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
         }
     }
 }

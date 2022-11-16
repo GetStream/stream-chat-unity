@@ -5,11 +5,11 @@ using UnityEngine;
 namespace StreamChat.Core.Samples
 {
     /// <summary>
-    /// Sample MonoBehaviour that creates and updates instance of <see cref="StreamChatClient"/>
+    /// Sample MonoBehaviour that creates and updates instance of <see cref="StreamChatLowLevelClient"/>
     /// </summary>
     public class ChatBehaviourSample : MonoBehaviour
     {
-        public IStreamChatClient Client { get; private set; }
+        public IStreamChatLowLevelClient LowLevelClient { get; private set; }
 
         protected void Awake()
         {
@@ -19,17 +19,17 @@ namespace StreamChat.Core.Samples
                 userId: "USER_ID",
                 userToken: "USER_TOKEN");
 
-            Client = StreamChatClient.CreateDefaultClient(authCredentials);
+            LowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(authCredentials);
 
             //Initialize connection with the Stream Chat server
-            Client.Connect();
+            LowLevelClient.Connect();
         }
 
         //Client needs to be updated per frame in order to maintain websocket connection and exchange data with API
-        protected void Update() => Client?.Update(Time.deltaTime);
+        protected void Update() => LowLevelClient?.Update(Time.deltaTime);
 
         //Client needs to be disposed once its no longer needed in order to close the connection
-        protected void OnDestroy() => Client?.Dispose();
+        protected void OnDestroy() => LowLevelClient?.Dispose();
 
         //Optionally you can use this asset to store credentials
         [SerializeField]

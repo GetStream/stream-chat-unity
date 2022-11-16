@@ -15,7 +15,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
     {
         private async Task QueryUsers()
         {
-            var response = await Client.UserApi.QueryUsersAsync(new QueryUsersRequest
+            var response = await _lowLevelClient.UserApi.QueryUsersAsync(new QueryUsersRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -36,7 +36,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         private async Task QueryUsersExtended()
         {
-            var response = await Client.UserApi.QueryUsersAsync(new QueryUsersRequest
+            var response = await _lowLevelClient.UserApi.QueryUsersAsync(new QueryUsersRequest
             {
                 Limit = 30,
                 Offset = 0,
@@ -57,7 +57,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         private async Task QueryUsersBanned()
         {
-            var response = await Client.UserApi.QueryUsersAsync(new QueryUsersRequest
+            var response = await _lowLevelClient.UserApi.QueryUsersAsync(new QueryUsersRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -89,7 +89,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
             try
             {
-                var updateUsersResponse = await Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest
+                var updateUsersResponse = await _lowLevelClient.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest
                 {
                     Users = new Dictionary<string, UserObjectRequest>
                     {
@@ -103,6 +103,6 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             }
         }
 
-        private IStreamChatClient Client;
+        private IStreamChatLowLevelClient _lowLevelClient;
     }
 }

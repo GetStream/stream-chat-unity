@@ -44,7 +44,7 @@ namespace StreamChat.SampleProject.Views
         {
             base.OnInited();
 
-            _typingMonitor = new TypingMonitor(_messageInput, Client, State, isActive: () => _mode == Mode.Create);
+            _typingMonitor = new TypingMonitor(_messageInput, LowLevelClient, State, isActive: () => _mode == Mode.Create);
 
             ViewContext.State.MessageEditRequested += OnMessageEditRequested;
 
@@ -145,7 +145,7 @@ namespace StreamChat.SampleProject.Views
 
                     var fileContent = File.ReadAllBytes(_lastAttachmentUrl);
 
-                    var uploadFileResponse = await Client.MessageApi.UploadFileAsync(channelState.Channel.Type,
+                    var uploadFileResponse = await LowLevelClient.MessageApi.UploadFileAsync(channelState.Channel.Type,
                         channelState.Channel.Id, fileContent, "attachment-1");
                     uploadedFileUrl = uploadFileResponse.File;
                     _lastAttachmentUrl = string.Empty;
@@ -182,7 +182,7 @@ namespace StreamChat.SampleProject.Views
                         };
                     }
 
-                    var sendMessageResponse = await Client.MessageApi.SendNewMessageAsync(channelState.Channel.Type,
+                    var sendMessageResponse = await LowLevelClient.MessageApi.SendNewMessageAsync(channelState.Channel.Type,
                         channelState.Channel.Id,
                         sendMessageRequest);
 
@@ -206,7 +206,7 @@ namespace StreamChat.SampleProject.Views
                         }
                     };
 
-                    Client.MessageApi.UpdateMessageAsync(updateMessageRequest).LogStreamExceptionIfFailed();
+                    LowLevelClient.MessageApi.UpdateMessageAsync(updateMessageRequest).LogStreamExceptionIfFailed();
                     break;
 
                 default:

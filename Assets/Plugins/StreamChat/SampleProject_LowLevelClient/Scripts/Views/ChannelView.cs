@@ -105,7 +105,7 @@ namespace StreamChat.SampleProject.Views
                 return;
             }
 
-            var otherMember = _channelState.Members.FirstOrDefault(_ => !_context.Client.IsLocalUser(_));
+            var otherMember = _channelState.Members.FirstOrDefault(_ => !_context.LowLevelClient.IsLocalUser(_));
 
             if (otherMember == null || otherMember.User.Image.IsNullOrEmpty())
             {

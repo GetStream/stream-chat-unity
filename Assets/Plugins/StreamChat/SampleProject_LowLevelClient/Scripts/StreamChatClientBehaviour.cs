@@ -35,10 +35,10 @@ namespace StreamChat.SampleProject
 
             try
             {
-                _client = StreamChatClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
-                _client.Connect();
+                _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(_authCredentialsAsset.Credentials);
+                _lowLevelClient.Connect();
 
-                var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory,
+                var viewContext = new ChatViewContext(_lowLevelClient, new UnityImageWebLoader(), viewFactory,
                     defaultInputSystem, _appConfig);
 
                 viewFactory.Init(viewContext);
@@ -73,15 +73,15 @@ namespace StreamChat.SampleProject
 
         protected void Update()
         {
-            if (_client == null)
+            if (_lowLevelClient == null)
             {
                 return;
             }
 
-            _client.Update(Time.deltaTime);
+            _lowLevelClient.Update(Time.deltaTime);
 
-            var isClientConnectedOrConnecting = _client.ConnectionState == ConnectionState.Connected ||
-                                                _client.ConnectionState == ConnectionState.Connecting;
+            var isClientConnectedOrConnecting = _lowLevelClient.ConnectionState == ConnectionState.Connected ||
+                                                _lowLevelClient.ConnectionState == ConnectionState.Connecting;
 
             var isNetworkReachable =
                 Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork ||
@@ -90,13 +90,13 @@ namespace StreamChat.SampleProject
             if (!isClientConnectedOrConnecting && isNetworkReachable)
             {
                 Debug.LogWarning("Client is not connected, but network is reachable. Force reconnect.");
-                _client.Connect();
+                _lowLevelClient.Connect();
             }
         }
 
-        protected void OnDestroy() => _client?.Dispose();
+        protected void OnDestroy() => _lowLevelClient?.Dispose();
 
-        private IStreamChatClient _client;
+        private IStreamChatLowLevelClient _lowLevelClient;
 
         [SerializeField]
         private RootView _rootView;

@@ -12,7 +12,7 @@ namespace StreamChat.SampleProject
     /// <inheritdoc />
     public class ChatViewContext : IChatViewContext
     {
-        public IStreamChatClient Client { get; }
+        public IStreamChatLowLevelClient LowLevelClient { get; }
         public IImageLoader ImageLoader { get; }
         public IViewFactory Factory { get; }
         public IInputSystem InputSystem { get; }
@@ -20,16 +20,16 @@ namespace StreamChat.SampleProject
         public IChatState State { get; }
         public IAppConfig AppConfig { get; }
 
-        public ChatViewContext(IStreamChatClient client, IImageLoader imageLoader, ViewFactory viewFactory,
+        public ChatViewContext(IStreamChatLowLevelClient lowLevelClient, IImageLoader imageLoader, ViewFactory viewFactory,
             IInputSystem inputSystem, IAppConfig appConfig)
         {
-            Client = client ?? throw new ArgumentNullException(nameof(client));
+            LowLevelClient = lowLevelClient ?? throw new ArgumentNullException(nameof(lowLevelClient));
             ImageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
             Factory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));
             InputSystem = inputSystem ?? throw new ArgumentNullException(nameof(inputSystem));
             AppConfig = appConfig ?? throw new ArgumentNullException(nameof(appConfig));
 
-            State = new ChatState(client, Factory);
+            State = new ChatState(lowLevelClient, Factory);
         }
     }
 }

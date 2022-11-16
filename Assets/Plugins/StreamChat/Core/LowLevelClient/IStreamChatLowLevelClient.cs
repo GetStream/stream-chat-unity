@@ -10,7 +10,7 @@ namespace StreamChat.Core.LowLevelClient
     /// <summary>
     /// Stream Chat Client
     /// </summary>
-    public interface IStreamChatClient : IAuthProvider, IConnectionProvider, IStreamRealtimeEventsProvider, IDisposable
+    public interface IStreamChatLowLevelClient : IAuthProvider, IConnectionProvider, IStreamRealtimeEventsProvider, IDisposable
     {
         /// <summary>
         /// Client established WebSockets connection and is ready to send and receive data

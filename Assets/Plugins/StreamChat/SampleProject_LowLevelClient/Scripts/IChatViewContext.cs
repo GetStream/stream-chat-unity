@@ -12,7 +12,7 @@ namespace StreamChat.SampleProject
     /// </summary>
     public interface IChatViewContext
     {
-        IStreamChatClient Client { get; }
+        IStreamChatLowLevelClient LowLevelClient { get; }
         IImageLoader ImageLoader { get; }
         IViewFactory Factory { get; }
         IChatState State { get; }

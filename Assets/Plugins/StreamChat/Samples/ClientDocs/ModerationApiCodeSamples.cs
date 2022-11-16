@@ -15,7 +15,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 TargetIds = new List<string> { "user-id-1" }
             };
 
-            var muteUserResponse = await Client.ModerationApi.MuteUserAsync(muteUserRequest);
+            var muteUserResponse = await _lowLevelClient.ModerationApi.MuteUserAsync(muteUserRequest);
         }
 
         public async Task UnmuteUser()
@@ -25,13 +25,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 TargetIds = new List<string> { "user-id-1" }
             };
 
-            var unmuteResponse = await Client.ModerationApi.UnmuteUserAsync(unmuteUserRequest);
+            var unmuteResponse = await _lowLevelClient.ModerationApi.UnmuteUserAsync(unmuteUserRequest);
         }
 
         public async Task BanUserForOneHour()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -45,13 +45,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Reason = "Toxic behaviour towards other users"
             };
 
-            var banResponse = await Client.ModerationApi.BanUserAsync(banRequest);
+            var banResponse = await _lowLevelClient.ModerationApi.BanUserAsync(banRequest);
         }
 
         public async Task BanUserPermanently()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -64,13 +64,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Reason = "Toxic behaviour towards other users",
             };
 
-            var banResponse = await Client.ModerationApi.BanUserAsync(banRequest);
+            var banResponse = await _lowLevelClient.ModerationApi.BanUserAsync(banRequest);
         }
 
         public async Task BanUserAndIPAddress()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -85,13 +85,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 IpBan = true,
             };
 
-            var banResponse = await Client.ModerationApi.BanUserAsync(banRequest);
+            var banResponse = await _lowLevelClient.ModerationApi.BanUserAsync(banRequest);
         }
 
         public async Task UnbanUser()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -102,13 +102,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Type = channel.Type
             };
 
-            var unbanResponse = await Client.ModerationApi.UnbanUserAsync(unbanRequest);
+            var unbanResponse = await _lowLevelClient.ModerationApi.UnbanUserAsync(unbanRequest);
         }
 
         public async Task ShadowBanUserFor24Hour()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -122,13 +122,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Reason = "Toxic behaviour towards other users"
             };
 
-            var shadowBanResponse = await Client.ModerationApi.ShadowBanUserAsync(banRequest);
+            var shadowBanResponse = await _lowLevelClient.ModerationApi.ShadowBanUserAsync(banRequest);
         }
 
         public async Task RemoveUserShadowBan()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -139,13 +139,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Type = channel.Type
             };
 
-            var unbanResponse = await Client.ModerationApi.RemoveUserShadowBanAsync(unbanRequest);
+            var unbanResponse = await _lowLevelClient.ModerationApi.RemoveUserShadowBanAsync(unbanRequest);
         }
 
         public async Task ShadowBanUser()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -159,13 +159,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 Reason = "Toxic behaviour towards other users",
             };
 
-            var banResponse = await Client.ModerationApi.ShadowBanUserAsync(shadowBanRequest);
+            var banResponse = await _lowLevelClient.ModerationApi.ShadowBanUserAsync(shadowBanRequest);
         }
 
         public async Task QueryBannedUsers()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -190,23 +190,23 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 }
             };
 
-            var queryBannedUsersResponse = await Client.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
+            var queryBannedUsersResponse = await _lowLevelClient.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
         }
 
         public async Task FlagMessage()
         {
-            var flagMessageResponse = await Client.ModerationApi.FlagMessageAsync("message-id-1");
+            var flagMessageResponse = await _lowLevelClient.ModerationApi.FlagMessageAsync("message-id-1");
         }
 
         public async Task FlagUser()
         {
-            var flagUserResponse = await Client.ModerationApi.FlagUserAsync("user-id-1");
+            var flagUserResponse = await _lowLevelClient.ModerationApi.FlagUserAsync("user-id-1");
         }
 
         public async Task QueryFlaggedMessages()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("channel-type", "channel-id",
                     new ChannelGetOrCreateRequest());
             var channel = channelState.Channel;
 
@@ -223,9 +223,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 }
             };
 
-            var queryMessageFlagsResponse = await Client.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
+            var queryMessageFlagsResponse = await _lowLevelClient.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
         }
 
-        private IStreamChatClient Client;
+        private IStreamChatLowLevelClient _lowLevelClient;
     }
 }

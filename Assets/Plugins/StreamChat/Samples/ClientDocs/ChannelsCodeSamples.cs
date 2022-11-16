@@ -19,7 +19,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
     {
         private async Task CreatingChannelUsingChannelId()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+            var channelState = await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync(
                 channelType: "messaging", channelId: "channel-id-1", new ChannelGetOrCreateRequest());
         }
 
@@ -43,12 +43,12 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 }
             };
 
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", requestBody);
+            var channelState = await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", requestBody);
         }
 
         private async Task WatchingChannel()
         {
-            await Client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", channelId: "channel-id-1",
+            await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", channelId: "channel-id-1",
                 new ChannelGetOrCreateRequest
                 {
                     Watch = true,
@@ -57,7 +57,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         private async Task GetReadStatesForChannel()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+            var channelState = await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync(
                 channelType: "messaging", channelId: "channel-id-1", new ChannelGetOrCreateRequest());
 
             foreach (var read in channelState.Read)
@@ -100,7 +100,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 },
             };
 
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging",
+            var channelState = await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging",
                 channelId: "channel-id-1", paginateMessages);
         }
 
@@ -116,7 +116,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 }
             };
 
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+            var channelState = await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync(
                 channelType: "messaging", channelId: "channel-id-1", getOrCreateRequest);
         }
 
@@ -155,12 +155,12 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 //Watch = true
             };
 
-            var channelsResponse = await Client.ChannelApi.QueryChannelsAsync(request);
+            var channelsResponse = await _lowLevelClient.ChannelApi.QueryChannelsAsync(request);
         }
 
         private async Task StopWatchingChannel()
         {
-            var stopWatchingResponse = await Client.ChannelApi.StopWatchingChannelAsync(channelType: "messaging",
+            var stopWatchingResponse = await _lowLevelClient.ChannelApi.StopWatchingChannelAsync(channelType: "messaging",
                 channelId: "channel-id-1", new ChannelStopWatchingRequest());
         }
 
@@ -197,7 +197,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             };
 
             //WatcherCount is a property of ChannelState which you get either from channels query or from GetOrCreateChannel request
-            var channelsResponse = await Client.ChannelApi.QueryChannelsAsync(request);
+            var channelsResponse = await _lowLevelClient.ChannelApi.QueryChannelsAsync(request);
 
             foreach (var channelState in channelsResponse.Channels)
             {
@@ -213,13 +213,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         public async Task DeleteChannel()
         {
             var deleteChannelResponse =
-                await Client.ChannelApi.DeleteChannelAsync(channelType: "messaging", channelId: "channel-id-1",
+                await _lowLevelClient.ChannelApi.DeleteChannelAsync(channelType: "messaging", channelId: "channel-id-1",
                     isHardDelete: false);
         }
 
         public async Task DeletingManyChannels()
         {
-            var deleteChannelsResponse = await Client.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+            var deleteChannelsResponse = await _lowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
             {
                 Cids = new List<string>
                 {
@@ -233,10 +233,10 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task PartialChannelUpdate()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+            var channelState = await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync(
                 channelType: "messaging", channelId: "channel-id-1", new ChannelGetOrCreateRequest());
 
-            var updateChannelResponse = await Client.ChannelApi.UpdateChannelPartialAsync(channelType: "messaging",
+            var updateChannelResponse = await _lowLevelClient.ChannelApi.UpdateChannelPartialAsync(channelType: "messaging",
                 channelId: "channel-id-1", new UpdateChannelPartialRequest
                 {
                     Set = new Dictionary<string, object>
@@ -259,10 +259,10 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         private async Task UpdateChannelToHideHistoryForNewMembers()
         {
-            var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(
+            var channelState = await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync(
                 channelType: "messaging", channelId: "channel-id-1", new ChannelGetOrCreateRequest());
 
-            var updateChannelResponse = await Client.ChannelApi.UpdateChannelAsync(channelType: "messaging",
+            var updateChannelResponse = await _lowLevelClient.ChannelApi.UpdateChannelAsync(channelType: "messaging",
                 channelId: "channel-id-1", new UpdateChannelRequest()
                 {
                     HideHistory = true,
@@ -276,11 +276,11 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         public async Task TruncateChannel()
         {
 //default truncating
-            var truncateChannelResponse = await Client.ChannelApi.TruncateChannelAsync(channelType: "messaging",
+            var truncateChannelResponse = await _lowLevelClient.ChannelApi.TruncateChannelAsync(channelType: "messaging",
                 channelId: "channel-id-1", new TruncateChannelRequest());
 
 //or with parameters
-            var truncateChannelResponse2 = await Client.ChannelApi.TruncateChannelAsync(channelType: "messaging",
+            var truncateChannelResponse2 = await _lowLevelClient.ChannelApi.TruncateChannelAsync(channelType: "messaging",
                 channelId: "channel-id-1", new TruncateChannelRequest()
                 {
                     HardDelete = true,
@@ -299,9 +299,9 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
             void InitStreamChatClient()
             {
-                Client = StreamChatClient.CreateDefaultClient(authCredentials);
-                Client.Connected += ClientOnConnected;
-                Client.Connect();
+                _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(authCredentials);
+                _lowLevelClient.Connected += ClientOnConnected;
+                _lowLevelClient.Connect();
             }
 
             void ClientOnConnected(OwnUser ownUser)
@@ -316,7 +316,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             Message message = default;
             ChannelState channelState = default;
 
-            var markReadResponse = await Client.ChannelApi.MarkReadAsync(channelState.Channel.Type,
+            var markReadResponse = await _lowLevelClient.ChannelApi.MarkReadAsync(channelState.Channel.Type,
                 channelState.Channel.Id, new MarkReadRequest
                 {
                     //Optional Message ID to mark user last read message, if no Message ID is passed the whole channel is marked as read
@@ -331,14 +331,14 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
             void InitStreamChatClient()
             {
-                Client = StreamChatClient.CreateDefaultClient(authCredentials);
-                Client.Connect();
+                _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(authCredentials);
+                _lowLevelClient.Connect();
 
                 //sent when message is read to users watching the channel
-                Client.MessageRead += OnMessageRead;
+                _lowLevelClient.MessageRead += OnMessageRead;
 
                 //sent when unread state changes to all channel members even if they're not watching the channel
-                Client.NotificationMarkRead += OnNotificationMarkRead;
+                _lowLevelClient.NotificationMarkRead += OnNotificationMarkRead;
             }
 
             void OnMessageRead(EventMessageRead eventMessageRead)
@@ -359,7 +359,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         public async Task GetChannelReadState()
         {
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id",
                     new ChannelGetOrCreateRequest());
 
             foreach (var readState in channelState.Read)
@@ -374,7 +374,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         {
             //Get desired channel
             var channelState =
-                await Client.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id",
+                await _lowLevelClient.ChannelApi.GetOrCreateChannelAsync("messaging", "channel-id",
                     new ChannelGetOrCreateRequest());
 
             Read localUserReadState = default;
@@ -382,7 +382,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             //Loop through results
             foreach (var readState in channelState.Read)
             {
-                if (readState.User.Id == Client.UserId)
+                if (readState.User.Id == _lowLevelClient.UserId)
                 {
                     localUserReadState = readState;
                     break;
@@ -390,7 +390,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             }
 
             //Or use LINQ
-            localUserReadState = channelState.Read.First(read => read.User.Id == Client.UserId);
+            localUserReadState = channelState.Read.First(read => read.User.Id == _lowLevelClient.UserId);
 
             //Access local user read state for desired channel
             Debug.Log(localUserReadState.LastRead); //Last read message date
@@ -399,7 +399,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task GetMultipleChannelReadState()
         {
-            var channelsResponse = await Client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
+            var channelsResponse = await _lowLevelClient.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -407,7 +407,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                         //Get channels to which local user has joined as a member
                         "members", new Dictionary<string, object>
                         {
-                            {"$in", new[] {Client.UserId}}
+                            {"$in", new[] {_lowLevelClient.UserId}}
                         }
                     }
                 },
@@ -428,7 +428,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         {
             //if MarkReadRequest.MessageId is empty, the whole channel is marked as read
             var markReadRequest = new MarkReadRequest();
-            var markReadResponse = await Client.ChannelApi.MarkReadAsync("messaging", "channel-id", markReadRequest);
+            var markReadResponse = await _lowLevelClient.ChannelApi.MarkReadAsync("messaging", "channel-id", markReadRequest);
         }
 
         public async Task SendTypingStartStopEvents()
@@ -436,10 +436,10 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             ChannelState channelState = default;
 
             //Notify other users that user started typing
-            await Client.ChannelApi.SendTypingStartEventAsync(channelState.Channel.Type, channelState.Channel.Id);
+            await _lowLevelClient.ChannelApi.SendTypingStartEventAsync(channelState.Channel.Type, channelState.Channel.Id);
 
             //Notify other users that user stopped typing
-            await Client.ChannelApi.SendTypingStopEventAsync(channelState.Channel.Type, channelState.Channel.Id);
+            await _lowLevelClient.ChannelApi.SendTypingStopEventAsync(channelState.Channel.Type, channelState.Channel.Id);
         }
 
         public void ReceiveTypingStartStopEvents()
@@ -448,8 +448,8 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
             void SubscribeToTypingEvents()
             {
-                Client.TypingStarted += OnTypingStarted;
-                Client.TypingStopped += OnTypingStopped;
+                _lowLevelClient.TypingStarted += OnTypingStarted;
+                _lowLevelClient.TypingStopped += OnTypingStopped;
             }
 
             void OnTypingStarted(EventTypingStart eventTypingStart)
@@ -475,7 +475,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             User user = default;
 
             //Make API call
-            var response = await Client.ChannelApi.UpdateChannelAsync(channelState.Channel.Type,
+            var response = await _lowLevelClient.ChannelApi.UpdateChannelAsync(channelState.Channel.Type,
                 channelState.Channel.Id,
                 new UpdateChannelRequest
                 {
@@ -489,6 +489,6 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 });
         }
 
-        private IStreamChatClient Client;
+        private IStreamChatLowLevelClient _lowLevelClient;
     }
 }

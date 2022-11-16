@@ -46,47 +46,47 @@ namespace StreamChat.SampleProject
 
         public IReadOnlyList<ChannelState> Channels => _channels;
 
-        public IStreamChatClient Client { get; }
+        public IStreamChatLowLevelClient LowLevelClient { get; }
 
-        public ChatState(IStreamChatClient client, IViewFactory viewFactory)
+        public ChatState(IStreamChatLowLevelClient lowLevelClient, IViewFactory viewFactory)
         {
-            Client = client ?? throw new ArgumentNullException(nameof(client));
+            LowLevelClient = lowLevelClient ?? throw new ArgumentNullException(nameof(lowLevelClient));
             _viewFactory = viewFactory ?? throw new ArgumentNullException(nameof(viewFactory));
 
-            Client.Connected += OnClientConnected;
-            Client.ConnectionStateChanged += OnClientConnectionStateChanged;
-            Client.MessageReceived += OnMessageReceived;
-            Client.MessageDeleted += OnMessageDeleted;
-            Client.MessageUpdated += OnMessageUpdated;
-            Client.MessageRead += OnMessageRead;
-            Client.ReactionReceived += OnReactionReceived;
-            Client.ReactionUpdated += OnReactionUpdated;
-            Client.ReactionDeleted += OnReactionDeleted;
+            LowLevelClient.Connected += OnClientConnected;
+            LowLevelClient.ConnectionStateChanged += OnClientConnectionStateChanged;
+            LowLevelClient.MessageReceived += OnMessageReceived;
+            LowLevelClient.MessageDeleted += OnMessageDeleted;
+            LowLevelClient.MessageUpdated += OnMessageUpdated;
+            LowLevelClient.MessageRead += OnMessageRead;
+            LowLevelClient.ReactionReceived += OnReactionReceived;
+            LowLevelClient.ReactionUpdated += OnReactionUpdated;
+            LowLevelClient.ReactionDeleted += OnReactionDeleted;
 
-            Client.TypingStarted += OnTypingStarted;
-            Client.TypingStopped += OnTypingStopped;
+            LowLevelClient.TypingStarted += OnTypingStarted;
+            LowLevelClient.TypingStopped += OnTypingStopped;
 
-            Client.NotificationMarkRead += OnNotificationMarkRead;
+            LowLevelClient.NotificationMarkRead += OnNotificationMarkRead;
         }
 
         public void Dispose()
         {
-            Client.Connected -= OnClientConnected;
-            Client.ConnectionStateChanged -= OnClientConnectionStateChanged;
-            Client.MessageReceived -= OnMessageReceived;
-            Client.MessageDeleted -= OnMessageDeleted;
-            Client.MessageUpdated -= OnMessageUpdated;
-            Client.MessageRead -= OnMessageRead;
-            Client.ReactionReceived -= OnReactionReceived;
-            Client.ReactionUpdated -= OnReactionUpdated;
-            Client.ReactionDeleted -= OnReactionDeleted;
+            LowLevelClient.Connected -= OnClientConnected;
+            LowLevelClient.ConnectionStateChanged -= OnClientConnectionStateChanged;
+            LowLevelClient.MessageReceived -= OnMessageReceived;
+            LowLevelClient.MessageDeleted -= OnMessageDeleted;
+            LowLevelClient.MessageUpdated -= OnMessageUpdated;
+            LowLevelClient.MessageRead -= OnMessageRead;
+            LowLevelClient.ReactionReceived -= OnReactionReceived;
+            LowLevelClient.ReactionUpdated -= OnReactionUpdated;
+            LowLevelClient.ReactionDeleted -= OnReactionDeleted;
 
-            Client.TypingStarted -= OnTypingStarted;
-            Client.TypingStopped -= OnTypingStopped;
+            LowLevelClient.TypingStarted -= OnTypingStarted;
+            LowLevelClient.TypingStopped -= OnTypingStopped;
 
-            Client.NotificationMarkRead -= OnNotificationMarkRead;
+            LowLevelClient.NotificationMarkRead -= OnNotificationMarkRead;
 
-            Client.Dispose();
+            LowLevelClient.Dispose();
         }
 
         public void ShowPopup<TPopup>()
@@ -102,7 +102,7 @@ namespace StreamChat.SampleProject
         }
 
         public Task<ChannelState> CreateNewChannelAsync(string channelName)
-            => Client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", channelId: Guid.NewGuid().ToString(),
+            => LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", channelId: Guid.NewGuid().ToString(),
                 new ChannelGetOrCreateRequest
                 {
                     Data = new ChannelRequest
@@ -124,7 +124,7 @@ namespace StreamChat.SampleProject
                 return;
             }
 
-            Client.ChannelApi.MarkReadAsync(channel.Channel.Type, channel.Channel.Id, new MarkReadRequest()
+            LowLevelClient.ChannelApi.MarkReadAsync(channel.Channel.Type, channel.Channel.Id, new MarkReadRequest()
             {
                 MessageId = message.Id
             }).LogStreamExceptionIfFailed();
@@ -153,7 +153,7 @@ namespace StreamChat.SampleProject
                     {
                         "members", new Dictionary<string, object>
                         {
-                            { "$in", new string[] { Client.UserId } }
+                            { "$in", new string[] { LowLevelClient.UserId } }
                         }
                     }
                 }
@@ -161,7 +161,7 @@ namespace StreamChat.SampleProject
 
             try
             {
-                var queryChannelsResponse = await Client.ChannelApi.QueryChannelsAsync(request);
+                var queryChannelsResponse = await LowLevelClient.ChannelApi.QueryChannelsAsync(request);
 
                 _channels.Clear();
                 _channels.AddRange(queryChannelsResponse.Channels);
@@ -218,7 +218,7 @@ namespace StreamChat.SampleProject
 
             try
             {
-                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type,
+                var channelState = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type,
                     ActiveChannel.Channel.Id, new ChannelGetOrCreateRequest
                     {
                         State = true,
@@ -413,7 +413,7 @@ namespace StreamChat.SampleProject
 
             try
             {
-                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, getOrCreateRequest);
+                var channelState = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, getOrCreateRequest);
                 ActiveChannel.Messages.AddRange(channelState.Messages);
 
                 foreach (var message in channelState.Messages)

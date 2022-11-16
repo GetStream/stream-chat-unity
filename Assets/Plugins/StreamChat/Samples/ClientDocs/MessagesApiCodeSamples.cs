@@ -23,7 +23,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 }
             };
 
-            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+            var messageResponse = await _lowLevelClient.MessageApi.SendNewMessageAsync(channelType: "messaging",
                 channelId: "channel-id-1", sendMessageRequest);
         }
 
@@ -39,7 +39,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 }
             };
 
-            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+            var messageResponse = await _lowLevelClient.MessageApi.SendNewMessageAsync(channelType: "messaging",
                 channelId: "channel-id-1", sendMessageRequest);
         }
 
@@ -54,13 +54,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 }
             };
 
-            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+            var messageResponse = await _lowLevelClient.MessageApi.SendNewMessageAsync(channelType: "messaging",
                 channelId: "channel-id-1", sendMessageRequest);
         }
 
         public async Task UpdateMessage()
         {
-            await Client.MessageApi.UpdateMessageAsync(new UpdateMessageRequest
+            await _lowLevelClient.MessageApi.UpdateMessageAsync(new UpdateMessageRequest
             {
                 Message = new MessageRequest
                 {
@@ -72,7 +72,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         public async Task DeleteMessage()
         {
-            var messageResponse = await Client.MessageApi.DeleteMessageAsync(messageId: "message-id-1", hard: false);
+            var messageResponse = await _lowLevelClient.MessageApi.DeleteMessageAsync(messageId: "message-id-1", hard: false);
         }
 
         public async Task OpenGraphScraper()
@@ -85,13 +85,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 }
             };
 
-            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+            var messageResponse = await _lowLevelClient.MessageApi.SendNewMessageAsync(channelType: "messaging",
                 channelId: "channel-id-1", sendMessageRequest);
         }
 
         public async Task SendReaction()
         {
-            var reactionResponse = await Client.MessageApi.SendReactionAsync(messageId: "message-id-1",
+            var reactionResponse = await _lowLevelClient.MessageApi.SendReactionAsync(messageId: "message-id-1",
                 new SendReactionRequest
                 {
                     Reaction = new ReactionRequest
@@ -104,7 +104,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         public async Task RemoveReaction()
         {
             var reactionRemovalResponse =
-                await Client.MessageApi.DeleteReactionAsync(messageId: "message-id-1", reactionType: "like");
+                await _lowLevelClient.MessageApi.DeleteReactionAsync(messageId: "message-id-1", reactionType: "like");
         }
 
         public async Task SendSilentMessage()
@@ -118,7 +118,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 },
             };
 
-            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+            var messageResponse = await _lowLevelClient.MessageApi.SendNewMessageAsync(channelType: "messaging",
                 channelId: "channel-id-1", sendMessageRequest);
         }
 
@@ -130,7 +130,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             var fileContent = File.ReadAllBytes(filePath);
 
             //Upload file and get file url from CDN
-            var uploadFileResponse = await Client.MessageApi.UploadFileAsync(channelType: "messaging",
+            var uploadFileResponse = await _lowLevelClient.MessageApi.UploadFileAsync(channelType: "messaging",
                 channelId: "channel-id-1", fileContent, fileName);
 
             //Url to file in CDN
@@ -153,7 +153,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 },
             };
 
-            var messageResponse = await Client.MessageApi.SendNewMessageAsync(channelType: "messaging",
+            var messageResponse = await _lowLevelClient.MessageApi.SendNewMessageAsync(channelType: "messaging",
                 channelId: "channel-id-1", sendMessageRequest);
         }
 
@@ -162,13 +162,13 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             //File url that got returned by Client.MessageApi.UploadFileAsync endpoint
             var remoteFileUrl = "url/to/file/in/stream/cdn";
 
-            var deleteFileResponse = await Client.MessageApi.DeleteFileAsync(channelType: "messaging",
+            var deleteFileResponse = await _lowLevelClient.MessageApi.DeleteFileAsync(channelType: "messaging",
                 channelId: "channel-id-1", remoteFileUrl);
         }
 
         public async Task SearchMessagesWithPaginationUsingLimitAndOffset()
         {
-            var searchResponse = await Client.MessageApi.SearchMessagesAsync(new SearchRequest
+            var searchResponse = await _lowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
             {
                 //Filter is required for search
                 FilterConditions = new Dictionary<string, object>
@@ -211,7 +211,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
         public async Task SearchMessagesWithPaginationUsingNextKey()
         {
             // Get first page without setting the Next parameter
-            var resultsPage1 = await Client.MessageApi.SearchMessagesAsync(new SearchRequest
+            var resultsPage1 = await _lowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
             {
                 //Filter is required for search
                 FilterConditions = new Dictionary<string, object>
@@ -238,7 +238,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             }
 
             // Get second page of results by setting: Next = resultsPage1.Next
-            var resultsPage2 = await Client.MessageApi.SearchMessagesAsync(new SearchRequest
+            var resultsPage2 = await _lowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
             {
                 // Filter is required for search
                 FilterConditions = new Dictionary<string, object>
@@ -267,6 +267,6 @@ namespace Plugins.StreamChat.Samples.ClientDocs
             }
         }
 
-        private IStreamChatClient Client;
+        private IStreamChatLowLevelClient _lowLevelClient;
     }
 }

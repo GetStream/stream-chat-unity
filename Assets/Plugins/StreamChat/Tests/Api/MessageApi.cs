@@ -34,15 +34,15 @@ namespace StreamChat.Tests.Api
             _mockLogs = Substitute.For<ILogs>();
             _mockStreamClientConfig = Substitute.For<IStreamClientConfig>();
 
-            _client = new StreamChatClient(_authCredentials, _mockWebsocketClient, _mockHttpClient, _serializer,
+            _lowLevelClient = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient, _serializer,
                 _mockTimeService, _mockLogs, _mockStreamClientConfig);
         }
 
         [TearDown]
         public void TearDown()
         {
-            _client.Dispose();
-            _client = null;
+            _lowLevelClient.Dispose();
+            _lowLevelClient = null;
 
             _mockWebsocketClient = null;
             _serializer = null;
@@ -53,9 +53,9 @@ namespace StreamChat.Tests.Api
         [TestCaseSource(nameof(GetPostTestCases))]
         public void when_client_post_request_expect_valid_uri_and_request_body_in_http_client(EndpointTestCaseBase testCase)
         {
-            _client.Connect();
+            _lowLevelClient.Connect();
 
-            testCase.ExecuteRequest(_client);
+            testCase.ExecuteRequest(_lowLevelClient);
 
             Expression<Predicate<Uri>> ValidateUri = uri => testCase.IsUriValid(uri);
             Expression<Predicate<string>> ValidateRequestBody = request => testCase.IsRequestBodyValid(request);
@@ -66,16 +66,16 @@ namespace StreamChat.Tests.Api
         [TestCaseSource(nameof(GetDeleteTestCases))]
         public void when_client_delete_request_expect_valid_uri_in_http_client(EndpointTestCaseBase testCase)
         {
-            _client.Connect();
+            _lowLevelClient.Connect();
 
-            testCase.ExecuteRequest(_client);
+            testCase.ExecuteRequest(_lowLevelClient);
 
             Expression<Predicate<Uri>> ValidateUri = uri => testCase.IsUriValid(uri);
 
             _mockHttpClient.Received().DeleteAsync(Arg.Is(ValidateUri));
         }
 
-        private IStreamChatClient _client;
+        private IStreamChatLowLevelClient _lowLevelClient;
         private AuthCredentials _authCredentials;
 
         private IWebsocketClient _mockWebsocketClient;
@@ -85,7 +85,7 @@ namespace StreamChat.Tests.Api
         private IStreamClientConfig _mockStreamClientConfig;
         private NewtonsoftJsonSerializer _serializer;
 
-        private static readonly string NameBase = $"{nameof(IStreamChatClient)} - {nameof(IMessageApi)}";
+        private static readonly string NameBase = $"{nameof(IStreamChatLowLevelClient)} - {nameof(IMessageApi)}";
 
         private static IEnumerable<TestCaseData> GetPostTestCases
         {
@@ -114,9 +114,9 @@ namespace StreamChat.Tests.Api
 
             public override string Name => $"{NameBase} - {nameof(IMessageApi.SendReactionAsync)}";
 
-            public override void ExecuteRequest(IStreamChatClient client)
+            public override void ExecuteRequest(IStreamChatLowLevelClient lowLevelClient)
             {
-                client.MessageApi.SendReactionAsync(MessageId, new SendReactionRequest
+                lowLevelClient.MessageApi.SendReactionAsync(MessageId, new SendReactionRequest
                 {
                     Reaction = new ReactionRequest
                     {
@@ -139,9 +139,9 @@ namespace StreamChat.Tests.Api
 
             public override string Name => $"{NameBase} - {nameof(IMessageApi.DeleteReactionAsync)}";
 
-            public override void ExecuteRequest(IStreamChatClient client)
+            public override void ExecuteRequest(IStreamChatLowLevelClient lowLevelClient)
             {
-                client.MessageApi.DeleteReactionAsync(MessageId, ReactionType);
+                lowLevelClient.MessageApi.DeleteReactionAsync(MessageId, ReactionType);
             }
 
             public override bool IsUriValid(Uri uri)

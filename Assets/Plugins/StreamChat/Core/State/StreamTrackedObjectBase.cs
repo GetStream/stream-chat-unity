@@ -41,7 +41,7 @@ namespace StreamChat.Core.State
 
         protected abstract TTrackedObject Self { get; }
         protected StreamChatStateClient StreamChatStateClient { get; }
-        protected StreamChatClient LowLevelClient => StreamChatStateClient.LowLevelClient;
+        protected StreamChatLowLevelClient LowLevelClient => StreamChatStateClient.LowLevelClient;
         protected ILogs Logs { get; }
         internal ICache Cache { get; }
         internal ICacheRepository<TTrackedObject> Repository { get; }

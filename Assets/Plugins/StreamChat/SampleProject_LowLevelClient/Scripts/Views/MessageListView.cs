@@ -175,7 +175,7 @@ namespace StreamChat.SampleProject.Views
         //StreamTodo: extract to ViewFactory
         private MessageView CreateMessageView(Message message)
         {
-            var isLocal = Client.IsLocalUser(message.User);
+            var isLocal = LowLevelClient.IsLocalUser(message.User);
             var prefab = isLocal ? _localUserMessageViewPrefab : _messageViewPrefab;
             var view = Instantiate(prefab, _messagesContainer);
             view.Init(ViewContext);

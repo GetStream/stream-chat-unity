@@ -3,7 +3,7 @@
 namespace StreamChat.Core.Configs
 {
     /// <summary>
-    /// Configuration for <see cref="IStreamChatClient"/>
+    /// Configuration for <see cref="IStreamChatLowLevelClient"/>
     /// </summary>
     public interface IStreamClientConfig
     {

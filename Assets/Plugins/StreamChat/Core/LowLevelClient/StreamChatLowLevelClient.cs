@@ -33,7 +33,7 @@ namespace StreamChat.Core.LowLevelClient
     /// Stream Chat Client - maintains WebSockets connection, executes API calls and exposes Stream events to which you can subscribe.
     /// There should be only one instance of this client in your application.
     /// </summary>
-    public class StreamChatClient : IStreamChatClient
+    public class StreamChatLowLevelClient : IStreamChatLowLevelClient
     {
         public const string MenuPrefix = "Stream/";
 
@@ -189,7 +189,7 @@ namespace StreamChat.Core.LowLevelClient
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
         /// </summary>
         /// <param name="authCredentials">Authorization data with ApiKey, UserToken and UserId</param>
-        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials,
+        public static IStreamChatLowLevelClient CreateDefaultClient(AuthCredentials authCredentials,
             IStreamClientConfig config = default)
         {
             config ??= StreamClientConfig.Default;
@@ -200,7 +200,7 @@ namespace StreamChat.Core.LowLevelClient
             var serializer = LibsFactory.CreateDefaultSerializer();
             var timeService = LibsFactory.CreateDefaultTimeService();
 
-            return new StreamChatClient(authCredentials, websocketClient, httpClient, serializer,
+            return new StreamChatLowLevelClient(authCredentials, websocketClient, httpClient, serializer,
                 timeService, logs, config);
         }
 
@@ -237,7 +237,7 @@ namespace StreamChat.Core.LowLevelClient
             return Regex.Replace(userId, @"[^\w\.@_-]", "", RegexOptions.None, TimeSpan.FromSeconds(1));
         }
 
-        public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
+        public StreamChatLowLevelClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
             IStreamClientConfig config)
         {
@@ -799,7 +799,7 @@ namespace StreamChat.Core.LowLevelClient
                 if (!_updateCallReceived && ConnectionState != ConnectionState.Disconnected)
                 {
                     _logs.Error(
-                        $"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(Update)}` method per frame.");
+                        $"Connection is not being updated. Please call the `{nameof(StreamChatLowLevelClient)}.{nameof(Update)}` method per frame.");
                 }
             });
         }

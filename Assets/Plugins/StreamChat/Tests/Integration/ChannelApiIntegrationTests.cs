@@ -20,14 +20,14 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Get_or_create_channel()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var request = new ChannelGetOrCreateRequest();
 
             const string channelType = "messaging";
             var channelId = "random-channel-" + Guid.NewGuid();
 
-            var task = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
+            var task = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, request);
 
             yield return task.RunAsIEnumerator(response =>
             {
@@ -35,13 +35,13 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(channelType, response.Channel.Type);
             });
 
-            yield return Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false).RunAsIEnumerator();
+            yield return LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false).RunAsIEnumerator();
         }
 
         [UnityTest]
         public IEnumerator Create_channel_with_custom_data()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var requestBody = new ChannelGetOrCreateRequest
             {
@@ -65,7 +65,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Get_or_create_channel_for_list_of_members()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var request = new ChannelGetOrCreateRequest
             {
@@ -75,7 +75,7 @@ namespace StreamChat.Tests.Integration
                     {
                         new ChannelMemberRequest
                         {
-                            UserId = Client.UserId
+                            UserId = LowLevelClient.UserId
                         },
                         new ChannelMemberRequest
                         {
@@ -87,7 +87,7 @@ namespace StreamChat.Tests.Integration
 
             string channelType = "messaging";
 
-            var task = Client.ChannelApi.GetOrCreateChannelAsync(channelType, request);
+            var task = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, request);
 
             yield return task.RunAsIEnumerator(response => { Assert.AreEqual(channelType, response.Channel.Type); });
         }
@@ -95,13 +95,13 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Delete_channel()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
             var channelId = "new-channel-id-" + Guid.NewGuid();
 
             var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
+                LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
 
             yield return createChannelTask.RunAsIEnumerator(response =>
             {
@@ -109,7 +109,7 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(channelType, response.Channel.Type);
             });
 
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
+            var deleteChannelTask = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
 
             yield return deleteChannelTask.RunAsIEnumerator(response =>
             {
@@ -121,7 +121,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Query_channels()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -174,7 +174,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var queryChannelsTask = Client.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
+            var queryChannelsTask = LowLevelClient.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
 
             yield return queryChannelsTask.RunAsIEnumerator(response =>
             {
@@ -188,7 +188,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Watch_channel()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -208,7 +208,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var updateChannelTask = Client.ChannelApi.UpdateChannelAsync(channelType, channelId, updateRequestBody);
+            var updateChannelTask = LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channelId, updateRequestBody);
 
             yield return updateChannelTask.RunAsIEnumerator(response =>
             {
@@ -217,7 +217,7 @@ namespace StreamChat.Tests.Integration
                 Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
             });
 
-            var watchChannelTask = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            var watchChannelTask = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest()
                 {
                     Watch = true,
@@ -240,7 +240,7 @@ namespace StreamChat.Tests.Integration
                 //Assert.IsTrue(response.Watchers.Any(_ => _.Id == TestAdminId));
             });
 
-            var watchChannelTask2 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            var watchChannelTask2 = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest()
                 {
                     Watch = true,
@@ -256,14 +256,14 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);
 
-                Assert.IsTrue(response.Watchers.Any(_ => _.Id == Client.UserId));
+                Assert.IsTrue(response.Watchers.Any(_ => _.Id == LowLevelClient.UserId));
             });
         }
 
         [UnityTest]
         public IEnumerator Watcher_count()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -288,7 +288,7 @@ namespace StreamChat.Tests.Integration
             });
             var channelId = channelState.Channel.Id;
 
-            var watchChannelTask2 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            var watchChannelTask2 = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
                 {
                     Watch = true,
@@ -303,14 +303,14 @@ namespace StreamChat.Tests.Integration
             {
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Watchers.Any(_ => _.Id == Client.UserId));
+                Assert.IsTrue(response.Watchers.Any(_ => _.Id == LowLevelClient.UserId));
             });
         }
 
         [UnityTest]
         public IEnumerator When_deleting_existing_channel_expect_success()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var channelType = "messaging";
 
@@ -319,7 +319,7 @@ namespace StreamChat.Tests.Integration
                 state => channelState = state);
             var channelId = channelState.Channel.Id;
 
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
+            var deleteChannelTask = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
             yield return deleteChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(response.Channel.Id, channelId);
@@ -329,26 +329,26 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator When_deleting_non_existing_channel_expect_fail()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var channelType = "messaging";
             var channelId = "new-channel-id-1";
 
             var createChannelTask =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
+                LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
 
             yield return createChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(response.Channel.Id, channelId);
             });
 
-            var deleteChannelTask = Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
+            var deleteChannelTask = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
             yield return deleteChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(response.Channel.Id, channelId);
             });
 
-            var deleteChannelTask2 = Client.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
+            var deleteChannelTask2 = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
 
             deleteChannelTask2.RunAsIEnumerator(onFaulted: exception =>
             {
@@ -359,7 +359,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Delete_multiple_channels()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var channelType = "messaging";
 
@@ -374,7 +374,7 @@ namespace StreamChat.Tests.Integration
 
             Assert.AreEqual(channelsCIdsToDelete.Count, 3);
 
-            var deleteChannelsTask = Client.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest()
+            var deleteChannelsTask = LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest()
             {
                 Cids = channelsCIdsToDelete,
                 HardDelete = true
@@ -392,7 +392,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Partial_update()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var channelType = "messaging";
 
@@ -401,7 +401,7 @@ namespace StreamChat.Tests.Integration
                 state => channelState = state);
             var channelId = channelState.Channel.Id;
 
-            var updateChannelPartialTask = Client.ChannelApi.UpdateChannelPartialAsync(channelType, channelId,
+            var updateChannelPartialTask = LowLevelClient.ChannelApi.UpdateChannelPartialAsync(channelType, channelId,
                 new UpdateChannelPartialRequest
                 {
                     Set = new Dictionary<string, object>
@@ -420,7 +420,7 @@ namespace StreamChat.Tests.Integration
             yield return updateChannelPartialTask.RunAsIEnumerator(response => { });
 
             var getOrCreateTask2 =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
+                LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
 
             yield return getOrCreateTask2.RunAsIEnumerator(response =>
             {
@@ -432,7 +432,7 @@ namespace StreamChat.Tests.Integration
                 // Assert.That(response.Channel.AdditionalProperties["breakfast"], Contains.Item("juice"));
             });
 
-            var updateChannelPartialTask2 = Client.ChannelApi.UpdateChannelPartialAsync(channelType, channelId,
+            var updateChannelPartialTask2 = LowLevelClient.ChannelApi.UpdateChannelPartialAsync(channelType, channelId,
                 new UpdateChannelPartialRequest
                 {
                     Set = new Dictionary<string, object>
@@ -454,7 +454,7 @@ namespace StreamChat.Tests.Integration
             yield return updateChannelPartialTask2.RunAsIEnumerator(response => { });
 
             var getOrCreateTask3 =
-                Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
+                LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, new ChannelGetOrCreateRequest());
 
             yield return getOrCreateTask3.RunAsIEnumerator(response =>
             {
@@ -470,7 +470,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Mark_single_read_with_specified_message_id()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var channelType = "messaging";
 
@@ -500,20 +500,20 @@ namespace StreamChat.Tests.Integration
                     },
                     new ChannelMemberRequest
                     {
-                        UserId = Client.UserId
+                        UserId = LowLevelClient.UserId
                     }
                 }
             };
 
             var updateChannelTask =
-                Client.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
+                LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
             yield return updateChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
                 Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
             });
 
-            var markReadTask = Client.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
+            var markReadTask = LowLevelClient.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
                 new MarkReadRequest
                 {
                     MessageId = channelState1SecondMessageId
@@ -523,7 +523,7 @@ namespace StreamChat.Tests.Integration
 
             //Query channels to confirm the read state
 
-            var queryChannelsTask = Client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
+            var queryChannelsTask = LowLevelClient.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -552,7 +552,7 @@ namespace StreamChat.Tests.Integration
                 Assert.NotNull(channelState1);
 
                 var localUserChannelState1ReadState =
-                    channelState1.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
+                    channelState1.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
 
                 Assert.NotNull(localUserChannelState1ReadState);
 
@@ -564,7 +564,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Mark_single_read_without_message_id()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var channelType = "messaging";
 
@@ -594,20 +594,20 @@ namespace StreamChat.Tests.Integration
                     },
                     new ChannelMemberRequest
                     {
-                        UserId = Client.UserId
+                        UserId = LowLevelClient.UserId
                     }
                 }
             };
 
             var updateChannelTask =
-                Client.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
+                LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
             yield return updateChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
                 Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
             });
 
-            var markReadTask = Client.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
+            var markReadTask = LowLevelClient.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
                 new MarkReadRequest
                 {
                     MessageId = channelState1SecondMessageId
@@ -636,7 +636,7 @@ namespace StreamChat.Tests.Integration
                 },
             };
 
-            var queryChannelsTask = Client.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
+            var queryChannelsTask = LowLevelClient.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
 
             // Expect 1 message unread
 
@@ -650,7 +650,7 @@ namespace StreamChat.Tests.Integration
                 Assert.NotNull(channelState1);
 
                 var localUserChannelState1ReadState =
-                    channelState1.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
+                    channelState1.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
 
                 Assert.NotNull(localUserChannelState1ReadState);
 
@@ -660,14 +660,14 @@ namespace StreamChat.Tests.Integration
 
             // Update again with message ID not specified - expect whole channel marked as read == 0 unread
 
-            var markReadTask2 = Client.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
+            var markReadTask2 = LowLevelClient.ChannelApi.MarkReadAsync(channelState1.Channel.Type, channelState1.Channel.Id,
                 new MarkReadRequest());
 
             yield return markReadTask2.RunAsIEnumerator(response => { });
 
             // Query channels again - expect 0 unread
 
-            var queryChannelsTask2 = Client.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
+            var queryChannelsTask2 = LowLevelClient.ChannelApi.QueryChannelsAsync(queryChannelsRequest);
 
             yield return queryChannelsTask2.RunAsIEnumerator(channelsResponse =>
             {
@@ -679,7 +679,7 @@ namespace StreamChat.Tests.Integration
                 Assert.NotNull(channelState1);
 
                 var localUserChannelState1ReadState =
-                    channelState1.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
+                    channelState1.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
 
                 Assert.NotNull(localUserChannelState1ReadState);
 
@@ -696,7 +696,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Mark_many_read_with_specified_message_id()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var channelType = "messaging";
 
@@ -742,13 +742,13 @@ namespace StreamChat.Tests.Integration
                     },
                     new ChannelMemberRequest
                     {
-                        UserId = Client.UserId
+                        UserId = LowLevelClient.UserId
                     }
                 }
             };
 
             var updateChannelTask =
-                Client.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
+                LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
             yield return updateChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
@@ -756,7 +756,7 @@ namespace StreamChat.Tests.Integration
             });
 
             var updateChannelTask2 =
-                Client.ChannelApi.UpdateChannelAsync(channelType, channelState2.Channel.Id, updateRequestBody);
+                LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channelState2.Channel.Id, updateRequestBody);
             yield return updateChannelTask2.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
@@ -765,7 +765,7 @@ namespace StreamChat.Tests.Integration
 
             //Send mark read state
 
-            var markReadRequestTask = Client.ChannelApi.MarkManyReadAsync(new MarkChannelsReadRequest
+            var markReadRequestTask = LowLevelClient.ChannelApi.MarkManyReadAsync(new MarkChannelsReadRequest
             {
                 ReadByChannel = new Dictionary<string, string>
                 {
@@ -778,7 +778,7 @@ namespace StreamChat.Tests.Integration
 
             //Query channels to confirm the read state
 
-            var queryChannelsTask = Client.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
+            var queryChannelsTask = LowLevelClient.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -812,9 +812,9 @@ namespace StreamChat.Tests.Integration
                 Assert.NotNull(channelState2);
 
                 var localUserChannelState1ReadState =
-                    channelState1.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
+                    channelState1.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
                 var localUserChannelState2ReadState =
-                    channelState2.Read.FirstOrDefault(_ => _.User.Id == Client.UserId);
+                    channelState2.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
 
                 Assert.NotNull(localUserChannelState1ReadState);
                 Assert.NotNull(localUserChannelState2ReadState);
@@ -835,7 +835,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator When_sending_typing_start_stop_events_expect_no_errors()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
             yield return When_sending_typing_start_stop_events_expect_no_exceptions_Async().RunAsIEnumerator();
         }
 
@@ -844,8 +844,8 @@ namespace StreamChat.Tests.Integration
             const string channelType = "messaging";
             var tempChannel = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
 
-            await Client.ChannelApi.SendTypingStartEventAsync(channelType, tempChannel.Channel.Id);
-            await Client.ChannelApi.SendTypingStopEventAsync(channelType, tempChannel.Channel.Id);
+            await LowLevelClient.ChannelApi.SendTypingStartEventAsync(channelType, tempChannel.Channel.Id);
+            await LowLevelClient.ChannelApi.SendTypingStopEventAsync(channelType, tempChannel.Channel.Id);
         }
     }
 }

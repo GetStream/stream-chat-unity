@@ -14,9 +14,9 @@ namespace StreamChat.Tests.Api
         public abstract string Name { get; }
 
         /// <summary>
-        /// Execute high level request on <see cref="IStreamChatClient"/>
+        /// Execute high level request on <see cref="IStreamChatLowLevelClient"/>
         /// </summary>
-        public abstract void ExecuteRequest(IStreamChatClient client);
+        public abstract void ExecuteRequest(IStreamChatLowLevelClient lowLevelClient);
 
         /// <summary>
         /// Validation of Http Request Uri

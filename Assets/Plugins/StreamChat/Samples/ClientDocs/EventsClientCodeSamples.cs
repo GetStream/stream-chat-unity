@@ -9,11 +9,11 @@ namespace Plugins.StreamChat.Samples.ClientDocs
     /// </summary>
     public class EventsClientCodeSamples
     {
-        private IStreamChatClient Client;
+        private IStreamChatLowLevelClient _lowLevelClient;
 
         public void SimpleSubscribeToEvents()
         {
-            Client.MessageReceived += newMessageEvent =>
+            _lowLevelClient.MessageReceived += newMessageEvent =>
             {
                 var channelId = newMessageEvent.ChannelId;
                 var channelType = newMessageEvent.ChannelType;
@@ -21,7 +21,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 var messageData = newMessageEvent.Message;
             };
 
-            Client.MessageUpdated += messageUpdatedEvent =>
+            _lowLevelClient.MessageUpdated += messageUpdatedEvent =>
             {
                 var channelId = messageUpdatedEvent.ChannelId;
                 var channelType = messageUpdatedEvent.ChannelType;
@@ -29,7 +29,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 var messageData = messageUpdatedEvent.Message;
             };
 
-            Client.MessageDeleted += messageDeletedEvent =>
+            _lowLevelClient.MessageDeleted += messageDeletedEvent =>
             {
                 var channelId = messageDeletedEvent.ChannelId;
                 var channelType = messageDeletedEvent.ChannelType;
@@ -37,14 +37,14 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 var messageData = messageDeletedEvent.Message;
             };
 
-            Client.EventReceived += serializedEventData => { };
+            _lowLevelClient.EventReceived += serializedEventData => { };
 
-            Client.Connected += (localUser) =>
+            _lowLevelClient.Connected += (localUser) =>
             {
                 //client connected
             };
 
-            Client.ConnectionStateChanged += (prevState, currentState) =>
+            _lowLevelClient.ConnectionStateChanged += (prevState, currentState) =>
             {
                 //connection changed from prevState to currentState
             };
@@ -52,27 +52,27 @@ namespace Plugins.StreamChat.Samples.ClientDocs
 
         private void SubscribeToEvents()
         {
-            Client.MessageReceived += OnClientMessageReceived;
-            Client.MessageUpdated += OnClientMessageUpdated;
-            Client.MessageDeleted += OnClientMessageDeleted;
+            _lowLevelClient.MessageReceived += OnLowLevelClientMessageReceived;
+            _lowLevelClient.MessageUpdated += OnLowLevelClientMessageUpdated;
+            _lowLevelClient.MessageDeleted += OnLowLevelClientMessageDeleted;
         }
 
         private void UnsubscribeFromEvents()
         {
-            Client.MessageReceived -= OnClientMessageReceived;
-            Client.MessageUpdated -= OnClientMessageUpdated;
-            Client.MessageDeleted -= OnClientMessageDeleted;
+            _lowLevelClient.MessageReceived -= OnLowLevelClientMessageReceived;
+            _lowLevelClient.MessageUpdated -= OnLowLevelClientMessageUpdated;
+            _lowLevelClient.MessageDeleted -= OnLowLevelClientMessageDeleted;
         }
 
-        private void OnClientMessageReceived(EventMessageNew newMessageEvent)
+        private void OnLowLevelClientMessageReceived(EventMessageNew newMessageEvent)
         {
         }
 
-        private void OnClientMessageDeleted(EventMessageDeleted messageDeletedEvent)
+        private void OnLowLevelClientMessageDeleted(EventMessageDeleted messageDeletedEvent)
         {
         }
 
-        private void OnClientMessageUpdated(EventMessageUpdated messageDeletedEvent)
+        private void OnLowLevelClientMessageUpdated(EventMessageUpdated messageDeletedEvent)
         {
         }
     }

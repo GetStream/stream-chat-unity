@@ -20,7 +20,7 @@ namespace StreamChat.SampleProject
 
         ChannelState ActiveChannel { get; }
         IReadOnlyList<ChannelState> Channels { get; }
-        IStreamChatClient Client { get; }
+        IStreamChatLowLevelClient LowLevelClient { get; }
 
         void OpenChannel(ChannelState channel);
 

@@ -73,13 +73,13 @@ namespace StreamChat.SampleProject.Views
 
                 Debug.Log("Added new channel with id: " + channel.Id);
 
-                Client.ChannelApi.UpdateChannelAsync(channel.Type, channel.Id, new UpdateChannelRequest()
+                LowLevelClient.ChannelApi.UpdateChannelAsync(channel.Type, channel.Id, new UpdateChannelRequest()
                 {
                     AddMembers = new List<ChannelMemberRequest>()
                     {
                         new ChannelMemberRequest()
                         {
-                            UserId = Client.UserId
+                            UserId = LowLevelClient.UserId
                         }
                     }
                 }).ContinueWith(_ =>

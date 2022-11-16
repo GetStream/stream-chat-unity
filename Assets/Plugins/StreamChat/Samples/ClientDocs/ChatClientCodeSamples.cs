@@ -5,7 +5,7 @@ using StreamChat.Libs.Auth;
 namespace Plugins.StreamChat.Samples.ClientDocs
 {
     /// <summary>
-    /// Code samples for the <see cref="IStreamChatClient"/> https://getstream.io/chat/docs/unity/init_and_users/?language=unity
+    /// Code samples for the <see cref="IStreamChatLowLevelClient"/> https://getstream.io/chat/docs/unity/init_and_users/?language=unity
     /// </summary>
     public class ChatClientCodeSamples
     {
@@ -16,7 +16,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 userId: "USER_ID",
                 userToken: "USER_TOKEN");
 
-            var client = StreamChatClient.CreateDefaultClient(authCredentials);
+            var client = StreamChatLowLevelClient.CreateDefaultClient(authCredentials);
 
             //Initialize connection with the Stream Chat server
             client.Connect();
@@ -36,7 +36,7 @@ namespace Plugins.StreamChat.Samples.ClientDocs
                 userId: "USER_ID",
                 userToken: "USER_TOKEN");
 
-            var client = StreamChatClient.CreateDefaultClient(authCredentials);
+            var client = StreamChatLowLevelClient.CreateDefaultClient(authCredentials);
 
             //Initialize connection with the Stream Chat server
             client.Connect();

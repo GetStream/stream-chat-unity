@@ -17,7 +17,7 @@ using StreamChat.Libs.Websockets;
 namespace StreamChat.Tests
 {
     /// <summary>
-    /// tests for <see cref="StreamChatClient"/>
+    /// tests for <see cref="StreamChatLowLevelClient"/>
     /// </summary>
     public class StreamChatClientTests
     {
@@ -32,15 +32,15 @@ namespace StreamChat.Tests
             _mockLogs = Substitute.For<ILogs>();
             _mockStreamClientConfig = Substitute.For<IStreamClientConfig>();
 
-            _client = new StreamChatClient(_authCredentials, _mockWebsocketClient, _mockHttpClient, _mockSerializer,
+            _lowLevelClient = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient, _mockSerializer,
                 _mockTimeService, _mockLogs, _mockStreamClientConfig);
         }
 
         [TearDown]
         public void TearDown()
         {
-            _client.Dispose();
-            _client = null;
+            _lowLevelClient.Dispose();
+            _lowLevelClient = null;
 
             _mockWebsocketClient = null;
             _mockHttpClient = null;
@@ -53,7 +53,7 @@ namespace StreamChat.Tests
         [Test]
         public void when_stream_client_start_expect_websockets_connect()
         {
-            _client.Connect();
+            _lowLevelClient.Connect();
             _mockWebsocketClient.ReceivedWithAnyArgs().ConnectAsync(default);
         }
 
@@ -62,16 +62,16 @@ namespace StreamChat.Tests
         {
             _mockTimeService.Time.Returns(0);
             _mockWebsocketClient.ConnectionFailed += Raise.Event<Action>();
-            _client.Connect();
+            _lowLevelClient.Connect();
 
             // Tick for client to react to WS connection failure
-            _client.Update(0.1f);
+            _lowLevelClient.Update(0.1f);
 
             // Simulate 3 seconds have passed
             _mockTimeService.Time.Returns(3);
 
             // Tick frame for client to issue reconnect
-            _client.Update(0.1f);
+            _lowLevelClient.Update(0.1f);
 
             _mockWebsocketClient.ReceivedWithAnyArgs(2).ConnectAsync(default);
         }
@@ -79,33 +79,33 @@ namespace StreamChat.Tests
         [Test]
         public void when_stream_client_factory_called_expect_no_exceptions()
         {
-            Assert.DoesNotThrow(() => StreamChatClient.CreateDefaultClient(_authCredentials));
+            Assert.DoesNotThrow(() => StreamChatLowLevelClient.CreateDefaultClient(_authCredentials));
         }
 
         [Test]
         public void when_stream_client_passed_null_arg_expect_argument_null_exception()
         {
-            Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials, websocketClient: null,
+            Assert.Throws<ArgumentNullException>(() => new StreamChatLowLevelClient(_authCredentials, websocketClient: null,
                 httpClient: _mockHttpClient, serializer: _mockSerializer,
                 timeService: _mockTimeService, logs: _mockLogs, config: _mockStreamClientConfig));
 
-            Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials,
+            Assert.Throws<ArgumentNullException>(() => new StreamChatLowLevelClient(_authCredentials,
                 websocketClient: _mockWebsocketClient, httpClient: null, serializer: _mockSerializer,
                 timeService: _mockTimeService, logs: _mockLogs, config: _mockStreamClientConfig));
 
-            Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials,
+            Assert.Throws<ArgumentNullException>(() => new StreamChatLowLevelClient(_authCredentials,
                 websocketClient: _mockWebsocketClient, httpClient: _mockHttpClient, serializer: null,
                 timeService: _mockTimeService, logs: _mockLogs, config: _mockStreamClientConfig));
 
-            Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials,
+            Assert.Throws<ArgumentNullException>(() => new StreamChatLowLevelClient(_authCredentials,
                 websocketClient: _mockWebsocketClient, httpClient: _mockHttpClient, serializer: _mockSerializer,
                 timeService: null, logs: _mockLogs, config: _mockStreamClientConfig));
 
-            Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials,
+            Assert.Throws<ArgumentNullException>(() => new StreamChatLowLevelClient(_authCredentials,
                 websocketClient: _mockWebsocketClient, httpClient: _mockHttpClient, serializer: _mockSerializer,
                 timeService: _mockTimeService, logs: null, config: _mockStreamClientConfig));
 
-            Assert.Throws<ArgumentNullException>(() => new StreamChatClient(_authCredentials,
+            Assert.Throws<ArgumentNullException>(() => new StreamChatLowLevelClient(_authCredentials,
                 websocketClient: _mockWebsocketClient, httpClient: _mockHttpClient, serializer: _mockSerializer,
                 timeService: _mockTimeService, logs: _mockLogs, config: null));
         }
@@ -113,13 +113,13 @@ namespace StreamChat.Tests
         [Test]
         public void when_stream_client_created_expect_disconnected_state()
         {
-            Assert.IsTrue(_client.ConnectionState == ConnectionState.Disconnected);
+            Assert.IsTrue(_lowLevelClient.ConnectionState == ConnectionState.Disconnected);
         }
 
         [Test]
         public void when_stream_client_received_first_health_check_event_expect_connected_state()
         {
-            var client = new StreamChatClient(_authCredentials, _mockWebsocketClient, _mockHttpClient,
+            var client = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient,
                 new NewtonsoftJsonSerializer(), _mockTimeService, _mockLogs, _mockStreamClientConfig);
 
             var connectCallsCounter = 0;
@@ -144,7 +144,7 @@ namespace StreamChat.Tests
         [Test]
         public void when_stream_client_health_check_timeout_detected_expect_client_disconnected()
         {
-            var client = new StreamChatClient(_authCredentials, _mockWebsocketClient, _mockHttpClient,
+            var client = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient,
                 new NewtonsoftJsonSerializer(), _mockTimeService, _mockLogs, _mockStreamClientConfig);
 
             var connectCallsCounter = 0;
@@ -171,7 +171,7 @@ namespace StreamChat.Tests
             Assert.IsFalse(client.ConnectionState == ConnectionState.Connected);
         }
 
-        private IStreamChatClient _client;
+        private IStreamChatLowLevelClient _lowLevelClient;
         private AuthCredentials _authCredentials;
 
         private IWebsocketClient _mockWebsocketClient;

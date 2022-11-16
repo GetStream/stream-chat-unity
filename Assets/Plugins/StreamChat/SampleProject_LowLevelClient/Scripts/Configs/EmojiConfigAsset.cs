@@ -12,7 +12,7 @@ using UnityEngine.Serialization;
 namespace StreamChat.SampleProject.Configs
 {
     [CreateAssetMenu(fileName = "EmojiConfig",
-        menuName = StreamChatClient.MenuPrefix + "Demo/Create emoji config asset", order = 1)]
+        menuName = StreamChatLowLevelClient.MenuPrefix + "Demo/Create emoji config asset", order = 1)]
     public class EmojiConfigAsset : ScriptableObject, IEmojiConfig
     {
         public IEnumerable<Sprite> AllSprites => _allSprites;

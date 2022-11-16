@@ -74,7 +74,7 @@ namespace StreamChat.Tests
             onSuccess?.Invoke();
         }
 
-        public static IEnumerator WaitForClientToConnect(this IStreamChatClient client)
+        public static IEnumerator WaitForClientToConnect(this IStreamChatLowLevelClient lowLevelClient)
         {
             const float MaxTimeToConnect = 3;
             var timeStarted = EditorApplication.timeSinceStartup;
@@ -89,19 +89,19 @@ namespace StreamChat.Tests
                     break;
                 }
 
-                client.Update(0.1f);
+                lowLevelClient.Update(0.1f);
 
-                if (client.ConnectionState == ConnectionState.Connecting)
+                if (lowLevelClient.ConnectionState == ConnectionState.Connecting)
                 {
                     yield return null;
                 }
 
-                if (client.ConnectionState == ConnectionState.Connected)
+                if (lowLevelClient.ConnectionState == ConnectionState.Connected)
                 {
                     break;
                 }
 
-                if (client.ConnectionState == ConnectionState.Disconnected)
+                if (lowLevelClient.ConnectionState == ConnectionState.Disconnected)
                 {
                     Debug.LogError("Client disconnected when waiting for connection. Terminating");
                     break;

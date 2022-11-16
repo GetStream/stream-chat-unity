@@ -10,9 +10,9 @@ namespace StreamChat.SampleProject
 {
     public class TypingMonitor : IDisposable
     {
-        public TypingMonitor(TMP_InputField source, IStreamChatClient client, IChatState chatState, Func<bool> isActive)
+        public TypingMonitor(TMP_InputField source, IStreamChatLowLevelClient lowLevelClient, IChatState chatState, Func<bool> isActive)
         {
-            _client = client ?? throw new ArgumentNullException(nameof(client));
+            _lowLevelClient = lowLevelClient ?? throw new ArgumentNullException(nameof(lowLevelClient));
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _chatState = chatState ?? throw new ArgumentNullException(nameof(chatState));
             _isActive = isActive ?? throw new ArgumentNullException(nameof(isActive));
@@ -59,7 +59,7 @@ namespace StreamChat.SampleProject
         private const float TypingStopEventTimeout = 15;
 
         private readonly TMP_InputField _source;
-        private readonly IStreamChatClient _client;
+        private readonly IStreamChatLowLevelClient _lowLevelClient;
         private readonly Func<bool> _isActive;
         private readonly IChatState _chatState;
 
@@ -88,7 +88,7 @@ namespace StreamChat.SampleProject
                 return;
             }
 
-            _client.ChannelApi.SendTypingStartEventAsync(channel.Type, channel.Id);
+            _lowLevelClient.ChannelApi.SendTypingStartEventAsync(channel.Type, channel.Id);
 
             if (!_channelCidToTypingStartEventSentTime.ContainsKey(channel.Cid))
             {
@@ -105,7 +105,7 @@ namespace StreamChat.SampleProject
                 return;
             }
 
-            _client.ChannelApi.SendTypingStopEventAsync(channel.Type, channel.Id);
+            _lowLevelClient.ChannelApi.SendTypingStopEventAsync(channel.Type, channel.Id);
 
             _channelCidToTypingStartEventSentTime.Remove(channel.Cid);
 

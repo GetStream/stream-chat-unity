@@ -22,18 +22,18 @@ namespace StreamChat.SampleProject.Views
         {
             base.OnInited();
 
-            Client.EventReceived += OnEventReceived;
-            Client.ConnectionStateChanged += OnConnectionStateChanged;
+            LowLevelClient.EventReceived += OnEventReceived;
+            LowLevelClient.ConnectionStateChanged += OnConnectionStateChanged;
         }
 
         protected override void OnUpdate()
         {
             base.OnUpdate();
 
-            if (Client.NextReconnectTime != _prevNextReconnectTime)
+            if (LowLevelClient.NextReconnectTime != _prevNextReconnectTime)
             {
-                Debug.LogWarning($"{nameof(Client.NextReconnectTime)} changed from: `{_prevNextReconnectTime:0:00}` to: `{Client.NextReconnectTime:0:00}`");
-                _prevNextReconnectTime = Client.NextReconnectTime;
+                Debug.LogWarning($"{nameof(LowLevelClient.NextReconnectTime)} changed from: `{_prevNextReconnectTime:0:00}` to: `{LowLevelClient.NextReconnectTime:0:00}`");
+                _prevNextReconnectTime = LowLevelClient.NextReconnectTime;
                 UpdateConnectionLog();
             }
 
@@ -48,8 +48,8 @@ namespace StreamChat.SampleProject.Views
 
         protected override void OnDisposing()
         {
-            Client.EventReceived -= OnEventReceived;
-            Client.ConnectionStateChanged -= OnConnectionStateChanged;
+            LowLevelClient.EventReceived -= OnEventReceived;
+            LowLevelClient.ConnectionStateChanged -= OnConnectionStateChanged;
 
             base.OnDisposing();
         }
@@ -101,15 +101,15 @@ namespace StreamChat.SampleProject.Views
             _sb.AppendLine("Connection:");
 
             _sb.Append("State: ");
-            _sb.Append(Client.ConnectionState);
+            _sb.Append(LowLevelClient.ConnectionState);
             _sb.Append(Environment.NewLine);
 
             _sb.Append("Next Reconnect: ");
 
-            if (Client.NextReconnectTime.HasValue)
+            if (LowLevelClient.NextReconnectTime.HasValue)
             {
-                var timeLeft = Client.NextReconnectTime.Value - Time.time;
-                _sb.Append(Client.NextReconnectTime.Value.ToString("0.0"));
+                var timeLeft = LowLevelClient.NextReconnectTime.Value - Time.time;
+                _sb.Append(LowLevelClient.NextReconnectTime.Value.ToString("0.0"));
                 _sb.Append(" (in: ");
                 _sb.Append(timeLeft.ToString("0.0"));
                 _sb.Append("s)");

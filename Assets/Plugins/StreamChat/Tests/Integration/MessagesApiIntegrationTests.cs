@@ -22,7 +22,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Send_message()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -39,7 +39,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var messageResponseTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+            var messageResponseTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
             yield return messageResponseTask.RunAsIEnumerator(response =>
             {
@@ -50,7 +50,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Update_message()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -67,7 +67,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var messageResponseTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+            var messageResponseTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
             var lastMessageId = string.Empty;
             yield return messageResponseTask.RunAsIEnumerator(response =>
@@ -77,7 +77,7 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(response.Message.Text, "message content");
             });
 
-            var updateMessageTask = Client.MessageApi.UpdateMessageAsync(new UpdateMessageRequest
+            var updateMessageTask = LowLevelClient.MessageApi.UpdateMessageAsync(new UpdateMessageRequest
             {
                 Message = new MessageRequest
                 {
@@ -96,7 +96,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Send_message_with_url()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -114,14 +114,14 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var messageResponseTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+            var messageResponseTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
             yield return messageResponseTask.RunAsIEnumerator(response => { });
 
             //Message is not always immediately available due to data propagation
             yield return InternalWaitForSeconds(0.2f);
 
-            var createChannelTask2 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            var createChannelTask2 = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
                 {
                     State = true,
@@ -144,7 +144,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Send_silent_message()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -161,11 +161,11 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var messageResponseTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+            var messageResponseTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
             yield return messageResponseTask.RunAsIEnumerator();
 
-            var createChannelTask2 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            var createChannelTask2 = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
                 {
                     Watch = true,
@@ -184,11 +184,11 @@ namespace StreamChat.Tests.Integration
             };
 
             var silentMessageResponseTask =
-                Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendSilentMessageRequest);
+                LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendSilentMessageRequest);
 
             yield return silentMessageResponseTask.RunAsIEnumerator();
 
-            var createChannelTask3 = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            var createChannelTask3 = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
                 {
                     State = true,
@@ -203,7 +203,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator UploadFile()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
             var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
@@ -224,7 +224,7 @@ namespace StreamChat.Tests.Integration
             var channelId = channelState.Channel.Id;
 
             var uploadFileTask =
-                Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
+                LowLevelClient.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
 
             var fileUrl = "";
             yield return uploadFileTask.RunAsIEnumerator(response => { fileUrl = response.File; });
@@ -245,7 +245,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var sendMessageTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+            var sendMessageTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
             yield return sendMessageTask.RunAsIEnumerator(response =>
             {
@@ -256,7 +256,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator UploadImageWithResize()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
             yield return UploadImageWithResizeAsync().RunAsIEnumerator();
         }
 
@@ -277,7 +277,7 @@ namespace StreamChat.Tests.Integration
             var channelState = await CreateTempUniqueChannelAsync(ChannelType, new ChannelGetOrCreateRequest());
             var channelId = channelState.Channel.Id;
 
-            var uploadImageResponse = await Client.MessageApi.UploadImageAsync(ChannelType, channelId, imageFileContent, filename);
+            var uploadImageResponse = await LowLevelClient.MessageApi.UploadImageAsync(ChannelType, channelId, imageFileContent, filename);
             var fileUrl = uploadImageResponse.File;
 
             // Resize in scale mode to 500x500 pixels
@@ -299,7 +299,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var sendMessageResponse = await Client.MessageApi.SendNewMessageAsync(ChannelType, channelId, sendMessageRequest);
+            var sendMessageResponse = await LowLevelClient.MessageApi.SendNewMessageAsync(ChannelType, channelId, sendMessageRequest);
             Assert.IsNotEmpty(sendMessageResponse.Message.Attachments);
 
             var imageUrl = sendMessageResponse.Message.Attachments[0].AssetUrl;
@@ -313,7 +313,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator DeleteFile()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
             var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
@@ -336,7 +336,7 @@ namespace StreamChat.Tests.Integration
             var channelId = channelState.Channel.Id;
 
             var uploadFileTask =
-                Client.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
+                LowLevelClient.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
 
             var fileUrl = "";
             yield return uploadFileTask.RunAsIEnumerator(response =>
@@ -359,7 +359,7 @@ namespace StreamChat.Tests.Integration
             Debug.Log("m" + _pathToFile);
             File.WriteAllBytes(_pathToFile, result);
 
-            var deleteFileTask = Client.MessageApi.DeleteFileAsync(channelType, channelId, fileUrl);
+            var deleteFileTask = LowLevelClient.MessageApi.DeleteFileAsync(channelType, channelId, fileUrl);
 
             yield return deleteFileTask.RunAsIEnumerator(response => { });
         }
@@ -367,7 +367,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Add_reaction_score_to_existing_message()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             #region Send Message
 
@@ -386,7 +386,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var messageResponseTask = Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+            var messageResponseTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
             var messageId = string.Empty;
             yield return messageResponseTask.RunAsIEnumerator(response =>
@@ -406,7 +406,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var sendReactionTask = Client.MessageApi.SendReactionAsync(messageId, sendReactionRequest);
+            var sendReactionTask = LowLevelClient.MessageApi.SendReactionAsync(messageId, sendReactionRequest);
 
             yield return sendReactionTask.RunAsIEnumerator(response =>
             {
@@ -414,7 +414,7 @@ namespace StreamChat.Tests.Integration
                 Assert.AreEqual(response.Reaction.Score, 15);
             });
 
-            var channelGetOrCreateTask = Client.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            var channelGetOrCreateTask = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest()
                 {
                     State = true
@@ -436,7 +436,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator SearchMessages()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             var phrasesToInject = new string[]
             {
@@ -454,14 +454,14 @@ namespace StreamChat.Tests.Integration
                 state => channelState = state);
             var channelId = channelState.Channel.Id;
 
-            var joinTask = Client.ChannelApi.UpdateChannelAsync(channelState.Channel.Type, channelState.Channel.Id,
+            var joinTask = LowLevelClient.ChannelApi.UpdateChannelAsync(channelState.Channel.Type, channelState.Channel.Id,
                 new UpdateChannelRequest
                 {
                     AddMembers = new List<ChannelMemberRequest>
                     {
                         new ChannelMemberRequest
                         {
-                            UserId = Client.UserId
+                            UserId = LowLevelClient.UserId
                         }
                     }
                 });
@@ -492,7 +492,7 @@ namespace StreamChat.Tests.Integration
                 };
 
                 var messageResponseTask =
-                    Client.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
+                    LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
                 yield return messageResponseTask.RunAsIEnumerator(response =>
                 {
@@ -505,7 +505,7 @@ namespace StreamChat.Tests.Integration
 
             //Search
 
-            var searchTask = Client.MessageApi.SearchMessagesAsync(new SearchRequest
+            var searchTask = LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
             {
                 //Filter is required for search
                 FilterConditions = new Dictionary<string, object>
@@ -514,7 +514,7 @@ namespace StreamChat.Tests.Integration
                         //Get channels that local user is a member of
                         "members", new Dictionary<string, object>
                         {
-                            { "$in", new[] { Client.UserId } }
+                            { "$in", new[] { LowLevelClient.UserId } }
                         }
                     }
                 },

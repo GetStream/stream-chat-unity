@@ -19,7 +19,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Mute_user()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const int MuteTimeout = 5;
 
@@ -32,7 +32,7 @@ namespace StreamChat.Tests.Integration
                 Timeout = MuteTimeout
             };
 
-            var muteUserTask = Client.ModerationApi.MuteUserAsync(muteRequest);
+            var muteUserTask = LowLevelClient.ModerationApi.MuteUserAsync(muteRequest);
 
             yield return muteUserTask.RunAsIEnumerator(response =>
             {
@@ -58,7 +58,7 @@ namespace StreamChat.Tests.Integration
                 },
             };
 
-            var unmuteUserAsync = Client.ModerationApi.UnmuteUserAsync(unmuteUserRequest);
+            var unmuteUserAsync = LowLevelClient.ModerationApi.UnmuteUserAsync(unmuteUserRequest);
 
             yield return unmuteUserAsync.RunAsIEnumerator(response => { });
         }
@@ -66,7 +66,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Ban_user()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -84,7 +84,7 @@ namespace StreamChat.Tests.Integration
                 Timeout = BanTimeout
             };
 
-            var banUserTask = Client.ModerationApi.BanUserAsync(banRequest);
+            var banUserTask = LowLevelClient.ModerationApi.BanUserAsync(banRequest);
 
             yield return banUserTask.RunAsIEnumerator(response => { });
 
@@ -101,7 +101,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var queryBannedUsersTask = Client.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
+            var queryBannedUsersTask = LowLevelClient.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
 
             yield return queryBannedUsersTask.RunAsIEnumerator(response =>
             {
@@ -117,7 +117,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Unban_user()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -135,7 +135,7 @@ namespace StreamChat.Tests.Integration
                 Timeout = BanTimeout
             };
 
-            var banUserTask = Client.ModerationApi.BanUserAsync(banRequest);
+            var banUserTask = LowLevelClient.ModerationApi.BanUserAsync(banRequest);
             yield return banUserTask.RunAsIEnumerator(response => { });
 
             var queryBannedUsersRequest = new QueryBannedUsersRequest
@@ -151,7 +151,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var queryBannedUsersTask = Client.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
+            var queryBannedUsersTask = LowLevelClient.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
 
             yield return queryBannedUsersTask.RunAsIEnumerator(response =>
             {
@@ -170,7 +170,7 @@ namespace StreamChat.Tests.Integration
                 Type = channelType,
             };
 
-            var unbanUserTask = Client.ModerationApi.UnbanUserAsync(unbanRequest);
+            var unbanUserTask = LowLevelClient.ModerationApi.UnbanUserAsync(unbanRequest);
             yield return unbanUserTask.RunAsIEnumerator(response => { });
 
             var queryBannedUsersRequest2 = new QueryBannedUsersRequest
@@ -186,7 +186,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var queryBannedUsersTask2 = Client.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest2);
+            var queryBannedUsersTask2 = LowLevelClient.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest2);
             yield return queryBannedUsersTask2.RunAsIEnumerator(response =>
             {
                 var userBanInfo = response.Bans.FirstOrDefault(_ => _.User.Id == TestUserId);
@@ -197,7 +197,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator When_message_flagged_expect_response_target_message_id_match()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -214,12 +214,12 @@ namespace StreamChat.Tests.Integration
             };
 
             var messageResponseTask =
-                Client.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest);
+                LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest);
 
             MessageResponse messageResponse = null;
             yield return messageResponseTask.RunAsIEnumerator(response => { messageResponse = response; });
 
-            var flagMessageTask = Client.ModerationApi.FlagMessageAsync(messageResponse.Message.Id);
+            var flagMessageTask = LowLevelClient.ModerationApi.FlagMessageAsync(messageResponse.Message.Id);
 
             yield return flagMessageTask.RunAsIEnumerator(response =>
             {
@@ -230,7 +230,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator When_messages_flagged_expect_query_flagged_messages_return_them()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -249,7 +249,7 @@ namespace StreamChat.Tests.Integration
             };
 
             var messageResponseTask =
-                Client.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest);
+                LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest);
 
             MessageResponse messageResponse = null;
             yield return messageResponseTask.RunAsIEnumerator(response => { messageResponse = response; });
@@ -263,21 +263,21 @@ namespace StreamChat.Tests.Integration
             };
 
             var messageResponseTask2 =
-                Client.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest2);
+                LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest2);
 
             MessageResponse messageResponse2 = null;
             yield return messageResponseTask2.RunAsIEnumerator(response => { messageResponse2 = response; });
 
             //Flag messages
 
-            var flagMessageTask = Client.ModerationApi.FlagMessageAsync(messageResponse.Message.Id);
+            var flagMessageTask = LowLevelClient.ModerationApi.FlagMessageAsync(messageResponse.Message.Id);
 
             yield return flagMessageTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(messageResponse.Message.Id, response.Flag.TargetMessageId);
             });
 
-            var flagMessageTask2 = Client.ModerationApi.FlagMessageAsync(messageResponse2.Message.Id);
+            var flagMessageTask2 = LowLevelClient.ModerationApi.FlagMessageAsync(messageResponse2.Message.Id);
 
             yield return flagMessageTask2.RunAsIEnumerator(response =>
             {
@@ -298,7 +298,7 @@ namespace StreamChat.Tests.Integration
                 }
             };
 
-            var queryMessageFlagsTask = Client.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
+            var queryMessageFlagsTask = LowLevelClient.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
 
             yield return queryMessageFlagsTask.RunAsIEnumerator(response =>
             {
@@ -314,7 +314,7 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator When_user_flagged_expect_response_target_user_id_match()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
             const string channelType = "messaging";
 
@@ -322,7 +322,7 @@ namespace StreamChat.Tests.Integration
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
                 state => channelState = state);
 
-            var flagMessageTask = Client.ModerationApi.FlagUserAsync(TestUserId);
+            var flagMessageTask = LowLevelClient.ModerationApi.FlagUserAsync(TestUserId);
 
             yield return flagMessageTask.RunAsIEnumerator(response =>
             {

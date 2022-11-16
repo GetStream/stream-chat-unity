@@ -15,9 +15,9 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Upsert_users()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
-            var upsertUsersTask = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
+            var upsertUsersTask = LowLevelClient.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>
                 {
@@ -64,9 +64,9 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Query_users()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
-            var updateUsersTask = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
+            var updateUsersTask = LowLevelClient.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>()
                 {
@@ -87,7 +87,7 @@ namespace StreamChat.Tests.Integration
 
             yield return updateUsersTask.RunAsIEnumerator(response => { });
 
-            var updateUsersTask2 = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
+            var updateUsersTask2 = LowLevelClient.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>()
                 {
@@ -108,7 +108,7 @@ namespace StreamChat.Tests.Integration
 
             yield return updateUsersTask2.RunAsIEnumerator(response => { });
 
-            var queryUsersTask = Client.UserApi.QueryUsersAsync(new QueryUsersRequest
+            var queryUsersTask = LowLevelClient.UserApi.QueryUsersAsync(new QueryUsersRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -143,9 +143,9 @@ namespace StreamChat.Tests.Integration
         [UnityTest]
         public IEnumerator Query_banned_users()
         {
-            yield return Client.WaitForClientToConnect();
+            yield return LowLevelClient.WaitForClientToConnect();
 
-            var updateUsersTask = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
+            var updateUsersTask = LowLevelClient.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>()
                 {
@@ -166,7 +166,7 @@ namespace StreamChat.Tests.Integration
 
             yield return updateUsersTask.RunAsIEnumerator(response => { });
 
-            var updateUsersTask2 = Client.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
+            var updateUsersTask2 = LowLevelClient.UserApi.UpsertManyUsersAsync(new UpdateUsersRequest()
             {
                 Users = new Dictionary<string, UserObjectRequest>()
                 {
@@ -189,7 +189,7 @@ namespace StreamChat.Tests.Integration
 
             //StreamTodo implement Ban User
 
-            var queryUsersTask = Client.UserApi.QueryUsersAsync(new QueryUsersRequest
+            var queryUsersTask = LowLevelClient.UserApi.QueryUsersAsync(new QueryUsersRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
