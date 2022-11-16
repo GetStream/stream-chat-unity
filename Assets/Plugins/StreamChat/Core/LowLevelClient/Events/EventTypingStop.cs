@@ -1,7 +1,6 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Events

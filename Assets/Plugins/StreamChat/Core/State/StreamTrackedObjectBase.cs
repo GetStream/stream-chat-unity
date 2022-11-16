@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State.Caches;
-using StreamChat.Core;
 using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.State

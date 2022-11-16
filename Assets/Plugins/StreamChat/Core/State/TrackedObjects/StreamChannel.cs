@@ -12,7 +12,6 @@ using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.LowLevelClient.Models;
-using StreamChat.Core;
 
 //StreamTodo: maybe some more intuitive namespace? Models? StateModels?
 namespace StreamChat.Core.State.TrackedObjects

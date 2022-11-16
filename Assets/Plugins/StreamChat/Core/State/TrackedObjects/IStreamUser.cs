@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.State.Models;
-using StreamChat.Core;
 
 namespace StreamChat.Core.State.TrackedObjects
 {

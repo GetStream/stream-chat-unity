@@ -1,5 +1,4 @@
 ﻿using StreamChat.Core.State.Caches;
-using StreamChat.Core;
 
 namespace StreamChat.Core.State
 {

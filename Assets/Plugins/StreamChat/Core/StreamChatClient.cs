@@ -15,7 +15,6 @@ using StreamChat.Core.State.Models;
 using StreamChat.Core.State.Requests;
 using StreamChat.Core.State.Responses;
 using StreamChat.Core.State.TrackedObjects;
-using StreamChat.Core;
 using StreamChat.Libs;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.ChatInstanceRunner;
