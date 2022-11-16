@@ -10,7 +10,7 @@ namespace StreamChat.Core.State
     /// Base class for tracked objects. Read more: <see cref="IStreamTrackedObject"/>
     /// </summary>
     /// <typeparam name="TTrackedObject">Type of tracked object</typeparam>
-    public abstract class StreamTrackedObjectBase<TTrackedObject> : IStreamTrackedObject
+    internal abstract class StreamTrackedObjectBase<TTrackedObject> : IStreamTrackedObject
         where TTrackedObject : class, IStreamTrackedObject
     {
         public IDictionary<string, object> CustomData => _additionalProperties;
