@@ -54,7 +54,7 @@ namespace StreamChat.Core
 
         /// <summary>
         /// Watched channels receive updates on all users activity like new messages, reactions, etc.
-        /// Use <see cref="GetOrCreateChannelAsync"/> and <see cref="QueryChannelsAsync"/> to watch channels
+        /// Use <see cref="GetOrCreateChannelWithIdAsync"/> and <see cref="QueryChannelsAsync"/> to watch channels
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
 
@@ -66,22 +66,27 @@ namespace StreamChat.Core
         /// <summary>
         /// Create or get a channel with a given type and id
         /// Use this to create general purpose channel for unspecified group of users
-        /// If you want to create a channel for a dedicated group of users e.g. private conversation use the <see cref="IStreamChatClient.GetOrCreateChannelAsync(StreamChat.Core.State.ChannelType,System.Collections.Generic.IEnumerable{IStreamUser},IStreamChannelCustomData)"/> overload
+        /// If you want to create a channel for a dedicated group of users e.g. private conversation use the <see cref="GetOrCreateChannelWithIdAsync"/> overload
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity#1.-creating-a-channel-using-a-channel-id</remarks>
-        Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId, string name = null,
+        Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId, string name = null,
             Dictionary<string, object> optionalCustomData = null);
 
         /// <summary>
-        /// Create or get a channel with a given type for a given groups of members.
-        /// Use this to create channel for group messages
-        ///
+        /// Create or get a channel with a given type for a given groups of users.
+        /// Use this to create channel for direct messages. If you wish to create open channels for users to join use the <see cref="GetOrCreateChannelWithIdAsync"/>
         /// </summary>
-        /// <param name="channelType">Type of channel determines its permissions and default settings. Use predefined ones: <see cref="ChannelType.Messaging"/>, <see cref="ChannelType.Livestream"/>, <see cref="ChannelType.Team"/>, <see cref="ChannelType.Commerce"/>, <see cref="ChannelType.Gaming"/> or create a custom type in your dashboard and use <see cref="ChannelType.Custom"/></param>
+        /// <param name="channelType">Type of channel determines permissions and default settings.
+        /// Use predefined ones:
+        /// <see cref="ChannelType.Messaging"/>,
+        /// <see cref="ChannelType.Livestream"/>,
+        /// <see cref="ChannelType.Team"/>,
+        /// <see cref="ChannelType.Commerce"/>,
+        /// <see cref="ChannelType.Gaming"/>,
+        /// or create a custom type in your dashboard and use <see cref="ChannelType.Custom"/></param>
         /// <param name="members">Users for which a channel will be created. If channel </param>
-        /// <param name="optionalCustomData"></param>
-        /// <returns></returns>
-        Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType, IEnumerable<IStreamUser> members,
+        /// <param name="optionalCustomData">[Optional] Custom data to attach to this channel</param>
+        Task<IStreamChannel> GetOrCreateChannelWithMembersAsync(ChannelType channelType, IEnumerable<IStreamUser> members,
             Dictionary<string, object> optionalCustomData = null);
 
         //StreamTodo: add missing descriptions

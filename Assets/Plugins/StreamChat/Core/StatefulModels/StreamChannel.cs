@@ -14,7 +14,6 @@ using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 
-//StreamTodo: maybe some more intuitive namespace? Models? StateModels?
 namespace StreamChat.Core.StatefulModels
 {
     public delegate void StreamChannelVisibilityHandler(IStreamChannel channel, bool isHidden);
@@ -228,7 +227,7 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(response.Channel);
         }
 
-        public async Task UpdatePartialAsync(IDictionary<string, object> setFields,
+        public async Task UpdatePartialAsync(IDictionary<string, object> setFields = null,
             IEnumerable<string> unsetFields = null)
         {
             if (setFields == null && unsetFields == null)
@@ -408,8 +407,12 @@ namespace StreamChat.Core.StatefulModels
             
             //StreamTodo: this should not be needed but the truncate response doesn't contain messages nor any events are sent
             //so we can only query the channel to get the messages
-            await Client.GetOrCreateChannelAsync(Type, Id);
+            await Client.GetOrCreateChannelWithIdAsync(Type, Id);
         }
+
+        public Task StopWatchingAsync() =>
+            LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
+                new ChannelStopWatchingRequestInternalDTO());
 
         public Task DeleteAsync()
             => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete: false);

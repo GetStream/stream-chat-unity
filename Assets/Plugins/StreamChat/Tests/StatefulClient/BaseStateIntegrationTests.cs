@@ -63,7 +63,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             var channelId = "random-channel-11111-" + Guid.NewGuid();
 
-            var channelState = await StatefulClient.GetOrCreateChannelAsync(ChannelType.Messaging, channelId);
+            var channelState = await StatefulClient.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId);
             _tempChannels.Add(channelState);
             return channelState;
         }

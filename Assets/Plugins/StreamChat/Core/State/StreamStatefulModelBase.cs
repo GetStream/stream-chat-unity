@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State.Caches;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.State
 {
@@ -13,12 +14,9 @@ namespace StreamChat.Core.State
     internal abstract class StreamStatefulModelBase<TStatefulModel> : IStreamStatefulModel
         where TStatefulModel : class, IStreamStatefulModel
     {
-        public IDictionary<string, object> CustomData => _additionalProperties;
-        
-        string IStreamStatefulModel.UniqueId => InternalUniqueId;
+        public IStreamCustomData CustomData => _customData;
 
-        public object SetCustomData(string key, object value) => _additionalProperties[key] = value;
-        public object GetCustomData(string key) => _additionalProperties[key];
+        string IStreamStatefulModel.UniqueId => InternalUniqueId;
 
         internal StreamStatefulModelBase(string uniqueId, ICacheRepository<TStatefulModel> repository,
             IStatefulModelContext context)
@@ -33,6 +31,8 @@ namespace StreamChat.Core.State
             Cache = context.Cache ?? throw new ArgumentNullException(nameof(context.Cache));
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
+            _customData = new StreamCustomData(_additionalProperties, context.Serializer);
+            
             InternalUniqueId = uniqueId;
             Repository.Track(Self);
         }
@@ -43,8 +43,8 @@ namespace StreamChat.Core.State
         protected StreamChatClient Client { get; }
         protected StreamChatLowLevelClient LowLevelClient => Client.LowLevelClient;
         protected ILogs Logs { get; }
-        internal ICache Cache { get; }
-        internal ICacheRepository<TStatefulModel> Repository { get; }
+        protected ICache Cache { get; }
+        protected ICacheRepository<TStatefulModel> Repository { get; }
 
         protected void LoadAdditionalProperties(Dictionary<string, object> additionalProperties)
         {
@@ -79,6 +79,7 @@ namespace StreamChat.Core.State
             where T : class
             => source ?? defaultValue;
 
+        private StreamCustomData _customData;
         private readonly Dictionary<string, object> _additionalProperties = new Dictionary<string, object>();
     }
 }

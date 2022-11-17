@@ -1,8 +1,7 @@
-﻿using StreamChat.Core;
-using StreamChat.Core.LowLevelClient;
+﻿using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Events;
 
-namespace Plugins.StreamChat.Samples.ClientDocs
+namespace StreamChat.Samples.LowLevelClient.ClientDocs
 {
     /// <summary>
     /// Code samples related to <see cref="https://getstream.io/chat/docs/unity/event_object/?language=unity"/>

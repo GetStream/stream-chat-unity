@@ -39,12 +39,11 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.NotNull(davidUser);
             Assert.AreEqual(userId, davidUser.Id);
-            Assert.AreEqual(24, davidUser.GetCustomData("Age"));
+            Assert.AreEqual(24, davidUser.CustomData.Get<int>("Age"));
 
-            //StreamTodo: solve this, because array is JArray we can't do much
-            var davidPassions = davidUser.GetCustomData("Passions");
-            //var sequenceEqual = davidPassions.SequenceEqual(new string[] { "Tennis", "Football", "Basketball" });
-            //Assert.IsTrue(sequenceEqual);
+            var davidPassions = davidUser.CustomData.Get<string[]>("Passions");
+            var sequenceEqual = davidPassions.SequenceEqual(new string[] { "Tennis", "Football", "Basketball" });
+            Assert.IsTrue(sequenceEqual);
         }
     }
 }

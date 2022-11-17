@@ -2,7 +2,7 @@
 using StreamChat.Libs.Auth;
 using UnityEngine;
 
-namespace StreamChat.Core.Samples
+namespace Plugins.StreamChat.Samples.LowLevelClient
 {
     /// <summary>
     /// Sample MonoBehaviour that creates and updates instance of <see cref="StreamChatLowLevelClient"/>

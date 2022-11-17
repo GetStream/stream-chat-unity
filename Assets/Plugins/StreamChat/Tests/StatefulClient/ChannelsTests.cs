@@ -86,7 +86,8 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(steveUser);
             Assert.NotNull(daveUser);
 
-            var channelForMembers = await StatefulClient.GetOrCreateChannelAsync(ChannelType.Messaging, streamUsers);
+            var channelForMembers =
+                await StatefulClient.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging, streamUsers);
             Assert.NotNull(channelForMembers);
             Assert.NotNull(channelForMembers.Members);
             Assert.AreEqual(2, channelForMembers.Members.Count);
@@ -179,7 +180,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(StatefulClient.WatchedChannels.Contains(channel2));
 
             var response
-                = await StatefulClient.DeleteMultipleChannelsAsync(new IStreamChannel[] { channel, channel2 },
+                = await StatefulClient.DeleteMultipleChannelsAsync(new IStreamChannel[] {channel, channel2},
                     isHardDelete: true);
 
             Assert.That(response.Result, Contains.Key(channel.Cid));
@@ -187,7 +188,7 @@ namespace StreamChat.Tests.StatefulClient
 
             SkipThisTempChannelDeletionInTearDown(channel);
             SkipThisTempChannelDeletionInTearDown(channel2);
-            
+
             await WaitWhileConditionTrue(() => StatefulClient.WatchedChannels.Any());
 
             Assert.IsEmpty(StatefulClient.WatchedChannels);
@@ -234,6 +235,88 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.AreEqual(1, channel.Messages.Count);
             Assert.AreEqual(systemMessage, channel.Messages[0].Text);
+        }
+
+        private class ClanData
+        {
+            public int MaxMembers;
+            public string Name;
+            public List<string> Tags;
+        }
+        
+        [UnityTest]
+        public IEnumerator When_set_channel_custom_data_expect_data_on_channel_object()
+            => ConnectAndExecute(When_set_channel_custom_data_expect_data_set_on_channel_Async);
+
+        private async Task When_set_channel_custom_data_expect_data_set_on_channel_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var setClanInfo = new ClanData
+            {
+                MaxMembers = 50,
+                Name = "Wild Boards",
+                Tags = new List<string>
+                {
+                    "Competitive",
+                    "Legends",
+                }
+            };
+
+            await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>()
+            {
+                {"owned_dogs", 5},
+                {
+                    "breakfast", new string[]
+                    {
+                        "donuts"
+                    }
+                },
+                {
+                    "clan_info", setClanInfo
+                }
+            });
+
+            var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
+            var breakfast = channel.CustomData.Get<List<string>>("breakfast");
+            var clanInfo = channel.CustomData.Get<ClanData>("clan_info");
+            Assert.AreEqual(5, ownedDogs);
+
+            Assert.Contains("donuts", breakfast);
+
+            Assert.AreEqual(50, clanInfo.MaxMembers);
+            Assert.AreEqual("Wild Boards", clanInfo.Name);
+            Assert.Contains("Competitive", clanInfo.Tags);
+        }
+
+        [UnityTest]
+        public IEnumerator When_unset_channel_custom_data_expect_no_data_on_channel_object()
+            => ConnectAndExecute(When_unset_channel_custom_data_expect_no_data_on_channel_object_Async);
+
+        private async Task When_unset_channel_custom_data_expect_no_data_on_channel_object_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            
+            await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>()
+            {
+                {"owned_dogs", 5},
+                {
+                    "breakfast", new string[]
+                    {
+                        "donuts"
+                    }
+                }
+            });
+
+            var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
+            var breakfast = channel.CustomData.Get<List<string>>("breakfast");
+            Assert.AreEqual(5, ownedDogs);
+            Assert.Contains("donuts", breakfast);
+            
+            await channel.UpdatePartialAsync(unsetFields: new string[] { "owned_dogs", "breakfast"});
+            
+            Assert.IsFalse(channel.CustomData.ContainsKey("owned_dogs"));
+            Assert.IsFalse(channel.CustomData.ContainsKey("breakfast"));
         }
     }
 }

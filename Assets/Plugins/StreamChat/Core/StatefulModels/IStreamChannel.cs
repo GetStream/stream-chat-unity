@@ -268,18 +268,16 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Update channel in a complete overwrite mode.
         /// Important! Any data that is present on the channel and not included in a full update will be deleted.
-        ///
         /// If you want to update only some fields of the channel use the <see cref="IStreamChannel.UpdatePartialAsync"/>
         /// </summary>
         Task UpdateOverwriteAsync(); //StreamTodo: NOT IMPLEMENTED
 
         /// <summary>
         /// Update channel in a partial mode. You can selectively set and unset fields of the channel
-        ///
         /// If you want to completely overwrite the channel use the <see cref="IStreamChannel.UpdateOverwriteAsync"/>
         /// </summary>
         /// StreamTodo: this should be more high level, maybe use enum with predefined field names?
-        Task UpdatePartialAsync(IDictionary<string, object> setFields,
+        Task UpdatePartialAsync(IDictionary<string, object> setFields = null,
             IEnumerable<string> unsetFields = null);
 
         /// <summary>
@@ -389,6 +387,11 @@ namespace StreamChat.Core.StatefulModels
         Task TruncateAsync(DateTimeOffset? truncatedAt = default, string systemMessage = "",
             bool skipPushNotifications = false, bool isHardDelete = false);
 
+        /// <summary>
+        /// Stop watching this channel meaning you will no longer receive any updates and it will be removed from <see cref="IStreamChatClient.WatchedChannels"/>
+        /// </summary>
+        Task StopWatchingAsync();
+        
         /// <summary>
         /// Delete this channel. By default channel is soft deleted. You can hard delete it only by using a server-side SDK due to security
         /// </summary>

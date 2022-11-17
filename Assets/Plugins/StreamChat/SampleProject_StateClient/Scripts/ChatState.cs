@@ -84,7 +84,7 @@ namespace StreamChat.SampleProject_StateClient
         }
 
         public Task<IStreamChannel> CreateNewChannelAsync(string channelName)
-            => Client.GetOrCreateChannelAsync(ChannelType.Messaging, channelId: Guid.NewGuid().ToString(), channelName);
+            => Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: Guid.NewGuid().ToString(), channelName);
 
         public void OpenChannel(IStreamChannel channel) => ActiveChannel = channel;
 

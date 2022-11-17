@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using StreamChat.Core;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Requests;
 using UnityEngine;
 
-namespace Plugins.StreamChat.Samples.ClientDocs
+namespace StreamChat.Samples.LowLevelClient.ClientDocs
 {
     /// <summary>
     /// Code samples for Channels sections: https://getstream.io/chat/docs/unity/query_users/?language=unity

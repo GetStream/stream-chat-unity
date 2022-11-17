@@ -1,8 +1,7 @@
-﻿using StreamChat.Core;
-using StreamChat.Core.LowLevelClient;
+﻿using StreamChat.Core.LowLevelClient;
 using StreamChat.Libs.Auth;
 
-namespace Plugins.StreamChat.Samples.ClientDocs
+namespace StreamChat.Samples.LowLevelClient.ClientDocs
 {
     /// <summary>
     /// Code samples for the <see cref="IStreamChatLowLevelClient"/> https://getstream.io/chat/docs/unity/init_and_users/?language=unity

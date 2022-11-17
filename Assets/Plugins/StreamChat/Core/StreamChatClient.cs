@@ -125,7 +125,8 @@ namespace StreamChat.Core
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
 
-        public async Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType, string channelId,
+        //StreamTodo: consider IDictionary instead implementation
+        public async Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId,
             string name = null, Dictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
@@ -152,7 +153,8 @@ namespace StreamChat.Core
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
-        public async Task<IStreamChannel> GetOrCreateChannelAsync(ChannelType channelType,
+        //StreamTodo: perhaps better names like GetOrCreateChannelWithIdAsync() GetOrCreateChannelWithMembersAsync()
+        public async Task<IStreamChannel> GetOrCreateChannelWithMembersAsync(ChannelType channelType,
             IEnumerable<IStreamUser> members, Dictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
@@ -220,6 +222,7 @@ namespace StreamChat.Core
             return result;
         }
 
+        //StreamTodo: sorting could be controlled in global config, we definitely don't want to control this per request
         public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters)
         {
             //StreamTodo: Missing filter, and stuff like IdGte etc
@@ -401,7 +404,7 @@ namespace StreamChat.Core
                 return Task.CompletedTask;
             }
 
-            return GetOrCreateChannelAsync(channel.Type, channel.Id);
+            return GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
         }
 
         private readonly ILogs _logs;
@@ -426,7 +429,7 @@ namespace StreamChat.Core
             LowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient, serializer,
                 _timeService, logs, config);
 
-            _cache = new Cache(this, _logs);
+            _cache = new Cache(this, serializer, _logs);
 
             SubscribeTo(LowLevelClient);
         }

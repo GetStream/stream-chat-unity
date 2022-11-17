@@ -2,14 +2,15 @@
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.State.Caches
 {
     internal sealed class Cache : ICache
     {
-        public Cache(StreamChatClient stateClient, ILogs logs)
+        public Cache(StreamChatClient stateClient, ISerializer serializer, ILogs logs)
         {
-            var trackedObjectsFactory = new StatefulModelsFactory(stateClient, logs, this);
+            var trackedObjectsFactory = new StatefulModelsFactory(stateClient, serializer, logs, this);
 
             Channels = new CacheRepository<StreamChannel>(trackedObjectsFactory.CreateStreamChannel, cache: this);
             Messages = new CacheRepository<StreamMessage>(trackedObjectsFactory.CreateStreamMessage, cache: this);

@@ -1,5 +1,6 @@
 ﻿using StreamChat.Core.State.Caches;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.State
 {
@@ -8,5 +9,6 @@ namespace StreamChat.Core.State
         ICache Cache { get; }
         StreamChatClient Client { get; }
         ILogs Logs { get; }
+        ISerializer Serializer { get; }
     }
 }

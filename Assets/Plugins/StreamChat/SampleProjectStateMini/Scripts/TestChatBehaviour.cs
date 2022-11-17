@@ -33,7 +33,7 @@ public class TestChatBehaviour : MonoBehaviour
 
     private async Task FetchChannels()
     {
-        var channel = await _client.GetOrCreateChannelAsync(ChannelType.Messaging, "my-channel-id");
+        var channel = await _client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
 
         var isNull = channel == null;
 
