@@ -15,7 +15,7 @@ namespace StreamChat.Tests.StatefulClient
     /// <summary>
     /// Tests operations executed on <see cref="StreamChannel"/>
     /// </summary>
-    public class ChannelsTests : BaseStateIntegrationTests
+    internal class ChannelsTests : BaseStateIntegrationTests
     {
         [UnityTest]
         public IEnumerator When_creating_channel_with_id_expect_no_errors()

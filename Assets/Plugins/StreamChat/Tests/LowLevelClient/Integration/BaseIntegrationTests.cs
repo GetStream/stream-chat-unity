@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using StreamChat.Core;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
@@ -17,12 +16,12 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Random = UnityEngine.Random;
 
-namespace StreamChat.Tests.Integration
+namespace StreamChat.Tests.LowLevelClient.Integration
 {
     /// <summary>
     /// Base class for integration tests that operate on API and make real API requests
     /// </summary>
-    public abstract class BaseIntegrationTests
+    internal abstract class BaseIntegrationTests
     {
         [OneTimeSetUp]
         public void Up()

@@ -10,12 +10,12 @@ using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using UnityEngine.TestTools;
 
-namespace StreamChat.Tests.Integration
+namespace StreamChat.Tests.LowLevelClient.Integration
 {
     /// <summary>
     /// Integration tests for Channels
     /// </summary>
-    public class ChannelApiIntegrationTests : BaseIntegrationTests
+    internal class ChannelApiIntegrationTests : BaseIntegrationTests
     {
         [UnityTest]
         public IEnumerator Get_or_create_channel()

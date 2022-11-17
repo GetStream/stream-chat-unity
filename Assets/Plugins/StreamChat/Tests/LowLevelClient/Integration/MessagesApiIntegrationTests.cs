@@ -12,12 +12,12 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.Video;
 
-namespace StreamChat.Tests.Integration
+namespace StreamChat.Tests.LowLevelClient.Integration
 {
     /// <summary>
     /// Integration tests for Messages
     /// </summary>
-    public class MessagesApiIntegrationTests : BaseIntegrationTests
+    internal class MessagesApiIntegrationTests : BaseIntegrationTests
     {
         [UnityTest]
         public IEnumerator Send_message()

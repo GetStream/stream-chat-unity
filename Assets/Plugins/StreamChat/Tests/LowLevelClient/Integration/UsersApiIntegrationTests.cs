@@ -5,12 +5,12 @@ using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Requests;
 using UnityEngine.TestTools;
 
-namespace StreamChat.Tests.Integration
+namespace StreamChat.Tests.LowLevelClient.Integration
 {
     /// <summary>
     /// Integration tests for Users
     /// </summary>
-    public class UsersApiIntegrationTests : BaseIntegrationTests
+    internal class UsersApiIntegrationTests : BaseIntegrationTests
     {
         [UnityTest]
         public IEnumerator Upsert_users()

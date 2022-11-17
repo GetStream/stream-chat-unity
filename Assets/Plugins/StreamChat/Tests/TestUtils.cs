@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace StreamChat.Tests
 {
-    public static class TestUtils
+    internal static class TestUtils
     {
         public const string TestUserId = "integration-tests-role-user";
         public const string TestAdminId = "integration-tests-role-admin";

@@ -9,12 +9,12 @@ using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.LowLevelClient.Responses;
 using UnityEngine.TestTools;
 
-namespace StreamChat.Tests.Integration
+namespace StreamChat.Tests.LowLevelClient.Integration
 {
     /// <summary>
     /// Integration tests for Users
     /// </summary>
-    public class ModerationApiIntegrationTests : BaseIntegrationTests
+    internal class ModerationApiIntegrationTests : BaseIntegrationTests
     {
         [UnityTest]
         public IEnumerator Mute_user()

@@ -13,7 +13,7 @@ using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
 {
-    public abstract class BaseStateIntegrationTests
+    internal abstract class BaseStateIntegrationTests
     {
         [SetUp]
         public void Up() => InitClient();

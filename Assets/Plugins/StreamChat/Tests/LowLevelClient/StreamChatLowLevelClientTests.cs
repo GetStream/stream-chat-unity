@@ -14,12 +14,12 @@ using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
 
-namespace StreamChat.Tests
+namespace StreamChat.Tests.LowLevelClient
 {
     /// <summary>
     /// tests for <see cref="StreamChatLowLevelClient"/>
     /// </summary>
-    public class StreamChatClientTests
+    internal class StreamChatClientTests
     {
         [SetUp]
         public void Up()

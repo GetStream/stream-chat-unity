@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using NSubstitute;
 using NUnit.Framework;
-using StreamChat.Core;
 using StreamChat.Core.Configs;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.API;
@@ -16,12 +15,12 @@ using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
 
-namespace StreamChat.Tests.Api
+namespace StreamChat.Tests.LowLevelClient.Api
 {
     /// <summary>
     /// Tests for <see cref="IMessageApi"/> client
     /// </summary>
-    public class MessageApiTests
+    internal class MessageApiTests
     {
         [SetUp]
         public void Up()

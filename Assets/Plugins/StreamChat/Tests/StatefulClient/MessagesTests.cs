@@ -15,7 +15,7 @@ namespace StreamChat.Tests.StatefulClient
     /// <summary>
     /// Tests operations executed on <see cref="StreamMessage"/>
     /// </summary>
-    public class MessagesTests : BaseStateIntegrationTests
+    internal class MessagesTests : BaseStateIntegrationTests
     {
         [UnityTest]
         public IEnumerator When_Update_message_expect_message_changed()

@@ -6,9 +6,9 @@ using System.Text;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace StreamChat.Tests
+namespace StreamChat.Tests.LowLevelClient
 {
-    public class DTOTests
+    internal class DTOTests
     {
         /// <summary>
         /// Ensure that DTOs do not use interfaces that would break JSON deserialization with IL2CPP

@@ -1,15 +1,14 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System;
-using StreamChat.Core;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Libs.Serialization;
 
-namespace StreamChat.Tests.Api
+namespace StreamChat.Tests.LowLevelClient.Api
 {
     /// <summary>
     /// Base class for endpoint test case
     /// </summary>
-    public abstract class EndpointTestCaseBase
+    internal abstract class EndpointTestCaseBase
     {
         public abstract string Name { get; }
 

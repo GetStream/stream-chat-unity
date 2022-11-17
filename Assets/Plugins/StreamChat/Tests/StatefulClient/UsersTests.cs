@@ -13,7 +13,7 @@ namespace StreamChat.Tests.StatefulClient
     /// <summary>
     /// Tests operations executed on <see cref="StreamUser"/>
     /// </summary>
-    public class UsersTests : BaseStateIntegrationTests
+    internal class UsersTests : BaseStateIntegrationTests
     {
         [UnityTest]
         public IEnumerator When_upsert_user_expect_valid_user_returned()

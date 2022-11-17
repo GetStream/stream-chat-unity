@@ -13,7 +13,7 @@ namespace StreamChat.Tests
     /// <summary>
     /// Utils for testing purposes
     /// </summary>
-    public static class UnityTestUtils
+    internal static class UnityTestUtils
     {
         public static IEnumerator RunAsIEnumerator<TResponse>(this Task<TResponse> task,
             Action<TResponse> onSuccess = null, Action<Exception> onFaulted = null)
