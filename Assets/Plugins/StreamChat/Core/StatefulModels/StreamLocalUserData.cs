@@ -27,6 +27,7 @@ namespace StreamChat.Core.StatefulModels
         #endregion
         
         public IStreamUser User { get; private set; }
+        public string UserId => User?.Id;
 
         void IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>.UpdateFromDto(OwnUserInternalDTO dto,
             ICache cache)

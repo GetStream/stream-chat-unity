@@ -2,11 +2,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Configs;
 using StreamChat.Core.StatefulModels;
+using StreamChat.EditorTools;
 using StreamChat.Libs.Auth;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -22,17 +24,22 @@ namespace StreamChat.Tests.StatefulClient
         public IEnumerator TearDown()
         {
             DeleteTempChannelsAsync().RunAsIEnumerator();
-            yield return StatefulClient.DisconnectUserAsync().RunAsIEnumerator();
-            StatefulClient.Dispose();
-            StatefulClient = null;
+            yield return Client.DisconnectUserAsync().RunAsIEnumerator();
+            Client.Dispose();
+            Client = null;
         }
 
-        protected StreamChatClient StatefulClient { get; private set; }
+        protected StreamChatClient Client { get; private set; }
 
         // StreamTodo: replace with admin ids fetched from loaded data set
         protected const string TestUserId = TestUtils.TestUserId;
         protected const string TestAdminId = TestUtils.TestAdminId;
         protected const string TestGuestId = TestUtils.TestGuestId;
+
+        protected TestAuthDataSet TestAuthDataSet { get; private set; }
+
+        protected IEnumerable<AuthCredentials> OtherAdminUsersCredentials
+            => TestAuthDataSet.TestAdminData.Where(d => d.UserId != Client.LocalUserData.UserId);
 
         protected enum UserLevel
         {
@@ -44,7 +51,7 @@ namespace StreamChat.Tests.StatefulClient
         protected async Task ConnectUserAsync(UserLevel level = UserLevel.Admin)
         {
             var userCredentials = GetUserAuthCredentials(level);
-            var connectTask = StatefulClient.ConnectUserAsync(userCredentials);
+            var connectTask = Client.ConnectUserAsync(userCredentials);
             while (!connectTask.IsCompleted)
             {
 #if STREAM_DEBUG_ENABLED
@@ -53,7 +60,8 @@ namespace StreamChat.Tests.StatefulClient
 
                 await Task.Delay(1);
             }
-            Debug.Log("Connection made: " + StatefulClient.ConnectionState);
+
+            Debug.Log("Connection made: " + Client.ConnectionState);
         }
 
         /// <summary>
@@ -63,7 +71,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             var channelId = "random-channel-11111-" + Guid.NewGuid();
 
-            var channelState = await StatefulClient.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId);
+            var channelState = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId);
             _tempChannels.Add(channelState);
             return channelState;
         }
@@ -75,13 +83,13 @@ namespace StreamChat.Tests.StatefulClient
         {
             _tempChannels.Remove(channel);
         }
-        
+
         protected IEnumerator ConnectAndExecute(Func<Task> test)
         {
-            yield return ConnectUserAsync().RunAsIEnumerator(statefulClient: StatefulClient);
-            yield return test().RunAsIEnumerator(statefulClient: StatefulClient);
+            yield return ConnectUserAsync().RunAsIEnumerator(statefulClient: Client);
+            yield return test().RunAsIEnumerator(statefulClient: Client);
         }
-        
+
         //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible
         /// <summary>
         /// Use this if state update depends on receiving WS event that might come after the REST call was completed
@@ -106,10 +114,11 @@ namespace StreamChat.Tests.StatefulClient
 
         private void InitClient(string forcedAdminId = null)
         {
-            StatefulClient = (StreamChatClient)StreamChatClient.CreateDefaultClient(new StreamClientConfig
+            Client = (StreamChatClient) StreamChatClient.CreateDefaultClient(new StreamClientConfig
             {
                 LogLevel = StreamLogLevel.Debug
             });
+            TestAuthDataSet = TestUtils.GetTestAuthCredentials();
         }
 
         private static AuthCredentials GetUserAuthCredentials(UserLevel level)
@@ -137,8 +146,8 @@ namespace StreamChat.Tests.StatefulClient
             {
                 return;
             }
-            
-            await StatefulClient.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
+
+            await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
             _tempChannels.Clear();
         }
     }

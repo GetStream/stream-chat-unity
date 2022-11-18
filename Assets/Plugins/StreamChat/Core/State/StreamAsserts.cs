@@ -94,5 +94,26 @@ namespace StreamChat.Core.State
                 throw new ArgumentOutOfRangeException($"{nameof(argName)} must be greater than 0");
             }
         }
+        
+        public static void AssertGreaterThanOrEqualZero(int? value, string argName)
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(argName)} must be greater than or equal to 0");
+            }
+        }
+        
+        public static void AssertWithinRange(int value, int minValue, int maxValue, string argName)
+        {
+            if (value < minValue)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(argName)} must be greater than or equal to {minValue}");
+            }
+            
+            if (value > maxValue)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(argName)} must be less than or equal to {maxValue}");
+            }
+        }
     }
 }

@@ -281,12 +281,48 @@ namespace StreamChat.Core.StatefulModels
         }
 
         //StreamTodo: IMPLEMENT, this should probably work like LoadNextMembers, LoadPreviousMembers? what about sorting - in config?
-        public void QueryMembers() 
+        //Perhaps we should have both, maybe user wants to search members and not only paginate joined
+        public async Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters, int limit = 30, int offset = 0)
         {
+            StreamAsserts.AssertNotNullOrEmpty(filters, nameof(filters));
+            
+            var response = await LowLevelClient.InternalChannelApi.QueryMembersAsync(new QueryMembersRequestInternalDTO
+            {
+                CreatedAtAfter = null,
+                CreatedAtAfterOrEqual = null,
+                CreatedAtBefore = null,
+                CreatedAtBeforeOrEqual = null,
+                FilterConditions = filters.ToDictionary(k => k.Key, v => v.Value),
+                Id = Id,
+                Limit = limit,
+                Members = null, //StreamTodo: test & implement distinct members querying + consider exposing rest of params
+                Offset = offset,
+                Sort = null,
+                Type = Type,
+                //User = null, //StreamTodo: server-side only, remove from DTO
+                //UserId = null,
+                UserIdGt = null,
+                UserIdGte = null,
+                UserIdLt = null,
+                UserIdLte = null,
+            });
+
+            if (response.Members == null || response.Members.Count == 0)
+            {
+                return Enumerable.Empty<IStreamChannelMember>();
+            }
+
+            var result  = new List<IStreamChannelMember>();
+            foreach (var member in response.Members)
+            {
+                result.Add(Cache.TryCreateOrUpdate(member));
+            }
+
+            return result;
         }
 
         //StreamTodo: IMPLEMENT, perhap Load Prev/Next Watchers? sorting in config?
-        public void QueryWatchers() 
+        public void QueryWatchers()
         {
         }
 
@@ -355,17 +391,23 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(response);
         }
 
-        public async Task RemoveMembersAsync(IEnumerable<ChannelMember> members)
+        public Task AddMembersAsync(params IStreamUser[] users)
+            => AddMembersAsync(users as IEnumerable<IStreamUser>);
+
+        public async Task RemoveMembersAsync(IEnumerable<IStreamChannelMember> members)
         {
             StreamAsserts.AssertNotNull(members, nameof(members));
 
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
                 new UpdateChannelRequestInternalDTO
                 {
-                    RemoveMembers = members.Select(_ => _.UserId).ToList()
+                    RemoveMembers = members.Select(_ => _.User.Id).ToList()
                 });
             Cache.TryCreateOrUpdate(response);
         }
+
+        public Task RemoveMembersAsync(params IStreamChannelMember[] members)
+            => RemoveMembersAsync(members as IEnumerable<IStreamChannelMember>);
 
         public async Task MuteChannelAsync(int? milliseconds = default)
         {
@@ -404,7 +446,7 @@ namespace StreamChat.Core.StatefulModels
                     TruncatedAt = truncatedAt
                 });
             Cache.TryCreateOrUpdate(response.Channel);
-            
+
             //StreamTodo: this should not be needed but the truncate response doesn't contain messages nor any events are sent
             //so we can only query the channel to get the messages
             await Client.GetOrCreateChannelWithIdAsync(Type, Id);
@@ -439,9 +481,9 @@ namespace StreamChat.Core.StatefulModels
 
             //Hidden = dto.Hidden.GetValueOrDefault(); Updated from Channel
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
-            
+
             //This is needed because Channel.Members can be null while this is filled
-            _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers); 
+            _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers);
             Membership = cache.TryCreateOrUpdate(dto.Membership);
             _messages.TryAppendUniqueTrackedObjects(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
@@ -496,11 +538,11 @@ namespace StreamChat.Core.StatefulModels
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
-            
+
             //StreamTodo: how can user react to this change? WatcherCount could internally fire WatchCountChanged event
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
         }
-        
+
         internal void InternalHandleMessageNewNotification(EventNotificationMessageNewInternalDTO dto)
         {
             AssertCid(dto.Cid);
@@ -714,7 +756,7 @@ namespace StreamChat.Core.StatefulModels
             AssertCid(eventDto.Cid);
             HandleMessageRead(eventDto.User, eventDto.CreatedAt.Value);
         }
-        
+
         internal void InternalHandleMessageReadNotification(EventNotificationMarkReadInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
@@ -788,7 +830,7 @@ namespace StreamChat.Core.StatefulModels
 
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
         private readonly List<IStreamUser> _typingUsers = new List<IStreamUser>();
-        
+
         private void HandleMessageRead(UserObjectInternalInternalDTO userDto, DateTimeOffset createAt)
         {
             //we can only mark messages based on created_at

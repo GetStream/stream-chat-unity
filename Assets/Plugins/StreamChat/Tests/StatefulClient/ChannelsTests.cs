@@ -62,7 +62,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             };
 
-            var response = await StatefulClient.LowLevelClient.UserApi.UpsertManyUsersAsync(requestBody);
+            var response = await Client.LowLevelClient.UserApi.UpsertManyUsersAsync(requestBody);
             var users = response.Users.Select(_ => _.Value).ToList();
 
             var filters = new Dictionary<string, object>()
@@ -77,7 +77,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             };
 
-            var streamUsers = await StatefulClient.QueryUsersAsync(filters);
+            var streamUsers = await Client.QueryUsersAsync(filters);
             Assert.NotNull(streamUsers);
 
             var steveUser = streamUsers.FirstOrDefault(_ => _.Id == userSteveId);
@@ -87,7 +87,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(daveUser);
 
             var channelForMembers =
-                await StatefulClient.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging, streamUsers);
+                await Client.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging, streamUsers);
             Assert.NotNull(channelForMembers);
             Assert.NotNull(channelForMembers.Members);
             Assert.AreEqual(2, channelForMembers.Members.Count);
@@ -127,12 +127,12 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.MuteChannelAsync();
 
-            Assert.IsNotEmpty(StatefulClient.LocalUserData.ChannelMutes);
+            Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
-            var channelMute = StatefulClient.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+            var channelMute = Client.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNotNull(channelMute);
 
-            Assert.AreEqual(channelMute.User, StatefulClient.LocalUserData.User);
+            Assert.AreEqual(channelMute.User, Client.LocalUserData.User);
 
             Assert.AreEqual(true, channel.Muted);
         }
@@ -147,19 +147,19 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.MuteChannelAsync();
 
-            Assert.IsNotEmpty(StatefulClient.LocalUserData.ChannelMutes);
+            Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
-            var channelMute = StatefulClient.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+            var channelMute = Client.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNotNull(channelMute);
             Assert.AreEqual(true, channel.Muted);
 
-            Assert.AreEqual(channelMute.User, StatefulClient.LocalUserData.User);
+            Assert.AreEqual(channelMute.User, Client.LocalUserData.User);
 
             await channel.UnmuteChannelAsync();
 
             await WaitWhileConditionTrue(() =>
             {
-                channelMute = StatefulClient.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+                channelMute = Client.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
                 return channelMute != null;
             });
 
@@ -176,11 +176,11 @@ namespace StreamChat.Tests.StatefulClient
             var channel = await CreateUniqueTempChannelAsync();
             var channel2 = await CreateUniqueTempChannelAsync();
 
-            Assert.IsTrue(StatefulClient.WatchedChannels.Contains(channel));
-            Assert.IsTrue(StatefulClient.WatchedChannels.Contains(channel2));
+            Assert.IsTrue(Client.WatchedChannels.Contains(channel));
+            Assert.IsTrue(Client.WatchedChannels.Contains(channel2));
 
             var response
-                = await StatefulClient.DeleteMultipleChannelsAsync(new IStreamChannel[] {channel, channel2},
+                = await Client.DeleteMultipleChannelsAsync(new IStreamChannel[] {channel, channel2},
                     isHardDelete: true);
 
             Assert.That(response.Result, Contains.Key(channel.Cid));
@@ -189,9 +189,9 @@ namespace StreamChat.Tests.StatefulClient
             SkipThisTempChannelDeletionInTearDown(channel);
             SkipThisTempChannelDeletionInTearDown(channel2);
 
-            await WaitWhileConditionTrue(() => StatefulClient.WatchedChannels.Any());
+            await WaitWhileConditionTrue(() => Client.WatchedChannels.Any());
 
-            Assert.IsEmpty(StatefulClient.WatchedChannels);
+            Assert.IsEmpty(Client.WatchedChannels);
         }
 
         [UnityTest]
@@ -243,7 +243,7 @@ namespace StreamChat.Tests.StatefulClient
             public string Name;
             public List<string> Tags;
         }
-        
+
         [UnityTest]
         public IEnumerator When_set_channel_custom_data_expect_data_on_channel_object()
             => ConnectAndExecute(When_set_channel_custom_data_expect_data_set_on_channel_Async);
@@ -296,7 +296,7 @@ namespace StreamChat.Tests.StatefulClient
         private async Task When_unset_channel_custom_data_expect_no_data_on_channel_object_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
-            
+
             await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>()
             {
                 {"owned_dogs", 5},
@@ -312,11 +312,84 @@ namespace StreamChat.Tests.StatefulClient
             var breakfast = channel.CustomData.Get<List<string>>("breakfast");
             Assert.AreEqual(5, ownedDogs);
             Assert.Contains("donuts", breakfast);
-            
-            await channel.UpdatePartialAsync(unsetFields: new string[] { "owned_dogs", "breakfast"});
-            
+
+            await channel.UpdatePartialAsync(unsetFields: new string[] {"owned_dogs", "breakfast"});
+
             Assert.IsFalse(channel.CustomData.ContainsKey("owned_dogs"));
             Assert.IsFalse(channel.CustomData.ContainsKey("breakfast"));
+        }
+
+        [UnityTest]
+        public IEnumerator When_add_user_to_channel_expect_user_included_in_members()
+            => ConnectAndExecute(When_add_user_to_channel_expect_user_included_in_members_Async);
+
+        private async Task When_add_user_to_channel_expect_user_included_in_members_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+
+            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            {
+                {
+                    "id", new Dictionary<string, object>
+                    {
+                        {"$eq", otherUserId}
+                    }
+                }
+            });
+            var otherUser = users.First();
+
+            await channel.AddMembersAsync(new[] {otherUser});
+
+            Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
+        }
+
+        [UnityTest]
+        public IEnumerator When_query_members_expect_proper_members_returned()
+            => ConnectAndExecute(When_query_members_expect_proper_members_returned_Async);
+
+        private async Task When_query_members_expect_proper_members_returned_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var otherUsers = OtherAdminUsersCredentials.Take(3).ToArray();
+            var firstCredentials = otherUsers.First();
+            var lastCredentials = otherUsers.Last();
+
+            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            {
+                {
+                    "id", new Dictionary<string, object>
+                    {
+                        {"$in", otherUsers.Select(u => u.UserId).ToArray()}
+                    }
+                }
+            });
+
+            var firstUser = users.FirstOrDefault(u => u.Id == firstCredentials.UserId);
+            var lastUser = users.FirstOrDefault(u => u.Id == lastCredentials.UserId);
+            
+            Assert.NotNull(firstUser);
+            Assert.NotNull(lastUser);
+            
+            await channel.AddMembersAsync(users);
+
+            var result = await channel.QueryMembers(new Dictionary<string, object>()
+            {
+                {
+                    "id", new Dictionary<string, object>
+                    {
+                        {"$in", new[] {firstCredentials.UserId, lastCredentials.UserId}}
+                    }
+                }
+            });
+
+            var firstMember = result.FirstOrDefault(m => m.User == firstUser);
+            var lastMember = result.FirstOrDefault(m => m.User == lastUser);
+            
+            Assert.NotNull(firstMember);
+            Assert.NotNull(lastMember);
         }
     }
 }

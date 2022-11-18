@@ -69,29 +69,39 @@ namespace StreamChat.Core
         /// If you want to create a channel for a dedicated group of users e.g. private conversation use the <see cref="GetOrCreateChannelWithIdAsync"/> overload
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity#1.-creating-a-channel-using-a-channel-id</remarks>
-        Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId, string name = null,
-            Dictionary<string, object> optionalCustomData = null);
+        Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId,
+            string name = null,
+            IDictionary<string, object> optionalCustomData = null);
 
         /// <summary>
-        /// Create or get a channel with a given type for a given groups of users.
-        /// Use this to create channel for direct messages. If you wish to create open channels for users to join use the <see cref="GetOrCreateChannelWithIdAsync"/>
+        /// Create or get a channel for a given groups of users.
+        /// Use this to create channel for direct messages. This will return the same channel per unique group of users regardless of their order.
+        /// If you wish to create channels with ID for users to join use the <see cref="GetOrCreateChannelWithIdAsync"/>
         /// </summary>
         /// <param name="channelType">Type of channel determines permissions and default settings.
-        /// Use predefined ones:
-        /// <see cref="ChannelType.Messaging"/>,
-        /// <see cref="ChannelType.Livestream"/>,
-        /// <see cref="ChannelType.Team"/>,
-        /// <see cref="ChannelType.Commerce"/>,
-        /// <see cref="ChannelType.Gaming"/>,
-        /// or create a custom type in your dashboard and use <see cref="ChannelType.Custom"/></param>
+        ///     Use predefined ones:
+        ///     <see cref="ChannelType.Messaging"/>,
+        ///     <see cref="ChannelType.Livestream"/>,
+        ///     <see cref="ChannelType.Team"/>,
+        ///     <see cref="ChannelType.Commerce"/>,
+        ///     <see cref="ChannelType.Gaming"/>,
+        ///     or create a custom type in your dashboard and use <see cref="ChannelType.Custom"/></param>
         /// <param name="members">Users for which a channel will be created. If channel </param>
         /// <param name="optionalCustomData">[Optional] Custom data to attach to this channel</param>
-        Task<IStreamChannel> GetOrCreateChannelWithMembersAsync(ChannelType channelType, IEnumerable<IStreamUser> members,
-            Dictionary<string, object> optionalCustomData = null);
+        Task<IStreamChannel> GetOrCreateChannelWithMembersAsync(ChannelType channelType,
+            IEnumerable<IStreamUser> members,
+            IDictionary<string, object> optionalCustomData = null);
 
-        //StreamTodo: add missing descriptions
-        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters);
+        /// <summary>
+        /// Query <see cref="IStreamChannel"/> with provided filters
+        /// </summary>
+        /// <param name="filters"></param>
+        /// <param name="limit">How many records to return. Think about it as "records per page"</param>
+        /// <param name="offset">How many records to skip. Example: if Limit is 30, the offset for 2nd page is 30, for 3rd page is 60, etc.</param>
+        /// <returns></returns>
+        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters, int limit = 30, int offset = 0);
 
+        //StreamTodo: missing descriptions
         Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters);
 
         Task<IEnumerable<IStreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests);

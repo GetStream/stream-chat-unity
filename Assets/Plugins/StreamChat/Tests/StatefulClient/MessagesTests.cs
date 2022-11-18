@@ -113,7 +113,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(true, messageInChannel.Pinned);
             Assert.IsNull(messageInChannel.PinExpires);
 
-            Assert.AreEqual(StatefulClient.LocalUserData.User, messageInChannel.PinnedBy);
+            Assert.AreEqual(Client.LocalUserData.User, messageInChannel.PinnedBy);
         }
 
         [UnityTest]
@@ -216,7 +216,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await sentMessage.FlagAsync();
 
-            var response = await StatefulClient.LowLevelClient.InternalModerationApi.QueryMessageFlagsAsync(
+            var response = await Client.LowLevelClient.InternalModerationApi.QueryMessageFlagsAsync(
                 new QueryMessageFlagsRequestInternalDTO
                 {
                     FilterConditions = new Dictionary<string, object>()

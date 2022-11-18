@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.StatefulModels;
-using UnityEditor.TestTools.TestRunner.Api;
 using UnityEngine;
 
 namespace Plugins.StreamChat.Samples
@@ -173,16 +171,16 @@ namespace Plugins.StreamChat.Samples
 
             var setFields = new Dictionary<string, object>();
 
-            // Set values
+            // Set custom values
             setFields.Add("owned_dogs", 5);
-            // Set arrays
+            // Set custom arrays
             setFields.Add("breakfast", new[] {"donuts"});
-            // Set your custom class objects
+            // Set custom class objects
             setFields.Add("clan_info", setClanInfo);
 
             // Send data
             await channel.UpdatePartialAsync(setFields);
-            
+
             // Data is now available via CustomData property
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
             var breakfast = channel.CustomData.Get<List<string>>("breakfast");
@@ -202,33 +200,167 @@ namespace Plugins.StreamChat.Samples
         /// </summary>
         public async Task AddingAndRemovingChannelMembers()
         {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var users = await Client.QueryUsersAsync(new Dictionary<string, object>
+            {
+                {
+                    "id", new Dictionary<string, object>
+                    {
+                        {
+                            "$in", new List<string>
+                            {
+                                "other-user-id-1",
+                                "other-user-id-2",
+                                "other-user-id-3"
+                            }
+                        }
+                    }
+                }
+            });
+
+            await channel.AddMembersAsync(users);
+
+            var member = channel.Members.First();
+            await channel.RemoveMembersAsync(member);
         }
 
         /// <summary>
+        /// https://getstream.io/chat/docs/unity/channel_members/?language=unity#hide-history
+        /// </summary>
+        public async Task AddMembersAndHideHistory()
+        {
+//StreamTodo: IMPLEMENT
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/channel_members/?language=unity#leaving-a-channel
+        /// </summary>
+        public async Task LeaveChannel()
+        {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            var memberToRemove = channel.Members.First();
+
+            await channel.RemoveMembersAsync(memberToRemove);
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/channel_members/?language=unity#adding-removing-moderators-to-a-channel
+        /// </summary>
+        public async Task AddAndRemoveModeratorsToChanel()
+        {
+            // Only Server-side SDK
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity
+        /// </summary>
+        public async Task QueryChannels()
+        {
+            var filters = new Dictionary<string, object>
+            {
+                {
+                    //Return on channels that contain a member user with any of the provided ids
+                    "members", new Dictionary<string, object>
+                    {
+                        //you can provide multiple ids
+                        {"$in", new[] {Client.LocalUserData.UserId}}
+                    }
+                }
+            };
+
+            var channels = await Client.QueryChannelsAsync(filters);
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity#messaging-and-team
+        /// </summary>
+        public async Task MessagingAndTeam()
+        {
+            var filters = new Dictionary<string, object>
+            {
+                {
+                    //Return on channels that contain a member user with any of the provided ids
+                    "members", new Dictionary<string, object>
+                    {
+                        //you can provide multiple ids
+                        {"$in", new[] {Client.LocalUserData.UserId}}
+                    }
+                }
+            };
+
+            var channels = await Client.QueryChannelsAsync(filters);
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity#support
+        /// </summary>
+        public async Task QueryBasedOnAdditionalInformation()
+        {
+            //StreamTodo: Write Test -> query based on custom data
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity#pagination
+        /// </summary>
+        public async Task QueryPagination()
+        {
+            //StreamTodo: IMPLEMENT
+            
+            var filters = new Dictionary<string, object>
+            {
+                {
+                    //Return on channels that contain a member user with any of the provided ids
+                    "members", new Dictionary<string, object>
+                    {
+                        //you can provide multiple ids
+                        {"$in", new[] {Client.LocalUserData.UserId}}
+                    }
+                }
+            };
+
+            var channels = await Client.QueryChannelsAsync(filters, limit: 30, offset: 10);
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_members/?language=unity#pagination-and-ordering
+        /// </summary>
+        public async Task QueryMembers()
+        {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var filters = new Dictionary<string, object>
+            {
+                {
+                    "id", new Dictionary<string, object>
+                    {
+                        {"$in", new[] {"user-id-1", "user-id-2"}}
+                    }
+                }
+            };
+            
+            // Paginate through results by increasing offset
+            var membersResult = await channel.QueryMembers(filters, limit: 30, offset: 0);
+        }
+        
+        /// <summary>
         /// 
         /// </summary>
-        public async Task PartialUpdate112()
+        public async Task PartialUpdate11435()
         {
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
-        public async Task PartialUpdate113()
+        public async Task PartialUpdate11445()
         {
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
-        public async Task PartialUpdate114()
-        {
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public async Task PartialUpdate115()
+        public async Task PartialUpdate11545()
         {
         }
 

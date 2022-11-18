@@ -125,9 +125,8 @@ namespace StreamChat.Core
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
 
-        //StreamTodo: consider IDictionary instead implementation
         public async Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId,
-            string name = null, Dictionary<string, object> optionalCustomData = null)
+            string name = null, IDictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
             StreamAsserts.AssertChannelIdLength(channelId);
@@ -145,7 +144,7 @@ namespace StreamChat.Core
 
             if (optionalCustomData != null && optionalCustomData.Any())
             {
-                requestBodyDto.Data.AdditionalProperties = optionalCustomData;
+                requestBodyDto.Data.AdditionalProperties = optionalCustomData?.ToDictionary(x => x.Key, x => x.Value);
             }
 
             var channelResponseDto = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
@@ -153,9 +152,8 @@ namespace StreamChat.Core
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
-        //StreamTodo: perhaps better names like GetOrCreateChannelWithIdAsync() GetOrCreateChannelWithMembersAsync()
         public async Task<IStreamChannel> GetOrCreateChannelWithMembersAsync(ChannelType channelType,
-            IEnumerable<IStreamUser> members, Dictionary<string, object> optionalCustomData = null)
+            IEnumerable<IStreamUser> members, IDictionary<string, object> optionalCustomData = null)
         {
             StreamAsserts.AssertChannelTypeIsValid(channelType);
             StreamAsserts.AssertNotNullOrEmpty(members, nameof(members));
@@ -182,7 +180,7 @@ namespace StreamChat.Core
 
             if (optionalCustomData != null && optionalCustomData.Any())
             {
-                requestBodyDto.Data.AdditionalProperties = optionalCustomData;
+                requestBodyDto.Data.AdditionalProperties = optionalCustomData?.ToDictionary(x => x.Key, x => x.Value);
             }
 
             var channelResponseDto =
@@ -191,8 +189,13 @@ namespace StreamChat.Core
         }
 
         //StreamTodo: Filter object that contains a factory
-        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters)
+        //StreamTodo: implement pagination + sorting seems useful for paginated query results
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters, int limit = 30, int offset = 0)
         {
+            StreamAsserts.AssertNotNull(filters, nameof(filters));
+            StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
+            StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
+
             //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
             var requestBodyDto = new QueryChannelsRequestInternalDTO
             {
@@ -202,7 +205,10 @@ namespace StreamChat.Core
                 MessageLimit = null,
                 Offset = null,
                 Presence = true,
-                Sort = null, //StreamTodo: sorting could be controlled in global config, we definitely don't want to control this per request as this could break data integrity
+                
+                //StreamTodo: sorting could be controlled in global config,
+                //we definitely don't want to control this per request as this could break data integrity + they can just sort result with LINQ
+                Sort = null,
                 State = true,
                 Watch = true,
             };

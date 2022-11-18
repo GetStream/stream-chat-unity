@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
@@ -307,11 +306,13 @@ namespace StreamChat.Core.StatefulModels
         /// <remarks>https://getstream.io/chat/docs/unity/file_uploads/?language=unity#how-to-upload-a-file-or-image</remarks>
         Task<StreamImageUploadResponse> UploadImageAsync(byte[] imageContent, string imageName);
 
-        void QueryMembers() //StreamTodo: IMPLEMENT
-            ;
+        /// <summary>
+        /// Query channel members based on provided criteria. Results will not be 
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters, int limit = 30, int offset = 0);
 
-        void QueryWatchers() //StreamTodo: IMPLEMENT
-            ;
+        void QueryWatchers(); //StreamTodo: IMPLEMENT
 
         /// <summary>
         /// Ban user from this channel.
@@ -359,12 +360,18 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         /// <param name="users">Users to become members of this channel</param>
         Task AddMembersAsync(IEnumerable<IStreamUser> users);
-
+        
+        /// <inheritdoc cref="AddMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamUser})}"/>
+        Task AddMembersAsync(params IStreamUser[] users);
+        
         /// <summary>
         /// Remove members from this channel
         /// </summary>
         /// <param name="members">Members to remove</param>
-        Task RemoveMembersAsync(IEnumerable<ChannelMember> members);
+        Task RemoveMembersAsync(IEnumerable<IStreamChannelMember> members);
+        
+        /// <inheritdoc cref="RemoveMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamChannelMember})}"/>
+        Task RemoveMembersAsync(params IStreamChannelMember[] members);
 
         /// <summary>
         /// Mute channel with optional duration in milliseconds

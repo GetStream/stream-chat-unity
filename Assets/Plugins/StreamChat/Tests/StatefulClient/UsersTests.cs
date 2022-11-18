@@ -34,7 +34,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             };
 
-            var response = await StatefulClient.UpsertUsers(new[] { createNewUserRequest });
+            var response = await Client.UpsertUsers(new[] { createNewUserRequest });
             var davidUser = response.FirstOrDefault();
 
             Assert.NotNull(davidUser);
