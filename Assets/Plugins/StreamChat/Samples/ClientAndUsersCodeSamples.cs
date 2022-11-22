@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Libs.Auth;
 
-namespace Plugins.StreamChat.Samples
+namespace StreamChat.Samples
 {
     internal class ClientAndUsersCodeSamples
     {

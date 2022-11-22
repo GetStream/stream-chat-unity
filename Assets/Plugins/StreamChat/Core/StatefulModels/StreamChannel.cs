@@ -319,6 +319,7 @@ namespace StreamChat.Core.StatefulModels
         //StreamTodo: IMPLEMENT, perhap Load Prev/Next Watchers? sorting in config?
         public void QueryWatchers()
         {
+            throw new NotImplementedException("This feature is not implemented yet, please raise GH issue to have this implement asap");
         }
 
         public Task BanUserFromChannelAsync(IStreamUser user, bool isShadowBan = false, string reason = "",
@@ -359,6 +360,7 @@ namespace StreamChat.Core.StatefulModels
         public Task ShowAsync()
             => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO());
 
+        //StreamTodo: write test
         public Task HideAsync(bool? clearHistory = false)
             => LowLevelClient.InternalChannelApi.HideChannelAsync(Type, Id, new HideChannelRequestInternalDTO
             {
@@ -404,6 +406,7 @@ namespace StreamChat.Core.StatefulModels
         public Task RemoveMembersAsync(params IStreamChannelMember[] members)
             => RemoveMembersAsync(members as IEnumerable<IStreamChannelMember>);
 
+        //StreamTodo: write test
         public async Task MuteChannelAsync(int? milliseconds = default)
         {
             var response = await LowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
@@ -415,6 +418,7 @@ namespace StreamChat.Core.StatefulModels
                 Expiration = milliseconds,
             });
             Client.UpdateLocalUser(response.OwnUser);
+            //StreamTodo: handle channel mute and mutes from response
         }
 
         public Task UnmuteChannelAsync()
@@ -447,6 +451,7 @@ namespace StreamChat.Core.StatefulModels
             await Client.GetOrCreateChannelWithIdAsync(Type, Id);
         }
 
+        //StreamTodo: write test and check Client.WatchedChannels
         public Task StopWatchingAsync() =>
             LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
                 new ChannelStopWatchingRequestInternalDTO());

@@ -180,6 +180,7 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         bool Muted { get; }
 
+        //StreamTodo: change to enum? this would simplify usage
         /// <summary>
         /// List of channel capabilities of authenticated user
         /// </summary>
