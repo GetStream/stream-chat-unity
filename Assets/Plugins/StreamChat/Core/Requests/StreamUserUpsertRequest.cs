@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.Requests
 {
@@ -50,7 +51,10 @@ namespace StreamChat.Core.Requests
         public string Name;
         public string Image;
 
-        public Dictionary<string, object> CustomData { get; set; }
+        /// <summary>
+        /// Any custom data to associate with this message. This will be accessible through <see cref="IStreamUser.CustomData"/>
+        /// </summary>
+        public StreamCustomDataRequest CustomData { get; set; }
 
         UserObjectRequestInternalDTO ISavableTo<UserObjectRequestInternalDTO>.SaveToDto()
             => new UserObjectRequestInternalDTO
@@ -66,7 +70,7 @@ namespace StreamChat.Core.Requests
                 Teams = Teams,
                 Name = Name,
                 Image = Image,
-                AdditionalProperties = CustomData
+                AdditionalProperties = CustomData?.ToDictionary()
             };
     }
 }

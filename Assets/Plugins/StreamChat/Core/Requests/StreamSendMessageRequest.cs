@@ -45,11 +45,6 @@ namespace StreamChat.Core.Requests
         public List<IStreamUser> MentionedUsers { get; set; }
 
         /// <summary>
-        /// Should be empty if `text` is provided. Can only be set when using server-side API
-        /// </summary>
-        public string Mml { get; set; }
-
-        /// <summary>
         /// ID of parent message (thread)
         /// </summary>
         public string ParentId { get; set; }
@@ -92,17 +87,21 @@ namespace StreamChat.Core.Requests
         public string Text { get; set; }
 
         #endregion
+        
+        /// <summary>
+        /// Add or update custom data associated with this message. This will be accessible through <see cref="IStreamMessage.CustomData"/>
+        /// </summary>
+        public StreamCustomDataRequest CustomData { get; set; }
 
         SendMessageRequestInternalInternalDTO ISavableTo<SendMessageRequestInternalInternalDTO>.SaveToDto()
         {
-            var messageRequestDto = new MessageRequestInternalInternalDTO()
+            var messageRequestDto = new MessageRequestInternalInternalDTO
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<StreamAttachmentRequest, AttachmentRequestInternalDTO>(),
                 // Cid = Cid, Purposely ignored because it has no effect and endpoint already contains channel type&id
                 //Html = Html, Marked in DTO as server-side only
                 Id = Id,
                 MentionedUsers = MentionedUsers?.ToUserIdsListOrNull(),
-                Mml = Mml,
                 ParentId = ParentId,
                 PinExpires = PinExpires,
                 Pinned = Pinned,
@@ -112,6 +111,7 @@ namespace StreamChat.Core.Requests
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,
+                AdditionalProperties = CustomData?.ToDictionary()
             };
 
             return new SendMessageRequestInternalInternalDTO

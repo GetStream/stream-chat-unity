@@ -78,6 +78,11 @@ namespace StreamChat.Core.Requests
         public string Text { get; set; }
 
         #endregion
+        
+        /// <summary>
+        /// Add or update custom data associated with this message. This will be accessible through <see cref="IStreamMessage.CustomData"/>
+        /// </summary>
+        public StreamCustomDataRequest CustomData { get; set; }
 
         UpdateMessageRequestInternalInternalDTO ISavableTo<UpdateMessageRequestInternalInternalDTO>.SaveToDto()
         {
@@ -99,6 +104,7 @@ namespace StreamChat.Core.Requests
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,
+                AdditionalProperties = CustomData?.ToDictionary()
             };
 
             return new UpdateMessageRequestInternalInternalDTO

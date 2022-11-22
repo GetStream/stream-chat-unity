@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -11,7 +10,7 @@ using UnityEngine.TestTools;
 namespace StreamChat.Tests.StatefulClient
 {
     /// <summary>
-    /// Tests operations executed on <see cref="StreamUser"/>
+    /// Tests operations executed on <see cref="IStreamUser"/>
     /// </summary>
     internal class UsersTests : BaseStateIntegrationTests
     {
@@ -27,7 +26,7 @@ namespace StreamChat.Tests.StatefulClient
                 Id = userId,
                 Role = "user",
                 Name = "David",
-                CustomData = new Dictionary<string, object>
+                CustomData = new StreamCustomDataRequest
                 {
                     { "Age", 24 },
                     { "Passions", new string[] { "Tennis", "Football", "Basketball" } }

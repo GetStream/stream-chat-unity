@@ -4,7 +4,6 @@ using System.Collections;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.LowLevelClient;
-using StreamChat.Core.State;
 using UnityEditor;
 using UnityEngine;
 

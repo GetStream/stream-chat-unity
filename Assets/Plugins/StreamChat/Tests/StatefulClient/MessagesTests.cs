@@ -18,6 +18,51 @@ namespace StreamChat.Tests.StatefulClient
     internal class MessagesTests : BaseStateIntegrationTests
     {
         [UnityTest]
+        public IEnumerator When_send_message_expect_no_errors()
+            => ConnectAndExecute(When_send_message_expect_no_errors_Async);
+
+        private async Task When_send_message_expect_no_errors_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            const string MessageText = "fds*fhjfdks9";
+
+            var sentMessage = await channel.SendNewMessageAsync(MessageText);
+            Assert.AreEqual(sentMessage.Text, MessageText);
+
+            var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
+            Assert.NotNull(messageInChannel);
+        }
+        
+        [UnityTest]
+        public IEnumerator When_send_message_with_custom_data_expect_custom_data_on_message()
+            => ConnectAndExecute(When_send_message_with_custom_data_expect_custom_data_on_message_Async);
+
+        private async Task When_send_message_with_custom_data_expect_custom_data_on_message_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            const string MessageText = "fds*fhjfdks9";
+
+            var sentMessage = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = MessageText,
+                CustomData = new StreamCustomDataRequest
+                {
+                    {"Age", 12},
+                    {"Sports", new string[]{"Yoga", "Climbing"}}
+                }
+            });
+            
+            var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
+            Assert.NotNull(messageInChannel);
+            
+            Assert.AreEqual(MessageText, messageInChannel.Text);
+            Assert.AreEqual(12, messageInChannel.CustomData.Get<int>("Age"));
+            Assert.AreEqual(new string[]{"Yoga", "Climbing"}, messageInChannel.CustomData.Get<string[]>("Sports"));
+        }
+        
+        [UnityTest]
         public IEnumerator When_Update_message_expect_message_changed()
             => ConnectAndExecute(When_Update_message_expect_message_changed_Async);
 
@@ -43,6 +88,37 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(messageInChannel);
 
             Assert.AreEqual("New changed message", messageInChannel.Text);
+        }
+        
+        [UnityTest]
+        public IEnumerator When_Update_message_custom_data_expect_message_custom_data_changed()
+            => ConnectAndExecute(When_Update_message_custom_data_expect_message_custom_data_changed_Async);
+
+        private async Task When_Update_message_custom_data_expect_message_custom_data_changed_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            const string MessageText = "fds*fhjfdks9";
+
+            var sentMessage = await channel.SendNewMessageAsync(MessageText);
+
+            var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
+            Assert.NotNull(messageInChannel);
+
+            await messageInChannel.UpdateAsync(new StreamUpdateMessageRequest
+            {
+                Text = "New changed message",
+                CustomData = new StreamCustomDataRequest
+                {
+                    {"CategoryId", 12},
+                    {"Awards", new string[]{"Funny", "Inspirational"}}
+                }
+            });
+
+            messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
+            Assert.NotNull(messageInChannel);
+            Assert.AreEqual(12, messageInChannel.CustomData.Get<int>("CategoryId"));
+            Assert.AreEqual(new string[]{"Funny", "Inspirational"}, messageInChannel.CustomData.Get<string[]>("Awards"));
         }
 
         [UnityTest]

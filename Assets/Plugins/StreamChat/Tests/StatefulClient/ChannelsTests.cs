@@ -102,23 +102,6 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
-        public IEnumerator When_channel_send_message_expect_no_errors()
-            => ConnectAndExecute(When_channel_send_message_expect_no_errors_Async);
-
-        private async Task When_channel_send_message_expect_no_errors_Async()
-        {
-            var channel = await CreateUniqueTempChannelAsync();
-
-            const string MessageText = "fds*fhjfdks9";
-
-            var sentMessage = await channel.SendNewMessageAsync(MessageText);
-            Assert.AreEqual(sentMessage.Text, MessageText);
-
-            var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
-            Assert.NotNull(messageInChannel);
-        }
-
-        [UnityTest]
         public IEnumerator When_mute_channel_expect_muted() => ConnectAndExecute(When_mute_channel_expect_muted_Async);
 
         private async Task When_mute_channel_expect_muted_Async()
@@ -296,7 +279,6 @@ namespace StreamChat.Tests.StatefulClient
         private async Task When_unset_channel_custom_data_expect_no_data_on_channel_object_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
-
             await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>()
             {
                 {"owned_dogs", 5},
@@ -310,10 +292,13 @@ namespace StreamChat.Tests.StatefulClient
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
             var breakfast = channel.CustomData.Get<List<string>>("breakfast");
+            
             Assert.AreEqual(5, ownedDogs);
             Assert.Contains("donuts", breakfast);
-
+            
             await channel.UpdatePartialAsync(unsetFields: new string[] {"owned_dogs", "breakfast"});
+
+            //StreamTodo: this can potentially be non deterministic because we rely on WS event being received before call ends
 
             Assert.IsFalse(channel.CustomData.ContainsKey("owned_dogs"));
             Assert.IsFalse(channel.CustomData.ContainsKey("breakfast"));
@@ -340,7 +325,9 @@ namespace StreamChat.Tests.StatefulClient
             });
             var otherUser = users.First();
 
-            await channel.AddMembersAsync(new[] {otherUser});
+            await channel.AddMembersAsync(otherUser);
+
+            await WaitWhileConditionTrue(() => channel.Members.Any(m => m.User == otherUser));
 
             Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
         }

@@ -7,7 +7,6 @@ using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
-using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
@@ -180,12 +179,8 @@ namespace StreamChat.Core.StatefulModels
 
         public async Task<IStreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest)
         {
-            if (sendMessageRequest == null)
-            {
-                throw new ArgumentNullException(nameof(sendMessageRequest));
-            }
+            StreamAsserts.AssertNotNull(sendMessageRequest, nameof(sendMessageRequest));
 
-            // StreamTodo: validate that Text and Mml should not be both set
             var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id,
                 sendMessageRequest.TrySaveToDto());
             var streamMessage = InternalAppendOrUpdateMessage(response.Message);

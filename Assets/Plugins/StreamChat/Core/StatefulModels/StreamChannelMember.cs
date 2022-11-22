@@ -31,6 +31,8 @@ namespace StreamChat.Core.StatefulModels
         public DateTimeOffset? UpdatedAt { get; private set; }
 
         public IStreamUser User { get; private set; }
+        
+        //StreamTodo: this object should not inherit custom data, it seems there's no way to set it for a member
 
         void IUpdateableFrom<ChannelMemberInternalDTO, StreamChannelMember>.UpdateFromDto(ChannelMemberInternalDTO dto,
             ICache cache)

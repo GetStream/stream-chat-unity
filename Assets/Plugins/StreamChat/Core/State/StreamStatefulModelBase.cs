@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State.Caches;
 using StreamChat.Libs.Logs;
-using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.State
 {
@@ -32,7 +31,7 @@ namespace StreamChat.Core.State
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
             _customData = new StreamCustomData(_additionalProperties, context.Serializer);
-            
+
             InternalUniqueId = uniqueId;
             Repository.Track(Self);
         }
@@ -48,10 +47,18 @@ namespace StreamChat.Core.State
 
         protected void LoadAdditionalProperties(Dictionary<string, object> additionalProperties)
         {
-            _additionalProperties.Clear();
+            //StreamTodo: investigate if there's a case we don't want to clear here
+            //Without clear channel full update or partial update unset won't work because we'll ignore that WS sent channel without custom data
 
+            _additionalProperties.Clear();
             foreach (var keyValuePair in additionalProperties)
             {
+                if (_additionalProperties.ContainsKey(keyValuePair.Key))
+                {
+                    _additionalProperties[keyValuePair.Key] = keyValuePair.Value;
+                    continue;
+                }
+
                 _additionalProperties.Add(keyValuePair.Key, keyValuePair.Value);
             }
         }
@@ -79,7 +86,7 @@ namespace StreamChat.Core.State
             where T : class
             => source ?? defaultValue;
 
-        private StreamCustomData _customData;
+        private readonly StreamCustomData _customData;
         private readonly Dictionary<string, object> _additionalProperties = new Dictionary<string, object>();
     }
 }

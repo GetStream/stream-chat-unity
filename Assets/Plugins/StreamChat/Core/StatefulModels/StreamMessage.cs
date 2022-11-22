@@ -222,6 +222,8 @@ namespace StreamChat.Core.StatefulModels
             Type = dto.Type.TryConvertToStreamMessageType();
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
             User = cache.TryCreateOrUpdate(dto.User);
+            
+            LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
         internal StreamMessage(string uniqueId, ICacheRepository<StreamMessage> repository, IStatefulModelContext context)
