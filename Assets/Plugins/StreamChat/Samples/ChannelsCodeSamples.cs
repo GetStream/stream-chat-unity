@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace StreamChat.Samples
 {
-    internal class ChannelsCodeSamples
+    internal sealed class ChannelsCodeSamples
     {
         /// <summary>
         /// https://getstream.io/chat/docs/unity/creating_channels/?language=unity#1.-creating-a-channel-using-a-channel-id
@@ -291,7 +291,7 @@ namespace StreamChat.Samples
 
             var channels = await Client.QueryChannelsAsync(filters);
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/query_channels/?language=unity#support
         /// </summary>
@@ -299,7 +299,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT query support filter example
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/query_channels/?language=unity#pagination
         /// </summary>
@@ -322,7 +322,7 @@ namespace StreamChat.Samples
         public async Task QueryPagination()
         {
             //StreamTodo: IMPLEMENT
-            
+
             var filters = new Dictionary<string, object>
             {
                 {
@@ -354,11 +354,11 @@ namespace StreamChat.Samples
                     }
                 }
             };
-            
+
             // Paginate through results by increasing offset
             var membersResult = await channel.QueryMembers(filters, limit: 30, offset: 0);
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
         /// </summary>
@@ -370,7 +370,7 @@ namespace StreamChat.Samples
             // Every call will load 1 more page of messages
             await channel.LoadOlderMessagesAsync();
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
         /// </summary>
@@ -380,32 +380,32 @@ namespace StreamChat.Samples
 
             // StreamTodo: IMPLEMENT channel members pagination
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
         /// </summary>
         public async Task ChannelPaginateWatchers()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-            
+
             // StreamTodo: IMPLEMENT channel watchers pagination
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_capabilities/?language=unity
         /// </summary>
         public async Task ChannelCapabilities()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-            
-            if(channel.OwnCapabilities.Contains("update-own-message"))
+
+            if (channel.OwnCapabilities.Contains("update-own-message"))
             {
                 // User can update own message
-            }        
-            
+            }
+
             // Check action keys here https://getstream.io/chat/docs/unity/permissions_reference/?language=unity
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_invites/?language=unity
         /// </summary>
@@ -413,7 +413,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT send invite
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_invites/?language=unity#accepting-an-invite
         /// </summary>
@@ -421,7 +421,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT accept invite
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_invites/?language=unity#rejecting-an-invite
         /// </summary>
@@ -429,7 +429,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT reject invite
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_invites/?language=unity#query-for-accepted-invites
         /// </summary>
@@ -437,7 +437,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT query accepted invites
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_invites/?language=unity#query-for-rejected-invites
         /// </summary>
@@ -445,7 +445,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT query rejected invites
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_invites/?language=unity#query-for-pending-invites
         /// </summary>
@@ -453,7 +453,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT query pending invites
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#muting-channels
         /// </summary>
@@ -462,7 +462,7 @@ namespace StreamChat.Samples
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             await channel.MuteChannelAsync();
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#query-muted-channels
         /// </summary>
@@ -470,7 +470,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT query muted channels
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#remove-a-channel-mute
         /// </summary>
@@ -479,7 +479,7 @@ namespace StreamChat.Samples
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             await channel.UnmuteChannelAsync();
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#hiding-a-channel
         /// </summary>
@@ -487,10 +487,10 @@ namespace StreamChat.Samples
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             await channel.HideAsync();
-            
+
             await channel.ShowAsync();
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#disable-a-channel
         /// </summary>
@@ -498,7 +498,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT disable channel
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#freeze-a-channel
         /// </summary>
@@ -506,7 +506,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT freeze channel
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#unfreeze-a-channel
         /// </summary>
@@ -514,7 +514,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT unfreeze channel
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#granting-the-frozen-channel-permissions
         /// </summary>
@@ -522,7 +522,7 @@ namespace StreamChat.Samples
         {
             //StreamTodo: IMPLEMENT granting frozen channel permissions
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_delete/?language=unity#deleting-a-channel
         /// </summary>
@@ -531,7 +531,7 @@ namespace StreamChat.Samples
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             await channel.DeleteAsync();
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/truncate_channel/?language=unity
         /// </summary>
@@ -540,7 +540,7 @@ namespace StreamChat.Samples
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             await channel.TruncateAsync();
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/slow_mode/?language=unity
         /// </summary>
@@ -549,6 +549,6 @@ namespace StreamChat.Samples
             //StreamTodo: IMPLEMENT Throttle and slow mode
         }
 
-        protected IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
+        private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
     }
 }

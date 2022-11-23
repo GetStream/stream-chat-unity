@@ -5,14 +5,13 @@ using StreamChat.Libs.Auth;
 
 namespace StreamChat.Samples
 {
-    internal class ClientAndUsersCodeSamples
+    internal sealed class ClientAndUsersCodeSamples
     {
         /// <summary>
         /// https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#developer-tokens
         /// </summary>
         public async Task DeveloperTokens()
         {
-
             var userName = "The Amazing Tom";
             var userId = StreamChatClient.SanitizeUserId(userName);
             var userToken = StreamChatClient.CreateDeveloperAuthToken(userId);
@@ -54,6 +53,6 @@ namespace StreamChat.Samples
             });
         }
         
-        protected IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
+        private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
     }
 }
