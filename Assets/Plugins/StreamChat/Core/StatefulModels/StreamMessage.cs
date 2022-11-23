@@ -164,6 +164,7 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(response.Message);
         }
 
+        //StreamTodo: docs calls it Remove
         public Task DeleteReactionAsync(string type)
         {
             StreamAsserts.AssertNotNullOrEmpty(type, nameof(type));

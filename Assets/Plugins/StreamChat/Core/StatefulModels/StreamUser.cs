@@ -78,7 +78,7 @@ namespace StreamChat.Core.StatefulModels
             {
                 TargetId = Id,
             });
-        
+
         public async Task MarkInvisibleAsync()
         {
             var response = await LowLevelClient.InternalUserApi.UpdateUserPartialAsync(

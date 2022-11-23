@@ -277,10 +277,11 @@ namespace StreamChat.Core.StatefulModels
 
         //StreamTodo: IMPLEMENT, this should probably work like LoadNextMembers, LoadPreviousMembers? what about sorting - in config?
         //Perhaps we should have both, maybe user wants to search members and not only paginate joined
-        public async Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters, int limit = 30, int offset = 0)
+        public async Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters,
+            int limit = 30, int offset = 0)
         {
             StreamAsserts.AssertNotNullOrEmpty(filters, nameof(filters));
-            
+
             var response = await LowLevelClient.InternalChannelApi.QueryMembersAsync(new QueryMembersRequestInternalDTO
             {
                 CreatedAtAfter = null,
@@ -307,7 +308,7 @@ namespace StreamChat.Core.StatefulModels
                 return Enumerable.Empty<IStreamChannelMember>();
             }
 
-            var result  = new List<IStreamChannelMember>();
+            var result = new List<IStreamChannelMember>();
             foreach (var member in response.Members)
             {
                 result.Add(Cache.TryCreateOrUpdate(member));
@@ -319,34 +320,35 @@ namespace StreamChat.Core.StatefulModels
         //StreamTodo: IMPLEMENT, perhap Load Prev/Next Watchers? sorting in config?
         public void QueryWatchers()
         {
-            throw new NotImplementedException("This feature is not implemented yet, please raise GH issue to have this implement asap");
+            throw new NotImplementedException(
+                "This feature is not implemented yet, please raise GH issue to have this implement asap");
         }
 
-        public Task BanUserFromChannelAsync(IStreamUser user, bool isShadowBan = false, string reason = "",
+        //StreamTodo: Write tests for banning and unbanning, test also shadow ban message being marked
+        public Task BanUserAsync(IStreamUser user, string reason = "",
+            int? timeoutMinutes = default, bool isIpBan = false)
+            => InternalBanUserAsync(user, isShadowBan: false, reason, timeoutMinutes, isIpBan);
+
+        public Task BanMemberAsync(IStreamChannelMember member, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false)
         {
-            StreamAsserts.AssertNotNull(user, nameof(user));
-            StreamAsserts.AssertGreaterThanZero(timeoutMinutes, nameof(timeoutMinutes));
+            StreamAsserts.AssertNotNull(member, nameof(member));
+            return InternalBanUserAsync(member.User, isShadowBan: false, reason, timeoutMinutes, isIpBan);
+        }
 
-            return LowLevelClient.InternalModerationApi.BanUserAsync(new BanRequestInternalDTO
-            {
-                //BannedBy = null,
-                //BannedById = null,
-                Id = Id,
-                IpBan = isIpBan,
-                Reason = reason,
-                Shadow = isShadowBan,
-                TargetUserId = user.Id,
-                Timeout = timeoutMinutes,
-                Type = Type,
-                //User = null,
-                //UserId = null,
-                //AdditionalProperties = null
-            });
+        public Task ShadowBanUserAsync(IStreamUser user, string reason = "",
+            int? timeoutMinutes = default, bool isIpBan = false)
+            => InternalBanUserAsync(user, isShadowBan: true, reason, timeoutMinutes, isIpBan);
+
+        public Task ShadowBanMemberAsync(IStreamChannelMember member, string reason = "",
+            int? timeoutMinutes = default, bool isIpBan = false)
+        {
+            StreamAsserts.AssertNotNull(member, nameof(member));
+            return InternalBanUserAsync(member.User, isShadowBan: true, reason, timeoutMinutes, isIpBan);
         }
 
         //StreamTodo: check what happens if user doesn't belong to this channel
-        public Task UnbanUserInChannelAsync(IStreamUser user)
+        public Task UnbanUserAsync(IStreamUser user)
         {
             StreamAsserts.AssertNotNull(user, nameof(user));
             return LowLevelClient.InternalModerationApi.UnbanUserAsync(user.Id, Type, Id);
@@ -844,6 +846,33 @@ namespace StreamChat.Core.StatefulModels
 
             userRead.Update(createAt);
             //StreamTodo: IMPLEMENT we need to recalculate the unread counts and raise some event
+        }
+
+        private Task InternalBanUserAsync(IStreamUser user, bool isShadowBan = false, string reason = "",
+            int? timeoutMinutes = default, bool isIpBan = false)
+        {
+            StreamAsserts.AssertNotNull(user, nameof(user));
+
+            if (timeoutMinutes.HasValue)
+            {
+                StreamAsserts.AssertGreaterThanZero(timeoutMinutes, nameof(timeoutMinutes));
+            }
+
+            return LowLevelClient.InternalModerationApi.BanUserAsync(new BanRequestInternalDTO
+            {
+                //BannedBy = null,
+                //BannedById = null,
+                Id = Id,
+                IpBan = isIpBan,
+                Reason = reason,
+                Shadow = isShadowBan,
+                TargetUserId = user.Id,
+                Timeout = timeoutMinutes,
+                Type = Type,
+                //User = null,
+                //UserId = null,
+                //AdditionalProperties = null
+            });
         }
     }
 }

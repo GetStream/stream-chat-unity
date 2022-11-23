@@ -30,11 +30,6 @@ namespace StreamChat.Core.Requests
         public List<IStreamUser> MentionedUsers { get; set; }
 
         /// <summary>
-        /// Should be empty if `text` is provided. Can only be set when using server-side API
-        /// </summary>
-        public string Mml { get; set; }
-
-        /// <summary>
         /// ID of parent message (thread)
         /// </summary>
         public string ParentId { get; set; }
@@ -93,7 +88,7 @@ namespace StreamChat.Core.Requests
                 //Html = Html, Only server-side field
                 //Id = Id, Purposely ignored so it can be set by the StreamMessage.UpdateAsync
                 MentionedUsers = MentionedUsers.ToUserIdsListOrNull(),
-                Mml = Mml,
+                //Mml = Mml, Only server-side field
                 ParentId = ParentId,
                 PinExpires = PinExpires,
                 Pinned = Pinned,

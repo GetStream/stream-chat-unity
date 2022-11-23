@@ -317,21 +317,56 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Ban user from this channel.
-        /// If you wish to ban user completely from all of the channels, this can be done only by server-side SDKs.
+        /// If you wish to ban user completely from all of the channels, this can be done only by a server-side SDKs.
         /// </summary>
         /// <param name="user">User to ban from channel</param>
-        /// <param name="isShadowBan">Shadow banned user is not notified about the ban. Read more: <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks></param>
         /// <param name="reason">[Optional] reason description why user got banned</param>
         /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
         /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
-        Task BanUserFromChannelAsync(IStreamUser user, bool isShadowBan = false, string reason = "",
+        Task BanUserAsync(IStreamUser user, string reason = "",
+            int? timeoutMinutes = default, bool isIpBan = false);
+        
+        /// <summary>
+        /// Ban member from this channel.
+        /// If you wish to ban user completely from all of the channels, this can be done only by a server-side SDKs.
+        /// </summary>
+        /// <param name="member">Channel member to ban from channel</param>
+        /// <param name="reason">[Optional] reason description why user got banned</param>
+        /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
+        /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
+        Task BanMemberAsync(IStreamChannelMember member, string reason = "",
+            int? timeoutMinutes = default, bool isIpBan = false);
+        
+        /// <summary>
+        /// Shadow Ban user from this channel. Shadow banned user does not know about being banned.
+        /// If you wish to ban user completely from all of the channels, this can be done only by a server-side SDKs.
+        /// </summary>
+        /// <param name="user">User to ban from channel</param>
+        /// <param name="reason">[Optional] reason description why user got banned</param>
+        /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
+        /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unreal#shadow-ban</remarks>
+        Task ShadowBanUserAsync(IStreamUser user, string reason = "",
+            int? timeoutMinutes = default, bool isIpBan = false);
+        
+        /// <summary>
+        /// Shadow Ban member from this channel. Shadow banned member does not know about being banned.
+        /// If you wish to ban user completely from all of the channels, this can be done only by a server-side SDKs.
+        /// </summary>
+        /// <param name="member">Channel member to ban from channel</param>
+        /// <param name="reason">[Optional] reason description why user got banned</param>
+        /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
+        /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unreal#shadow-ban</remarks>
+        Task ShadowBanMemberAsync(IStreamChannelMember member, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false);
 
         /// <summary>
         /// Remove ban from the user on this channel
         /// </summary>
-        Task UnbanUserInChannelAsync(IStreamUser user);
+        Task UnbanUserAsync(IStreamUser user);
         
         /// <summary>
         /// Mark this channel completely as read

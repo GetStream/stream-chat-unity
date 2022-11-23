@@ -50,10 +50,24 @@ namespace StreamChat.Samples
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             
             // Dummy example to get IStreamUser to ban
-            var streamUser = channel.Messages.First().User;
+            var user = channel.Messages.First().User;
+            
+            // Dummy example to get IStreamUser to ban
+            var channelMember = channel.Members.First();
 
-            // Ban a user
-            //StreamTOdo: IMPLEMENT ban user
+            // Ban a user permanently from this channel permanently
+            await channel.BanUserAsync(user);
+            
+            // Use any combination of BanUser/BanMember optional parameters: reason, timeoutMinutes, isIpBan
+            
+            // Ban a user from this channel for 2 hours with a reason
+            await channel.BanUserAsync(user, "You got banned for 2 hours for toxic behaviour.", 120);
+            
+            // Ban a user IP from this channel for 2 hours without a reason
+            await channel.BanUserAsync(user, timeoutMinutes: 120, isIpBan: true);
+            
+            // Ban a member from this channel permanently
+            await channel.BanMemberAsync(channelMember);
         }
         
         /// <summary>
@@ -61,7 +75,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryBannedUsers()
         {
-            
+
         }
         
         /// <summary>
@@ -77,7 +91,30 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task ShadowBan()
         {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             
+            // Dummy example to get IStreamUser to ban
+            var user = channel.Messages.First().User;
+            
+            // Dummy example to get IStreamUser to ban
+            var channelMember = channel.Members.First();
+
+            // Shadow Ban a user from this channel permanently
+            await channel.ShadowBanUserAsync(user);
+            
+            // Shadow Ban a member from this channel
+            await channel.ShadowBanMemberAsync(channelMember);
+            
+            // Use any combination of ShadowBanUser/ShadowBanMember optional parameters: reason, timeoutMinutes, isIpBan
+            
+            // Shadow Ban a member from this channel permanently
+            await channel.ShadowBanMemberAsync(channelMember);
+            
+            // Shadow Ban a member from this channel for 2 hours with a reason
+            await channel.ShadowBanMemberAsync(channelMember, "Banned for 2 hours for toxic behaviour.", 120);
+            
+            // Shadow Ban a member IP from this channel for 2 hours without a reason
+            await channel.ShadowBanMemberAsync(channelMember, timeoutMinutes: 120, isIpBan: true);
         }
         
         private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
