@@ -104,6 +104,18 @@ namespace StreamChat.Core
         //StreamTodo: missing descriptions
         Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters);
 
+        /// <summary>
+        /// Query banned users based on provided parameters
+        /// </summary>
+        /// <param name="streamQueryBannedUsersRequest">Request parameters object</param>
+        Task<IEnumerable<StreamUserBanInfo>> QueryBannedUsersAsync(
+            StreamQueryBannedUsersRequest streamQueryBannedUsersRequest);
+
+        /// <summary>
+        /// Upsert users. Upsert means update this user or create if not found
+        /// </summary>
+        /// <param name="userRequests"></param>
+        /// <returns></returns>
         Task<IEnumerable<IStreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests);
         
         /// <summary>

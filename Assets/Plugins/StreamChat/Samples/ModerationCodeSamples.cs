@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.Requests;
 
 namespace StreamChat.Samples
 {
@@ -58,7 +59,7 @@ namespace StreamChat.Samples
             // Ban a user permanently from this channel permanently
             await channel.BanUserAsync(user);
             
-            // Use any combination of BanUser/BanMember optional parameters: reason, timeoutMinutes, isIpBan
+            // Use any combination of optional parameters: reason, timeoutMinutes, isIpBan
             
             // Ban a user from this channel for 2 hours with a reason
             await channel.BanUserAsync(user, "You got banned for 2 hours for toxic behaviour.", 120);
@@ -75,7 +76,18 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryBannedUsers()
         {
-
+            var request = new StreamQueryBannedUsersRequest
+            {
+                CreatedAtAfter = null,
+                CreatedAtAfterOrEqual = null,
+                CreatedAtBefore = null,
+                CreatedAtBeforeOrEqual = null,
+                FilterConditions = null,
+                Limit = null,
+                Offset = null,
+                Sort = null
+            };
+            var bannedUsers = await Client.QueryBannedUsersAsync(request);
         }
         
         /// <summary>
@@ -105,7 +117,7 @@ namespace StreamChat.Samples
             // Shadow Ban a member from this channel
             await channel.ShadowBanMemberAsync(channelMember);
             
-            // Use any combination of ShadowBanUser/ShadowBanMember optional parameters: reason, timeoutMinutes, isIpBan
+            // Use any combination of optional parameters: reason, timeoutMinutes, isIpBan
             
             // Shadow Ban a member from this channel permanently
             await channel.ShadowBanMemberAsync(channelMember);

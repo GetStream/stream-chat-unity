@@ -214,7 +214,7 @@ namespace StreamChat.Core
             };
 
             var channelsResponseDto = await LowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
-            if (channelsResponseDto.Channels != null && channelsResponseDto.Channels.Count == 0)
+            if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
             {
                 return Enumerable.Empty<StreamChannel>();
             }
@@ -228,14 +228,20 @@ namespace StreamChat.Core
             return result;
         }
 
-        //StreamTodo: sorting could be controlled in global config, we definitely don't want to control this per request
         public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters)
         {
             //StreamTodo: Missing filter, and stuff like IdGte etc
             var requestBodyDto = new QueryUsersRequestInternalDTO
             {
-                Presence = true,
-                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value)
+                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
+                IdGt = null,
+                IdGte = null,
+                IdLt = null,
+                IdLte = null,
+                Limit = null,
+                Offset = null,
+                Presence = true, //StreamTodo: research whether user should be allowed to control this
+                Sort = null,
             };
 
             var response = await LowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
@@ -248,6 +254,27 @@ namespace StreamChat.Core
             foreach (var userDto in response.Users)
             {
                 result.Add(_cache.TryCreateOrUpdate(userDto));
+            }
+
+            return result;
+        }
+        
+        //StreamTodo: write tests
+        public async Task<IEnumerable<StreamUserBanInfo>> QueryBannedUsersAsync(StreamQueryBannedUsersRequest streamQueryBannedUsersRequest)
+        {
+            StreamAsserts.AssertNotNull(streamQueryBannedUsersRequest, nameof(streamQueryBannedUsersRequest));
+
+            var response = await LowLevelClient.InternalModerationApi.QueryBannedUsersAsync(streamQueryBannedUsersRequest.TrySaveToDto());
+            if (response.Bans == null || response.Bans.Count == 0)
+            {
+                return Enumerable.Empty<StreamUserBanInfo>();
+            }
+
+            var result = new List<StreamUserBanInfo>();
+            foreach (var userDto in response.Bans)
+            {
+                var banInfo = new StreamUserBanInfo().LoadFromDto(userDto, _cache);
+                result.Add(banInfo);
             }
 
             return result;

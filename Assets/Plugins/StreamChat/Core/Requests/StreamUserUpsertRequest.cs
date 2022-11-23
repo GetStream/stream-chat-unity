@@ -7,7 +7,7 @@ using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.Requests
 {
-    public class StreamUserUpsertRequest : ISavableTo<UserObjectRequestInternalDTO>
+    public sealed class StreamUserUpsertRequest : ISavableTo<UserObjectRequestInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban

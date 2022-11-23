@@ -42,7 +42,7 @@ namespace StreamChat.Core.LowLevelClient.Models
         /// <summary>
         /// Pending messages that this user has sent
         /// </summary>
-        public System.Collections.Generic.List<PendingMessage> PendingMessages { get; set; }
+        public List<PendingMessage> PendingMessages { get; set; }
 
         /// <summary>
         /// List of pinned messages in the channel
