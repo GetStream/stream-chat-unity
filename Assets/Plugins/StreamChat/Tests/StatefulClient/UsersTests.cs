@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,3 +47,4 @@ namespace StreamChat.Tests.StatefulClient
         }
     }
 }
+#endif
