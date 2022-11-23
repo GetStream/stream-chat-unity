@@ -14,22 +14,22 @@ namespace StreamChat.Core.Requests
     public sealed class StreamQueryBannedUsersRequest : ISavableTo<QueryBannedUsersRequestInternalDTO>
     {
         /// <summary>
-        /// Get users created after this date
+        /// Ban created after this date
         /// </summary>
         public DateTimeOffset? CreatedAtAfter { get; set; }
 
         /// <summary>
-        /// Get users created after or equal this date
+        /// Ban created after or equal this date
         /// </summary>
         public DateTimeOffset? CreatedAtAfterOrEqual { get; set; }
 
         /// <summary>
-        /// Get users created before this date
+        /// Ban created before this date
         /// </summary>
         public DateTimeOffset? CreatedAtBefore { get; set; }
 
         /// <summary>
-        /// Get users created before or equal this date
+        /// Ban created before or equal this date
         /// </summary>
         public DateTimeOffset? CreatedAtBeforeOrEqual { get; set; }
 

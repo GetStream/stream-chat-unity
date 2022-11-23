@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
@@ -76,16 +77,12 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryBannedUsers()
         {
+            // Get users banned in the last 24 hours
             var request = new StreamQueryBannedUsersRequest
             {
-                CreatedAtAfter = null,
-                CreatedAtAfterOrEqual = null,
-                CreatedAtBefore = null,
-                CreatedAtBeforeOrEqual = null,
-                FilterConditions = null,
-                Limit = null,
-                Offset = null,
-                Sort = null
+                CreatedAtAfterOrEqual = new DateTimeOffset().AddHours(-24),
+                Limit = 30,
+                Offset = 0,
             };
             var bannedUsers = await Client.QueryBannedUsersAsync(request);
         }
