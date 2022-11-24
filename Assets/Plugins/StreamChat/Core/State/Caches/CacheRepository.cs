@@ -5,7 +5,7 @@ using StreamChat.Libs.Utils;
 namespace StreamChat.Core.State.Caches
 {
     /// <summary>
-    /// Tracked objects repository
+    /// Cache repository for <see cref="IStreamStatefulModel"/>
     /// </summary>
     /// <typeparam name="TStatefulModel">Tracked object type</typeparam>
     internal sealed class CacheRepository<TStatefulModel> : ICacheRepository<TStatefulModel>

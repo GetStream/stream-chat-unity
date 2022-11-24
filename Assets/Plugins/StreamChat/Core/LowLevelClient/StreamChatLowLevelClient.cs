@@ -13,8 +13,10 @@ using StreamChat.Core.LowLevelClient.API;
 using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.LowLevelClient.Events;
 using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core.State;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
+using StreamChat.Libs.AppInfo;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -193,15 +195,16 @@ namespace StreamChat.Core.LowLevelClient
             IStreamClientConfig config = default)
         {
             config ??= StreamClientConfig.Default;
-            var logs = LibsFactory.CreateDefaultLogs(config.LogLevel.ToLogLevel());
+            var logs = StreamDependenciesFactory.CreateLogger(config.LogLevel.ToLogLevel());
+            var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
             var websocketClient
-                = LibsFactory.CreateDefaultWebsocketClient(logs, isDebugMode: config.LogLevel.IsDebugEnabled());
-            var httpClient = LibsFactory.CreateDefaultHttpClient();
-            var serializer = LibsFactory.CreateDefaultSerializer();
-            var timeService = LibsFactory.CreateDefaultTimeService();
+                = StreamDependenciesFactory.CreateWebsocketClient(logs, isDebugMode: config.LogLevel.IsDebugEnabled());
+            var httpClient = StreamDependenciesFactory.CreateHttpClient();
+            var serializer = StreamDependenciesFactory.CreateSerializer();
+            var timeService = StreamDependenciesFactory.CreateTimeService();
 
             return new StreamChatLowLevelClient(authCredentials, websocketClient, httpClient, serializer,
-                timeService, logs, config);
+                timeService, applicationInfo, logs, config);
         }
 
         /// <summary>
@@ -238,8 +241,8 @@ namespace StreamChat.Core.LowLevelClient
         }
 
         public StreamChatLowLevelClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
-            IStreamClientConfig config)
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo,
+            ILogs logs, IStreamClientConfig config)
         {
             _config = config;
             _authCredentials = authCredentials;
@@ -247,6 +250,7 @@ namespace StreamChat.Core.LowLevelClient
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
+            applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
             _config = config ?? throw new ArgumentNullException(nameof(config));
 
@@ -255,7 +259,8 @@ namespace StreamChat.Core.LowLevelClient
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
 
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
-            _httpClient.AddDefaultCustomHeader("X-Stream-Client", $"stream-chat-unity-client-{SDKVersion}");
+            var header = BuildStreamHeader(applicationInfo);
+            _httpClient.AddDefaultCustomHeader("X-Stream-Client", header);
 
             _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
             _websocketClient.Connected += OnWebsocketsConnected;
@@ -802,6 +807,43 @@ namespace StreamChat.Core.LowLevelClient
                         $"Connection is not being updated. Please call the `{nameof(StreamChatLowLevelClient)}.{nameof(Update)}` method per frame.");
                 }
             });
+        }
+        
+        private static string BuildStreamHeader(IApplicationInfo applicationInfo)
+        {
+            var sb = new StringBuilder();
+            sb.Append($"stream-chat-unity-client-");
+            sb.Append(SDKVersion);
+            sb.Append("|");
+
+            sb.Append("os=");
+            sb.Append(applicationInfo.OperatingSystem);
+            sb.Append("|");
+            
+            sb.Append("platform=");
+            sb.Append(applicationInfo.Platform);
+            sb.Append("|");
+
+            sb.Append("engine=");
+            sb.Append(applicationInfo.Engine);
+            sb.Append("|");
+
+            sb.Append("engine_version=");
+            sb.Append(applicationInfo.EngineVersion);
+            sb.Append("|");
+
+            sb.Append("screen_size=");
+            sb.Append(applicationInfo.ScreenSize);
+            sb.Append("|");
+            
+            sb.Append("memory_size=");
+            sb.Append(applicationInfo.MemorySize);
+            sb.Append("|");
+            
+            sb.Append("graphics_memory_size=");
+            sb.Append(applicationInfo.GraphicsMemorySize);
+            
+            return sb.ToString();
         }
     }
 }

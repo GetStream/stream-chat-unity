@@ -195,7 +195,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 return;
             }
 
-            var unityLogs = LibsFactory.CreateDefaultLogs();
+            var unityLogs = StreamDependenciesFactory.CreateLogger();
 
             var cids = new List<string>();
 

@@ -16,6 +16,7 @@ using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs;
+using StreamChat.Libs.AppInfo;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Http;
@@ -74,14 +75,15 @@ namespace StreamChat.Core
         public static IStreamChatClient CreateDefaultClient(IStreamClientConfig config = default)
         {
             config ??= StreamClientConfig.Default;
-            var logs = LibsFactory.CreateDefaultLogs(config.LogLevel.ToLogLevel());
-            var websocketClient = LibsFactory.CreateDefaultWebsocketClient(logs, config.LogLevel.IsDebugEnabled());
-            var httpClient = LibsFactory.CreateDefaultHttpClient();
-            var serializer = LibsFactory.CreateDefaultSerializer();
-            var timeService = LibsFactory.CreateDefaultTimeService();
-            var gameObjectRunner = LibsFactory.CreateChatClientRunner();
+            var logs = StreamDependenciesFactory.CreateLogger(config.LogLevel.ToLogLevel());
+            var websocketClient = StreamDependenciesFactory.CreateWebsocketClient(logs, config.LogLevel.IsDebugEnabled());
+            var httpClient = StreamDependenciesFactory.CreateHttpClient();
+            var serializer = StreamDependenciesFactory.CreateSerializer();
+            var timeService = StreamDependenciesFactory.CreateTimeService();
+            var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
+            var gameObjectRunner = StreamDependenciesFactory.CreateChatClientRunner();
 
-            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, logs, config);
+            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs, config);
             gameObjectRunner.RunChatInstance(client);
             return client;
         }
@@ -92,9 +94,9 @@ namespace StreamChat.Core
         /// Important! Custom created client require calling the <see cref="Update"/> and <see cref="Destroy"/> methods.
         /// </summary>
         public static IStreamChatClient CreateClientWithCustomDependencies(IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs,
             IStreamClientConfig config) =>
-            new StreamChatClient(websocketClient, httpClient, serializer, timeService, logs, config);
+            new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs, config);
 
         /// <inheritdoc cref="StreamChatLowLevelClient.CreateDeveloperAuthToken"/>
         public static string CreateDeveloperAuthToken(string userId)
@@ -467,16 +469,14 @@ namespace StreamChat.Core
         /// <summary>
         /// Use the <see cref="CreateDefaultClient"/> to create the client instance
         /// </summary>
-        private StreamChatClient(IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
-            IStreamClientConfig config)
+        private StreamChatClient(IWebsocketClient websocketClient, IHttpClient httpClient, ISerializer serializer, 
+            ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
         {
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
             LowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient,
-                serializer,
-                _timeService, logs, config);
+                serializer, _timeService, applicationInfo, logs, config);
 
             _cache = new Cache(this, serializer, _logs);
 

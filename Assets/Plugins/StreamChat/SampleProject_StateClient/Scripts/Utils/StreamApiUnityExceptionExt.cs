@@ -12,7 +12,7 @@ namespace StreamChat.SampleProject_StateClient.Utils
         public static void LogStreamExceptionIfFailed(this Task t)
             => t.LogStreamExceptionIfFailed(_logger);
 
-        private static readonly ILogs _logger = Libs.LibsFactory.CreateDefaultLogs();
+        private static readonly ILogs _logger = Libs.StreamDependenciesFactory.CreateLogger();
     }
 }
 

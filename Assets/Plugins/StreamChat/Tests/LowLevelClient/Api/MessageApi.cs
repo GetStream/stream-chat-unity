@@ -8,6 +8,7 @@ using StreamChat.Core.Configs;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.API;
 using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Libs.AppInfo;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
@@ -30,11 +31,12 @@ namespace StreamChat.Tests.LowLevelClient.Api
             _mockHttpClient = Substitute.For<IHttpClient>();
             _serializer = new NewtonsoftJsonSerializer();
             _mockTimeService = Substitute.For<ITimeService>();
+            _mockApplicationInfo = Substitute.For<IApplicationInfo>();
             _mockLogs = Substitute.For<ILogs>();
             _mockStreamClientConfig = Substitute.For<IStreamClientConfig>();
 
             _lowLevelClient = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient, _serializer,
-                _mockTimeService, _mockLogs, _mockStreamClientConfig);
+                _mockTimeService, _mockApplicationInfo, _mockLogs, _mockStreamClientConfig);
         }
 
         [TearDown]
@@ -82,6 +84,7 @@ namespace StreamChat.Tests.LowLevelClient.Api
         private ITimeService _mockTimeService;
         private IHttpClient _mockHttpClient;
         private IStreamClientConfig _mockStreamClientConfig;
+        private IApplicationInfo _mockApplicationInfo;
         private NewtonsoftJsonSerializer _serializer;
 
         private static readonly string NameBase = $"{nameof(IStreamChatLowLevelClient)} - {nameof(IMessageApi)}";
