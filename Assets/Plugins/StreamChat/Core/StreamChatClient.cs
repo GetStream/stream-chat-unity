@@ -41,21 +41,21 @@ namespace StreamChat.Core
     /// Channel deletion handler
     /// </summary>
     public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
-    
+
     //StreamTodo: Handle restoring state after lost connection + include Unity Network Monitor
-    
+
     public sealed class StreamChatClient : IStreamChatClient
     {
         public event ConnectionMadeHandler Connected;
-        
+
         public event Action Disconnected;
 
         public event Action Disposed;
-        
+
         public event ConnectionChangeHandler ConnectionStateChanged;
-        
+
         public event ChannelDeleteHandler ChannelDeleted;
-        
+
         public ConnectionState ConnectionState => LowLevelClient.ConnectionState;
 
         public IStreamLocalUserData LocalUserData => _localUserData;
@@ -97,7 +97,8 @@ namespace StreamChat.Core
             new StreamChatClient(websocketClient, httpClient, serializer, timeService, logs, config);
 
         /// <inheritdoc cref="StreamChatLowLevelClient.CreateDeveloperAuthToken"/>
-        public static string CreateDeveloperAuthToken(string userId) => StreamChatLowLevelClient.CreateDeveloperAuthToken(userId);
+        public static string CreateDeveloperAuthToken(string userId)
+            => StreamChatLowLevelClient.CreateDeveloperAuthToken(userId);
 
         /// <inheritdoc cref="StreamChatLowLevelClient.SanitizeUserId"/>
         public static string SanitizeUserId(string userId) => StreamChatLowLevelClient.SanitizeUserId(userId);
@@ -119,6 +120,16 @@ namespace StreamChat.Core
             //StreamTodo: check if we can pass the cancellation token here
             _connectUserTaskSource = new TaskCompletionSource<IStreamLocalUserData>();
             return _connectUserTaskSource.Task;
+        }
+
+        public Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId, string userAuthToken,
+            CancellationToken cancellationToken = default)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(apiKey, nameof(apiKey));
+            StreamAsserts.AssertNotNullOrEmpty(userId, nameof(userId));
+            StreamAsserts.AssertNotNullOrEmpty(userAuthToken, nameof(userAuthToken));
+
+            return ConnectUserAsync(new AuthCredentials(apiKey, userId, userAuthToken), cancellationToken);
         }
 
         public Task DisconnectUserAsync() => LowLevelClient.DisconnectAsync();
@@ -190,7 +201,8 @@ namespace StreamChat.Core
 
         //StreamTodo: Filter object that contains a factory
         //StreamTodo: implement pagination + sorting seems useful for paginated query results
-        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters, int limit = 30, int offset = 0)
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
+            int limit = 30, int offset = 0)
         {
             StreamAsserts.AssertNotNull(filters, nameof(filters));
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
@@ -205,7 +217,7 @@ namespace StreamChat.Core
                 MessageLimit = null,
                 Offset = null,
                 Presence = true,
-                
+
                 //StreamTodo: sorting could be controlled in global config,
                 //we definitely don't want to control this per request as this could break data integrity + they can just sort result with LINQ
                 Sort = null,
@@ -258,13 +270,16 @@ namespace StreamChat.Core
 
             return result;
         }
-        
+
         //StreamTodo: write tests
-        public async Task<IEnumerable<StreamUserBanInfo>> QueryBannedUsersAsync(StreamQueryBannedUsersRequest streamQueryBannedUsersRequest)
+        public async Task<IEnumerable<StreamUserBanInfo>> QueryBannedUsersAsync(
+            StreamQueryBannedUsersRequest streamQueryBannedUsersRequest)
         {
             StreamAsserts.AssertNotNull(streamQueryBannedUsersRequest, nameof(streamQueryBannedUsersRequest));
 
-            var response = await LowLevelClient.InternalModerationApi.QueryBannedUsersAsync(streamQueryBannedUsersRequest.TrySaveToDto());
+            var response =
+                await LowLevelClient.InternalModerationApi.QueryBannedUsersAsync(streamQueryBannedUsersRequest
+                    .TrySaveToDto());
             if (response.Bans == null || response.Bans.Count == 0)
             {
                 return Enumerable.Empty<StreamUserBanInfo>();
@@ -356,7 +371,7 @@ namespace StreamChat.Core
             var response = new StreamDeleteChannelsResponse().UpdateFromDto(responseDto);
             return response;
         }
-        
+
         public async Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default)
         {
             StreamAsserts.AssertNotNullOrEmpty(users, nameof(users));
@@ -382,7 +397,7 @@ namespace StreamChat.Core
             {
                 return;
             }
-            
+
             //StreamTodo: disconnect current user
 
             TryCancelWaitingForUserConnection();
@@ -448,7 +463,7 @@ namespace StreamChat.Core
         private CancellationToken _connectUserCancellationToken;
         private CancellationTokenSource _connectUserCancellationTokenSource;
         private bool _isDisposed;
-        
+
         /// <summary>
         /// Use the <see cref="CreateDefaultClient"/> to create the client instance
         /// </summary>
@@ -459,7 +474,8 @@ namespace StreamChat.Core
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
-            LowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient, serializer,
+            LowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient,
+                serializer,
                 _timeService, logs, config);
 
             _cache = new Cache(this, serializer, _logs);
@@ -653,7 +669,7 @@ namespace StreamChat.Core
                 streamChannel.InternalHandleMessageReadEvent(eventDto);
             }
         }
-        
+
         private void OnMarkReadNotification(EventNotificationMarkReadInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))

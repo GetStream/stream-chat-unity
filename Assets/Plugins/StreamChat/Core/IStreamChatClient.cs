@@ -60,7 +60,28 @@ namespace StreamChat.Core
 
         double? NextReconnectTime { get; }
 
+        /// <summary>
+        /// Connect user to Stream Chat server.
+        /// User authentication credentials:
+        /// ApiKey - Your application API KEY. You can get it from https://dashboard.getstream.io/
+        /// UserId - Create it in Stream Dashboard or with server-side SDK or with <see cref="UpsertUsers"/>
+        /// UserToken - Read here https://getstream.io/chat/docs/unity/unity_client_overview/?language=unity#auth-credentials
+        /// </summary>
+        /// <param name="userAuthCredentials">User authentication credentials</param>
+        /// <param name="cancellationToken">Cancellation token that will abort the login request when cancelled</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/unity_client_overview/?language=unity#auth-credentials</remarks> 
         Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Connect user to Stream Chat server.
+        /// </summary>
+        /// <param name="apiKey">Your application API KEY. You can get it from https://dashboard.getstream.io/</param>
+        /// <param name="userId">User ID.</param>
+        /// <param name="userAuthToken">User authentication token.</param>
+        /// <param name="cancellationToken">Cancellation token that will abort the login request when cancelled</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/unity_client_overview/?language=unity#auth-credentials</remarks>
+        Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId, string userAuthToken,
             CancellationToken cancellationToken = default);
 
         /// <summary>
