@@ -29,7 +29,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryMessageFlags()
         {
-            
+            await Task.CompletedTask;
         }
         
         /// <summary>
@@ -92,7 +92,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryBansEndpoint()
         {
-            
+            await Task.CompletedTask;
         }
         
         /// <summary>

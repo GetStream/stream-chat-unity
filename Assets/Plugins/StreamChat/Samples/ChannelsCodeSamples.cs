@@ -134,6 +134,7 @@ namespace StreamChat.Samples
         public async Task PaginateChannelWatchers()
         {
             //StreamTodo: IMPLEMENT watchers pagination
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -142,6 +143,7 @@ namespace StreamChat.Samples
         public async Task ListenToChangesInWatchers()
         {
             //StreamTodo: IMPLEMENT listen to changes in watchers
+            await Task.CompletedTask;
         }
 
         private class ClanData
@@ -193,6 +195,7 @@ namespace StreamChat.Samples
         public async Task FullUpdate()
         {
 //StreamTodo: IMPLEMENT channel full update
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -231,6 +234,7 @@ namespace StreamChat.Samples
         public async Task AddMembersAndHideHistory()
         {
 //StreamTodo: IMPLEMENT add members and hide history
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -250,6 +254,7 @@ namespace StreamChat.Samples
         public async Task AddAndRemoveModeratorsToChanel()
         {
             // Only Server-side SDK
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -298,6 +303,7 @@ namespace StreamChat.Samples
         public async Task Support()
         {
             //StreamTodo: IMPLEMENT query support filter example
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -306,6 +312,7 @@ namespace StreamChat.Samples
         public async Task QueryChannelsPagination()
         {
             //StreamTodo: IMPLEMENT query channels pagination
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -314,6 +321,7 @@ namespace StreamChat.Samples
         public async Task QueryBasedOnAdditionalInformation()
         {
             //StreamTodo: IMPLEMENT query based on additional information
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -412,6 +420,7 @@ namespace StreamChat.Samples
         public async Task Invite()
         {
             //StreamTodo: IMPLEMENT send invite
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -420,6 +429,7 @@ namespace StreamChat.Samples
         public async Task AcceptInvite()
         {
             //StreamTodo: IMPLEMENT accept invite
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -428,6 +438,7 @@ namespace StreamChat.Samples
         public async Task RejectInvite()
         {
             //StreamTodo: IMPLEMENT reject invite
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -436,6 +447,7 @@ namespace StreamChat.Samples
         public async Task QueryAcceptedInvites()
         {
             //StreamTodo: IMPLEMENT query accepted invites
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -444,6 +456,7 @@ namespace StreamChat.Samples
         public async Task QueryRejectedInvites()
         {
             //StreamTodo: IMPLEMENT query rejected invites
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -452,6 +465,7 @@ namespace StreamChat.Samples
         public async Task QueryPendingInvites()
         {
             //StreamTodo: IMPLEMENT query pending invites
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -469,6 +483,7 @@ namespace StreamChat.Samples
         public async Task QueryMutedChannels()
         {
             //StreamTodo: IMPLEMENT query muted channels
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -497,6 +512,7 @@ namespace StreamChat.Samples
         public async Task DisableChannel()
         {
             //StreamTodo: IMPLEMENT disable channel
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -505,6 +521,7 @@ namespace StreamChat.Samples
         public async Task FreezeChannel()
         {
             //StreamTodo: IMPLEMENT freeze channel
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -513,6 +530,7 @@ namespace StreamChat.Samples
         public async Task UnfreezeChannel()
         {
             //StreamTodo: IMPLEMENT unfreeze channel
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -521,6 +539,7 @@ namespace StreamChat.Samples
         public async Task GrantingTheFrozenChannelPermission()
         {
             //StreamTodo: IMPLEMENT granting frozen channel permissions
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -547,6 +566,7 @@ namespace StreamChat.Samples
         public async Task ThrottleAndSlowMode()
         {
             //StreamTodo: IMPLEMENT Throttle and slow mode
+            await Task.CompletedTask;
         }
 
         private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();

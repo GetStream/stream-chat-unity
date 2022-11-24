@@ -78,6 +78,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task PartialUpdate()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -100,6 +101,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task OpenGraphScrapper()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -135,6 +137,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task UsingYourOwnCdn()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -186,6 +189,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task ThreadsAndReplies()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -193,6 +197,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task ThreadPagination()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -200,6 +205,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QuoteMessage()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -207,6 +213,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task Reminders()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -214,6 +221,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task SilentMessages()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -221,6 +229,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task Search()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -228,6 +237,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task SearchPagination()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -235,6 +245,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task PinAndUnpinMessage()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -242,6 +253,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task RetrievePinnedMessages()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -249,6 +261,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task PaginatePinnedMessages()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -256,6 +269,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task MessageTranslation()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -263,6 +277,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task EnableAutomaticTranslation()
         {
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -270,6 +285,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task SetUserLanguage()
         {
+            await Task.CompletedTask;
         }
 
         private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
