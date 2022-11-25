@@ -12,10 +12,8 @@ public class TestChatBehaviour : MonoBehaviour
     {
         _client = StreamChatClient.CreateDefaultClient();
 
-        ConnectToStream().LogIfFailed(_unityLogger);
+        ConnectToStream().LogIfFailed();
     }
-
-    private readonly ILogs _unityLogger = new UnityLogs();
 
     [SerializeField]
     private AuthCredentialsAsset _authCredentialsAsset;

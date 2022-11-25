@@ -10,6 +10,7 @@ using StreamChat.Core.LowLevelClient.Events;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.Utils;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
 using UnityEngine;

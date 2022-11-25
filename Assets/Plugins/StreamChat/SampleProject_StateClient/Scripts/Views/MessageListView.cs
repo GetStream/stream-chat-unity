@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.StatefulModels;
+using StreamChat.Libs.Utils;
 using StreamChat.SampleProject_StateClient.Utils;
 using UnityEngine;
 using UnityEngine.UI;

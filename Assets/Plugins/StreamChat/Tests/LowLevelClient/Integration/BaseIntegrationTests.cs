@@ -194,9 +194,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             {
                 return;
             }
-
-            var unityLogs = StreamDependenciesFactory.CreateLogger();
-
+            
             var cids = new List<string>();
 
             foreach (var (channelType, channelId) in _tempChannelsToDelete)
@@ -210,7 +208,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             {
                 Cids = cids,
                 HardDelete = true
-            }).LogIfFailed(unityLogs);
+            }).LogIfFailed();
         }
 
         private void InitClientAndConnect(string forcedAdminId = null)
