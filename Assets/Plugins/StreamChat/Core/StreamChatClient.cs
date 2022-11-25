@@ -58,6 +58,8 @@ namespace StreamChat.Core
         public event ChannelDeleteHandler ChannelDeleted;
 
         public ConnectionState ConnectionState => LowLevelClient.ConnectionState;
+        
+        public bool IsConnected => LowLevelClient.ConnectionState == ConnectionState.Connected;
 
         public IStreamLocalUserData LocalUserData => _localUserData;
 

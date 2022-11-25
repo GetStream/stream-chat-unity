@@ -44,6 +44,11 @@ namespace StreamChat.Core
         /// Current connection state
         /// </summary>
         ConnectionState ConnectionState { get; }
+        
+        /// <summary>
+        /// Is client connected. Subscribe to <see cref="Connected"/> to get notified when connection is established
+        /// </summary>
+        bool IsConnected { get; }
 
         /// <summary>
         /// Data of the user that is connected to the Stream Chat using the local device. This property is set after the client connection is established.
