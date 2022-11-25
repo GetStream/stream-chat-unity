@@ -56,13 +56,13 @@ namespace StreamChat.SampleProject.Views
 
                 //StreamTodo: muted ? => show unmute instead
                 var user = message.User;
-                options.Add(new MenuOptionEntry("Mute", () => user.MuteAsync().LogStreamException()));
+                options.Add(new MenuOptionEntry("Mute", () => user.MuteAsync().LogExceptionsOnFailed()));
             }
 
             options.Add(new MenuOptionEntry("Mark as read", () => message.MarkMessageAsLastReadAsync()));
 
             options.Add(new MenuOptionEntry("Delete",
-                () => message.SoftDeleteAsync().LogStreamException()));
+                () => message.SoftDeleteAsync().LogExceptionsOnFailed()));
 
             var emojis = new List<EmojiOptionEntry>();
 

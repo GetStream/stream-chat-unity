@@ -33,13 +33,19 @@ namespace StreamChat.Core.Helpers
             });
         }
 
-        public static void LogStreamException(this Task t)
-            => LogStreamException(t, Logger);
+        /// <summary>
+        /// Format and log exceptions thrown if this task failed
+        /// </summary>
+        public static void LogExceptionsOnFailed(this Task t)
+            => LogExceptionsOnFailed(t, Logger);
 
-        public static void LogStreamApiExceptionDetails(this StreamApiException exception)
-            => LogStreamApiExceptionDetails(exception, Logger);
+        /// <summary>
+        /// Format and log exception details
+        /// </summary>
+        public static void LogStreamExceptionDetails(this StreamApiException exception)
+            => LogStreamExceptionDetails(exception, Logger);
 
-        public static void LogStreamApiExceptionDetails(this StreamApiException exception, ILogs logger)
+        public static void LogStreamExceptionDetails(this StreamApiException exception, ILogs logger)
         {
             _sb.Append(nameof(StreamApiException));
             _sb.Append(":");
@@ -78,11 +84,11 @@ namespace StreamChat.Core.Helpers
         private static readonly StringBuilder _sb = new StringBuilder();
         private static readonly ILogs Logger = StreamDependenciesFactory.CreateLogger();
 
-        private static void LogStreamException(this Task t, ILogs logger) => t.ContinueWith(_ =>
+        private static void LogExceptionsOnFailed(this Task t, ILogs logger) => t.ContinueWith(_ =>
         {
             if (_.Exception.InnerException is StreamApiException streamApiException)
             {
-                streamApiException.LogStreamApiExceptionDetails(logger);
+                streamApiException.LogStreamExceptionDetails(logger);
             }
 
             logger.Exception(_.Exception);

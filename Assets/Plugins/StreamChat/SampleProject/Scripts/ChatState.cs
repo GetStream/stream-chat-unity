@@ -150,7 +150,7 @@ namespace StreamChat.SampleProject
             }
             catch (StreamApiException e)
             {
-                e.LogStreamApiExceptionDetails();
+                e.LogStreamExceptionDetails();
             }
             catch (Exception e)
             {

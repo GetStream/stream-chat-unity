@@ -194,7 +194,7 @@ namespace StreamChat.SampleProject.Views
                     _currentEditMessage.UpdateAsync(new StreamUpdateMessageRequest
                     {
                         Text = _messageInput.text
-                    }).LogStreamException();
+                    }).LogExceptionsOnFailed();
 
                     break;
 

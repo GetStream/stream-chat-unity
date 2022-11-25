@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using StreamChat.Core.Helpers;
 using StreamChat.Libs.Utils;
 using TMPro;
 using UnityEngine;
@@ -69,7 +70,7 @@ namespace StreamChat.SampleProject.Views
 
                 channel.AddMembersAsync(new[] {Client.LocalUserData.User}).ContinueWith(_ =>
                 {
-                    State.UpdateChannelsAsync().LogIfFailed();
+                    State.UpdateChannelsAsync().LogExceptionsOnFailed();
 
                     Hide();
                 });

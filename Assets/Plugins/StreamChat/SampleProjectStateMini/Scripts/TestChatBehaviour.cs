@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.Helpers;
 using StreamChat.Libs.Auth;
-using StreamChat.Libs.Utils;
 using UnityEngine;
 
 public class TestChatBehaviour : MonoBehaviour
@@ -10,7 +10,7 @@ public class TestChatBehaviour : MonoBehaviour
     {
         _client = StreamChatClient.CreateDefaultClient();
 
-        ConnectToStream().LogIfFailed();
+        ConnectToStream().LogExceptionsOnFailed();
     }
 
     [SerializeField]
