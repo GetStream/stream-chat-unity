@@ -1,0 +1,24 @@
+{
+    "name": "StreamChat.SampleProject",
+    "rootNamespace": "StreamChat.SampleProject",
+    "references": [
+        "StreamChat.Core",
+        "Unity.TextMeshPro",
+        "StreamChat.Libs"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "Select...",
+            "expression": "",
+            "define": ""
+        }
+    ],
+    "noEngineReferences": false
+}
