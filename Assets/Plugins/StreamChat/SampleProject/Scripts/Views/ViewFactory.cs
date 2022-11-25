@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.StatefulModels;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Configs;
@@ -55,13 +56,13 @@ namespace StreamChat.SampleProject.Views
 
                 //StreamTodo: muted ? => show unmute instead
                 var user = message.User;
-                options.Add(new MenuOptionEntry("Mute", () => user.MuteAsync().LogStreamExceptionIfFailed()));
+                options.Add(new MenuOptionEntry("Mute", () => user.MuteAsync().LogStreamException()));
             }
 
             options.Add(new MenuOptionEntry("Mark as read", () => message.MarkMessageAsLastReadAsync()));
 
             options.Add(new MenuOptionEntry("Delete",
-                () => message.SoftDeleteAsync().LogStreamExceptionIfFailed()));
+                () => message.SoftDeleteAsync().LogStreamException()));
 
             var emojis = new List<EmojiOptionEntry>();
 

@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.State;
 using StreamChat.Libs.Auth;
-using StreamChat.Libs.Logs;
 using StreamChat.Libs.Utils;
 using UnityEngine;
 
@@ -33,16 +31,9 @@ public class TestChatBehaviour : MonoBehaviour
     {
         var channel = await _client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
 
-        var isNull = channel == null;
-
-        Debug.Log("Returned channel: " + (isNull ? "None" : channel.Cid));
-
-        if (!isNull)
+        foreach (var msg in channel.Messages)
         {
-            foreach (var msg in channel.Messages)
-            {
-                Debug.Log("Received message: " + msg);
-            }
+            Debug.Log("Received message: " + msg);
         }
     }
 }

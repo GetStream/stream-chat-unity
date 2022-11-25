@@ -8,6 +8,7 @@ using StreamChat.Core.LowLevelClient.Events;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.StatefulModels;
+using StreamChat.Core.Helpers;
 using StreamChat.Libs.Logs;
 using StreamChat.SampleProject.Views;
 using UnityEngine;
@@ -149,7 +150,7 @@ namespace StreamChat.SampleProject
             }
             catch (StreamApiException e)
             {
-                e.LogStreamApiExceptionDetails(_unityLogger);
+                e.LogStreamApiExceptionDetails();
             }
             catch (Exception e)
             {

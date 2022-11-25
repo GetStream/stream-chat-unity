@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
@@ -193,7 +194,7 @@ namespace StreamChat.SampleProject.Views
                     _currentEditMessage.UpdateAsync(new StreamUpdateMessageRequest
                     {
                         Text = _messageInput.text
-                    }).LogStreamExceptionIfFailed();
+                    }).LogStreamException();
 
                     break;
 
