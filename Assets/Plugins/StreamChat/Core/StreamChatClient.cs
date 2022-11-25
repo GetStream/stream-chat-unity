@@ -719,6 +719,7 @@ namespace StreamChat.Core
             {
                 var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
                 message.HandleReactionNewEvent(eventDto, channel, reaction);
+                channel.InternalNotifyReactionReceived(message, reaction);
             }
         }
 
@@ -733,6 +734,7 @@ namespace StreamChat.Core
             {
                 var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
                 message.HandleReactionUpdatedEvent(eventDto, channel, reaction);
+                channel.InternalNotifyReactionUpdated(message, reaction);
             }
         }
 
@@ -747,6 +749,7 @@ namespace StreamChat.Core
             {
                 var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
                 message.HandleReactionDeletedEvent(eventDto, channel, reaction);
+                channel.InternalNotifyReactionDeleted(message, reaction);
             }
         }
 

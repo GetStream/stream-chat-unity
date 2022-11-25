@@ -28,6 +28,21 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a <see cref="IStreamMessage"/> was deleted from this channel
         /// </summary>
         event StreamMessageDeleteHandler MessageDeleted;
+        
+        /// <summary>
+        /// Event fired when a new <see cref="StreamReaction"/> was added to <see cref="IStreamMessage"/>
+        /// </summary>
+        event StreamMessageReactionHandler ReactionAdded;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamReaction"/> was removed from a <see cref="IStreamMessage"/>
+        /// </summary>
+        event StreamMessageReactionHandler ReactionRemoved;
+        
+        /// <summary>
+        /// Event fired when a <see cref="StreamReaction"/> was updated on a <see cref="IStreamMessage"/>
+        /// </summary>
+        event StreamMessageReactionHandler ReactionUpdated;
 
         /// <summary>
         /// Event fired when a new <see cref="IStreamChannelMember"/> joined this channel
