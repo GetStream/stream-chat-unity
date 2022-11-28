@@ -292,7 +292,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await sentMessage.FlagAsync();
 
-            var response = await Client.LowLevelClient.InternalModerationApi.QueryMessageFlagsAsync(
+            var response = await Client.InternalLowLevelClient.InternalModerationApi.QueryMessageFlagsAsync(
                 new QueryMessageFlagsRequestInternalDTO
                 {
                     FilterConditions = new Dictionary<string, object>()

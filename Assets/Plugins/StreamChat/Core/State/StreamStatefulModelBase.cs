@@ -40,7 +40,7 @@ namespace StreamChat.Core.State
 
         protected abstract TStatefulModel Self { get; }
         protected StreamChatClient Client { get; }
-        protected StreamChatLowLevelClient LowLevelClient => Client.LowLevelClient;
+        protected StreamChatLowLevelClient LowLevelClient => Client.InternalLowLevelClient;
         protected ILogs Logs { get; }
         protected ICache Cache { get; }
         protected ICacheRepository<TStatefulModel> Repository { get; }

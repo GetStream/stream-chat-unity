@@ -62,7 +62,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             };
 
-            var response = await Client.LowLevelClient.UserApi.UpsertManyUsersAsync(requestBody);
+            var response = await Client.InternalLowLevelClient.UserApi.UpsertManyUsersAsync(requestBody);
             var users = response.Users.Select(_ => _.Value).ToList();
 
             var filters = new Dictionary<string, object>()

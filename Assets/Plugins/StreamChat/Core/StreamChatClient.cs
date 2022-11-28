@@ -57,9 +57,9 @@ namespace StreamChat.Core
 
         public event ChannelDeleteHandler ChannelDeleted;
 
-        public ConnectionState ConnectionState => LowLevelClient.ConnectionState;
+        public ConnectionState ConnectionState => InternalLowLevelClient.ConnectionState;
         
-        public bool IsConnected => LowLevelClient.ConnectionState == ConnectionState.Connected;
+        public bool IsConnected => InternalLowLevelClient.ConnectionState == ConnectionState.Connected;
 
         public IStreamLocalUserData LocalUserData => _localUserData;
 
@@ -67,7 +67,9 @@ namespace StreamChat.Core
 
         public IReadOnlyList<IStreamChannel> WatchedChannels => _cache.Channels.AllItems;
 
-        public double? NextReconnectTime => LowLevelClient.NextReconnectTime;
+        public double? NextReconnectTime => InternalLowLevelClient.NextReconnectTime;
+        
+        public IStreamChatLowLevelClient LowLevelClient => InternalLowLevelClient;
 
         /// <summary>
         /// Recommended method to create an instance of <see cref="IStreamChatClient"/>
@@ -110,7 +112,7 @@ namespace StreamChat.Core
         public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
         {
-            LowLevelClient.ConnectUser(userAuthCredentials);
+            InternalLowLevelClient.ConnectUser(userAuthCredentials);
 
             //StreamTodo: test calling this method multiple times in a row
 
@@ -136,7 +138,7 @@ namespace StreamChat.Core
             return ConnectUserAsync(new AuthCredentials(apiKey, userId, userAuthToken), cancellationToken);
         }
 
-        public Task DisconnectUserAsync() => LowLevelClient.DisconnectAsync();
+        public Task DisconnectUserAsync() => InternalLowLevelClient.DisconnectAsync();
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
 
@@ -162,7 +164,7 @@ namespace StreamChat.Core
                 requestBodyDto.Data.AdditionalProperties = optionalCustomData?.ToDictionary(x => x.Key, x => x.Value);
             }
 
-            var channelResponseDto = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
+            var channelResponseDto = await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
                 channelId, requestBodyDto);
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
@@ -199,7 +201,7 @@ namespace StreamChat.Core
             }
 
             var channelResponseDto =
-                await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
+                await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
@@ -229,7 +231,7 @@ namespace StreamChat.Core
                 Watch = true,
             };
 
-            var channelsResponseDto = await LowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            var channelsResponseDto = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
             if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
             {
                 return Enumerable.Empty<StreamChannel>();
@@ -260,7 +262,7 @@ namespace StreamChat.Core
                 Sort = null,
             };
 
-            var response = await LowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
+            var response = await InternalLowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
             if (response.Users != null && response.Users.Count == 0)
             {
                 return Enumerable.Empty<IStreamUser>();
@@ -282,7 +284,7 @@ namespace StreamChat.Core
             StreamAsserts.AssertNotNull(streamQueryBannedUsersRequest, nameof(streamQueryBannedUsersRequest));
 
             var response =
-                await LowLevelClient.InternalModerationApi.QueryBannedUsersAsync(streamQueryBannedUsersRequest
+                await InternalLowLevelClient.InternalModerationApi.QueryBannedUsersAsync(streamQueryBannedUsersRequest
                     .TrySaveToDto());
             if (response.Bans == null || response.Bans.Count == 0)
             {
@@ -306,7 +308,7 @@ namespace StreamChat.Core
             //StreamTodo: items could be null
             var requestDtos = userRequests.Select(_ => _.TrySaveToDto()).ToDictionary(_ => _.Id, _ => _);
 
-            var response = await LowLevelClient.InternalUserApi.UpsertManyUsersAsync(new UpdateUsersRequestInternalDTO
+            var response = await InternalLowLevelClient.InternalUserApi.UpsertManyUsersAsync(new UpdateUsersRequestInternalDTO
             {
                 Users = requestDtos
             });
@@ -330,7 +332,7 @@ namespace StreamChat.Core
                 throw new ArgumentException($"{nameof(channels)} is empty");
             }
 
-            var response = await LowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
+            var response = await InternalLowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
             {
                 ChannelCids = channelCids,
                 Expiration = milliseconds
@@ -352,7 +354,7 @@ namespace StreamChat.Core
                 throw new ArgumentException($"{nameof(channels)} is empty");
             }
 
-            await LowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
+            await InternalLowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
             {
                 ChannelCids = channelCids,
                 //StreamTodo: what is this Expiration here?
@@ -365,7 +367,7 @@ namespace StreamChat.Core
         {
             StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));
 
-            var responseDto = await LowLevelClient.InternalChannelApi.DeleteChannelsAsync(
+            var responseDto = await InternalLowLevelClient.InternalChannelApi.DeleteChannelsAsync(
                 new DeleteChannelsRequestInternalDTO
                 {
                     Cids = channels.Select(_ => _.Cid).ToList(),
@@ -380,7 +382,7 @@ namespace StreamChat.Core
         {
             StreamAsserts.AssertNotNullOrEmpty(users, nameof(users));
 
-            var responseDto = await LowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
+            var responseDto = await InternalLowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
             {
                 TargetIds = users.Select(_ => _.Id).ToList(),
                 Timeout = timeoutMinutes
@@ -406,10 +408,10 @@ namespace StreamChat.Core
 
             TryCancelWaitingForUserConnection();
 
-            if (LowLevelClient != null)
+            if (InternalLowLevelClient != null)
             {
-                UnsubscribeFrom(LowLevelClient);
-                LowLevelClient.Dispose();
+                UnsubscribeFrom(InternalLowLevelClient);
+                InternalLowLevelClient.Dispose();
             }
 
             _isDisposed = true;
@@ -431,9 +433,9 @@ namespace StreamChat.Core
             });
         }
 
-        void IStreamChatClientEventsListener.Update() => LowLevelClient.Update(_timeService.DeltaTime);
+        void IStreamChatClientEventsListener.Update() => InternalLowLevelClient.Update(_timeService.DeltaTime);
 
-        internal StreamChatLowLevelClient LowLevelClient { get; }
+        internal StreamChatLowLevelClient InternalLowLevelClient { get; }
 
         internal void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
         {
@@ -477,12 +479,12 @@ namespace StreamChat.Core
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
-            LowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient,
+            InternalLowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient,
                 serializer, _timeService, applicationInfo, logs, config);
 
             _cache = new Cache(this, serializer, _logs);
 
-            SubscribeTo(LowLevelClient);
+            SubscribeTo(InternalLowLevelClient);
         }
 
         private void InternalDeleteChannel(StreamChannel channel)

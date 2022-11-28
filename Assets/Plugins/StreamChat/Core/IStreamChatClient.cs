@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 using StreamChat.Core.StatefulModels;
@@ -63,7 +64,15 @@ namespace StreamChat.Core
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
 
+        /// <summary>
+        /// Next time since startup the client will attempt to reconnect to the Stream Server. 
+        /// </summary>
         double? NextReconnectTime { get; }
+        
+        /// <summary>
+        /// Low level client. Use it if you want to bypass the stateful client and execute low level requests directly.
+        /// </summary>
+        IStreamChatLowLevelClient LowLevelClient { get; }
 
         /// <summary>
         /// Connect user to Stream Chat server.
