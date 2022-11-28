@@ -9,7 +9,6 @@ using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.LowLevelClient.Responses;
-using StreamChat.Libs;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;

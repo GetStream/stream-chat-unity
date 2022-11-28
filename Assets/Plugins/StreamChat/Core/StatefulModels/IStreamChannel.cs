@@ -269,7 +269,7 @@ namespace StreamChat.Core.StatefulModels
         bool IsDirectMessage { get; }
 
         /// <summary>
-        /// Basic send message method. If you want to set additional parameters use the <see cref="SendNewMessageAsync(StreamChat.Core.StreamChat.Core.Requests.StreamSendMessageRequest)"/> overload
+        /// Basic send message method. If you want to set additional parameters use the <see cref="SendNewMessageAsync(StreamSendMessageRequest)"/> overload
         /// </summary>
         Task<IStreamMessage> SendNewMessageAsync(string message);
 

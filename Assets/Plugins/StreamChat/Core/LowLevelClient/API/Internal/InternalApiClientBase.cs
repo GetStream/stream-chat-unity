@@ -60,6 +60,35 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             }
         }
 
+        protected async Task<TResponse> Get<TResponse>(string endpoint, Dictionary<string, string> parameters = null)
+        {
+            var uri = _requestUriFactory.CreateEndpointUri(endpoint, parameters);
+
+            var httpResponse = await _httpClient.GetAsync(uri);
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: false);
+
+                var apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
+                throw new StreamApiException(apiError);
+            }
+
+            try
+            {
+                var response = _serializer.Deserialize<TResponse>(responseContent);
+                LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: true);
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                LogRestCall(uri, endpoint, HttpMethod.Get, responseContent, success: false);
+                throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
+            }
+        }
+
         protected async Task<TResponse> Post<TRequest, TResponse>(string endpoint, TRequest request)
         {
             var uri = _requestUriFactory.CreateEndpointUri(endpoint);

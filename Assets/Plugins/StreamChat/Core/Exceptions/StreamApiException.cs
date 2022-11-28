@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Libs;
 
 namespace StreamChat.Core.Exceptions
 {

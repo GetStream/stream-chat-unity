@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using StreamChat.Core.API;
+using StreamChat.Core.API.Internal;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Configs;
 using StreamChat.Core.Exceptions;
@@ -13,7 +15,6 @@ using StreamChat.Core.LowLevelClient.API;
 using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.LowLevelClient.Events;
 using StreamChat.Core.LowLevelClient.Models;
-using StreamChat.Core.State;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.AppInfo;
@@ -152,6 +153,7 @@ namespace StreamChat.Core.LowLevelClient
         public IMessageApi MessageApi { get; }
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
+        public IDeviceApi DeviceApi { get; }
 
         [Obsolete(
             "This property presents only initial state of the LocalUser when connection is made and is not ever updated. " +
@@ -270,11 +272,13 @@ namespace StreamChat.Core.LowLevelClient
             InternalMessageApi = new InternalMessageApi(httpClient, serializer, logs, _requestUriFactory);
             InternalModerationApi = new InternalModerationApi(httpClient, serializer, logs, _requestUriFactory);
             InternalUserApi = new InternalUserApi(httpClient, serializer, logs, _requestUriFactory);
+            InternalDeviceApi = new InternalDeviceApi(httpClient, serializer, logs, _requestUriFactory);
 
             ChannelApi = new ChannelApi(InternalChannelApi);
             MessageApi = new MessageApi(InternalMessageApi);
             ModerationApi = new ModerationApi(InternalModerationApi);
             UserApi = new UserApi(InternalUserApi);
+            DeviceApi = new DeviceApi(InternalDeviceApi);
 
             RegisterEventHandlers();
 
@@ -388,6 +392,7 @@ namespace StreamChat.Core.LowLevelClient
         internal IInternalMessageApi InternalMessageApi { get; }
         internal IInternalModerationApi InternalModerationApi { get; }
         internal InternalUserApi InternalUserApi { get; }
+        internal IInternalDeviceApi InternalDeviceApi { get; }
 
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
