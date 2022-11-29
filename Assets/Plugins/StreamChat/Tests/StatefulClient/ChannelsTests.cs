@@ -327,8 +327,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.AddMembersAsync(otherUser);
 
-            await WaitWhileConditionTrue(() => channel.Members.Any(m => m.User == otherUser));
-
+            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
             Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
         }
 
