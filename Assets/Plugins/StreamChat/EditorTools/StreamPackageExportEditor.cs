@@ -57,7 +57,7 @@ namespace StreamChat.EditorTools
 
             GUILayout.Space(10);
 
-            if (GUILayout.Button("Export"))
+            if (GUILayout.Button(nameof(_exporter.UpdateVersionAndExportPackage)))
             {
                 _lastSuccess = false;
                 _lastError = null;
@@ -67,7 +67,29 @@ namespace StreamChat.EditorTools
                     {
                         StripChangelogMarkdown();
                     }
-                    _exporter.Export(_targetDirectory, new Version(_versionMajor, _versionMinor, _versionBuild), _changelog, out var packagePath);
+                    _exporter.UpdateVersionAndExportPackage(_targetDirectory, new Version(_versionMajor, _versionMinor, _versionBuild), _changelog, out var packagePath);
+                    EditorPrefs.SetString(EditorPrefsLastTargetDirectory, _targetDirectory);
+
+                    _lastSuccess = true;
+                    EditorUtility.RevealInFinder(packagePath);
+                }
+                catch (Exception e)
+                {
+                    _lastError = e.ToString();
+                }
+            }
+
+            if (GUILayout.Button(nameof(_exporter.ExportPackage)))
+            {
+                _lastSuccess = false;
+                _lastError = null;
+                try
+                {
+                    if (_stripMarkdown)
+                    {
+                        StripChangelogMarkdown();
+                    }
+                    _exporter.ExportPackage(_targetDirectory, new Version(_versionMajor, _versionMinor, _versionBuild), out var packagePath);
                     EditorPrefs.SetString(EditorPrefsLastTargetDirectory, _targetDirectory);
 
                     _lastSuccess = true;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using StreamChat.Core;
 using StreamChat.Libs.Utils;
 using UnityEditor;
 
@@ -14,7 +15,7 @@ namespace StreamChat.EditorTools.Builders
         /// <param name="targetDirectory">Full path of target directory</param>
         /// <param name="version">New Version</param>
         /// <param name="changelog">Changelog associated with this particular version</param>
-        public void Export(string targetDirectory, Version version, string changelog, out string packagePath)
+        public void UpdateVersionAndExportPackage(string targetDirectory, Version version, string changelog, out string packagePath)
         {
             if (changelog.IsNullOrEmpty())
             {
@@ -39,18 +40,35 @@ namespace StreamChat.EditorTools.Builders
 
             UpdateChangeLog(changelog, changelogFilepath, version);
 
+            // We assume that changelog is at the root of the plugin directory
             var pluginDirectory = Path.GetDirectoryName(changelogFilepath);
 
             packagePath = ExportPackage(targetDirectory, pluginDirectory, version);
         }
 
-        private const string StreamChatClientFilename = "StreamChatClient.cs";
+        public void ExportPackage(string targetDirectory, Version version, out string packagePath)
+        {
+            if (StreamChatClient.SDKVersion != version)
+            {
+                throw new Exception($"Export package is only available if the target and the current SDK version match. Otherwise go trough {nameof(UpdateVersionAndExportPackage)}");
+            }
+
+            GetFiles(out var streamChatClientFilePath, out var changelogFilepath);
+
+            // We assume that changelog is at the root of the plugin directory
+            var pluginDirectory = Path.GetDirectoryName(changelogFilepath);
+
+            packagePath = ExportPackage(targetDirectory, pluginDirectory, version);
+        }
+
+        private const string StreamChatClientFilename = "StreamChatLowLevelClient.cs";
         private const string VersionRegexPattern = @"SDKVersion\s+=\s+new\s+Version\(\s*([0-9]+),\s*([0-9]+),\s*([0-9]+)\)\s*;";
         private const string VersionLineTemplate =
             "        public static readonly Version SDKVersion = new Version({0}, {1}, {2});";
 
         private const string ChangelogFilename = "Changelog.txt";
         private const string PackageNameTemplate = "Stream.Chat.Unity.SDK.{0}.unitypackage";
+
 
         private static void GetFiles(out string streamChatClientFilepath, out string changelogFilepath)
         {
