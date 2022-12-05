@@ -44,11 +44,11 @@ namespace StreamChat.Core.StatefulModels
         public event StreamChannelMessageHandler MessageUpdated;
 
         public event StreamMessageDeleteHandler MessageDeleted;
-        
+
         public event StreamMessageReactionHandler ReactionAdded;
-        
+
         public event StreamMessageReactionHandler ReactionRemoved;
-        
+
         public event StreamMessageReactionHandler ReactionUpdated;
 
         public event StreamChannelMemberChangeHandler MemberAdded;
@@ -761,7 +761,6 @@ namespace StreamChat.Core.StatefulModels
         internal void InternalHandleMessageReadEvent(EventMessageReadInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            AssertCid(eventDto.Cid);
             HandleMessageRead(eventDto.User, eventDto.CreatedAt.Value);
         }
 
@@ -835,14 +834,14 @@ namespace StreamChat.Core.StatefulModels
                 TypingUsersChanged?.Invoke(this);
             }
         }
-        
-        internal void InternalNotifyReactionReceived(StreamMessage message, StreamReaction reaction) 
+
+        internal void InternalNotifyReactionReceived(StreamMessage message, StreamReaction reaction)
             => ReactionAdded?.Invoke(this, message, reaction);
 
-        internal void InternalNotifyReactionUpdated(StreamMessage message, StreamReaction reaction) 
+        internal void InternalNotifyReactionUpdated(StreamMessage message, StreamReaction reaction)
             => ReactionUpdated?.Invoke(this, message, reaction);
 
-        public void InternalNotifyReactionDeleted(StreamMessage message, StreamReaction reaction) 
+        public void InternalNotifyReactionDeleted(StreamMessage message, StreamReaction reaction)
             => ReactionRemoved?.Invoke(this, message, reaction);
 
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable

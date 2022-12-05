@@ -18,9 +18,9 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a new <see cref="IStreamMessage"/> was received in this channel
         /// </summary>
         event StreamChannelMessageHandler MessageReceived;
-        
+
         /// <summary>
-        /// Event fired when a <see cref="IStreamMessage"/> was updated in this channel 
+        /// Event fired when a <see cref="IStreamMessage"/> was updated in this channel
         /// </summary>
         event StreamChannelMessageHandler MessageUpdated;
 
@@ -28,17 +28,17 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a <see cref="IStreamMessage"/> was deleted from this channel
         /// </summary>
         event StreamMessageDeleteHandler MessageDeleted;
-        
+
         /// <summary>
         /// Event fired when a new <see cref="StreamReaction"/> was added to <see cref="IStreamMessage"/>
         /// </summary>
         event StreamMessageReactionHandler ReactionAdded;
-        
+
         /// <summary>
         /// Event fired when a <see cref="StreamReaction"/> was removed from a <see cref="IStreamMessage"/>
         /// </summary>
         event StreamMessageReactionHandler ReactionRemoved;
-        
+
         /// <summary>
         /// Event fired when a <see cref="StreamReaction"/> was updated on a <see cref="IStreamMessage"/>
         /// </summary>
@@ -66,7 +66,7 @@ namespace StreamChat.Core.StatefulModels
         event StreamChannelVisibilityHandler VisibilityChanged;
 
         /// <summary>
-        /// Event fired when channel got muted on unmuted. Check <see cref="IStreamChannel.Muted"/> and <see cref="IStreamChannel.MuteExpiresAt"/> 
+        /// Event fired when channel got muted on unmuted. Check <see cref="IStreamChannel.Muted"/> and <see cref="IStreamChannel.MuteExpiresAt"/>
         /// </summary>
         event StreamChannelMuteHandler MuteChanged;
 
@@ -101,7 +101,7 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a <see cref="IStreamUser"/> in this channel stops typing
         /// </summary>
         event StreamChannelUserChangeHandler UserStoppedTyping;
-        
+
         /// <summary>
         /// Event fired when a <see cref="TypingUsers"/> the list of typing users has changed.
         /// If you want to exactly know when a users started or stopped typing subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/>
@@ -323,7 +323,7 @@ namespace StreamChat.Core.StatefulModels
         Task<StreamImageUploadResponse> UploadImageAsync(byte[] imageContent, string imageName);
 
         /// <summary>
-        /// Query channel members based on provided criteria. Results will not be 
+        /// Query channel members based on provided criteria. Results will not be
         /// </summary>
         /// <returns></returns>
         Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters, int limit = 30, int offset = 0);
@@ -341,7 +341,7 @@ namespace StreamChat.Core.StatefulModels
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
         Task BanUserAsync(IStreamUser user, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false);
-        
+
         /// <summary>
         /// Ban member from this channel.
         /// If you wish to ban user completely from all of the channels, this can be done only by a server-side SDKs.
@@ -353,7 +353,7 @@ namespace StreamChat.Core.StatefulModels
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#ban</remarks>
         Task BanMemberAsync(IStreamChannelMember member, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false);
-        
+
         /// <summary>
         /// Shadow Ban user from this channel. Shadow banned user does not know about being banned.
         /// If you wish to ban user completely from all of the channels, this can be done only by a server-side SDKs.
@@ -365,7 +365,7 @@ namespace StreamChat.Core.StatefulModels
         /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unreal#shadow-ban</remarks>
         Task ShadowBanUserAsync(IStreamUser user, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false);
-        
+
         /// <summary>
         /// Shadow Ban member from this channel. Shadow banned member does not know about being banned.
         /// If you wish to ban user completely from all of the channels, this can be done only by a server-side SDKs.
@@ -382,7 +382,7 @@ namespace StreamChat.Core.StatefulModels
         /// Remove ban from the user on this channel
         /// </summary>
         Task UnbanUserAsync(IStreamUser user);
-        
+
         /// <summary>
         /// Mark this channel completely as read
         /// If you want to mark specific message as read use the <see cref="IStreamMessage.MarkMessageAsLastReadAsync"/>
@@ -411,16 +411,16 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         /// <param name="users">Users to become members of this channel</param>
         Task AddMembersAsync(IEnumerable<IStreamUser> users);
-        
+
         /// <inheritdoc cref="AddMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamUser})}"/>
         Task AddMembersAsync(params IStreamUser[] users);
-        
+
         /// <summary>
         /// Remove members from this channel
         /// </summary>
         /// <param name="members">Members to remove</param>
         Task RemoveMembersAsync(IEnumerable<IStreamChannelMember> members);
-        
+
         /// <inheritdoc cref="RemoveMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamChannelMember})}"/>
         Task RemoveMembersAsync(params IStreamChannelMember[] members);
 
@@ -428,7 +428,7 @@ namespace StreamChat.Core.StatefulModels
         /// Mute channel with optional duration in milliseconds
         /// </summary>
         /// <param name="milliseconds">[Optional] Duration in milliseconds</param>
-        Task MuteChannelAsync(int? milliseconds = default);
+        Task MuteChannelAsync(int? milliseconds = default); // StreamTodo: change to seconds, milliseconds is pointless
 
         /// <summary>
         /// Unmute channel
@@ -449,7 +449,7 @@ namespace StreamChat.Core.StatefulModels
         /// Stop watching this channel meaning you will no longer receive any updates and it will be removed from <see cref="IStreamChatClient.WatchedChannels"/>
         /// </summary>
         Task StopWatchingAsync();
-        
+
         /// <summary>
         /// Delete this channel. By default channel is soft deleted. You can hard delete it only by using a server-side SDK due to security
         /// </summary>

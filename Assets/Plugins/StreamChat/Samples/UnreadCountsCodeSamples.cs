@@ -44,7 +44,7 @@ namespace StreamChat.Samples
             await Task.CompletedTask;
         }
 
-        public async Task ChannelsReadState()
+        public void ChannelsReadState()
         {
             IStreamChannel channel = null;
 

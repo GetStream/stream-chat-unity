@@ -15,17 +15,17 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a new <see cref="StreamReaction"/> was added to <see cref="IStreamMessage"/>
         /// </summary>
         event StreamMessageReactionHandler ReactionAdded;
-        
+
         /// <summary>
         /// Event fired when a <see cref="StreamReaction"/> was removed from a <see cref="IStreamMessage"/>
         /// </summary>
         event StreamMessageReactionHandler ReactionRemoved;
-        
+
         /// <summary>
         /// Event fired when a <see cref="StreamReaction"/> was updated on a <see cref="IStreamMessage"/>
         /// </summary>
         event StreamMessageReactionHandler ReactionUpdated;
-        
+
         /// <summary>
         /// Array of message attachments
         /// </summary>
@@ -191,7 +191,7 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Update message text or other parameters
         /// </summary>
-        Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest);
+        Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest); //StreamTodo: rename to UpdateOverwriteAsync
 
         /// <summary>
         /// Pin this message to a channel with optional expiration date

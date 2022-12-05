@@ -30,7 +30,7 @@ namespace StreamChat.Samples
         /// <summary>
         /// https://getstream.io/chat/docs/unity/init_and_users/?language=unity
         /// </summary>
-        public async Task InitClient()
+        public void InitClient()
         {
             var client = StreamChatClient.CreateDefaultClient();
         }
@@ -66,12 +66,8 @@ namespace StreamChat.Samples
         /// <summary>
         /// https://getstream.io/chat/docs/unity/update_users/?language=unity#delete-a-user
         /// </summary>
-        public async Task DeleteUser()
+        public void DeleteUser()
         {
-            IStreamUser user = null;
-
-            var client = StreamChatClient.CreateDefaultClient();
-
             //StreamTODO: Implement user delete
         }
 
