@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Array of message attachments
         /// </summary>
         [Newtonsoft.Json.JsonProperty("attachments", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<AttachmentRequestInternalDTO> Attachments { get; set; } = new System.Collections.Generic.List<AttachmentRequestInternalDTO>();
+        public System.Collections.Generic.List<AttachmentRequestInternalDTO> Attachments { get; set; }
 
         /// <summary>
         /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format

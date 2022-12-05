@@ -1,792 +1,934 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Net.WebSockets;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using StreamChat.Core.Configs;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.State;
+using StreamChat.Core.State.Caches;
+using StreamChat.Core.Models;
+using StreamChat.Core.Requests;
+using StreamChat.Core.Responses;
+using StreamChat.Core.StatefulModels;
+using StreamChat.Libs;
+using StreamChat.Libs.AppInfo;
+using StreamChat.Libs.Auth;
+using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
-using StreamChat.Libs.Utils;
 using StreamChat.Libs.Websockets;
-using StreamChat.Core.API;
-using StreamChat.Core.Auth;
-using StreamChat.Core.Events;
-using StreamChat.Core.Exceptions;
-using StreamChat.Core.Models;
-using StreamChat.Core.Configs;
-using StreamChat.Core.API.Internal;
-using StreamChat.Core.Web;
-using StreamChat.Libs;
-using StreamChat.Libs.Auth;
 
 namespace StreamChat.Core
 {
     /// <summary>
-    /// Stream Chat Client - maintains WebSockets connection, executes API calls and exposes Stream events to which you can subscribe.
-    /// There should be only one instance of this client in your application.
+    /// Connection has been established
+    /// You can access local user data via <see cref="StreamChatClient.LocalUserData"/>
     /// </summary>
-    public class StreamChatClient : IStreamChatClient
+    public delegate void ConnectionMadeHandler(IStreamLocalUserData localUserData);
+
+    /// <summary>
+    /// Connection state change handler
+    /// </summary>
+    public delegate void ConnectionChangeHandler(ConnectionState previous, ConnectionState current);
+
+    /// <summary>
+    /// Channel deletion handler
+    /// </summary>
+    public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
+
+    //StreamTodo: Handle restoring state after lost connection + include Unity Network Monitor
+
+    public sealed class StreamChatClient : IStreamChatClient
     {
-        public const string MenuPrefix = "Stream/";
+        public event ConnectionMadeHandler Connected;
 
-        public static readonly Uri ServerBaseUrl = new Uri("wss://chat.stream-io-api.com");
-
-        public event ConnectionHandler Connected;
         public event Action Disconnected;
-        public event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
 
-        public event Action<string> EventReceived;
+        public event Action Disposed;
 
-        public event Action<EventMessageNew> MessageReceived;
-        public event Action<EventMessageUpdated> MessageUpdated;
-        public event Action<EventMessageDeleted> MessageDeleted;
-        public event Action<EventMessageRead> MessageRead;
+        public event ConnectionChangeHandler ConnectionStateChanged;
 
-        public event Action<EventChannelUpdated> ChannelUpdated;
-        public event Action<EventChannelDeleted> ChannelDeleted;
-        public event Action<EventChannelTruncated> ChannelTruncated;
-        public event Action<EventChannelVisible> ChannelVisible;
-        public event Action<EventChannelHidden> ChannelHidden;
+        public event ChannelDeleteHandler ChannelDeleted;
 
-        public event Action<EventMemberAdded> MemberAdded;
-        public event Action<EventMemberRemoved> MemberRemoved;
-        public event Action<EventMemberUpdated> MemberUpdated;
+        public ConnectionState ConnectionState => InternalLowLevelClient.ConnectionState;
+        
+        public bool IsConnected => InternalLowLevelClient.ConnectionState == ConnectionState.Connected;
 
-        public event Action<EventUserPresenceChanged> UserPresenceChanged;
-        public event Action<EventUserUpdated> UserUpdated;
-        public event Action<EventUserDeleted> UserDeleted;
-        public event Action<EventUserBanned> UserBanned;
-        public event Action<EventUserUnbanned> UserUnbanned;
+        public IStreamLocalUserData LocalUserData => _localUserData;
 
-        public event Action<EventUserWatchingStart> UserWatchingStart;
-        public event Action<EventUserWatchingStop> UserWatchingStop;
+        private StreamLocalUserData _localUserData;
 
-        public event Action<EventReactionNew> ReactionReceived;
-        public event Action<EventReactionUpdated> ReactionUpdated;
-        public event Action<EventReactionDeleted> ReactionDeleted;
+        public IReadOnlyList<IStreamChannel> WatchedChannels => _cache.Channels.AllItems;
 
-        public event Action<EventTypingStart> TypingStarted;
-        public event Action<EventTypingStop> TypingStopped;
+        public double? NextReconnectTime => InternalLowLevelClient.NextReconnectTime;
+        
+        public IStreamChatLowLevelClient LowLevelClient => InternalLowLevelClient;
 
-        public event Action<EventNotificationChannelMutesUpdated> NotificationChannelMutesUpdated;
-        public event Action<EventNotificationMutesUpdated> NotificationMutesUpdated;
-
-
-        public event Action<EventNotificationMessageNew> NotificationMessageReceived;
-        public event Action<EventNotificationMarkRead> NotificationMarkRead;
-
-        public event Action<EventNotificationChannelDeleted> NotificationChannelDeleted;
-        public event Action<EventNotificationChannelTruncated> NotificationChannelTruncated;
-
-        public event Action<EventNotificationAddedToChannel> NotificationAddedToChannel;
-        public event Action<EventNotificationRemovedFromChannel> NotificationRemovedFromChannel;
-
-        public event Action<EventNotificationInvited> NotificationInvited;
-        public event Action<EventNotificationInviteAccepted> NotificationInviteAccepted;
-        public event Action<EventNotificationInviteRejected> NotificationInviteRejected;
-
-        #region Internal Events
-
-        internal event Action<EventHealthCheckInternalDTO> InternalConnected;
-
-
-        internal event Action<EventMessageNewInternalDTO> InternalMessageReceived;
-        internal event Action<EventMessageUpdatedInternalDTO> InternalMessageUpdated;
-        internal event Action<EventMessageDeletedInternalDTO> InternalMessageDeleted;
-        internal event Action<EventMessageReadInternalDTO> InternalMessageRead;
-
-        internal event Action<EventChannelUpdatedInternalDTO> InternalChannelUpdated;
-        internal event Action<EventChannelDeletedInternalDTO> InternalChannelDeleted;
-        internal event Action<EventChannelTruncatedInternalDTO> InternalEventChannelTruncated;
-        internal event Action<EventChannelVisibleInternalDTO> InternalEventChannelVisible;
-        internal event Action<EventChannelHiddenInternalDTO> InternalEventChannelHidden;
-
-        internal event Action<EventMemberAddedInternalDTO> InternalMemberAdded;
-        internal event Action<EventMemberRemovedInternalDTO> InternalMemberRemoved;
-        internal event Action<EventMemberUpdatedInternalDTO> InternalMemberUpdated;
-
-        internal event Action<EventUserPresenceChangedInternalDTO> InternalUserPresenceChanged;
-        internal event Action<EventUserUpdatedInternalDTO> InternalUserUpdated;
-        internal event Action<EventUserDeletedInternalDTO> InternalUserDeleted;
-        internal event Action<EventUserBannedInternalDTO> InternalUserBanned;
-        internal event Action<EventUserUnbannedInternalDTO> InternalUserUnbanned;
-
-        internal event Action<EventUserWatchingStartInternalDTO> InternalUserWatchingStart;
-        internal event Action<EventUserWatchingStopInternalDTO> InternalUserWatchingStop;
-
-        internal event Action<EventReactionNewInternalDTO> InternalReactionReceived;
-        internal event Action<EventReactionUpdatedInternalDTO> InternalReactionUpdated;
-        internal event Action<EventReactionDeletedInternalDTO> InternalReactionDeleted;
-
-        internal event Action<EventTypingStartInternalDTO> InternalTypingStarted;
-        internal event Action<EventTypingStopInternalDTO> InternalTypingStopped;
-
-        internal event Action<EventNotificationChannelMutesUpdatedInternalDTO> InternalNotificationChannelMutesUpdated;
-        internal event Action<EventNotificationMutesUpdatedInternalDTO> InternalNotificationMutesUpdated;
-
-        internal event Action<EventNotificationMessageNewInternalDTO> InternalNotificationMessageReceived;
-        internal event Action<EventNotificationMarkReadInternalDTO> InternalNotificationMarkRead;
-
-        internal event Action<EventNotificationChannelDeletedInternalDTO> InternalNotificationChannelDeleted;
-        internal event Action<EventNotificationChannelTruncatedInternalDTO> InternalNotificationChannelTruncated;
-
-        internal event Action<EventNotificationAddedToChannelInternalDTO> InternalNotificationAddedToChannel;
-        internal event Action<EventNotificationRemovedFromChannelInternalDTO> InternalNotificationRemovedFromChannel;
-
-        internal event Action<EventNotificationInvitedInternalDTO> InternalNotificationInvited;
-        internal event Action<EventNotificationInviteAcceptedInternalDTO> InternalNotificationInviteAccepted;
-        internal event Action<EventNotificationInviteRejectedInternalDTO> InternalNotificationInviteRejected;
-
-        #endregion
-
-        public IChannelApi ChannelApi { get; }
-        public IMessageApi MessageApi { get; }
-        public IModerationApi ModerationApi { get; }
-        public IUserApi UserApi { get; }
-        public IDeviceApi DeviceApi { get; }
-
-        [Obsolete(
-            "This property presents only initial state of the LocalUser when connection is made and is not ever updated. " +
-            "Please use the OwnUser object returned from StreamChatClient.Connected event. This property will  be removed in the future.")]
-        public OwnUser LocalUser { get; private set; }
-
-        public ConnectionState ConnectionState
-        {
-            get => _connectionState;
-            private set
-            {
-                if (_connectionState == value)
-                {
-                    return;
-                }
-
-                var prev = _connectionState;
-                _connectionState = value;
-                ConnectionStateChanged?.Invoke(prev, _connectionState);
-
-                if (value == ConnectionState.Disconnected)
-                {
-                    Disconnected?.Invoke();
-                }
-            }
-        }
-
-        public ReconnectStrategy ReconnectStrategy { get; private set; }
-        public float ReconnectConstantInterval { get; private set; } = 3;
-        public float ReconnectExponentialMinInterval { get; private set; } = 1;
-        public float ReconnectExponentialMaxInterval { get; private set; } = 1024;
-        public double? NextReconnectTime { get; private set; }
-
-        public static readonly Version SDKVersion = new Version(3, 9, 0);
-
+        /// <inheritdoc cref="StreamChatLowLevelClient.SDKVersion"/>
+        public static Version SDKVersion => StreamChatLowLevelClient.SDKVersion;
+        
         /// <summary>
-        /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
+        /// Recommended method to create an instance of <see cref="IStreamChatClient"/>
+        /// If you wish to create an instance with non default dependencies you can use the <see cref="CreateClientWithCustomDependencies"/>
         /// </summary>
-        /// <param name="authCredentials">Authorization data with ApiKey, UserToken and UserId</param>
-        public static IStreamChatClient CreateDefaultClient(AuthCredentials authCredentials,
-            IStreamClientConfig config = default)
+        /// <param name="config">[Optional] configuration</param>
+        public static IStreamChatClient CreateDefaultClient(IStreamClientConfig config = default)
         {
             config ??= StreamClientConfig.Default;
-            var logs = LibsFactory.CreateDefaultLogs(config.LogLevel.ToLogLevel());
-            var websocketClient
-                = LibsFactory.CreateDefaultWebsocketClient(logs, isDebugMode: config.LogLevel.IsDebugEnabled());
-            var httpClient = LibsFactory.CreateDefaultHttpClient();
-            var serializer = LibsFactory.CreateDefaultSerializer();
-            var timeService = LibsFactory.CreateDefaultTimeService();
+            var logs = StreamDependenciesFactory.CreateLogger(config.LogLevel.ToLogLevel());
+            var websocketClient = StreamDependenciesFactory.CreateWebsocketClient(logs, config.LogLevel.IsDebugEnabled());
+            var httpClient = StreamDependenciesFactory.CreateHttpClient();
+            var serializer = StreamDependenciesFactory.CreateSerializer();
+            var timeService = StreamDependenciesFactory.CreateTimeService();
+            var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
+            var gameObjectRunner = StreamDependenciesFactory.CreateChatClientRunner();
 
-            return new StreamChatClient(authCredentials, websocketClient, httpClient, serializer,
-                timeService, logs, config);
+            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs, config);
+            gameObjectRunner.RunChatInstance(client);
+            return client;
         }
 
         /// <summary>
-        /// Create Development Authorization Token. Dev tokens work only if you enable "Disable Auth Checks" in your project's Dashboard.
-        /// Dev tokens bypasses authorization and should only be used during development and never in production!
-        /// More info <see cref="https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#developer-tokens"/>
+        /// Create a new instance of <see cref="IStreamChatLowLevelClient"/> with custom provided dependencies.
+        /// If you want to create a default new instance then just use the <see cref="CreateDefaultClient"/>.
+        /// Important! Custom created client require calling the <see cref="Update"/> and <see cref="Destroy"/> methods.
         /// </summary>
+        public static IStreamChatClient CreateClientWithCustomDependencies(IWebsocketClient websocketClient,
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs,
+            IStreamClientConfig config) =>
+            new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs, config);
+
+        /// <inheritdoc cref="StreamChatLowLevelClient.CreateDeveloperAuthToken"/>
         public static string CreateDeveloperAuthToken(string userId)
+            => StreamChatLowLevelClient.CreateDeveloperAuthToken(userId);
+
+        /// <inheritdoc cref="StreamChatLowLevelClient.SanitizeUserId"/>
+        public static string SanitizeUserId(string userId) => StreamChatLowLevelClient.SanitizeUserId(userId);
+
+        public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
+            CancellationToken cancellationToken = default)
         {
-            if (!IsUserIdValid(userId))
-            {
-                throw new ArgumentException($"{nameof(userId)} can only contain: a-z, 0-9, @, _ and - ");
-            }
+            InternalLowLevelClient.ConnectUser(userAuthCredentials);
 
-            var header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"; //  header content = {"alg": "HS256", "typ": "JWT"}
-            var devSignature = "devToken";
+            //StreamTodo: test calling this method multiple times in a row
 
-            var payloadBytes = Encoding.UTF8.GetBytes("{\"user_id\":\"" + userId + "\"}");
-            var payload = Base64UrlEncode(payloadBytes);
-            return $"{header}.{payload}.{devSignature}";
+            //StreamTodo: timeout, like 5 seconds?
+            _connectUserCancellationToken = cancellationToken;
+
+            _connectUserCancellationTokenSource =
+                CancellationTokenSource.CreateLinkedTokenSource(_connectUserCancellationToken);
+            _connectUserCancellationTokenSource.Token.Register(TryCancelWaitingForUserConnection);
+
+            //StreamTodo: check if we can pass the cancellation token here
+            _connectUserTaskSource = new TaskCompletionSource<IStreamLocalUserData>();
+            return _connectUserTaskSource.Task;
         }
 
-        /// <summary>
-        /// Strip invalid characters from a given Stream user id. The only allowed characters are: a-z, 0-9, @, _ and -
-        /// </summary>
-        public static string SanitizeUserId(string userId)
+        public Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId, string userAuthToken,
+            CancellationToken cancellationToken = default)
         {
-            if (IsUserIdValid(userId))
-            {
-                return userId;
-            }
+            StreamAsserts.AssertNotNullOrEmpty(apiKey, nameof(apiKey));
+            StreamAsserts.AssertNotNullOrEmpty(userId, nameof(userId));
+            StreamAsserts.AssertNotNullOrEmpty(userAuthToken, nameof(userAuthToken));
 
-            return Regex.Replace(userId, @"[^\w\.@_-]", "", RegexOptions.None, TimeSpan.FromSeconds(1));
+            return ConnectUserAsync(new AuthCredentials(apiKey, userId, userAuthToken), cancellationToken);
         }
 
-        public StreamChatClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, ILogs logs,
-            IStreamClientConfig config)
+        public Task DisconnectUserAsync() => InternalLowLevelClient.DisconnectAsync();
+
+        public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
+
+        public async Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId,
+            string name = null, IDictionary<string, object> optionalCustomData = null)
         {
-            _config = config;
-            _authCredentials = authCredentials;
-            _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
-            _logs = logs ?? throw new ArgumentNullException(nameof(logs));
-            _config = config ?? throw new ArgumentNullException(nameof(config));
+            StreamAsserts.AssertChannelTypeIsValid(channelType);
+            StreamAsserts.AssertChannelIdLength(channelId);
 
-            _logs.Prefix = "[Stream Chat] ";
-
-            _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
-
-            _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
-            _httpClient.AddDefaultCustomHeader("X-Stream-Client", $"stream-chat-unity-client-{SDKVersion}");
-
-            _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
-            _websocketClient.Connected += OnWebsocketsConnected;
-            _websocketClient.Disconnected += OnWebsocketDisconnected;
-
-            InternalChannelApi = new InternalChannelApi(httpClient, serializer, logs, _requestUriFactory);
-            InternalMessageApi = new InternalMessageApi(httpClient, serializer, logs, _requestUriFactory);
-            InternalModerationApi = new InternalModerationApi(httpClient, serializer, logs, _requestUriFactory);
-            InternalUserApi = new InternalUserApi(httpClient, serializer, logs, _requestUriFactory);
-            InternalDeviceApi = new InternalDeviceApi(httpClient, serializer, logs, _requestUriFactory);
-
-            ChannelApi = new ChannelApi(InternalChannelApi);
-            MessageApi = new MessageApi(InternalMessageApi);
-            ModerationApi = new ModerationApi(InternalModerationApi);
-            UserApi = new UserApi(InternalUserApi);
-            DeviceApi = new DeviceApi(InternalDeviceApi);
-
-            RegisterEventHandlers();
-
-            LogErrorIfUpdateIsNotBeingCalled();
-        }
-
-        public void Connect()
-        {
-            SetUser(_authCredentials);
-
-            if (!ConnectionState.IsValidToConnect())
+            var requestBodyDto = new ChannelGetOrCreateRequestInternalDTO
             {
-                throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
-            }
-
-            NextReconnectTime = default;
-
-            var connectionUri = _requestUriFactory.CreateConnectionUri();
-
-            _logs.Info($"Attempt to connect");
-
-            ConnectionState = ConnectionState.Connecting;
-
-            _websocketClient.ConnectAsync(connectionUri).LogIfFailed(_logs);
-        }
-
-        public void Update(float deltaTime)
-        {
-            _updateCallReceived = true;
-
-            TryHandleWebsocketsConnectionFailed();
-            TryToReconnect();
-
-            UpdateHealthCheck();
-
-            _websocketClient.Update();
-
-            while (_websocketClient.TryDequeueMessage(out var msg))
-            {
-                HandleNewWebsocketMessage(msg);
-            }
-        }
-
-        public bool IsLocalUser(User user) => user.Id == _authCredentials.UserId;
-
-        public bool IsLocalUser(ChannelMember channelMember) => channelMember.User.Id == _authCredentials.UserId;
-
-        public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
-            float? exponentialMaxInterval, float? constantInterval)
-        {
-            ReconnectStrategy = reconnectStrategy;
-
-            void ThrowIfLessOrEqualToZero(float value, string name)
-            {
-                if (value <= 0)
+                Presence = true,
+                State = true,
+                Watch = true,
+                Data = new ChannelRequestInternalDTO
                 {
-                    throw new ArgumentException($"{name} needs to be greater than zero, given: " + value);
+                    Name = name,
+                },
+            };
+
+            if (optionalCustomData != null && optionalCustomData.Any())
+            {
+                requestBodyDto.Data.AdditionalProperties = optionalCustomData?.ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            var channelResponseDto = await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
+                channelId, requestBodyDto);
+            return _cache.TryCreateOrUpdate(channelResponseDto);
+        }
+
+        public async Task<IStreamChannel> GetOrCreateChannelWithMembersAsync(ChannelType channelType,
+            IEnumerable<IStreamUser> members, IDictionary<string, object> optionalCustomData = null)
+        {
+            StreamAsserts.AssertChannelTypeIsValid(channelType);
+            StreamAsserts.AssertNotNullOrEmpty(members, nameof(members));
+
+            var membersRequest = new List<ChannelMemberRequestInternalDTO>();
+            foreach (var m in members)
+            {
+                membersRequest.Add(new ChannelMemberRequestInternalDTO
+                {
+                    UserId = m.Id
+                });
+            }
+
+            var requestBodyDto = new ChannelGetOrCreateRequestInternalDTO
+            {
+                Presence = true,
+                State = true,
+                Watch = true,
+                Data = new ChannelRequestInternalDTO
+                {
+                    Members = membersRequest,
                 }
+            };
+
+            if (optionalCustomData != null && optionalCustomData.Any())
+            {
+                requestBodyDto.Data.AdditionalProperties = optionalCustomData?.ToDictionary(x => x.Key, x => x.Value);
             }
 
-            if (exponentialMinInterval.HasValue)
+            var channelResponseDto =
+                await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
+            return _cache.TryCreateOrUpdate(channelResponseDto);
+        }
+
+        //StreamTodo: Filter object that contains a factory
+        //StreamTodo: implement pagination + sorting seems useful for paginated query results
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
+            int limit = 30, int offset = 0)
+        {
+            StreamAsserts.AssertNotNull(filters, nameof(filters));
+            StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
+            StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
+
+            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
+            var requestBodyDto = new QueryChannelsRequestInternalDTO
             {
-                ThrowIfLessOrEqualToZero(exponentialMinInterval.Value, nameof(exponentialMinInterval));
-                ReconnectExponentialMinInterval = exponentialMinInterval.Value;
+                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
+                Limit = null,
+                MemberLimit = null,
+                MessageLimit = null,
+                Offset = null,
+                Presence = true,
+
+                //StreamTodo: sorting could be controlled in global config,
+                //we definitely don't want to control this per request as this could break data integrity + they can just sort result with LINQ
+                Sort = null,
+                State = true,
+                Watch = true,
+            };
+
+            var channelsResponseDto = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
+            {
+                return Enumerable.Empty<StreamChannel>();
             }
 
-            if (exponentialMaxInterval.HasValue)
+            var result = new List<IStreamChannel>();
+            foreach (var channelDto in channelsResponseDto.Channels)
             {
-                ThrowIfLessOrEqualToZero(exponentialMaxInterval.Value, nameof(exponentialMaxInterval));
-                ReconnectExponentialMaxInterval = exponentialMaxInterval.Value;
+                result.Add(_cache.TryCreateOrUpdate(channelDto));
             }
 
-            if (constantInterval.HasValue)
+            return result;
+        }
+
+        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters)
+        {
+            //StreamTodo: Missing filter, and stuff like IdGte etc
+            var requestBodyDto = new QueryUsersRequestInternalDTO
             {
-                ThrowIfLessOrEqualToZero(constantInterval.Value, nameof(constantInterval));
-                ReconnectConstantInterval = constantInterval.Value;
+                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
+                IdGt = null,
+                IdGte = null,
+                IdLt = null,
+                IdLte = null,
+                Limit = null,
+                Offset = null,
+                Presence = true, //StreamTodo: research whether user should be allowed to control this
+                Sort = null,
+            };
+
+            var response = await InternalLowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
+            if (response.Users != null && response.Users.Count == 0)
+            {
+                return Enumerable.Empty<IStreamUser>();
             }
+
+            var result = new List<IStreamUser>();
+            foreach (var userDto in response.Users)
+            {
+                result.Add(_cache.TryCreateOrUpdate(userDto));
+            }
+
+            return result;
+        }
+
+        //StreamTodo: write tests
+        public async Task<IEnumerable<StreamUserBanInfo>> QueryBannedUsersAsync(
+            StreamQueryBannedUsersRequest streamQueryBannedUsersRequest)
+        {
+            StreamAsserts.AssertNotNull(streamQueryBannedUsersRequest, nameof(streamQueryBannedUsersRequest));
+
+            var response =
+                await InternalLowLevelClient.InternalModerationApi.QueryBannedUsersAsync(streamQueryBannedUsersRequest
+                    .TrySaveToDto());
+            if (response.Bans == null || response.Bans.Count == 0)
+            {
+                return Enumerable.Empty<StreamUserBanInfo>();
+            }
+
+            var result = new List<StreamUserBanInfo>();
+            foreach (var userDto in response.Bans)
+            {
+                var banInfo = new StreamUserBanInfo().LoadFromDto(userDto, _cache);
+                result.Add(banInfo);
+            }
+
+            return result;
+        }
+
+        public async Task<IEnumerable<IStreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(userRequests, nameof(userRequests));
+
+            //StreamTodo: items could be null
+            var requestDtos = userRequests.Select(_ => _.TrySaveToDto()).ToDictionary(_ => _.Id, _ => _);
+
+            var response = await InternalLowLevelClient.InternalUserApi.UpsertManyUsersAsync(new UpdateUsersRequestInternalDTO
+            {
+                Users = requestDtos
+            });
+
+            var result = new List<IStreamUser>();
+            foreach (var userDto in response.Users.Values)
+            {
+                result.Add(_cache.TryCreateOrUpdate(userDto));
+            }
+
+            return result;
+        }
+
+        public async Task MuteMultipleChannelsAsync(IEnumerable<IStreamChannel> channels, int? milliseconds = default)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));
+
+            var channelCids = channels.Select(_ => _.Cid).ToList();
+            if (channelCids.Count == 0)
+            {
+                throw new ArgumentException($"{nameof(channels)} is empty");
+            }
+
+            var response = await InternalLowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
+            {
+                ChannelCids = channelCids,
+                Expiration = milliseconds
+            });
+
+            UpdateLocalUser(response.OwnUser);
+        }
+
+        public async Task UnmuteMultipleChannelsAsync(IEnumerable<IStreamChannel> channels)
+        {
+            if (channels == null)
+            {
+                throw new ArgumentNullException(nameof(channels));
+            }
+
+            var channelCids = channels.Select(_ => _.Cid).ToList();
+            if (channelCids.Count == 0)
+            {
+                throw new ArgumentException($"{nameof(channels)} is empty");
+            }
+
+            await InternalLowLevelClient.InternalChannelApi.UnmuteChannelAsync(new UnmuteChannelRequestInternalDTO
+            {
+                ChannelCids = channelCids,
+                //StreamTodo: what is this Expiration here?
+            });
+        }
+
+        public async Task<StreamDeleteChannelsResponse> DeleteMultipleChannelsAsync(
+            IEnumerable<IStreamChannel> channels,
+            bool isHardDelete = false)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(channels, nameof(channels));
+
+            var responseDto = await InternalLowLevelClient.InternalChannelApi.DeleteChannelsAsync(
+                new DeleteChannelsRequestInternalDTO
+                {
+                    Cids = channels.Select(_ => _.Cid).ToList(),
+                    HardDelete = isHardDelete
+                });
+
+            var response = new StreamDeleteChannelsResponse().UpdateFromDto(responseDto);
+            return response;
+        }
+
+        public async Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(users, nameof(users));
+
+            var responseDto = await InternalLowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
+            {
+                TargetIds = users.Select(_ => _.Id).ToList(),
+                Timeout = timeoutMinutes
+            });
+
+            UpdateLocalUser(responseDto.OwnUser);
+        }
+
+        private Task<IEnumerable<IStreamUser>> QueryBannedUsersAsync()
+        {
+            //StreamTodo: IMPLEMENT, should we allow for query
+            throw new NotImplementedException();
         }
 
         public void Dispose()
         {
-            ConnectionState = ConnectionState.Closing;
-
-            _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
-            _websocketClient.Connected -= OnWebsocketsConnected;
-            _websocketClient.Disconnected -= OnWebsocketDisconnected;
-            _websocketClient?.Dispose();
-        }
-
-        string IAuthProvider.ApiKey => _authCredentials.ApiKey;
-        string IAuthProvider.UserToken => _authCredentials.UserToken;
-        string IAuthProvider.UserId => _authCredentials.UserId;
-        string IAuthProvider.StreamAuthType => DefaultStreamAuthType;
-        string IConnectionProvider.ConnectionId => _connectionId;
-        Uri IConnectionProvider.ServerUri => ServerBaseUrl;
-
-        internal IInternalChannelApi InternalChannelApi { get; }
-        internal IInternalMessageApi InternalMessageApi { get; }
-        internal IInternalModerationApi InternalModerationApi { get; }
-        internal IInternalUserApi InternalUserApi { get; }
-        internal IInternalDeviceApi InternalDeviceApi { get; }
-
-        private const string DefaultStreamAuthType = "jwt";
-        private const int HealthCheckMaxWaitingTime = 30;
-
-        private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime;
-
-        private readonly IWebsocketClient _websocketClient;
-        private readonly ISerializer _serializer;
-        private readonly ILogs _logs;
-        private readonly ITimeService _timeService;
-        private readonly AuthCredentials _authCredentials;
-        private readonly IRequestUriFactory _requestUriFactory;
-        private readonly IHttpClient _httpClient;
-        private readonly StringBuilder _errorSb = new StringBuilder();
-        private readonly StringBuilder _logSb = new StringBuilder();
-        private readonly IStreamClientConfig _config;
-
-        private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
-            new Dictionary<string, Action<string>>();
-
-        private readonly object _websocketConnectionFailedFlagLock = new object();
-
-        private ConnectionState _connectionState;
-        private string _connectionId;
-        private float _lastHealthCheckReceivedTime;
-        private float _lastHealthCheckSendTime;
-        private bool _updateCallReceived;
-
-        private bool _websocketConnectionFailed;
-        private int _reconnectAttempt;
-
-        private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
-
-        private void OnWebsocketDisconnected()
-        {
-            ConnectionState = ConnectionState.Disconnected;
-            TryScheduleReconnect();
-        }
-
-        /// <summary>
-        /// This event can be called by a background thread and we must propagate it on the main thread
-        /// Otherwise any call to Unity API would result in Exception. Unity API can only be called from the main thread
-        /// </summary>
-        private void OnWebsocketsConnectionFailed()
-        {
-            lock (_websocketConnectionFailedFlagLock)
+            if (_isDisposed)
             {
-                _websocketConnectionFailed = true;
+                return;
             }
+
+            //StreamTodo: disconnect current user
+
+            TryCancelWaitingForUserConnection();
+
+            if (InternalLowLevelClient != null)
+            {
+                UnsubscribeFrom(InternalLowLevelClient);
+                InternalLowLevelClient.Dispose();
+            }
+
+            _isDisposed = true;
+            Disposed?.Invoke();
         }
 
-        private void TryHandleWebsocketsConnectionFailed()
+        void IStreamChatClientEventsListener.Destroy()
         {
-            lock (_websocketConnectionFailedFlagLock)
+            //StreamTodo: we should probably check: if waiting for connection -> cancel, if connected -> disconnect, etc
+            DisconnectUserAsync().ContinueWith(t =>
             {
-                if (!_websocketConnectionFailed)
+                if (t.IsFaulted)
                 {
+                    _logs.Exception(t.Exception);
                     return;
                 }
 
-                _websocketConnectionFailed = false;
-            }
-
-            ConnectionState = ConnectionState.Disconnected;
-
-            TryScheduleReconnect();
-        }
-
-        /// <summary>
-        /// Based on receiving initial health check event from the server
-        /// </summary>
-        private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent,
-            EventHealthCheckInternalDTO eventHealthCheckInternalDto)
-        {
-            _connectionId = healthCheckEvent.ConnectionId;
-#pragma warning disable 0618
-            LocalUser = healthCheckEvent.Me;
-#pragma warning restore 0618
-            _lastHealthCheckReceivedTime = _timeService.Time;
-            _reconnectAttempt = 0;
-            ConnectionState = ConnectionState.Connected;
-
-            _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
-            Connected?.Invoke(healthCheckEvent.Me);
-            InternalConnected?.Invoke(eventHealthCheckInternalDto);
-        }
-
-        private void TryToReconnect()
-        {
-            if (!ConnectionState.IsValidToConnect() || !NextReconnectTime.HasValue)
-            {
-                return;
-            }
-
-            if (NextReconnectTime.Value > _timeService.Time)
-            {
-                return;
-            }
-
-            _reconnectAttempt++;
-            Connect();
-        }
-
-        private bool TryScheduleReconnect()
-        {
-            if (NextReconnectTime.HasValue && NextReconnectTime.Value > _timeService.Time)
-            {
-                return false;
-            }
-
-            switch (ReconnectStrategy)
-            {
-                case ReconnectStrategy.Exponential:
-
-                    var baseInterval = Math.Pow(2, _reconnectAttempt);
-                    var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
-                        ReconnectExponentialMaxInterval);
-                    NextReconnectTime = _timeService.Time + interval;
-
-                    break;
-                case ReconnectStrategy.Constant:
-                    NextReconnectTime = _timeService.Time + ReconnectConstantInterval;
-                    break;
-                case ReconnectStrategy.Never:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            if (NextReconnectTime.HasValue)
-            {
-                ConnectionState = ConnectionState.WaitToReconnect;
-                var timeLeft = NextReconnectTime.Value - _timeService.Time;
-
-                _logSb.Append("Reconnect scheduled to time: <b>");
-                _logSb.Append(Math.Round(NextReconnectTime.Value));
-                _logSb.Append(" seconds</b>, current time: <b>");
-                _logSb.Append(Math.Round(_timeService.Time));
-                _logSb.Append(" seconds</b>, time left: <b>");
-                _logSb.Append(Math.Round(timeLeft));
-                _logSb.Append(" seconds</b>");
-
-                _logs.Info(_logSb.ToString());
-                _logSb.Clear();
-            }
-
-            return NextReconnectTime.HasValue;
-        }
-
-        private void RegisterEventHandlers()
-        {
-            RegisterEventType<EventHealthCheckInternalDTO, EventHealthCheck>(EventType.HealthCheck,
-                HandleHealthCheckEvent);
-
-            RegisterEventType<EventMessageNewInternalDTO, EventMessageNew>(EventType.MessageNew,
-                (e, dto) => MessageReceived?.Invoke(e), dto => InternalMessageReceived?.Invoke(dto));
-            RegisterEventType<EventMessageDeletedInternalDTO, EventMessageDeleted>(EventType.MessageDeleted,
-                (e, dto) => MessageDeleted?.Invoke(e), dto => InternalMessageDeleted?.Invoke(dto));
-            RegisterEventType<EventMessageUpdatedInternalDTO, EventMessageUpdated>(EventType.MessageUpdated,
-                (e, dto) => MessageUpdated?.Invoke(e), dto => InternalMessageUpdated?.Invoke(dto));
-            RegisterEventType<EventMessageReadInternalDTO, EventMessageRead>(EventType.MessageRead,
-                (e, dto) => MessageRead?.Invoke(e), dto => InternalMessageRead?.Invoke(dto));
-
-            RegisterEventType<EventChannelUpdatedInternalDTO, EventChannelUpdated>(EventType.ChannelUpdated,
-                (e, dto) => ChannelUpdated?.Invoke(e), dto => InternalChannelUpdated?.Invoke(dto));
-            RegisterEventType<EventChannelDeletedInternalDTO, EventChannelDeleted>(EventType.ChannelDeleted,
-                (e, dto) => ChannelDeleted?.Invoke(e), dto => InternalChannelDeleted?.Invoke(dto));
-            RegisterEventType<EventChannelTruncatedInternalDTO, EventChannelTruncated>(EventType.ChannelTruncated,
-                (e, dto) => ChannelTruncated?.Invoke(e), dto => InternalEventChannelTruncated?.Invoke(dto));
-            RegisterEventType<EventChannelVisibleInternalDTO, EventChannelVisible>(EventType.ChannelVisible,
-                (e, dto) => ChannelVisible?.Invoke(e), dto => InternalEventChannelVisible?.Invoke(dto));
-            RegisterEventType<EventChannelHiddenInternalDTO, EventChannelHidden>(EventType.ChannelHidden,
-                (e, dto) => ChannelHidden?.Invoke(e), dto => InternalEventChannelHidden?.Invoke(dto));
-
-            RegisterEventType<EventReactionNewInternalDTO, EventReactionNew>(EventType.ReactionNew,
-                (e, dto) => ReactionReceived?.Invoke(e), dto => InternalReactionReceived?.Invoke(dto));
-            RegisterEventType<EventReactionUpdatedInternalDTO, EventReactionUpdated>(EventType.ReactionUpdated,
-                (e, dto) => ReactionUpdated?.Invoke(e), dto => InternalReactionUpdated?.Invoke(dto));
-            RegisterEventType<EventReactionDeletedInternalDTO, EventReactionDeleted>(EventType.ReactionDeleted,
-                (e, dto) => ReactionDeleted?.Invoke(e), dto => InternalReactionDeleted?.Invoke(dto));
-
-            RegisterEventType<EventMemberAddedInternalDTO, EventMemberAdded>(EventType.MemberAdded,
-                (e, dto) => MemberAdded?.Invoke(e), dto => InternalMemberAdded?.Invoke(dto));
-            RegisterEventType<EventMemberRemovedInternalDTO, EventMemberRemoved>(EventType.MemberRemoved,
-                (e, dto) => MemberRemoved?.Invoke(e), dto => InternalMemberRemoved?.Invoke(dto));
-            RegisterEventType<EventMemberUpdatedInternalDTO, EventMemberUpdated>(EventType.MemberUpdated,
-                (e, dto) => MemberUpdated?.Invoke(e), dto => InternalMemberUpdated?.Invoke(dto));
-
-            RegisterEventType<EventUserPresenceChangedInternalDTO, EventUserPresenceChanged>(EventType.UserPresenceChanged,
-                (e, dto) => UserPresenceChanged?.Invoke(e), dto => InternalUserPresenceChanged?.Invoke(dto));
-            RegisterEventType<EventUserUpdatedInternalDTO, EventUserUpdated>(EventType.UserUpdated,
-                (e, dto) => UserUpdated?.Invoke(e), dto => InternalUserUpdated?.Invoke(dto));
-            RegisterEventType<EventUserDeletedInternalDTO, EventUserDeleted>(EventType.UserDeleted,
-                (e, dto) => UserDeleted?.Invoke(e), dto => InternalUserDeleted?.Invoke(dto));
-            RegisterEventType<EventUserBannedInternalDTO, EventUserBanned>(EventType.UserBanned,
-                (e, dto) => UserBanned?.Invoke(e), dto => InternalUserBanned?.Invoke(dto));
-            RegisterEventType<EventUserUnbannedInternalDTO, EventUserUnbanned>(EventType.UserUnbanned,
-                (e, dto) => UserUnbanned?.Invoke(e), dto => InternalUserUnbanned?.Invoke(dto));
-
-            RegisterEventType<EventUserWatchingStartInternalDTO, EventUserWatchingStart>(EventType.UserWatchingStart,
-                (e, dto) => UserWatchingStart?.Invoke(e), dto => InternalUserWatchingStart?.Invoke(dto));
-            RegisterEventType<EventUserWatchingStopInternalDTO, EventUserWatchingStop>(EventType.UserWatchingStop,
-                (e, dto) => UserWatchingStop?.Invoke(e), dto => InternalUserWatchingStop?.Invoke(dto));
-
-            RegisterEventType<EventTypingStartInternalDTO, EventTypingStart>(EventType.TypingStart,
-                (e, dto) => TypingStarted?.Invoke(e), dto => InternalTypingStarted?.Invoke(dto));
-            RegisterEventType<EventTypingStopInternalDTO, EventTypingStop>(EventType.TypingStop,
-                (e, dto) => TypingStopped?.Invoke(e), dto => InternalTypingStopped?.Invoke(dto));
-
-            // Notifications
-
-            RegisterEventType<EventNotificationChannelMutesUpdatedInternalDTO, EventNotificationChannelMutesUpdated>(
-                EventType.NotificationChannelMutesUpdated,
-                (e, dto) => NotificationChannelMutesUpdated?.Invoke(e),
-                dto => InternalNotificationChannelMutesUpdated?.Invoke(dto));
-            RegisterEventType<EventNotificationMutesUpdatedInternalDTO, EventNotificationMutesUpdated>(
-                EventType.NotificationMutesUpdated,
-                (e, dto) => NotificationMutesUpdated?.Invoke(e), dto => InternalNotificationMutesUpdated?.Invoke(dto));
-
-            RegisterEventType<EventNotificationMarkReadInternalDTO, EventNotificationMarkRead>(
-                EventType.NotificationMarkRead,
-                (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto));
-            RegisterEventType<EventNotificationMessageNewInternalDTO, EventNotificationMessageNew>(
-                EventType.NotificationMessageNew,
-                (e, dto) => NotificationMessageReceived?.Invoke(e),
-                dto => InternalNotificationMessageReceived?.Invoke(dto));
-
-            RegisterEventType<EventNotificationChannelDeletedInternalDTO, EventNotificationChannelDeleted>(
-                EventType.NotificationChannelDeleted,
-                (e, dto) => NotificationChannelDeleted?.Invoke(e),
-                dto => InternalNotificationChannelDeleted?.Invoke(dto));
-            RegisterEventType<EventNotificationChannelTruncatedInternalDTO, EventNotificationChannelTruncated>(
-                EventType.NotificationChannelTruncated,
-                (e, dto) => NotificationChannelTruncated?.Invoke(e),
-                dto => InternalNotificationChannelTruncated?.Invoke(dto));
-
-            RegisterEventType<EventNotificationAddedToChannelInternalDTO, EventNotificationAddedToChannel>(
-                EventType.NotificationAddedToChannel,
-                (e, dto) => NotificationAddedToChannel?.Invoke(e),
-                dto => InternalNotificationAddedToChannel?.Invoke(dto));
-            RegisterEventType<EventNotificationRemovedFromChannelInternalDTO, EventNotificationRemovedFromChannel>(
-                EventType.NotificationRemovedFromChannel,
-                (e, dto) => NotificationRemovedFromChannel?.Invoke(e),
-                dto => InternalNotificationRemovedFromChannel?.Invoke(dto));
-
-            RegisterEventType<EventNotificationInvitedInternalDTO, EventNotificationInvited>(
-                EventType.NotificationInvited,
-                (e, dto) => NotificationInvited?.Invoke(e), dto => InternalNotificationInvited?.Invoke(dto));
-            RegisterEventType<EventNotificationInviteAcceptedInternalDTO, EventNotificationInviteAccepted>(
-                EventType.NotificationInviteAccepted,
-                (e, dto) => NotificationInviteAccepted?.Invoke(e),
-                dto => InternalNotificationInviteAccepted?.Invoke(dto));
-            RegisterEventType<EventNotificationInviteRejectedInternalDTO, EventNotificationInviteRejected>(
-                EventType.NotificationInviteRejected,
-                (e, dto) => NotificationInviteRejected?.Invoke(e),
-                dto => InternalNotificationInviteRejected?.Invoke(dto));
-        }
-
-        private void RegisterEventType<TDto, TEvent>(string key,
-            Action<TEvent, TDto> handler, Action<TDto> internalHandler = null)
-            where TEvent : ILoadableFrom<TDto, TEvent>, new()
-        {
-            if (_eventKeyToHandler.ContainsKey(key))
-            {
-                _logs.Warning($"Event handler with key `{key}` is already registered. Ignored");
-                return;
-            }
-
-            _eventKeyToHandler.Add(key, serializedContent =>
-            {
-                try
-                {
-                    var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
-                    handler?.Invoke(eventObj, dto);
-                    internalHandler?.Invoke(dto);
-                }
-                catch (Exception e)
-                {
-                    _logs.Exception(e);
-                }
+                Dispose();
             });
         }
 
-        private TEvent DeserializeEvent<TDto, TEvent>(string content, out TDto dto)
-            where TEvent : ILoadableFrom<TDto, TEvent>, new()
+        void IStreamChatClientEventsListener.Update() => InternalLowLevelClient.Update(_timeService.DeltaTime);
+
+        internal StreamChatLowLevelClient InternalLowLevelClient { get; }
+
+        internal void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
+        {
+            _localUserData = _cache.TryCreateOrUpdate(ownUserInternalDto);
+
+            //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
+            // This could be solved if ChannelMutes would be an observable collection
+            foreach (var channel in _cache.Channels.AllItems)
+            {
+                var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
+                channel.Muted = isMuted;
+            }
+        }
+
+        internal Task RefreshChannelState(string cid)
+        {
+            if (!_cache.Channels.TryGet(cid, out var channel))
+            {
+                _logs.Error($"Tried to refresh state of channel with {cid} but no such channel was found in the cache");
+                return Task.CompletedTask;
+            }
+
+            return GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+        }
+
+        private readonly ILogs _logs;
+        private readonly ITimeService _timeService;
+        private readonly ICache _cache;
+
+        private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
+        private CancellationToken _connectUserCancellationToken;
+        private CancellationTokenSource _connectUserCancellationTokenSource;
+        private bool _isDisposed;
+
+        /// <summary>
+        /// Use the <see cref="CreateDefaultClient"/> to create the client instance
+        /// </summary>
+        private StreamChatClient(IWebsocketClient websocketClient, IHttpClient httpClient, ISerializer serializer, 
+            ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
+        {
+            _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
+            _logs = logs ?? throw new ArgumentNullException(nameof(logs));
+
+            InternalLowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient,
+                serializer, _timeService, applicationInfo, logs, config);
+
+            _cache = new Cache(this, serializer, _logs);
+
+            SubscribeTo(InternalLowLevelClient);
+        }
+
+        private void InternalDeleteChannel(StreamChannel channel)
+        {
+            //StreamTodo: mark StreamChannel object as deleted + probably silent clear all internal data?
+            _cache.Channels.Remove(channel);
+            ChannelDeleted?.Invoke(channel.Cid, channel.Id, channel.Type);
+        }
+
+        private void TryCancelWaitingForUserConnection()
+        {
+            var isConnectTaskRunning = _connectUserTaskSource?.Task != null && !_connectUserTaskSource.Task.IsCompleted;
+            var isCancellationRequested = _connectUserCancellationTokenSource.IsCancellationRequested;
+
+            if (isConnectTaskRunning && !isCancellationRequested)
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Info($"Try Cancel {_connectUserTaskSource}");
+#endif
+                _connectUserTaskSource.TrySetCanceled();
+            }
+        }
+
+        #region Events
+
+        private void OnConnected(EventHealthCheckInternalDTO dto)
         {
             try
             {
-                dto = _serializer.Deserialize<TDto>(content);
+                var localUserDto = dto.Me;
+                UpdateLocalUser(localUserDto);
+                Connected?.Invoke(LocalUserData);
             }
-            catch (Exception e)
+            finally
             {
-                throw new StreamDeserializationException(content, typeof(TDto), e);
-            }
-
-            var response = new TEvent();
-            response.LoadFromDto(dto);
-
-            return response;
-        }
-
-        private void HandleNewWebsocketMessage(string msg)
-        {
-            const string ErrorKey = "error";
-
-            if (_serializer.TryPeekValue<APIError>(msg, ErrorKey, out var apiError))
-            {
-                _errorSb.Length = 0;
-                apiError.AppendFullLog(_errorSb);
-
-                _logs.Error($"{nameof(APIError)} returned: {_errorSb}");
-                return;
-            }
-
-            const string TypeKey = "type";
-
-            if (!_serializer.TryPeekValue<string>(msg, TypeKey, out var type))
-            {
-                _logs.Error($"Failed to find `{TypeKey}` in msg: " + msg);
-                return;
-            }
-
-            var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
-            EventReceived?.Invoke($"{time} - Event received: <b>{type}</b>");
-
-            if (!_eventKeyToHandler.TryGetValue(type, out var handler))
-            {
-                if (_config.LogLevel.IsDebugEnabled())
-                {
-                    _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
-                }
-
-                return;
-            }
-
-            handler(msg);
-        }
-
-        private void UpdateHealthCheck()
-        {
-            if (ConnectionState != ConnectionState.Connected)
-            {
-                return;
-            }
-
-            var timeSinceLastHealthCheckSent = _timeService.Time - _lastHealthCheckSendTime;
-            if (timeSinceLastHealthCheckSent > HealthCheckSendInterval)
-            {
-                PingHealthCheck();
-            }
-
-            var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
-            if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
-            {
-                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, reset connection");
-                _websocketClient
-                    .DisconnectAsync(WebSocketCloseStatus.InternalServerError,
-                        $"Health check was not received since: {timeSinceLastHealthCheck}")
-                    .ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
-            }
-        }
-
-        private void PingHealthCheck()
-        {
-            var healthCheck = new EventHealthCheck
-            {
-                Type = EventType.HealthCheck
-            };
-
-            _websocketClient.Send(_serializer.Serialize(healthCheck));
-            _lastHealthCheckSendTime = _timeService.Time;
-        }
-
-        private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, EventHealthCheckInternalDTO dto)
-        {
-            _lastHealthCheckReceivedTime = _timeService.Time;
-
-            if (ConnectionState == ConnectionState.Connecting)
-            {
-                OnConnectionConfirmed(healthCheckEvent, dto);
-            }
-        }
-
-        private static bool IsUserIdValid(string userId)
-        {
-            var r = new Regex("^[a-zA-Z0-9@_-]+$");
-            return r.IsMatch(userId);
-        }
-
-        private static string Base64UrlEncode(byte[] input)
-            => Convert.ToBase64String(input)
-                .Replace('+', '-')
-                .Replace('/', '_')
-                .Trim('=');
-
-        private void SetUser(AuthCredentials credentials)
-        {
-            if (credentials.IsAnyEmpty())
-            {
-                throw new StreamMissingAuthCredentialsException(
-                    "Please provide valid credentials: `Api Key`, 'User id`, `User token`");
-            }
-
-            _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
-        }
-
-        private void LogErrorIfUpdateIsNotBeingCalled()
-        {
-            const int Timeout = 2;
-            Task.Delay(Timeout * 1000).ContinueWith(t =>
-            {
-                if (!_updateCallReceived && ConnectionState != ConnectionState.Disconnected)
+                if (_connectUserTaskSource == null)
                 {
                     _logs.Error(
-                        $"Connection is not being updated. Please call the `{nameof(StreamChatClient)}.{nameof(Update)}` method per frame.");
+                        $"{nameof(OnConnected)} expected {nameof(_connectUserTaskSource)} not null");
                 }
-            });
+                else
+                {
+                    _connectUserTaskSource.SetResult(LocalUserData);
+                }
+            }
         }
+
+        private void OnDisconnected() => Disconnected?.Invoke();
+
+        private void OnConnectionStateChanged(ConnectionState previous, ConnectionState current)
+            => ConnectionStateChanged?.Invoke(previous, current);
+
+        private void OnMessageDeleted(EventMessageDeletedInternalDTO eventMessageDeleted)
+        {
+            if (_cache.Channels.TryGet(eventMessageDeleted.Cid, out var streamChannel))
+            {
+                streamChannel.HandleMessageDeletedEvent(eventMessageDeleted);
+            }
+        }
+
+        private void OnMessageUpdated(EventMessageUpdatedInternalDTO eventMessageUpdated)
+        {
+            if (_cache.Channels.TryGet(eventMessageUpdated.Cid, out var streamChannel))
+            {
+                streamChannel.HandleMessageUpdatedEvent(eventMessageUpdated);
+            }
+        }
+
+        private void OnMessageReceived(EventMessageNewInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.HandleMessageNewEvent(eventDto);
+            }
+        }
+
+        private void OnChannelTruncated(EventChannelTruncatedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.HandleChannelTruncatedEvent(eventDto);
+            }
+        }
+
+        private void OnChannelDeletedNotification(EventNotificationChannelDeletedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                InternalDeleteChannel(streamChannel);
+            }
+        }
+
+        private void OnChannelVisible(EventChannelVisibleInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.Hidden = false;
+            }
+        }
+
+        private void OnChannelHidden(EventChannelHiddenInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.Hidden = true;
+            }
+        }
+
+        private void OnChannelDeleted(EventChannelDeletedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                InternalDeleteChannel(streamChannel);
+            }
+        }
+
+        private void OnChannelUpdated(EventChannelUpdatedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.HandleChannelUpdatedEvent(eventDto);
+            }
+        }
+
+        private void OnChannelTruncatedNotification(
+            EventNotificationChannelTruncatedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.HandleChannelTruncatedEvent(eventDto);
+            }
+        }
+
+        private void OnChannelMutesUpdatedNotification(EventNotificationChannelMutesUpdatedInternalDTO eventDto)
+        {
+            UpdateLocalUser(eventDto.Me);
+        }
+
+        private void OnMessageReceivedNotification(EventNotificationMessageNewInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleMessageNewNotification(eventDto);
+            }
+        }
+
+        private void OnMutesUpdatedNotification(EventNotificationMutesUpdatedInternalDTO eventDto)
+        {
+            UpdateLocalUser(eventDto.Me);
+        }
+
+        private void OnMemberAdded(EventMemberAddedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                var member = _cache.TryCreateOrUpdate(eventDto.Member);
+                StreamAsserts.AssertNotNull(member, nameof(member));
+                streamChannel.InternalAddMember(member);
+            }
+        }
+
+        private void OnMemberUpdated(EventMemberUpdatedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                var member = _cache.TryCreateOrUpdate(eventDto.Member);
+                StreamAsserts.AssertNotNull(member, nameof(member));
+                streamChannel.InternalUpdateMember(member);
+            }
+        }
+
+        private void OnMemberRemoved(EventMemberRemovedInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                var member = _cache.TryCreateOrUpdate(eventDto.Member);
+                StreamAsserts.AssertNotNull(member, nameof(member));
+                streamChannel.InternalRemoveMember(member);
+            }
+        }
+
+        private void OnMessageRead(EventMessageReadInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleMessageReadEvent(eventDto);
+            }
+        }
+
+        private void OnMarkReadNotification(EventNotificationMarkReadInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleMessageReadNotification(eventDto);
+            }
+
+            _localUserData.InternalHandleMarkReadNotification(eventDto);
+        }
+
+        private void OnAddedToChannelNotification(EventNotificationAddedToChannelInternalDTO obj)
+        {
+            //StreamTodo: IMPLEMENT
+        }
+
+        private void OnRemovedFromChannelNotification(
+            EventNotificationRemovedFromChannelInternalDTO obj)
+        {
+//StreamTodo: IMPLEMENT
+        }
+
+        private void OnInvitedNotification(EventNotificationInvitedInternalDTO obj)
+        {
+//StreamTodo: IMPLEMENT
+        }
+
+        private void OnInviteAcceptedNotification(EventNotificationInviteAcceptedInternalDTO obj)
+        {
+//StreamTodo: IMPLEMENT
+        }
+
+        private void OnInviteRejectedNotification(EventNotificationInviteRejectedInternalDTO obj)
+        {
+//StreamTodo: IMPLEMENT
+        }
+
+        private void OnReactionReceived(EventReactionNewInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
+            {
+                return;
+            }
+
+            if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
+            {
+                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                message.HandleReactionNewEvent(eventDto, channel, reaction);
+                channel.InternalNotifyReactionReceived(message, reaction);
+            }
+        }
+
+        private void OnReactionUpdated(EventReactionUpdatedInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
+            {
+                return;
+            }
+
+            if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
+            {
+                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                message.HandleReactionUpdatedEvent(eventDto, channel, reaction);
+                channel.InternalNotifyReactionUpdated(message, reaction);
+            }
+        }
+
+        private void OnReactionDeleted(EventReactionDeletedInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
+            {
+                return;
+            }
+
+            if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
+            {
+                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                message.HandleReactionDeletedEvent(eventDto, channel, reaction);
+                channel.InternalNotifyReactionDeleted(message, reaction);
+            }
+        }
+
+        private void OnUserWatchingStop(EventUserWatchingStopInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleUserWatchingStop(eventDto);
+            }
+        }
+
+        private void OnUserWatchingStart(EventUserWatchingStartInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleUserWatchingStartEvent(eventDto);
+            }
+        }
+
+        private void OnLowLevelClientUserUnbanned(EventUserUnbannedInternalDTO obj)
+        {
+            //StreamTodo: IMPLEMENT
+        }
+
+        private void OnLowLevelClientUserBanned(EventUserBannedInternalDTO obj)
+        {
+            //StreamTodo: IMPLEMENT
+        }
+
+        private void OnLowLevelClientUserDeleted(EventUserDeletedInternalDTO obj)
+        {
+            //StreamTodo: IMPLEMENT
+        }
+
+        private void OnLowLevelUserUpdated(EventUserUpdatedInternalDTO eventDto)
+        {
+            if (_cache.Users.TryGet(eventDto.User.Id, out var streamUser))
+            {
+                _cache.TryCreateOrUpdate(eventDto.User);
+            }
+        }
+
+        private void OnUserPresenceChanged(EventUserPresenceChangedInternalDTO eventDto)
+        {
+            if (_cache.Users.TryGet(eventDto.User.Id, out var streamUser))
+            {
+                streamUser.InternalHandlePresenceChanged(eventDto);
+            }
+        }
+
+        private void OnTypingStopped(EventTypingStopInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleTypingStopped(eventDto);
+            }
+        }
+
+        private void OnTypingStarted(EventTypingStartInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleTypingStarted(eventDto);
+            }
+        }
+
+        private void SubscribeTo(StreamChatLowLevelClient lowLevelClient)
+        {
+            lowLevelClient.InternalConnected += OnConnected;
+            lowLevelClient.Disconnected += OnDisconnected;
+            lowLevelClient.ConnectionStateChanged += OnConnectionStateChanged;
+
+            lowLevelClient.InternalMessageReceived += OnMessageReceived;
+            lowLevelClient.InternalMessageUpdated += OnMessageUpdated;
+            lowLevelClient.InternalMessageDeleted += OnMessageDeleted;
+            lowLevelClient.InternalMessageRead += OnMessageRead;
+
+            lowLevelClient.InternalChannelUpdated += OnChannelUpdated;
+            lowLevelClient.InternalChannelDeleted += OnChannelDeleted;
+            lowLevelClient.InternalChannelTruncated += OnChannelTruncated;
+            lowLevelClient.InternalChannelVisible += OnChannelVisible;
+            lowLevelClient.InternalChannelHidden += OnChannelHidden;
+
+            lowLevelClient.InternalMemberAdded += OnMemberAdded;
+            lowLevelClient.InternalMemberRemoved += OnMemberRemoved;
+            lowLevelClient.InternalMemberUpdated += OnMemberUpdated;
+
+            lowLevelClient.InternalUserPresenceChanged += OnUserPresenceChanged;
+            lowLevelClient.InternalUserUpdated += OnLowLevelUserUpdated;
+            lowLevelClient.InternalUserDeleted += OnLowLevelClientUserDeleted;
+            lowLevelClient.InternalUserBanned += OnLowLevelClientUserBanned;
+            lowLevelClient.InternalUserUnbanned += OnLowLevelClientUserUnbanned;
+
+            lowLevelClient.InternalUserWatchingStart += OnUserWatchingStart;
+            lowLevelClient.InternalUserWatchingStop += OnUserWatchingStop;
+
+            lowLevelClient.InternalReactionReceived += OnReactionReceived;
+            lowLevelClient.InternalReactionUpdated += OnReactionUpdated;
+            lowLevelClient.InternalReactionDeleted += OnReactionDeleted;
+
+            lowLevelClient.InternalTypingStarted += OnTypingStarted;
+            lowLevelClient.InternalTypingStopped += OnTypingStopped;
+
+            lowLevelClient.InternalNotificationChannelMutesUpdated += OnChannelMutesUpdatedNotification;
+
+            lowLevelClient.InternalNotificationMutesUpdated += OnMutesUpdatedNotification;
+            lowLevelClient.InternalNotificationMessageReceived += OnMessageReceivedNotification;
+            lowLevelClient.InternalNotificationMarkRead += OnMarkReadNotification;
+
+            lowLevelClient.InternalNotificationChannelDeleted += OnChannelDeletedNotification;
+            lowLevelClient.InternalNotificationChannelTruncated += OnChannelTruncatedNotification;
+
+            lowLevelClient.InternalNotificationAddedToChannel += OnAddedToChannelNotification;
+            lowLevelClient.InternalNotificationRemovedFromChannel += OnRemovedFromChannelNotification;
+
+            lowLevelClient.InternalNotificationInvited += OnInvitedNotification;
+            lowLevelClient.InternalNotificationInviteAccepted += OnInviteAcceptedNotification;
+            lowLevelClient.InternalNotificationInviteRejected += OnInviteRejectedNotification;
+        }
+
+        private void UnsubscribeFrom(StreamChatLowLevelClient lowLevelClient)
+        {
+            lowLevelClient.InternalConnected -= OnConnected;
+            lowLevelClient.Disconnected -= OnDisconnected;
+            lowLevelClient.ConnectionStateChanged -= OnConnectionStateChanged;
+
+            lowLevelClient.InternalMessageReceived -= OnMessageReceived;
+            lowLevelClient.InternalMessageUpdated -= OnMessageUpdated;
+            lowLevelClient.InternalMessageDeleted -= OnMessageDeleted;
+            lowLevelClient.InternalMessageRead -= OnMessageRead;
+
+            lowLevelClient.InternalChannelUpdated -= OnChannelUpdated;
+            lowLevelClient.InternalChannelDeleted -= OnChannelDeleted;
+            lowLevelClient.InternalChannelTruncated -= OnChannelTruncated;
+            lowLevelClient.InternalChannelVisible -= OnChannelVisible;
+            lowLevelClient.InternalChannelHidden -= OnChannelHidden;
+
+            lowLevelClient.InternalMemberAdded -= OnMemberAdded;
+            lowLevelClient.InternalMemberRemoved -= OnMemberRemoved;
+            lowLevelClient.InternalMemberUpdated -= OnMemberUpdated;
+
+            lowLevelClient.InternalUserPresenceChanged -= OnUserPresenceChanged;
+            lowLevelClient.InternalUserUpdated -= OnLowLevelUserUpdated;
+            lowLevelClient.InternalUserDeleted -= OnLowLevelClientUserDeleted;
+            lowLevelClient.InternalUserBanned -= OnLowLevelClientUserBanned;
+            lowLevelClient.InternalUserUnbanned -= OnLowLevelClientUserUnbanned;
+
+            lowLevelClient.InternalUserWatchingStart -= OnUserWatchingStart;
+            lowLevelClient.InternalUserWatchingStop -= OnUserWatchingStop;
+
+            lowLevelClient.InternalReactionReceived -= OnReactionReceived;
+            lowLevelClient.InternalReactionUpdated -= OnReactionUpdated;
+            lowLevelClient.InternalReactionDeleted -= OnReactionDeleted;
+
+            lowLevelClient.InternalTypingStarted -= OnTypingStarted;
+            lowLevelClient.InternalTypingStopped -= OnTypingStopped;
+
+            lowLevelClient.InternalNotificationChannelMutesUpdated -= OnChannelMutesUpdatedNotification;
+
+            lowLevelClient.InternalNotificationMutesUpdated -= OnMutesUpdatedNotification;
+            lowLevelClient.InternalNotificationMessageReceived -= OnMessageReceivedNotification;
+            lowLevelClient.InternalNotificationMarkRead -= OnMarkReadNotification;
+
+            lowLevelClient.InternalNotificationChannelDeleted -= OnChannelDeletedNotification;
+            lowLevelClient.InternalNotificationChannelTruncated -= OnChannelTruncatedNotification;
+
+            lowLevelClient.InternalNotificationAddedToChannel -= OnAddedToChannelNotification;
+            lowLevelClient.InternalNotificationRemovedFromChannel -= OnRemovedFromChannelNotification;
+
+            lowLevelClient.InternalNotificationInvited -= OnInvitedNotification;
+            lowLevelClient.InternalNotificationInviteAccepted -= OnInviteAcceptedNotification;
+            lowLevelClient.InternalNotificationInviteRejected -= OnInviteRejectedNotification;
+        }
+
+        #endregion
     }
 }

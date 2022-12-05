@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
+using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.Web;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;

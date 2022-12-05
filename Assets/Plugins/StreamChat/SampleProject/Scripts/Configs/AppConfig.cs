@@ -1,5 +1,4 @@
-﻿using StreamChat.Core;
-using StreamChat.SampleProject.Configs;
+﻿using StreamChat.Core.LowLevelClient;
 using StreamChat.SampleProject.Views;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace StreamChat.SampleProject.Configs
     /// <summary>
     /// Asset to keep <see cref="IViewFactory"/> config
     /// </summary>
-    [CreateAssetMenu(fileName = "AppConfig", menuName = StreamChatClient.MenuPrefix + "View/Create app config asset", order = 1)]
+    [CreateAssetMenu(fileName = "AppConfig", menuName = StreamChatLowLevelClient.MenuPrefix + "View/Create app config asset", order = 1)]
     public class AppConfig : ScriptableObject, IAppConfig
     {
         public IEmojiConfig Emojis => _emojiConfig;

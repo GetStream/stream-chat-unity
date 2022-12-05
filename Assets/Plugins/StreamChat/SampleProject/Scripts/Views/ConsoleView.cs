@@ -22,7 +22,8 @@ namespace StreamChat.SampleProject.Views
         {
             base.OnInited();
 
-            Client.EventReceived += OnEventReceived;
+            //StreamTodo: figure out if want to somehow get this debug info
+            //Client.EventReceived += OnEventReceived;
             Client.ConnectionStateChanged += OnConnectionStateChanged;
         }
 
@@ -48,7 +49,8 @@ namespace StreamChat.SampleProject.Views
 
         protected override void OnDisposing()
         {
-            Client.EventReceived -= OnEventReceived;
+            //StreamTodo:
+            //Client.EventReceived -= OnEventReceived;
             Client.ConnectionStateChanged -= OnConnectionStateChanged;
 
             base.OnDisposing();

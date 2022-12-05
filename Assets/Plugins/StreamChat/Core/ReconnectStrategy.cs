@@ -1,7 +1,9 @@
-﻿namespace StreamChat.Core
+﻿using StreamChat.Core.LowLevelClient;
+
+namespace StreamChat.Core
 {
     /// <summary>
-    /// Strategy for <see cref="IStreamChatClient"/> when connection is lost
+    /// Strategy for <see cref="IStreamChatLowLevelClient"/> when connection is lost
     /// </summary>
     public enum ReconnectStrategy
     {
@@ -16,7 +18,7 @@
         Constant,
 
         /// <summary>
-        /// The client will never attempt to reconnect. The application will have manage calling Connect() when connection is lost
+        /// The Stream Chat Client will never attempt to reconnect. You need to call the <see cref="IStreamChatLowLevelClient.Connect"/> on your own
         /// </summary>
         Never,
     }

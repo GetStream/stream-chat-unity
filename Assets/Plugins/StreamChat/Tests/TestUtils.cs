@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace StreamChat.Tests
 {
-    public static class TestUtils
+    internal static class TestUtils
     {
         public const string TestUserId = "integration-tests-role-user";
         public const string TestAdminId = "integration-tests-role-admin";
@@ -18,6 +18,16 @@ namespace StreamChat.Tests
         public static void GetTestAuthCredentials(out AuthCredentials guestAuthCredentials,
             out AuthCredentials userAuthCredentials, out AuthCredentials adminAuthCredentials,
             out AuthCredentials otherUserAuthCredentials, string forcedAdminId = null)
+        {
+            var testAuthDataSet = GetTestAuthCredentials();
+            
+            guestAuthCredentials = testAuthDataSet.TestGuestData;
+            userAuthCredentials = testAuthDataSet.TestUserData;
+            adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
+            otherUserAuthCredentials = testAuthDataSet.GetOtherThan(adminAuthCredentials);
+        }
+
+        public static TestAuthDataSet GetTestAuthCredentials()
         {
             const string TestAuthDataFilePath = "test_auth_data_xSpgxW.txt";
 
@@ -32,12 +42,10 @@ namespace StreamChat.Tests
 
                 Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
 
-                guestAuthCredentials = testAuthDataSet.TestGuestData;
-                userAuthCredentials = testAuthDataSet.TestUserData;
-                adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
-                otherUserAuthCredentials = testAuthDataSet.GetOtherThan(adminAuthCredentials);
+                return testAuthDataSet;
             }
-            else if (File.Exists(TestAuthDataFilePath))
+
+            if (File.Exists(TestAuthDataFilePath))
             {
                 var serializer = new NewtonsoftJsonSerializer();
 
@@ -49,38 +57,34 @@ namespace StreamChat.Tests
 
                 Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
 
-                guestAuthCredentials = testAuthDataSet.TestGuestData;
-                userAuthCredentials = testAuthDataSet.TestUserData;
-                adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
-                otherUserAuthCredentials = testAuthDataSet.GetOtherThan(adminAuthCredentials);
+                return testAuthDataSet;
             }
-            else
-            {
-                //Define manually
 
-                const string ApiKey = "";
+            //Define manually
 
-                guestAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestGuestId,
-                    userToken: "");
+            const string ApiKey = "";
 
-                userAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestUserId,
-                    userToken: "");
+            var guestAuthCredentials = new AuthCredentials(
+                apiKey: ApiKey,
+                userId: TestGuestId,
+                userToken: "");
 
-                adminAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: TestAdminId,
-                    userToken: "");
+            var userAuthCredentials = new AuthCredentials(
+                apiKey: ApiKey,
+                userId: TestUserId,
+                userToken: "");
 
-                otherUserAuthCredentials = new AuthCredentials(
-                    apiKey: ApiKey,
-                    userId: "",
-                    userToken: "");
-                ;
-            }
+            var adminAuthCredentials = new AuthCredentials(
+                apiKey: ApiKey,
+                userId: TestAdminId,
+                userToken: "");
+
+            var otherUserAuthCredentials = new AuthCredentials(
+                apiKey: ApiKey,
+                userId: "",
+                userToken: "");
+
+            return new TestAuthDataSet(new[] {adminAuthCredentials}, userAuthCredentials, guestAuthCredentials);
         }
     }
 }

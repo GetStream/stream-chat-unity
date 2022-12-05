@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using StreamChat.Core.LowLevelClient.Responses;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
         
