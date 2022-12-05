@@ -187,7 +187,10 @@ namespace StreamChat.Core.LowLevelClient
         public float ReconnectExponentialMaxInterval { get; private set; } = 1024;
         public double? NextReconnectTime { get; private set; }
 
-        public static readonly Version SDKVersion = new Version(3, 9, 0);
+        /// <summary>
+        /// SDK Version number
+        /// </summary>
+        public static readonly Version SDKVersion = new Version(4, 0, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
@@ -265,7 +268,7 @@ namespace StreamChat.Core.LowLevelClient
             _httpClient.AddDefaultCustomHeader("X-Stream-Client", header);
 
             _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
-            _websocketClient.Connected += OnWebsocketsConnected;
+            //_websocketClient.Connected += OnWebsocketsConnected;
             _websocketClient.Disconnected += OnWebsocketDisconnected;
 
             InternalChannelApi = new InternalChannelApi(httpClient, serializer, logs, _requestUriFactory);

@@ -71,6 +71,9 @@ namespace StreamChat.Core
         
         public IStreamChatLowLevelClient LowLevelClient => InternalLowLevelClient;
 
+        /// <inheritdoc cref="StreamChatLowLevelClient.SDKVersion"/>
+        public static Version SDKVersion => StreamChatLowLevelClient.SDKVersion;
+        
         /// <summary>
         /// Recommended method to create an instance of <see cref="IStreamChatClient"/>
         /// If you wish to create an instance with non default dependencies you can use the <see cref="CreateClientWithCustomDependencies"/>
