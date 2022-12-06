@@ -34,9 +34,11 @@
 
 The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://getstream.io/chat/sdk/unity/), a service for building chat and messaging games and applications.
 
-- **Unity Engine 2021.x & 2020.x Support**
+- **Unity Engine 2023.x, 2022.x, 2021.x & 2020.x Support**
 - **IL2CPP** Support
-- **Realtime** Highly responsive events using Websockets
+- **Automatic State Management** The Chat Client completely manages the state. You work with high level models that simplify API interaction and are always up to date
+- **Automatic Reconnection** Whenever the connection is lost the chat client will reconnect automatically when the network is back
+- **Realtime** Highly responsive experience using Websockets
 - **Messaging:** Send direct or group messages, and have the messages persist across sessions
 - **Channels:** group channels, private messages, etc.
 - **Reactions:** Every message can be reacted to by multiple users
@@ -48,14 +50,20 @@ The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://gets
 - **Typing indicators** see who's currently writing a new message
 - **Fully open-source**: Complete access to the SDK source code here on GitHub
 
+## IL2CPP
+SDK runs out of the box with IL2CPP
+
+## WebGL
+WebGL support is coming soon. It's currently available in Beta mode and will be released in early 2023 Q1. Reach out to us if you wish to test it.
+
 ## Free for Indie Developers
 
 Stream is free for most side and hobby projects. You can use Stream Chat for free if you have less than five team members and no more than $10,000 in monthly revenue. Visit our website and [apply for the Makers Account](https://getstream.io/maker-account/).
 
 ## Getting Started
 
-1. Download the [latest release](https://github.com/GetStream/stream-chat-unity/releases/latest) and copy it into your project.
-2. Launch Unity Engine and ensure the **Stream Chat** Plugin is imported into your project.
+1. Download the [latest release .unitypackage](https://github.com/GetStream/stream-chat-unity/releases/latest).
+2. Launch Unity Editor and import the downloaded `.unitypackage`
 3. Resolve [dependencies](https://github.com/GetStream/stream-chat-unity#dependencies)
 4. Start integrating Chat into your project! Check out the [Tutorial](https://getstream.io/chat/unity/tutorial/) to get yourself going.
 
@@ -81,9 +89,6 @@ It is created with Unity's uGUI UI system and supports both legacy and the new U
 How to enable Unity's **[new Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/index.html)**?:
 1. Make sure that the UnityEngine.InputSystem package is available in the project
 2. Add **UnityEngine.InputSystem** dll reference to the **StreamChat.Unity** assembly definition asset
-
-## IL2CPP
-SDK runs out of the box with IL2CPP
 
 ## Dependencies
 
