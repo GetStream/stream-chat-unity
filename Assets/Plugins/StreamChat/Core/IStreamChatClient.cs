@@ -50,6 +50,11 @@ namespace StreamChat.Core
         /// Is client connected. Subscribe to <see cref="Connected"/> to get notified when connection is established
         /// </summary>
         bool IsConnected { get; }
+        
+        /// <summary>
+        /// If true it means that client initiated connection and is waiting for the Stream server to confirm the connection. Subscribe to <see cref="Connected"/> to get notified when connection is established
+        /// </summary>
+        bool IsConnecting { get; }
 
         /// <summary>
         /// Data of the user that is connected to the Stream Chat using the local device. This property is set after the client connection is established.
@@ -91,11 +96,22 @@ namespace StreamChat.Core
         /// Connect user to Stream Chat server.
         /// </summary>
         /// <param name="apiKey">Your application API KEY. You can get it from https://dashboard.getstream.io/</param>
-        /// <param name="userId">User ID.</param>
+        /// <param name="userId">ID of a user that will be connected to the Stream Chat</param>
         /// <param name="userAuthToken">User authentication token.</param>
         /// <param name="cancellationToken">Cancellation token that will abort the login request when cancelled</param>
         /// <remarks>https://getstream.io/chat/docs/unity/unity_client_overview/?language=unity#auth-credentials</remarks>
         Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId, string userAuthToken,
+            CancellationToken cancellationToken = default);
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="apiKey">Your application API KEY. You can get it from https://dashboard.getstream.io/</param>
+        /// <param name="userId">ID of a user that will be connected to the Stream Chat</param>
+        /// <param name="tokenProvider">Service that will provide authorization token for a given user id. Use <see cref="TokenProvider"/></param>
+        /// <param name="cancellationToken">Cancellation token that will abort the login request when cancelled</param>
+        /// <returns></returns>
+        Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId, ITokenProvider tokenProvider,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -182,6 +198,5 @@ namespace StreamChat.Core
         Task DisconnectUserAsync();
         
         bool IsLocalUser(IStreamUser messageUser);
-
     }
 }

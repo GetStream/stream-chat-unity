@@ -76,6 +76,6 @@ namespace StreamChat.Core.LowLevelClient
 
         void ConnectUser(AuthCredentials userAuthCredentials);
 
-        Task DisconnectAsync();
+        Task DisconnectAsync(bool permanently = false);
     }
 }

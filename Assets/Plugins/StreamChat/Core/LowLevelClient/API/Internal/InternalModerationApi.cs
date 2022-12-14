@@ -11,8 +11,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
     internal class InternalModerationApi : InternalApiClientBase, IInternalModerationApi
     {
         public InternalModerationApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
-            IRequestUriFactory requestUriFactory)
-            : base(httpClient, serializer, logs, requestUriFactory)
+            IRequestUriFactory requestUriFactory, IStreamChatLowLevelClient lowLevelClient)
+            : base(httpClient, serializer, logs, requestUriFactory, lowLevelClient)
         {
         }
 

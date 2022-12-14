@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Net.Http;
 using NSubstitute;
 using NUnit.Framework;
 using StreamChat.Core.Configs;
@@ -55,11 +56,19 @@ namespace StreamChat.Tests.LowLevelClient.Api
         public void when_client_post_request_expect_valid_uri_and_request_body_in_http_client(EndpointTestCaseBase testCase)
         {
             _lowLevelClient.Connect();
+            
+            var response = new HttpResponseMessage
+            {
+                Content = new StringContent("{\"reaction\": {\"type\": \"like\"}}")
+            };
+
+            _mockHttpClient.PostAsync(Arg.Any<Uri>(), Arg.Any<HttpContent>())
+                .Returns(response);
 
             testCase.ExecuteRequest(_lowLevelClient);
 
             Expression<Predicate<Uri>> ValidateUri = uri => testCase.IsUriValid(uri);
-            Expression<Predicate<string>> ValidateRequestBody = request => testCase.IsRequestBodyValid(request);
+            Expression<Predicate<HttpContent>> ValidateRequestBody = request => testCase.IsRequestBodyValid(request.ReadAsStringAsync().Result);
 
             _mockHttpClient.Received().PostAsync(Arg.Is(ValidateUri), Arg.Is(ValidateRequestBody));
         }
@@ -68,6 +77,14 @@ namespace StreamChat.Tests.LowLevelClient.Api
         public void when_client_delete_request_expect_valid_uri_in_http_client(EndpointTestCaseBase testCase)
         {
             _lowLevelClient.Connect();
+            
+            var response = new HttpResponseMessage
+            {
+                Content = new StringContent("{\"reaction\": {\"type\": \"like\"}}")
+            };
+
+            _mockHttpClient.PostAsync(Arg.Any<Uri>(), Arg.Any<HttpContent>())
+                .Returns(response);
 
             testCase.ExecuteRequest(_lowLevelClient);
 

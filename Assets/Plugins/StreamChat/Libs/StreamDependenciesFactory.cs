@@ -1,7 +1,8 @@
 ﻿using StreamChat.Libs.AppInfo;
+using StreamChat.Libs.Auth;
+using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
-using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
@@ -28,6 +29,8 @@ namespace StreamChat.Libs
         public static ITimeService CreateTimeService() => new UnityTime();
 
         public static IApplicationInfo CreateApplicationInfo() => new UnityApplicationInfo();
+        
+        public static ITokenProvider CreateTokenProvider(TokenProvider.TokenUriHandler urlFactory) => new TokenProvider(CreateHttpClient(), urlFactory);
 
         public static IStreamChatClientRunner CreateChatClientRunner()
         {
