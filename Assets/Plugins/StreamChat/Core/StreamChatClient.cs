@@ -573,6 +573,7 @@ namespace StreamChat.Core
                 if (_connectUserTaskSource != null)
                 {
                     _connectUserTaskSource.SetResult(LocalUserData);
+                    _connectUserTaskSource = null;
                 }
             }
         }

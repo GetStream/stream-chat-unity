@@ -178,6 +178,7 @@ namespace StreamChat.Core.LowLevelClient
 
                 if (value == ConnectionState.Disconnected)
                 {
+                    TryScheduleReconnect();
                     Disconnected?.Invoke();
                 }
             }
@@ -188,7 +189,7 @@ namespace StreamChat.Core.LowLevelClient
         public float ReconnectConstantInterval { get; private set; } = 1;
         public float ReconnectExponentialMinInterval { get; private set; } = 0.01f;
         public float ReconnectExponentialMaxInterval { get; private set; } = 64;
-        public int ReconnectMaxInstantTrials { get; private set; } = 10; //StreamTodo: allow to control this by user
+        public int ReconnectMaxInstantTrials { get; private set; } = 5; //StreamTodo: allow to control this by user
         public double? NextReconnectTime { get; private set; }
 
         /// <summary>
@@ -358,11 +359,13 @@ namespace StreamChat.Core.LowLevelClient
 
         public bool IsLocalUser(ChannelMember channelMember) => channelMember.User.Id == _authCredentials.UserId;
 
+        //StreamTodo: move this to injected config object
         public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval)
         {
             ReconnectStrategy = reconnectStrategy;
 
+            //StreamTodo: move to Assets library
             void ThrowIfLessOrEqualToZero(float value, string name)
             {
                 if (value <= 0)
@@ -499,15 +502,20 @@ namespace StreamChat.Core.LowLevelClient
 #if STREAM_DEBUG_ENABLED
             _logs.Info($"Request new auth token for user `{_authCredentials.UserId}`");
 #endif
-
-            var token = await _tokenProvider.GetTokenAsync(_authCredentials.UserId);
-
+            try
+            {
+                var token = await _tokenProvider.GetTokenAsync(_authCredentials.UserId);
+                _authCredentials = _authCredentials.CreateWithNewUserToken(token);
+                SetConnectionCredentials(_authCredentials);
+                
 #if STREAM_DEBUG_ENABLED
-            _logs.Info($"auth token received for user `{_authCredentials.UserId}`: " + token);
+                _logs.Info($"auth token received for user `{_authCredentials.UserId}`: " + token);
 #endif
-
-            _authCredentials = _authCredentials.CreateWithNewUserToken(token);
-            SetConnectionCredentials(_authCredentials);
+            }
+            catch (Exception e)
+            {
+                throw new TokenProviderException($"Failed to get token from the {nameof(ITokenProvider)}. Inspect {nameof(e.InnerException)} for more information. ", e);
+            }
         }
 
         private void TryCancelWaitingForUserConnection()
@@ -532,7 +540,6 @@ namespace StreamChat.Core.LowLevelClient
         private void OnWebsocketDisconnected()
         {
             ConnectionState = ConnectionState.Disconnected;
-            TryScheduleReconnect();
         }
 
         /// <summary>
@@ -560,10 +567,6 @@ namespace StreamChat.Core.LowLevelClient
             }
 
             ConnectionState = ConnectionState.Disconnected;
-
-            //StreamTodo: what about ConnectUserAsync and passed cancellation token
-
-            TryScheduleReconnect();
         }
 
         /// <summary>
@@ -572,6 +575,8 @@ namespace StreamChat.Core.LowLevelClient
         private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent,
             EventHealthCheckInternalDTO eventHealthCheckInternalDto)
         {
+            //StreamTodo: resolve issue that expired token also triggers connection confirmed that gets immediately disconnected
+            
             _connectionId = healthCheckEvent.ConnectionId;
 #pragma warning disable 0618
             LocalUser = healthCheckEvent.Me;
@@ -618,31 +623,32 @@ namespace StreamChat.Core.LowLevelClient
                 return false;
             }
 
-            switch (ReconnectStrategy)
+            double? GetNextReconnectTime()
             {
-                case ReconnectStrategy.Exponential:
+                if (ReconnectStrategy != ReconnectStrategy.Never && _reconnectAttempt <= ReconnectMaxInstantTrials)
+                {
+                    return _timeService.Time;
+                }
+                
+                switch (ReconnectStrategy)
+                {
+                    case ReconnectStrategy.Exponential:
 
-                    var baseInterval = Math.Pow(2, _reconnectAttempt);
-                    var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
-                        ReconnectExponentialMaxInterval);
-                    NextReconnectTime = _timeService.Time + interval;
-
-                    break;
-                case ReconnectStrategy.Constant:
-                    NextReconnectTime = _timeService.Time + ReconnectConstantInterval;
-                    break;
-                case ReconnectStrategy.Never:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                        var baseInterval = Math.Pow(2, _reconnectAttempt);
+                        var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
+                            ReconnectExponentialMaxInterval);
+                        return _timeService.Time + interval;
+                    case ReconnectStrategy.Constant:
+                        return _timeService.Time + ReconnectConstantInterval;
+                    case ReconnectStrategy.Never:
+                        return null;
+                    default:
+                        throw new ArgumentOutOfRangeException($"Unhandled {nameof(ReconnectStrategy)}: {ReconnectStrategy}");
+                }
             }
 
-            if (ReconnectStrategy != ReconnectStrategy.Never && _reconnectAttempt <= ReconnectMaxInstantTrials)
-            {
-                NextReconnectTime = _timeService.Time;
+            NextReconnectTime = GetNextReconnectTime();
 
-            }
-            
             if (NextReconnectTime.HasValue)
             {
                 ConnectionState = ConnectionState.WaitToReconnect;
