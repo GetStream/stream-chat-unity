@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
+using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.Web;
 using StreamChat.Libs.Http;
@@ -12,8 +13,8 @@ namespace StreamChat.Core.API.Internal
     internal class InternalDeviceApi : InternalApiClientBase, IInternalDeviceApi
     {
         public InternalDeviceApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
-            IRequestUriFactory requestUriFactory)
-            : base(httpClient, serializer, logs, requestUriFactory)
+            IRequestUriFactory requestUriFactory, IStreamChatLowLevelClient lowLevelClient)
+            : base(httpClient, serializer, logs, requestUriFactory, lowLevelClient)
         {
         }
 

@@ -21,30 +21,18 @@ namespace StreamChat.Libs.Http
         public void AddDefaultCustomHeader(string key, string value)
             => _httpClient.DefaultRequestHeaders.Add(key, value);
 
-        public Task<HttpResponseMessage> GetAsync(Uri uri)
-            => _httpClient.GetAsync(uri);
+        public Task<HttpResponseMessage> GetAsync(Uri uri) => _httpClient.GetAsync(uri);
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, string content)
-            => _httpClient.PostAsync(uri, new StringContent(content));
+        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content) => _httpClient.PostAsync(uri, content);
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content)
-            => _httpClient.PostAsync(uri, content);
+        public Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content)
+            => _httpClient.PutAsync(uri, content);
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, MultipartFormDataContent content)
-            => _httpClient.PostAsync(uri, content);
-
-        public Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content)
-            => _httpClient.PostAsync(uri, content);
-
-        public Task<HttpResponseMessage> PutAsync(Uri uri, string content)
-            => _httpClient.PutAsync(uri, new StringContent(content));
-
-        public Task<HttpResponseMessage> PatchAsync(Uri uri, string content)
+        public Task<HttpResponseMessage> PatchAsync(Uri uri, HttpContent content)
             => _httpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), uri)
-                { Content = new StringContent(content) });
+                { Content = content });
 
-        public Task<HttpResponseMessage> DeleteAsync(Uri uri)
-            => _httpClient.DeleteAsync(uri);
+        public Task<HttpResponseMessage> DeleteAsync(Uri uri) => _httpClient.DeleteAsync(uri);
 
         private readonly HttpClient _httpClient;
     }

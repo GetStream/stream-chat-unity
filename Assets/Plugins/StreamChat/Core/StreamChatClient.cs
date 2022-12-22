@@ -60,6 +60,7 @@ namespace StreamChat.Core
         public ConnectionState ConnectionState => InternalLowLevelClient.ConnectionState;
         
         public bool IsConnected => InternalLowLevelClient.ConnectionState == ConnectionState.Connected;
+        public bool IsConnecting => InternalLowLevelClient.ConnectionState == ConnectionState.Connecting;
 
         public IStreamLocalUserData LocalUserData => _localUserData;
 
@@ -94,6 +95,17 @@ namespace StreamChat.Core
             gameObjectRunner.RunChatInstance(client);
             return client;
         }
+
+        /// <summary>
+        /// Create instance of <see cref="ITokenProvider"/>
+        /// </summary>
+        /// <param name="urlFactory">Delegate that will return a valid url that return JWT auth token for a given user ID</param>
+        /// <example>
+        /// <code>
+        /// StreamChatClient.CreateDefaultTokenProvider(userId => new Uri($"https:your-awesome-page.com/get_token?userId={userId}"));
+        /// </code>
+        /// </example>
+        public static ITokenProvider CreateDefaultTokenProvider(TokenProvider.TokenUriHandler urlFactory) => StreamDependenciesFactory.CreateTokenProvider(urlFactory);
 
         /// <summary>
         /// Create a new instance of <see cref="IStreamChatLowLevelClient"/> with custom provided dependencies.
@@ -140,8 +152,24 @@ namespace StreamChat.Core
 
             return ConnectUserAsync(new AuthCredentials(apiKey, userId, userAuthToken), cancellationToken);
         }
+        
+        public async Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId, ITokenProvider tokenProvider,
+            CancellationToken cancellationToken = default)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(apiKey, nameof(apiKey));
+            StreamAsserts.AssertNotNullOrEmpty(userId, nameof(userId));
+            StreamAsserts.AssertNotNull(tokenProvider, nameof(tokenProvider));
 
-        public Task DisconnectUserAsync() => InternalLowLevelClient.DisconnectAsync();
+            var ownUserDto = await InternalLowLevelClient.ConnectUserAsync(apiKey, userId, tokenProvider, cancellationToken);
+            return UpdateLocalUser(ownUserDto);
+        }
+
+        //StreamTodo: test scenario: ConnectUserAsync and immediately all DisconnectUserAsync
+        public Task DisconnectUserAsync()
+        {
+            TryCancelWaitingForUserConnection();
+            return InternalLowLevelClient.DisconnectAsync();
+        }
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
 
@@ -440,7 +468,7 @@ namespace StreamChat.Core
 
         internal StreamChatLowLevelClient InternalLowLevelClient { get; }
 
-        internal void UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
+        internal IStreamLocalUserData UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
         {
             _localUserData = _cache.TryCreateOrUpdate(ownUserInternalDto);
 
@@ -451,6 +479,8 @@ namespace StreamChat.Core
                 var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
                 channel.Muted = isMuted;
             }
+
+            return _localUserData;
         }
 
         internal Task RefreshChannelState(string cid)
@@ -463,7 +493,7 @@ namespace StreamChat.Core
 
             return GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
         }
-
+        
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
@@ -474,7 +504,23 @@ namespace StreamChat.Core
         private bool _isDisposed;
 
         /// <summary>
-        /// Use the <see cref="CreateDefaultClient"/> to create the client instance
+        /// Use the <see cref="CreateDefaultClient"/> to create the default client instance.
+        /// <example>
+        /// Default example::
+        /// <code>
+        /// var streamChatClient = StreamChatClient.CreateDefaultClient();
+        /// </code>
+        /// </example>
+        /// <example>
+        /// Example with custom config:
+        /// <code>
+        /// var streamChatClient = StreamChatClient.CreateDefaultClient(new StreamClientConfig
+        /// {
+        ///     LogLevel = StreamLogLevel.Debug
+        /// });
+        /// </code>
+        /// </example>
+        /// In case you want to inject custom dependencies into the chat client you can use the <see cref="CreateClientWithCustomDependencies"/>
         /// </summary>
         private StreamChatClient(IWebsocketClient websocketClient, IHttpClient httpClient, ISerializer serializer, 
             ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
@@ -500,7 +546,7 @@ namespace StreamChat.Core
         private void TryCancelWaitingForUserConnection()
         {
             var isConnectTaskRunning = _connectUserTaskSource?.Task != null && !_connectUserTaskSource.Task.IsCompleted;
-            var isCancellationRequested = _connectUserCancellationTokenSource.IsCancellationRequested;
+            var isCancellationRequested = _connectUserCancellationTokenSource?.IsCancellationRequested ?? false;
 
             if (isConnectTaskRunning && !isCancellationRequested)
             {
@@ -523,14 +569,11 @@ namespace StreamChat.Core
             }
             finally
             {
-                if (_connectUserTaskSource == null)
-                {
-                    _logs.Error(
-                        $"{nameof(OnConnected)} expected {nameof(_connectUserTaskSource)} not null");
-                }
-                else
+                // This will be null if the ConnectUserAsync with token provider was used
+                if (_connectUserTaskSource != null)
                 {
                     _connectUserTaskSource.SetResult(LocalUserData);
+                    _connectUserTaskSource = null;
                 }
             }
         }

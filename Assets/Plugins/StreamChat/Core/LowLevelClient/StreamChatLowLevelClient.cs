@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using StreamChat.Core.API;
 using StreamChat.Core.API.Internal;
@@ -11,6 +12,7 @@ using StreamChat.Core.Auth;
 using StreamChat.Core.Configs;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.LowLevelClient.API;
 using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.LowLevelClient.Events;
@@ -176,15 +178,18 @@ namespace StreamChat.Core.LowLevelClient
 
                 if (value == ConnectionState.Disconnected)
                 {
+                    TryScheduleReconnect();
                     Disconnected?.Invoke();
                 }
             }
         }
 
-        public ReconnectStrategy ReconnectStrategy { get; private set; }
-        public float ReconnectConstantInterval { get; private set; } = 3;
-        public float ReconnectExponentialMinInterval { get; private set; } = 1;
-        public float ReconnectExponentialMaxInterval { get; private set; } = 1024;
+        //StreamTodo: wrap all params in a ReconnectPolicy object
+        public ReconnectStrategy ReconnectStrategy { get; private set; } = ReconnectStrategy.Exponential;
+        public float ReconnectConstantInterval { get; private set; } = 1;
+        public float ReconnectExponentialMinInterval { get; private set; } = 0.01f;
+        public float ReconnectExponentialMaxInterval { get; private set; } = 64;
+        public int ReconnectMaxInstantTrials { get; private set; } = 5; //StreamTodo: allow to control this by user
         public double? NextReconnectTime { get; private set; }
 
         /// <summary>
@@ -249,7 +254,6 @@ namespace StreamChat.Core.LowLevelClient
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo,
             ILogs logs, IStreamClientConfig config)
         {
-            _config = config;
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -264,18 +268,22 @@ namespace StreamChat.Core.LowLevelClient
             _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
 
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
-            var header = BuildStreamHeader(applicationInfo);
+            var header = BuildStreamClientHeader(applicationInfo);
             _httpClient.AddDefaultCustomHeader("X-Stream-Client", header);
 
             _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
-            //_websocketClient.Connected += OnWebsocketsConnected;
             _websocketClient.Disconnected += OnWebsocketDisconnected;
 
-            InternalChannelApi = new InternalChannelApi(httpClient, serializer, logs, _requestUriFactory);
-            InternalMessageApi = new InternalMessageApi(httpClient, serializer, logs, _requestUriFactory);
-            InternalModerationApi = new InternalModerationApi(httpClient, serializer, logs, _requestUriFactory);
-            InternalUserApi = new InternalUserApi(httpClient, serializer, logs, _requestUriFactory);
-            InternalDeviceApi = new InternalDeviceApi(httpClient, serializer, logs, _requestUriFactory);
+            InternalChannelApi
+                = new InternalChannelApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
+            InternalMessageApi
+                = new InternalMessageApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
+            InternalModerationApi
+                = new InternalModerationApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
+            InternalUserApi
+                = new InternalUserApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
+            InternalDeviceApi
+                = new InternalDeviceApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
 
             ChannelApi = new ChannelApi(InternalChannelApi);
             MessageApi = new MessageApi(InternalMessageApi);
@@ -290,28 +298,24 @@ namespace StreamChat.Core.LowLevelClient
 
         public void ConnectUser(AuthCredentials userAuthCredentials)
         {
-            SetUser(userAuthCredentials);
+            SetConnectionCredentials(userAuthCredentials);
             Connect();
-        }
-
-        public async Task DisconnectAsync()
-        {
-            //StreamTodo: remove this hack, if user issues a disconnect it should gracefully switch to permanent disconnect and to automatically reconnect
-            NextReconnectTime = float.MaxValue;
-            await _websocketClient.DisconnectAsync(WebSocketCloseStatus.NormalClosure, "User called Disconnect");
         }
 
         public void Connect()
         {
-            SetUser(_authCredentials);
+            SetConnectionCredentials(_authCredentials);
 
             if (!ConnectionState.IsValidToConnect())
             {
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
 
+            TryCancelWaitingForUserConnection();
+
             NextReconnectTime = default;
 
+            //StreamTodo: hidden dependency on SetUser being called
             var connectionUri = _requestUriFactory.CreateConnectionUri();
 
             _logs.Info($"Attempt to connect");
@@ -319,6 +323,19 @@ namespace StreamChat.Core.LowLevelClient
             ConnectionState = ConnectionState.Connecting;
 
             _websocketClient.ConnectAsync(connectionUri).LogIfFailed(_logs);
+        }
+
+        public async Task DisconnectAsync(bool permanently = false)
+        {
+            TryCancelWaitingForUserConnection();
+            //StreamTodo: remove this, this cannot be used when internal disconnect due to expired token. Perhaps we should allow user to Suspend() and Unsupend() the client reconnection
+
+            if (permanently)
+            {
+                NextReconnectTime = float.MaxValue;
+            }
+            
+            await _websocketClient.DisconnectAsync(WebSocketCloseStatus.NormalClosure, "User called Disconnect");
         }
 
         public void Update(float deltaTime)
@@ -342,11 +359,13 @@ namespace StreamChat.Core.LowLevelClient
 
         public bool IsLocalUser(ChannelMember channelMember) => channelMember.User.Id == _authCredentials.UserId;
 
+        //StreamTodo: move this to injected config object
         public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval)
         {
             ReconnectStrategy = reconnectStrategy;
 
+            //StreamTodo: move to Assets library
             void ThrowIfLessOrEqualToZero(float value, string name)
             {
                 if (value <= 0)
@@ -378,8 +397,9 @@ namespace StreamChat.Core.LowLevelClient
         {
             ConnectionState = ConnectionState.Closing;
 
+            TryCancelWaitingForUserConnection();
+
             _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
-            _websocketClient.Connected -= OnWebsocketsConnected;
             _websocketClient.Disconnected -= OnWebsocketDisconnected;
             _websocketClient?.Dispose();
         }
@@ -396,6 +416,50 @@ namespace StreamChat.Core.LowLevelClient
         internal IInternalModerationApi InternalModerationApi { get; }
         internal InternalUserApi InternalUserApi { get; }
         internal IInternalDeviceApi InternalDeviceApi { get; }
+
+        internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
+            ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
+        {
+            if (!ConnectionState.IsValidToConnect())
+            {
+                throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
+            }
+
+            _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
+            SetPartialConnectionCredentials(apiKey, userId);
+
+            TryCancelWaitingForUserConnection();
+
+            ConnectionState = ConnectionState.Connecting;
+
+            _connectUserCancellationToken = cancellationToken;
+
+            _connectUserCancellationTokenSource
+                = CancellationTokenSource.CreateLinkedTokenSource(_connectUserCancellationToken);
+            _connectUserCancellationTokenSource.Token.Register(TryCancelWaitingForUserConnection);
+
+            _connectUserTaskSource = new TaskCompletionSource<OwnUserInternalDTO>();
+
+            try
+            {
+                await RefreshAuthTokenFromProvider();
+
+                NextReconnectTime = default;
+
+                var connectionUri = _requestUriFactory.CreateConnectionUri();
+
+                await _websocketClient.ConnectAsync(connectionUri);
+
+                var ownUserDto = await _connectUserTaskSource.Task;
+                return ownUserDto;
+            }
+            catch (Exception e)
+            {
+                _logs.Exception(e);
+                ConnectionState = ConnectionState.Disconnected;
+                throw;
+            }
+        }
 
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
@@ -417,6 +481,10 @@ namespace StreamChat.Core.LowLevelClient
 
         private readonly object _websocketConnectionFailedFlagLock = new object();
 
+        private TaskCompletionSource<OwnUserInternalDTO> _connectUserTaskSource;
+        private CancellationToken _connectUserCancellationToken;
+        private CancellationTokenSource _connectUserCancellationTokenSource;
+
         private AuthCredentials _authCredentials;
 
         private ConnectionState _connectionState;
@@ -427,13 +495,51 @@ namespace StreamChat.Core.LowLevelClient
 
         private bool _websocketConnectionFailed;
         private int _reconnectAttempt;
+        private ITokenProvider _tokenProvider;
+        
+        private async Task RefreshAuthTokenFromProvider()
+        {
+#if STREAM_DEBUG_ENABLED
+            _logs.Info($"Request new auth token for user `{_authCredentials.UserId}`");
+#endif
+            try
+            {
+                var token = await _tokenProvider.GetTokenAsync(_authCredentials.UserId);
+                _authCredentials = _authCredentials.CreateWithNewUserToken(token);
+                SetConnectionCredentials(_authCredentials);
+                
+#if STREAM_DEBUG_ENABLED
+                _logs.Info($"auth token received for user `{_authCredentials.UserId}`: " + token);
+#endif
+            }
+            catch (Exception e)
+            {
+                throw new TokenProviderException($"Failed to get token from the {nameof(ITokenProvider)}. Inspect {nameof(e.InnerException)} for more information. ", e);
+            }
+        }
 
-        private void OnWebsocketsConnected() => _logs.Info("Websockets Connected");
+        private void TryCancelWaitingForUserConnection()
+        {
+            if (_connectUserTaskSource == null)
+            {
+                return;
+            }
+
+            var isConnectTaskRunning = _connectUserTaskSource.Task != null && !_connectUserTaskSource.Task.IsCompleted;
+            var isCancellationRequested = _connectUserCancellationTokenSource.IsCancellationRequested;
+
+            if (isConnectTaskRunning && !isCancellationRequested)
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Info($"Try Cancel {_connectUserTaskSource}");
+#endif
+                _connectUserTaskSource.TrySetCanceled();
+            }
+        }
 
         private void OnWebsocketDisconnected()
         {
             ConnectionState = ConnectionState.Disconnected;
-            TryScheduleReconnect();
         }
 
         /// <summary>
@@ -461,8 +567,6 @@ namespace StreamChat.Core.LowLevelClient
             }
 
             ConnectionState = ConnectionState.Disconnected;
-
-            TryScheduleReconnect();
         }
 
         /// <summary>
@@ -471,6 +575,8 @@ namespace StreamChat.Core.LowLevelClient
         private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent,
             EventHealthCheckInternalDTO eventHealthCheckInternalDto)
         {
+            //StreamTodo: resolve issue that expired token also triggers connection confirmed that gets immediately disconnected
+            
             _connectionId = healthCheckEvent.ConnectionId;
 #pragma warning disable 0618
             LocalUser = healthCheckEvent.Me;
@@ -478,6 +584,8 @@ namespace StreamChat.Core.LowLevelClient
             _lastHealthCheckReceivedTime = _timeService.Time;
             _reconnectAttempt = 0;
             ConnectionState = ConnectionState.Connected;
+
+            _connectUserTaskSource?.SetResult(eventHealthCheckInternalDto.Me);
 
             _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
             Connected?.Invoke(healthCheckEvent.Me);
@@ -497,7 +605,15 @@ namespace StreamChat.Core.LowLevelClient
             }
 
             _reconnectAttempt++;
-            Connect();
+
+            if (_tokenProvider != null)
+            {
+                ConnectUserAsync(_authCredentials.ApiKey, _authCredentials.UserId, _tokenProvider).LogIfFailed();
+            }
+            else
+            {
+                Connect();
+            }
         }
 
         private bool TryScheduleReconnect()
@@ -507,24 +623,31 @@ namespace StreamChat.Core.LowLevelClient
                 return false;
             }
 
-            switch (ReconnectStrategy)
+            double? GetNextReconnectTime()
             {
-                case ReconnectStrategy.Exponential:
+                if (ReconnectStrategy != ReconnectStrategy.Never && _reconnectAttempt <= ReconnectMaxInstantTrials)
+                {
+                    return _timeService.Time;
+                }
+                
+                switch (ReconnectStrategy)
+                {
+                    case ReconnectStrategy.Exponential:
 
-                    var baseInterval = Math.Pow(2, _reconnectAttempt);
-                    var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
-                        ReconnectExponentialMaxInterval);
-                    NextReconnectTime = _timeService.Time + interval;
-
-                    break;
-                case ReconnectStrategy.Constant:
-                    NextReconnectTime = _timeService.Time + ReconnectConstantInterval;
-                    break;
-                case ReconnectStrategy.Never:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                        var baseInterval = Math.Pow(2, _reconnectAttempt);
+                        var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
+                            ReconnectExponentialMaxInterval);
+                        return _timeService.Time + interval;
+                    case ReconnectStrategy.Constant:
+                        return _timeService.Time + ReconnectConstantInterval;
+                    case ReconnectStrategy.Never:
+                        return null;
+                    default:
+                        throw new ArgumentOutOfRangeException($"Unhandled {nameof(ReconnectStrategy)}: {ReconnectStrategy}");
+                }
             }
+
+            NextReconnectTime = GetNextReconnectTime();
 
             if (NextReconnectTime.HasValue)
             {
@@ -585,7 +708,8 @@ namespace StreamChat.Core.LowLevelClient
             RegisterEventType<EventMemberUpdatedInternalDTO, EventMemberUpdated>(WSEventType.MemberUpdated,
                 (e, dto) => MemberUpdated?.Invoke(e), dto => InternalMemberUpdated?.Invoke(dto));
 
-            RegisterEventType<EventUserPresenceChangedInternalDTO, EventUserPresenceChanged>(WSEventType.UserPresenceChanged,
+            RegisterEventType<EventUserPresenceChangedInternalDTO, EventUserPresenceChanged>(
+                WSEventType.UserPresenceChanged,
                 (e, dto) => UserPresenceChanged?.Invoke(e), dto => InternalUserPresenceChanged?.Invoke(dto));
             RegisterEventType<EventUserUpdatedInternalDTO, EventUserUpdated>(WSEventType.UserUpdated,
                 (e, dto) => UserUpdated?.Invoke(e), dto => InternalUserUpdated?.Invoke(dto));
@@ -792,7 +916,7 @@ namespace StreamChat.Core.LowLevelClient
                 .Replace('/', '_')
                 .Trim('=');
 
-        private void SetUser(AuthCredentials credentials)
+        private void SetConnectionCredentials(AuthCredentials credentials)
         {
             if (credentials.IsAnyEmpty())
             {
@@ -802,6 +926,12 @@ namespace StreamChat.Core.LowLevelClient
 
             _authCredentials = credentials;
             _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
+        }
+
+        //StreamTodo: make it more clear that we either receive full set of credentials or apiKey, userId and the token provider
+        private void SetPartialConnectionCredentials(string apiKey, string userId)
+        {
+            _authCredentials = new AuthCredentials(apiKey, userId, string.Empty);
         }
 
         private void LogErrorIfUpdateIsNotBeingCalled()
@@ -816,8 +946,8 @@ namespace StreamChat.Core.LowLevelClient
                 }
             });
         }
-        
-        private static string BuildStreamHeader(IApplicationInfo applicationInfo)
+
+        private static string BuildStreamClientHeader(IApplicationInfo applicationInfo)
         {
             var sb = new StringBuilder();
             sb.Append($"stream-chat-unity-client-");
@@ -827,7 +957,7 @@ namespace StreamChat.Core.LowLevelClient
             sb.Append("os=");
             sb.Append(applicationInfo.OperatingSystem);
             sb.Append("|");
-            
+
             sb.Append("platform=");
             sb.Append(applicationInfo.Platform);
             sb.Append("|");
@@ -843,14 +973,14 @@ namespace StreamChat.Core.LowLevelClient
             sb.Append("screen_size=");
             sb.Append(applicationInfo.ScreenSize);
             sb.Append("|");
-            
+
             sb.Append("memory_size=");
             sb.Append(applicationInfo.MemorySize);
             sb.Append("|");
-            
+
             sb.Append("graphics_memory_size=");
             sb.Append(applicationInfo.GraphicsMemorySize);
-            
+
             return sb.ToString();
         }
     }

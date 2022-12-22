@@ -10,8 +10,8 @@ namespace StreamChat.Core.Exceptions
     /// </summary>
     public class StreamApiException : Exception
     {
-        public double? StatusCode { get; }
-        public double? Code { get;  }
+        public int? StatusCode { get; }
+        public int? Code { get;  }
         public string Duration { get;  }
         public string ErrorMessage { get;  }
         public string MoreInfo { get;  }

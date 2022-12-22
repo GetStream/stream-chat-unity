@@ -1,6 +1,6 @@
 {
     "name": "StreamChat.SampleProject",
-    "rootNamespace": "StreamChat.SampleProject",
+    "rootNamespace": "",
     "references": [
         "StreamChat.Core",
         "Unity.TextMeshPro",

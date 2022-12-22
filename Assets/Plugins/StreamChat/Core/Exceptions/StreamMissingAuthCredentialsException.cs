@@ -10,7 +10,6 @@ namespace StreamChat.Core.Exceptions
         public StreamMissingAuthCredentialsException(string message)
             : base(message)
         {
-
         }
     }
 }

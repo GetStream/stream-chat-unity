@@ -12,8 +12,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
     internal class InternalMessageApi : InternalApiClientBase, IInternalMessageApi
     {
         public InternalMessageApi(IHttpClient httpClient, ISerializer serializer, ILogs logs,
-            IRequestUriFactory requestUriFactory)
-            : base(httpClient, serializer, logs, requestUriFactory)
+            IRequestUriFactory requestUriFactory, IStreamChatLowLevelClient lowLevelClient)
+            : base(httpClient, serializer, logs, requestUriFactory, lowLevelClient)
         {
         }
 

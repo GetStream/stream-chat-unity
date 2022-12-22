@@ -19,5 +19,7 @@ namespace StreamChat.Libs.Auth
         }
 
         public bool IsAnyEmpty() => ApiKey.IsNullOrEmpty() || UserId.IsNullOrEmpty() || UserToken.IsNullOrEmpty();
+
+        public AuthCredentials CreateWithNewUserToken(string token) => new AuthCredentials(ApiKey, UserId, token);
     }
 }
