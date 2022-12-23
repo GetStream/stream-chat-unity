@@ -436,6 +436,15 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Remove members from this channel
         /// </summary>
+        /// <param name="members">Members to remove</param>
+        Task RemoveMembersAsync(IEnumerable<IStreamUser> members);
+
+        /// <inheritdoc cref="RemoveMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamUser})}"/>
+        Task RemoveMembersAsync(params IStreamUser[] members);
+        
+        /// <summary>
+        /// Remove members from this channel
+        /// </summary>
         /// <param name="memberIds">Members IDs to remove</param>
         Task RemoveMembersAsync(IEnumerable<string> memberIds);
 

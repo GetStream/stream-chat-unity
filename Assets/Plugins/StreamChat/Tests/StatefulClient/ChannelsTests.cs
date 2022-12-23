@@ -305,10 +305,10 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
-        public IEnumerator When_add_user_to_channel_expect_user_included_in_members()
-            => ConnectAndExecute(When_add_user_to_channel_expect_user_included_in_members_Async);
+        public IEnumerator When_add_user_by_reference_to_channel_expect_user_included_in_members()
+            => ConnectAndExecute(When_add_user_by_reference_to_channel_expect_user_included_in_members_Async);
 
-        private async Task When_add_user_to_channel_expect_user_included_in_members_Async()
+        private async Task When_add_user_by_reference_to_channel_expect_user_included_in_members_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
 
@@ -329,6 +329,95 @@ namespace StreamChat.Tests.StatefulClient
 
             await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
             Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
+        }
+        
+        [UnityTest]
+        public IEnumerator When_add_user_by_id_to_channel_expect_user_included_in_members()
+            => ConnectAndExecute(When_add_user_by_id_to_channel_expect_user_included_in_members_Async);
+
+        private async Task When_add_user_by_id_to_channel_expect_user_included_in_members_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+
+            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            {
+                {
+                    "id", new Dictionary<string, object>
+                    {
+                        {"$eq", otherUserId}
+                    }
+                }
+            });
+            var otherUser = users.First();
+
+            await channel.AddMembersAsync(otherUser.Id);
+
+            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
+            Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
+        }
+        
+        [UnityTest]
+        public IEnumerator When_remove_member_by_reference_to_channel_expect_member_removed_from_channel_members()
+            => ConnectAndExecute(When_remove_member_by_reference_to_channel_expect_member_removed_from_channel_members_Async);
+
+        private async Task When_remove_member_by_reference_to_channel_expect_member_removed_from_channel_members_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+
+            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            {
+                {
+                    "id", new Dictionary<string, object>
+                    {
+                        {"$eq", otherUserId}
+                    }
+                }
+            });
+            var otherUser = users.First();
+
+            await channel.AddMembersAsync(otherUser);
+
+            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
+
+            var otherUserMember = channel.Members.FirstOrDefault(m => m.User == otherUser);
+            
+            await channel.RemoveMembersAsync(otherUserMember);
+            await WaitWhileConditionTrue(() => channel.Members.Any(m => m.User == otherUser));
+            Assert.IsNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
+        }
+        
+        [UnityTest]
+        public IEnumerator When_remove_member_by_user_id_to_channel_expect_member_removed_from_channel_members()
+            => ConnectAndExecute(When_remove_member_by_user_id_to_channel_expect_member_removed_from_channel_members_Async);
+
+        private async Task When_remove_member_by_user_id_to_channel_expect_member_removed_from_channel_members_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+
+            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            {
+                {
+                    "id", new Dictionary<string, object>
+                    {
+                        {"$eq", otherUserId}
+                    }
+                }
+            });
+            var otherUser = users.First();
+
+            await channel.AddMembersAsync(otherUser.Id);
+
+            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
+
+            await channel.RemoveMembersAsync(otherUser.Id);
+            await WaitWhileConditionTrue(() => channel.Members.Any(m => m.User == otherUser));
+            Assert.IsNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
         }
 
         [UnityTest]

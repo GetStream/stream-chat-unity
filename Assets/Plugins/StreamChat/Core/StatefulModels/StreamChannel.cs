@@ -418,6 +418,15 @@ namespace StreamChat.Core.StatefulModels
         public Task RemoveMembersAsync(params IStreamChannelMember[] members)
             => RemoveMembersAsync(members as IEnumerable<IStreamChannelMember>);
         
+        public Task RemoveMembersAsync(IEnumerable<IStreamUser> members)
+        {
+            StreamAsserts.AssertNotNull(members, nameof(members));
+            return RemoveMembersAsync(members.Select(_ => _.Id));
+        }
+        
+        public Task RemoveMembersAsync(params IStreamUser[] members)
+            => RemoveMembersAsync(members as IEnumerable<IStreamUser>);
+        
         public async Task RemoveMembersAsync(IEnumerable<string> memberIds)
         {
             StreamAsserts.AssertNotNull(memberIds, nameof(memberIds));
