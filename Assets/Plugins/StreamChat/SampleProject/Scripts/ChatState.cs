@@ -150,11 +150,6 @@ namespace StreamChat.SampleProject
             }
 
             ChannelsUpdated?.Invoke();
-
-
-
-
-            var members = await ActiveChannel.QueryMembersAsync();
         }
 
         public Task LoadPreviousMessagesAsync()
