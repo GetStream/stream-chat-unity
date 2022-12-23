@@ -324,6 +324,10 @@ namespace StreamChat.Core.StatefulModels
             return result;
         }
 
+        public Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters = null,
+            int limit = 30, int offset = 0)
+            => QueryMembersAsync(filters, limit, offset);
+
         //StreamTodo: IMPLEMENT, perhap Load Prev/Next Watchers? sorting in config?
         public void QueryWatchers()
         {
@@ -427,20 +431,20 @@ namespace StreamChat.Core.StatefulModels
         public Task RemoveMembersAsync(params IStreamUser[] members)
             => RemoveMembersAsync(members as IEnumerable<IStreamUser>);
         
-        public async Task RemoveMembersAsync(IEnumerable<string> memberIds)
+        public async Task RemoveMembersAsync(IEnumerable<string> userIds)
         {
-            StreamAsserts.AssertNotNull(memberIds, nameof(memberIds));
+            StreamAsserts.AssertNotNull(userIds, nameof(userIds));
 
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
                 new UpdateChannelRequestInternalDTO
                 {
-                    RemoveMembers = memberIds.ToList()
+                    RemoveMembers = userIds.ToList()
                 });
             Cache.TryCreateOrUpdate(response);
         }
         
-        public Task RemoveMembersAsync(params string[] memberIds)
-            => RemoveMembersAsync(memberIds as IEnumerable<string>);
+        public Task RemoveMembersAsync(params string[] userIds)
+            => RemoveMembersAsync(userIds as IEnumerable<string>);
 
         //StreamTodo: write test
         public async Task MuteChannelAsync(int? milliseconds = default)

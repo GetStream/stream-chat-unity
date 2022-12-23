@@ -327,6 +327,9 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         /// <returns></returns>
         Task<IEnumerable<IStreamChannelMember>> QueryMembersAsync(IDictionary<string, object> filters = null, int limit = 30, int offset = 0);
+        
+        [Obsolete("This method was renamed to QueryMembersAsync. Please use the QueryMembersAsync. The QueryMembers will be removed in a future release.")]
+        Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters = null, int limit = 30, int offset = 0);
     
         void QueryWatchers(); //StreamTodo: IMPLEMENT
 
@@ -445,11 +448,11 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Remove members from this channel
         /// </summary>
-        /// <param name="memberIds">Members IDs to remove</param>
-        Task RemoveMembersAsync(IEnumerable<string> memberIds);
+        /// <param name="userIds">User IDs to remove from members</param>
+        Task RemoveMembersAsync(IEnumerable<string> userIds);
 
         /// <inheritdoc cref="RemoveMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamChannelMember})}"/>
-        Task RemoveMembersAsync(params string[] memberIds);
+        Task RemoveMembersAsync(params string[] userIds);
 
         /// <summary>
         /// Mute channel with optional duration in milliseconds
