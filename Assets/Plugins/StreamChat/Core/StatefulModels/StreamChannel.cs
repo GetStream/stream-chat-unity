@@ -283,11 +283,12 @@ namespace StreamChat.Core.StatefulModels
 
         //StreamTodo: IMPLEMENT, this should probably work like LoadNextMembers, LoadPreviousMembers? what about sorting - in config?
         //Perhaps we should have both, maybe user wants to search members and not only paginate joined
-        public async Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters,
+        public async Task<IEnumerable<IStreamChannelMember>> QueryMembersAsync(IDictionary<string, object> filters = null,
             int limit = 30, int offset = 0)
         {
-            StreamAsserts.AssertNotNullOrEmpty(filters, nameof(filters));
-
+            // filter_conditions is required by API but empty object is accepted
+            filters ??= new Dictionary<string, object>();
+            
             var response = await LowLevelClient.InternalChannelApi.QueryMembersAsync(new QueryMembersRequestInternalDTO
             {
                 CreatedAtAfter = null,
@@ -375,16 +376,25 @@ namespace StreamChat.Core.StatefulModels
                 ClearHistory = clearHistory
             });
 
-        public async Task AddMembersAsync(IEnumerable<IStreamUser> users)
+        public Task AddMembersAsync(IEnumerable<IStreamUser> users)
         {
             StreamAsserts.AssertNotNull(users, nameof(users));
+            return AddMembersAsync(users.Select(u => u.Id));
+        }
+
+        public Task AddMembersAsync(params IStreamUser[] users)
+            => AddMembersAsync(users as IEnumerable<IStreamUser>);
+        
+        public async Task AddMembersAsync(IEnumerable<string> userIds)
+        {
+            StreamAsserts.AssertNotNull(userIds, nameof(userIds));
 
             var membersRequest = new List<ChannelMemberRequestInternalDTO>();
-            foreach (var u in users)
+            foreach (var u in userIds)
             {
                 membersRequest.Add(new ChannelMemberRequestInternalDTO
                 {
-                    UserId = u.Id,
+                    UserId = u,
                 });
             }
 
@@ -395,24 +405,33 @@ namespace StreamChat.Core.StatefulModels
                 });
             Cache.TryCreateOrUpdate(response);
         }
+        
+        public Task AddMembersAsync(params string[] users)
+            => AddMembersAsync(users as IEnumerable<string>);
 
-        public Task AddMembersAsync(params IStreamUser[] users)
-            => AddMembersAsync(users as IEnumerable<IStreamUser>);
-
-        public async Task RemoveMembersAsync(IEnumerable<IStreamChannelMember> members)
+        public Task RemoveMembersAsync(IEnumerable<IStreamChannelMember> members)
         {
             StreamAsserts.AssertNotNull(members, nameof(members));
-
-            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
-                new UpdateChannelRequestInternalDTO
-                {
-                    RemoveMembers = members.Select(_ => _.User.Id).ToList()
-                });
-            Cache.TryCreateOrUpdate(response);
+            return RemoveMembersAsync(members.Select(_ => _.User.Id));
         }
 
         public Task RemoveMembersAsync(params IStreamChannelMember[] members)
             => RemoveMembersAsync(members as IEnumerable<IStreamChannelMember>);
+        
+        public async Task RemoveMembersAsync(IEnumerable<string> memberIds)
+        {
+            StreamAsserts.AssertNotNull(memberIds, nameof(memberIds));
+
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
+                new UpdateChannelRequestInternalDTO
+                {
+                    RemoveMembers = memberIds.ToList()
+                });
+            Cache.TryCreateOrUpdate(response);
+        }
+        
+        public Task RemoveMembersAsync(params string[] memberIds)
+            => RemoveMembersAsync(memberIds as IEnumerable<string>);
 
         //StreamTodo: write test
         public async Task MuteChannelAsync(int? milliseconds = default)

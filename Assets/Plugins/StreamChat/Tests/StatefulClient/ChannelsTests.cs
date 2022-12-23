@@ -172,7 +172,7 @@ namespace StreamChat.Tests.StatefulClient
             SkipThisTempChannelDeletionInTearDown(channel);
             SkipThisTempChannelDeletionInTearDown(channel2);
 
-            await WaitWhileConditionTrue(() => Client.WatchedChannels.Any());
+            await WaitWhileConditionTrue(() => Client.WatchedChannels.Any(), maxIterations: 500);
 
             Assert.IsEmpty(Client.WatchedChannels);
         }
@@ -361,7 +361,7 @@ namespace StreamChat.Tests.StatefulClient
             
             await channel.AddMembersAsync(users);
 
-            var result = await channel.QueryMembers(new Dictionary<string, object>()
+            var result = await channel.QueryMembersAsync(new Dictionary<string, object>()
             {
                 {
                     "id", new Dictionary<string, object>

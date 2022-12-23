@@ -302,6 +302,10 @@ namespace StreamChat.Samples
 // Access channel members via channel.Members, let's remove the first member as an example
             var member = channel.Members.First();
             await channel.RemoveMembersAsync(member);
+            
+            // Remove local user from a channel
+            var localUser = Client.LocalUserData.User;
+            await channel.RemoveMembersAsync(localUser.Id);
         }
 
         /// <summary>
@@ -431,7 +435,7 @@ namespace StreamChat.Samples
 // Pass limit and offset to control the page or results returned
 // Limit - how many records per page
 // Offset - how many records to skip
-            var membersResult = await channel.QueryMembers(filters, limit: 30, offset: 0);
+            var membersResult = await channel.QueryMembersAsync(filters, limit: 30, offset: 0);
         }
 
         /// <summary>
