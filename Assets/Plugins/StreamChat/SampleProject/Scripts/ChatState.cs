@@ -135,17 +135,9 @@ namespace StreamChat.SampleProject
                 _channels.Clear();
                 _channels.AddRange(channels);
 
-                if (ActiveChannel != null)
+                if (ActiveChannel == null)
                 {
-                    var activeChannel = _channels.FirstOrDefault(_ => _ == ActiveChannel);
-                    if (activeChannel != null)
-                    {
-                        ActiveChannel = activeChannel;
-                    }
-                    else
-                    {
-                        ActiveChannel = _channels.FirstOrDefault();
-                    }
+                    ActiveChannel = _channels.FirstOrDefault();
                 }
             }
             catch (StreamApiException e)
