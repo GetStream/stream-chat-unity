@@ -29,7 +29,7 @@ namespace StreamChat.Samples
             public async Task<string> GetTokenAsync(string userId)
             {
                 // Your logic to get the auth token from your backend and generated with Stream backend SDK
-                var token = "";
+                var token = await Task.FromResult("some-token");
                 return token;
             }
         }
