@@ -21,18 +21,36 @@ namespace StreamChat.Libs.Http
         public void AddDefaultCustomHeader(string key, string value)
             => _httpClient.DefaultRequestHeaders.Add(key, value);
 
-        public Task<HttpResponseMessage> GetAsync(Uri uri) => _httpClient.GetAsync(uri);
+        public async Task<HttpResponse> GetAsync(Uri uri)
+        {
+            var response = await _httpClient.GetAsync(uri);
+            return await HttpResponse.CreateFromHttpResponseMessageAsync(response);
+        }
 
-        public Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content) => _httpClient.PostAsync(uri, content);
+        public async Task<HttpResponse> PostAsync(Uri uri, HttpContent content)
+        {
+            var response = await _httpClient.PostAsync(uri, content);
+            return await HttpResponse.CreateFromHttpResponseMessageAsync(response);
+        }
 
-        public Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent content)
-            => _httpClient.PutAsync(uri, content);
+        public async Task<HttpResponse> PutAsync(Uri uri, HttpContent content)
+        {
+            var response = await _httpClient.PutAsync(uri, content);
+            return await HttpResponse.CreateFromHttpResponseMessageAsync(response);
+        }
 
-        public Task<HttpResponseMessage> PatchAsync(Uri uri, HttpContent content)
-            => _httpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), uri)
+        public async Task<HttpResponse> PatchAsync(Uri uri, HttpContent content)
+        {
+            var response = await _httpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), uri)
                 { Content = content });
+            return await HttpResponse.CreateFromHttpResponseMessageAsync(response);
+        }
 
-        public Task<HttpResponseMessage> DeleteAsync(Uri uri) => _httpClient.DeleteAsync(uri);
+        public async Task<HttpResponse> DeleteAsync(Uri uri)
+        {
+            var response = await _httpClient.DeleteAsync(uri);
+            return await HttpResponse.CreateFromHttpResponseMessageAsync(response);
+        }
 
         private readonly HttpClient _httpClient;
     }

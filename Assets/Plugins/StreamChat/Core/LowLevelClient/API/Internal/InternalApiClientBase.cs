@@ -108,7 +108,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             LogFutureRequestIfDebug(uri, endpoint, httpMethod, logContent);
 
             var httpResponse = await ExecuteHttpMethodAsync(httpMethod, uri, httpContent);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            var responseContent = httpResponse.Result;
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -154,7 +154,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 uri = _requestUriFactory.CreateEndpointUri(endpoint, queryParameters);
 
                 httpResponse = await ExecuteHttpMethodAsync(httpMethod, uri, httpContent);
-                responseContent = await httpResponse.Content.ReadAsStringAsync();
+                responseContent = httpResponse.Result;
             }
 
             try
@@ -170,7 +170,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             }
         }
 
-        private Task<HttpResponseMessage> ExecuteHttpMethodAsync(HttpMethod httpMethod, Uri uri,
+        private Task<HttpResponse> ExecuteHttpMethodAsync(HttpMethod httpMethod, Uri uri,
             HttpContent requestContent = default)
         {
             if (httpMethod == HttpMethod.Get)

@@ -22,7 +22,7 @@ namespace StreamChat.Libs.Auth
         {
             var uri = _urlFactory(userId);
             var response = await _httpClient.GetAsync(uri);
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseContent = response.Result;
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception("Token provider failed with status code: " + response.StatusCode +

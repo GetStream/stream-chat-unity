@@ -56,11 +56,8 @@ namespace StreamChat.Tests.LowLevelClient.Api
         public void when_client_post_request_expect_valid_uri_and_request_body_in_http_client(EndpointTestCaseBase testCase)
         {
             _lowLevelClient.Connect();
-            
-            var response = new HttpResponseMessage
-            {
-                Content = new StringContent("{\"reaction\": {\"type\": \"like\"}}")
-            };
+
+            var response = new HttpResponse(true, 200, "{\"reaction\": {\"type\": \"like\"}}");
 
             _mockHttpClient.PostAsync(Arg.Any<Uri>(), Arg.Any<HttpContent>())
                 .Returns(response);
@@ -78,10 +75,7 @@ namespace StreamChat.Tests.LowLevelClient.Api
         {
             _lowLevelClient.Connect();
             
-            var response = new HttpResponseMessage
-            {
-                Content = new StringContent("{\"reaction\": {\"type\": \"like\"}}")
-            };
+            var response = new HttpResponse(true, 200, "{\"reaction\": {\"type\": \"like\"}}");
 
             _mockHttpClient.PostAsync(Arg.Any<Uri>(), Arg.Any<HttpContent>())
                 .Returns(response);

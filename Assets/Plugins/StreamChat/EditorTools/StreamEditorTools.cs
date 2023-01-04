@@ -10,10 +10,10 @@ namespace StreamChat.EditorTools
 {
     public static class StreamEditorTools
     {
-        [MenuItem(MenuPrefix + "Toggle Stream Integration & Unit Tests Enabled")]
+        [MenuItem(MenuPrefix + "Toggle " + StreamTestsEnabledCompilerFlag + " compiler flag")]
         public static void ToggleStreamTestsEnabledCompilerFlag() => ToggleCompilerFlag(StreamTestsEnabledCompilerFlag);
 
-        [MenuItem(MenuPrefix + "Toggle Stream Debug Mode Enabled")]
+        [MenuItem(MenuPrefix + "Toggle " + StreamDebugModeEnabledCompilerFlag + " compiler flag")]
         public static void ToggleStreamDebugModeCompilerFlag()
             => ToggleCompilerFlag(StreamDebugModeEnabledCompilerFlag);
 
