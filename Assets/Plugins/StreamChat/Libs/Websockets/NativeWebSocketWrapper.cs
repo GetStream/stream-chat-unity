@@ -20,9 +20,10 @@ namespace StreamChat.Libs.Websockets
         public event Action Disconnected;
         public event Action ConnectionFailed;
 
-        public NativeWebSocketWrapper(ILogs logs)
+        public NativeWebSocketWrapper(ILogs logs, bool isDebugMode)
         {
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
+            _isDebugMode = isDebugMode;
         }
 
         public void Dispose() => DisconnectAsync().LogIfFailed(_logs);
@@ -37,7 +38,16 @@ namespace StreamChat.Libs.Websockets
         {
             if (_webSocket != null)
             {
-                await DisconnectAsync();
+                if(_webSocket.State == WebSocketState.Open)
+                {
+                    LogInfoIfDebugMode("Internal WS was open, try to disconnect");
+                    await DisconnectAsync();
+                }
+
+                if (_webSocket.State == WebSocketState.Connecting)
+                {
+                    LogWarningIfDebugMode("Internal WS is already connecting");
+                }
             }
 
             _webSocket = new WebSocket(serverUri.ToString());
@@ -117,6 +127,7 @@ namespace StreamChat.Libs.Websockets
         private readonly Queue<string> _messages = new Queue<string>();
 
         private WebSocket _webSocket;
+        private readonly bool _isDebugMode;
 
         private void SubscribeToEvents()
         {
@@ -141,5 +152,21 @@ namespace StreamChat.Libs.Websockets
         private void OnWebSocketMessage(byte[] data) => _messages.Enqueue(Encoding.UTF8.GetString(data));
 
         private void OnWebSocketError(string errorMsg) => _logs.Error(errorMsg);
+        
+        private void LogInfoIfDebugMode(string info)
+        {
+            if (_isDebugMode)
+            {
+                _logs.Info(info);
+            }
+        }
+        
+        private void LogWarningIfDebugMode(string info)
+        {
+            if (_isDebugMode)
+            {
+                _logs.Info(info);
+            }
+        }
     }
 }

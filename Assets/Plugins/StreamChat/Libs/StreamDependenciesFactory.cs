@@ -24,7 +24,7 @@ namespace StreamChat.Libs
 
 #if UNITY_WEBGL
             //StreamTodo: handle debug mode
-            return new NativeWebSocketWrapper(logs);
+            return new NativeWebSocketWrapper(logs, isDebugMode: isDebugMode);
 #else
             return new WebsocketClient(logs, isDebugMode: isDebugMode);
 #endif
