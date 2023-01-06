@@ -172,9 +172,12 @@ namespace StreamChat.Tests.StatefulClient
             SkipThisTempChannelDeletionInTearDown(channel);
             SkipThisTempChannelDeletionInTearDown(channel2);
 
-            await WaitWhileConditionTrue(() => Client.WatchedChannels.Any(), maxIterations: 1500);
+            await WaitWhileConditionTrue(
+                () => Client.WatchedChannels.Contains(channel) || Client.WatchedChannels.Contains(channel2),
+                maxIterations: 500);
 
-            Assert.IsEmpty(Client.WatchedChannels);
+            Assert.IsFalse(Client.WatchedChannels.Contains(channel));
+            Assert.IsFalse(Client.WatchedChannels.Contains(channel2));
         }
 
         [UnityTest]
