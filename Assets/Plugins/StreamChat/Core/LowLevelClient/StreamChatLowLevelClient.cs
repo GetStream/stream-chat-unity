@@ -6,8 +6,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using StreamChat.Core.API;
-using StreamChat.Core.API.Internal;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Configs;
 using StreamChat.Core.Exceptions;

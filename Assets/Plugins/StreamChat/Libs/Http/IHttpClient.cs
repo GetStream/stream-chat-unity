@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace StreamChat.Libs.Http
@@ -15,12 +14,14 @@ namespace StreamChat.Libs.Http
 
         Task<HttpResponse> GetAsync(Uri uri);
 
-        Task<HttpResponse> PostAsync(Uri uri, HttpContent content);
+        Task<HttpResponse> PostAsync(Uri uri, object content);
 
-        Task<HttpResponse> PutAsync(Uri uri, HttpContent content);
+        Task<HttpResponse> PutAsync(Uri uri, object content);
 
-        Task<HttpResponse> PatchAsync(Uri uri, HttpContent content);
+        Task<HttpResponse> PatchAsync(Uri uri, object content);
 
         Task<HttpResponse> DeleteAsync(Uri uri);
+
+        Task<HttpResponse> SendHttpRequestAsync(HttpMethodType methodType, Uri uri, object optionalRequestContent);
     }
 }

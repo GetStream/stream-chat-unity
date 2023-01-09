@@ -62,12 +62,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         {
             var endpoint = $"/channels/{channelType}/{channelId}/file";
 
-            var body = new MultipartFormDataContent();
-            body.Add(new ByteArrayContent(fileContent), "file", fileName);
-
-            return Post<FileUploadResponseInternalDTO>(endpoint, body);
+            var fileWrapper = new FileWrapper(fileName, fileContent);
+            return Post<FileUploadResponseInternalDTO>(endpoint, fileWrapper);
         }
-
+        
         public Task<FileDeleteResponseInternalDTO> DeleteFileAsync(string channelType, string channelId, string fileUrl)
         {
             var endpoint = $"channels/{channelType}/{channelId}/file";
@@ -81,10 +79,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         {
             var endpoint = $"/channels/{channelType}/{channelId}/image";
 
-            var body = new MultipartFormDataContent();
-            body.Add(new ByteArrayContent(fileContent), "file", fileName);
-
-            return Post<ImageUploadResponseInternalDTO>(endpoint, body);
+            var fileWrapper = new FileWrapper(fileName, fileContent);
+            return Post<ImageUploadResponseInternalDTO>(endpoint, fileWrapper);
         }
 
         public Task<SearchResponseInternalDTO> SearchMessagesAsync(SearchRequestInternalDTO searchRequest)

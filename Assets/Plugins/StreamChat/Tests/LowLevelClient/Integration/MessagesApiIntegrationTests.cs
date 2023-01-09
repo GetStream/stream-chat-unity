@@ -127,7 +127,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 new ChannelGetOrCreateRequest
                 {
                     State = true,
-                    Messages = new MessagePaginationParamsRequest()
+                    Messages = new MessagePaginationParamsRequest
                     {
                         Limit = 30,
                         Offset = 0,

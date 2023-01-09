@@ -2,8 +2,8 @@
 using StreamChat.Core.LowLevelClient.Responses;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
-        
-namespace StreamChat.Core.API
+
+namespace StreamChat.Core.LowLevelClient.API
 {
     /// <summary>
     /// API Client that can be used to retrieve, create and alter push notification devices of a Stream Chat application.

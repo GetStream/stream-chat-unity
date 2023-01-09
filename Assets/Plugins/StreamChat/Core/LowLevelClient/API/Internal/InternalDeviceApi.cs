@@ -1,14 +1,12 @@
 ﻿using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
-using StreamChat.Core.LowLevelClient;
-using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.Web;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.Serialization;
 
-namespace StreamChat.Core.API.Internal
+namespace StreamChat.Core.LowLevelClient.API.Internal
 {
     internal class InternalDeviceApi : InternalApiClientBase, IInternalDeviceApi
     {
