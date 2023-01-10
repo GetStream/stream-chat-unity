@@ -12,6 +12,7 @@ using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 using StreamChat.Core.StatefulModels;
@@ -58,7 +59,7 @@ namespace StreamChat.Core
         public event ChannelDeleteHandler ChannelDeleted;
 
         public ConnectionState ConnectionState => InternalLowLevelClient.ConnectionState;
-        
+
         public bool IsConnected => InternalLowLevelClient.ConnectionState == ConnectionState.Connected;
         public bool IsConnecting => InternalLowLevelClient.ConnectionState == ConnectionState.Connecting;
 
@@ -69,12 +70,12 @@ namespace StreamChat.Core
         public IReadOnlyList<IStreamChannel> WatchedChannels => _cache.Channels.AllItems;
 
         public double? NextReconnectTime => InternalLowLevelClient.NextReconnectTime;
-        
+
         public IStreamChatLowLevelClient LowLevelClient => InternalLowLevelClient;
 
         /// <inheritdoc cref="StreamChatLowLevelClient.SDKVersion"/>
         public static Version SDKVersion => StreamChatLowLevelClient.SDKVersion;
-        
+
         /// <summary>
         /// Recommended method to create an instance of <see cref="IStreamChatClient"/>
         /// If you wish to create an instance with non default dependencies you can use the <see cref="CreateClientWithCustomDependencies"/>
@@ -84,14 +85,16 @@ namespace StreamChat.Core
         {
             config ??= StreamClientConfig.Default;
             var logs = StreamDependenciesFactory.CreateLogger(config.LogLevel.ToLogLevel());
-            var websocketClient = StreamDependenciesFactory.CreateWebsocketClient(logs, config.LogLevel.IsDebugEnabled());
+            var websocketClient
+                = StreamDependenciesFactory.CreateWebsocketClient(logs, config.LogLevel.IsDebugEnabled());
             var httpClient = StreamDependenciesFactory.CreateHttpClient();
             var serializer = StreamDependenciesFactory.CreateSerializer();
             var timeService = StreamDependenciesFactory.CreateTimeService();
             var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
             var gameObjectRunner = StreamDependenciesFactory.CreateChatClientRunner();
 
-            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs, config);
+            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo,
+                logs, config);
             gameObjectRunner.RunChatInstance(client);
             return client;
         }
@@ -105,7 +108,8 @@ namespace StreamChat.Core
         /// StreamChatClient.CreateDefaultTokenProvider(userId => new Uri($"https:your-awesome-page.com/get_token?userId={userId}"));
         /// </code>
         /// </example>
-        public static ITokenProvider CreateDefaultTokenProvider(TokenProvider.TokenUriHandler urlFactory) => StreamDependenciesFactory.CreateTokenProvider(urlFactory);
+        public static ITokenProvider CreateDefaultTokenProvider(TokenProvider.TokenUriHandler urlFactory)
+            => StreamDependenciesFactory.CreateTokenProvider(urlFactory);
 
         /// <summary>
         /// Create a new instance of <see cref="IStreamChatLowLevelClient"/> with custom provided dependencies.
@@ -113,9 +117,11 @@ namespace StreamChat.Core
         /// Important! Custom created client require calling the <see cref="Update"/> and <see cref="Destroy"/> methods.
         /// </summary>
         public static IStreamChatClient CreateClientWithCustomDependencies(IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs,
-            IStreamClientConfig config) =>
-            new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs, config);
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo,
+            ILogs logs,
+            IStreamClientConfig config)
+            => new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs,
+                config);
 
         /// <inheritdoc cref="StreamChatLowLevelClient.CreateDeveloperAuthToken"/>
         public static string CreateDeveloperAuthToken(string userId)
@@ -152,15 +158,17 @@ namespace StreamChat.Core
 
             return ConnectUserAsync(new AuthCredentials(apiKey, userId, userAuthToken), cancellationToken);
         }
-        
-        public async Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId, ITokenProvider tokenProvider,
+
+        public async Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId,
+            ITokenProvider tokenProvider,
             CancellationToken cancellationToken = default)
         {
             StreamAsserts.AssertNotNullOrEmpty(apiKey, nameof(apiKey));
             StreamAsserts.AssertNotNullOrEmpty(userId, nameof(userId));
             StreamAsserts.AssertNotNull(tokenProvider, nameof(tokenProvider));
 
-            var ownUserDto = await InternalLowLevelClient.ConnectUserAsync(apiKey, userId, tokenProvider, cancellationToken);
+            var ownUserDto
+                = await InternalLowLevelClient.ConnectUserAsync(apiKey, userId, tokenProvider, cancellationToken);
             return UpdateLocalUser(ownUserDto);
         }
 
@@ -195,7 +203,8 @@ namespace StreamChat.Core
                 requestBodyDto.Data.AdditionalProperties = optionalCustomData?.ToDictionary(x => x.Key, x => x.Value);
             }
 
-            var channelResponseDto = await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType,
+            var channelResponseDto = await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(
+                channelType,
                 channelId, requestBodyDto);
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
@@ -262,7 +271,48 @@ namespace StreamChat.Core
                 Watch = true,
             };
 
-            var channelsResponseDto = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            var channelsResponseDto
+                = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
+            {
+                return Enumerable.Empty<StreamChannel>();
+            }
+
+            var result = new List<IStreamChannel>();
+            foreach (var channelDto in channelsResponseDto.Channels)
+            {
+                result.Add(_cache.TryCreateOrUpdate(channelDto));
+            }
+
+            return result;
+        }
+
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
+            ChannelSortObject sort, int limit = 30, int offset = 0)
+        {
+            StreamAsserts.AssertNotNull(filters, nameof(filters));
+            StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
+            StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
+
+            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
+            var requestBodyDto = new QueryChannelsRequestInternalDTO
+            {
+                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
+                Limit = null,
+                MemberLimit = null,
+                MessageLimit = null,
+                Offset = null,
+                Presence = true,
+
+                //StreamTodo: sorting could be controlled in global config,
+                //we definitely don't want to control this per request as this could break data integrity + they can just sort result with LINQ
+                Sort = sort?.ToSortParams(),
+                State = true,
+                Watch = true,
+            };
+
+            var channelsResponseDto
+                = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
             if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
             {
                 return Enumerable.Empty<StreamChannel>();
@@ -339,10 +389,11 @@ namespace StreamChat.Core
             //StreamTodo: items could be null
             var requestDtos = userRequests.Select(_ => _.TrySaveToDto()).ToDictionary(_ => _.Id, _ => _);
 
-            var response = await InternalLowLevelClient.InternalUserApi.UpsertManyUsersAsync(new UpdateUsersRequestInternalDTO
-            {
-                Users = requestDtos
-            });
+            var response = await InternalLowLevelClient.InternalUserApi.UpsertManyUsersAsync(
+                new UpdateUsersRequestInternalDTO
+                {
+                    Users = requestDtos
+                });
 
             var result = new List<IStreamUser>();
             foreach (var userDto in response.Users.Values)
@@ -363,11 +414,12 @@ namespace StreamChat.Core
                 throw new ArgumentException($"{nameof(channels)} is empty");
             }
 
-            var response = await InternalLowLevelClient.InternalChannelApi.MuteChannelAsync(new MuteChannelRequestInternalDTO
-            {
-                ChannelCids = channelCids,
-                Expiration = milliseconds
-            });
+            var response = await InternalLowLevelClient.InternalChannelApi.MuteChannelAsync(
+                new MuteChannelRequestInternalDTO
+                {
+                    ChannelCids = channelCids,
+                    Expiration = milliseconds
+                });
 
             UpdateLocalUser(response.OwnUser);
         }
@@ -413,11 +465,12 @@ namespace StreamChat.Core
         {
             StreamAsserts.AssertNotNullOrEmpty(users, nameof(users));
 
-            var responseDto = await InternalLowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
-            {
-                TargetIds = users.Select(_ => _.Id).ToList(),
-                Timeout = timeoutMinutes
-            });
+            var responseDto = await InternalLowLevelClient.InternalModerationApi.MuteUserAsync(
+                new MuteUserRequestInternalDTO
+                {
+                    TargetIds = users.Select(_ => _.Id).ToList(),
+                    Timeout = timeoutMinutes
+                });
 
             UpdateLocalUser(responseDto.OwnUser);
         }
@@ -493,7 +546,7 @@ namespace StreamChat.Core
 
             return GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
         }
-        
+
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
@@ -522,7 +575,7 @@ namespace StreamChat.Core
         /// </example>
         /// In case you want to inject custom dependencies into the chat client you can use the <see cref="CreateClientWithCustomDependencies"/>
         /// </summary>
-        private StreamChatClient(IWebsocketClient websocketClient, IHttpClient httpClient, ISerializer serializer, 
+        private StreamChatClient(IWebsocketClient websocketClient, IHttpClient httpClient, ISerializer serializer,
             ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
         {
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));

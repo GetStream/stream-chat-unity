@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
 using StreamChat.Core.StatefulModels;
@@ -35,7 +36,7 @@ namespace StreamChat.Core
         /// Event fired when connection state with Stream Chat server has changed
         /// </summary>
         event ConnectionChangeHandler ConnectionStateChanged;
-        
+
         /// <summary>
         /// Channel was deleted
         /// </summary>
@@ -45,12 +46,12 @@ namespace StreamChat.Core
         /// Current connection state
         /// </summary>
         ConnectionState ConnectionState { get; }
-        
+
         /// <summary>
         /// Is client connected. Subscribe to <see cref="Connected"/> to get notified when connection is established
         /// </summary>
         bool IsConnected { get; }
-        
+
         /// <summary>
         /// If true it means that client initiated connection and is waiting for the Stream server to confirm the connection. Subscribe to <see cref="Connected"/> to get notified when connection is established
         /// </summary>
@@ -73,7 +74,7 @@ namespace StreamChat.Core
         /// Next time since startup the client will attempt to reconnect to the Stream Server. 
         /// </summary>
         double? NextReconnectTime { get; }
-        
+
         /// <summary>
         /// Low level client. Use it if you want to bypass the stateful client and execute low level requests directly.
         /// </summary>
@@ -102,7 +103,7 @@ namespace StreamChat.Core
         /// <remarks>https://getstream.io/chat/docs/unity/unity_client_overview/?language=unity#auth-credentials</remarks>
         Task<IStreamLocalUserData> ConnectUserAsync(string apiKey, string userId, string userAuthToken,
             CancellationToken cancellationToken = default);
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -150,7 +151,19 @@ namespace StreamChat.Core
         /// <param name="limit">How many records to return. Think about it as "records per page"</param>
         /// <param name="offset">How many records to skip. Example: if Limit is 30, the offset for 2nd page is 30, for 3rd page is 60, etc.</param>
         /// <returns></returns>
-        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters, int limit = 30, int offset = 0);
+        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters, int limit = 30,
+            int offset = 0);
+
+        /// <summary>
+        /// Query <see cref="IStreamChannel"/> with provided filters
+        /// </summary>
+        /// <param name="filters"></param>
+        /// <param name="sort">Sort object. You can chain multiple sorting fields</param>
+        /// <param name="limit">How many records to return. Think about it as "records per page"</param>
+        /// <param name="offset">How many records to skip. Example: if Limit is 30, the offset for 2nd page is 30, for 3rd page is 60, etc.</param>
+        /// <returns></returns>
+        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
+            ChannelSortObject sort, int limit = 30, int offset = 0);
 
         //StreamTodo: missing descriptions
         Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters);
@@ -168,7 +181,7 @@ namespace StreamChat.Core
         /// <param name="userRequests"></param>
         /// <returns></returns>
         Task<IEnumerable<IStreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests);
-        
+
         /// <summary>
         /// Mute channels with optional duration in milliseconds
         /// </summary>
@@ -194,9 +207,9 @@ namespace StreamChat.Core
         /// <param name="users">Users to mute</param>
         /// <param name="timeoutMinutes">Optional timeout. Without timeout users will stay muted indefinitely</param>
         Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default);
-        
+
         Task DisconnectUserAsync();
-        
+
         bool IsLocalUser(IStreamUser messageUser);
     }
 }
