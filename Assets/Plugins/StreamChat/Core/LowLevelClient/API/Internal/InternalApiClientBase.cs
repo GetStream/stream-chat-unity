@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using StreamChat.Core.Exceptions;
@@ -29,25 +28,25 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         }
 
         protected Task<TResponse> Get<TPayload, TResponse>(string endpoint, TPayload payload)
-            => HttpRequest<TResponse>(HttpMethod.Get, endpoint, payload);
+            => HttpRequest<TResponse>(HttpMethodType.Get, endpoint, payload);
 
         protected Task<TResponse> Get<TResponse>(string endpoint, QueryParameters parameters = null)
-            => HttpRequest<TResponse>(HttpMethod.Get, endpoint, queryParameters: parameters);
+            => HttpRequest<TResponse>(HttpMethodType.Get, endpoint, queryParameters: parameters);
 
         protected Task<TResponse> Post<TRequest, TResponse>(string endpoint, TRequest request)
-            => HttpRequest<TResponse>(HttpMethod.Post, endpoint, request);
+            => HttpRequest<TResponse>(HttpMethodType.Post, endpoint, request);
 
-        protected Task<TResponse> Post<TResponse>(string endpoint, HttpContent request)
-            => HttpRequest<TResponse>(HttpMethod.Post, endpoint, request);
+        protected Task<TResponse> Post<TResponse>(string endpoint, object request)
+            => HttpRequest<TResponse>(HttpMethodType.Post, endpoint, request);
 
         protected Task<TResponse> Put<TRequest, TResponse>(string endpoint, TRequest request)
-            => HttpRequest<TResponse>(HttpMethod.Put, endpoint, request);
+            => HttpRequest<TResponse>(HttpMethodType.Put, endpoint, request);
 
         protected Task<TResponse> Patch<TRequest, TResponse>(string endpoint, TRequest request)
-            => HttpRequest<TResponse>(PatchHttpMethod, endpoint, request);
+            => HttpRequest<TResponse>(HttpMethodType.Patch, endpoint, request);
 
         protected Task<TResponse> Delete<TResponse>(string endpoint, QueryParameters parameters = null)
-            => HttpRequest<TResponse>(HttpMethod.Delete, endpoint, queryParameters: parameters);
+            => HttpRequest<TResponse>(HttpMethodType.Delete, endpoint, queryParameters: parameters);
 
         protected Task PostEventAsync(string channelType, string channelId, object eventBodyDto)
             => Post<SendEventRequestInternalDTO, ResponseInternalDTO>(
@@ -58,8 +57,6 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
         private const int InvalidAuthTokenErrorCode = 40;
 
-        private static readonly HttpMethod PatchHttpMethod = new HttpMethod("PATCH");
-
         private readonly IHttpClient _httpClient;
         private readonly ISerializer _serializer;
         private readonly ILogs _logs;
@@ -67,7 +64,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         private readonly StringBuilder _sb = new StringBuilder();
         private readonly IStreamChatLowLevelClient _lowLevelClient;
 
-        private HttpContent TryGetHttpContent(object content, out string serializedContent)
+        private object TrySerializeRequestBodyContent(object content, out string serializedContent)
         {
             serializedContent = default;
 
@@ -76,16 +73,16 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 return null;
             }
 
-            if (content is HttpContent httpContent)
+            if (content is FileWrapper fileWrapper)
             {
-                return httpContent;
+                return fileWrapper;
             }
 
             serializedContent = _serializer.Serialize(content);
-            return new StringContent(serializedContent);
+            return serializedContent;
         }
 
-        private async Task<TResponse> HttpRequest<TResponse>(HttpMethod httpMethod, string endpoint,
+        private async Task<TResponse> HttpRequest<TResponse>(HttpMethodType httpMethod, string endpoint,
             object requestBody = default, QueryParameters queryParameters = null)
         {
             //StreamTodo: perhaps remove this requirement, sometimes we send empty body without any properties
@@ -94,10 +91,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 throw new ArgumentException($"{nameof(requestBody)} is required by {httpMethod}");
             }
 
-            var httpContent = TryGetHttpContent(requestBody, out var serializedContent);
+            var httpContent = TrySerializeRequestBodyContent(requestBody, out var serializedContent);
             var logContent = serializedContent ?? httpContent?.ToString();
 
-            if (httpMethod == HttpMethod.Get && serializedContent != null)
+            if (httpMethod == HttpMethodType.Get && serializedContent != null)
             {
                 queryParameters ??= QueryParameters.Default;
                 queryParameters.Append("payload", serializedContent);
@@ -107,8 +104,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
             LogFutureRequestIfDebug(uri, endpoint, httpMethod, logContent);
 
-            var httpResponse = await ExecuteHttpMethodAsync(httpMethod, uri, httpContent);
-            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            var httpResponse = await _httpClient.SendHttpRequestAsync(httpMethod, uri, httpContent);
+            var responseContent = httpResponse.Result;
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -122,12 +119,11 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
                 if (_lowLevelClient.ConnectionState == ConnectionState.Connected)
                 {
-                    _logs.Info("INTERCEPTOR - DisconnectAsync connection_id = " +
-                               ((IConnectionProvider)_lowLevelClient).ConnectionId);
+                    _logs.Info($"Http request failed due to expired token, connection id: {_lowLevelClient.ConnectionId}");
                     await _lowLevelClient.DisconnectAsync();
                 }
 
-                _logs.Info("INTERCEPTOR - New Token required, connection: " + _lowLevelClient.ConnectionState);
+                _logs.Info("New token required, connection state: " + _lowLevelClient.ConnectionState);
 
                 const int maxMsToWait = 500;
                 var i = 0;
@@ -153,8 +149,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 // Recreate the uri to include new connection id 
                 uri = _requestUriFactory.CreateEndpointUri(endpoint, queryParameters);
 
-                httpResponse = await ExecuteHttpMethodAsync(httpMethod, uri, httpContent);
-                responseContent = await httpResponse.Content.ReadAsStringAsync();
+                httpResponse = await _httpClient.SendHttpRequestAsync(httpMethod, uri, httpContent);
+                responseContent = httpResponse.Result;
             }
 
             try
@@ -170,41 +166,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             }
         }
 
-        private Task<HttpResponseMessage> ExecuteHttpMethodAsync(HttpMethod httpMethod, Uri uri,
-            HttpContent requestContent = default)
-        {
-            if (httpMethod == HttpMethod.Get)
-            {
-                return _httpClient.GetAsync(uri);
-            }
+        private static bool IsRequestBodyRequiredByHttpMethod(HttpMethodType httpMethod)
+            => httpMethod == HttpMethodType.Post || httpMethod == HttpMethodType.Put || httpMethod == HttpMethodType.Patch;
 
-            if (httpMethod == HttpMethod.Post)
-            {
-                return _httpClient.PostAsync(uri, requestContent);
-            }
-
-            if (httpMethod == HttpMethod.Delete)
-            {
-                return _httpClient.DeleteAsync(uri);
-            }
-
-            if (httpMethod == HttpMethod.Put)
-            {
-                return _httpClient.PutAsync(uri, requestContent);
-            }
-
-            if (httpMethod == PatchHttpMethod)
-            {
-                return _httpClient.PatchAsync(uri, requestContent);
-            }
-
-            throw new InvalidOperationException($"Method {httpMethod} is not supported");
-        }
-
-        private static bool IsRequestBodyRequiredByHttpMethod(HttpMethod httpMethod)
-            => httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Put || httpMethod == PatchHttpMethod;
-
-        private void LogFutureRequestIfDebug(Uri uri, string endpoint, HttpMethod httpMethod, string request = null)
+        private void LogFutureRequestIfDebug(Uri uri, string endpoint, HttpMethodType httpMethod, string request = null)
         {
 #if STREAM_DEBUG_ENABLED
             _sb.Clear();
@@ -231,7 +196,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 #endif
         }
 
-        private void LogRestCall(Uri uri, string endpoint, HttpMethod httpMethod, string response, bool success,
+        private void LogRestCall(Uri uri, string endpoint, HttpMethodType httpMethod, string response, bool success,
             string request = null)
         {
             _sb.Clear();

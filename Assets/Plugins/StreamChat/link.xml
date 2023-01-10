@@ -1,0 +1,8 @@
+<linker>
+  <assembly fullname="StreamChat.Core">
+	<namespace fullname="StreamChat.Core.InternalDTO.Events" preserve="all"/>
+	<namespace fullname="StreamChat.Core.InternalDTO.Models" preserve="all"/>
+	<namespace fullname="StreamChat.Core.InternalDTO.Requests" preserve="all"/>
+	<namespace fullname="StreamChat.Core.InternalDTO.Responses" preserve="all"/>
+  </assembly>
+</linker>

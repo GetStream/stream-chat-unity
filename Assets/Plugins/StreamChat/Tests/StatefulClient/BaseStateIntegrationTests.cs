@@ -109,6 +109,22 @@ namespace StreamChat.Tests.StatefulClient
                 }
             }
         }
+        
+        protected static async Task WaitWhileConditionFalse(Func<bool> condition, int maxIterations = 150)
+        {
+            if (condition())
+            {
+                return;
+            }
+
+            for (int i = 0; i < maxIterations; i++)
+            {
+                if (!condition())
+                {
+                    await Task.Delay(1);
+                }
+            }
+        }
 
         private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
 

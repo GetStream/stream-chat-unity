@@ -72,6 +72,35 @@ namespace StreamChat.Tests
 
             onSuccess?.Invoke();
         }
+        
+        public static IEnumerator RunAsIEnumerator(this Task task,
+            IStreamChatLowLevelClient lowLevelClient, Action onSuccess = null, Action<Exception> onFaulted = null)
+        {
+            while (!task.IsCompleted)
+            {
+                lowLevelClient?.Update(0.2f);
+                yield return null;
+            }
+
+            if (task.IsFaulted)
+            {
+                if (onFaulted != null)
+                {
+                    onFaulted(task.Exception);
+                    yield break;
+                }
+                
+                if (task.Exception is AggregateException aggregateException &&
+                    aggregateException.InnerExceptions.Count == 1)
+                {
+                    throw task.Exception.InnerException;
+                }
+
+                throw task.Exception;
+            }
+
+            onSuccess?.Invoke();
+        }
 
         public static IEnumerator WaitForClientToConnect(this IStreamChatLowLevelClient lowLevelClient)
         {

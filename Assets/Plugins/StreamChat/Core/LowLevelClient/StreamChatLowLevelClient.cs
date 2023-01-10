@@ -6,8 +6,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using StreamChat.Core.API;
-using StreamChat.Core.API.Internal;
 using StreamChat.Core.Auth;
 using StreamChat.Core.Configs;
 using StreamChat.Core.Exceptions;
@@ -334,7 +332,7 @@ namespace StreamChat.Core.LowLevelClient
             {
                 NextReconnectTime = float.MaxValue;
             }
-            
+
             await _websocketClient.DisconnectAsync(WebSocketCloseStatus.NormalClosure, "User called Disconnect");
         }
 
@@ -351,6 +349,9 @@ namespace StreamChat.Core.LowLevelClient
 
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Info("WS message: " + msg);
+#endif
                 HandleNewWebsocketMessage(msg);
             }
         }
@@ -464,7 +465,8 @@ namespace StreamChat.Core.LowLevelClient
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
 
-        private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime;
+        // For WebGL there is a slight delay when sending therefore we send HC event a bit sooner just in case
+        private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime - 1;
 
         private readonly IWebsocketClient _websocketClient;
         private readonly ISerializer _serializer;
@@ -496,7 +498,7 @@ namespace StreamChat.Core.LowLevelClient
         private bool _websocketConnectionFailed;
         private int _reconnectAttempt;
         private ITokenProvider _tokenProvider;
-        
+
         private async Task RefreshAuthTokenFromProvider()
         {
 #if STREAM_DEBUG_ENABLED
@@ -507,14 +509,16 @@ namespace StreamChat.Core.LowLevelClient
                 var token = await _tokenProvider.GetTokenAsync(_authCredentials.UserId);
                 _authCredentials = _authCredentials.CreateWithNewUserToken(token);
                 SetConnectionCredentials(_authCredentials);
-                
+
 #if STREAM_DEBUG_ENABLED
                 _logs.Info($"auth token received for user `{_authCredentials.UserId}`: " + token);
 #endif
             }
             catch (Exception e)
             {
-                throw new TokenProviderException($"Failed to get token from the {nameof(ITokenProvider)}. Inspect {nameof(e.InnerException)} for more information. ", e);
+                throw new TokenProviderException(
+                    $"Failed to get token from the {nameof(ITokenProvider)}. Inspect {nameof(e.InnerException)} for more information. ",
+                    e);
             }
         }
 
@@ -539,6 +543,9 @@ namespace StreamChat.Core.LowLevelClient
 
         private void OnWebsocketDisconnected()
         {
+#if STREAM_DEBUG_ENABLED
+            _logs.Warning("Websocket Disconnected");
+#endif
             ConnectionState = ConnectionState.Disconnected;
         }
 
@@ -566,6 +573,10 @@ namespace StreamChat.Core.LowLevelClient
                 _websocketConnectionFailed = false;
             }
 
+#if STREAM_DEBUG_ENABLED
+            _logs.Warning("Websocket connection failed");
+#endif
+
             ConnectionState = ConnectionState.Disconnected;
         }
 
@@ -576,7 +587,7 @@ namespace StreamChat.Core.LowLevelClient
             EventHealthCheckInternalDTO eventHealthCheckInternalDto)
         {
             //StreamTodo: resolve issue that expired token also triggers connection confirmed that gets immediately disconnected
-            
+
             _connectionId = healthCheckEvent.ConnectionId;
 #pragma warning disable 0618
             LocalUser = healthCheckEvent.Me;
@@ -629,7 +640,7 @@ namespace StreamChat.Core.LowLevelClient
                 {
                     return _timeService.Time;
                 }
-                
+
                 switch (ReconnectStrategy)
                 {
                     case ReconnectStrategy.Exponential:
@@ -643,7 +654,8 @@ namespace StreamChat.Core.LowLevelClient
                     case ReconnectStrategy.Never:
                         return null;
                     default:
-                        throw new ArgumentOutOfRangeException($"Unhandled {nameof(ReconnectStrategy)}: {ReconnectStrategy}");
+                        throw new ArgumentOutOfRangeException(
+                            $"Unhandled {nameof(ReconnectStrategy)}: {ReconnectStrategy}");
                 }
             }
 
@@ -892,6 +904,10 @@ namespace StreamChat.Core.LowLevelClient
 
             _websocketClient.Send(_serializer.Serialize(healthCheck));
             _lastHealthCheckSendTime = _timeService.Time;
+
+#if STREAM_DEBUG_ENABLED
+            _logs.Info("Health check sent");
+#endif
         }
 
         private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, EventHealthCheckInternalDTO dto)

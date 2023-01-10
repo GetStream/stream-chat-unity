@@ -20,9 +20,24 @@ namespace StreamChat.Libs
             => new UnityLogs(logLevel);
 
         public static IWebsocketClient CreateWebsocketClient(ILogs logs, bool isDebugMode = false)
-            => new WebsocketClient(logs, isDebugMode: isDebugMode);
+        {
 
-        public static IHttpClient CreateHttpClient() => new HttpClientAdapter();
+#if UNITY_WEBGL
+            //StreamTodo: handle debug mode
+            return new NativeWebSocketWrapper(logs, isDebugMode: isDebugMode);
+#else
+            return new WebsocketClient(logs, isDebugMode: isDebugMode);
+#endif
+        }
+
+        public static IHttpClient CreateHttpClient()
+        {
+#if UNITY_WEBGL
+            return new UnityWebRequestHttpClient();
+#else
+            return new HttpClientAdapter();
+#endif
+        }
 
         public static ISerializer CreateSerializer() => new NewtonsoftJsonSerializer();
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using StreamChat.Core.API;
 using StreamChat.Core.Auth;
 using StreamChat.Core.LowLevelClient.API;
 using StreamChat.Core.LowLevelClient.Models;

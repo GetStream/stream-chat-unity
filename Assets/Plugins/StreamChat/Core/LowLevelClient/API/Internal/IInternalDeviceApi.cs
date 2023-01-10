@@ -2,7 +2,7 @@
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 
-namespace StreamChat.Core.API.Internal
+namespace StreamChat.Core.LowLevelClient.API.Internal
 {
     internal interface IInternalDeviceApi
     {

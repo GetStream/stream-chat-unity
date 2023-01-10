@@ -56,21 +56,18 @@ namespace StreamChat.Tests.LowLevelClient.Api
         public void when_client_post_request_expect_valid_uri_and_request_body_in_http_client(EndpointTestCaseBase testCase)
         {
             _lowLevelClient.Connect();
-            
-            var response = new HttpResponseMessage
-            {
-                Content = new StringContent("{\"reaction\": {\"type\": \"like\"}}")
-            };
 
-            _mockHttpClient.PostAsync(Arg.Any<Uri>(), Arg.Any<HttpContent>())
+            var response = new HttpResponse(true, 200, "{\"reaction\": {\"type\": \"like\"}}");
+
+            _mockHttpClient.SendHttpRequestAsync(Arg.Is(HttpMethodType.Post),Arg.Any<Uri>(), Arg.Any<object>())
                 .Returns(response);
 
             testCase.ExecuteRequest(_lowLevelClient);
 
             Expression<Predicate<Uri>> ValidateUri = uri => testCase.IsUriValid(uri);
-            Expression<Predicate<HttpContent>> ValidateRequestBody = request => testCase.IsRequestBodyValid(request.ReadAsStringAsync().Result);
+            Expression<Predicate<object>> ValidateRequestBody = request => testCase.IsRequestBodyValid(request as string);
 
-            _mockHttpClient.Received().PostAsync(Arg.Is(ValidateUri), Arg.Is(ValidateRequestBody));
+            _mockHttpClient.Received().SendHttpRequestAsync(Arg.Is(HttpMethodType.Post),Arg.Is(ValidateUri), Arg.Is(ValidateRequestBody));
         }
 
         [TestCaseSource(nameof(GetDeleteTestCases))]
@@ -78,19 +75,16 @@ namespace StreamChat.Tests.LowLevelClient.Api
         {
             _lowLevelClient.Connect();
             
-            var response = new HttpResponseMessage
-            {
-                Content = new StringContent("{\"reaction\": {\"type\": \"like\"}}")
-            };
+            var response = new HttpResponse(true, 200, "{\"reaction\": {\"type\": \"like\"}}");
 
-            _mockHttpClient.PostAsync(Arg.Any<Uri>(), Arg.Any<HttpContent>())
+            _mockHttpClient.SendHttpRequestAsync(Arg.Is(HttpMethodType.Post),Arg.Any<Uri>(), Arg.Any<HttpContent>())
                 .Returns(response);
 
             testCase.ExecuteRequest(_lowLevelClient);
 
             Expression<Predicate<Uri>> ValidateUri = uri => testCase.IsUriValid(uri);
 
-            _mockHttpClient.Received().DeleteAsync(Arg.Is(ValidateUri));
+            _mockHttpClient.Received().SendHttpRequestAsync(Arg.Is(HttpMethodType.Delete), Arg.Is(ValidateUri), Arg.Any<object>());
         }
 
         private IStreamChatLowLevelClient _lowLevelClient;
