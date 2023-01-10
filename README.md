@@ -51,10 +51,10 @@ The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://gets
 - **Fully open-source**: Complete access to the SDK source code here on GitHub
 
 ## IL2CPP
-SDK runs out of the box with IL2CPP
+IL2CPP is supported :rocket:
 
 ## WebGL
-WebGL support is coming soon. It's currently available in Beta mode and will be released in early 2023 Q1. Reach out to us if you wish to test it.
+WebGL is supported :rocket:
 
 ## Free for Indie Developers
 
