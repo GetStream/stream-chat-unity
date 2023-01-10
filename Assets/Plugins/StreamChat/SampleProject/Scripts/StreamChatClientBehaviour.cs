@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using StreamChat.Core;
+using StreamChat.Core.Configs;
 using StreamChat.Core.Exceptions;
 using StreamChat.Libs.Auth;
 using StreamChat.SampleProject.Configs;
@@ -34,7 +35,13 @@ namespace StreamChat.SampleProject
 
             try
             {
-                _client = StreamChatClient.CreateDefaultClient();
+                var config = new StreamClientConfig
+                {
+#if STREAM_DEBUG_ENABLED
+                    LogLevel = StreamLogLevel.Debug
+#endif
+                };
+                _client = StreamChatClient.CreateDefaultClient(config);
                 _client.ConnectUserAsync(_authCredentialsAsset.Credentials);
 
                 var viewContext = new ChatViewContext(_client, new UnityImageWebLoader(), viewFactory,

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using StreamChat.Core.Models;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProject.Utils;
@@ -70,6 +71,9 @@ namespace StreamChat.SampleProject.Views
                 _activeChannel.MessageReceived -= OnMessageReceived;
                 _activeChannel.MessageDeleted -= OnMessageDeleted; 
                 _activeChannel.MessageUpdated -= OnMessageUpdated;
+                _activeChannel.ReactionAdded -= OnReactionAdded;
+                _activeChannel.ReactionUpdated -= OnReactionUpdated;
+                _activeChannel.ReactionRemoved -= OnReactionRemoved;
             }
             
             if (channel == null)
@@ -77,14 +81,26 @@ namespace StreamChat.SampleProject.Views
                 ClearAll();
                 return;
             }
-
-            channel.MessageReceived += OnMessageReceived;
-            channel.MessageDeleted += OnMessageDeleted;
-            channel.MessageUpdated += OnMessageUpdated;
+            
             _activeChannel = channel;
+            _activeChannel.MessageReceived += OnMessageReceived;
+            _activeChannel.MessageDeleted += OnMessageDeleted;
+            _activeChannel.MessageUpdated += OnMessageUpdated;
+            _activeChannel.ReactionAdded += OnReactionAdded;
+            _activeChannel.ReactionUpdated += OnReactionUpdated;
+            _activeChannel.ReactionRemoved += OnReactionRemoved;
             
             RebuildMessages(channel, scrollToBottom: true);
         }
+
+        private void OnReactionRemoved(IStreamChannel channel, IStreamMessage message, StreamReaction reaction)
+            => RebuildMessages(channel, scrollToBottom: false);
+
+        private void OnReactionUpdated(IStreamChannel channel, IStreamMessage message, StreamReaction reaction)
+            => RebuildMessages(channel, scrollToBottom: false);
+
+        private void OnReactionAdded(IStreamChannel channel, IStreamMessage message, StreamReaction reaction)
+            => RebuildMessages(channel, scrollToBottom: false);
 
         private void OnMessageUpdated(IStreamChannel channel, IStreamMessage message)
             => RebuildMessages(channel, scrollToBottom: false);

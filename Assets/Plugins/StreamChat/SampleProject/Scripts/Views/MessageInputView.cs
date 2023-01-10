@@ -7,7 +7,6 @@ using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
-using StreamChat.SampleProject.Utils;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
