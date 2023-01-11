@@ -474,6 +474,20 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(firstMember);
             Assert.NotNull(lastMember);
         }
+        
+        [UnityTest]
+        public IEnumerator When_query_channels_with_no_parameters_expect_no_errors()
+            => ConnectAndExecute(When_query_channels_with_no_parameters_expect_no_errors_Async);
+
+        private async Task When_query_channels_with_no_parameters_expect_no_errors_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var channel2 = await CreateUniqueTempChannelAsync();
+
+            var channels = await Client.QueryChannelsAsync();
+            Assert.NotNull(channels);
+            Assert.AreNotEqual(0, channels.Count());
+        }
     }
 }
 
