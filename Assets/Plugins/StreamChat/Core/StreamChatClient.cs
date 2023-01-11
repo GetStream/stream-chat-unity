@@ -304,9 +304,12 @@ namespace StreamChat.Core
                 Offset = null,
                 Presence = true,
 
-                //StreamTodo: sorting could be controlled in global config,
-                //we definitely don't want to control this per request as this could break data integrity + they can just sort result with LINQ
-                Sort = sort?.ToSortParams(),
+                /*
+                 * StreamTodo: Allowing to sort query can potentially lead to mixed sorting in WatchedChannels
+                 * But there seems no other choice because its too limiting to force only a global sorting for channels
+                 * e.g. user may want to show channels in multiple ways with different sorting which would not work with global only sorting
+                 */
+                Sort = sort?.ToSortParamRequestList(),
                 State = true,
                 Watch = true,
             };

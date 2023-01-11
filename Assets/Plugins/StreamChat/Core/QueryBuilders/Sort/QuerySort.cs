@@ -30,8 +30,13 @@ namespace StreamChat.Core.QueryBuilders.Sort
             return Instance;
         }
 
-        internal List<SortParamRequestInternalDTO> ToSortParams()
+        internal List<SortParamRequestInternalDTO> ToSortParamRequestList()
         {
+            if (_order.Count == 0)
+            {
+                return null;
+            }
+
             var sortParams = new List<SortParamRequestInternalDTO>();
 
             foreach (var entry in _order)
