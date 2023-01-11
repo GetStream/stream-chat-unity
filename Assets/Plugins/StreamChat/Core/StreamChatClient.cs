@@ -245,59 +245,17 @@ namespace StreamChat.Core
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
-        //StreamTodo: Filter object that contains a factory
-        //StreamTodo: implement pagination + sorting seems useful for paginated query results
-        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
-            int limit = 30, int offset = 0)
+        //StreamTodo: Filter object that contains a factory syntax supported builder
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters = null,
+            ChannelSortObject sort = null, int limit = 30, int offset = 0)
         {
-            StreamAsserts.AssertNotNull(filters, nameof(filters));
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
             StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
 
             //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
             var requestBodyDto = new QueryChannelsRequestInternalDTO
             {
-                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
-                Limit = null,
-                MemberLimit = null,
-                MessageLimit = null,
-                Offset = null,
-                Presence = true,
-
-                //StreamTodo: sorting could be controlled in global config,
-                //we definitely don't want to control this per request as this could break data integrity + they can just sort result with LINQ
-                Sort = null,
-                State = true,
-                Watch = true,
-            };
-
-            var channelsResponseDto
-                = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
-            if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
-            {
-                return Enumerable.Empty<StreamChannel>();
-            }
-
-            var result = new List<IStreamChannel>();
-            foreach (var channelDto in channelsResponseDto.Channels)
-            {
-                result.Add(_cache.TryCreateOrUpdate(channelDto));
-            }
-
-            return result;
-        }
-
-        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
-            ChannelSortObject sort, int limit = 30, int offset = 0)
-        {
-            StreamAsserts.AssertNotNull(filters, nameof(filters));
-            StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
-            StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
-
-            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
-            var requestBodyDto = new QueryChannelsRequestInternalDTO
-            {
-                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
+                FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value),
                 Limit = null,
                 MemberLimit = null,
                 MessageLimit = null,

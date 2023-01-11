@@ -145,27 +145,20 @@ namespace StreamChat.Core
             IDictionary<string, object> optionalCustomData = null);
 
         /// <summary>
-        /// Query <see cref="IStreamChannel"/> with provided filters
+        /// Query <see cref="IStreamChannel"/> with optional: filters, sorting, and pagination
         /// </summary>
-        /// <param name="filters"></param>
-        /// <param name="limit">How many records to return. Think about it as "records per page"</param>
-        /// <param name="offset">How many records to skip. Example: if Limit is 30, the offset for 2nd page is 30, for 3rd page is 60, etc.</param>
-        /// <returns></returns>
-        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters, int limit = 30,
-            int offset = 0);
+        /// <param name="filters">[Optional] Filters</param>
+        /// <param name="sort">[Optional] Sort object. You can chain multiple sorting fields</param>
+        /// <param name="limit">[Optional] How many records to return. Think about it as "records per page"</param>
+        /// <param name="offset">[Optional] How many records to skip. Example: if Limit is 30, the offset for 2nd page is 30, for 3rd page is 60, etc.</param>
+        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters = null,
+            ChannelSortObject sort = null, int limit = 30, int offset = 0);
 
         /// <summary>
-        /// Query <see cref="IStreamChannel"/> with provided filters
+        /// Query <see cref="IStreamUser"/>
         /// </summary>
         /// <param name="filters"></param>
-        /// <param name="sort">Sort object. You can chain multiple sorting fields</param>
-        /// <param name="limit">How many records to return. Think about it as "records per page"</param>
-        /// <param name="offset">How many records to skip. Example: if Limit is 30, the offset for 2nd page is 30, for 3rd page is 60, etc.</param>
         /// <returns></returns>
-        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
-            ChannelSortObject sort, int limit = 30, int offset = 0);
-
-        //StreamTodo: missing descriptions
         Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters);
 
         /// <summary>
