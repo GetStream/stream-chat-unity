@@ -44,7 +44,7 @@ namespace StreamChat.EditorTools.Builders
             packagePath = ExportPackage(targetDirectory, pluginDirectory, version);
         }
 
-        private const string StreamChatClientFilename = "StreamChatClient.cs";
+        private const string StreamChatLowLevelClientFilename = "StreamChatLowLevelClient.cs";
         private const string VersionRegexPattern = @"SDKVersion\s+=\s+new\s+Version\(\s*([0-9]+),\s*([0-9]+),\s*([0-9]+)\)\s*;";
         private const string VersionLineTemplate =
             "        public static readonly Version SDKVersion = new Version({0}, {1}, {2});";
@@ -61,7 +61,7 @@ namespace StreamChat.EditorTools.Builders
 
             foreach (var file in assetPaths)
             {
-                if (Path.GetFileName(file) == StreamChatClientFilename)
+                if (Path.GetFileName(file) == StreamChatLowLevelClientFilename)
                 {
                     streamChatClientFilepath = file;
                 }
@@ -74,7 +74,7 @@ namespace StreamChat.EditorTools.Builders
 
             if (streamChatClientFilepath.IsNullOrEmpty())
             {
-                throw new FileNotFoundException($"Failed to find `{StreamChatClientFilename}` file");
+                throw new FileNotFoundException($"Failed to find `{StreamChatLowLevelClientFilename}` file");
             }
 
             if (changelogFilepath.IsNullOrEmpty())
