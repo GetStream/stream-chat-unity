@@ -1,6 +1,5 @@
-using System.Collections.Generic;
 using System.Text;
-using StreamChat.Core.Events;
+using StreamChat.Core.StatefulModels;
 using TMPro;
 using UnityEngine;
 
@@ -19,15 +18,29 @@ namespace StreamChat.SampleProject.Views
         protected override void OnInited()
         {
             base.OnInited();
+            
+            State.ActiveChanelChanged += OnActiveChanelChanged;
+        }
 
-            Client.TypingStarted += OnTypingStarted;
-            Client.TypingStopped += OnTypingStopped;
+        private void OnActiveChanelChanged(IStreamChannel activeChannel)
+        {
+            if (_activeChannel != null)
+            {
+                _activeChannel.UserStartedTyping -= OnTypingStarted;
+                _activeChannel.UserStoppedTyping -= OnTypingStopped;
+            }
+            
+            activeChannel.UserStartedTyping += OnTypingStarted;
+            activeChannel.UserStoppedTyping += OnTypingStopped;
+
+            _activeChannel = activeChannel;
         }
 
         protected override void OnUpdate()
         {
             base.OnUpdate();
 
+            //for trailing dots animation
             if (Time.time - _lastUpdateTime > UpdateInterval)
             {
                 UpdateTypingUsersPreview();
@@ -36,57 +49,41 @@ namespace StreamChat.SampleProject.Views
 
         protected override void OnDisposing()
         {
-            Client.TypingStarted -= OnTypingStarted;
-            Client.TypingStopped -= OnTypingStopped;
+            State.ActiveChanelChanged -= OnActiveChanelChanged;
+            
+            if (_activeChannel != null)
+            {
+                _activeChannel.UserStartedTyping -= OnTypingStarted;
+                _activeChannel.UserStoppedTyping -= OnTypingStopped;
+            }
 
             base.OnDisposing();
         }
 
-        private void OnTypingStopped(EventTypingStop obj)
-        {
-            if (!_channelCidToTypingUserIds.ContainsKey(obj.Cid))
-            {
-                return;
-            }
+        private void OnTypingStopped(IStreamChannel channel, IStreamUser user) => UpdateTypingUsersPreview();
 
-            _channelCidToTypingUserIds[obj.Cid].Remove(obj.User.Id);
-
-            if (!_channelCidToTypingUserIds.TryGetValue(obj.Cid, out var users))
-            {
-                _channelCidToTypingUserIds[obj.Cid] = new HashSet<string>();
-            }
-        }
-
-        private void OnTypingStarted(EventTypingStart obj)
-        {
-            if (!_channelCidToTypingUserIds.TryGetValue(obj.Cid, out var userIds))
-            {
-                _channelCidToTypingUserIds[obj.Cid] = userIds = new HashSet<string>();
-            }
-
-            userIds.Add(obj.User.Id);
-        }
+        private void OnTypingStarted(IStreamChannel channel, IStreamUser user) => UpdateTypingUsersPreview();
 
         private const float UpdateInterval = 0.3f;
 
         private readonly StringBuilder _sb = new StringBuilder();
-        private readonly Dictionary<string, HashSet<string>> _channelCidToTypingUserIds =
-            new Dictionary<string, HashSet<string>>();
 
         [SerializeField]
         private TMP_Text _typingNotificationText;
 
         private int _step;
         private float _lastUpdateTime;
+        private IStreamChannel _activeChannel;
 
         private void UpdateTypingUsersPreview()
         {
-            if (State.ActiveChannel == null ||
-                !_channelCidToTypingUserIds.TryGetValue(State.ActiveChannel.Channel.Cid, out var typingUsers))
+            if (_activeChannel == null)
             {
+                _typingNotificationText.text = string.Empty;
                 return;
             }
 
+            var typingUsers = _activeChannel.TypingUsers;
             var index = 0;
             var isSingle = typingUsers.Count == 1;
             foreach (var userId in typingUsers)

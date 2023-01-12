@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Libs.Logs;
 
 namespace StreamChat.Core.Exceptions
 {
@@ -12,8 +10,8 @@ namespace StreamChat.Core.Exceptions
     /// </summary>
     public class StreamApiException : Exception
     {
-        public double? StatusCode { get; }
-        public double? Code { get;  }
+        public int? StatusCode { get; }
+        public int? Code { get;  }
         public string Duration { get;  }
         public string ErrorMessage { get;  }
         public string MoreInfo { get;  }
@@ -65,68 +63,6 @@ namespace StreamChat.Core.Exceptions
             }
 
             return _sb.ToString();
-        }
-    }
-
-    /// <summary>
-    /// Extensions for <see cref="StreamApiException"/>
-    /// </summary>
-    public static class StreamApiExceptionExt
-    {
-        public static void LogStreamExceptionIfFailed(this Task t, ILogs logger) => t.ContinueWith(_ =>
-        {
-            if (_.Exception.InnerException is StreamApiException streamApiException)
-            {
-                streamApiException.LogStreamApiExceptionDetails(logger);
-            }
-
-            logger.Exception(_.Exception);
-        }, TaskContinuationOptions.OnlyOnFaulted);
-
-        public static void LogStreamApiExceptionDetails(this StreamApiException exception, ILogs logger)
-        {
-            _sb.Append(nameof(StreamApiException));
-            _sb.Append(":");
-            _sb.Append(Environment.NewLine);
-
-            if (exception.StatusCode.HasValue)
-            {
-                AppendLine(nameof(exception.StatusCode), exception.StatusCode.Value.ToString());
-            }
-
-            if (exception.Code.HasValue)
-            {
-                AppendLine(nameof(exception.Code), exception.Code.Value.ToString());
-            }
-
-            AppendLine(nameof(exception.Duration), exception.Duration);
-            AppendLine(nameof(exception.ErrorMessage), exception.ErrorMessage);
-            AppendLine(nameof(exception.MoreInfo), exception.MoreInfo);
-
-            if (exception.ExceptionFields != null)
-            {
-                _sb.Append(nameof(exception.ExceptionFields));
-                _sb.Append(":");
-                _sb.Append(Environment.NewLine);
-
-                foreach (var item in exception.ExceptionFields)
-                {
-                    AppendLine(item.Key, item.Value);
-                }
-            }
-
-            logger.Exception(new Exception(_sb.ToString(), exception));
-            _sb.Length = 0;
-        }
-
-        private static readonly StringBuilder _sb = new StringBuilder();
-
-        private static void AppendLine(string name, string value)
-        {
-            _sb.Append(name);
-            _sb.Append(": ");
-            _sb.Append(value);
-            _sb.Append(Environment.NewLine);
         }
     }
 }

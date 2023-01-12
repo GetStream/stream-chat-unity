@@ -23,10 +23,10 @@ namespace StreamChat.EditorTools.Builders
                 throw new ArgumentException($"Failed to find scene with guid: `{SampleAppSceneGuid}` and path: `{sceneAssetPath}`");
             }
 
-            var configAssetPath = AssetDatabase.GUIDToAssetPath(SampleAppConfigGuid);
+            var configAssetPath = AssetDatabase.GUIDToAssetPath(SampleAppCredentialsAssetGuid);
             if (!File.Exists(configAssetPath))
             {
-                throw new ArgumentException($"Failed to find scene with guid: `{SampleAppConfigGuid}` and path: `{configAssetPath}`");
+                throw new ArgumentException($"Failed to find scene with guid: `{SampleAppCredentialsAssetGuid}` and path: `{configAssetPath}`");
             }
 
             var configAsset = AssetDatabase.LoadAssetAtPath<AuthCredentialsAsset>(configAssetPath);
@@ -50,8 +50,8 @@ namespace StreamChat.EditorTools.Builders
             BuildPipeline.BuildPlayer(options);
         }
 
-        private const string SampleAppSceneGuid = "f2b330197c3b8144b93a264ca0f95bd2";
-        private const string SampleAppConfigGuid = "0b08ddaef6283734185d71ce00304d5d";
+        private const string SampleAppSceneGuid = "78fbad76b0116d442a58c1552d9de372";
+        private const string SampleAppCredentialsAssetGuid = "aa176142597826141af2043db51cba28";
 
         private static BuildTarget GetBuildTargetFromGroup(BuildTargetGroup buildTargetGroup)
         {

@@ -1,3 +1,38 @@
+v4.0.0:
+🚀 Stateful Client release 🚀 
+This major update brings the new fully stateful Stream Chat Client! This means that the new client fully handles state management and synchronization between the application and the Stream server. Previously available client was a only low-level client providing a simple abstraction layer over the Stream Chat API and handling realtime communication through WebSocket.
+
+Stateful models
+We introduce high-level stateful objects:
+* IStreamChannel
+* IStreamMessage
+* IStreamUser
+* IStreamChannelMember
+* IStreamLocalUserData
+which update their internal state automatically based on your API requests and incoming WebSocket events. You can always rely on them having the most up to date state and update your UI based on the events exposed by these objects and the IStreamChatClient instance.
+
+Easier features access
+The new client as well as the new stateful models make API features usage much simpler through high level methods like:
+* channel.AddMembersAsync()
+* channel.MuteChannelAsync()
+* message.SendReactionAsync()
+* message.PinAsync()
+* message.FlagAsync()
+* user.MuteAsync()
+The API requests are pre configured with context-specific parameters and due to being accessible through model object they're much easier to discover and use than before.
+These are only very few examples of how simply you can use certain features. Explore our [Unity Docs](https://getstream.io/chat/docs/unity/?language=unity) to learn more.
+
+⚠️  Breaking changes
+Please note that the new stateful client is named exactly as the previous one and is meant to be a successor of the previous client. The old client and all of the related objects have been renamed. New client is the primary recommended way of communicating with Stream server.
+* Previous StreamChatClient has been renamed to StreamChatnLowLevelClient and moved from StreamChat.Core to StreamChat.Core.LowLevelClient namespace
+* Likewise the previous IStreamChatClient interface has been renamed to IStreamChatLowLevelClient and moved from StreamChat.Core to StreamChat.Core.LowLevelClient namespace
+
+Code Samples:
+We encourage you to browser trough our Samples folder and checkout numerous code examples of how to work with the new Stream Chat Client.
+
+Sample Project:
+* Sample project has been refactored to use the new stateful client
+
 v3.9.0:
 Deprecated (will be removed in a future release):
 * EventNotificationMarkRead.UnreadCount - it duplicates the EventNotificationMarkRead.TotalUnreadCount

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using SampleProject.Scripts.Popups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using StreamChat.Core.Requests;
+﻿using System.Threading.Tasks;
+using StreamChat.Core.Helpers;
 using StreamChat.Libs.Utils;
-using StreamChat.SampleProject.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,11 +32,9 @@ namespace StreamChat.SampleProject.Views
             }
         }
 
-        [SerializeField]
-        private TMP_InputField _channelIdInput;
+        [SerializeField] private TMP_InputField _channelIdInput;
 
-        [SerializeField]
-        private Button _createButton;
+        [SerializeField] private Button _createButton;
 
         private bool _isProcessing;
 
@@ -68,27 +64,16 @@ namespace StreamChat.SampleProject.Views
                     return;
                 }
 
-                var channelState = task.Result;
-                var channel = channelState.Channel;
+                var channel = task.Result;
 
                 Debug.Log("Added new channel with id: " + channel.Id);
 
-                Client.ChannelApi.UpdateChannelAsync(channel.Type, channel.Id, new UpdateChannelRequest()
+                channel.AddMembersAsync(new[] {Client.LocalUserData.User}).ContinueWith(_ =>
                 {
-                    AddMembers = new List<ChannelMemberRequest>()
-                    {
-                        new ChannelMemberRequest()
-                        {
-                            UserId = Client.UserId
-                        }
-                    }
-                }).ContinueWith(_ =>
-                {
-                    State.UpdateChannelsAsync().LogIfFailed();
+                    State.UpdateChannelsAsync().LogExceptionsOnFailed();
 
                     Hide();
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-
+                });
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
     }

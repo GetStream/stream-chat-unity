@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.Models;
+using StreamChat.Core.StatefulModels;
 using StreamChat.SampleProject.Views;
 
 namespace StreamChat.SampleProject
@@ -12,20 +12,19 @@ namespace StreamChat.SampleProject
     /// </summary>
     public interface IChatState : IDisposable
     {
-        event Action<ChannelState> ActiveChanelChanged;
-        event Action<ChannelState, Message> ActiveChanelMessageReceived;
+        event Action<IStreamChannel> ActiveChanelChanged;
         event Action ChannelsUpdated;
-        event Action<Message> MessageEditRequested;
+        event Action<IStreamMessage> MessageEditRequested;
 
-        ChannelState ActiveChannel { get; }
-        IReadOnlyList<ChannelState> Channels { get; }
+        IStreamChannel ActiveChannel { get; }
+        IReadOnlyList<IStreamChannel> Channels { get; }
         IStreamChatClient Client { get; }
 
-        void OpenChannel(ChannelState channel);
+        void OpenChannel(IStreamChannel channel);
 
-        void EditMessage(Message message);
+        void EditMessage(IStreamMessage message);
 
-        Task<ChannelState> CreateNewChannelAsync(string channelName);
+        Task<IStreamChannel> CreateNewChannelAsync(string channelName);
 
         void ShowPopup<TPopup>()
             where TPopup : BaseFullscreenPopup;
@@ -36,7 +35,5 @@ namespace StreamChat.SampleProject
         Task UpdateChannelsAsync();
 
         Task LoadPreviousMessagesAsync();
-
-        void MarkMessageAsLastRead(Message message);
     }
 }

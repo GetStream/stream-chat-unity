@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace StreamChat.Libs.Http
@@ -13,20 +12,16 @@ namespace StreamChat.Libs.Http
 
         void AddDefaultCustomHeader(string key, string value);
 
-        Task<HttpResponseMessage> PostAsync(Uri uri, ByteArrayContent content);
+        Task<HttpResponse> GetAsync(Uri uri);
 
-        Task<HttpResponseMessage> PostAsync(Uri uri, string content);
+        Task<HttpResponse> PostAsync(Uri uri, object content);
 
-        Task<HttpResponseMessage> DeleteAsync(Uri uri);
+        Task<HttpResponse> PutAsync(Uri uri, object content);
 
-        Task<HttpResponseMessage> GetAsync(Uri uri);
+        Task<HttpResponse> PatchAsync(Uri uri, object content);
 
-        Task<HttpResponseMessage> PostAsync(Uri uri, HttpContent content);
+        Task<HttpResponse> DeleteAsync(Uri uri);
 
-        Task<HttpResponseMessage> PostAsync(Uri uri, MultipartFormDataContent content);
-
-        Task<HttpResponseMessage> PutAsync(Uri uri, string content);
-
-        Task<HttpResponseMessage> PatchAsync(Uri uri, string content);
+        Task<HttpResponse> SendHttpRequestAsync(HttpMethodType methodType, Uri uri, object optionalRequestContent);
     }
 }

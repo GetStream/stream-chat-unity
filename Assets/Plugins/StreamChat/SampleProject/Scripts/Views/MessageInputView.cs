@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using StreamChat.Core.Models;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.Requests;
+using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
-using StreamChat.SampleProject.Utils;
 using TMPro;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+#endif
 
 namespace StreamChat.SampleProject.Views
 {
@@ -82,7 +82,7 @@ namespace StreamChat.SampleProject.Views
             base.OnDisposing();
         }
 
-        private void OnMessageEditRequested(Message message)
+        private void OnMessageEditRequested(IStreamMessage message)
         {
             _currentEditMessage = message;
             _mode = Mode.Edit;
@@ -111,7 +111,7 @@ namespace StreamChat.SampleProject.Views
         private Button _attachmentButton;
 
         private Mode _mode;
-        private Message _currentEditMessage;
+        private IStreamMessage _currentEditMessage;
         private string _lastAttachmentUrl;
         private TypingMonitor _typingMonitor;
 
@@ -144,10 +144,10 @@ namespace StreamChat.SampleProject.Views
                         "Uploading attachment. This may take a while. Operation is asynchronous so you can continue using chat without being blocked.";
 
                     var fileContent = File.ReadAllBytes(_lastAttachmentUrl);
-
-                    var uploadFileResponse = await Client.MessageApi.UploadFileAsync(channelState.Channel.Type,
-                        channelState.Channel.Id, fileContent, "attachment-1");
-                    uploadedFileUrl = uploadFileResponse.File;
+                    
+                    
+                    var uploadFileResponse = await State.ActiveChannel.UploadFileAsync(fileContent, "attachment-1");
+                    uploadedFileUrl = uploadFileResponse.FileUrl;
                     _lastAttachmentUrl = string.Empty;
 
                     Debug.Log("Upload successful, CDN url: " + uploadedFileUrl);
@@ -162,19 +162,16 @@ namespace StreamChat.SampleProject.Views
             {
                 case Mode.Create:
 
-                    var sendMessageRequest = new SendMessageRequest
+                    var sendMessageRequest = new StreamSendMessageRequest
                     {
-                        Message = new MessageRequest
-                        {
-                            Text = _messageInput.text
-                        }
+                        Text = _messageInput.text
                     };
 
                     if (!uploadedFileUrl.IsNullOrEmpty())
                     {
-                        sendMessageRequest.Message.Attachments = new List<AttachmentRequest>
+                        sendMessageRequest.Attachments = new List<StreamAttachmentRequest>
                         {
-                            new AttachmentRequest
+                            new StreamAttachmentRequest
                             {
                                 AssetUrl = uploadedFileUrl,
                                 Type = uploadedFileType
@@ -182,31 +179,22 @@ namespace StreamChat.SampleProject.Views
                         };
                     }
 
-                    var sendMessageResponse = await Client.MessageApi.SendNewMessageAsync(channelState.Channel.Type,
-                        channelState.Channel.Id,
-                        sendMessageRequest);
+                    var sentMessage = await State.ActiveChannel.SendNewMessageAsync(sendMessageRequest);
 
                     if (!uploadedFileUrl.IsNullOrEmpty())
                     {
-                        Debug.Log(sendMessageResponse.Message.Attachments.First().AssetUrl);
+                        Debug.Log(sentMessage.Attachments.First().AssetUrl);
                     }
 
                     break;
 
                 case Mode.Edit:
 
-                    _currentEditMessage.Text = _messageInput.text;
-
-                    var updateMessageRequest = new UpdateMessageRequest
+                    _currentEditMessage.UpdateAsync(new StreamUpdateMessageRequest
                     {
-                        Message = new MessageRequest
-                        {
-                            Id = _currentEditMessage.Id,
-                            Text = _messageInput.text
-                        }
-                    };
+                        Text = _messageInput.text
+                    }).LogExceptionsOnFailed();
 
-                    Client.MessageApi.UpdateMessageAsync(updateMessageRequest).LogStreamExceptionIfFailed();
                     break;
 
                 default:
@@ -222,7 +210,7 @@ namespace StreamChat.SampleProject.Views
             _currentEditMessage = null;
             _mode = Mode.Create;
 
-            _typingMonitor.NotifyChannelStoppedTyping(State.ActiveChannel.Channel);
+            _typingMonitor.NotifyChannelStoppedTyping(State.ActiveChannel);
         }
 
         private void OnAttachmentButtonClicked()

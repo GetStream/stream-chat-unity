@@ -12,5 +12,6 @@
         bool TryPeekValue<TValue>(string serializedObj, string key, out TValue value);
 
         object DeserializeObject(string serializedObj);
+        TTargetType TryConvertTo<TTargetType>(object serializedObj);
     }
 }

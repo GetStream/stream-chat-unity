@@ -1,10 +1,9 @@
 ﻿using System;
 using StreamChat.Core;
-using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Configs;
+using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
-using UnityEngine;
 
 namespace StreamChat.SampleProject
 {

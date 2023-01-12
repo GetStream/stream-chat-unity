@@ -272,12 +272,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5189114443080696617}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7881cf542ba04f568d04aae878e98040, type: 3}
+  m_Script: {fileID: 11500000, guid: dd63a757306731a40bbe3eff6d504ca1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _messagesContainer: {fileID: 249695966492087952}
-  _messageViewPrefab: {fileID: -3921630580214947134, guid: c0553e1bbb26d89429859cd6552c0194, type: 3}
-  _localUserMessageViewPrefab: {fileID: 6165304251737862070, guid: 192799abdb2cebd458f95f96e28a25c7, type: 3}
+  _messageViewPrefab: {fileID: -3921630580214947134, guid: 0f366bbca7e65c848a7d3ae09332fd78, type: 3}
+  _localUserMessageViewPrefab: {fileID: 6165304251737862070, guid: 9d39dd1b280efe04aa05cfb1e41212a0, type: 3}
 --- !u!1 &5764201377665119041
 GameObject:
   m_ObjectHideFlags: 0

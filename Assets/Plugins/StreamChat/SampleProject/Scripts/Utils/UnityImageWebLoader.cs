@@ -14,7 +14,7 @@ namespace StreamChat.SampleProject.Utils
     {
         public async Task<Sprite> LoadImageAsync(string url)
         {
-            //Todo: validate url
+            //StreamTodo: validate url
 
             if (_cachedImages.ContainsKey(url))
             {

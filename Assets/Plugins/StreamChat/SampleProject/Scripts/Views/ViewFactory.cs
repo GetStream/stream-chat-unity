@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SampleProject.Scripts.Popups;
-using StreamChat.Core;
-using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.StatefulModels;
+using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Popups;
-using StreamChat.SampleProject.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -56,28 +54,19 @@ namespace StreamChat.SampleProject.Views
             {
                 options.Add(new MenuOptionEntry("Flag", () => throw new NotImplementedException("Flag")));
 
-                //Todo: muted ? => show unmute instead
+                //StreamTodo: muted ? => show unmute instead
                 var user = message.User;
-                options.Add(new MenuOptionEntry("Mute", () =>
-                {
-                    var muteUserRequest = new MuteUserRequest
-                    {
-                        TargetIds = new List<string> { user.Id }
-                    };
-
-                    //Todo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
-                    client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
-                }));
+                options.Add(new MenuOptionEntry("Mute", () => user.MuteAsync().LogExceptionsOnFailed()));
             }
 
-            options.Add(new MenuOptionEntry("Mark as read", () => state.MarkMessageAsLastRead(message)));
+            options.Add(new MenuOptionEntry("Mark as read", () => message.MarkMessageAsLastReadAsync()));
 
             options.Add(new MenuOptionEntry("Delete",
-                () => client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
+                () => message.SoftDeleteAsync().LogExceptionsOnFailed()));
 
             var emojis = new List<EmojiOptionEntry>();
 
-            AddReactionsEmojiOptions(emojis, message, client);
+            AddReactionsEmojiOptions(emojis, message);
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options, emojis);
             popup.Show(args);
@@ -106,7 +95,7 @@ namespace StreamChat.SampleProject.Views
             var instance = GameObject.Instantiate(prefab, _popupsContainer);
             var popup = instance.GetComponent<TPopup>();
 
-            //Todo: fix this dependency, some popups don't need view context like ErrorPopup
+            //StreamTodo: fix this dependency, some popups don't need view context like ErrorPopup
             if (_viewContext != null)
             {
                 popup.Init(_viewContext);
@@ -121,8 +110,7 @@ namespace StreamChat.SampleProject.Views
 
         private IChatViewContext _viewContext;
 
-        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message,
-            IStreamChatClient client)
+        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, IStreamMessage message)
         {
             foreach (var sprite in _appConfig.Emojis.ReactionSprites)
             {
@@ -134,17 +122,11 @@ namespace StreamChat.SampleProject.Views
                  {
                      if (isAdded)
                      {
-                         client.MessageApi.DeleteReactionAsync(message.Id, key);
+                         message.DeleteReactionAsync(key);
                      }
                      else
                      {
-                         client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
-                         {
-                             Reaction = new ReactionRequest
-                             {
-                                 Type = key,
-                             }
-                         });
+                         message.SendReactionAsync(key);
                      }
                  }));
             }

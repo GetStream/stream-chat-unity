@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using StreamChat.Core;
+using StreamChat.Core.LowLevelClient;
 using TMPro;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.Serialization;
+#if UNITY_EDITOR
+#endif
 
 namespace StreamChat.SampleProject.Configs
 {
     [CreateAssetMenu(fileName = "EmojiConfig",
-        menuName = StreamChatClient.MenuPrefix + "Demo/Create emoji config asset", order = 1)]
+        menuName = StreamChatLowLevelClient.MenuPrefix + "Demo/Create emoji config asset", order = 1)]
     public class EmojiConfigAsset : ScriptableObject, IEmojiConfig
     {
         public IEnumerable<Sprite> AllSprites => _allSprites;

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using StreamChat.Core.Models;
+using StreamChat.Core.StatefulModels;
 using UnityEngine;
 
 namespace StreamChat.SampleProject.Views
@@ -38,7 +38,7 @@ namespace StreamChat.SampleProject.Views
 
             foreach (var c in State.Channels)
             {
-                //Todo: move to ViewFactory
+                //StreamTodo: move to ViewFactory
                 var channelView = Instantiate(_channelViewPrefab, _listContainer);
                 channelView.Init(c, ViewContext);
                 channelView.Clicked += OnChannelClicked;
@@ -46,7 +46,7 @@ namespace StreamChat.SampleProject.Views
             }
         }
 
-        private void OnChannelClicked(ChannelState channel) => State.OpenChannel(channel);
+        private void OnChannelClicked(IStreamChannel channel) => State.OpenChannel(channel);
 
         private void ClearAll()
         {
