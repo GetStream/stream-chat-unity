@@ -45,6 +45,15 @@ namespace StreamChat.Tests.StatefulClient
             var sequenceEqual = davidPassions.SequenceEqual(new string[] { "Tennis", "Football", "Basketball" });
             Assert.IsTrue(sequenceEqual);
         }
+        
+        [UnityTest]
+        public IEnumerator When_query_users_without_parameters_expect_no_exception()
+            => ConnectAndExecute(When_query_users_without_parameters_expect_no_exception_Async);
+
+        private async Task When_query_users_without_parameters_expect_no_exception_Async()
+        {
+            var users = await Client.QueryUsersAsync();
+        }
     }
 }
 #endif
