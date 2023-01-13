@@ -445,6 +445,22 @@ await channel.ShadowBanUserAsync(user);
 ```csharp
 await channel.ShadowBanMemberAsync(channelMember);
 ```
+### Mute a user
+```csharp
+await user.MuteAsync();
+```
+### Unmute a user
+```csharp
+await user.UnmuteAsync();
+```
+### Mute a channel
+```csharp
+await channel.MuteChannelAsync();
+```
+### Unmute a channel
+```csharp
+await channel.UnmuteChannelAsync();
+```
 ### Check our documentation for more examples
 The above examples are only a few out of many - check out our [Full Documentation](https://getstream.io/chat/docs/unity/?language=unity) for more insight and examples
 
