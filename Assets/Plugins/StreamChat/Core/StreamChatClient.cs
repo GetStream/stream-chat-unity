@@ -288,12 +288,12 @@ namespace StreamChat.Core
             return result;
         }
 
-        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters)
+        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters = null)
         {
             //StreamTodo: Missing filter, and stuff like IdGte etc
             var requestBodyDto = new QueryUsersRequestInternalDTO
             {
-                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
+                FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<string, object>(),
                 IdGt = null,
                 IdGte = null,
                 IdLt = null,
@@ -305,7 +305,7 @@ namespace StreamChat.Core
             };
 
             var response = await InternalLowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
-            if (response.Users != null && response.Users.Count == 0)
+            if (response == null || response.Users == null || response.Users.Count == 0)
             {
                 return Enumerable.Empty<IStreamUser>();
             }
