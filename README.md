@@ -471,6 +471,11 @@ Go ahead and open GitHub Issue with your request and we'll respond as soon as po
 
 ---
 
+## Any issues, bugs, or questions?
+Reach out to our [Support](https://getstream.io/contact/support/).
+
+---
+
 ## We are hiring
 
 We've recently closed a [\$38 million Series B funding round](https://techcrunch.com/2021/03/04/stream-raises-38m-as-its-chat-and-activity-feed-apis-power-communications-for-1b-users/) and we keep actively growing.
