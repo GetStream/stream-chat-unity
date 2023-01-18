@@ -495,5 +495,15 @@ namespace StreamChat.Core.StatefulModels
         /// Send a notification that the local user stopped typing in this channel. You can access currently typing users via <see cref="TypingUsers"/>
         /// </summary>
         Task SendTypingStoppedEventAsync();
+
+        /// <summary>
+        /// Joins this channel as a a member (<see cref="IStreamChannelMember"/>). Only possible if local user has the `Join Own Channel` permission
+        /// </summary>
+        Task JoinAsMemberAsync();
+
+        /// <summary>
+        /// Stop being a member (<see cref="IStreamChannelMember"/>) of this channel. Only possible if local user has the `Leave Own Channel` permission
+        /// </summary>
+        Task LeaveAsMemberChannelAsync();
     }
 }
