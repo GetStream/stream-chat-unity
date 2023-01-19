@@ -388,7 +388,7 @@ namespace StreamChat.Core.StatefulModels
 
         public Task AddMembersAsync(params IStreamUser[] users)
             => AddMembersAsync(users as IEnumerable<IStreamUser>);
-        
+
         public async Task AddMembersAsync(IEnumerable<string> userIds)
         {
             StreamAsserts.AssertNotNull(userIds, nameof(userIds));
@@ -445,6 +445,10 @@ namespace StreamChat.Core.StatefulModels
         
         public Task RemoveMembersAsync(params string[] userIds)
             => RemoveMembersAsync(userIds as IEnumerable<string>);
+        
+        public Task JoinAsMemberAsync() => AddMembersAsync(Client.LocalUserData.User);
+
+        public Task LeaveAsMemberChannelAsync() => RemoveMembersAsync(Client.LocalUserData.User);
 
         //StreamTodo: write test
         public async Task MuteChannelAsync(int? milliseconds = default)
