@@ -175,7 +175,7 @@ namespace StreamChat.Tests.StatefulClient
             var channels2 = (await Client.QueryChannelsAsync(filters2, ChannelSort.OrderByAscending(ChannelSortFieldName.CreatedAt))).ToArray();
             Assert.Contains(channel1, channels2);
             Assert.IsNull(channels2.FirstOrDefault(c => c == channel2));
-            Assert.Contains(channel3, channels2);
+            Assert.IsNull(channels2.FirstOrDefault(c => c == channel3));
         }
     }
 }
