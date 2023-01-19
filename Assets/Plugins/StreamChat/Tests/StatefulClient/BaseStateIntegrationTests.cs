@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Configs;
+using StreamChat.Core.Exceptions;
 using StreamChat.Core.StatefulModels;
 using StreamChat.EditorTools;
 using StreamChat.Libs.Auth;
@@ -23,7 +24,7 @@ namespace StreamChat.Tests.StatefulClient
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            DeleteTempChannelsAsync().RunAsIEnumerator();
+            yield return DeleteTempChannelsAsync().RunAsIEnumerator();
             yield return Client.DisconnectUserAsync().RunAsIEnumerator();
             Client.Dispose();
             Client = null;
@@ -163,7 +164,19 @@ namespace StreamChat.Tests.StatefulClient
                 return;
             }
 
-            await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
+            try
+            {
+                await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
+            }
+            catch (StreamApiException streamApiException)
+            {
+                if (streamApiException.Code == StreamApiException.RateLimitErrorErrorCode)
+                {
+                    await Task.Delay(500);
+                }
+                await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
+            }
+
             _tempChannels.Clear();
         }
     }

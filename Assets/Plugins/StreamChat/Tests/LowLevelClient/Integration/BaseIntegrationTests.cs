@@ -5,14 +5,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core.Exceptions;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.LowLevelClient.Responses;
-using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.TestTools;
 using Random = UnityEngine.Random;
 
 namespace StreamChat.Tests.LowLevelClient.Integration
@@ -22,7 +23,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
     /// </summary>
     internal abstract class BaseIntegrationTests
     {
-        [OneTimeSetUp]
+        [SetUp]
         public void Up()
         {
             Debug.Log("------------ Up");
@@ -30,12 +31,12 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             InitClientAndConnect();
         }
 
-        [OneTimeTearDown]
-        public void TearDown()
+        [UnityTearDown]
+        public IEnumerator TearDown()
         {
             Debug.Log("------------ TearDown");
 
-            DeleteTempChannels();
+            yield return DeleteTempChannels();
             TryCleanupClient();
         }
 
@@ -187,11 +188,11 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
         private readonly StringBuilder _sb = new StringBuilder();
 
-        private void DeleteTempChannels()
+        private IEnumerator DeleteTempChannels()
         {
             if (_tempChannelsToDelete.Count == 0)
             {
-                return;
+                yield break;
             }
             
             var cids = new List<string>();
@@ -202,12 +203,40 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             }
 
             _tempChannelsToDelete.Clear();
-
-            LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+            
+            var deleteTask = LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
             {
                 Cids = cids,
                 HardDelete = true
-            }).LogIfFailed();
+            });
+
+            while (!deleteTask.IsCompleted)
+            {
+                yield return null;
+            }
+
+            if (deleteTask.IsFaulted)
+            {
+                var isRateLimitError
+                    = deleteTask.Exception.InnerExceptions[0] is StreamApiException streamApiException &&
+                      streamApiException.Code == StreamApiException.RateLimitErrorErrorCode;
+                if (isRateLimitError)
+                {
+                    var timeToWait = EditorApplication.timeSinceStartup + 0.5f;
+
+                    while (EditorApplication.timeSinceStartup < timeToWait)
+                    {
+                        LowLevelClient.Update(0.1f);
+                        yield return null;
+                    }
+                }
+                
+                yield return LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+                {
+                    Cids = cids,
+                    HardDelete = true
+                }).RunAsIEnumerator();
+            }
         }
 
         private void InitClientAndConnect(string forcedAdminId = null)

@@ -296,6 +296,9 @@ namespace StreamChat.Tests.StatefulClient
                 }
             });
 
+            await WaitWhileConditionFalse(
+                () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey), 1000);
+
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
             var breakfast = channel.CustomData.Get<List<string>>("breakfast");
 
@@ -474,7 +477,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(firstMember);
             Assert.NotNull(lastMember);
         }
-        
+
         [UnityTest]
         public IEnumerator When_query_channels_with_no_parameters_expect_no_errors()
             => ConnectAndExecute(When_query_channels_with_no_parameters_expect_no_errors_Async);
