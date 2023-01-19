@@ -498,6 +498,11 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     injectedMessageIds.Add(messageResponse.Message.Id);
                 }
             }
+
+            if (injectedMessageIds.Count != 3)
+            {
+                Debug.LogError("Failed to inject search phrase into 3 messages");
+            }
             
             Assert.AreEqual(3, injectedMessageIds.Count);
 
@@ -546,6 +551,16 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             
             Assert.NotNull(response);
             Assert.NotNull(response.Results);
+
+            if (response.Results.Count > 3)
+            {
+                Debug.Log("Error: Search returned more results than expected. Listing found messages:");
+                foreach (var message in response.Results)
+                {
+                    Debug.Log(message.Message.Text);
+                }
+            }
+
             Assert.AreEqual(3, response.Results.Count);
 
             foreach (var injectedPhrase in phrasesToInject)

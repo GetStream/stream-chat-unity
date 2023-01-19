@@ -63,7 +63,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             yield return createChannelTask.RunAsIEnumerator(response =>
             {
-                _tempChannelsToDelete.Add((response.Channel.Type, response.Channel.Id));
                 onChannelReturned?.Invoke(response);
             });
         }
@@ -75,6 +74,24 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             ChannelGetOrCreateRequest channelGetOrCreateRequest)
         {
             var channelId = "random-channel-" + Guid.NewGuid();
+
+            var channelsResponse = await LowLevelClient.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest()
+            {
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "id", new Dictionary<string, object>
+                        {
+                            { "$in", new[] { channelId } }
+                        }
+                    }
+                }
+            });
+
+            if (channelsResponse.Channels != null && channelsResponse.Channels.Count > 0)
+            {
+                Debug.LogError($"Channel with id {channelId} already exists!");
+            }
 
             var channelState
                 = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
