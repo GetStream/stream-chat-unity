@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 
 namespace StreamChat.Core.QueryBuilders.Filters
 {
@@ -18,6 +16,9 @@ namespace StreamChat.Core.QueryBuilders.Filters
         protected FieldFilterRule InternalEqualsTo(string value)
             => new FieldFilterRule(FieldName, QueryOperatorType.Equals, value);
         
+        protected FieldFilterRule InternalEqualsTo(int value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.Equals, value);
+        
         protected FieldFilterRule InternalEqualsTo(DateTime value)
             => new FieldFilterRule(FieldName, QueryOperatorType.Equals, value);
         
@@ -27,11 +28,41 @@ namespace StreamChat.Core.QueryBuilders.Filters
         protected FieldFilterRule InternalIn(IEnumerable<string> values)
             => new FieldFilterRule(FieldName, QueryOperatorType.In, values);
         
-        protected FieldFilterRule InternalLessThanOrEquals(DateTime dateTime)
-            => new FieldFilterRule(FieldName, QueryOperatorType.LessThanOrEquals, dateTime);
+        protected FieldFilterRule InternalGreaterThan(DateTime value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThan, value);
         
-        protected FieldFilterRule InternalLessThanOrEquals(DateTimeOffset dateTimeOffset)
-            => new FieldFilterRule(FieldName, QueryOperatorType.LessThanOrEquals, dateTimeOffset);
+        protected FieldFilterRule InternalGreaterThan(DateTimeOffset value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThan, value);
+        
+        protected FieldFilterRule InternalGreaterThan(int value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThan, value);
+        
+        protected FieldFilterRule InternalGreaterThanOrEquals(DateTime dateTime)
+            => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThanOrEquals, dateTime);
+        
+        protected FieldFilterRule InternalGreaterThanOrEquals(DateTimeOffset value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThanOrEquals, value);
+        
+        protected FieldFilterRule InternalGreaterThanOrEquals(int value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThanOrEquals, value);
+        
+        protected FieldFilterRule InternalLessThan(DateTime value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.LessThan, value);
+        
+        protected FieldFilterRule InternalLessThan(DateTimeOffset value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.LessThan, value);
+        
+        protected FieldFilterRule InternalLessThan(int value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.LessThan, value);
+        
+        protected FieldFilterRule InternalLessThanOrEquals(DateTime value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.LessThanOrEquals, value);
+        
+        protected FieldFilterRule InternalLessThanOrEquals(DateTimeOffset value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.LessThanOrEquals, value);
+        
+        protected FieldFilterRule InternalLessThanOrEquals(int value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.LessThanOrEquals, value);
 
         protected FieldFilterRule InternalAutocomplete(string value)
             => new FieldFilterRule(FieldName, QueryOperatorType.Autocomplete, value);

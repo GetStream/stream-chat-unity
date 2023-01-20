@@ -38,11 +38,11 @@ namespace StreamChat.Tests.StatefulClient
                 }
             };
 
-            var channels = (await Client.QueryChannelsAsync(filters)).ToArray();
+            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
             Assert.Contains(channel1, channels);
             Assert.Contains(channel2, channels);
             Assert.Contains(channel3, channels);
-            
+
             // Query builder
 
             var filters2 = new IFieldFilterRule[]
@@ -50,7 +50,7 @@ namespace StreamChat.Tests.StatefulClient
                 ChannelFilter.Cid.In(channel1, channel2, channel3)
             };
 
-            var channels2 = (await Client.QueryChannelsAsync(filters2, ChannelSort.OrderByAscending(ChannelSortFieldName.CreatedAt))).ToArray();
+            var channels2 = (await Client.QueryChannelsAsync(filters2, _sortByCreatedAtAscending)).ToArray();
             Assert.Contains(channel1, channels2);
             Assert.Contains(channel2, channels2);
             Assert.Contains(channel3, channels2);
@@ -90,7 +90,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             };
 
-            var channels = (await Client.QueryChannelsAsync(filters)).ToArray();
+            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
             Assert.Contains(channel1, channels);
             Assert.IsNull(channels.FirstOrDefault(c => c == channel2));
             Assert.Contains(channel3, channels);
@@ -103,7 +103,7 @@ namespace StreamChat.Tests.StatefulClient
                 ChannelFilter.Hidden.EqualsTo(false),
             };
 
-            var channels2 = (await Client.QueryChannelsAsync(filters2, ChannelSort.OrderByAscending(ChannelSortFieldName.CreatedAt))).ToArray();
+            var channels2 = (await Client.QueryChannelsAsync(filters2, _sortByCreatedAtAscending)).ToArray();
             Assert.Contains(channel1, channels2);
             Assert.IsNull(channels2.FirstOrDefault(c => c == channel2));
             Assert.Contains(channel3, channels2);
@@ -158,11 +158,11 @@ namespace StreamChat.Tests.StatefulClient
                 }
             };
 
-            var channels = (await Client.QueryChannelsAsync(filters)).ToArray();
+            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
             Assert.Contains(channel1, channels);
             Assert.IsNull(channels.FirstOrDefault(c => c == channel2));
             Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
-            
+
             // Query builder
 
             var filters2 = new IFieldFilterRule[]
@@ -172,10 +172,192 @@ namespace StreamChat.Tests.StatefulClient
                 ChannelFilter.Frozen.EqualsTo(false),
             };
 
-            var channels2 = (await Client.QueryChannelsAsync(filters2, ChannelSort.OrderByAscending(ChannelSortFieldName.CreatedAt))).ToArray();
+            var channels2 = (await Client.QueryChannelsAsync(filters2, _sortByCreatedAtAscending)).ToArray();
             Assert.Contains(channel1, channels2);
             Assert.IsNull(channels2.FirstOrDefault(c => c == channel2));
             Assert.IsNull(channels2.FirstOrDefault(c => c == channel3));
         }
+
+        [UnityTest]
+        public IEnumerator When_query_channel_with_created_by_id_filter_expect_valid_results()
+            => ConnectAndExecute(When_query_channel_with_created_by_id_filter_expect_valid_results_Async);
+
+        private async Task When_query_channel_with_created_by_id_filter_expect_valid_results_Async()
+        {
+            var channel1 = await CreateUniqueTempChannelAsync();
+            var channel2 = await CreateUniqueTempChannelAsync();
+            var channel3 = await CreateUniqueTempChannelAsync();
+
+            var filters = new Dictionary<string, object>
+            {
+                {
+                    "created_by_id", new Dictionary<string, object>
+                    {
+                        {
+                            "$eq", Client.LocalUserData.UserId
+                        }
+                    }
+                },
+            };
+
+            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
+            Assert.Contains(channel1, channels);
+            Assert.Contains(channel2, channels);
+            Assert.Contains(channel3, channels);
+
+            // Query builder
+
+            var filters2 = new IFieldFilterRule[]
+            {
+                ChannelFilter.CreatedById.EqualsTo(Client.LocalUserData.User),
+            };
+
+            var channels2 = (await Client.QueryChannelsAsync(filters2, _sortByCreatedAtAscending)).ToArray();
+            Assert.Contains(channel1, channels2);
+            Assert.Contains(channel2, channels2);
+            Assert.Contains(channel3, channels2);
+        }
+
+        [UnityTest]
+        public IEnumerator When_query_channel_with_muted_filter_expect_valid_results()
+            => ConnectAndExecute(When_query_channel_with_muted_filter_expect_valid_results_Async);
+
+        private async Task When_query_channel_with_muted_filter_expect_valid_results_Async()
+        {
+            var channel1 = await CreateUniqueTempChannelAsync();
+            var channel2 = await CreateUniqueTempChannelAsync();
+            var channel3 = await CreateUniqueTempChannelAsync();
+
+            await channel2.MuteChannelAsync();
+
+            var filters = new Dictionary<string, object>
+            {
+                {
+                    "muted", new Dictionary<string, object>
+                    {
+                        {
+                            "$eq", true
+                        }
+                    }
+                },
+            };
+
+            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
+            Assert.IsNull(channels.FirstOrDefault(c => c == channel1));
+            Assert.Contains(channel2, channels);
+            Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
+
+            // Query builder
+
+            var filters2 = new IFieldFilterRule[]
+            {
+                ChannelFilter.Muted.EqualsTo(true),
+            };
+
+            var channels2 = (await Client.QueryChannelsAsync(filters2, _sortByCreatedAtAscending)).ToArray();
+            Assert.IsNull(channels2.FirstOrDefault(c => c == channel1));
+            Assert.Contains(channel2, channels2);
+            Assert.IsNull(channels2.FirstOrDefault(c => c == channel3));
+        }
+
+        //StreamTodo: Uncomment this when `member.user.name` filtering is resolved
+        // [UnityTest]
+        // public IEnumerator When_query_channel_with_member_name_autocomplete_filter_expect_valid_results()
+        //     => ConnectAndExecute(When_query_channel_with_member_name_autocomplete_filter_expect_valid_results_Async);
+
+        private async Task When_query_channel_with_member_name_autocomplete_filter_expect_valid_results_Async()
+        {
+            var channel1 = await CreateUniqueTempChannelAsync();
+            var channel2 = await CreateUniqueTempChannelAsync();
+            var channel3 = await CreateUniqueTempChannelAsync();
+
+            var userAnna = await CreateUniqueTempUserAsync("Anna");
+            var userDaniel = await CreateUniqueTempUserAsync("Daniel");
+            var userJonathan = await CreateUniqueTempUserAsync("Jonathan");
+
+            await channel1.AddMembersAsync(userAnna);
+            await channel2.AddMembersAsync(userDaniel);
+            await channel3.AddMembersAsync(userJonathan);
+
+            var filters = new Dictionary<string, object>
+            {
+                {
+                    "member.user.name", new Dictionary<string, object>
+                    {
+                        {
+                            "$autocomplete", "Daniel"
+                        }
+                    }
+                },
+            };
+
+            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
+            Assert.Contains(channel2, channels);
+
+            // Query builder
+
+            var filters2 = new IFieldFilterRule[]
+            {
+                ChannelFilter.MemberUserName.Autocomplete("Dani"),
+            };
+
+            var channels2 = (await Client.QueryChannelsAsync(filters2, _sortByCreatedAtAscending)).ToArray();
+            Assert.Contains(channel2, channels2);
+        }
+        
+        [UnityTest]
+        public IEnumerator When_query_channel_with_members_count_filter_expect_valid_results()
+            => ConnectAndExecute(When_query_channel_with_members_count_filter_expect_valid_results_Async);
+
+        private async Task When_query_channel_with_members_count_filter_expect_valid_results_Async()
+        {
+            var channel1 = await CreateUniqueTempChannelAsync();
+            var channel2 = await CreateUniqueTempChannelAsync();
+            var channel3 = await CreateUniqueTempChannelAsync();
+            
+            var userAnna = await CreateUniqueTempUserAsync("Anna");
+            var userDaniel = await CreateUniqueTempUserAsync("Daniel");
+            var userJonathan = await CreateUniqueTempUserAsync("Jonathan");
+
+            await channel2.AddMembersAsync(userAnna);
+            await channel2.AddMembersAsync(userDaniel);
+            await channel2.AddMembersAsync(userJonathan);
+
+            var filters = new Dictionary<string, object>
+            {
+                {
+                    "member_count", new Dictionary<string, object>
+                    {
+                        {
+                            "$eq", 3
+                        }
+                    }
+                },
+            };
+
+            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
+            Assert.IsNull(channels.FirstOrDefault(c => c == channel1));
+            Assert.Contains(channel2, channels);
+            Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
+            
+            Assert.IsTrue(channels.All(c => c.MemberCount == 3));
+
+            // Query builder
+
+            var filters2 = new IFieldFilterRule[]
+            {
+                ChannelFilter.MembersCount.EqualsTo(3),
+            };
+
+            var channels2 = (await Client.QueryChannelsAsync(filters2, _sortByCreatedAtAscending)).ToArray();
+            Assert.IsNull(channels2.FirstOrDefault(c => c == channel1));
+            Assert.Contains(channel2, channels2);
+            Assert.IsNull(channels2.FirstOrDefault(c => c == channel3));
+            
+            Assert.IsTrue(channels2.All(c => c.MemberCount == 3));
+        }
+
+        private readonly ChannelSortObject _sortByCreatedAtAscending
+            = ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt);
     }
 }

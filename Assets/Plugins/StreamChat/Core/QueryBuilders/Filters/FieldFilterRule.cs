@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace StreamChat.Core.QueryBuilders.Filters
 {
-    public class FieldFilterRule : IFieldFilterRule
+    public sealed class FieldFilterRule : IFieldFilterRule
     {
         public string Field { get; }
         public QueryOperatorType OperatorType { get; }
@@ -19,6 +19,13 @@ namespace StreamChat.Core.QueryBuilders.Filters
         }
 
         public FieldFilterRule(string field, QueryOperatorType operatorType, string value)
+        {
+            Field = field;
+            OperatorType = operatorType;
+            Value = value;
+        }
+        
+        public FieldFilterRule(string field, QueryOperatorType operatorType, int value)
         {
             Field = field;
             OperatorType = operatorType;

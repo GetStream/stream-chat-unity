@@ -5,16 +5,23 @@ namespace StreamChat.Core.QueryBuilders.Filters.Channels
     /// <summary>
     /// Filter by <see cref="IStreamUser.Name"/> who is a member of 
     /// </summary>
-    public class ChannelFieldMemberUserName : BaseFieldToFilter
+    public sealed class ChannelFieldMemberUserName : BaseFieldToFilter
     {
-        public override string FieldName => "MEMBER.USER.NAME";
+        public override string FieldName => "member.user.name";
         
+        /// <summary>
+        /// Return only channels where a MEMBER <see cref="IStreamUser.Name"/> is EQUAL to the provided value
+        /// </summary>
         public FieldFilterRule EqualsTo(string userName) => InternalEqualsTo(userName);
         
+        /// <summary>
+        /// Return only channels where a MEMBER <see cref="IStreamUser.Name"/> is EQUAL to the provided user
+        /// </summary>
         public FieldFilterRule EqualsTo(IStreamUser user) => InternalEqualsTo(user.Name);
         
-        public FieldFilterRule Autocomplete(string userName) => InternalAutocomplete(userName);
-        
-        public FieldFilterRule Autocomplete(IStreamUser user) => InternalAutocomplete(user.Name);
+        /// <summary>
+        /// Return only channels where a MEMBER <see cref="IStreamUser.Name"/> CONTAINS provided phrase anywhere. Example: "An" would match "Anna", "Daniel", "Jonathan" because they all contain the "an"
+        /// </summary>
+        public FieldFilterRule Autocomplete(string phrase) => InternalAutocomplete(phrase);
     }
 }

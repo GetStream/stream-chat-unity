@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Configs;
+using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.EditorTools;
 using StreamChat.Libs.Auth;
@@ -61,7 +62,7 @@ namespace StreamChat.Tests.StatefulClient
                 await Task.Delay(1);
             }
 
-            Debug.Log("Connection made: " + Client.ConnectionState);
+            Debug.Log($"Connection made: {Client.ConnectionState}, user ID: {Client.LocalUserData.User.Id}");
         }
 
         /// <summary>
@@ -74,6 +75,24 @@ namespace StreamChat.Tests.StatefulClient
             var channelState = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId);
             _tempChannels.Add(channelState);
             return channelState;
+        }
+        
+        /// <summary>
+        /// Create temp user with random id
+        /// </summary>
+        protected async Task<IStreamUser> CreateUniqueTempUserAsync(string name)
+        {
+            var userId = "random-user-22222-" + Guid.NewGuid() + "-" + name;
+
+            var user = await Client.UpsertUsers(new StreamUserUpsertRequest[]
+            {
+                new StreamUserUpsertRequest
+                {
+                    Id = userId,
+                    Name = name
+                }
+            });
+            return user.First();
         }
 
         /// <summary>

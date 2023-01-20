@@ -7,9 +7,9 @@ namespace StreamChat.Core.QueryBuilders.Filters.Channels
     /// <summary>
     /// Filter by <see cref="IStreamChannel.Members"/>
     /// </summary>
-    public class ChannelFieldMembers : BaseFieldToFilter
+    public sealed class ChannelFieldMembers : BaseFieldToFilter
     {
-        public override string FieldName => "MEMBERS";
+        public override string FieldName => "members";
 
         /// <summary>
         /// Return only channels where <see cref="IStreamChannel.Members"/> contains a user with provided user ID

@@ -3,8 +3,10 @@
     /// <summary>
     /// Filter by whether current user joined the channel or not
     /// </summary>
-    public class ChannelFieldJoined : BaseFieldToFilter
+    public sealed class ChannelFieldJoined : BaseFieldToFilter
     {
-        public override string FieldName => "JOINED";
+        public override string FieldName => "joined";
+        
+        public FieldFilterRule EqualsTo(bool hasJoined) => InternalEqualsTo(hasJoined);
     }
 }
