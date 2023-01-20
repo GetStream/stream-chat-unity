@@ -213,6 +213,9 @@ var filter = new Dictionary<string, object>
 
 var channels = await Client.QueryChannelsAsync(filter);
 ```
+### Get messages
+Messages are accessible via `channel.Messages` property that contains collection of the most recent messages. Because there can potentialy be thousands of messages in a channel history the `channel.Messages` collection contains only the latest messages. You can load older messages by calling the `channel.LoadOlderMessagesAsync()` which will load additional portion of the history. A common approach is to call `channel.LoadOlderMessagesAsync()` whenever users hits the end of your messages scroll view, this way you only load older messages when the user actually wants to view them. You can see an example of this approach in Sample Project's [MessageListView.cs](https://github.com/GetStream/stream-chat-unity/blob/develop/Assets/Plugins/StreamChat/SampleProject/Scripts/Views/MessageListView.cs#L34)
+
 ### Send message
 ```csharp
 var sentMessage = await channel.SendNewMessageAsync("Hello");
