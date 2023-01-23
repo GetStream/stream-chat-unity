@@ -530,13 +530,22 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                             }
                         }
                     },
+                    
+                    Sort = new List<SortParamRequest>
+                    {
+                        new SortParamRequest
+                        {
+                            Field = "created_at",
+                            Direction = -1
+                        }
+                    },
 
                     //search phrase
                     Query = "bengal"
                 });
             
                 // Due to data propagation the results may not be instant
-                if (response.Results.Count != 3)
+                if (response.Results.Count(r => r.Message.Channel.Cid == channelState.Channel.Cid) != 3)
                 {
                     for (int i = 0; i < 50; i++)
                     {
@@ -552,16 +561,16 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             Assert.NotNull(response);
             Assert.NotNull(response.Results);
 
-            if (response.Results.Count > 3)
+            if (response.Results.Count(r => r.Message.Channel.Cid == channelState.Channel.Cid) > 3)
             {
                 Debug.Log("Error: Search returned more results than expected. Listing found messages:");
                 foreach (var message in response.Results)
                 {
-                    Debug.Log(message.Message.Text);
+                    Debug.Log($"{message.Message.Channel.Cid} - {message.Message.Text}");
                 }
             }
 
-            Assert.AreEqual(3, response.Results.Count);
+            Assert.AreEqual(3, response.Results.Count(r => r.Message.Channel.Cid == channelState.Channel.Cid));
 
             foreach (var injectedPhrase in phrasesToInject)
             {

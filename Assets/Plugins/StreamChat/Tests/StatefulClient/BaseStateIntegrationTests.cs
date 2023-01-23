@@ -174,6 +174,8 @@ namespace StreamChat.Tests.StatefulClient
                 {
                     await Task.Delay(500);
                 }
+                Debug.Log($"Try {nameof(DeleteTempChannelsAsync)} again due to exception:  " + streamApiException);
+
                 await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
             }
 

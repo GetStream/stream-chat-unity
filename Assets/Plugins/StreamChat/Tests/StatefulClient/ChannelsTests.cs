@@ -110,6 +110,9 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.MuteChannelAsync();
 
+            // Wait for data to propagate
+            await WaitWhileConditionTrue(() => Client.LocalUserData.ChannelMutes.Count == 0);
+
             Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
             var channelMute = Client.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);

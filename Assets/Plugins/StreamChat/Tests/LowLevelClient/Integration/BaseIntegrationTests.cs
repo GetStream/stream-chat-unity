@@ -95,9 +95,11 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             var channelState
                 = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
-            _tempChannelsToDelete.Add((channelState.Channel.Type, channelState.Channel.Id));
+            _tempChannelsCidsToDelete.Add(channelState.Channel.Cid);
             return channelState;
         }
+
+        protected void RemoveTempChannelFromDeleteList(string channelCid) => _tempChannelsCidsToDelete.Remove(channelCid);
 
         protected IEnumerator InternalWaitForSeconds(float seconds)
         {
@@ -200,30 +202,21 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
         private const string WordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-        private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =
-            new List<(string ChannelType, string ChannelId)>();
+        private readonly List<string> _tempChannelsCidsToDelete =
+            new List<string>();
 
         private readonly StringBuilder _sb = new StringBuilder();
 
         private IEnumerator DeleteTempChannels()
         {
-            if (_tempChannelsToDelete.Count == 0)
+            if (_tempChannelsCidsToDelete.Count == 0)
             {
                 yield break;
             }
             
-            var cids = new List<string>();
-
-            foreach (var (channelType, channelId) in _tempChannelsToDelete)
-            {
-                cids.Add($"{channelType}:{channelId}");
-            }
-
-            _tempChannelsToDelete.Clear();
-            
             var deleteTask = LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
             {
-                Cids = cids,
+                Cids = _tempChannelsCidsToDelete,
                 HardDelete = true
             });
 
@@ -247,13 +240,16 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                         yield return null;
                     }
                 }
+                Debug.Log($"Try {nameof(DeleteTempChannels)} again due to exception:  " + deleteTask.Exception.InnerExceptions[0]);
                 
                 yield return LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
                 {
-                    Cids = cids,
+                    Cids = _tempChannelsCidsToDelete,
                     HardDelete = true
                 }).RunAsIEnumerator();
             }
+            
+            _tempChannelsCidsToDelete.Clear();
         }
 
         private void InitClientAndConnect(string forcedAdminId = null)
