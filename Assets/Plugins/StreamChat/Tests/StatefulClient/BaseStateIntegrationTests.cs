@@ -12,20 +12,27 @@ using StreamChat.Core.StatefulModels;
 using StreamChat.EditorTools;
 using StreamChat.Libs.Auth;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
 {
     internal abstract class BaseStateIntegrationTests
     {
-        [SetUp]
-        public void Up() => InitClient();
-
-        [UnityTearDown]
-        public IEnumerator TearDown()
+        [OneTimeSetUp]
+        public void OneTimeUp()
         {
-            yield return DeleteTempChannelsAsync().RunAsIEnumerator();
-            yield return Client.DisconnectUserAsync().RunAsIEnumerator();
+            Debug.Log("------------ Up");
+            InitClient();
+        }
+
+        [OneTimeTearDown]
+        public async void OneTimeTearDown()
+        {
+            Debug.Log("------------ TearDown");
+            
+            await DeleteTempChannelsAsync();
+            
+            await Client.DisconnectUserAsync();
+            
             Client.Dispose();
             Client = null;
         }
@@ -51,6 +58,11 @@ namespace StreamChat.Tests.StatefulClient
 
         protected async Task ConnectUserAsync(UserLevel level = UserLevel.Admin)
         {
+            if (Client.IsConnected)
+            {
+                return;
+            }
+            
             var userCredentials = GetUserAuthCredentials(level);
             var connectTask = Client.ConnectUserAsync(userCredentials);
             while (!connectTask.IsCompleted)

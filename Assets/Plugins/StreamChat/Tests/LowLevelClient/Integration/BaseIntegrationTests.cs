@@ -13,7 +13,6 @@ using StreamChat.Core.LowLevelClient.Responses;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.TestTools;
 using Random = UnityEngine.Random;
 
 namespace StreamChat.Tests.LowLevelClient.Integration
@@ -23,20 +22,20 @@ namespace StreamChat.Tests.LowLevelClient.Integration
     /// </summary>
     internal abstract class BaseIntegrationTests
     {
-        [SetUp]
-        public void Up()
+        [OneTimeSetUp]
+        public void OneTimeUp()
         {
             Debug.Log("------------ Up");
 
             InitClientAndConnect();
         }
 
-        [UnityTearDown]
-        public IEnumerator TearDown()
+        [OneTimeTearDown]
+        public async void OneTimeTearDown()
         {
             Debug.Log("------------ TearDown");
 
-            yield return DeleteTempChannels();
+            await DeleteTempChannelsAsync();
             TryCleanupClient();
         }
 
@@ -207,46 +206,33 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
         private readonly StringBuilder _sb = new StringBuilder();
 
-        private IEnumerator DeleteTempChannels()
+        private async Task DeleteTempChannelsAsync()
         {
             if (_tempChannelsCidsToDelete.Count == 0)
             {
-                yield break;
-            }
-            
-            var deleteTask = LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
-            {
-                Cids = _tempChannelsCidsToDelete,
-                HardDelete = true
-            });
-
-            while (!deleteTask.IsCompleted)
-            {
-                yield return null;
+                return;
             }
 
-            if (deleteTask.IsFaulted)
+            try
             {
-                var isRateLimitError
-                    = deleteTask.Exception.InnerExceptions[0] is StreamApiException streamApiException &&
-                      streamApiException.Code == StreamApiException.RateLimitErrorErrorCode;
-                if (isRateLimitError)
-                {
-                    var timeToWait = EditorApplication.timeSinceStartup + 0.5f;
-
-                    while (EditorApplication.timeSinceStartup < timeToWait)
-                    {
-                        LowLevelClient.Update(0.1f);
-                        yield return null;
-                    }
-                }
-                Debug.Log($"Try {nameof(DeleteTempChannels)} again due to exception:  " + deleteTask.Exception.InnerExceptions[0]);
-                
-                yield return LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+                await LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
                 {
                     Cids = _tempChannelsCidsToDelete,
                     HardDelete = true
-                }).RunAsIEnumerator();
+                });
+            }
+            catch (StreamApiException streamApiException)
+            {
+                if (streamApiException.Code == StreamApiException.RateLimitErrorErrorCode)
+                {
+                    await Task.Delay(500);
+                }
+                
+                await LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+                {
+                    Cids = _tempChannelsCidsToDelete,
+                    HardDelete = true
+                });
             }
             
             _tempChannelsCidsToDelete.Clear();
