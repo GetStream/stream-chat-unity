@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core.Exceptions;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.LowLevelClient.Responses;
-using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -23,7 +23,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
     internal abstract class BaseIntegrationTests
     {
         [OneTimeSetUp]
-        public void Up()
+        public void OneTimeUp()
         {
             Debug.Log("------------ Up");
 
@@ -31,11 +31,11 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         }
 
         [OneTimeTearDown]
-        public void TearDown()
+        public async void OneTimeTearDown()
         {
             Debug.Log("------------ TearDown");
 
-            DeleteTempChannels();
+            await DeleteTempChannelsAsync();
             TryCleanupClient();
         }
 
@@ -62,7 +62,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             yield return createChannelTask.RunAsIEnumerator(response =>
             {
-                _tempChannelsToDelete.Add((response.Channel.Type, response.Channel.Id));
                 onChannelReturned?.Invoke(response);
             });
         }
@@ -75,11 +74,31 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             var channelId = "random-channel-" + Guid.NewGuid();
 
+            var channelsResponse = await LowLevelClient.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest()
+            {
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "id", new Dictionary<string, object>
+                        {
+                            { "$in", new[] { channelId } }
+                        }
+                    }
+                }
+            });
+
+            if (channelsResponse.Channels != null && channelsResponse.Channels.Count > 0)
+            {
+                Debug.LogError($"Channel with id {channelId} already exists!");
+            }
+
             var channelState
                 = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
-            _tempChannelsToDelete.Add((channelState.Channel.Type, channelState.Channel.Id));
+            _tempChannelsCidsToDelete.Add(channelState.Channel.Cid);
             return channelState;
         }
+
+        protected void RemoveTempChannelFromDeleteList(string channelCid) => _tempChannelsCidsToDelete.Remove(channelCid);
 
         protected IEnumerator InternalWaitForSeconds(float seconds)
         {
@@ -182,32 +201,41 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
         private const string WordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-        private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =
-            new List<(string ChannelType, string ChannelId)>();
+        private readonly List<string> _tempChannelsCidsToDelete =
+            new List<string>();
 
         private readonly StringBuilder _sb = new StringBuilder();
 
-        private void DeleteTempChannels()
+        private async Task DeleteTempChannelsAsync()
         {
-            if (_tempChannelsToDelete.Count == 0)
+            if (_tempChannelsCidsToDelete.Count == 0)
             {
                 return;
             }
-            
-            var cids = new List<string>();
 
-            foreach (var (channelType, channelId) in _tempChannelsToDelete)
+            try
             {
-                cids.Add($"{channelType}:{channelId}");
+                await LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+                {
+                    Cids = _tempChannelsCidsToDelete,
+                    HardDelete = true
+                });
             }
-
-            _tempChannelsToDelete.Clear();
-
-            LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+            catch (StreamApiException streamApiException)
             {
-                Cids = cids,
-                HardDelete = true
-            }).LogIfFailed();
+                if (streamApiException.Code == StreamApiException.RateLimitErrorErrorCode)
+                {
+                    await Task.Delay(500);
+                }
+                
+                await LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+                {
+                    Cids = _tempChannelsCidsToDelete,
+                    HardDelete = true
+                });
+            }
+            
+            _tempChannelsCidsToDelete.Clear();
         }
 
         private void InitClientAndConnect(string forcedAdminId = null)

@@ -115,6 +115,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             {
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);
+                RemoveTempChannelFromDeleteList(response.Channel.Cid);
             });
         }
 
@@ -350,7 +351,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             var deleteChannelTask2 = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
 
-            deleteChannelTask2.RunAsIEnumerator(onFaulted: exception =>
+            yield return deleteChannelTask2.RunAsIEnumerator(onFaulted: exception =>
             {
                 Assert.AreEqual(((StreamApiException)exception).StatusCode, 404);
             });
@@ -364,7 +365,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             var channelType = "messaging";
 
             var channelsCIdsToDelete = new List<string>();
-
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
                 state => channelsCIdsToDelete.Add(state.Channel.Cid));
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
@@ -385,6 +385,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 foreach (var cidToDelete in channelsCIdsToDelete)
                 {
                     Assert.IsTrue(response.Result.Any(_ => _.Key == cidToDelete));
+                    RemoveTempChannelFromDeleteList(cidToDelete);
                 }
             });
         }

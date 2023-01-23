@@ -24,21 +24,14 @@ namespace StreamChat.Tests
 
             if (task.IsFaulted)
             {
+                var ex = UnwrapAggregateException(task.Exception);
                 if (onFaulted != null)
                 {
-                    onFaulted(task.Exception);
+                    onFaulted(ex);
                     yield break;
                 }
-                else
-                {
-                    if (task.Exception is AggregateException aggregateException &&
-                        aggregateException.InnerExceptions.Count == 1)
-                    {
-                        throw task.Exception.InnerException;
-                    }
-
-                    throw task.Exception;
-                }
+                
+                throw ex;
             }
 
             onSuccess?.Invoke(task.Result);
@@ -55,19 +48,14 @@ namespace StreamChat.Tests
 
             if (task.IsFaulted)
             {
+                var ex = UnwrapAggregateException(task.Exception);
                 if (onFaulted != null)
                 {
-                    onFaulted(task.Exception);
+                    onFaulted(ex);
                     yield break;
                 }
                 
-                if (task.Exception is AggregateException aggregateException &&
-                    aggregateException.InnerExceptions.Count == 1)
-                {
-                    throw task.Exception.InnerException;
-                }
-
-                throw task.Exception;
+                throw ex;
             }
 
             onSuccess?.Invoke();
@@ -84,19 +72,14 @@ namespace StreamChat.Tests
 
             if (task.IsFaulted)
             {
+                var ex = UnwrapAggregateException(task.Exception);
                 if (onFaulted != null)
                 {
-                    onFaulted(task.Exception);
+                    onFaulted(ex);
                     yield break;
                 }
                 
-                if (task.Exception is AggregateException aggregateException &&
-                    aggregateException.InnerExceptions.Count == 1)
-                {
-                    throw task.Exception.InnerException;
-                }
-
-                throw task.Exception;
+                throw ex;
             }
 
             onSuccess?.Invoke();
@@ -167,6 +150,17 @@ namespace StreamChat.Tests
             {
                 yield return null;
             }
+        }
+        
+        private static Exception UnwrapAggregateException(Exception exception)
+        {
+            if (exception is AggregateException aggregateException &&
+                aggregateException.InnerExceptions.Count == 1)
+            {
+                return aggregateException.InnerExceptions[0];
+            }
+
+            return exception;
         }
     }
 }
