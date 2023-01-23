@@ -20,17 +20,34 @@ namespace StreamChat.Core.QueryBuilders.Filters.Channels
         /// Return only channels where <see cref="IStreamChannel.Members"/> contain any of the users with provided user IDs
         /// </summary>
         public FieldFilterRule In(IEnumerable<string> userIds) => InternalIn(userIds);
+        
+        /// <summary>
+        /// Return only channels where <see cref="IStreamChannel.Members"/> contain any of the users with provided user IDs
+        /// </summary>
+        public FieldFilterRule In(params string[] userIds) => InternalIn(userIds);
 
         /// <summary>
         /// Return only channels where <see cref="IStreamChannel.Members"/> contain any of the users with provided user IDs
         /// </summary>
         public FieldFilterRule In(IEnumerable<IStreamUser> userIds)
             => InternalIn(userIds.Select(_ => _.Id));
+        
+        /// <summary>
+        /// Return only channels where <see cref="IStreamChannel.Members"/> contain any of the users with provided user IDs
+        /// </summary>
+        public FieldFilterRule In(params IStreamUser[] userIds)
+            => InternalIn(userIds.Select(_ => _.Id));
 
         /// <summary>
         /// Return only channels where <see cref="IStreamChannel.Members"/> contain any of the users with provided user IDs
         /// </summary>
         public FieldFilterRule In(IEnumerable<IStreamChannelMember> userIds)
+            => InternalIn(userIds.Select(_ => _.User.Id));
+        
+        /// <summary>
+        /// Return only channels where <see cref="IStreamChannel.Members"/> contain any of the users with provided user IDs
+        /// </summary>
+        public FieldFilterRule In(params IStreamChannelMember[] userIds)
             => InternalIn(userIds.Select(_ => _.User.Id));
     }
 }

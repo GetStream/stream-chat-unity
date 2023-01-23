@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine;
@@ -37,15 +39,11 @@ namespace StreamChat.Samples
 
         public async Task QueryChannelsAsync()
         {
-            var filters = new Dictionary<string, object>
+            var filters = new List<IFieldFilterRule>()
             {
-                {
-                    "members", new Dictionary<string, object>
-                    {
-                        { "$in", new string[] { "user-id-to-search" } }
-                    }
-                }
+                ChannelFilter.Members.In("user-id-to-search")
             };
+
             var channels = await _chatClient.QueryChannelsAsync(filters);
 
             foreach (var channel in channels)

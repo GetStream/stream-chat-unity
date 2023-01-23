@@ -57,5 +57,8 @@ namespace StreamChat.Core.QueryBuilders.Filters.Channels
 
         /// <inheritdoc cref="ChannelFieldDisabled"/>
         public static ChannelFieldDisabled Disabled { get; } = new ChannelFieldDisabled();
+        
+        /// <inheritdoc cref="ChannelFieldCustom"/>
+        public static ChannelFieldCustom Custom(string customFieldName) => new ChannelFieldCustom(customFieldName);
     }
 }

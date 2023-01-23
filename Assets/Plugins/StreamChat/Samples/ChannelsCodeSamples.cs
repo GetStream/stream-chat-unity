@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Models;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.StatefulModels;
 using UnityEngine;
@@ -105,32 +107,26 @@ namespace StreamChat.Samples
 
         private void OnReactionRemoved(IStreamChannel channel, IStreamMessage message, StreamReaction reaction)
         {
-            throw new System.NotImplementedException();
         }
 
         private void OnReactionUpdated(IStreamChannel channel, IStreamMessage message, StreamReaction reaction)
         {
-            throw new System.NotImplementedException();
         }
 
         private void OnReactionAdded(IStreamChannel channel, IStreamMessage message, StreamReaction reaction)
         {
-            throw new System.NotImplementedException();
         }
 
         private void OnMessageDeleted(IStreamChannel channel, IStreamMessage message, bool isharddelete)
         {
-            throw new System.NotImplementedException();
         }
 
         private void OnMessageUpdated(IStreamChannel channel, IStreamMessage message)
         {
-            throw new System.NotImplementedException();
         }
 
         private void OnMessageReceived(IStreamChannel channel, IStreamMessage message)
         {
-            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -139,19 +135,14 @@ namespace StreamChat.Samples
         public async Task WatchingMultipleChannels()
         {
             var localUser = Client.LocalUserData.User;
-            
-            var filter = new Dictionary<string, object>
+
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    // Get channels where local user is a member of
-                    "members", new Dictionary<string, object>
-                    {
-                        { "$in", new[] { localUser.Id } }
-                    }
-                }
+                // Get channels where local user is a member
+                ChannelFilter.Members.In(localUser.Id)
             };
 
-            var channels = await Client.QueryChannelsAsync(filter);
+            var channels = await Client.QueryChannelsAsync(filters);
 
             // After query is done - loop channels and subscribe to events 
             foreach (var channel in channels)
@@ -179,22 +170,17 @@ namespace StreamChat.Samples
         {
             var localUser = Client.LocalUserData.User;
 
-            var filter = new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    // Get channels where local user is a member of
-                    "members", new Dictionary<string, object>
-                    {
-                        { "$in", new[] { localUser.Id } }
-                    }
-                }
+                // Get channels where local user is a member
+                ChannelFilter.Members.In(localUser.Id)
             };
 
             // You can also sort by various fields
             var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
-            var channels = await Client.QueryChannelsAsync(filter, sort);
+            var channels = await Client.QueryChannelsAsync(filters, sort);
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#watching-multiple-channels
         /// </summary>
@@ -202,21 +188,17 @@ namespace StreamChat.Samples
         {
             var localUser = Client.LocalUserData.User;
 
-            var filter = new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    // Get channels where local user is a member of
-                    "members", new Dictionary<string, object>
-                    {
-                        { "$in", new[] { localUser.Id } }
-                    }
-                }
+                // Get channels where local user is a member
+                ChannelFilter.Members.In(localUser.Id)
             };
 
             // You can sort by multiple fields and chain as many ThenByDescending as you need
-            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.MemberCount).ThenByDescending(ChannelSortFieldName.CreatedAt);
-            
-            var channels = await Client.QueryChannelsAsync(filter, sort);
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.MemberCount)
+                .ThenByDescending(ChannelSortFieldName.CreatedAt);
+
+            var channels = await Client.QueryChannelsAsync(filters, sort);
         }
 
         /// <summary>
@@ -398,18 +380,28 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryChannels()
         {
-            var filters = new Dictionary<string, object>
+            var filters = new List<IFieldFilterRule>
             {
-                {
-                    // Get channels that contain a member user with any of the provided ids
-                    "members", new Dictionary<string, object>
-                    {
-                        // you can provide multiple ids
-                        { "$in", new[] { Client.LocalUserData.UserId } }
-                    }
+                // Return only channels where local user is a member
+                ChannelFilter.Members.In(Client.LocalUserData.UserId),
 
-                    // You can query by many other fields
-                }
+                // You can define multiple filters that will all have to be satisfied
+            };
+
+            var channels = await Client.QueryChannelsAsync(filters);
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity
+        /// </summary>
+        public async Task QueryChannelsExtended()
+        {
+// Get channels where local user is a member AND channel is not muted AND channel has more than 10 members
+            var filters = new List<IFieldFilterRule>
+            {
+                ChannelFilter.Members.In(Client.LocalUserData.UserId),
+                ChannelFilter.Muted.EqualsTo(false),
+                ChannelFilter.MembersCount.GreaterThan(10)
             };
 
             var channels = await Client.QueryChannelsAsync(filters);
@@ -420,18 +412,12 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task MessagingAndTeam()
         {
-            var filters = new Dictionary<string, object>
+            var filters = new List<IFieldFilterRule>
             {
-                {
-                    // Get channels that contain a member user with any of the provided ids
-                    "members", new Dictionary<string, object>
-                    {
-                        // you can provide multiple ids
-                        { "$in", new[] { Client.LocalUserData.UserId } }
-                    }
+                // Return only channels where local user is a member
+                ChannelFilter.Members.In(Client.LocalUserData.UserId),
 
-                    // You can query by many other fields
-                }
+                // You can define multiple filters that will all have to be satisfied
             };
 
             var channels = await Client.QueryChannelsAsync(filters);
@@ -442,8 +428,14 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task Support()
         {
-            //StreamTodo: IMPLEMENT query support filter example
-            await Task.CompletedTask;
+            var filters = new List<IFieldFilterRule>
+            {
+                // Return only channels where local user is a member
+                ChannelFilter.Custom("agent_id").EqualsTo(Client.LocalUserData.UserId),
+                ChannelFilter.Custom("status").In("pending", "open", "new")
+            };
+
+            var channels = await Client.QueryChannelsAsync(filters);
         }
 
         /// <summary>
@@ -451,18 +443,12 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryChannelsPagination()
         {
-            var filters = new Dictionary<string, object>
+            var filters = new List<IFieldFilterRule>
             {
-                {
-                    // Get channels that contain a member user with any of the provided ids
-                    "members", new Dictionary<string, object>
-                    {
-                        // you can provide multiple ids
-                        { "$in", new[] { Client.LocalUserData.UserId } }
-                    }
+                // Return only channels where local user is a member
+                ChannelFilter.Members.In(Client.LocalUserData.UserId),
 
-                    // You can query by many other fields
-                }
+                // You can define multiple filters that will all have to be satisfied
             };
 
 // Pass limit and offset to control the page or results returned

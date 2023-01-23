@@ -245,8 +245,8 @@ namespace StreamChat.Core
                 await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
-        
-        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IEnumerable<IFieldFilterRule> filters,
+
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IEnumerable<IFieldFilterRule> filters = null,
             ChannelSortObject sort = null, int limit = 30, int offset = 0)
         {
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
@@ -288,7 +288,9 @@ namespace StreamChat.Core
             return result;
         }
 
-        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters = null,
+        [Obsolete("This method will be removed in the future. Please use the other overload method that uses " +
+                  nameof(IFieldFilterRule) + " type filters")]
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
             ChannelSortObject sort = null, int limit = 30, int offset = 0)
         {
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));

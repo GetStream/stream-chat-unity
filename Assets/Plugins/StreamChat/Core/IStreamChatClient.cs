@@ -67,7 +67,7 @@ namespace StreamChat.Core
 
         /// <summary>
         /// Watched channels receive updates on all users activity like new messages, reactions, etc.
-        /// Use <see cref="GetOrCreateChannelWithIdAsync"/> and <see cref="QueryChannelsAsync(System.Collections.Generic.IDictionary{string,object},StreamChat.Core.QueryBuilders.Sort.ChannelSortObject,int,int)"/> to watch channels
+        /// Use <see cref="GetOrCreateChannelWithIdAsync"/> and <see cref="QueryChannelsAsync"/> to watch channels
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
 
@@ -152,7 +152,9 @@ namespace StreamChat.Core
         /// <param name="sort">[Optional] Sort object. You can chain multiple sorting fields</param>
         /// <param name="limit">[Optional] How many records to return. Think about it as "records per page"</param>
         /// <param name="offset">[Optional] How many records to skip. Example: if Limit is 30, the offset for 2nd page is 30, for 3rd page is 60, etc.</param>
-        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters = null,
+        [Obsolete("This method will be removed in the future. Please use the other overload method that uses " +
+                  nameof(IFieldFilterRule) + " type filters")]
+        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
             ChannelSortObject sort = null, int limit = 30, int offset = 0);
         
         /// <summary>
@@ -162,7 +164,7 @@ namespace StreamChat.Core
         /// <param name="sort">[Optional] Sort object. You can chain multiple sorting fields</param>
         /// <param name="limit">[Optional] How many records to return. Think about it as "records per page"</param>
         /// <param name="offset">[Optional] How many records to skip. Example: if Limit is 30, the offset for 2nd page is 30, for 3rd page is 60, etc.</param>
-        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IEnumerable<IFieldFilterRule> filters,
+        Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IEnumerable<IFieldFilterRule> filters = null,
             ChannelSortObject sort = null, int limit = 30, int offset = 0);
 
         /// <summary>

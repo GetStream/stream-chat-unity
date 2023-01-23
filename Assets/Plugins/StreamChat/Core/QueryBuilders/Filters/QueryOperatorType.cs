@@ -11,8 +11,6 @@ namespace StreamChat.Core.QueryBuilders.Filters
         Contains,
         And,
         Or,
-        //Nor,
-
         Equals,
         NotEquals,
         GreaterThan,
@@ -22,7 +20,6 @@ namespace StreamChat.Core.QueryBuilders.Filters
         In,
         NotIn,
         Autocomplete,
-        Distinct,
     }
     
     /// <summary>
@@ -38,7 +35,6 @@ namespace StreamChat.Core.QueryBuilders.Filters
                 case QueryOperatorType.Contains: return "$contains";
                 case QueryOperatorType.And: return "$and";
                 case QueryOperatorType.Or: return "$or";
-                //case QueryOperatorType.Nor: return "$eq";
                 case QueryOperatorType.Equals: return "$eq";
                 case QueryOperatorType.NotEquals: return "$neq";
                 case QueryOperatorType.GreaterThan: return "$gt";
@@ -48,8 +44,6 @@ namespace StreamChat.Core.QueryBuilders.Filters
                 case QueryOperatorType.In: return "$in";
                 case QueryOperatorType.NotIn: return "$nin";
                 case QueryOperatorType.Autocomplete: return "$autocomplete";
-                    //case QueryOperatorType.Distinct:
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(operatorType), operatorType, null);
             }

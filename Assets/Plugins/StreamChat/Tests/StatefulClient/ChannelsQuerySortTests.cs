@@ -1,17 +1,18 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Sort;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
 {
     /// <summary>
-    /// Tests for <see cref="IStreamChatClient.QueryChannelsAsync(System.Collections.Generic.IDictionary{string,object},ChannelSortObject,int,int)"/>
+    /// Tests for <see cref="IStreamChatClient.QueryChannelsAsync"/>
     /// </summary>
     internal class ChannelsQuerySortTests : BaseStateIntegrationTests
     {
@@ -26,19 +27,14 @@ namespace StreamChat.Tests.StatefulClient
             var channel3 = await CreateUniqueTempChannelAsync();
             var channel4 = await CreateUniqueTempChannelAsync();
 
-            var filter = new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "cid", new Dictionary<string, object>
-                    {
-                        { "$in", new List<string> { channel.Cid, channel2.Cid, channel3.Cid, channel4.Cid } }
-                    }
-                }
+                ChannelFilter.Cid.In(channel.Cid, channel2.Cid, channel3.Cid, channel4.Cid)
             };
 
             var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt);
 
-            var channels = await Client.QueryChannelsAsync(filter, sort);
+            var channels = await Client.QueryChannelsAsync(filters, sort);
             Assert.NotNull(channels);
             Assert.AreEqual(4, channels.Count());
             Assert.IsTrue(channels.SequenceEqual(new[] { channel4, channel3, channel2, channel }));
@@ -73,20 +69,15 @@ namespace StreamChat.Tests.StatefulClient
             await channel2.AddMembersAsync(TestAdminId);
             await channel4.AddMembersAsync(TestAdminId);
 
-            var filter = new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "cid", new Dictionary<string, object>
-                    {
-                        { "$in", new List<string> { channel1.Cid, channel2.Cid, channel3.Cid, channel4.Cid } }
-                    }
-                }
+                ChannelFilter.Cid.In(channel1.Cid, channel2.Cid, channel3.Cid, channel4.Cid)
             };
 
             var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.MemberCount)
                 .ThenByDescending(ChannelSortFieldName.CreatedAt);
 
-            var channels = await Client.QueryChannelsAsync(filter, sort);
+            var channels = await Client.QueryChannelsAsync(filters, sort);
             Assert.NotNull(channels);
             Assert.AreEqual(4, channels.Count());
             Assert.IsTrue(channels.SequenceEqual(new[] { channel3, channel1, channel4, channel2 }));
