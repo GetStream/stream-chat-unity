@@ -10,6 +10,8 @@ namespace StreamChat.Core.Exceptions
     /// </summary>
     public class StreamApiException : Exception
     {
+        public const int RateLimitErrorErrorCode = 429;
+        
         public int? StatusCode { get; }
         public int? Code { get;  }
         public string Duration { get;  }
