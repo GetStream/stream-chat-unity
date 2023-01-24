@@ -195,24 +195,61 @@ Great for public or private group messages, the order of users in group doesn't 
 var channel = await Client.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging, users);
 ```
 ### Query Channels
-To browse all channels or channels filter by some criteria you use the channels query
+To browse all channels or channels filtered by some criteria use `Client.QueryChannelsAsync`
 #### Query channels to which local user belongs as a member
 ```csharp
-var localUser = Client.LocalUserData.User;
-
-var filter = new Dictionary<string, object>
+var filters = new IFieldFilterRule[]
 {
-    {
-        // Get channels where local user is a member of
-        "members", new Dictionary<string, object>
-        {
-            { "$in", new[] { localUser.Id } }
-        }
-    }
+   ChannelFilter.Cid.In("channel-cid", "channel-2-cid", "channel-3-cid")
 };
+var sort = ChannelSort.OrderByAscending(ChannelSortFieldName.CreatedAt);
 
-var channels = await Client.QueryChannelsAsync(filter);
+var channels = await Client.QueryChannelsAsync(filters, sort);
 ```
+The filtering mechanism is very powerful and allows you to combine multiple rules. You can check the full list of available fields and operators that you can use for channel querying [here](https://getstream.io/chat/docs/unity/query_channels/?language=unity#channel-queryable-built-in-fields).
+
+### Channel Filters Examples:
+#### Filter for channels with Cid
+```csharp
+// Each operator usually supports multiple argument types to match your needs
+ChannelFilter.Cid.EqualsTo("channel-cid"); // string
+ChannelFilter.Cid.EqualsTo(channel); // IStreamChannel
+ChannelFilter.Cid.In("channel-cid", "channel-2-cid", "channel-3-cid"); // Comma separated strings
+
+var channelCids = new List<string> { "channel-1-cid", "channel-2-cid" };
+ChannelFilter.Cid.In(channelCids); // Any collection of string
+```
+#### Filter for channels created by the local user
+```csharp
+var filters = new IFieldFilterRule[]
+{
+    ChannelFilter.CreatedById.EqualsTo(Client.LocalUserData.User)
+};
+```
+#### Filter for channels with more than 10 members
+```csharp
+var filters = new IFieldFilterRule[]
+{
+    ChannelFilter.MembersCount.GreaterThan(10)
+};
+```
+#### Filter for channels created last week
+```csharp
+var weekAgo = DateTime.Now.AddDays(-7).Date;
+var filters = new IFieldFilterRule[]
+{
+    ChannelFilter.CreatedAt.GreaterThan(weekAgo)
+};
+```
+#### Filter for channels updated within last 24 hours
+```csharp
+var dayAgo = DateTime.Now.AddHours(-24);
+var filters = new IFieldFilterRule[]
+{
+    ChannelFilter.UpdatedAt.GreaterThan(dayAgo)
+};
+```
+
 ### Get messages
 Messages are accessible via `channel.Messages` property that contains collection of the most recent messages. Because there can potentialy be thousands of messages in a channel history the `channel.Messages` collection contains only the latest messages. You can load older messages by calling the `channel.LoadOlderMessagesAsync()` which will load additional portion of the history. A common approach is to call `channel.LoadOlderMessagesAsync()` whenever users hits the end of your messages scroll view, this way you only load older messages when the user actually wants to view them. You can see an example of this approach in Sample Project's [MessageListView.cs](https://github.com/GetStream/stream-chat-unity/blob/develop/Assets/Plugins/StreamChat/SampleProject/Scripts/Views/MessageListView.cs#L34)
 
@@ -470,7 +507,7 @@ The above examples are only a few out of many - check out our [Full Documentatio
 ---
 
 ## Missing any features?
-Go ahead and open GitHub Issue with your request and we'll respond as soon as possible.
+Go ahead and open [GitHub](https://github.com/GetStream/stream-chat-unity/issues/new) Issue with your request and we'll respond as soon as possible.
 
 ---
 
