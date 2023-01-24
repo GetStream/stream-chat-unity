@@ -9,6 +9,9 @@ using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Libs.Logs;
 using StreamChat.SampleProject.Views;
 using UnityEngine;
@@ -83,7 +86,8 @@ namespace StreamChat.SampleProject
         }
 
         public Task<IStreamChannel> CreateNewChannelAsync(string channelName)
-            => Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: Guid.NewGuid().ToString(), channelName);
+            => Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: Guid.NewGuid().ToString(),
+                channelName);
 
         public void OpenChannel(IStreamChannel channel) => ActiveChannel = channel;
 
@@ -91,46 +95,15 @@ namespace StreamChat.SampleProject
 
         public async Task UpdateChannelsAsync()
         {
-            var requestOld = new QueryChannelsRequest
+            var filter = new List<IFieldFilterRule>
             {
-                Sort = new List<SortParamRequest>
-                {
-                    new SortParamRequest
-                    {
-                        Field = "created_at",
-                        Direction = -1,
-                    }
-                },
-
-                // Limit & Offset results
-                Limit = 30,
-                Offset = 0,
-
-                // Get only channels containing a specific member
-                FilterConditions = new Dictionary<string, object>
-                {
-                    {
-                        "members", new Dictionary<string, object>
-                        {
-                            { "$in", new string[] { Client.LocalUserData.User.Id } }
-                        }
-                    }
-                }
+                ChannelFilter.Members.In(Client.LocalUserData.User)
             };
-
-            var filter = new Dictionary<string, object>
-            {
-                {
-                    "members", new Dictionary<string, object>
-                    {
-                        { "$in", new string[] { Client.LocalUserData.User.Id } }
-                    }
-                }
-            };
+            var sort = ChannelSort.OrderByAscending(ChannelSortFieldName.CreatedAt);
 
             try
             {
-                var channels = await Client.QueryChannelsAsync(filter);
+                var channels = await Client.QueryChannelsAsync(filter, sort);
 
                 _channels.Clear();
                 _channels.AddRange(channels);
@@ -161,7 +134,7 @@ namespace StreamChat.SampleProject
 
             return ActiveChannel.LoadOlderMessagesAsync();
         }
-        
+
         private readonly List<IStreamChannel> _channels = new List<IStreamChannel>();
 
         private readonly IViewFactory _viewFactory;
@@ -190,7 +163,7 @@ namespace StreamChat.SampleProject
 
         private void OnMessageRead(EventMessageRead eventMessageRead)
             => Debug.Log("Message read received for channel: " + eventMessageRead.Cid);
-        
+
         private void OnClientConnectionStateChanged(ConnectionState prev, ConnectionState current)
         {
             if (current == ConnectionState.Disconnected)
