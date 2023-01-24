@@ -67,6 +67,9 @@ Stream is free for most side and hobby projects. You can use Stream Chat for fre
 3. Resolve [dependencies](https://github.com/GetStream/stream-chat-unity#dependencies)
 4. Start integrating Chat into your project! Check out the [Tutorial](https://getstream.io/chat/unity/tutorial/) to get yourself going.
 
+## Tutorial
+Check out our [tutorial](https://getstream.io/chat/unity/tutorial/) on how to setup your project and perform basic operations.
+
 ## Sample Project
 
 In the `StreamChat/SampleProject` folder you'll find a fully working chat example featuring:
