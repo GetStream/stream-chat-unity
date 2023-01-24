@@ -15,6 +15,11 @@ namespace StreamChat.Core.QueryBuilders.Filters.Channels
         /// Return only channels where <see cref="IStreamChannel.Cid"/> is EQUAL to provided channel Cid
         /// </summary>
         public FieldFilterRule EqualsTo(string channelCid) => InternalEqualsTo(channelCid);
+        
+        /// <summary>
+        /// Return only channels where <see cref="IStreamChannel.Cid"/> is EQUAL to provided channel
+        /// </summary>
+        public FieldFilterRule EqualsTo(IStreamChannel channel) => InternalEqualsTo(channel.Cid);
 
         /// <summary>
         /// Return only channels where <see cref="IStreamChannel.Cid"/> is EQUAL to ANY of provided channel Cid
