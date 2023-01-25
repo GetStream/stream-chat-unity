@@ -142,10 +142,9 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
         }
 
-        //StreamTodo: Uncomment this when `member.user.name` filtering is resolved
-        // [UnityTest]
-        // public IEnumerator When_query_channel_with_member_name_autocomplete_filter_expect_valid_results()
-        //     => ConnectAndExecute(When_query_channel_with_member_name_autocomplete_filter_expect_valid_results_Async);
+        [UnityTest]
+        public IEnumerator When_query_channel_with_member_name_autocomplete_filter_expect_valid_results()
+            => ConnectAndExecute(When_query_channel_with_member_name_autocomplete_filter_expect_valid_results_Async);
 
         private async Task When_query_channel_with_member_name_autocomplete_filter_expect_valid_results_Async()
         {
@@ -160,23 +159,10 @@ namespace StreamChat.Tests.StatefulClient
             await channel1.AddMembersAsync(userAnna);
             await channel2.AddMembersAsync(userDaniel);
             await channel3.AddMembersAsync(userJonathan);
-
-            // var filters = new Dictionary<string, object>
-            // {
-            //     {
-            //         "member.user.name", new Dictionary<string, object>
-            //         {
-            //             {
-            //                 "$autocomplete", "Daniel"
-            //             }
-            //         }
-            //     },
-            // };
-            //
-            // var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
-            // Assert.Contains(channel2, channels);
-
-            // Query builder
+            
+            // The search filter for MemberUserName relies on the `read-channel-members` permissions being enabled.
+            // For channel type `Messaging` you can only view other members if you're a member yourself
+            await channel2.AddMembersAsync(Client.LocalUserData.User);
 
             var filters2 = new IFieldFilterRule[]
             {
