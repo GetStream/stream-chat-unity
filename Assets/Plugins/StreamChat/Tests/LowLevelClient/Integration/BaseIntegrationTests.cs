@@ -39,7 +39,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             TryCleanupClient();
         }
 
-        // StreamTodo: replace with admin ids fetched from loaded data set
         protected const string TestUserId = TestUtils.TestUserId;
         protected const string TestAdminId = TestUtils.TestAdminId;
         protected const string TestGuestId = TestUtils.TestGuestId;
@@ -51,6 +50,12 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         /// Id of other user than currently logged one
         /// </summary>
         protected string OtherUserId { get; private set; }
+        
+        protected IEnumerator RunTest(Func<Task> task)
+        {
+            yield return LowLevelClient.WaitForClientToConnect();
+            yield return task().RunAsIEnumerator();
+        }
 
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
@@ -99,6 +104,28 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         }
 
         protected void RemoveTempChannelFromDeleteList(string channelCid) => _tempChannelsCidsToDelete.Remove(channelCid);
+        
+        protected static async Task<T> Try<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 5,
+            int msBetweenAttempts = 150)
+        {
+            var response = default(T);
+            
+            while (maxAttempts > 0)
+            {
+                maxAttempts--;
+
+                response = await task();
+
+                if (successCondition(response))
+                {
+                    return response;
+                }
+
+                await Task.Delay(msBetweenAttempts);
+            }
+
+            return response;
+        }
 
         protected IEnumerator InternalWaitForSeconds(float seconds)
         {
@@ -157,7 +184,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             return result;
         }
 
-        public static async Task<Texture2D> DownloadTextureAsync(string url)
+        protected static async Task<Texture2D> DownloadTextureAsync(string url)
         {
             using (var www = UnityWebRequestTexture.GetTexture(url))
             {
@@ -178,7 +205,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             }
         }
 
-        public static async Task<byte[]> DownloadVideoAsync(string url)
+        protected static async Task<byte[]> DownloadVideoAsync(string url)
         {
             using (var www = UnityWebRequest.Get(url))
             {
