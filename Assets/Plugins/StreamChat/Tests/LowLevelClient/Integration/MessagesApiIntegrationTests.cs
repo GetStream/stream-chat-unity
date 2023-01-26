@@ -274,12 +274,12 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             Assert.NotNull(imageFileContent);
             Assert.IsNotEmpty(imageFileContent);
 
-            const string ChannelType = "messaging";
+            const string channelType = "messaging";
 
-            var channelState = await CreateTempUniqueChannelAsync(ChannelType, new ChannelGetOrCreateRequest());
+            var channelState = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
             var channelId = channelState.Channel.Id;
 
-            var uploadImageResponse = await LowLevelClient.MessageApi.UploadImageAsync(ChannelType, channelId, imageFileContent, filename);
+            var uploadImageResponse = await LowLevelClient.MessageApi.UploadImageAsync(channelType, channelId, imageFileContent, filename);
             var fileUrl = uploadImageResponse.File;
 
             // Resize in scale mode to 500x500 pixels
@@ -301,7 +301,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 }
             };
 
-            var sendMessageResponse = await LowLevelClient.MessageApi.SendNewMessageAsync(ChannelType, channelId, sendMessageRequest);
+            var sendMessageResponse = await LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
             Assert.IsNotEmpty(sendMessageResponse.Message.Attachments);
 
             var imageUrl = sendMessageResponse.Message.Attachments[0].AssetUrl;

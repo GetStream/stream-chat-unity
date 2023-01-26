@@ -87,14 +87,19 @@ namespace StreamChat.Tests
 
         public static IEnumerator WaitForClientToConnect(this IStreamChatLowLevelClient lowLevelClient)
         {
-            const float MaxTimeToConnect = 3;
+            if (lowLevelClient.ConnectionState == ConnectionState.Connected)
+            {
+                yield break;
+            }
+            
+            const float maxTimeToConnect = 3;
             var timeStarted = EditorApplication.timeSinceStartup;
 
             while (true)
             {
                 var elapsed = EditorApplication.timeSinceStartup - timeStarted;
 
-                if (elapsed > MaxTimeToConnect)
+                if (elapsed > maxTimeToConnect)
                 {
                     Debug.LogError("Waiting for connection exceeded max time. Terminating");
                     break;
