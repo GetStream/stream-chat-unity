@@ -31,7 +31,7 @@ namespace StreamChat.Tests.LowLevelClient
             _mockSerializer = Substitute.For<ISerializer>();
             _mockTimeService = Substitute.For<ITimeService>();
             _mockApplicationInfo = Substitute.For<IApplicationInfo>();
-            _mockLogs = Substitute.For<ILogs>();
+            _mockLogs = new UnityLogs();
             _mockStreamClientConfig = Substitute.For<IStreamClientConfig>();
 
             _lowLevelClient = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient, _mockSerializer,
@@ -81,7 +81,11 @@ namespace StreamChat.Tests.LowLevelClient
         [Test]
         public void when_stream_client_factory_called_expect_no_exceptions()
         {
-            Assert.DoesNotThrow(() => StreamChatLowLevelClient.CreateDefaultClient(_authCredentials));
+            Assert.DoesNotThrow(() =>
+            {
+                var instance = StreamChatLowLevelClient.CreateDefaultClient(_authCredentials);
+                instance.Dispose(); // Clean up
+            });
         }
 
         [Test]
