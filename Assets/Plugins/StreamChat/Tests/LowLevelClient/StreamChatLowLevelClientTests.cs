@@ -36,8 +36,8 @@ namespace StreamChat.Tests.LowLevelClient
             _mockStreamClientConfig = Substitute.For<IStreamClientConfig>();
 
             _lowLevelClient = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient,
-                _mockSerializer,
-                _mockTimeService, _mockApplicationInfo, _mockLogs, _mockStreamClientConfig);
+                _mockSerializer, _mockTimeService, _mockApplicationInfo, _mockLogs, _mockStreamClientConfig);
+            _lowLevelClient.Update(0.1f);
         }
 
         [TearDown]
