@@ -166,6 +166,7 @@ GameObject:
   - component: {fileID: 6873827960292397066}
   - component: {fileID: 5721179312304561766}
   - component: {fileID: 1719230380841013447}
+  - component: {fileID: 4394526313820805770}
   m_Layer: 5
   m_Name: MessageListView
   m_TagString: Untagged
@@ -278,6 +279,26 @@ MonoBehaviour:
   _messagesContainer: {fileID: 249695966492087952}
   _messageViewPrefab: {fileID: -3921630580214947134, guid: 0f366bbca7e65c848a7d3ae09332fd78, type: 3}
   _localUserMessageViewPrefab: {fileID: 6165304251737862070, guid: 9d39dd1b280efe04aa05cfb1e41212a0, type: 3}
+--- !u!114 &4394526313820805770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5189114443080696617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 1100
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &5764201377665119041
 GameObject:
   m_ObjectHideFlags: 0
