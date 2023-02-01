@@ -550,7 +550,7 @@ namespace StreamChat.Core.StatefulModels
 
             //Hidden = dto.Hidden.GetValueOrDefault(); Updated from Channel
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
-            //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from dto.Channel
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
             Membership = cache.TryCreateOrUpdate(dto.Membership);
             _messages.TryAppendUniqueTrackedObjects(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
@@ -573,7 +573,7 @@ namespace StreamChat.Core.StatefulModels
 
             #region ChannelState
 
-            //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); //Updated from Channel
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); //Updated from Channel
 
             #endregion
         }
