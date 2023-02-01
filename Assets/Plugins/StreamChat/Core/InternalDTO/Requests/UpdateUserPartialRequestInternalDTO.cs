@@ -18,7 +18,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     internal partial class UpdateUserPartialRequestInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UpdateUserPartialRequestEntryInternalDTO> Users { get; set; } = new System.Collections.Generic.List<UpdateUserPartialRequestEntryInternalDTO>();
+        public System.Collections.Generic.List<UpdateUserPartialRequestEntryInternalDTO> Users { get; set; }
 
         /// <summary>
         /// User ID to update
@@ -30,15 +30,15 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Sets new field values
         /// </summary>
         [Newtonsoft.Json.JsonProperty("set", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, object> Set { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.Dictionary<string, object> Set { get; set; }
 
         /// <summary>
         /// Array of field names to unset
         /// </summary>
         [Newtonsoft.Json.JsonProperty("unset", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> Unset { get; set; } = new System.Collections.Generic.List<string>();
+        public System.Collections.Generic.List<string> Unset { get; set; }
 
-        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 
         [Newtonsoft.Json.JsonExtensionData]
         public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
