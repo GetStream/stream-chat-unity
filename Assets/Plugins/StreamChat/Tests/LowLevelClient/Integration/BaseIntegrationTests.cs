@@ -127,21 +127,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             return response;
         }
 
-        protected IEnumerator InternalWaitForSeconds(float seconds)
-        {
-            if (seconds <= 0)
-            {
-                yield break;
-            }
-
-            var currentTime = EditorApplication.timeSinceStartup;
-
-            while ((EditorApplication.timeSinceStartup - currentTime) < seconds)
-            {
-                yield return null;
-            }
-        }
-
         protected IEnumerator SendTestMessages(ChannelState channelState, int count,
             Action<(int Index, MessageResponse MessageResponse)> onMessageSent, string messagePrefix = "")
         {
