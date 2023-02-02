@@ -98,14 +98,14 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         [UnityTest]
         public IEnumerator Send_message_with_url()
         {
-            yield return LowLevelClient.WaitForClientToConnect();
-
+            yield return RunTest(Send_message_with_url_Async);
+        }
+        
+        private async Task Send_message_with_url_Async()
+        {
             const string channelType = "messaging";
 
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel("messaging", new ChannelGetOrCreateRequest(),
-                state => channelState = state);
-
+            var channelState = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
             var channelId = channelState.Channel.Id;
 
             var sendMessageRequest = new SendMessageRequest
@@ -116,14 +116,10 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 }
             };
 
-            var messageResponseTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
-
-            yield return messageResponseTask.RunAsIEnumerator(response => { });
+            await LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
 
             //Message is not always immediately available due to data propagation
-            yield return InternalWaitForSeconds(0.2f);
-
-            var createChannelTask2 = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            channelState = await Try(() => LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
                 {
                     State = true,
@@ -132,15 +128,12 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                         Limit = 30,
                         Offset = 0,
                     },
-                });
+                }),channelState => channelState.Messages != null && channelState.Messages.Count > 0);
 
-            yield return createChannelTask2.RunAsIEnumerator(response =>
-            {
-                Assert.IsNotNull(response.Messages);
-                Assert.IsNotEmpty(response.Messages);
-                Assert.AreEqual(response.Messages.Last().Attachments.First().AuthorName, "Imgur");
-                Assert.AreEqual(response.Messages.Last().Attachments.First().TitleLink, "https://imgur.com/4zmGbMN");
-            });
+            Assert.IsNotNull(channelState.Messages);
+            Assert.IsNotEmpty(channelState.Messages);
+            Assert.AreEqual(channelState.Messages.Last().Attachments.First().AuthorName, "Imgur");
+            Assert.AreEqual(channelState.Messages.Last().Attachments.First().TitleLink, "https://imgur.com/4zmGbMN");
         }
 
         [UnityTest]

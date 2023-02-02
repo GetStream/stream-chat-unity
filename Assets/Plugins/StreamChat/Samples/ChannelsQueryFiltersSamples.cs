@@ -26,16 +26,15 @@ namespace StreamChat.Samples
         {
             IStreamChannel channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "channel-id-1");
 
-            // Each operator usually supports multiple argument types to match your needs
-            
-            ChannelFilter.Cid.EqualsTo("channel-cid");
-            ChannelFilter.Cid.EqualsTo(channel);
-            ChannelFilter.Cid.In("channel-cid", "channel-2-cid", "channel-3-cid");
+// Each operator usually supports multiple argument types to match your needs
+            ChannelFilter.Cid.EqualsTo("channel-cid"); // string
+            ChannelFilter.Cid.EqualsTo(channel); // IStreamChannel
+            ChannelFilter.Cid.In("channel-cid", "channel-2-cid", "channel-3-cid"); // Comma separated strings
 
             var channelCids = new List<string> { "channel-1-cid", "channel-2-cid" };
-            ChannelFilter.Cid.In(channelCids);
+            ChannelFilter.Cid.In(channelCids); // Any collection of string
         }
-        
+
         public async Task LocalUserIsAMember()
         {
             var filters = new IFieldFilterRule[]
@@ -46,7 +45,7 @@ namespace StreamChat.Samples
 
             var channels = await Client.QueryChannelsAsync(filters, sort);
         }
-        
+
         public async Task CreatedByLocalUser()
         {
             var filters = new IFieldFilterRule[]
@@ -57,7 +56,7 @@ namespace StreamChat.Samples
 
             var channels = await Client.QueryChannelsAsync(filters, sort);
         }
-        
+
         public async Task MutedByLocalUser()
         {
             var filters = new IFieldFilterRule[]
@@ -68,7 +67,7 @@ namespace StreamChat.Samples
 
             var channels = await Client.QueryChannelsAsync(filters, sort);
         }
-        
+
         public async Task MembersCountMoreThan10()
         {
             var filters = new IFieldFilterRule[]
@@ -79,7 +78,7 @@ namespace StreamChat.Samples
 
             var channels = await Client.QueryChannelsAsync(filters, sort);
         }
-        
+
         public async Task CreatedWithinLastWeek()
         {
             var weekAgo = DateTime.Now.AddDays(-7).Date;
@@ -91,7 +90,7 @@ namespace StreamChat.Samples
 
             var channels = await Client.QueryChannelsAsync(filters, sort);
         }
-        
+
         public async Task UpdatedLast24Hours()
         {
             var dayAgo = DateTime.Now.AddHours(-24);
