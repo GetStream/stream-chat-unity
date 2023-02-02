@@ -1,6 +1,7 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -45,7 +46,7 @@ namespace StreamChat.Tests.StatefulClient
             var sequenceEqual = davidPassions.SequenceEqual(new string[] { "Tennis", "Football", "Basketball" });
             Assert.IsTrue(sequenceEqual);
         }
-        
+
         [UnityTest]
         public IEnumerator When_query_users_without_parameters_expect_no_exception()
             => ConnectAndExecute(When_query_users_without_parameters_expect_no_exception_Async);
@@ -53,6 +54,41 @@ namespace StreamChat.Tests.StatefulClient
         private async Task When_query_users_without_parameters_expect_no_exception_Async()
         {
             var users = await Client.QueryUsersAsync();
+        }
+
+        [UnityTest]
+        public IEnumerator When_query_users_with_id_autocomplete_expect_valid_results()
+            => ConnectAndExecute(When_query_users_with_id_autocomplete_expect_valid_results_Async);
+
+        private async Task When_query_users_with_id_autocomplete_expect_valid_results_Async()
+        {
+            var userAnna = await CreateUniqueTempUserAsync("Anna");
+            var userMike = await CreateUniqueTempUserAsync("Mike");
+
+            var users = await Client.QueryUsersAsync(new Dictionary<string, object>
+            {
+                {
+                    // Returns all users with Name starting with `Ann` like: Anna, Annabelle, Annette
+                    "name", new Dictionary<string, object>
+                    {
+                        {
+                            "$autocomplete", "Ann"
+                        }
+                    }
+                },
+                //StreamTodo: uncomment when created_at issue is resolved
+                // {
+                //     "created_at", new Dictionary<string, object>
+                //     {
+                //         { "$gte", DateTime.Now.AddMinutes(-5).ToRfc3339String() }
+                //     }
+                // }
+            });
+
+            var usersArr = users.ToArray();
+
+            Assert.IsTrue(usersArr.All(u => u.Name.ToLower().StartsWith("ann")));
+            Assert.IsNull(usersArr.FirstOrDefault(u => u.Name.StartsWith(userMike.Name)));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System;
 using System.Collections;
+using System.Globalization;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.LowLevelClient;
@@ -157,6 +158,9 @@ namespace StreamChat.Tests
             }
         }
         
+        public static string ToRfc3339String(this DateTime dateTime) 
+            => dateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
+
         private static Exception UnwrapAggregateException(Exception exception)
         {
             if (exception is AggregateException aggregateException &&

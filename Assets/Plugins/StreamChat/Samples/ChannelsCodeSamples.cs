@@ -251,6 +251,7 @@ namespace StreamChat.Samples
         {
         }
 
+        #region Updating a Channel
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_update/?language=unity#partial-update
@@ -266,28 +267,29 @@ namespace StreamChat.Samples
                 Tags = new List<string>
                 {
                     "Competitive",
-                    "Legends",
+                    "Legendary",
                 }
             };
 
             var setFields = new Dictionary<string, object>();
 
-// Set custom values
-            setFields.Add("owned_dogs", 5);
-// Set custom arrays
-            setFields.Add("breakfast", new[] { "donuts" });
-// Set custom class objects
+            // Set custom values
+            setFields.Add("frags", 5);
+            // Set custom arrays
+            setFields.Add("items", new[] { "sword", "shield" });
+            // Set custom class objects
             setFields.Add("clan_info", setClanInfo);
 
-// Send data
+            // Send data
             await channel.UpdatePartialAsync(setFields);
 
-// Data is now available via CustomData property
-            var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
-            var breakfast = channel.CustomData.Get<List<string>>("breakfast");
+            // Data is now available via CustomData property
+            var frags = channel.CustomData.Get<int>("frags");
+            var items = channel.CustomData.Get<List<string>>("items");
             var clanInfo = channel.CustomData.Get<ClanData>("clan_info");
         }
 
+// Example class with data that you can assign as Channel custom data
         private class ClanData
         {
             public int MaxMembers;
@@ -303,6 +305,10 @@ namespace StreamChat.Samples
 //StreamTodo: IMPLEMENT channel full update
             await Task.CompletedTask;
         }
+
+        #endregion
+
+        #region Updating CHannel Members
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_members/?language=unity
@@ -328,22 +334,31 @@ namespace StreamChat.Samples
                 }
             });
 
-            // Add IStreamUser as a member
+// Add IStreamUser collection as a members
             await channel.AddMembersAsync(users);
 
-            // Or add by ID
+// Or add by ID
             await channel.AddMembersAsync("some-user-id-1", "some-user-id-2");
 
-            // Access channel members via channel.Members, let's remove the first member as an example
+// Access channel members via channel.Members, let's remove the first member as an example
             var member = channel.Members.First();
             await channel.RemoveMembersAsync(member);
 
-            // Remove local user from a channel by user ID
+// Remove local user from a channel by user ID
             var localUser = Client.LocalUserData.User;
             await channel.RemoveMembersAsync(localUser.Id);
 
-            // Remove multiple users by their ID
+// Remove multiple users by their ID
             await channel.RemoveMembersAsync("some-user-id-1", "some-user-id-2");
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/channel_members/?language=csharp#message-parameter
+        /// </summary>
+        public async Task AddMembersWithMessage()
+        {
+            //StreamTodo: IMPLEMENT add members and hide history
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -374,6 +389,10 @@ namespace StreamChat.Samples
             // Only Server-side SDK
             await Task.CompletedTask;
         }
+
+        #endregion
+
+        #region Querying Channels
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/query_channels/?language=unity
@@ -456,6 +475,10 @@ namespace StreamChat.Samples
 // Offset - how many records to skip
             var channels = await Client.QueryChannelsAsync(filters, limit: 30, offset: 60);
         }
+        
+        #endregion
+
+        #region Querying Members
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/query_members/?language=unity#pagination-and-ordering
@@ -479,6 +502,10 @@ namespace StreamChat.Samples
 // Offset - how many records to skip
             var membersResult = await channel.QueryMembersAsync(filters, limit: 30, offset: 0);
         }
+        
+        #endregion
+
+        #region Channel Pagination
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
@@ -491,6 +518,8 @@ namespace StreamChat.Samples
 // Every call will load 1 more page of messages
             await channel.LoadOlderMessagesAsync();
         }
+        
+        #endregion
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
