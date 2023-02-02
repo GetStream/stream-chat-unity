@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
@@ -79,6 +80,69 @@ namespace StreamChat.Samples
             await Client.DisconnectUserAsync();
         }
 
+
+        #region Managing Users
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/update_users/?language=unity#server-side-user-updates-(batch)
+        /// </summary>
+        public async Task UserUpdates()
+        {
+// Only Id field is required, the rest is optional
+            var createOrUpdateUser = new StreamUserUpsertRequest
+            {
+                Id = "my-user-id",
+                // BanExpires = DateTimeOffset.Now.AddDays(7),
+                // Banned = true,
+                // Invisible = true,
+                // Role = "user",
+                // Name = "David",
+                // Image = "image-url", // You can upload image to Stream CDN or your own
+                // CustomData = new StreamCustomDataRequest
+                //{
+                //    { "Age", 24 },
+                //    { "Passions", new string[] { "Tennis", "Football", "Basketball" } }
+                //}
+            };
+
+// Upsert means: update user with a given ID or create a new one if it doesn't exist
+            var users = await Client.UpsertUsers(new[] { createOrUpdateUser });
+        }
+
+        public async Task UserUpdatesMultiple()
+        {
+            var usersToCreateOrUpdate = new[]
+            {
+                new StreamUserUpsertRequest
+                {
+                    Id = "my-user-id",
+                    Role = "user",
+                },
+                new StreamUserUpsertRequest
+                {
+                    Id = "my-user-id-2",
+                    // BanExpires = DateTimeOffset.Now.AddDays(7),
+                    // Banned = true,
+                    // Invisible = true,
+                    // Role = "user",
+                    // Name = "David",
+                    // Image = "image-url", // You can upload image to Stream CDN or your own
+                    // CustomData = new StreamCustomDataRequest
+                    //{
+                    //    { "Age", 24 },
+                    //    { "Passions", new string[] { "Tennis", "Football", "Basketball" } }
+                    //}
+                },
+            };
+
+// Upsert means: update user with a given ID or create a new one if it doesn't exist
+            var users = await Client.UpsertUsers(usersToCreateOrUpdate);
+        }
+
+        #endregion
+
+        #region Querying Users
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/query_users/?language=unity
         /// </summary>
@@ -99,6 +163,54 @@ namespace StreamChat.Samples
                     }
                 }
             });
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_users/?language=unity
+        /// </summary>
+        public Task QueryUsersPagination()
+        {
+            return Task.CompletedTask;
+        }
+        
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_users/?language=unity#1.-by-name
+        /// </summary>
+        public async Task QueryUsersUsingAutocompleteByName()
+        {
+// Returns collection of IStreamUser
+var users = await Client.QueryUsersAsync(new Dictionary<string, object>
+{
+    {
+        // Returns all users with Name starting with `Ro` like: Roxy, Roxanne, Rover
+        "name", new Dictionary<string, object>
+        {
+            {
+                "$autocomplete", "Ro"
+            }
+        }
+    },
+});
+        }
+        
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/query_users/?language=unity#2.-by-id
+        /// </summary>
+        public async Task QueryUsersUsingAutocompleteById()
+        {
+// Returns collection of IStreamUser
+var users = await Client.QueryUsersAsync(new Dictionary<string, object>
+{
+    {
+        // Returns all users with Id starting with `Ro` like: Roxy, Roxanne, Rover
+        "id", new Dictionary<string, object>
+        {
+            {
+                "$autocomplete", "Ro"
+            }
+        }
+    },
+});
         }
 
         /// <summary>
@@ -137,6 +249,8 @@ namespace StreamChat.Samples
                 Debug.Log(banInfo.CreatedAt); // Date when banned
             }
         }
+
+        #endregion
 
         private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
     }
