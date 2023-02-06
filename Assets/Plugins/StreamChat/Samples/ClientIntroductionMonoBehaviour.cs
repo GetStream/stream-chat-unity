@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
+using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine;
@@ -62,26 +63,18 @@ namespace StreamChat.Samples
 
         public async Task CreateChannelForAGroupOfUsersAsync()
         {
-            var friends = await _chatClient.QueryUsersAsync(new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        {
-                            "$in", new List<string>
-                            {
-                                "friend-user-id-1", "friend-user-id-2"
-                            }
-                        }
-                    }
-                }
-            });
+                UserFilter.Id.In("friend-user-id-1", "friend-user-id-2")
+            };
+
+            var friends = await _chatClient.QueryUsersAsync(filters);
 
             var groupToChat = new List<IStreamUser>();
             groupToChat.AddRange(friends); // Add friends
             groupToChat.Add(_chatClient.LocalUserData.User); // Add local user
 
-            // Create unique channel
+// Create unique channel
             var channel = await _chatClient.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging, groupToChat);
         }
 

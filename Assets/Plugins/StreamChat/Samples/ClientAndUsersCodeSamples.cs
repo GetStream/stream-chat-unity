@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Auth;
@@ -148,21 +150,12 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryUsers()
         {
-// Returns collection of IStreamUser
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        {
-                            "$in", new List<string>
-                            {
-                                "user-1", "user-2", "user-3"
-                            }
-                        }
-                    }
-                }
-            });
+                UserFilter.Id.In("user-1", "user-2", "user-3")
+            };
+// Returns collection of IStreamUser
+            var users = await Client.QueryUsersAsync(filters);
         }
 
         /// <summary>
@@ -172,45 +165,32 @@ namespace StreamChat.Samples
         {
             return Task.CompletedTask;
         }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/query_users/?language=unity#1.-by-name
         /// </summary>
         public async Task QueryUsersUsingAutocompleteByName()
         {
-// Returns collection of IStreamUser
-var users = await Client.QueryUsersAsync(new Dictionary<string, object>
-{
-    {
-        // Returns all users with Name starting with `Ro` like: Roxy, Roxanne, Rover
-        "name", new Dictionary<string, object>
-        {
+            var filters = new IFieldFilterRule[]
             {
-                "$autocomplete", "Ro"
-            }
+                UserFilter.Name.Autocomplete("Ro")
+            };
+// Returns collection of IStreamUser
+            var users = await Client.QueryUsersAsync(filters);
         }
-    },
-});
-        }
-        
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/query_users/?language=unity#2.-by-id
         /// </summary>
         public async Task QueryUsersUsingAutocompleteById()
         {
-// Returns collection of IStreamUser
-var users = await Client.QueryUsersAsync(new Dictionary<string, object>
-{
-    {
-        // Returns all users with Id starting with `Ro` like: Roxy, Roxanne, Rover
-        "id", new Dictionary<string, object>
-        {
+            var filters = new IFieldFilterRule[]
             {
-                "$autocomplete", "Ro"
-            }
-        }
-    },
-});
+                // Return all users with Id starting with `Ro` like: Roxy, Roxanne, Rover
+                UserFilter.Name.Autocomplete("Ro")
+            };
+// Returns collection of IStreamUser
+            var users = await Client.QueryUsersAsync(filters);
         }
 
         /// <summary>

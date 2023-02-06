@@ -5,6 +5,7 @@ using StreamChat.Core;
 using StreamChat.Core.Models;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
+using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.StatefulModels;
 using UnityEngine;
@@ -13,6 +14,8 @@ namespace StreamChat.Samples
 {
     internal sealed class ChannelsCodeSamples
     {
+        #region Creating Channels
+
         /// <summary>
         /// https://getstream.io/chat/docs/unity/creating_channels/?language=unity#1.-creating-a-channel-using-a-channel-id
         /// </summary>
@@ -28,50 +31,36 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task CreateChannelForListOfMembers()
         {
-// Find user you want to start a chat with
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        {
-                            "$in", new List<string>
-                            {
-                                "other-user-id"
-                            }
-                        }
-                    }
-                }
-            });
+                UserFilter.Id.EqualsTo("other-user-id")
+            };
+// Find user you want to start a chat with
+            var users = await Client.QueryUsersAsync(filters);
 
             var otherUser = users.First();
             var localUser = Client.LocalUserData.User;
 
 // Start direct channel between 2 users
-            var channel =
-                await Client.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging, new[] { localUser, otherUser });
+            var channel = await Client.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging,
+                new[] { localUser, otherUser });
         }
+
+        #endregion
+
+        #region Watch a channel
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#to-start-watching-a-channel
         /// </summary>
         public async Task StartWatchingChannel()
         {
-            // find user you want to start chat with
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        {
-                            "$in", new List<string>
-                            {
-                                "other-user-id"
-                            }
-                        }
-                    }
-                }
-            });
+                UserFilter.Id.EqualsTo("other-user-id")
+            };
+// find user you want to start chat with
+            var users = await Client.QueryUsersAsync(filters);
 
             var otherUser = users.First();
             var localUser = Client.LocalUserData.User;
@@ -251,6 +240,8 @@ namespace StreamChat.Samples
         {
         }
 
+        #endregion
+
         #region Updating a Channel
 
         /// <summary>
@@ -308,7 +299,7 @@ namespace StreamChat.Samples
 
         #endregion
 
-        #region Updating CHannel Members
+        #region Updating Channel Members
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/channel_members/?language=unity
@@ -317,22 +308,12 @@ namespace StreamChat.Samples
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
 
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        {
-                            "$in", new List<string>
-                            {
-                                "other-user-id-1",
-                                "other-user-id-2",
-                                "other-user-id-3"
-                            }
-                        }
-                    }
-                }
-            });
+                UserFilter.Id.In("other-user-id-1", "other-user-id-2", "other-user-id-3")
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
 
 // Add IStreamUser collection as a members
             await channel.AddMembersAsync(users);
@@ -475,7 +456,7 @@ namespace StreamChat.Samples
 // Offset - how many records to skip
             var channels = await Client.QueryChannelsAsync(filters, limit: 30, offset: 60);
         }
-        
+
         #endregion
 
         #region Querying Members
@@ -502,7 +483,7 @@ namespace StreamChat.Samples
 // Offset - how many records to skip
             var membersResult = await channel.QueryMembersAsync(filters, limit: 30, offset: 0);
         }
-        
+
         #endregion
 
         #region Channel Pagination
@@ -518,7 +499,7 @@ namespace StreamChat.Samples
 // Every call will load 1 more page of messages
             await channel.LoadOlderMessagesAsync();
         }
-        
+
         #endregion
 
         /// <summary>
