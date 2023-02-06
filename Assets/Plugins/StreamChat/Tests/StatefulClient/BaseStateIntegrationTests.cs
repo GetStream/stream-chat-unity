@@ -29,11 +29,11 @@ namespace StreamChat.Tests.StatefulClient
         public async void OneTimeTearDown()
         {
             Debug.Log("------------ TearDown");
-            
+
             await DeleteTempChannelsAsync();
             
             await Client.DisconnectUserAsync();
-            
+
             Client.Dispose();
             Client = null;
         }

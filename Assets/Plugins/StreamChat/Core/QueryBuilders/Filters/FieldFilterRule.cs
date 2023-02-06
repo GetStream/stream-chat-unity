@@ -52,6 +52,20 @@ namespace StreamChat.Core.QueryBuilders.Filters
             OperatorType = operatorType;
             Value = value.ToArray();
         }
+        
+        public FieldFilterRule(string field, QueryOperatorType operatorType, IEnumerable<DateTime> value)
+        {
+            Field = field;
+            OperatorType = operatorType;
+            Value = value.ToArray();
+        }
+        
+        public FieldFilterRule(string field, QueryOperatorType operatorType, IEnumerable<DateTimeOffset> value)
+        {
+            Field = field;
+            OperatorType = operatorType;
+            Value = value.ToArray();
+        }
 
         //StreamTodo: research how to reduce allocation here
         public KeyValuePair<string, object> GenerateFilterEntry()

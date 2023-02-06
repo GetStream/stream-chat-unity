@@ -332,12 +332,45 @@ namespace StreamChat.Core
             return result;
         }
 
+        [Obsolete("This method will be removed in the future. Please use the other overload method that uses " +
+                  nameof(IFieldFilterRule) + " type filters")]
         public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters = null)
         {
             //StreamTodo: Missing filter, and stuff like IdGte etc
             var requestBodyDto = new QueryUsersRequestInternalDTO
             {
                 FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<string, object>(),
+                IdGt = null,
+                IdGte = null,
+                IdLt = null,
+                IdLte = null,
+                Limit = null,
+                Offset = null,
+                Presence = true, //StreamTodo: research whether user should be allowed to control this
+                Sort = null,
+            };
+
+            var response = await InternalLowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
+            if (response == null || response.Users == null || response.Users.Count == 0)
+            {
+                return Enumerable.Empty<IStreamUser>();
+            }
+
+            var result = new List<IStreamUser>();
+            foreach (var userDto in response.Users)
+            {
+                result.Add(_cache.TryCreateOrUpdate(userDto));
+            }
+
+            return result;
+        }
+        
+        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IEnumerable<IFieldFilterRule> filters = null)
+        {
+            //StreamTodo: Missing filter, and stuff like IdGte etc
+            var requestBodyDto = new QueryUsersRequestInternalDTO
+            {
+                FilterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value),
                 IdGt = null,
                 IdGte = null,
                 IdLt = null,

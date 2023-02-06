@@ -5,16 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Sort;
-using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
 {
     /// <summary>
-    /// Tests operations executed on <see cref="StreamChannel"/>
+    /// Filter tests for <see cref="IStreamChatClient.QueryChannelsAsync"/>
     /// </summary>
     internal class ChannelsQueryFiltersTests : BaseStateIntegrationTests
     {

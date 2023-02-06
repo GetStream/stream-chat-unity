@@ -20,7 +20,7 @@ namespace StreamChat.Core.QueryBuilders.Filters.Channels
         public FieldFilterRule EqualsTo(IStreamUser user) => InternalEqualsTo(user.Name);
         
         /// <summary>
-        /// Return only channels where a MEMBER <see cref="IStreamUser.Name"/> CONTAINS provided phrase anywhere. Example: "An" would match "Anna", "Daniel", "Jonathan" because they all contain the "an"
+        /// Return only channels where a MEMBER <see cref="IStreamUser.Name"/> CONTAINS provided phrase anywhere. Example: "An" would match "Anna", "Anatoly", "Annabelle" because they all start with "An"
         /// </summary>
         public FieldFilterRule Autocomplete(string phrase) => InternalAutocomplete(phrase);
     }
