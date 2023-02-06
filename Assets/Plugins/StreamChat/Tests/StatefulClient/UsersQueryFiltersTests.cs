@@ -1,6 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -77,3 +76,4 @@ namespace StreamChat.Tests.StatefulClient
             = ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt);
     }
 }
+#endif

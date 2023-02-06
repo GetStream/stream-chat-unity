@@ -20,7 +20,7 @@ namespace StreamChat.Samples
 
             var users = await Client.QueryUsersAsync(filters);
         }
-        
+
         public async Task UserNameAutocomplete()
         {
             var filters = new IFieldFilterRule[]
@@ -30,7 +30,7 @@ namespace StreamChat.Samples
 
             var users = await Client.QueryUsersAsync(filters);
         }
-        
+
         public async Task UserCreatedAtLastWeek()
         {
             var lastWeek = DateTime.Now.AddDays(-7);
@@ -41,7 +41,7 @@ namespace StreamChat.Samples
 
             var users = await Client.QueryUsersAsync(filters);
         }
-        
+
         public async Task UserCreatedAtOlderThanMonth()
         {
             var lastMonth = DateTime.Now.AddMonths(-1);
@@ -52,7 +52,7 @@ namespace StreamChat.Samples
 
             var users = await Client.QueryUsersAsync(filters);
         }
-        
+
         public async Task UserNotActiveLastWeek()
         {
             var lastWeek = DateTime.Now.AddDays(-7);
@@ -74,7 +74,7 @@ namespace StreamChat.Samples
 
             var users = await Client.QueryUsersAsync(filters);
         }
-        
+
         public async Task UserWithAdminRole()
         {
             var filters = new IFieldFilterRule[]
@@ -84,7 +84,7 @@ namespace StreamChat.Samples
 
             var users = await Client.QueryUsersAsync(filters);
         }
-        
+
         public async Task UserWithAdminOrModeratorRole()
         {
             var filters = new IFieldFilterRule[]
@@ -94,7 +94,7 @@ namespace StreamChat.Samples
 
             var users = await Client.QueryUsersAsync(filters);
         }
-        
+
         public async Task UserGloballyBanned()
         {
             var filters = new IFieldFilterRule[]
@@ -104,7 +104,7 @@ namespace StreamChat.Samples
 
             var users = await Client.QueryUsersAsync(filters);
         }
-        
+
         public async Task UserGloballyShadowBanned()
         {
             var filters = new IFieldFilterRule[]
