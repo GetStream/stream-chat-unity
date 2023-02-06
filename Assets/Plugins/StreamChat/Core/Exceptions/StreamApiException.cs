@@ -10,18 +10,21 @@ namespace StreamChat.Core.Exceptions
     /// </summary>
     public class StreamApiException : Exception
     {
-        public const int RateLimitErrorErrorCode = 429;
-        
+        public const int RateLimitErrorHttpStatusCode = 429;
+        public const int RateLimitErrorStreamCode = 9;
+
+        //Stream
         public int? StatusCode { get; }
-        public int? Code { get;  }
-        public string Duration { get;  }
-        public string ErrorMessage { get;  }
-        public string MoreInfo { get;  }
+        public int? Code { get; }
+        public string Duration { get; }
+        public string ErrorMessage { get; }
+        public string MoreInfo { get; }
 
         public IReadOnlyDictionary<string, string> ExceptionFields => _exceptionFields;
 
         internal StreamApiException(APIErrorInternalDTO apiError)
-            : base($"{apiError.Message}, Error Code: {apiError.Code}, Http Status Code: {apiError.StatusCode}, More info: {apiError.MoreInfo}, Exception fields: {PrintExceptionFields(apiError)}")
+            : base(
+                $"{apiError.Message}, Error Code: {apiError.Code}, Http Status Code: {apiError.StatusCode}, More info: {apiError.MoreInfo}, Exception fields: {PrintExceptionFields(apiError)}")
         {
             StatusCode = apiError.StatusCode;
             Code = apiError.Code;
@@ -66,5 +69,15 @@ namespace StreamChat.Core.Exceptions
 
             return _sb.ToString();
         }
+    }
+
+    /// <summary>
+    /// Extensions for <see cref="StreamApiException"/>
+    /// </summary>
+    public static class StreamApiExceptionExtensions
+    {
+        public static bool IsRateLimitExceededError(this StreamApiException streamApiException)
+            => streamApiException.Code == StreamApiException.RateLimitErrorStreamCode &&
+               streamApiException.StatusCode == StreamApiException.RateLimitErrorHttpStatusCode;
     }
 }
