@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
@@ -65,16 +67,9 @@ namespace StreamChat.Tests.StatefulClient
             var response = await Client.InternalLowLevelClient.UserApi.UpsertManyUsersAsync(requestBody);
             var users = response.Users.Select(_ => _.Value).ToList();
 
-            var filters = new Dictionary<string, object>()
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        {
-                            "$in", users.Select(_ => _.Id).ToList()
-                        }
-                    }
-                }
+                UserFilter.Id.In(users.Select(_ => _.Id).ToList())
             };
 
             var streamUsers = await Client.QueryUsersAsync(filters);
@@ -325,16 +320,13 @@ namespace StreamChat.Tests.StatefulClient
             var channel = await CreateUniqueTempChannelAsync();
 
             var otherUserId = OtherAdminUsersCredentials.First().UserId;
-
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        { "$eq", otherUserId }
-                    }
-                }
-            });
+                UserFilter.Id.EqualsTo(otherUserId)
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
             await channel.AddMembersAsync(otherUser);
@@ -353,15 +345,12 @@ namespace StreamChat.Tests.StatefulClient
 
             var otherUserId = OtherAdminUsersCredentials.First().UserId;
 
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        { "$eq", otherUserId }
-                    }
-                }
-            });
+                UserFilter.Id.EqualsTo(otherUserId)
+            };
+            
+            var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
             await channel.AddMembersAsync(otherUser.Id);
@@ -381,15 +370,12 @@ namespace StreamChat.Tests.StatefulClient
 
             var otherUserId = OtherAdminUsersCredentials.First().UserId;
 
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        { "$eq", otherUserId }
-                    }
-                }
-            });
+                UserFilter.Id.EqualsTo(otherUserId)
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
             await channel.AddMembersAsync(otherUser);
@@ -414,15 +400,12 @@ namespace StreamChat.Tests.StatefulClient
 
             var otherUserId = OtherAdminUsersCredentials.First().UserId;
 
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        { "$eq", otherUserId }
-                    }
-                }
-            });
+                UserFilter.Id.EqualsTo(otherUserId)
+            };
+            
+            var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
             await channel.AddMembersAsync(otherUser.Id);
@@ -446,16 +429,13 @@ namespace StreamChat.Tests.StatefulClient
             var firstCredentials = otherUsers.First();
             var lastCredentials = otherUsers.Last();
 
-            var users = await Client.QueryUsersAsync(new Dictionary<string, object>()
+            var filters = new IFieldFilterRule[]
             {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        { "$in", otherUsers.Select(u => u.UserId).ToArray() }
-                    }
-                }
-            });
-
+                UserFilter.Id.In(otherUsers.Select(u => u.UserId))
+            };
+            
+            var users = await Client.QueryUsersAsync(filters);
+            
             var firstUser = users.FirstOrDefault(u => u.Id == firstCredentials.UserId);
             var lastUser = users.FirstOrDefault(u => u.Id == lastCredentials.UserId);
 

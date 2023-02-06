@@ -124,7 +124,7 @@ namespace StreamChat.Core.StatefulModels
                         new UpdateUserPartialRequestEntryInternalDTO
                         {
                             Id = Id,
-                            Unset = new List<string>()
+                            Unset = new List<string>
                             {
                                 "invisible"
                             }

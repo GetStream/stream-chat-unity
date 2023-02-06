@@ -28,6 +28,12 @@ namespace StreamChat.Core.QueryBuilders.Filters
         protected FieldFilterRule InternalIn(IEnumerable<string> values)
             => new FieldFilterRule(FieldName, QueryOperatorType.In, values);
         
+        protected FieldFilterRule InternalIn(IEnumerable<DateTime> values)
+            => new FieldFilterRule(FieldName, QueryOperatorType.In, values);
+        
+        protected FieldFilterRule InternalIn(IEnumerable<DateTimeOffset> values)
+            => new FieldFilterRule(FieldName, QueryOperatorType.In, values);
+        
         protected FieldFilterRule InternalGreaterThan(DateTime value)
             => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThan, value);
         
@@ -35,6 +41,9 @@ namespace StreamChat.Core.QueryBuilders.Filters
             => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThan, value);
         
         protected FieldFilterRule InternalGreaterThan(int value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThan, value);
+        
+        protected FieldFilterRule InternalGreaterThan(string value)
             => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThan, value);
         
         protected FieldFilterRule InternalGreaterThanOrEquals(DateTime dateTime)
@@ -46,6 +55,9 @@ namespace StreamChat.Core.QueryBuilders.Filters
         protected FieldFilterRule InternalGreaterThanOrEquals(int value)
             => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThanOrEquals, value);
         
+        protected FieldFilterRule InternalGreaterThanOrEquals(string value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.GreaterThanOrEquals, value);
+        
         protected FieldFilterRule InternalLessThan(DateTime value)
             => new FieldFilterRule(FieldName, QueryOperatorType.LessThan, value);
         
@@ -53,6 +65,9 @@ namespace StreamChat.Core.QueryBuilders.Filters
             => new FieldFilterRule(FieldName, QueryOperatorType.LessThan, value);
         
         protected FieldFilterRule InternalLessThan(int value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.LessThan, value);
+        
+        protected FieldFilterRule InternalLessThan(string value)
             => new FieldFilterRule(FieldName, QueryOperatorType.LessThan, value);
         
         protected FieldFilterRule InternalLessThanOrEquals(DateTime value)
@@ -63,8 +78,14 @@ namespace StreamChat.Core.QueryBuilders.Filters
         
         protected FieldFilterRule InternalLessThanOrEquals(int value)
             => new FieldFilterRule(FieldName, QueryOperatorType.LessThanOrEquals, value);
+        
+        protected FieldFilterRule InternalLessThanOrEquals(string value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.LessThanOrEquals, value);
 
         protected FieldFilterRule InternalAutocomplete(string value)
             => new FieldFilterRule(FieldName, QueryOperatorType.Autocomplete, value);
+        
+        protected FieldFilterRule InternalContains(string value)
+            => new FieldFilterRule(FieldName, QueryOperatorType.Contains, value);
     }
 }
