@@ -31,7 +31,7 @@ namespace StreamChat.Tests.StatefulClient
             Debug.Log("------------ TearDown");
 
             await DeleteTempChannelsAsync();
-            
+
             await Client.DisconnectUserAsync();
 
             Client.Dispose();
@@ -63,7 +63,7 @@ namespace StreamChat.Tests.StatefulClient
             {
                 return;
             }
-            
+
             var userCredentials = GetUserAuthCredentials(level);
             var connectTask = Client.ConnectUserAsync(userCredentials);
             while (!connectTask.IsCompleted)
@@ -89,7 +89,7 @@ namespace StreamChat.Tests.StatefulClient
             _tempChannels.Add(channelState);
             return channelState;
         }
-        
+
         /// <summary>
         /// Create temp user with random id
         /// </summary>
@@ -118,8 +118,7 @@ namespace StreamChat.Tests.StatefulClient
 
         protected IEnumerator ConnectAndExecute(Func<Task> test)
         {
-            yield return ConnectUserAsync().RunAsIEnumerator(statefulClient: Client);
-            yield return test().RunAsIEnumerator(statefulClient: Client);
+            yield return ConnectAndExecuteAsync(test).RunAsIEnumerator(statefulClient: Client);
         }
 
         //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible
@@ -141,7 +140,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             }
         }
-        
+
         protected static async Task WaitWhileConditionFalse(Func<bool> condition, int maxIterations = 500)
         {
             if (condition())
@@ -159,10 +158,35 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
+        
+        private async Task ConnectAndExecuteAsync(Func<Task> test)
+        {
+            await ConnectUserAsync();
+            const int maxAttempts = 3;
+            int currentAttempt = 0;
+            while (maxAttempts > currentAttempt)
+            {
+                currentAttempt++;
+                try
+                {
+                    await test();
+                }
+                catch (StreamApiException e)
+                {
+                    if (e.IsRateLimitExceededError())
+                    {
+                        await Task.Delay(1000);
+                        continue;
+                    }
+
+                    throw;
+                }
+            }
+        }
 
         private void InitClient(string forcedAdminId = null)
         {
-            Client = (StreamChatClient) StreamChatClient.CreateDefaultClient(new StreamClientConfig
+            Client = (StreamChatClient)StreamChatClient.CreateDefaultClient(new StreamClientConfig
             {
                 LogLevel = StreamLogLevel.Debug
             });
@@ -201,10 +225,11 @@ namespace StreamChat.Tests.StatefulClient
             }
             catch (StreamApiException streamApiException)
             {
-                if (streamApiException.Code == StreamApiException.RateLimitErrorErrorCode)
+                if (streamApiException.Code == StreamApiException.RateLimitErrorHttpStatusCode)
                 {
                     await Task.Delay(500);
                 }
+
                 Debug.Log($"Try {nameof(DeleteTempChannelsAsync)} again due to exception:  " + streamApiException);
 
                 await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);

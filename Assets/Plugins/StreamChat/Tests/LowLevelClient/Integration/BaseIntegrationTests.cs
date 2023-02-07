@@ -235,7 +235,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             }
             catch (StreamApiException streamApiException)
             {
-                if (streamApiException.Code == StreamApiException.RateLimitErrorErrorCode)
+                if (streamApiException.Code == StreamApiException.RateLimitErrorHttpStatusCode)
                 {
                     await Task.Delay(500);
                 }
