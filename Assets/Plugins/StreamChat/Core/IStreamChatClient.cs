@@ -172,6 +172,8 @@ namespace StreamChat.Core
         /// </summary>
         /// <param name="filters">[Optional] filter object</param>
         /// <returns></returns>
+        [Obsolete("This method will be removed in the future. Please use the other overload method that uses " +
+                  nameof(IFieldFilterRule) + " type filters")]
         Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters = null);
         
         /// <summary>
