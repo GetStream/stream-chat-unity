@@ -8,6 +8,7 @@ using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core;
 using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.StatefulModels;
@@ -477,24 +478,29 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
-        public IEnumerator When_query_channels_with_pagination_expect_valid_results()
-            => ConnectAndExecute(When_query_channels_with_pagination_expect_valid_results_Async);
+        public IEnumerator When_query_channels_with_pagination_expect_paged_results()
+            => ConnectAndExecute(When_query_channels_with_pagination_expect_paged_results_Async);
 
-        private async Task When_query_channels_with_pagination_expect_valid_results_Async()
+        private async Task When_query_channels_with_pagination_expect_paged_results_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
             var channel2 = await CreateUniqueTempChannelAsync();
             var channel3 = await CreateUniqueTempChannelAsync();
             var channel4 = await CreateUniqueTempChannelAsync();
 
-            var channelsFirstPage = (await Client.QueryChannelsAsync(Enumerable.Empty<IFieldFilterRule>(),
+            var filters = new IFieldFilterRule[]
+            {
+                ChannelFilter.Id.In(channel, channel2, channel3, channel4)
+            };
+
+            var channelsFirstPage = (await Client.QueryChannelsAsync(filters,
                 ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt), offset: 0, limit: 2)).ToArray();
             
             Assert.NotNull(channelsFirstPage);
             Assert.Contains(channel4, channelsFirstPage);
             Assert.Contains(channel3, channelsFirstPage);
             
-            var channelsSecondPage = (await Client.QueryChannelsAsync(Enumerable.Empty<IFieldFilterRule>(),
+            var channelsSecondPage = (await Client.QueryChannelsAsync(filters,
                 ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt), offset: 2, limit: 2)).ToArray();
             
             Assert.NotNull(channelsSecondPage);
