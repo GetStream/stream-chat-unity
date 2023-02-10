@@ -65,7 +65,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel1.AddMembersAsync(TestAdminId, TestUserId);
             await channel3.AddMembersAsync(TestAdminId, TestUserId);
-            
+
             await channel2.AddMembersAsync(TestAdminId);
             await channel4.AddMembersAsync(TestAdminId);
 

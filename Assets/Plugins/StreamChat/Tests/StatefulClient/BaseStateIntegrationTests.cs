@@ -93,9 +93,9 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Create temp user with random id
         /// </summary>
-        protected async Task<IStreamUser> CreateUniqueTempUserAsync(string name)
+        protected async Task<IStreamUser> CreateUniqueTempUserAsync(string name, string prefix = "")
         {
-            var userId = "random-user-22222-" + Guid.NewGuid() + "-" + name;
+            var userId = prefix + "random-user-22222-" + Guid.NewGuid() + "-" + name;
 
             var user = await Client.UpsertUsers(new StreamUserUpsertRequest[]
             {
