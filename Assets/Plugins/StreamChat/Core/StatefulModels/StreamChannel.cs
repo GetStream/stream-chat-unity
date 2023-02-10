@@ -510,6 +510,8 @@ namespace StreamChat.Core.StatefulModels
         public Task SendTypingStoppedEventAsync() =>
             LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
+        public override string ToString() => $"Channel - Id: {Id}, Name: {Name}";
+
         internal StreamChannel(string uniqueId, ICacheRepository<StreamChannel> repository,
             IStatefulModelContext context)
             : base(uniqueId, repository, context)
