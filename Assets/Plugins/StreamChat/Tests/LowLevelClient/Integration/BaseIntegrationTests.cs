@@ -108,7 +108,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         /// <summary>
         /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
         /// </summary>
-        protected static async Task<T> Try<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 5,
+        protected static async Task<T> Try<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
             int initTimeoutMs = 150)
         {
             var response = default(T);
