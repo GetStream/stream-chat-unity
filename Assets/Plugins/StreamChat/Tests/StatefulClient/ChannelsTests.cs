@@ -8,7 +8,9 @@ using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core;
 using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Filters.Users;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
@@ -320,7 +322,7 @@ namespace StreamChat.Tests.StatefulClient
             var channel = await CreateUniqueTempChannelAsync();
 
             var otherUserId = OtherAdminUsersCredentials.First().UserId;
-            
+
             var filters = new IFieldFilterRule[]
             {
                 UserFilter.Id.EqualsTo(otherUserId)
@@ -349,7 +351,7 @@ namespace StreamChat.Tests.StatefulClient
             {
                 UserFilter.Id.EqualsTo(otherUserId)
             };
-            
+
             var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
@@ -404,7 +406,7 @@ namespace StreamChat.Tests.StatefulClient
             {
                 UserFilter.Id.EqualsTo(otherUserId)
             };
-            
+
             var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
@@ -433,9 +435,9 @@ namespace StreamChat.Tests.StatefulClient
             {
                 UserFilter.Id.In(otherUsers.Select(u => u.UserId))
             };
-            
+
             var users = await Client.QueryUsersAsync(filters);
-            
+
             var firstUser = users.FirstOrDefault(u => u.Id == firstCredentials.UserId);
             var lastUser = users.FirstOrDefault(u => u.Id == lastCredentials.UserId);
 
@@ -473,6 +475,37 @@ namespace StreamChat.Tests.StatefulClient
             var channels = await Client.QueryChannelsAsync();
             Assert.NotNull(channels);
             Assert.AreNotEqual(0, channels.Count());
+        }
+
+        [UnityTest]
+        public IEnumerator When_query_channels_with_pagination_expect_paged_results()
+            => ConnectAndExecute(When_query_channels_with_pagination_expect_paged_results_Async);
+
+        private async Task When_query_channels_with_pagination_expect_paged_results_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var channel2 = await CreateUniqueTempChannelAsync();
+            var channel3 = await CreateUniqueTempChannelAsync();
+            var channel4 = await CreateUniqueTempChannelAsync();
+
+            var filters = new IFieldFilterRule[]
+            {
+                ChannelFilter.Id.In(channel, channel2, channel3, channel4)
+            };
+
+            var channelsFirstPage = (await Client.QueryChannelsAsync(filters,
+                ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt), offset: 0, limit: 2)).ToArray();
+            
+            Assert.NotNull(channelsFirstPage);
+            Assert.Contains(channel4, channelsFirstPage);
+            Assert.Contains(channel3, channelsFirstPage);
+            
+            var channelsSecondPage = (await Client.QueryChannelsAsync(filters,
+                ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt), offset: 2, limit: 2)).ToArray();
+            
+            Assert.NotNull(channelsSecondPage);
+            Assert.Contains(channel, channelsSecondPage);
+            Assert.Contains(channel2, channelsSecondPage);
         }
     }
 }

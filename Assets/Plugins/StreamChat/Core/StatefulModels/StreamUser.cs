@@ -134,6 +134,8 @@ namespace StreamChat.Core.StatefulModels
             //StreamTodo: probably better to fetch by id or throw exception
             Cache.TryCreateOrUpdate(response.Users.First().Value);
         }
+        
+        public override string ToString() => $"User - Id: {Id}, Name: {Name}";
 
         void IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalInternalDTO dto,
             ICache cache)

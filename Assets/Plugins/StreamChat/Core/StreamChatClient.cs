@@ -256,10 +256,10 @@ namespace StreamChat.Core
             var requestBodyDto = new QueryChannelsRequestInternalDTO
             {
                 FilterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value),
-                Limit = null,
+                Limit = limit,
                 MemberLimit = null,
                 MessageLimit = null,
-                Offset = null,
+                Offset = offset,
                 Presence = true,
 
                 /*
@@ -300,10 +300,10 @@ namespace StreamChat.Core
             var requestBodyDto = new QueryChannelsRequestInternalDTO
             {
                 FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value),
-                Limit = null,
+                Limit = limit,
                 MemberLimit = null,
                 MessageLimit = null,
-                Offset = null,
+                Offset = offset,
                 Presence = true,
 
                 /*
