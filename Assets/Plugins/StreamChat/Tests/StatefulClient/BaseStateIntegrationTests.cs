@@ -170,6 +170,7 @@ namespace StreamChat.Tests.StatefulClient
                 try
                 {
                     await test();
+                    break;
                 }
                 catch (StreamApiException e)
                 {
