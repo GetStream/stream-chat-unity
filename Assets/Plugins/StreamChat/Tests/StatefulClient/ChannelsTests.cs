@@ -173,8 +173,7 @@ namespace StreamChat.Tests.StatefulClient
             SkipThisTempChannelDeletionInTearDown(channel2);
 
             await WaitWhileConditionTrue(
-                () => Client.WatchedChannels.Contains(channel) || Client.WatchedChannels.Contains(channel2),
-                maxIterations: 500);
+                () => Client.WatchedChannels.Contains(channel) || Client.WatchedChannels.Contains(channel2));
 
             Assert.IsFalse(Client.WatchedChannels.Contains(channel));
             Assert.IsFalse(Client.WatchedChannels.Contains(channel2));
@@ -264,7 +263,7 @@ namespace StreamChat.Tests.StatefulClient
             });
 
             await WaitWhileConditionFalse(
-                () => new[] { "owned_dogs", "breakfast", "clan_info" }.All(channel.CustomData.ContainsKey), 1000);
+                () => new[] { "owned_dogs", "breakfast", "clan_info" }.All(channel.CustomData.ContainsKey));
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
             var breakfast = channel.CustomData.Get<List<string>>("breakfast");
@@ -297,7 +296,7 @@ namespace StreamChat.Tests.StatefulClient
             });
 
             await WaitWhileConditionFalse(
-                () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey), 1000);
+                () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey));
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
             var breakfast = channel.CustomData.Get<List<string>>("breakfast");
@@ -345,14 +344,14 @@ namespace StreamChat.Tests.StatefulClient
 
             var channelsFirstPage = (await Client.QueryChannelsAsync(filters,
                 ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt), offset: 0, limit: 2)).ToArray();
-            
+
             Assert.NotNull(channelsFirstPage);
             Assert.Contains(channel4, channelsFirstPage);
             Assert.Contains(channel3, channelsFirstPage);
-            
+
             var channelsSecondPage = (await Client.QueryChannelsAsync(filters,
                 ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt), offset: 2, limit: 2)).ToArray();
-            
+
             Assert.NotNull(channelsSecondPage);
             Assert.Contains(channel, channelsSecondPage);
             Assert.Contains(channel2, channelsSecondPage);
