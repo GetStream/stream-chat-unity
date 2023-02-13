@@ -109,19 +109,21 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
             if (!httpResponse.IsSuccessStatusCode)
             {
+                APIErrorInternalDTO apiError;
                 try
                 {
-                    var apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
-                    if (apiError.Code != InvalidAuthTokenErrorCode)
-                    {
-                        LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
-                        throw new StreamApiException(apiError);
-                    }
+                    apiError = _serializer.Deserialize<APIErrorInternalDTO>(responseContent);
                 }
                 catch (Exception e)
                 {
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
                     throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
+                }
+                
+                if (apiError.Code != InvalidAuthTokenErrorCode)
+                {
+                    LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
+                    throw new StreamApiException(apiError);
                 }
 
                 if (_lowLevelClient.ConnectionState == ConnectionState.Connected)
