@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#if STREAM_TESTS_ENABLED
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Users;
-using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
@@ -267,3 +267,4 @@ namespace StreamChat.Tests.StatefulClient
         }
     }
 }
+#endif
