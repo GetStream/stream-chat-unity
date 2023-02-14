@@ -6,11 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
-using StreamChat.Core.Configs;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
-using StreamChat.EditorTools;
 using StreamChat.Libs.Auth;
 using UnityEngine;
 
@@ -22,7 +20,7 @@ namespace StreamChat.Tests.StatefulClient
         public void OneTimeUp()
         {
             Debug.Log("------------ Up");
-            InitClient();
+            StreamTestClients.Instance.AddLock(this);
         }
 
         [OneTimeTearDown]
@@ -31,52 +29,20 @@ namespace StreamChat.Tests.StatefulClient
             Debug.Log("------------ TearDown");
 
             await DeleteTempChannelsAsync();
-
-            await Client.DisconnectUserAsync();
-
-            Client.Dispose();
-            Client = null;
+            await StreamTestClients.Instance.RemoveLockAsync(this);
         }
 
-        protected StreamChatClient Client { get; private set; }
+        protected static StreamChatClient Client => StreamTestClients.Instance.StateClient;
 
         // StreamTodo: replace with admin ids fetched from loaded data set
         protected const string TestUserId = TestUtils.TestUserId;
         protected const string TestAdminId = TestUtils.TestAdminId;
         protected const string TestGuestId = TestUtils.TestGuestId;
 
-        protected TestAuthDataSet TestAuthDataSet { get; private set; }
+        protected static string OtherUserId => StreamTestClients.Instance.OtherUserId;
 
-        protected IEnumerable<AuthCredentials> OtherAdminUsersCredentials
-            => TestAuthDataSet.TestAdminData.Where(d => d.UserId != Client.LocalUserData.UserId);
-
-        protected enum UserLevel
-        {
-            Admin,
-            User,
-            Guest
-        }
-
-        protected async Task ConnectUserAsync(UserLevel level = UserLevel.Admin)
-        {
-            if (Client.IsConnected)
-            {
-                return;
-            }
-
-            var userCredentials = GetUserAuthCredentials(level);
-            var connectTask = Client.ConnectUserAsync(userCredentials);
-            while (!connectTask.IsCompleted)
-            {
-#if STREAM_DEBUG_ENABLED
-                Debug.Log($"Wait for {nameof(StatefulClient)} to connect");
-#endif
-
-                await Task.Delay(1);
-            }
-
-            Debug.Log($"Connection made: {Client.ConnectionState}, user ID: {Client.LocalUserData.User.Id}");
-        }
+        protected static IEnumerable<AuthCredentials> OtherAdminUsersCredentials
+            => StreamTestClients.Instance.OtherUserCredentials;
 
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
@@ -153,9 +119,9 @@ namespace StreamChat.Tests.StatefulClient
 
         private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
 
-        private async Task ConnectAndExecuteAsync(Func<Task> test)
+        private static async Task ConnectAndExecuteAsync(Func<Task> test)
         {
-            await ConnectUserAsync();
+            await StreamTestClients.Instance.TryConnectStateClientAsync();
             const int maxAttempts = 3;
             int currentAttempt = 0;
             while (maxAttempts > currentAttempt)
@@ -176,34 +142,6 @@ namespace StreamChat.Tests.StatefulClient
 
                     throw;
                 }
-            }
-        }
-
-        private void InitClient(string forcedAdminId = null)
-        {
-            Client = (StreamChatClient)StreamChatClient.CreateDefaultClient(new StreamClientConfig
-            {
-                LogLevel = StreamLogLevel.Debug
-            });
-            TestAuthDataSet = TestUtils.GetTestAuthCredentials();
-        }
-
-        private static AuthCredentials GetUserAuthCredentials(UserLevel level)
-        {
-            TestUtils.GetTestAuthCredentials(out var guestAuthCredentials, out var userAuthCredentials,
-                out var adminAuthCredentials, out var otherUserAuthCredentials);
-
-            Assert.IsFalse(adminAuthCredentials.IsAnyEmpty());
-            Assert.IsFalse(userAuthCredentials.IsAnyEmpty());
-            Assert.IsFalse(guestAuthCredentials.IsAnyEmpty());
-
-            switch (level)
-            {
-                case UserLevel.Admin: return adminAuthCredentials;
-                case UserLevel.User: return userAuthCredentials;
-                case UserLevel.Guest: return guestAuthCredentials;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(level), level, null);
             }
         }
 

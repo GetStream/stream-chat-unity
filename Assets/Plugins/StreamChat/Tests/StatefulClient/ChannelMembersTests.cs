@@ -29,7 +29,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters = new IFieldFilterRule[]
             {
-                UserFilter.Id.EqualsTo(otherUserId)
+                UserFilter.Id.EqualsTo(OtherUserId)
             };
 
             var users = await Client.QueryUsersAsync(filters);
@@ -53,7 +53,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters = new IFieldFilterRule[]
             {
-                UserFilter.Id.EqualsTo(otherUserId)
+                UserFilter.Id.EqualsTo(OtherUserId)
             };
 
             var users = await Client.QueryUsersAsync(filters);
@@ -78,7 +78,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters = new IFieldFilterRule[]
             {
-                UserFilter.Id.EqualsTo(otherUserId)
+                UserFilter.Id.EqualsTo(OtherUserId)
             };
 
             var users = await Client.QueryUsersAsync(filters);
@@ -108,7 +108,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters = new IFieldFilterRule[]
             {
-                UserFilter.Id.EqualsTo(otherUserId)
+                UserFilter.Id.EqualsTo(OtherUserId)
             };
 
             var users = await Client.QueryUsersAsync(filters);

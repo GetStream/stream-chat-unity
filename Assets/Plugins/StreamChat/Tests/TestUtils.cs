@@ -21,7 +21,7 @@ namespace StreamChat.Tests
             out AuthCredentials otherUserAuthCredentials, string forcedAdminId = null)
         {
             var testAuthDataSet = GetTestAuthCredentials();
-            
+
             guestAuthCredentials = testAuthDataSet.TestGuestData;
             userAuthCredentials = testAuthDataSet.TestUserData;
             adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
@@ -85,7 +85,7 @@ namespace StreamChat.Tests
                 userId: "",
                 userToken: "");
 
-            return new TestAuthDataSet(new[] {adminAuthCredentials}, userAuthCredentials, guestAuthCredentials);
+            return new TestAuthDataSet(new[] { adminAuthCredentials }, userAuthCredentials, guestAuthCredentials);
         }
     }
 }
