@@ -28,6 +28,7 @@ namespace StreamChat.Core.StatefulModels
     public delegate void StreamChannelUserChangeHandler(IStreamChannel channel, IStreamUser user);
 
     public delegate void StreamChannelMemberChangeHandler(IStreamChannel channel, IStreamChannelMember member);
+    public delegate void StreamChannelMemberAnyChangeHandler(IStreamChannel channel, IStreamChannelMember member, OperationType operationType);
 
     public delegate void StreamMessageReactionHandler(IStreamChannel channel, IStreamMessage message,
         StreamReaction reaction);
@@ -56,6 +57,8 @@ namespace StreamChat.Core.StatefulModels
         public event StreamChannelMemberChangeHandler MemberRemoved;
 
         public event StreamChannelMemberChangeHandler MemberUpdated;
+        
+        public event StreamChannelMemberAnyChangeHandler MembersChanged;
 
         public event StreamChannelVisibilityHandler VisibilityChanged;
 
@@ -659,6 +662,7 @@ namespace StreamChat.Core.StatefulModels
 
             _members.Add(member);
             MemberAdded?.Invoke(this, member);
+            MembersChanged?.Invoke(this, member, OperationType.Added);
         }
 
         internal void InternalRemoveMember(StreamChannelMember member)
@@ -670,6 +674,7 @@ namespace StreamChat.Core.StatefulModels
 
             _members.Remove(member);
             MemberRemoved?.Invoke(this, member);
+            MembersChanged?.Invoke(this, member, OperationType.Removed);
         }
 
         internal void InternalUpdateMember(StreamChannelMember member)
@@ -680,6 +685,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             MemberUpdated?.Invoke(this, member);
+            MembersChanged?.Invoke(this, member, OperationType.Updated);
         }
 
         protected override StreamChannel Self => this;

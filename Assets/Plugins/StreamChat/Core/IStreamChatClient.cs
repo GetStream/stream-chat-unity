@@ -193,8 +193,7 @@ namespace StreamChat.Core
         /// <summary>
         /// Upsert users. Upsert means update this user or create if not found
         /// </summary>
-        /// <param name="userRequests"></param>
-        /// <returns></returns>
+        /// <param name="userRequests">Collection of user upsert requests</param>
         Task<IEnumerable<IStreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests);
 
         /// <summary>
