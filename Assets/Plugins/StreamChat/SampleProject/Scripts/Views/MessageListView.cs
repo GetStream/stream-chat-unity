@@ -45,6 +45,7 @@ namespace StreamChat.SampleProject.Views
         }
 
         private readonly List<MessageView> _messages = new List<MessageView>();
+        private readonly UnityImageWebLoader _imageLoader = new UnityImageWebLoader();
 
         [SerializeField]
         private Transform _messagesContainer;
@@ -125,11 +126,10 @@ namespace StreamChat.SampleProject.Views
         {
             ClearAll();
 
-            var imageLoader = new UnityImageWebLoader();
             foreach (var message in channel.Messages)
             {
                 var messageView = CreateMessageView(message);
-                messageView.UpdateData(message, imageLoader);
+                messageView.UpdateData(message, _imageLoader);
                 _messages.Add(messageView);
 
                 if (message == channel.Messages.Last())

@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core.Exceptions;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.LowLevelClient.Responses;
-using StreamChat.Libs.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -23,7 +23,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
     internal abstract class BaseIntegrationTests
     {
         [OneTimeSetUp]
-        public void Up()
+        public void OneTimeUp()
         {
             Debug.Log("------------ Up");
 
@@ -31,15 +31,14 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         }
 
         [OneTimeTearDown]
-        public void TearDown()
+        public async void OneTimeTearDown()
         {
             Debug.Log("------------ TearDown");
 
-            DeleteTempChannels();
+            await DeleteTempChannelsAsync();
             TryCleanupClient();
         }
 
-        // StreamTodo: replace with admin ids fetched from loaded data set
         protected const string TestUserId = TestUtils.TestUserId;
         protected const string TestAdminId = TestUtils.TestAdminId;
         protected const string TestGuestId = TestUtils.TestGuestId;
@@ -51,6 +50,12 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         /// Id of other user than currently logged one
         /// </summary>
         protected string OtherUserId { get; private set; }
+        
+        protected IEnumerator RunTest(Func<Task> task)
+        {
+            yield return LowLevelClient.WaitForClientToConnect();
+            yield return task().RunAsIEnumerator();
+        }
 
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
@@ -62,7 +67,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             yield return createChannelTask.RunAsIEnumerator(response =>
             {
-                _tempChannelsToDelete.Add((response.Channel.Type, response.Channel.Id));
                 onChannelReturned?.Invoke(response);
             });
         }
@@ -75,25 +79,56 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             var channelId = "random-channel-" + Guid.NewGuid();
 
+            var channelsResponse = await LowLevelClient.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest()
+            {
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "id", new Dictionary<string, object>
+                        {
+                            { "$in", new[] { channelId } }
+                        }
+                    }
+                }
+            });
+
+            if (channelsResponse.Channels != null && channelsResponse.Channels.Count > 0)
+            {
+                Debug.LogError($"Channel with id {channelId} already exists!");
+            }
+
             var channelState
                 = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId, channelGetOrCreateRequest);
-            _tempChannelsToDelete.Add((channelState.Channel.Type, channelState.Channel.Id));
+            _tempChannelsCidsToDelete.Add(channelState.Channel.Cid);
             return channelState;
         }
 
-        protected IEnumerator InternalWaitForSeconds(float seconds)
+        protected void RemoveTempChannelFromDeleteList(string channelCid) => _tempChannelsCidsToDelete.Remove(channelCid);
+        
+        /// <summary>
+        /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
+        /// </summary>
+        protected static async Task<T> Try<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
+            int initTimeoutMs = 150)
         {
-            if (seconds <= 0)
+            var response = default(T);
+
+            var attemptsLeft = maxAttempts;
+            while (attemptsLeft > 0)
             {
-                yield break;
+                response = await task();
+
+                if (successCondition(response))
+                {
+                    return response;
+                }
+
+                var delay = initTimeoutMs * Math.Pow(2, (maxAttempts - attemptsLeft));
+                await Task.Delay((int)delay);
+                attemptsLeft--;
             }
 
-            var currentTime = EditorApplication.timeSinceStartup;
-
-            while ((EditorApplication.timeSinceStartup - currentTime) < seconds)
-            {
-                yield return null;
-            }
+            return response;
         }
 
         protected IEnumerator SendTestMessages(ChannelState channelState, int count,
@@ -138,7 +173,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             return result;
         }
 
-        public static async Task<Texture2D> DownloadTextureAsync(string url)
+        protected static async Task<Texture2D> DownloadTextureAsync(string url)
         {
             using (var www = UnityWebRequestTexture.GetTexture(url))
             {
@@ -159,7 +194,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             }
         }
 
-        public static async Task<byte[]> DownloadVideoAsync(string url)
+        protected static async Task<byte[]> DownloadVideoAsync(string url)
         {
             using (var www = UnityWebRequest.Get(url))
             {
@@ -182,32 +217,41 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
         private const string WordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-        private readonly List<(string ChannelType, string ChannelId)> _tempChannelsToDelete =
-            new List<(string ChannelType, string ChannelId)>();
+        private readonly List<string> _tempChannelsCidsToDelete =
+            new List<string>();
 
         private readonly StringBuilder _sb = new StringBuilder();
 
-        private void DeleteTempChannels()
+        private async Task DeleteTempChannelsAsync()
         {
-            if (_tempChannelsToDelete.Count == 0)
+            if (_tempChannelsCidsToDelete.Count == 0)
             {
                 return;
             }
-            
-            var cids = new List<string>();
 
-            foreach (var (channelType, channelId) in _tempChannelsToDelete)
+            try
             {
-                cids.Add($"{channelType}:{channelId}");
+                await LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+                {
+                    Cids = _tempChannelsCidsToDelete,
+                    HardDelete = true
+                });
             }
-
-            _tempChannelsToDelete.Clear();
-
-            LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+            catch (StreamApiException streamApiException)
             {
-                Cids = cids,
-                HardDelete = true
-            }).LogIfFailed();
+                if (streamApiException.Code == StreamApiException.RateLimitErrorHttpStatusCode)
+                {
+                    await Task.Delay(500);
+                }
+                
+                await LowLevelClient.ChannelApi.DeleteChannelsAsync(new DeleteChannelsRequest
+                {
+                    Cids = _tempChannelsCidsToDelete,
+                    HardDelete = true
+                });
+            }
+            
+            _tempChannelsCidsToDelete.Clear();
         }
 
         private void InitClientAndConnect(string forcedAdminId = null)

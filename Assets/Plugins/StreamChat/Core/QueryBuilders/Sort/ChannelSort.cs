@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using StreamChat.Core.StatefulModels;
+﻿using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.QueryBuilders.Sort
 {
     /// <summary>
-    /// Factory for creating for <see cref="IStreamChannel"/> query <see cref="IStreamChatClient.QueryChannelsAsync(IDictionary{string,object}, ChannelSortObject, int, int)"/> sort object
+    /// Factory for <see cref="IStreamChannel"/> query <see cref="IStreamChatClient.QueryChannelsAsync"/> sort object building
     /// </summary>
     public static class ChannelSort
     {

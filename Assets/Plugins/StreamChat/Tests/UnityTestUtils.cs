@@ -1,6 +1,7 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System;
 using System.Collections;
+using System.Globalization;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.LowLevelClient;
@@ -24,21 +25,14 @@ namespace StreamChat.Tests
 
             if (task.IsFaulted)
             {
+                var ex = UnwrapAggregateException(task.Exception);
                 if (onFaulted != null)
                 {
-                    onFaulted(task.Exception);
+                    onFaulted(ex);
                     yield break;
                 }
-                else
-                {
-                    if (task.Exception is AggregateException aggregateException &&
-                        aggregateException.InnerExceptions.Count == 1)
-                    {
-                        throw task.Exception.InnerException;
-                    }
-
-                    throw task.Exception;
-                }
+                
+                throw ex;
             }
 
             onSuccess?.Invoke(task.Result);
@@ -55,19 +49,14 @@ namespace StreamChat.Tests
 
             if (task.IsFaulted)
             {
+                var ex = UnwrapAggregateException(task.Exception);
                 if (onFaulted != null)
                 {
-                    onFaulted(task.Exception);
+                    onFaulted(ex);
                     yield break;
                 }
                 
-                if (task.Exception is AggregateException aggregateException &&
-                    aggregateException.InnerExceptions.Count == 1)
-                {
-                    throw task.Exception.InnerException;
-                }
-
-                throw task.Exception;
+                throw ex;
             }
 
             onSuccess?.Invoke();
@@ -84,19 +73,14 @@ namespace StreamChat.Tests
 
             if (task.IsFaulted)
             {
+                var ex = UnwrapAggregateException(task.Exception);
                 if (onFaulted != null)
                 {
-                    onFaulted(task.Exception);
+                    onFaulted(ex);
                     yield break;
                 }
                 
-                if (task.Exception is AggregateException aggregateException &&
-                    aggregateException.InnerExceptions.Count == 1)
-                {
-                    throw task.Exception.InnerException;
-                }
-
-                throw task.Exception;
+                throw ex;
             }
 
             onSuccess?.Invoke();
@@ -104,14 +88,19 @@ namespace StreamChat.Tests
 
         public static IEnumerator WaitForClientToConnect(this IStreamChatLowLevelClient lowLevelClient)
         {
-            const float MaxTimeToConnect = 3;
+            if (lowLevelClient.ConnectionState == ConnectionState.Connected)
+            {
+                yield break;
+            }
+            
+            const float maxTimeToConnect = 3;
             var timeStarted = EditorApplication.timeSinceStartup;
 
             while (true)
             {
                 var elapsed = EditorApplication.timeSinceStartup - timeStarted;
 
-                if (elapsed > MaxTimeToConnect)
+                if (elapsed > maxTimeToConnect)
                 {
                     Debug.LogError("Waiting for connection exceeded max time. Terminating");
                     break;
@@ -167,6 +156,20 @@ namespace StreamChat.Tests
             {
                 yield return null;
             }
+        }
+        
+        public static string ToRfc3339String(this DateTime dateTime) 
+            => dateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
+
+        private static Exception UnwrapAggregateException(Exception exception)
+        {
+            if (exception is AggregateException aggregateException &&
+                aggregateException.InnerExceptions.Count == 1)
+            {
+                return aggregateException.InnerExceptions[0];
+            }
+
+            return exception;
         }
     }
 }

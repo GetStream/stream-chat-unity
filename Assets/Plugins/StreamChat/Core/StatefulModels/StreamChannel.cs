@@ -28,6 +28,7 @@ namespace StreamChat.Core.StatefulModels
     public delegate void StreamChannelUserChangeHandler(IStreamChannel channel, IStreamUser user);
 
     public delegate void StreamChannelMemberChangeHandler(IStreamChannel channel, IStreamChannelMember member);
+    public delegate void StreamChannelMemberAnyChangeHandler(IStreamChannel channel, IStreamChannelMember member, OperationType operationType);
 
     public delegate void StreamMessageReactionHandler(IStreamChannel channel, IStreamMessage message,
         StreamReaction reaction);
@@ -56,6 +57,8 @@ namespace StreamChat.Core.StatefulModels
         public event StreamChannelMemberChangeHandler MemberRemoved;
 
         public event StreamChannelMemberChangeHandler MemberUpdated;
+        
+        public event StreamChannelMemberAnyChangeHandler MembersChanged;
 
         public event StreamChannelVisibilityHandler VisibilityChanged;
 
@@ -388,7 +391,7 @@ namespace StreamChat.Core.StatefulModels
 
         public Task AddMembersAsync(params IStreamUser[] users)
             => AddMembersAsync(users as IEnumerable<IStreamUser>);
-        
+
         public async Task AddMembersAsync(IEnumerable<string> userIds)
         {
             StreamAsserts.AssertNotNull(userIds, nameof(userIds));
@@ -445,6 +448,10 @@ namespace StreamChat.Core.StatefulModels
         
         public Task RemoveMembersAsync(params string[] userIds)
             => RemoveMembersAsync(userIds as IEnumerable<string>);
+        
+        public Task JoinAsMemberAsync() => AddMembersAsync(Client.LocalUserData.User);
+
+        public Task LeaveAsMemberChannelAsync() => RemoveMembersAsync(Client.LocalUserData.User);
 
         //StreamTodo: write test
         public async Task MuteChannelAsync(int? milliseconds = default)
@@ -506,6 +513,8 @@ namespace StreamChat.Core.StatefulModels
         public Task SendTypingStoppedEventAsync() =>
             LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
+        public override string ToString() => $"Channel - Id: {Id}, Name: {Name}";
+
         internal StreamChannel(string uniqueId, ICacheRepository<StreamChannel> repository,
             IStatefulModelContext context)
             : base(uniqueId, repository, context)
@@ -546,7 +555,7 @@ namespace StreamChat.Core.StatefulModels
 
             //Hidden = dto.Hidden.GetValueOrDefault(); Updated from Channel
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
-            //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); Updated from dto.Channel
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
             Membership = cache.TryCreateOrUpdate(dto.Membership);
             _messages.TryAppendUniqueTrackedObjects(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
@@ -569,7 +578,7 @@ namespace StreamChat.Core.StatefulModels
 
             #region ChannelState
 
-            //_members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); //Updated from Channel
+            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); //Updated from Channel
 
             #endregion
         }
@@ -653,6 +662,7 @@ namespace StreamChat.Core.StatefulModels
 
             _members.Add(member);
             MemberAdded?.Invoke(this, member);
+            MembersChanged?.Invoke(this, member, OperationType.Added);
         }
 
         internal void InternalRemoveMember(StreamChannelMember member)
@@ -664,6 +674,7 @@ namespace StreamChat.Core.StatefulModels
 
             _members.Remove(member);
             MemberRemoved?.Invoke(this, member);
+            MembersChanged?.Invoke(this, member, OperationType.Removed);
         }
 
         internal void InternalUpdateMember(StreamChannelMember member)
@@ -674,6 +685,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             MemberUpdated?.Invoke(this, member);
+            MembersChanged?.Invoke(this, member, OperationType.Updated);
         }
 
         protected override StreamChannel Self => this;

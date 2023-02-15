@@ -134,7 +134,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 3.9.0
+  bundleVersion: 4.1.0
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -686,7 +686,7 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
   scriptingDefineSymbols:
-    1: STREAM_TESTS_ENABLED
+    1: 
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

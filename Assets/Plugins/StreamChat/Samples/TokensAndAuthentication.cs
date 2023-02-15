@@ -9,7 +9,7 @@ namespace StreamChat.Samples
     {
         /// <summary>
         /// https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#how-to-refresh-expired-tokens
-/// </summary>
+        /// </summary>
         public async Task ConnectWithTokenProvider()
         {
             // If your backend exposes a simple endpoint to get token from a url you can use our predefined token provider and provide delegate for URL construction 

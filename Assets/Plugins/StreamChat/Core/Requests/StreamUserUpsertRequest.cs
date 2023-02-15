@@ -41,7 +41,7 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Determines the set of user permissions
         /// </summary>
-        public string Role { get; set; }
+        public string Role { get; set; } //StreamTodo: change to enum?
 
         /// <summary>
         /// List of teams user is a part of

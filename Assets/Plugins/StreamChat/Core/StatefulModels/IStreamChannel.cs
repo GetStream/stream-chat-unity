@@ -58,6 +58,11 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a <see cref="IStreamChannelMember"/> was updated
         /// </summary>
         event StreamChannelMemberChangeHandler MemberUpdated;
+        
+        /// <summary>
+        /// Event fired when a <see cref="IStreamChannelMember"/> was added, updated, or removed.
+        /// </summary>
+        event StreamChannelMemberAnyChangeHandler MembersChanged;
 
         /// <summary>
         /// Event fired when visibility of this channel changed. Check <see cref="IStreamChannel.Hidden"/> to know if channel is hidden
@@ -495,5 +500,15 @@ namespace StreamChat.Core.StatefulModels
         /// Send a notification that the local user stopped typing in this channel. You can access currently typing users via <see cref="TypingUsers"/>
         /// </summary>
         Task SendTypingStoppedEventAsync();
+
+        /// <summary>
+        /// Joins this channel as a a member (<see cref="IStreamChannelMember"/>). Only possible if local user has the `Join Own Channel` permission
+        /// </summary>
+        Task JoinAsMemberAsync();
+
+        /// <summary>
+        /// Stop being a member (<see cref="IStreamChannelMember"/>) of this channel. Only possible if local user has the `Leave Own Channel` permission
+        /// </summary>
+        Task LeaveAsMemberChannelAsync();
     }
 }

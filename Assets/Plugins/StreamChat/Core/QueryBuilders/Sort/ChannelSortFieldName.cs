@@ -4,7 +4,7 @@ using StreamChat.Core.StatefulModels;
 namespace StreamChat.Core.QueryBuilders.Sort
 {
     /// <summary>
-    /// Field names available for <see cref="IStreamChannel"/> query: <see cref="IStreamChatClient.QueryChannelsAsync(IDictionary{string,object}, ChannelSortObject, int, int)"/>
+    /// Field names available for <see cref="IStreamChannel"/> query: <see cref="IStreamChatClient.QueryChannelsAsync"/>
     /// </summary>
     public enum ChannelSortFieldName
     {

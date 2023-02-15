@@ -11,6 +11,7 @@ namespace StreamChat.Tests
 {
     internal static class TestUtils
     {
+        // StreamTodo: replace with admin ids fetched from loaded data set
         public const string TestUserId = "integration-tests-role-user";
         public const string TestAdminId = "integration-tests-role-admin";
         public const string TestGuestId = "integration-tests-role-guest";

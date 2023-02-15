@@ -17,10 +17,11 @@ namespace StreamChat.Core.StatefulModels
     /// <inheritdoc cref="IStreamUser"/>
     internal sealed class StreamUser : StreamStatefulModelBase<StreamUser>,
         IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>,
-        IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>, IStreamUser
+        IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>,
+        IStreamUser
     {
         public event StreamUserPresenceHandler PresenceChanged;
-        
+
         public DateTimeOffset? BanExpires { get; private set; }
 
         public bool Banned { get; private set; }
@@ -32,14 +33,27 @@ namespace StreamChat.Core.StatefulModels
         public DateTimeOffset? DeletedAt { get; private set; }
 
         public string Id { get; private set; }
-        
+
         public bool Invisible { get; private set; }
 
         public string Language { get; private set; }
 
         public DateTimeOffset? LastActive { get; private set; }
 
-        public bool Online { get; private set; }
+        public bool Online
+        {
+            get => _online;
+            private set
+            {
+                var prev = _online;
+                _online = value;
+
+                if (prev != value)
+                {
+                    PresenceChanged?.Invoke(this, Online, LastActive);
+                }
+            }
+        }
 
         public StreamPushNotificationSettings PushNotifications { get; private set; }
 
@@ -58,7 +72,7 @@ namespace StreamChat.Core.StatefulModels
         public string Image { get; private set; }
 
         public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagUserAsync(Id);
-        
+
         public async Task MuteAsync()
         {
             var response = await LowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
@@ -72,7 +86,7 @@ namespace StreamChat.Core.StatefulModels
 
             Client.UpdateLocalUser(response.OwnUser);
         }
-        
+
         public Task UnmuteAsync()
             => LowLevelClient.InternalModerationApi.UnmuteUserAsync(new UnmuteUserRequestInternalDTO
             {
@@ -84,9 +98,16 @@ namespace StreamChat.Core.StatefulModels
             var response = await LowLevelClient.InternalUserApi.UpdateUserPartialAsync(
                 new UpdateUserPartialRequestInternalDTO
                 {
-                    Set = new Dictionary<string, object>
+                    Users = new List<UpdateUserPartialRequestEntryInternalDTO>
                     {
-                        {"invisible", true}
+                        new UpdateUserPartialRequestEntryInternalDTO
+                        {
+                            Id = Id,
+                            Set = new Dictionary<string, object>
+                            {
+                                { "invisible", true }
+                            }
+                        }
                     }
                 });
             //StreamTodo: probably better to fetch by id or throw exception
@@ -98,14 +119,23 @@ namespace StreamChat.Core.StatefulModels
             var response = await LowLevelClient.InternalUserApi.UpdateUserPartialAsync(
                 new UpdateUserPartialRequestInternalDTO
                 {
-                    Unset = new List<string>
+                    Users = new List<UpdateUserPartialRequestEntryInternalDTO>
                     {
-                        "invisible"
+                        new UpdateUserPartialRequestEntryInternalDTO
+                        {
+                            Id = Id,
+                            Unset = new List<string>
+                            {
+                                "invisible"
+                            }
+                        }
                     }
                 });
             //StreamTodo: probably better to fetch by id or throw exception
             Cache.TryCreateOrUpdate(response.Users.First().Value);
         }
+        
+        public override string ToString() => $"User - Id: {Id}, Name: {Name}";
 
         void IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalInternalDTO dto,
             ICache cache)
@@ -207,7 +237,6 @@ namespace StreamChat.Core.StatefulModels
         internal void InternalHandlePresenceChanged(EventUserPresenceChangedInternalDTO eventDto)
         {
             Cache.TryCreateOrUpdate(eventDto.User);
-            PresenceChanged?.Invoke(this, Online, LastActive);
         }
 
         protected override StreamUser Self => this;
@@ -219,5 +248,6 @@ namespace StreamChat.Core.StatefulModels
         }
 
         private readonly List<string> _teams = new List<string>();
+        private bool _online;
     }
 }

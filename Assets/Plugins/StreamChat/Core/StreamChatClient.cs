@@ -12,6 +12,7 @@ using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
+using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
@@ -245,8 +246,7 @@ namespace StreamChat.Core
             return _cache.TryCreateOrUpdate(channelResponseDto);
         }
 
-        //StreamTodo: Filter object that contains a factory syntax supported builder
-        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters = null,
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IEnumerable<IFieldFilterRule> filters = null,
             ChannelSortObject sort = null, int limit = 30, int offset = 0)
         {
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
@@ -255,11 +255,11 @@ namespace StreamChat.Core
             //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
             var requestBodyDto = new QueryChannelsRequestInternalDTO
             {
-                FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value),
-                Limit = null,
+                FilterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value),
+                Limit = limit,
                 MemberLimit = null,
                 MessageLimit = null,
-                Offset = null,
+                Offset = offset,
                 Presence = true,
 
                 /*
@@ -288,12 +288,58 @@ namespace StreamChat.Core
             return result;
         }
 
-        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters)
+        [Obsolete("This method will be removed in the future. Please use the other overload method that uses " +
+                  nameof(IFieldFilterRule) + " type filters")]
+        public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IDictionary<string, object> filters,
+            ChannelSortObject sort = null, int limit = 30, int offset = 0)
+        {
+            StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
+            StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
+
+            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
+            var requestBodyDto = new QueryChannelsRequestInternalDTO
+            {
+                FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value),
+                Limit = limit,
+                MemberLimit = null,
+                MessageLimit = null,
+                Offset = offset,
+                Presence = true,
+
+                /*
+                 * StreamTodo: Allowing to sort query can potentially lead to mixed sorting in WatchedChannels
+                 * But there seems no other choice because its too limiting to force only a global sorting for channels
+                 * e.g. user may want to show channels in multiple ways with different sorting which would not work with global only sorting
+                 */
+                Sort = sort?.ToSortParamRequestList(),
+                State = true,
+                Watch = true,
+            };
+
+            var channelsResponseDto
+                = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
+            {
+                return Enumerable.Empty<StreamChannel>();
+            }
+
+            var result = new List<IStreamChannel>();
+            foreach (var channelDto in channelsResponseDto.Channels)
+            {
+                result.Add(_cache.TryCreateOrUpdate(channelDto));
+            }
+
+            return result;
+        }
+
+        [Obsolete("This method will be removed in the future. Please use the other overload method that uses " +
+                  nameof(IFieldFilterRule) + " type filters")]
+        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IDictionary<string, object> filters = null)
         {
             //StreamTodo: Missing filter, and stuff like IdGte etc
             var requestBodyDto = new QueryUsersRequestInternalDTO
             {
-                FilterConditions = filters.ToDictionary(x => x.Key, x => x.Value),
+                FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<string, object>(),
                 IdGt = null,
                 IdGte = null,
                 IdLt = null,
@@ -305,7 +351,38 @@ namespace StreamChat.Core
             };
 
             var response = await InternalLowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
-            if (response.Users != null && response.Users.Count == 0)
+            if (response == null || response.Users == null || response.Users.Count == 0)
+            {
+                return Enumerable.Empty<IStreamUser>();
+            }
+
+            var result = new List<IStreamUser>();
+            foreach (var userDto in response.Users)
+            {
+                result.Add(_cache.TryCreateOrUpdate(userDto));
+            }
+
+            return result;
+        }
+        
+        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IEnumerable<IFieldFilterRule> filters = null)
+        {
+            //StreamTodo: Missing filter, and stuff like IdGte etc
+            var requestBodyDto = new QueryUsersRequestInternalDTO
+            {
+                FilterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value),
+                IdGt = null,
+                IdGte = null,
+                IdLt = null,
+                IdLte = null,
+                Limit = null,
+                Offset = null,
+                Presence = true, //StreamTodo: research whether user should be allowed to control this
+                Sort = null,
+            };
+
+            var response = await InternalLowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);
+            if (response == null || response.Users == null || response.Users.Count == 0)
             {
                 return Enumerable.Empty<IStreamUser>();
             }

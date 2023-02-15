@@ -1,3 +1,21 @@
+v4.1.0:
+Fixes:
+* Fix "no await in async method" warning 
+* Fix When_delete_multiple_channels_expect_no_channels_in_state_client test failing when there a non test related channels already present in watched channels
+* Fix non deterministic SearchMessages test due to data propagation search result not being instant (takes few ms) so make few attempts before failing the test
+* Add potential fix for nondeterministic tests where WS event is not received during REST API call -> Add optional waiting for state to update
+	
+Improvements:
+* Implement token provider with auto refresh when the token expires 
+* refactor API client to disconnect and wait for reconnect if the API call failed due to expired token
+* Change reconnection logic to have few instant attempts + Add TokenProviderException
+* reduce default reconnection intervals
+* Add a simple menu option to toggle Debug mode for the SDK
+* Add overloads to StreamChannel to allow adding/removing members by their ID 
+* Add WebGL support 
+* Add sort parameter to IStreamChatClient.QueryChannelsAsync
+* Make filters parameter optional in IStreamChatClient.QueryChannelsAsync
+
 v4.0.0:
 🚀 Stateful Client release 🚀 
 This major update brings the new fully stateful Stream Chat Client! This means that the new client fully handles state management and synchronization between the application and the Stream server. Previously available client was a only low-level client providing a simple abstraction layer over the Stream Chat API and handling realtime communication through WebSocket.
