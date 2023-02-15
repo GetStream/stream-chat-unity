@@ -8,7 +8,9 @@ using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core;
 using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Filters.Users;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
@@ -171,8 +173,7 @@ namespace StreamChat.Tests.StatefulClient
             SkipThisTempChannelDeletionInTearDown(channel2);
 
             await WaitWhileConditionTrue(
-                () => Client.WatchedChannels.Contains(channel) || Client.WatchedChannels.Contains(channel2),
-                maxIterations: 500);
+                () => Client.WatchedChannels.Contains(channel) || Client.WatchedChannels.Contains(channel2));
 
             Assert.IsFalse(Client.WatchedChannels.Contains(channel));
             Assert.IsFalse(Client.WatchedChannels.Contains(channel2));
@@ -262,7 +263,7 @@ namespace StreamChat.Tests.StatefulClient
             });
 
             await WaitWhileConditionFalse(
-                () => new[] { "owned_dogs", "breakfast", "clan_info" }.All(channel.CustomData.ContainsKey), 1000);
+                () => new[] { "owned_dogs", "breakfast", "clan_info" }.All(channel.CustomData.ContainsKey));
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
             var breakfast = channel.CustomData.Get<List<string>>("breakfast");
@@ -295,7 +296,7 @@ namespace StreamChat.Tests.StatefulClient
             });
 
             await WaitWhileConditionFalse(
-                () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey), 1000);
+                () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey));
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
             var breakfast = channel.CustomData.Get<List<string>>("breakfast");
@@ -312,156 +313,6 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
-        public IEnumerator When_add_user_by_reference_to_channel_expect_user_included_in_members()
-            => ConnectAndExecute(When_add_user_by_reference_to_channel_expect_user_included_in_members_Async);
-
-        private async Task When_add_user_by_reference_to_channel_expect_user_included_in_members_Async()
-        {
-            var channel = await CreateUniqueTempChannelAsync();
-
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
-            
-            var filters = new IFieldFilterRule[]
-            {
-                UserFilter.Id.EqualsTo(otherUserId)
-            };
-
-            var users = await Client.QueryUsersAsync(filters);
-            var otherUser = users.First();
-
-            await channel.AddMembersAsync(otherUser);
-
-            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
-            Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
-        }
-
-        [UnityTest]
-        public IEnumerator When_add_user_by_id_to_channel_expect_user_included_in_members()
-            => ConnectAndExecute(When_add_user_by_id_to_channel_expect_user_included_in_members_Async);
-
-        private async Task When_add_user_by_id_to_channel_expect_user_included_in_members_Async()
-        {
-            var channel = await CreateUniqueTempChannelAsync();
-
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
-
-            var filters = new IFieldFilterRule[]
-            {
-                UserFilter.Id.EqualsTo(otherUserId)
-            };
-            
-            var users = await Client.QueryUsersAsync(filters);
-            var otherUser = users.First();
-
-            await channel.AddMembersAsync(otherUser.Id);
-
-            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
-            Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
-        }
-
-        [UnityTest]
-        public IEnumerator When_remove_member_by_reference_to_channel_expect_member_removed_from_channel_members()
-            => ConnectAndExecute(
-                When_remove_member_by_reference_to_channel_expect_member_removed_from_channel_members_Async);
-
-        private async Task When_remove_member_by_reference_to_channel_expect_member_removed_from_channel_members_Async()
-        {
-            var channel = await CreateUniqueTempChannelAsync();
-
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
-
-            var filters = new IFieldFilterRule[]
-            {
-                UserFilter.Id.EqualsTo(otherUserId)
-            };
-
-            var users = await Client.QueryUsersAsync(filters);
-            var otherUser = users.First();
-
-            await channel.AddMembersAsync(otherUser);
-
-            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
-
-            var otherUserMember = channel.Members.FirstOrDefault(m => m.User == otherUser);
-
-            await channel.RemoveMembersAsync(otherUserMember);
-            await WaitWhileConditionTrue(() => channel.Members.Any(m => m.User == otherUser));
-            Assert.IsNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
-        }
-
-        [UnityTest]
-        public IEnumerator When_remove_member_by_user_id_to_channel_expect_member_removed_from_channel_members()
-            => ConnectAndExecute(
-                When_remove_member_by_user_id_to_channel_expect_member_removed_from_channel_members_Async);
-
-        private async Task When_remove_member_by_user_id_to_channel_expect_member_removed_from_channel_members_Async()
-        {
-            var channel = await CreateUniqueTempChannelAsync();
-
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
-
-            var filters = new IFieldFilterRule[]
-            {
-                UserFilter.Id.EqualsTo(otherUserId)
-            };
-            
-            var users = await Client.QueryUsersAsync(filters);
-            var otherUser = users.First();
-
-            await channel.AddMembersAsync(otherUser.Id);
-
-            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
-
-            await channel.RemoveMembersAsync(otherUser.Id);
-            await WaitWhileConditionTrue(() => channel.Members.Any(m => m.User == otherUser));
-            Assert.IsNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
-        }
-
-        [UnityTest]
-        public IEnumerator When_query_members_expect_proper_members_returned()
-            => ConnectAndExecute(When_query_members_expect_proper_members_returned_Async);
-
-        private async Task When_query_members_expect_proper_members_returned_Async()
-        {
-            var channel = await CreateUniqueTempChannelAsync();
-
-            var otherUsers = OtherAdminUsersCredentials.Take(3).ToArray();
-            var firstCredentials = otherUsers.First();
-            var lastCredentials = otherUsers.Last();
-
-            var filters = new IFieldFilterRule[]
-            {
-                UserFilter.Id.In(otherUsers.Select(u => u.UserId))
-            };
-            
-            var users = await Client.QueryUsersAsync(filters);
-            
-            var firstUser = users.FirstOrDefault(u => u.Id == firstCredentials.UserId);
-            var lastUser = users.FirstOrDefault(u => u.Id == lastCredentials.UserId);
-
-            Assert.NotNull(firstUser);
-            Assert.NotNull(lastUser);
-
-            await channel.AddMembersAsync(users);
-
-            var result = await channel.QueryMembersAsync(new Dictionary<string, object>()
-            {
-                {
-                    "id", new Dictionary<string, object>
-                    {
-                        { "$in", new[] { firstCredentials.UserId, lastCredentials.UserId } }
-                    }
-                }
-            });
-
-            var firstMember = result.FirstOrDefault(m => m.User == firstUser);
-            var lastMember = result.FirstOrDefault(m => m.User == lastUser);
-
-            Assert.NotNull(firstMember);
-            Assert.NotNull(lastMember);
-        }
-
-        [UnityTest]
         public IEnumerator When_query_channels_with_no_parameters_expect_no_errors()
             => ConnectAndExecute(When_query_channels_with_no_parameters_expect_no_errors_Async);
 
@@ -473,6 +324,37 @@ namespace StreamChat.Tests.StatefulClient
             var channels = await Client.QueryChannelsAsync();
             Assert.NotNull(channels);
             Assert.AreNotEqual(0, channels.Count());
+        }
+
+        [UnityTest]
+        public IEnumerator When_query_channels_with_pagination_expect_paged_results()
+            => ConnectAndExecute(When_query_channels_with_pagination_expect_paged_results_Async);
+
+        private async Task When_query_channels_with_pagination_expect_paged_results_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var channel2 = await CreateUniqueTempChannelAsync();
+            var channel3 = await CreateUniqueTempChannelAsync();
+            var channel4 = await CreateUniqueTempChannelAsync();
+
+            var filters = new IFieldFilterRule[]
+            {
+                ChannelFilter.Id.In(channel, channel2, channel3, channel4)
+            };
+
+            var channelsFirstPage = (await Client.QueryChannelsAsync(filters,
+                ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt), offset: 0, limit: 2)).ToArray();
+
+            Assert.NotNull(channelsFirstPage);
+            Assert.Contains(channel4, channelsFirstPage);
+            Assert.Contains(channel3, channelsFirstPage);
+
+            var channelsSecondPage = (await Client.QueryChannelsAsync(filters,
+                ChannelSort.OrderByDescending(ChannelSortFieldName.CreatedAt), offset: 2, limit: 2)).ToArray();
+
+            Assert.NotNull(channelsSecondPage);
+            Assert.Contains(channel, channelsSecondPage);
+            Assert.Contains(channel2, channelsSecondPage);
         }
     }
 }

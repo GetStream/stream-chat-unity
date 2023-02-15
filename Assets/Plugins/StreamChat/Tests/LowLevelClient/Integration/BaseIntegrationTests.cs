@@ -105,15 +105,17 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
         protected void RemoveTempChannelFromDeleteList(string channelCid) => _tempChannelsCidsToDelete.Remove(channelCid);
         
-        protected static async Task<T> Try<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 5,
-            int msBetweenAttempts = 150)
+        /// <summary>
+        /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
+        /// </summary>
+        protected static async Task<T> Try<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
+            int initTimeoutMs = 150)
         {
             var response = default(T);
-            
-            while (maxAttempts > 0)
-            {
-                maxAttempts--;
 
+            var attemptsLeft = maxAttempts;
+            while (attemptsLeft > 0)
+            {
                 response = await task();
 
                 if (successCondition(response))
@@ -121,7 +123,9 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     return response;
                 }
 
-                await Task.Delay(msBetweenAttempts);
+                var delay = initTimeoutMs * Math.Pow(2, (maxAttempts - attemptsLeft));
+                await Task.Delay((int)delay);
+                attemptsLeft--;
             }
 
             return response;

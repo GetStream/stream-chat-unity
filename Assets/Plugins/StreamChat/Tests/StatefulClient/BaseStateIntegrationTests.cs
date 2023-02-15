@@ -127,38 +127,32 @@ namespace StreamChat.Tests.StatefulClient
         /// </summary>
         protected static async Task WaitWhileConditionTrue(Func<bool> condition, int maxIterations = 500)
         {
-            if (!condition())
-            {
-                return;
-            }
-
             for (int i = 0; i < maxIterations; i++)
             {
-                if (condition())
+                if (!condition())
                 {
-                    await Task.Delay(1);
+                    return;
                 }
+
+                await Task.Delay(2);
             }
         }
 
         protected static async Task WaitWhileConditionFalse(Func<bool> condition, int maxIterations = 500)
         {
-            if (condition())
-            {
-                return;
-            }
-
             for (int i = 0; i < maxIterations; i++)
             {
-                if (!condition())
+                if (condition())
                 {
-                    await Task.Delay(1);
+                    return;
                 }
+
+                await Task.Delay(2);
             }
         }
 
         private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
-        
+
         private async Task ConnectAndExecuteAsync(Func<Task> test)
         {
             await ConnectUserAsync();
@@ -170,6 +164,7 @@ namespace StreamChat.Tests.StatefulClient
                 try
                 {
                     await test();
+                    break;
                 }
                 catch (StreamApiException e)
                 {
