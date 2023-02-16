@@ -337,7 +337,7 @@ namespace StreamChat.Tests.StatefulClient
             });
 
             //StreamTodo: implement with stateful client
-            var searchResult = await Client.LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest()
+            var searchResult = await Try(() => Client.LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -357,8 +357,8 @@ namespace StreamChat.Tests.StatefulClient
                         }
                     }
                 }
-            });
-            
+            }), results => results?.Results?.Count > 0);
+
             Assert.IsNotEmpty(searchResult.Results);
             Assert.IsNotNull(searchResult.Results.FirstOrDefault(s => s.Message.Id == messageWithMention.Id));
         }

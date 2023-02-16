@@ -116,6 +116,32 @@ namespace StreamChat.Tests.StatefulClient
                 await Task.Delay(2);
             }
         }
+        
+        /// <summary>
+        /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
+        /// </summary>
+        protected static async Task<T> Try<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
+            int initTimeoutMs = 150)
+        {
+            var response = default(T);
+
+            var attemptsLeft = maxAttempts;
+            while (attemptsLeft > 0)
+            {
+                response = await task();
+
+                if (successCondition(response))
+                {
+                    return response;
+                }
+
+                var delay = initTimeoutMs * Math.Pow(2, (maxAttempts - attemptsLeft));
+                await Task.Delay((int)delay);
+                attemptsLeft--;
+            }
+
+            return response;
+        }
 
         private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
 
