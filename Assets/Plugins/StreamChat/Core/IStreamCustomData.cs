@@ -4,11 +4,11 @@ using StreamChat.Core.StatefulModels;
 namespace StreamChat.Core
 {
     /// <summary>
-    /// Custom data (max 5KB) that you can assign to:
-    /// - <see cref="IStreamChannel"/>
-    /// - <see cref="IStreamMessage"/>
-    /// - <see cref="IStreamUser"/>
-    /// - <see cref="StreamChannelMember"/>
+    /// Custom data (max 5KB) that you can assign to:<br/>
+    /// - <see cref="IStreamChannel"/><br/>
+    /// - <see cref="IStreamMessage"/><br/>
+    /// - <see cref="IStreamUser"/><br/>
+    /// - <see cref="StreamChannelMember"/><br/>
     /// If you want to have images or files as custom data, upload them using <see cref="IStreamChannel.UploadFileAsync"/> and <see cref="IStreamChannel.UploadImageAsync"/> and put only file URL as a custom data
     /// You can set custom data by using <see cref="IStreamChannel.UpdatePartialAsync"/> or <see cref="IStreamChannel.UpdateOverwriteAsync"/>
     /// </summary>

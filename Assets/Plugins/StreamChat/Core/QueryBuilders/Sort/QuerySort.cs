@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.QueryBuilders.Sort
@@ -42,6 +43,27 @@ namespace StreamChat.Core.QueryBuilders.Sort
             foreach (var entry in _order)
             {
                 sortParams.Add(new SortParamRequestInternalDTO
+                {
+                    Direction = entry.Direction,
+                    Field = ToUnderlyingFieldName(entry.Field),
+                });
+            }
+
+            return sortParams;
+        }
+        
+        internal List<SortParamInternalDTO> ToSortParamInternalDTOs()
+        {
+            if (_order.Count == 0)
+            {
+                return null;
+            }
+
+            var sortParams = new List<SortParamInternalDTO>();
+
+            foreach (var entry in _order)
+            {
+                sortParams.Add(new SortParamInternalDTO
                 {
                     Direction = entry.Direction,
                     Field = ToUnderlyingFieldName(entry.Field),

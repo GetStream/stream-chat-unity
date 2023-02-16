@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using StreamChat.Core.StatefulModels;
+﻿using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.QueryBuilders.Sort
 {
     /// <summary>
-    /// Field names available for <see cref="IStreamChannel"/> query: <see cref="IStreamChatClient.QueryChannelsAsync"/>
+    /// Fields that you can use to sort <see cref="IStreamChannel"/> query results when using <see cref="IStreamChatClient.QueryChannelsAsync"/>
     /// </summary>
     public enum ChannelSortFieldName
     {

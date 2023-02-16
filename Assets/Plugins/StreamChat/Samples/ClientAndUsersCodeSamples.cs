@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Users;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Auth;
@@ -161,9 +162,22 @@ namespace StreamChat.Samples
         /// <summary>
         /// https://getstream.io/chat/docs/unity/query_users/?language=unity
         /// </summary>
-        public Task QueryUsersPagination()
+        public async Task QueryUsersPagination()
         {
-            return Task.CompletedTask;
+            var lastWeek = DateTime.Now.AddDays(-7);
+            var filters = new IFieldFilterRule[]
+            {
+                UserFilter.CreatedAt.GreaterThanOrEquals(lastWeek)
+            };
+
+            // Order results by one or multiple fields e.g
+            var sort = UsersSort.OrderByDescending(UserSortField.CreatedAt);
+
+            var limit = 30; // How many records per page
+            var offset = 0; // How many records to skip e.g. offset = 30 -> page 2, offset = 60 -> page 3, etc.
+            
+            // Returns collection of IStreamUser
+            var users = await Client.QueryUsersAsync(filters, sort, offset, limit);
         }
 
         /// <summary>

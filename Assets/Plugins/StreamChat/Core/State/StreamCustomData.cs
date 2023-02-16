@@ -4,9 +4,7 @@ using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.State
 {
-    /// <summary>
     /// <inheritdoc cref="IStreamCustomData"/>
-    /// </summary>
     internal class StreamCustomData : IStreamCustomData
     {
         public int Count => _customData.Count;

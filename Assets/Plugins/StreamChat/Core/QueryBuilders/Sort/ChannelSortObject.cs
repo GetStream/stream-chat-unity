@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.QueryBuilders.Sort
