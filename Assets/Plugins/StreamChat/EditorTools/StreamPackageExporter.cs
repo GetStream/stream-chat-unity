@@ -93,7 +93,7 @@ namespace StreamChat.EditorTools.Builders
                 throw new InvalidOperationException("Failed to find version line");
             }
 
-            int GetIntComponent(int index)
+            int GetComponent(int index)
             {
                 if (match.Groups.Count <= index)
                 {
@@ -110,7 +110,7 @@ namespace StreamChat.EditorTools.Builders
                 return versionComponent;
             }
 
-            return new Version(GetIntComponent(1), GetIntComponent(2), GetIntComponent(3));
+            return new Version(GetComponent(1), GetComponent(2), GetComponent(3));
         }
 
         private static void SetPlayerSettingsVersion(Version version)
