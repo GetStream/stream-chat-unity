@@ -99,6 +99,12 @@ namespace StreamChat.SampleProject.Views
         private TMP_Text _text;
 
         [SerializeField]
+        private TMP_Text _author;
+
+        [SerializeField]
+        private TMP_Text _date;
+
+        [SerializeField]
         private VideoPlayer _videoPlayer;
 
         [SerializeField]
@@ -136,10 +142,14 @@ namespace StreamChat.SampleProject.Views
 
         private void ShowReactions(IStreamMessage message)
         {
+            var anyShown = false;
             foreach (var reactionCount in message.ReactionCounts)
             {
+                anyShown = true;
                 Factory.CreateEmoji(_emojiPrefab, _emojisContainer, reactionCount.Key);
             }
+
+            _emojisContainer.gameObject.SetActive(anyShown);
         }
 
         private void SetOptionsMenuActive(bool active)

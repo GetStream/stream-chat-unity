@@ -77,7 +77,6 @@ namespace StreamChat.SampleProject.Views
         public void CreateEmoji(Image prefab, Transform container, string key)
         {
             var sprite = _appConfig.Emojis.AllSprites.FirstOrDefault(_ => _.name == key);
-
             if (sprite == default)
             {
                 Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _appConfig.Emojis.AllSprites.Select(_ => _.name)));
