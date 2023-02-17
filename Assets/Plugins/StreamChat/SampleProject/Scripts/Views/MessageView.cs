@@ -48,7 +48,9 @@ namespace StreamChat.SampleProject.Views
                 _videoPlayer.GetComponentInChildren<RawImage>().texture = _renderTexture;
             }
 
-            _text.text = $"{GetMessageText(message)}<br>{Message.User.Name}";
+            _text.text = GetMessageText(message);
+            _author.text = Message.User.Name;
+            _date.text = Message.CreatedAt.DateTime.TimeAgo();
 
             ShowAvatarAsync(Message.User.Image, imageLoader).LogIfFailed();
 

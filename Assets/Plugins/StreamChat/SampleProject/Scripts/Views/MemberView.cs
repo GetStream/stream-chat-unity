@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
+using StreamChat.SampleProject.Utils;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -11,7 +14,7 @@ namespace StreamChat.SampleProject.Views
     /// </summary>
     public class MemberView : MonoBehaviour
     {
-        public void UpdateData(IStreamChannelMember member)
+        public void UpdateData(IStreamChannelMember member, IImageLoader imageLoader)
         {
             if (_member != null)
             {
@@ -23,10 +26,13 @@ namespace StreamChat.SampleProject.Views
 
             _label.text = GetName(_member.User);
             UpdateOnlineStatus(_member.User.Online);
+            
+            ShowAvatarAsync(_member.User.Image, imageLoader).LogIfFailed();
         }
 
         protected void OnDestroy()
         {
+            _isDestroyed = true;
             if (_member == null)
             {
                 return;
@@ -43,9 +49,31 @@ namespace StreamChat.SampleProject.Views
 
         [SerializeField]
         private GameObject _statusIsOffline;
+        
+        [SerializeField]
+        private Image _avatar;
 
         private IStreamChannelMember _member;
+        private bool _isDestroyed;
 
+        private async Task ShowAvatarAsync(string url, IImageLoader imageLoader)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                return;
+            }
+
+            Debug.Log("ShowAvatarAsync " + url);
+            var sprite = await imageLoader.LoadImageAsync(url);
+
+            if (_isDestroyed || sprite == null)
+            {
+                return;
+            }
+
+            _avatar.sprite = sprite;
+        }
+        
         private void UpdateOnlineStatus(bool online)
         {
             _statusIsOnline.SetActive(online);
