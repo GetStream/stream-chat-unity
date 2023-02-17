@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -25,6 +24,9 @@ using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Utils;
 using StreamChat.Libs.Websockets;
+#if STREAM_TESTS_ENABLED
+using System.Runtime.CompilerServices;
+#endif
 
 #if STREAM_TESTS_ENABLED
 [assembly: InternalsVisibleTo("StreamChat.Tests")] //StreamTodo: verify which Unity version introduced this

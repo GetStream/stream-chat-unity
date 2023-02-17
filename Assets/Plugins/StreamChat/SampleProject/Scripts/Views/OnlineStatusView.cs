@@ -55,7 +55,7 @@ namespace StreamChat.SampleProject.Views
         {
             var localUser = State.Client.LocalUserData.User;
             _statusLabel.text
-                = $"Connected as: <b>{localUser.Id}</b>, Online: <b>{localUser.Online}</b>, Invisible: <b>{localUser.Invisible}</b>";
+                = $"Logged in: <color=#F9AC17><b>{localUser.Id}</b></color>, Online: <color=#F9AC17><b>{localUser.Online}</b></color>, Invisible: <color=#F9AC17><b>{localUser.Invisible}</b></color>";
         }
 
         private void UpdateInvisibilityToggleButton()

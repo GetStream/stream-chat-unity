@@ -48,7 +48,9 @@ namespace StreamChat.SampleProject.Views
                 _videoPlayer.GetComponentInChildren<RawImage>().texture = _renderTexture;
             }
 
-            _text.text = $"{GetMessageText(message)}<br>{Message.User.Name}";
+            _text.text = GetMessageText(message);
+            _author.text = Message.User.Name;
+            _date.text = Message.CreatedAt.DateTime.TimeAgo();
 
             ShowAvatarAsync(Message.User.Image, imageLoader).LogIfFailed();
 
@@ -99,6 +101,12 @@ namespace StreamChat.SampleProject.Views
         private TMP_Text _text;
 
         [SerializeField]
+        private TMP_Text _author;
+
+        [SerializeField]
+        private TMP_Text _date;
+
+        [SerializeField]
         private VideoPlayer _videoPlayer;
 
         [SerializeField]
@@ -123,9 +131,7 @@ namespace StreamChat.SampleProject.Views
                 return;
             }
 
-            Debug.Log("ShowAvatarAsync " + url);
             var sprite = await imageLoader.LoadImageAsync(url);
-
             if (_isDestroyed || sprite == null)
             {
                 return;
@@ -136,10 +142,14 @@ namespace StreamChat.SampleProject.Views
 
         private void ShowReactions(IStreamMessage message)
         {
+            var anyShown = false;
             foreach (var reactionCount in message.ReactionCounts)
             {
+                anyShown = true;
                 Factory.CreateEmoji(_emojiPrefab, _emojisContainer, reactionCount.Key);
             }
+
+            _emojisContainer.gameObject.SetActive(anyShown);
         }
 
         private void SetOptionsMenuActive(bool active)

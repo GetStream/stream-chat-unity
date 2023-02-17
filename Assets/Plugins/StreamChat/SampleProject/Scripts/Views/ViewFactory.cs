@@ -42,8 +42,8 @@ namespace StreamChat.SampleProject.Views
 
             var options = new List<MenuOptionEntry>
             {
-                new MenuOptionEntry("Reply", () => throw new NotImplementedException("Reply")),
-                new MenuOptionEntry("Pin", () => throw new NotImplementedException("Pin")),
+                //new MenuOptionEntry("Reply", () => throw new NotImplementedException("Reply")),
+                new MenuOptionEntry("Pin", () => message.PinAsync().LogExceptionsOnFailed()),
             };
 
             if (isSelfMessage)
@@ -52,11 +52,12 @@ namespace StreamChat.SampleProject.Views
             }
             else
             {
-                options.Add(new MenuOptionEntry("Flag", () => throw new NotImplementedException("Flag")));
+                options.Add(new MenuOptionEntry("Flag message", () => message.FlagAsync().LogExceptionsOnFailed()));
+                options.Add(new MenuOptionEntry("Flag user", () => message.User.FlagAsync().LogExceptionsOnFailed()));
 
                 //StreamTodo: muted ? => show unmute instead
                 var user = message.User;
-                options.Add(new MenuOptionEntry("Mute", () => user.MuteAsync().LogExceptionsOnFailed()));
+                options.Add(new MenuOptionEntry("Mute User", () => user.MuteAsync().LogExceptionsOnFailed()));
             }
 
             options.Add(new MenuOptionEntry("Mark as read", () => message.MarkMessageAsLastReadAsync()));
@@ -77,10 +78,9 @@ namespace StreamChat.SampleProject.Views
         public void CreateEmoji(Image prefab, Transform container, string key)
         {
             var sprite = _appConfig.Emojis.AllSprites.FirstOrDefault(_ => _.name == key);
-
             if (sprite == default)
             {
-                Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _appConfig.Emojis.AllSprites.Select(_ => _.name)));
+                //Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _appConfig.Emojis.AllSprites.Select(_ => _.name)));
                 return;
             }
 
