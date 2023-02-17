@@ -90,9 +90,9 @@ namespace StreamChat.SampleProject.Views
             {
                 var isLast = index == typingUsers.Count - 1;
                 var isNextLast = !isLast && index == typingUsers.Count - 2;
-                _sb.Append("<b>");
+                _sb.Append("<color=#F9AC17><b>");
                 _sb.Append(user.Name);
-                _sb.Append("</b>");
+                _sb.Append("</b></color>");
 
                 if (!isLast && !isNextLast)
                 {
