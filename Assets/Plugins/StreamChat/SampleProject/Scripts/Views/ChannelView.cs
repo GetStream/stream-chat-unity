@@ -6,6 +6,7 @@ using StreamChat.Libs.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -76,6 +77,9 @@ namespace StreamChat.SampleProject.Views
                 : string.Empty;
 
              _avatarAbbreviation.text = abbreviation;
+             
+             // Disable because we provide sprite icon
+             _avatarAbbreviation.gameObject.SetActive(false);
         }
 
         private string GetLastMessagePreview()
@@ -97,6 +101,17 @@ namespace StreamChat.SampleProject.Views
 
         private async Task UpdateImageAsync()
         {
+            var sprites = Resources.LoadAll("ClanIcons", typeof(Sprite));
+
+            if (sprites.Length > 0)
+            {
+                var randomSprite = (Sprite)sprites[Random.Range(0, sprites.Length)];
+                _avatar.sprite = randomSprite;
+                return;
+            }
+            
+            
+            
             _avatar.gameObject.SetActive(false);
 
             if (!_isDirectMessage)
