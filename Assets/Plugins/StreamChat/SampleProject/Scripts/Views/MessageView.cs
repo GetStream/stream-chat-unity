@@ -131,9 +131,7 @@ namespace StreamChat.SampleProject.Views
                 return;
             }
 
-            Debug.Log("ShowAvatarAsync " + url);
             var sprite = await imageLoader.LoadImageAsync(url);
-
             if (_isDestroyed || sprite == null)
             {
                 return;

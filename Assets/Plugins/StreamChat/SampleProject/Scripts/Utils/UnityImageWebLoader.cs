@@ -70,7 +70,7 @@ namespace StreamChat.SampleProject.Utils
                         tcs.SetResult(sprite);
                     }
 
-                    _subscribers.Clear();
+                    _subscribers[url].Clear();
                 }
 
                 return _cachedImages[url] = sprite;
