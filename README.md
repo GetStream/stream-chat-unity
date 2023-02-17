@@ -74,14 +74,20 @@ Check out our [tutorial](https://getstream.io/chat/unity/tutorial/) on how to se
 
 In the `StreamChat/SampleProject` folder you'll find a fully working chat example featuring:
 - Browsing channels and messages
-- Sending, Editing, Deleting a message
+- Sending, Editing, Deleting messaged
 - Message right-click context menu
-- Reactions
+- Reactions/Emojis
+- Member list with online status
+- Typing indicators
+- Moderation: flagging messages and users
 - Sending video attachments (works only in Editor)
 
-It is created with Unity's uGUI UI system and supports both legacy and the new Unity's Input System. 
+### Preview
+![image](https://user-images.githubusercontent.com/33436839/219688055-b53c6e19-6c7e-4f31-b27f-a04bdfa0e45b.png)
 
-**How to run it?**
+Created with Unity's UGUI UI system and supports both legacy and the new Unity's Input System. 
+
+### How to run it?
 1. [Register](https://getstream.io/try-for-free/) an account and go to [Stream Dasboard](https://getstream.io/dashboard/)
 2. Create App and go to its **Chat Explorer** throught the Dashboard
 3. Create new chat user and save its **id**
