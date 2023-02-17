@@ -65,6 +65,7 @@ namespace StreamChat.SampleProject.Views
 
             Debug.Log("ShowAvatarAsync " + url);
             var sprite = await imageLoader.LoadImageAsync(url);
+            Debug.Log("Avathar loaded " + url);
 
             if (_isDestroyed || sprite == null)
             {

@@ -883,6 +883,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AttachmentButton
       objectReference: {fileID: 0}
+    - target: {fileID: 5508078059778964640, guid: d99a66354e95980419284f5fba6d9363, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d99a66354e95980419284f5fba6d9363, type: 3}
 --- !u!224 &5775847975692918813 stripped

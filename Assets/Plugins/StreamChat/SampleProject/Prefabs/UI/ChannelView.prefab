@@ -533,7 +533,7 @@ MonoBehaviour:
   m_SpriteState:
     m_HighlightedSprite: {fileID: 21300000, guid: f8f5a8bd373a79f4bbed2b8e5875d0fc, type: 3}
     m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 21300000, guid: f8f5a8bd373a79f4bbed2b8e5875d0fc, type: 3}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
@@ -836,6 +836,7 @@ MonoBehaviour:
   _avatar: {fileID: 1956189298216912180}
   _avatarAbbreviation: {fileID: 1107221402404920472}
   _button: {fileID: 3675434017419269183}
+  _channelActiveSprite: {fileID: 21300000, guid: f8f5a8bd373a79f4bbed2b8e5875d0fc, type: 3}
 --- !u!114 &6629679907383597674
 MonoBehaviour:
   m_ObjectHideFlags: 0

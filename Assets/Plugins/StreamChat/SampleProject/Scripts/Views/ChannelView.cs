@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.StatefulModels;
@@ -21,16 +22,29 @@ namespace StreamChat.SampleProject.Views
         {
             _channel = channel ?? throw new ArgumentNullException(nameof(channel));
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            
+            _context.State.ActiveChanelChanged += OnActiveChanelChanged;
+            OnActiveChanelChanged(_context.State.ActiveChannel);
 
             _isDirectMessage = channel.IsDirectMessage;
 
             UpdateMessagePreview();
-            UpdateImageAsync().LogIfFailed();
+            UpdateAvatarAsync().LogIfFailed();
         }
 
         protected void Awake()
         {
             _button.onClick.AddListener(OnClicked);
+            _buttonImage = _button.GetComponent<Image>();
+            _defaultSprite = _buttonImage.sprite;
+        }
+
+        protected void OnDestroy()
+        {
+            if (_context?.State != null)
+            {
+                _context.State.ActiveChanelChanged -= OnActiveChanelChanged;
+            }
         }
 
         private const int PreviewMessageLenght = 30;
@@ -52,8 +66,13 @@ namespace StreamChat.SampleProject.Views
 
         [SerializeField]
         private Button _button;
+        
+        [SerializeField]
+        private Sprite _channelActiveSprite;
 
         private IChatViewContext _context;
+        private Image _buttonImage;
+        private Sprite _defaultSprite;
 
         private void OnClicked() => Clicked?.Invoke(_channel);
 
@@ -98,20 +117,44 @@ namespace StreamChat.SampleProject.Views
 
             return lastMessage.Text.Substring(0, PreviewMessageLenght) + " ...";
         }
-
-        private async Task UpdateImageAsync()
+        
+        private void OnActiveChanelChanged(IStreamChannel channel)
         {
-            var sprites = Resources.LoadAll("ClanIcons", typeof(Sprite));
+            var isThisChannelActive = channel == _channel;
+            _buttonImage.sprite = isThisChannelActive ? _channelActiveSprite : _defaultSprite;
+        }
 
-            if (sprites.Length > 0)
+        private bool TrySetChannelIco()
+        {
+            _channel.CustomData.TryGet<string>("clan_symbol", out var symbol);
+            _channel.CustomData.TryGet<string>("clan_color", out var color);
+
+            if (string.IsNullOrEmpty(symbol) || string.IsNullOrEmpty(color))
             {
-                var randomSprite = (Sprite)sprites[Random.Range(0, sprites.Length)];
-                _avatar.sprite = randomSprite;
+                return false;
+            }
+
+            var spriteName = $"ico_{symbol}_{color}";
+            
+            var sprites = Resources.LoadAll("ClanIcons", typeof(Sprite));
+            var sprite = sprites.FirstOrDefault(s => s.name.ToLower() == spriteName);
+
+            if (sprite == null)
+            {
+                return false;
+            }
+
+            _avatar.sprite = (Sprite)sprite;
+            return true;
+        }
+
+        private async Task UpdateAvatarAsync()
+        {
+            if (TrySetChannelIco())
+            {
                 return;
             }
-            
-            
-            
+
             _avatar.gameObject.SetActive(false);
 
             if (!_isDirectMessage)
@@ -120,14 +163,12 @@ namespace StreamChat.SampleProject.Views
             }
 
             var otherMember = _channel.Members.FirstOrDefault(_ => _.User != _context.Client.LocalUserData.User);
-
             if (otherMember == null || otherMember.User.Image.IsNullOrEmpty())
             {
                 return;
             }
 
             var sprite = await _context.ImageLoader.LoadImageAsync(otherMember.User.Image);
-
             if (sprite != null)
             {
                 _avatar.gameObject.SetActive(true);

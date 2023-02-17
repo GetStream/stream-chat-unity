@@ -110,7 +110,7 @@ namespace StreamChat.SampleProject.Views
             => RebuildMessages(channel, scrollToBottom: false);
 
         private void OnMessageReceived(IStreamChannel channel, IStreamMessage message)
-            => RebuildMessages(channel, scrollToBottom: false);
+            => RebuildMessages(channel, scrollToBottom: true);
 
         private void ClearAll()
         {
