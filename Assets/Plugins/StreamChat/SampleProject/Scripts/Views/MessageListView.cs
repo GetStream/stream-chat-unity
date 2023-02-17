@@ -29,6 +29,12 @@ namespace StreamChat.SampleProject.Views
         {
             base.OnUpdate();
 
+            if (_scrollRect.content.rect.height < _scrollRect.viewport.rect.height)
+            {
+                // if scroll view doesn't fill whole screen the verticalNormalizedPosition is 1 so it calls for previous messages on empty message list
+                return;
+            }
+
             if (_scrollRect.verticalNormalizedPosition >= 1f && !IsScrollListRebuilding)
             {
                 TryLoadPreviousMessagesAsync().LogIfFailed();

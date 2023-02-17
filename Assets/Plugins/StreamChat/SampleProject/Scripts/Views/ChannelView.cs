@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.StatefulModels;
@@ -7,7 +6,6 @@ using StreamChat.Libs.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -36,7 +34,8 @@ namespace StreamChat.SampleProject.Views
         {
             _button.onClick.AddListener(OnClicked);
             _buttonImage = _button.GetComponent<Image>();
-            _defaultSprite = _buttonImage.sprite;
+            _defaultBgSprite = _buttonImage.sprite;
+            _defaultAvatarSprite = _avatar.sprite;
         }
 
         protected void OnDestroy()
@@ -72,7 +71,8 @@ namespace StreamChat.SampleProject.Views
 
         private IChatViewContext _context;
         private Image _buttonImage;
-        private Sprite _defaultSprite;
+        private Sprite _defaultBgSprite;
+        private Sprite _defaultAvatarSprite;
 
         private void OnClicked() => Clicked?.Invoke(_channel);
 
@@ -96,10 +96,10 @@ namespace StreamChat.SampleProject.Views
                 : string.Empty;
 
              _avatarAbbreviation.text = abbreviation;
-             
-             // Disable because we provide sprite icon
-             _avatarAbbreviation.gameObject.SetActive(false);
+             UpdateAbbreviationVisibility();
         }
+        
+        private void UpdateAbbreviationVisibility() => _avatarAbbreviation.gameObject.SetActive(_avatar.sprite == _defaultAvatarSprite);
 
         private string GetLastMessagePreview()
         {
@@ -121,10 +121,10 @@ namespace StreamChat.SampleProject.Views
         private void OnActiveChanelChanged(IStreamChannel channel)
         {
             var isThisChannelActive = channel == _channel;
-            _buttonImage.sprite = isThisChannelActive ? _channelActiveSprite : _defaultSprite;
+            _buttonImage.sprite = isThisChannelActive ? _channelActiveSprite : _defaultBgSprite;
         }
 
-        private bool TrySetChannelIco()
+        private bool TrySetChannelIcon()
         {
             _channel.CustomData.TryGet<string>("clan_symbol", out var symbol);
             _channel.CustomData.TryGet<string>("clan_color", out var color);
@@ -145,12 +145,13 @@ namespace StreamChat.SampleProject.Views
             }
 
             _avatar.sprite = (Sprite)sprite;
+            UpdateAbbreviationVisibility();
             return true;
         }
 
         private async Task UpdateAvatarAsync()
         {
-            if (TrySetChannelIco())
+            if (TrySetChannelIcon())
             {
                 return;
             }
@@ -174,6 +175,7 @@ namespace StreamChat.SampleProject.Views
                 _avatar.gameObject.SetActive(true);
                 _avatar.sprite = sprite;
                 _avatarAbbreviation.text = string.Empty;
+                UpdateAbbreviationVisibility();
             }
         }
     }
