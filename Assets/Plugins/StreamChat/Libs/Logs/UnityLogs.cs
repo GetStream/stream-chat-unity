@@ -8,17 +8,6 @@ namespace StreamChat.Libs.Logs
     /// </summary>
     public class UnityLogs : ILogs
     {
-        public enum LogLevel
-        {
-            Disabled = 0,
-            Info = 1 << 0,
-            Warning = 1 << 1,
-            Error = 1 << 2,
-            Exception = 1 << 3,
-            FailureOnly = Error | Exception,
-            All = Info | Warning | Error | Exception
-        }
-
         public UnityLogs(LogLevel logLevel = LogLevel.All)
         {
             _logLevel = logLevel;

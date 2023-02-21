@@ -16,7 +16,7 @@ namespace StreamChat.Libs
     /// </summary>
     public static class StreamDependenciesFactory
     {
-        public static ILogs CreateLogger(UnityLogs.LogLevel logLevel = UnityLogs.LogLevel.All)
+        public static ILogs CreateLogger(LogLevel logLevel = LogLevel.All)
             => new UnityLogs(logLevel);
 
         public static IWebsocketClient CreateWebsocketClient(ILogs logs, bool isDebugMode = false)

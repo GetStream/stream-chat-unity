@@ -99,7 +99,8 @@ namespace StreamChat.Core
 
             var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo,
                 logs, config);
-            gameObjectRunner.RunChatInstance(client);
+
+            gameObjectRunner?.RunChatInstance(client);
             return client;
         }
 
