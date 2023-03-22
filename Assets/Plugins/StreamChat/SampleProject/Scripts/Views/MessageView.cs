@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
-using StreamChat.SampleProject.Popups;
 using StreamChat.SampleProject.Utils;
 using TMPro;
 using UnityEngine;
@@ -19,6 +18,8 @@ namespace StreamChat.SampleProject.Views
     /// </summary>
     public class MessageView : BaseView, IPointerDownHandler
     {
+        public event Action<MessageView, PointerEventData> PointedDown;
+        
         public IStreamMessage Message { get; private set; }
 
         public void UpdateData(IStreamMessage message, IImageLoader imageLoader)
@@ -65,15 +66,7 @@ namespace StreamChat.SampleProject.Views
             }
         }
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            if (!InputSystem.GetMouseButton(1))
-            {
-                return;
-            }
-
-            SetOptionsMenuActive(true);
-        }
+        public void OnPointerDown(PointerEventData eventData) => PointedDown?.Invoke(this, eventData);
 
         protected void Awake()
         {
@@ -94,7 +87,6 @@ namespace StreamChat.SampleProject.Views
         }
 
         private bool _isDestroyed;
-        private MessageOptionsPopup _activePopup;
         private RenderTexture _renderTexture;
 
         [SerializeField]
@@ -150,26 +142,6 @@ namespace StreamChat.SampleProject.Views
             }
 
             _emojisContainer.gameObject.SetActive(anyShown);
-        }
-
-        private void SetOptionsMenuActive(bool active)
-        {
-            if (_activePopup != null)
-            {
-                Destroy(_activePopup.gameObject);
-                _activePopup = null;
-            }
-
-            if (active)
-            {
-                var mousePosition = InputSystem.MousePosition;
-
-                _activePopup = Factory.CreateMessageOptionsPopup(this, State);
-
-                var rectTransform = ((RectTransform)_activePopup.transform);
-
-                rectTransform.position = mousePosition + new Vector2(-10, 10);
-            }
         }
 
         private static string GetMessageText(IStreamMessage message)
