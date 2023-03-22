@@ -296,7 +296,7 @@ MonoBehaviour:
   m_MinWidth: -1
   m_MinHeight: -1
   m_PreferredWidth: -1
-  m_PreferredHeight: 120
+  m_PreferredHeight: 150
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -443,6 +443,10 @@ PrefabInstance:
       propertyPath: m_Value
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8090220119038640879, guid: 0491f73f9656de1479b08d87bf70ec74, type: 3}
+      propertyPath: m_Size
+      value: 0.9999999
+      objectReference: {fileID: 0}
     - target: {fileID: 8726209695421210470, guid: 0491f73f9656de1479b08d87bf70ec74, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -487,7 +491,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1972999991939388118, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
       propertyPath: m_Size
-      value: 0.99514675
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1972999991939388118, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
       propertyPath: m_Value
@@ -511,7 +515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3010964881072045271, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00030779475
+      value: 0.000055454144
       objectReference: {fileID: 0}
     - target: {fileID: 3773565267568751462, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
       propertyPath: m_AnchorMax.x
@@ -519,6 +523,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3773565267568751462, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773565267568751462, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
+      propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6818924929287490322, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
@@ -606,8 +614,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7167094196472387625, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
-      propertyPath: m_Value
+      propertyPath: m_Size
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7167094196472387625, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
+      propertyPath: m_Value
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7702233621548626119, guid: 4bdb886d8d2854741be2bcc591e470b0, type: 3}
       propertyPath: m_AnchorMax.x

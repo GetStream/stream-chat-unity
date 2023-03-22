@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
+using StreamChat.SampleProject.Popups;
 using StreamChat.SampleProject.Utils;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace StreamChat.SampleProject.Views
@@ -28,6 +30,11 @@ namespace StreamChat.SampleProject.Views
         protected override void OnUpdate()
         {
             base.OnUpdate();
+
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+            HideContextMenuIfTouchedOutside();
+
+#endif
 
             if (_scrollRect.content.rect.height < _scrollRect.viewport.rect.height)
             {
@@ -68,6 +75,9 @@ namespace StreamChat.SampleProject.Views
         private Task _loadPreviousMessagesTask;
         private IStreamChannel _activeChannel;
 
+        private MessageOptionsPopup _activePopup;
+        private int _frameShownPopup;
+
         //we wait 2 frames before depending on scroll list position in order for the list to render and update its internal state
         private bool IsScrollListRebuilding => _scrollListLastUpdateFrame + 2 > Time.frameCount;
 
@@ -76,19 +86,19 @@ namespace StreamChat.SampleProject.Views
             if (_activeChannel != null)
             {
                 _activeChannel.MessageReceived -= OnMessageReceived;
-                _activeChannel.MessageDeleted -= OnMessageDeleted; 
+                _activeChannel.MessageDeleted -= OnMessageDeleted;
                 _activeChannel.MessageUpdated -= OnMessageUpdated;
                 _activeChannel.ReactionAdded -= OnReactionAdded;
                 _activeChannel.ReactionUpdated -= OnReactionUpdated;
                 _activeChannel.ReactionRemoved -= OnReactionRemoved;
             }
-            
+
             if (channel == null)
             {
                 ClearAll();
                 return;
             }
-            
+
             _activeChannel = channel;
             _activeChannel.MessageReceived += OnMessageReceived;
             _activeChannel.MessageDeleted += OnMessageDeleted;
@@ -96,7 +106,7 @@ namespace StreamChat.SampleProject.Views
             _activeChannel.ReactionAdded += OnReactionAdded;
             _activeChannel.ReactionUpdated += OnReactionUpdated;
             _activeChannel.ReactionRemoved += OnReactionRemoved;
-            
+
             RebuildMessages(channel, scrollToBottom: true);
         }
 
@@ -122,6 +132,7 @@ namespace StreamChat.SampleProject.Views
         {
             foreach (var m in _messages)
             {
+                m.PointedDown -= OnMessagePointedDown;
                 Destroy(m.gameObject);
             }
 
@@ -214,6 +225,7 @@ namespace StreamChat.SampleProject.Views
             var prefab = isLocal ? _localUserMessageViewPrefab : _messageViewPrefab;
             var view = Instantiate(prefab, _messagesContainer);
             view.Init(ViewContext);
+            view.PointedDown += OnMessagePointedDown;
             return view;
         }
 
@@ -223,6 +235,76 @@ namespace StreamChat.SampleProject.Views
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
             GetComponent<ScrollRect>().verticalNormalizedPosition = 0;
+        }
+
+        private void OnMessagePointedDown(MessageView messageView, PointerEventData pointerEventData)
+        {
+#if UNITY_STANDALONE
+            if (!InputSystem.GetMouseButton(1))
+            {
+                return;
+            }
+#endif
+
+            ShowContextMenu(messageView, pointerEventData);
+        }
+
+        private void ShowContextMenu(MessageView parent, PointerEventData pointerEventData)
+        {
+            HideContextMenu();
+
+            Debug.Log("ShowContextMenu on fame " + Time.frameCount);
+
+            var pointerPosition = pointerEventData.position;
+
+            _activePopup = Factory.CreateMessageOptionsPopup(parent, State);
+
+            var rectTransform = ((RectTransform)_activePopup.transform);
+
+            rectTransform.position = pointerPosition + new Vector2(-10, 10);
+
+            _frameShownPopup = Time.frameCount;
+        }
+
+        private void HideContextMenu()
+        {
+            if (_activePopup != null)
+            {
+                Debug.Log("HideContextMenu on fame " + Time.frameCount);
+                Destroy(_activePopup.gameObject);
+                _activePopup = null;
+            }
+        }
+
+        private void HideContextMenuIfTouchedOutside()
+        {
+            if (_frameShownPopup == Time.frameCount)
+            {
+                return;
+            }
+
+            if (Input.touchCount == 0)
+            {
+                
+                return;
+            }
+
+            var anyTouchOnPopup = false;
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                var touch = Input.GetTouch(i);
+
+                if (RectTransformUtility.RectangleContainsScreenPoint(_activePopup.RectTransform,
+                        touch.position))
+                {
+                    anyTouchOnPopup = true;
+                }
+            }
+
+            if (!anyTouchOnPopup)
+            {
+                HideContextMenu();
+            }
         }
     }
 }
