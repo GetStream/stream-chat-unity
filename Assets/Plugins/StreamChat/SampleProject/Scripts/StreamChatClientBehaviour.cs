@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using UnityEditor;
 #endif
 using System;
 using System.Collections;
@@ -12,7 +13,6 @@ using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;

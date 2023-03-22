@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.StatefulModels;
-using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Popups;
 using UnityEngine;
@@ -23,6 +22,8 @@ namespace StreamChat.SampleProject.Views
             _appConfig = config ?? throw new ArgumentNullException(nameof(config));
             _config = config.ViewFactoryConfig ?? throw new ArgumentNullException(nameof(config.ViewFactoryConfig));
             _popupsContainer = popupsContainer ? popupsContainer : throw new ArgumentNullException(nameof(popupsContainer));
+
+            _appConfig.Emojis.LoadEmojisSprites();
         }
 
         public void Init(IChatViewContext viewContext)
