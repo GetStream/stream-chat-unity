@@ -242,6 +242,10 @@ namespace StreamChat.Core.StatefulModels
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);
 
+            // Important! `reaction.new` has this field invalidly empty. This is for performance reasons but is left as empty for backward compatibility.
+            // We rely on the fact that _ownReactions.TryReplaceRegularObjectsFromDto ignores null and does not clear the list when `own_reactions` is invalidly empty
+            eventDto.Message.OwnReactions = null;
+
             //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
             Cache.TryCreateOrUpdate(eventDto.Message);
             ReactionAdded?.Invoke(channel, this, reaction);
@@ -252,12 +256,9 @@ namespace StreamChat.Core.StatefulModels
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);
 
-            //Figure out what is this??? in Android SDK
-            // // make sure we don't lose ownReactions
-            // getMessage(message.id)?.let {
-            //     message.ownReactions = it.ownReactions
-            // }
-            //StreamTodo: ask android team about this code
+            // Important! `reaction.new` has this field invalidly empty. This is for performance reasons but is left as empty for backward compatibility.
+            // We rely on the fact that _ownReactions.TryReplaceRegularObjectsFromDto ignores null and does not clear the list when `own_reactions` is invalidly empty
+            eventDto.Message.OwnReactions = null;
 
             Cache.TryCreateOrUpdate(eventDto.Message);
             ReactionUpdated?.Invoke(channel, this, reaction);
@@ -267,6 +268,10 @@ namespace StreamChat.Core.StatefulModels
         {
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);
+            
+            // Important! `reaction.new` has this field invalidly empty. This is for performance reasons but is left as empty for backward compatibility.
+            // We rely on the fact that _ownReactions.TryReplaceRegularObjectsFromDto ignores null and does not clear the list when `own_reactions` is invalidly empty
+            eventDto.Message.OwnReactions = null;
 
             Cache.TryCreateOrUpdate(eventDto.Message);
             ReactionRemoved?.Invoke(channel, this, reaction);
