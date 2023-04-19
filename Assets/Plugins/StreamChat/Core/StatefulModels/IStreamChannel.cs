@@ -232,7 +232,7 @@ namespace StreamChat.Core.StatefulModels
         IStreamChannelMember Membership { get; }
 
         /// <summary>
-        /// List of channel messages. By default only latest messages are loaded. If you wish to load older messages user the <see cref="LoadOlderMessagesAsync"/>
+        /// List of channel messages. By default only latest messages are loaded. If you wish to load older messages use the <see cref="LoadOlderMessagesAsync"/>
         /// </summary>
         IReadOnlyList<IStreamMessage> Messages { get; }
 
@@ -283,6 +283,10 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         Task<IStreamMessage> SendNewMessageAsync(StreamSendMessageRequest sendMessageRequest);
 
+        /// <summary>
+        /// Load next portion of older messages. Older messages will be prepended to the <see cref="Messages"/> list.
+        /// Note that loading older messages does NOT trigger the <see cref="MessageReceived"/> event
+        /// </summary>
         Task LoadOlderMessagesAsync();
 
         /// <summary>
