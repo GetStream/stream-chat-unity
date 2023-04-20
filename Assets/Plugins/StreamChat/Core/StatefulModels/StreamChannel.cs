@@ -28,7 +28,9 @@ namespace StreamChat.Core.StatefulModels
     public delegate void StreamChannelUserChangeHandler(IStreamChannel channel, IStreamUser user);
 
     public delegate void StreamChannelMemberChangeHandler(IStreamChannel channel, IStreamChannelMember member);
-    public delegate void StreamChannelMemberAnyChangeHandler(IStreamChannel channel, IStreamChannelMember member, OperationType operationType);
+
+    public delegate void StreamChannelMemberAnyChangeHandler(IStreamChannel channel, IStreamChannelMember member,
+        OperationType operationType);
 
     public delegate void StreamMessageReactionHandler(IStreamChannel channel, IStreamMessage message,
         StreamReaction reaction);
@@ -57,7 +59,7 @@ namespace StreamChat.Core.StatefulModels
         public event StreamChannelMemberChangeHandler MemberRemoved;
 
         public event StreamChannelMemberChangeHandler MemberUpdated;
-        
+
         public event StreamChannelMemberAnyChangeHandler MembersChanged;
 
         public event StreamChannelVisibilityHandler VisibilityChanged;
@@ -177,8 +179,7 @@ namespace StreamChat.Core.StatefulModels
 
         #endregion
 
-        public bool IsDirectMessage =>
-            Members.Count == 2 && Members.Any(m => m.User == Client.LocalUserData.User);
+        public bool IsDirectMessage => Members.Count == 2 && Members.Any(m => m.User == Client.LocalUserData.User);
 
         public Task<IStreamMessage> SendNewMessageAsync(string message)
             => SendNewMessageAsync(new StreamSendMessageRequest
@@ -286,12 +287,12 @@ namespace StreamChat.Core.StatefulModels
 
         //StreamTodo: IMPLEMENT, this should probably work like LoadNextMembers, LoadPreviousMembers? what about sorting - in config?
         //Perhaps we should have both, maybe user wants to search members and not only paginate joined
-        public async Task<IEnumerable<IStreamChannelMember>> QueryMembersAsync(IDictionary<string, object> filters = null,
-            int limit = 30, int offset = 0)
+        public async Task<IEnumerable<IStreamChannelMember>> QueryMembersAsync(
+            IDictionary<string, object> filters = null, int limit = 30, int offset = 0)
         {
             // filter_conditions is required by API but empty object is accepted
             filters ??= new Dictionary<string, object>();
-            
+
             var response = await LowLevelClient.InternalChannelApi.QueryMembersAsync(new QueryMembersRequestInternalDTO
             {
                 CreatedAtAfter = null,
@@ -389,8 +390,7 @@ namespace StreamChat.Core.StatefulModels
             return AddMembersAsync(users.Select(u => u.Id));
         }
 
-        public Task AddMembersAsync(params IStreamUser[] users)
-            => AddMembersAsync(users as IEnumerable<IStreamUser>);
+        public Task AddMembersAsync(params IStreamUser[] users) => AddMembersAsync(users as IEnumerable<IStreamUser>);
 
         public async Task AddMembersAsync(IEnumerable<string> userIds)
         {
@@ -412,9 +412,8 @@ namespace StreamChat.Core.StatefulModels
                 });
             Cache.TryCreateOrUpdate(response);
         }
-        
-        public Task AddMembersAsync(params string[] users)
-            => AddMembersAsync(users as IEnumerable<string>);
+
+        public Task AddMembersAsync(params string[] users) => AddMembersAsync(users as IEnumerable<string>);
 
         public Task RemoveMembersAsync(IEnumerable<IStreamChannelMember> members)
         {
@@ -424,16 +423,16 @@ namespace StreamChat.Core.StatefulModels
 
         public Task RemoveMembersAsync(params IStreamChannelMember[] members)
             => RemoveMembersAsync(members as IEnumerable<IStreamChannelMember>);
-        
+
         public Task RemoveMembersAsync(IEnumerable<IStreamUser> members)
         {
             StreamAsserts.AssertNotNull(members, nameof(members));
             return RemoveMembersAsync(members.Select(_ => _.Id));
         }
-        
+
         public Task RemoveMembersAsync(params IStreamUser[] members)
             => RemoveMembersAsync(members as IEnumerable<IStreamUser>);
-        
+
         public async Task RemoveMembersAsync(IEnumerable<string> userIds)
         {
             StreamAsserts.AssertNotNull(userIds, nameof(userIds));
@@ -445,10 +444,9 @@ namespace StreamChat.Core.StatefulModels
                 });
             Cache.TryCreateOrUpdate(response);
         }
-        
-        public Task RemoveMembersAsync(params string[] userIds)
-            => RemoveMembersAsync(userIds as IEnumerable<string>);
-        
+
+        public Task RemoveMembersAsync(params string[] userIds) => RemoveMembersAsync(userIds as IEnumerable<string>);
+
         public Task JoinAsMemberAsync() => AddMembersAsync(Client.LocalUserData.User);
 
         public Task LeaveAsMemberChannelAsync() => RemoveMembersAsync(Client.LocalUserData.User);
@@ -499,19 +497,19 @@ namespace StreamChat.Core.StatefulModels
         }
 
         //StreamTodo: write test and check Client.WatchedChannels
-        public Task StopWatchingAsync() =>
-            LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
+        public Task StopWatchingAsync()
+            => LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
                 new ChannelStopWatchingRequestInternalDTO());
 
         public Task DeleteAsync()
             => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete: false);
 
         //StreamTodo: auto send TypingStopped after timeout + timeout received typing users in case they've lost connection and never sent the stop event
-        public Task SendTypingStartedEventAsync() =>
-            LowLevelClient.InternalChannelApi.SendTypingStartEventAsync(Type, Id);
+        public Task SendTypingStartedEventAsync()
+            => LowLevelClient.InternalChannelApi.SendTypingStartEventAsync(Type, Id);
 
-        public Task SendTypingStoppedEventAsync() =>
-            LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
+        public Task SendTypingStoppedEventAsync()
+            => LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
         public override string ToString() => $"Channel - Id: {Id}, Name: {Name}";
 
@@ -543,6 +541,8 @@ namespace StreamChat.Core.StatefulModels
 
             #endregion
 
+            SortMessagesByCreatedAt();
+
             //StreamTodo should every UpdateFromDto trigger Updated event?
         }
 
@@ -563,6 +563,8 @@ namespace StreamChat.Core.StatefulModels
             _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
             _watchers.TryAppendUniqueTrackedObjects(dto.Watchers, cache.Users);
+
+            SortMessagesByCreatedAt();
 
             #endregion
         }
@@ -931,6 +933,11 @@ namespace StreamChat.Core.StatefulModels
                 //UserId = null,
                 //AdditionalProperties = null
             });
+        }
+
+        private void SortMessagesByCreatedAt()
+        {
+            _messages.Sort((msg1, msg2) => msg1.CreatedAt.CompareTo(msg2.CreatedAt));
         }
     }
 }

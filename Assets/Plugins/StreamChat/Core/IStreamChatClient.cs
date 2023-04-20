@@ -181,7 +181,7 @@ namespace StreamChat.Core
         /// </summary>
         /// <param name="filters">[Optional] filter rules</param>
         /// <returns></returns>
-        Task<IEnumerable<IStreamUser>> QueryUsersAsync(IEnumerable<IFieldFilterRule> filters = null);
+        Task<IEnumerable<IStreamUser>> QueryUsersAsync(IEnumerable<IFieldFilterRule> filters = null, UsersSortObject sort = null, int offset = 0, int limit = 30);
 
         /// <summary>
         /// Query banned users based on provided parameters

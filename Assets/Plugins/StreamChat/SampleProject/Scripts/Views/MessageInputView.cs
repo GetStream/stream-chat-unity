@@ -32,7 +32,7 @@ namespace StreamChat.SampleProject.Views
         {
             base.OnUpdate();
 
-            _typingMonitor.Update();
+            _typingMonitor?.Update();
 
             if (InputSystem.WasEnteredPressedThisFrame)
             {

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
@@ -33,7 +34,7 @@ namespace StreamChat.Tests.StatefulClient
             var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.NotNull(messageInChannel);
         }
-        
+
         [UnityTest]
         public IEnumerator When_send_message_with_custom_data_expect_custom_data_on_message()
             => ConnectAndExecute(When_send_message_with_custom_data_expect_custom_data_on_message_Async);
@@ -49,19 +50,19 @@ namespace StreamChat.Tests.StatefulClient
                 Text = MessageText,
                 CustomData = new StreamCustomDataRequest
                 {
-                    {"Age", 12},
-                    {"Sports", new string[]{"Yoga", "Climbing"}}
+                    { "Age", 12 },
+                    { "Sports", new string[] { "Yoga", "Climbing" } }
                 }
             });
-            
+
             var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.NotNull(messageInChannel);
-            
+
             Assert.AreEqual(MessageText, messageInChannel.Text);
             Assert.AreEqual(12, messageInChannel.CustomData.Get<int>("Age"));
-            Assert.AreEqual(new string[]{"Yoga", "Climbing"}, messageInChannel.CustomData.Get<string[]>("Sports"));
+            Assert.AreEqual(new string[] { "Yoga", "Climbing" }, messageInChannel.CustomData.Get<string[]>("Sports"));
         }
-        
+
         [UnityTest]
         public IEnumerator When_Update_message_expect_message_changed()
             => ConnectAndExecute(When_Update_message_expect_message_changed_Async);
@@ -89,7 +90,7 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.AreEqual("New changed message", messageInChannel.Text);
         }
-        
+
         [UnityTest]
         public IEnumerator When_Update_message_custom_data_expect_message_custom_data_changed()
             => ConnectAndExecute(When_Update_message_custom_data_expect_message_custom_data_changed_Async);
@@ -110,15 +111,16 @@ namespace StreamChat.Tests.StatefulClient
                 Text = "New changed message",
                 CustomData = new StreamCustomDataRequest
                 {
-                    {"CategoryId", 12},
-                    {"Awards", new string[]{"Funny", "Inspirational"}}
+                    { "CategoryId", 12 },
+                    { "Awards", new string[] { "Funny", "Inspirational" } }
                 }
             });
 
             messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.NotNull(messageInChannel);
             Assert.AreEqual(12, messageInChannel.CustomData.Get<int>("CategoryId"));
-            Assert.AreEqual(new string[]{"Funny", "Inspirational"}, messageInChannel.CustomData.Get<string[]>("Awards"));
+            Assert.AreEqual(new string[] { "Funny", "Inspirational" },
+                messageInChannel.CustomData.Get<string[]>("Awards"));
         }
 
         [UnityTest]
@@ -163,7 +165,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(messageInChannel);
 
             await messageInChannel.HardDeleteAsync();
-            
+
             await WaitWhileConditionTrue(() => !messageInChannel.DeletedAt.HasValue);
 
             messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
@@ -258,7 +260,8 @@ namespace StreamChat.Tests.StatefulClient
 
         [UnityTest]
         public IEnumerator When_pinned_message_unpinned_expected_message_removed_from_channel_pinned_messages()
-            => ConnectAndExecute(When_pinned_message_unpinned_expected_message_removed_from_channel_pinned_messages_Async);
+            => ConnectAndExecute(
+                When_pinned_message_unpinned_expected_message_removed_from_channel_pinned_messages_Async);
 
         public async Task When_pinned_message_unpinned_expected_message_removed_from_channel_pinned_messages_Async()
         {
@@ -297,10 +300,12 @@ namespace StreamChat.Tests.StatefulClient
                 {
                     FilterConditions = new Dictionary<string, object>()
                     {
-                        {"channel_cid", new Dictionary<string, string>()
                         {
-                            {"$eq", channel.Cid}
-                        }}
+                            "channel_cid", new Dictionary<string, string>()
+                            {
+                                { "$eq", channel.Cid }
+                            }
+                        }
                     },
                     Limit = 30,
                     Offset = 0,
@@ -308,6 +313,54 @@ namespace StreamChat.Tests.StatefulClient
 
             var messageFlag = response.Flags.FirstOrDefault(_ => _.Message.Id == sentMessage.Id);
             Assert.NotNull(messageFlag);
+        }
+
+        [UnityTest]
+        public IEnumerator when_search_for_mentioned_messages_expect_valid_results()
+            => ConnectAndExecute(when_search_for_mentioned_messages_expect_valid_results_Async);
+
+        private async Task when_search_for_mentioned_messages_expect_valid_results_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var userToMention = await CreateUniqueTempUserAsync("Michael");
+
+            await channel.SendNewMessageAsync("Hello");
+            await channel.SendNewMessageAsync("How");
+            await channel.SendNewMessageAsync("Are");
+            var messageWithMention = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = "You doing? ",
+                MentionedUsers = new List<IStreamUser>()
+                {
+                    userToMention
+                }
+            });
+
+            //StreamTodo: implement with stateful client
+            var searchResult = await Try(() => Client.LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
+            {
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "cid", new Dictionary<string, object>
+                        {
+                            { "$eq", channel.Cid }
+                        }
+                    }
+                },
+                MessageFilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        "mentioned_users.id", new Dictionary<string, object>
+                        {
+                            { "$contains", userToMention.Id }
+                        }
+                    }
+                }
+            }), results => results?.Results?.Count > 0);
+
+            Assert.IsNotEmpty(searchResult.Results);
+            Assert.IsNotNull(searchResult.Results.FirstOrDefault(s => s.Message.Id == messageWithMention.Id));
         }
     }
 }

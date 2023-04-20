@@ -141,7 +141,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     {
                         new ChannelMemberRequest
                         {
-                            UserId = TestAdminId,
+                            UserId = LowLevelClient.UserId,
                         }
                     }
                 }
@@ -172,7 +172,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     {
                         "members", new Dictionary<string, object>
                         {
-                            { "$in", new string[] { TestAdminId } }
+                            { "$in", new string[] { LowLevelClient.UserId } }
                         }
                     }
                 }
@@ -183,7 +183,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return queryChannelsTask.RunAsIEnumerator(response =>
             {
                 var allChannelsContainAdminUser = response.Channels.All(channelState =>
-                    channelState.Members.Any(member => member.UserId == TestAdminId));
+                    channelState.Members.Any(member => member.UserId == LowLevelClient.UserId));
 
                 Assert.IsTrue(allChannelsContainAdminUser);
             });
@@ -207,7 +207,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 {
                     new ChannelMemberRequest
                     {
-                        UserId = TestAdminId
+                        UserId = LowLevelClient.UserId
                     }
                 }
             };
@@ -219,7 +219,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             {
                 Assert.AreEqual(channelId, response.Channel.Id);
                 Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
+                Assert.IsTrue(response.Members.Any(_ => _.UserId == LowLevelClient.UserId));
             });
 
             var watchChannelTask = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
@@ -520,7 +520,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return updateChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
+                Assert.IsTrue(response.Members.Any(_ => _.UserId == LowLevelClient.UserId));
             });
 
             var markReadTask = LowLevelClient.ChannelApi.MarkReadAsync(channelState1.Channel.Type,
@@ -615,7 +615,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return updateChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
+                Assert.IsTrue(response.Members.Any(_ => _.UserId == LowLevelClient.UserId));
             });
 
             var markReadTask = LowLevelClient.ChannelApi.MarkReadAsync(channelState1.Channel.Type,
@@ -765,7 +765,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return updateChannelTask.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
+                Assert.IsTrue(response.Members.Any(_ => _.UserId == LowLevelClient.UserId));
             });
 
             var updateChannelTask2 =
@@ -773,7 +773,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return updateChannelTask2.RunAsIEnumerator(response =>
             {
                 Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Members.Any(_ => _.UserId == TestAdminId));
+                Assert.IsTrue(response.Members.Any(_ => _.UserId == LowLevelClient.UserId));
             });
 
             //Send mark read state
@@ -840,9 +840,9 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return ReconnectClient();
 
             //Should use Assert.AreEqual but there seems to be some delay with updating the values
-            Assert.IsNotNull(InitialLocalUser);
-            Assert.GreaterOrEqual(InitialLocalUser.UnreadChannels, 2);
-            Assert.GreaterOrEqual(InitialLocalUser.TotalUnreadCount, 3);
+            Assert.IsNotNull(LowLevelClientOwnUser);
+            Assert.GreaterOrEqual(LowLevelClientOwnUser.UnreadChannels, 2);
+            Assert.GreaterOrEqual(LowLevelClientOwnUser.TotalUnreadCount, 3);
         }
 
         [UnityTest]

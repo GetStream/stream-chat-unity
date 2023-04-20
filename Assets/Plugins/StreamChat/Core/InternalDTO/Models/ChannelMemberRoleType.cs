@@ -28,6 +28,10 @@ namespace StreamChat.Core.InternalDTO.Models
 
         [System.Runtime.Serialization.EnumMember(Value = @"owner")]
         Owner = 3,
+        
+        // Added manually
+        [System.Runtime.Serialization.EnumMember(Value = @"channel_member")]
+        ChannelMember = 4,
 
     }
 

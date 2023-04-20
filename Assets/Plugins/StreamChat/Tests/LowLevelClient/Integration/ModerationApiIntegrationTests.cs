@@ -27,7 +27,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             {
                 TargetIds = new List<string>
                 {
-                    TestUserId
+                    OtherUserId
                 },
                 Timeout = MuteTimeout
             };
@@ -37,7 +37,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return muteUserTask.RunAsIEnumerator(response =>
             {
                 var muteInfo = response.Mute;
-                Assert.AreEqual(muteInfo.Target.Id, TestUserId);
+                Assert.AreEqual(muteInfo.Target.Id, OtherUserId);
 
                 var calcedTimeout = (muteInfo.Expires - muteInfo.UpdatedAt).Value.TotalMinutes;
 
@@ -54,7 +54,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             {
                 TargetIds = new List<string>
                 {
-                    TestUserId
+                    OtherUserId
                 },
             };
 
@@ -78,7 +78,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             var banRequest = new BanRequest
             {
-                TargetUserId = TestUserId,
+                TargetUserId = OtherUserId,
                 Id = channelState.Channel.Id,
                 Type = channelType,
                 Timeout = BanTimeout
@@ -105,7 +105,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             yield return queryBannedUsersTask.RunAsIEnumerator(response =>
             {
-                var userBanInfo = response.Bans.FirstOrDefault(_ => _.User.Id == TestUserId);
+                var userBanInfo = response.Bans.FirstOrDefault(_ => _.User.Id == OtherUserId);
                 Assert.IsNotNull(userBanInfo);
 
                 var calcedTimeout = (userBanInfo.Expires - userBanInfo.CreatedAt).Value.TotalMinutes;
@@ -129,7 +129,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             var banRequest = new BanRequest
             {
-                TargetUserId = TestUserId,
+                TargetUserId = OtherUserId,
                 Id = channelState.Channel.Id,
                 Type = channelType,
                 Timeout = BanTimeout
@@ -155,7 +155,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             yield return queryBannedUsersTask.RunAsIEnumerator(response =>
             {
-                var userBanInfo = response.Bans.FirstOrDefault(_ => _.User.Id == TestUserId);
+                var userBanInfo = response.Bans.FirstOrDefault(_ => _.User.Id == OtherUserId);
                 Assert.IsNotNull(userBanInfo);
 
                 var calcedTimeout = (userBanInfo.Expires - userBanInfo.CreatedAt).Value.TotalMinutes;
@@ -165,7 +165,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             var unbanRequest = new UnbanRequest
             {
-                TargetUserId = TestUserId,
+                TargetUserId = OtherUserId,
                 Id = channelState.Channel.Id,
                 Type = channelType,
             };
@@ -189,7 +189,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             var queryBannedUsersTask2 = LowLevelClient.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest2);
             yield return queryBannedUsersTask2.RunAsIEnumerator(response =>
             {
-                var userBanInfo = response.Bans.FirstOrDefault(_ => _.User.Id == TestUserId);
+                var userBanInfo = response.Bans.FirstOrDefault(_ => _.User.Id == OtherUserId);
                 Assert.IsNull(userBanInfo);
             });
         }
@@ -322,11 +322,11 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
                 state => channelState = state);
 
-            var flagMessageTask = LowLevelClient.ModerationApi.FlagUserAsync(TestUserId);
+            var flagMessageTask = LowLevelClient.ModerationApi.FlagUserAsync(OtherUserId);
 
             yield return flagMessageTask.RunAsIEnumerator(response =>
             {
-                Assert.AreEqual(TestUserId, response.Flag.TargetUser.Id);
+                Assert.AreEqual(OtherUserId, response.Flag.TargetUser.Id);
             });
         }
     }

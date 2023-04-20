@@ -86,11 +86,13 @@ namespace StreamChat.SampleProject.Views
             var typingUsers = _activeChannel.TypingUsers;
             var index = 0;
             var isSingle = typingUsers.Count == 1;
-            foreach (var userId in typingUsers)
+            foreach (var user in typingUsers)
             {
                 var isLast = index == typingUsers.Count - 1;
                 var isNextLast = !isLast && index == typingUsers.Count - 2;
-                _sb.Append(userId);
+                _sb.Append("<color=#F9AC17><b>");
+                _sb.Append(user.Name);
+                _sb.Append("</b></color>");
 
                 if (!isLast && !isNextLast)
                 {

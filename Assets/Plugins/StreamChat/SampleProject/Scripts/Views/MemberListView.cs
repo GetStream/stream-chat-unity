@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using StreamChat.Core.StatefulModels;
+using StreamChat.SampleProject.Utils;
 using UnityEngine;
 
 namespace StreamChat.SampleProject.Views
@@ -28,6 +29,7 @@ namespace StreamChat.SampleProject.Views
         }
 
         private readonly List<MemberView> _members = new List<MemberView>();
+        private readonly UnityImageWebLoader _imageLoader = new UnityImageWebLoader();
 
         [SerializeField]
         private MemberView _memberViewPrefab;
@@ -59,7 +61,7 @@ namespace StreamChat.SampleProject.Views
             foreach (var m in State.ActiveChannel.Members)
             {
                 var memberEntryView = Instantiate(_memberViewPrefab, _membersContainer);
-                memberEntryView.UpdateData(m);
+                memberEntryView.UpdateData(m, _imageLoader);
                 _members.Add(memberEntryView);
             }
         }

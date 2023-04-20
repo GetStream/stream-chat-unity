@@ -34,14 +34,14 @@ namespace StreamChat.Core
     /// </summary>
     internal static class StreamLogsLevelExt
     {
-        public static UnityLogs.LogLevel ToLogLevel(this StreamLogLevel streamLogLevel)
+        public static LogLevel ToLogLevel(this StreamLogLevel streamLogLevel)
         {
             switch (streamLogLevel)
             {
-                case StreamLogLevel.Disabled: return UnityLogs.LogLevel.Disabled;
-                case StreamLogLevel.FailureOnly: return UnityLogs.LogLevel.FailureOnly;
+                case StreamLogLevel.Disabled: return LogLevel.Disabled;
+                case StreamLogLevel.FailureOnly: return LogLevel.FailureOnly;
                 case StreamLogLevel.All:
-                case StreamLogLevel.Debug: return UnityLogs.LogLevel.All;
+                case StreamLogLevel.Debug: return LogLevel.All;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(streamLogLevel), streamLogLevel, null);
             }

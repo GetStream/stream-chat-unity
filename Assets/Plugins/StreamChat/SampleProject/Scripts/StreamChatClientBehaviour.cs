@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using UnityEditor;
 #endif
 using System;
 using System.Collections;
@@ -12,7 +13,6 @@ using StreamChat.SampleProject.Inputs;
 using StreamChat.SampleProject.Utils;
 using StreamChat.SampleProject.Views;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
@@ -50,8 +50,9 @@ namespace StreamChat.SampleProject
                 viewFactory.Init(viewContext);
                 _rootView.Init(viewContext);
             }
-            catch (StreamMissingAuthCredentialsException)
+            catch (StreamMissingAuthCredentialsException e)
             {
+                Debug.LogError(e.Message);
                 var popup = viewFactory.CreateFullscreenPopup<ErrorPopup>();
                 popup.SetData("Invalid Authorization Credentials",
                     $"Please provide valid authorization data into `{_authCredentialsAsset.name}` asset. " +
@@ -64,6 +65,8 @@ namespace StreamChat.SampleProject
                             "https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#manually-generating-tokens"
                         }
                     });
+
+                _missingCredentials = true;
 
 #if UNITY_EDITOR
 
@@ -79,7 +82,7 @@ namespace StreamChat.SampleProject
 
         protected void Update()
         {
-            if (_client == null)
+            if (_client == null || _missingCredentials)
             {
                 return;
             }
@@ -99,6 +102,7 @@ namespace StreamChat.SampleProject
         }
 
         private IStreamChatClient _client;
+        private bool _missingCredentials;
 
         [SerializeField]
         private RootView _rootView;
