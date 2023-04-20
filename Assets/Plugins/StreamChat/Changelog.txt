@@ -1,3 +1,55 @@
+v4.2.0:
+Deprecated (will be removed in a future release):
+* IStreamChatClient.QueryChannelsAsync overload with IDictionary<string, object> filters parameter. Please use the other overload with IEnumerable<IFieldFilterRule> filters parameter.
+
+Fixes:
+* Change connection update monitor to not throw an error if the client is disposed or closing 
+* Fix StreamChannel members list not always being updated  
+* Fix IStreamChatClient.QueryChannelsAsync pagination 
+* Fix emoji sprites sometimes having missing references when importing SDK to a fresh project 
+* Fix reaction.new clearing the OwnReactions - this field is by design for performance reasons 
+* Remove this sample "mini" project as it is not finished and not helpful in its current form 
+* Fix IStreamUser.MarkVisibleAsync & IStreamUser.MarkInvisibleAsync 
+* Fix PresenceChanged to be always called when Online status changes 
+* Added Rest Call Log if case deserialization of the stream API error failed 
+	
+Improvements:
+* Implement IStreamChatClient.QueryUsersAsync pagination and sorting 
+* Add simple starting prefab + remove config asset 
+* Implement IStreamChannel.MembersChanged event to trigger on add, remove, update + add integration tests 
+* Implement syntax based users query filters + add integration tests & code samples 
+* Improve XML comments
+* Change IStreamChatClient.QueryUsersAsync filters parameter to be optional 
+* Add IStreamChannel helper method JoinAsMemberAsync and LeaveAsMemberChannelAsync 
+* Remove default allocations for the user upsert DTOs 
+* Add code samples for user and channel mute/unmute
+* Refactor dependencies so they can be easier replaced with C# Console or .NET MAUI projects 
+
+Code Samples:
+* Add code samples for channel query filters 
+* Update code examples using IStreamChatClient.QueryUsersAsync to use the new syntax-based filters 
+
+Sample Project:
+* Fixes:
+	* Fix null ref when closing the project 
+	* Fix images not showing at the start
+	* fix loading of previous messages called when the message list is empty
+	* Fix input height
+	* Change missing credentials error not to be thrown per frame 
+	* Fix online status sprites sometimes breaking after project import 
+
+* Improvements:
+	* UI/UX improvements
+	* Change ChannelView to show an icon if possible or a letter symbol
+	* Implement members list with an online status 
+	* Implement local user header with online and invisibility status 
+	* Support mobile touch for popup (show on touch and hide when touching outside) 
+	* Change default mobile screen orientation 	
+
+Tests:
+* Disable update monitor when tests are enabled
+* Improve integration tests stability
+
 v4.1.0:
 Fixes:
 * Fix "no await in async method" warning 
