@@ -20,6 +20,7 @@ using StreamChat.Libs.AppInfo;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Utils;
@@ -212,9 +213,10 @@ namespace StreamChat.Core.LowLevelClient
             var httpClient = StreamDependenciesFactory.CreateHttpClient();
             var serializer = StreamDependenciesFactory.CreateSerializer();
             var timeService = StreamDependenciesFactory.CreateTimeService();
+            var networkMonitor = StreamDependenciesFactory.CreateNetworkMonitor();
 
             return new StreamChatLowLevelClient(authCredentials, websocketClient, httpClient, serializer,
-                timeService, applicationInfo, logs, config);
+                timeService, networkMonitor, applicationInfo, logs, config);
         }
 
         /// <summary>
@@ -251,7 +253,8 @@ namespace StreamChat.Core.LowLevelClient
         }
 
         public StreamChatLowLevelClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo,
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
+            IApplicationInfo applicationInfo,
             ILogs logs, IStreamClientConfig config)
         {
             _authCredentials = authCredentials;
@@ -259,6 +262,7 @@ namespace StreamChat.Core.LowLevelClient
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
+            _networkMonitor = networkMonitor ?? throw new ArgumentNullException(nameof(networkMonitor));
             applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -478,6 +482,7 @@ namespace StreamChat.Core.LowLevelClient
         private readonly ISerializer _serializer;
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
+        private readonly INetworkMonitor _networkMonitor;
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
         private readonly StringBuilder _errorSb = new StringBuilder();
@@ -608,6 +613,11 @@ namespace StreamChat.Core.LowLevelClient
             _logs.Info("Connection confirmed by server with connection id: " + _connectionId);
             Connected?.Invoke(healthCheckEvent.Me);
             InternalConnected?.Invoke(eventHealthCheckInternalDto);
+        }
+
+        private void MonitorNetwork()
+        {
+            //StreamTodo: if disconnected + network becomes available, use it as additional impulse to reconnect
         }
 
         private void TryToReconnect()

@@ -3,6 +3,7 @@ using StreamChat.Libs.Auth;
 using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
@@ -58,5 +59,7 @@ namespace StreamChat.Libs
             };
             return go.AddComponent<StreamMonoBehaviourWrapper.UnityStreamChatClientRunner>();
         }
+
+        public static INetworkMonitor CreateNetworkMonitor() => new UnityNetworkMonitor();
     }
 }
