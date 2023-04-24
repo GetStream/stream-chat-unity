@@ -6,6 +6,7 @@
     public interface INetworkMonitor
     {
         event NetworkAvailabilityChangedEventHandler NetworkAvailabilityChanged;
+        
         bool IsNetworkAvailable { get; }
 
         void Update();

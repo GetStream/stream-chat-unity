@@ -254,8 +254,7 @@ namespace StreamChat.Core.LowLevelClient
 
         public StreamChatLowLevelClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
-            IApplicationInfo applicationInfo,
-            ILogs logs, IStreamClientConfig config)
+            IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
         {
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
@@ -295,29 +294,12 @@ namespace StreamChat.Core.LowLevelClient
             UserApi = new UserApi(InternalUserApi);
             DeviceApi = new DeviceApi(InternalDeviceApi);
 
-            _reconnectScheduler = new ReconnectScheduler(_timeService, this, _logs);
+            _reconnectScheduler = new ReconnectScheduler(_timeService, this, _networkMonitor);
             _reconnectScheduler.ReconnectionScheduled += OnReconnectionScheduled;
 
             RegisterEventHandlers();
 
             LogErrorIfUpdateIsNotBeingCalled();
-        }
-
-        private void OnReconnectionScheduled()
-        {
-            ConnectionState = ConnectionState.WaitToReconnect;
-            var timeLeft = NextReconnectTime.Value - _timeService.Time;
-
-            _logSb.Append("Reconnect scheduled to time: <b>");
-            _logSb.Append(Math.Round(NextReconnectTime.Value));
-            _logSb.Append(" seconds</b>, current time: <b>");
-            _logSb.Append(Math.Round(_timeService.Time));
-            _logSb.Append(" seconds</b>, time left: <b>");
-            _logSb.Append(Math.Round(timeLeft));
-            _logSb.Append(" seconds</b>");
-
-            _logs.Info(_logSb.ToString());
-            _logSb.Clear();
         }
 
         public void ConnectUser(AuthCredentials userAuthCredentials)
@@ -396,6 +378,8 @@ namespace StreamChat.Core.LowLevelClient
         public void Dispose()
         {
             ConnectionState = ConnectionState.Closing;
+            
+            _reconnectScheduler.Dispose();
 
             TryCancelWaitingForUserConnection();
 
@@ -950,6 +934,23 @@ namespace StreamChat.Core.LowLevelClient
             sb.Append(applicationInfo.GraphicsMemorySize);
 
             return sb.ToString();
+        }
+        
+        private void OnReconnectionScheduled()
+        {
+            ConnectionState = ConnectionState.WaitToReconnect;
+            var timeLeft = NextReconnectTime.Value - _timeService.Time;
+
+            _logSb.Append("Reconnect scheduled to time: <b>");
+            _logSb.Append(Math.Round(NextReconnectTime.Value));
+            _logSb.Append(" seconds</b>, current time: <b>");
+            _logSb.Append(Math.Round(_timeService.Time));
+            _logSb.Append(" seconds</b>, time left: <b>");
+            _logSb.Append(Math.Round(timeLeft));
+            _logSb.Append(" seconds</b>");
+
+            _logs.Info(_logSb.ToString());
+            _logSb.Clear();
         }
     }
 }

@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Text;
 using StreamChat.Core.LowLevelClient.Models;
-using StreamChat.Libs.Logs;
+using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Time;
 
 namespace StreamChat.Core.LowLevelClient
 {
-    public class ReconnectScheduler
+    /// <summary>
+    /// Schedules next reconnection time based on the past attempts and network availability
+    /// </summary>
+    internal class ReconnectScheduler : IDisposable
     {
         public event Action ReconnectionScheduled;
         public ReconnectStrategy ReconnectStrategy { get; private set; } = ReconnectStrategy.Exponential;
@@ -14,18 +16,50 @@ namespace StreamChat.Core.LowLevelClient
         public float ReconnectExponentialMinInterval { get; private set; } = 0.01f;
         public float ReconnectExponentialMaxInterval { get; private set; } = 64;
         public int ReconnectMaxInstantTrials { get; private set; } = 5; //StreamTodo: allow to control this by user
-        public double? NextReconnectTime { get; private set; }
 
-        public ReconnectScheduler(ITimeService timeService, IStreamChatLowLevelClient lowLevelClient, ILogs logs)
+        public double? NextReconnectTime
         {
-            _logs = logs;
-            _lowLevelClient = lowLevelClient;
-            _timeService = timeService;
-            
-            _lowLevelClient.Connected += OnConnected;
-            _lowLevelClient.Reconnecting += OnReconnecting;
-            
-            _lowLevelClient.ConnectionStateChanged += OnConnectionStateChanged;
+            get => _nextReconnectTime;
+            private set
+            {
+                var isEqual = _nextReconnectTime.HasValue && value.HasValue &&
+                              Math.Abs(_nextReconnectTime.Value - value.Value) < float.Epsilon;
+                if (isEqual)
+                {
+                    return;
+                }
+
+                _nextReconnectTime = value;
+
+                if (_nextReconnectTime.HasValue)
+                {
+                    ReconnectionScheduled?.Invoke();
+                }
+            }
+        }
+
+        public ReconnectScheduler(ITimeService timeService, IStreamChatLowLevelClient lowLevelClient,
+            INetworkMonitor networkMonitor)
+        {
+            _client = lowLevelClient ?? throw new ArgumentNullException(nameof(lowLevelClient));
+            _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
+            _networkMonitor = networkMonitor ?? throw new ArgumentNullException(nameof(networkMonitor));
+
+            _networkMonitor.NetworkAvailabilityChanged += OnNetworkAvailabilityChanged;
+
+            _client.Connected += OnConnected;
+            _client.Reconnecting += OnReconnecting;
+            _client.ConnectionStateChanged += OnConnectionStateChanged;
+        }
+        
+        public void Dispose()
+        {
+            if (_client != null)
+            {
+                _client.Connected -= OnConnected;
+                _client.Reconnecting -= OnReconnecting;
+                _client.ConnectionStateChanged -= OnConnectionStateChanged;
+            }
         }
 
         public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
@@ -33,7 +67,6 @@ namespace StreamChat.Core.LowLevelClient
         {
             ReconnectStrategy = reconnectStrategy;
 
-            //StreamTodo: move to Assets library
             void ThrowIfLessOrEqualToZero(float value, string name)
             {
                 if (value <= 0)
@@ -61,16 +94,36 @@ namespace StreamChat.Core.LowLevelClient
             }
         }
 
-        public void TryScheduleNextReconnectTime()
+        public void Stop()
+        {
+            NextReconnectTime = float.MaxValue;
+            _isStopped = true;
+        }
+
+        //StreamTodo: connection info could be split to separate interface
+        private readonly IStreamChatLowLevelClient _client;
+        private readonly ITimeService _timeService;
+        private readonly INetworkMonitor _networkMonitor;
+
+        private int _reconnectAttempts;
+        private bool _isStopped;
+        private double? _nextReconnectTime;
+
+        private void TryScheduleNextReconnectTime()
         {
             if (NextReconnectTime.HasValue && NextReconnectTime.Value > _timeService.Time)
             {
                 return;
             }
 
+            if (_isStopped || ReconnectStrategy == ReconnectStrategy.Never)
+            {
+                return;
+            }
+
             double? GetNextReconnectTime()
             {
-                if (ReconnectStrategy != ReconnectStrategy.Never && _reconnectAttempt <= ReconnectMaxInstantTrials)
+                if (_reconnectAttempts <= ReconnectMaxInstantTrials)
                 {
                     return _timeService.Time;
                 }
@@ -79,7 +132,7 @@ namespace StreamChat.Core.LowLevelClient
                 {
                     case ReconnectStrategy.Exponential:
 
-                        var baseInterval = Math.Pow(2, _reconnectAttempt);
+                        var baseInterval = Math.Pow(2, _reconnectAttempts);
                         var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
                             ReconnectExponentialMaxInterval);
                         return _timeService.Time + interval;
@@ -94,24 +147,7 @@ namespace StreamChat.Core.LowLevelClient
             }
 
             NextReconnectTime = GetNextReconnectTime();
-
-            if (NextReconnectTime.HasValue)
-            {
-                ReconnectionScheduled?.Invoke();
-            }
         }
-
-        public void Stop()
-        {
-            NextReconnectTime = float.MaxValue;
-        }
-        
-        //StreamTodo: connection info could be split to separate interface
-        private readonly IStreamChatLowLevelClient _lowLevelClient;
-        private readonly ILogs _logs;
-        private readonly ITimeService _timeService;
-        
-        private int _reconnectAttempt;
 
         private void OnConnectionStateChanged(ConnectionState previous, ConnectionState current)
         {
@@ -120,14 +156,12 @@ namespace StreamChat.Core.LowLevelClient
                 case ConnectionState.Disconnected:
 
                     TryScheduleNextReconnectTime();
-                    
+
                     break;
                 case ConnectionState.Connecting:
-                    
-                    //Can we tell between connect and reconnect? Probably yes??
 
                     NextReconnectTime = default;
-                    
+
                     break;
                 case ConnectionState.WaitToReconnect:
                     break;
@@ -140,14 +174,36 @@ namespace StreamChat.Core.LowLevelClient
             }
         }
 
-        private void OnReconnecting()
+        private void OnNetworkAvailabilityChanged(bool isNetworkAvailable)
         {
-            _reconnectAttempt++;
+            if (!isNetworkAvailable)
+            {
+                return;
+            }
+
+            if (_client.ConnectionState == ConnectionState.Connected ||
+                _client.ConnectionState == ConnectionState.Connecting)
+            {
+                return;
+            }
+
+            if (_isStopped)
+            {
+                return;
+            }
+
+            NextReconnectTime = _timeService.Time;
         }
 
-        private void OnConnected(OwnUser localuser)
+        private void OnReconnecting()
         {
-            _reconnectAttempt = 0;
+            _reconnectAttempts++;
+        }
+
+        private void OnConnected(OwnUser localUser)
+        {
+            _reconnectAttempts = 0;
+            NextReconnectTime = default;
         }
     }
 }

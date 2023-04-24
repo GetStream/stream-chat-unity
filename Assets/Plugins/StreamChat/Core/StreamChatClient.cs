@@ -376,7 +376,7 @@ namespace StreamChat.Core
             StreamAsserts.AssertWithinRange(limit, 0, QueryUsersLimitMaxValue, nameof(limit));
             StreamAsserts.AssertWithinRange(offset, 0, QueryUsersOffsetMaxValue, nameof(offset));
 
-            //StreamTodo: Missing filter, and stuff like IdGte etc
+            //StreamTodo: Missing IdGt, IdLt, etc. We could wrap all pagination parameters in a single struct
             var requestBodyDto = new QueryUsersRequestInternalDTO
             {
                 FilterConditions
