@@ -7,6 +7,6 @@
     {
         public static IStreamClientConfig Default { get; set; } = new StreamClientConfig();
 
-        public StreamLogLevel LogLevel { get; set; } = StreamLogLevel.All;
+        public StreamLogLevel LogLevel { get; set; } = StreamLogLevel.FailureOnly;
     }
 }
