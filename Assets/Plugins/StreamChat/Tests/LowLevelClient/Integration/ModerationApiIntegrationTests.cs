@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
@@ -231,12 +232,14 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         public IEnumerator When_messages_flagged_expect_query_flagged_messages_return_them()
         {
             yield return LowLevelClient.WaitForClientToConnect();
+            yield return When_messages_flagged_expect_query_flagged_messages_return_them_Async().RunAsIEnumerator();
+        }
 
+        private async Task When_messages_flagged_expect_query_flagged_messages_return_them_Async()
+        {
             const string channelType = "messaging";
 
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState = state);
+            var channelState = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
 
             //Send messages
 
@@ -248,41 +251,29 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 }
             };
 
-            var messageResponseTask =
+            var messageResponse = await
                 LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest);
-
-            MessageResponse messageResponse = null;
-            yield return messageResponseTask.RunAsIEnumerator(response => { messageResponse = response; });
 
             var sendMessageRequest2 = new SendMessageRequest
             {
                 Message = new MessageRequest
                 {
-                    Text = "message content"
+                    Text = "message content 2"
                 }
             };
 
-            var messageResponseTask2 =
+            var messageResponse2 = await
                 LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest2);
-
-            MessageResponse messageResponse2 = null;
-            yield return messageResponseTask2.RunAsIEnumerator(response => { messageResponse2 = response; });
 
             //Flag messages
 
-            var flagMessageTask = LowLevelClient.ModerationApi.FlagMessageAsync(messageResponse.Message.Id);
+            var flagResponse = await LowLevelClient.ModerationApi.FlagMessageAsync(messageResponse.Message.Id);
 
-            yield return flagMessageTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(messageResponse.Message.Id, response.Flag.TargetMessageId);
-            });
+            Assert.AreEqual(messageResponse.Message.Id, flagResponse.Flag.TargetMessageId);
 
-            var flagMessageTask2 = LowLevelClient.ModerationApi.FlagMessageAsync(messageResponse2.Message.Id);
+            var flagResponse2 = await LowLevelClient.ModerationApi.FlagMessageAsync(messageResponse2.Message.Id);
 
-            yield return flagMessageTask2.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(messageResponse2.Message.Id, response.Flag.TargetMessageId);
-            });
+            Assert.AreEqual(messageResponse2.Message.Id, flagResponse2.Flag.TargetMessageId);
 
             //Query message flags
             var queryMessageFlagsRequest = new QueryMessageFlagsRequest
@@ -298,37 +289,31 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 }
             };
 
-            var queryMessageFlagsTask = LowLevelClient.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
+            var flagsQueryResponse = await LowLevelClient.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
 
-            yield return queryMessageFlagsTask.RunAsIEnumerator(response =>
-            {
-                var message1 = response.Flags.FirstOrDefault(_ => _.Message.Id == messageResponse.Message.Id);
-                var message2 = response.Flags.FirstOrDefault(_ => _.Message.Id == messageResponse2.Message.Id);
+            var message1 = flagsQueryResponse.Flags.FirstOrDefault(_ => _.Message.Id == messageResponse.Message.Id);
+            var message2 = flagsQueryResponse.Flags.FirstOrDefault(_ => _.Message.Id == messageResponse2.Message.Id);
 
-                Assert.AreEqual(2, response.Flags.Count);
-                Assert.NotNull(message1);
-                Assert.NotNull(message2);
-            });
+            Assert.AreEqual(2, flagsQueryResponse.Flags.Count);
+            Assert.NotNull(message1);
+            Assert.NotNull(message2);
         }
 
         [UnityTest]
         public IEnumerator When_user_flagged_expect_response_target_user_id_match()
         {
             yield return LowLevelClient.WaitForClientToConnect();
-
-            const string channelType = "messaging";
-
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState = state);
-
-            var flagMessageTask = LowLevelClient.ModerationApi.FlagUserAsync(OtherUserId);
-
-            yield return flagMessageTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(OtherUserId, response.Flag.TargetUser.Id);
-            });
+            yield return When_user_flagged_expect_response_target_user_id_match_Async().RunAsIEnumerator();
         }
+
+        private async Task When_user_flagged_expect_response_target_user_id_match_Async()
+        {
+            const string channelType = "messaging";
+            var channelState = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
+            
+            var response = await LowLevelClient.ModerationApi.FlagUserAsync(OtherUserId);
+            Assert.AreEqual(OtherUserId, response.Flag.TargetUser.Id);
+        } 
     }
 }
 #endif
