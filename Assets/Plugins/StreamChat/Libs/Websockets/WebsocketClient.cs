@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using StreamChat.Libs.Logs;
-using UnityEngine.Profiling;
 
 namespace StreamChat.Libs.Websockets
 {
@@ -149,13 +148,13 @@ namespace StreamChat.Libs.Websockets
         private readonly ILogs _logs;
         private readonly Encoding _encoding;
         private readonly bool _isDebugMode;
-        
+
         private readonly SemaphoreSlim _backgroundSendSemaphore = new SemaphoreSlim(1);
         private readonly SemaphoreSlim _backgroundReceiveSemaphore = new SemaphoreSlim(1);
 
         private Timer _backgroundSendTimer;
         private Timer _backgroundReceiveTimer;
-        
+
         private Uri _uri;
         private ClientWebSocket _internalClient;
         private CancellationTokenSource _connectionCts;
@@ -172,7 +171,6 @@ namespace StreamChat.Libs.Websockets
                 return;
             }
 
-            Profiler.BeginSample("StreamBackgroundTask");
             try
             {
                 while (_sendQueue.TryTake(out var msg))
@@ -200,8 +198,6 @@ namespace StreamChat.Libs.Websockets
             {
                 _backgroundSendSemaphore.Release();
             }
-
-            Profiler.EndSample();
         }
 
         // Runs on a background thread
@@ -211,13 +207,12 @@ namespace StreamChat.Libs.Websockets
             {
                 return;
             }
-            
+
             if (!_backgroundReceiveSemaphore.Wait(0))
             {
                 return;
             }
 
-            Profiler.BeginSample("StreamBackgroundTask");
             try
             {
                 var result = await TryReceiveSingleMessageAsync();
@@ -243,8 +238,6 @@ namespace StreamChat.Libs.Websockets
             {
                 _backgroundReceiveSemaphore.Release();
             }
-
-            Profiler.EndSample();
         }
 
         private async Task TryDisposeResourcesAsync(WebSocketCloseStatus closeStatus, string closeMessage)
