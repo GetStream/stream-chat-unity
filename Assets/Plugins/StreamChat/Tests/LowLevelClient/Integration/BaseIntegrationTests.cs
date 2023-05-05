@@ -92,9 +92,9 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 Debug.LogError($"Channel with id {channelId} already exists!");
             }
 
-            var channelState
-                = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
-                    channelGetOrCreateRequest);
+            var channelState = await Try(() => LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+                channelGetOrCreateRequest), channelState => channelState != null);
+
             _tempChannelsCidsToDelete.Add(channelState.Channel.Cid);
             return channelState;
         }
@@ -110,9 +110,11 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             var response = default(T);
 
-            var attemptsLeft = maxAttempts;
-            while (attemptsLeft > 0)
+            var attempt = 1;
+            while (attempt <= maxAttempts)
             {
+                attempt++;
+                
                 response = await task();
 
                 if (successCondition(response))
@@ -120,9 +122,9 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     return response;
                 }
 
-                var delay = initTimeoutMs * Math.Pow(2, (maxAttempts - attemptsLeft));
+                var power = Math.Max(attempt, 5);
+                var delay = initTimeoutMs * Math.Pow(2, power);
                 await Task.Delay((int)delay);
-                attemptsLeft--;
             }
 
             return response;
