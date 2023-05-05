@@ -20,6 +20,7 @@ using StreamChat.Libs.AppInfo;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Utils;
@@ -45,8 +46,9 @@ namespace StreamChat.Core.LowLevelClient
         public static readonly Uri ServerBaseUrl = new Uri("wss://chat.stream-io-api.com");
 
         public event ConnectionHandler Connected;
+        public event Action Reconnecting;
         public event Action Disconnected;
-        public event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
+        public event ConnectionStateChangeHandler ConnectionStateChanged;
 
         public event Action<string> EventReceived;
 
@@ -172,25 +174,24 @@ namespace StreamChat.Core.LowLevelClient
                     return;
                 }
 
-                var prev = _connectionState;
+                var previous = _connectionState;
                 _connectionState = value;
-                ConnectionStateChanged?.Invoke(prev, _connectionState);
+                ConnectionStateChanged?.Invoke(previous, _connectionState);
 
                 if (value == ConnectionState.Disconnected)
                 {
-                    TryScheduleReconnect();
                     Disconnected?.Invoke();
                 }
             }
         }
 
         //StreamTodo: wrap all params in a ReconnectPolicy object
-        public ReconnectStrategy ReconnectStrategy { get; private set; } = ReconnectStrategy.Exponential;
-        public float ReconnectConstantInterval { get; private set; } = 1;
-        public float ReconnectExponentialMinInterval { get; private set; } = 0.01f;
-        public float ReconnectExponentialMaxInterval { get; private set; } = 64;
-        public int ReconnectMaxInstantTrials { get; private set; } = 5; //StreamTodo: allow to control this by user
-        public double? NextReconnectTime { get; private set; }
+        public ReconnectStrategy ReconnectStrategy => _reconnectScheduler.ReconnectStrategy;
+        public float ReconnectConstantInterval => _reconnectScheduler.ReconnectConstantInterval;
+        public float ReconnectExponentialMinInterval => _reconnectScheduler.ReconnectExponentialMinInterval;
+        public float ReconnectExponentialMaxInterval => _reconnectScheduler.ReconnectExponentialMaxInterval;
+        public int ReconnectMaxInstantTrials => _reconnectScheduler.ReconnectMaxInstantTrials;
+        public double? NextReconnectTime => _reconnectScheduler.NextReconnectTime;
 
         /// <summary>
         /// SDK Version number
@@ -212,9 +213,10 @@ namespace StreamChat.Core.LowLevelClient
             var httpClient = StreamDependenciesFactory.CreateHttpClient();
             var serializer = StreamDependenciesFactory.CreateSerializer();
             var timeService = StreamDependenciesFactory.CreateTimeService();
+            var networkMonitor = StreamDependenciesFactory.CreateNetworkMonitor();
 
             return new StreamChatLowLevelClient(authCredentials, websocketClient, httpClient, serializer,
-                timeService, applicationInfo, logs, config);
+                timeService, networkMonitor, applicationInfo, logs, config);
         }
 
         /// <summary>
@@ -251,14 +253,15 @@ namespace StreamChat.Core.LowLevelClient
         }
 
         public StreamChatLowLevelClient(AuthCredentials authCredentials, IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo,
-            ILogs logs, IStreamClientConfig config)
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
+            IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
         {
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
+            _networkMonitor = networkMonitor ?? throw new ArgumentNullException(nameof(networkMonitor));
             applicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -291,6 +294,9 @@ namespace StreamChat.Core.LowLevelClient
             UserApi = new UserApi(InternalUserApi);
             DeviceApi = new DeviceApi(InternalDeviceApi);
 
+            _reconnectScheduler = new ReconnectScheduler(_timeService, this, _networkMonitor);
+            _reconnectScheduler.ReconnectionScheduled += OnReconnectionScheduled;
+
             RegisterEventHandlers();
 
             LogErrorIfUpdateIsNotBeingCalled();
@@ -313,8 +319,6 @@ namespace StreamChat.Core.LowLevelClient
 
             TryCancelWaitingForUserConnection();
 
-            NextReconnectTime = default;
-
             //StreamTodo: hidden dependency on SetUser being called
             var connectionUri = _requestUriFactory.CreateConnectionUri();
 
@@ -325,14 +329,14 @@ namespace StreamChat.Core.LowLevelClient
             _websocketClient.ConnectAsync(connectionUri).LogIfFailed(_logs);
         }
 
-        public async Task DisconnectAsync(bool permanently = false)
+        public async Task DisconnectAsync(bool permanent = false)
         {
             TryCancelWaitingForUserConnection();
             //StreamTodo: remove this, this cannot be used when internal disconnect due to expired token. Perhaps we should allow user to Suspend() and Unsupend() the client reconnection
 
-            if (permanently)
+            if (permanent)
             {
-                NextReconnectTime = float.MaxValue;
+                _reconnectScheduler.Stop();
             }
 
             await _websocketClient.DisconnectAsync(WebSocketCloseStatus.NormalClosure, "User called Disconnect");
@@ -368,39 +372,14 @@ namespace StreamChat.Core.LowLevelClient
         public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval)
         {
-            ReconnectStrategy = reconnectStrategy;
-
-            //StreamTodo: move to Assets library
-            void ThrowIfLessOrEqualToZero(float value, string name)
-            {
-                if (value <= 0)
-                {
-                    throw new ArgumentException($"{name} needs to be greater than zero, given: " + value);
-                }
-            }
-
-            if (exponentialMinInterval.HasValue)
-            {
-                ThrowIfLessOrEqualToZero(exponentialMinInterval.Value, nameof(exponentialMinInterval));
-                ReconnectExponentialMinInterval = exponentialMinInterval.Value;
-            }
-
-            if (exponentialMaxInterval.HasValue)
-            {
-                ThrowIfLessOrEqualToZero(exponentialMaxInterval.Value, nameof(exponentialMaxInterval));
-                ReconnectExponentialMaxInterval = exponentialMaxInterval.Value;
-            }
-
-            if (constantInterval.HasValue)
-            {
-                ThrowIfLessOrEqualToZero(constantInterval.Value, nameof(constantInterval));
-                ReconnectConstantInterval = constantInterval.Value;
-            }
+            _reconnectScheduler.SetReconnectStrategySettings(reconnectStrategy, exponentialMinInterval, exponentialMaxInterval, constantInterval);
         }
 
         public void Dispose()
         {
             ConnectionState = ConnectionState.Closing;
+            
+            _reconnectScheduler.Dispose();
 
             TryCancelWaitingForUserConnection();
 
@@ -451,8 +430,6 @@ namespace StreamChat.Core.LowLevelClient
             {
                 await RefreshAuthTokenFromProvider();
 
-                NextReconnectTime = default;
-
                 var connectionUri = _requestUriFactory.CreateConnectionUri();
 
                 await _websocketClient.ConnectAsync(connectionUri);
@@ -478,11 +455,13 @@ namespace StreamChat.Core.LowLevelClient
         private readonly ISerializer _serializer;
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
+        private readonly INetworkMonitor _networkMonitor;
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly IHttpClient _httpClient;
         private readonly StringBuilder _errorSb = new StringBuilder();
         private readonly StringBuilder _logSb = new StringBuilder();
         private readonly IStreamClientConfig _config;
+        private readonly ReconnectScheduler _reconnectScheduler;
 
         private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
             new Dictionary<string, Action<string>>();
@@ -503,7 +482,6 @@ namespace StreamChat.Core.LowLevelClient
         private bool _updateCallReceived;
 
         private bool _websocketConnectionFailed;
-        private int _reconnectAttempt;
         private ITokenProvider _tokenProvider;
 
         private async Task RefreshAuthTokenFromProvider()
@@ -600,7 +578,7 @@ namespace StreamChat.Core.LowLevelClient
             LocalUser = healthCheckEvent.Me;
 #pragma warning restore 0618
             _lastHealthCheckReceivedTime = _timeService.Time;
-            _reconnectAttempt = 0;
+            
             ConnectionState = ConnectionState.Connected;
 
             _connectUserTaskSource?.SetResult(eventHealthCheckInternalDto.Me);
@@ -622,7 +600,7 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            _reconnectAttempt++;
+            Reconnecting?.Invoke();
 
             if (_tokenProvider != null)
             {
@@ -632,60 +610,6 @@ namespace StreamChat.Core.LowLevelClient
             {
                 Connect();
             }
-        }
-
-        private bool TryScheduleReconnect()
-        {
-            if (NextReconnectTime.HasValue && NextReconnectTime.Value > _timeService.Time)
-            {
-                return false;
-            }
-
-            double? GetNextReconnectTime()
-            {
-                if (ReconnectStrategy != ReconnectStrategy.Never && _reconnectAttempt <= ReconnectMaxInstantTrials)
-                {
-                    return _timeService.Time;
-                }
-
-                switch (ReconnectStrategy)
-                {
-                    case ReconnectStrategy.Exponential:
-
-                        var baseInterval = Math.Pow(2, _reconnectAttempt);
-                        var interval = Math.Min(Math.Max(ReconnectExponentialMinInterval, baseInterval),
-                            ReconnectExponentialMaxInterval);
-                        return _timeService.Time + interval;
-                    case ReconnectStrategy.Constant:
-                        return _timeService.Time + ReconnectConstantInterval;
-                    case ReconnectStrategy.Never:
-                        return null;
-                    default:
-                        throw new ArgumentOutOfRangeException(
-                            $"Unhandled {nameof(ReconnectStrategy)}: {ReconnectStrategy}");
-                }
-            }
-
-            NextReconnectTime = GetNextReconnectTime();
-
-            if (NextReconnectTime.HasValue)
-            {
-                ConnectionState = ConnectionState.WaitToReconnect;
-                var timeLeft = NextReconnectTime.Value - _timeService.Time;
-
-                _logSb.Append("Reconnect scheduled to time: <b>");
-                _logSb.Append(Math.Round(NextReconnectTime.Value));
-                _logSb.Append(" seconds</b>, current time: <b>");
-                _logSb.Append(Math.Round(_timeService.Time));
-                _logSb.Append(" seconds</b>, time left: <b>");
-                _logSb.Append(Math.Round(timeLeft));
-                _logSb.Append(" seconds</b>");
-
-                _logs.Info(_logSb.ToString());
-                _logSb.Clear();
-            }
-
-            return NextReconnectTime.HasValue;
         }
 
         private void RegisterEventHandlers()
@@ -1010,6 +934,23 @@ namespace StreamChat.Core.LowLevelClient
             sb.Append(applicationInfo.GraphicsMemorySize);
 
             return sb.ToString();
+        }
+        
+        private void OnReconnectionScheduled()
+        {
+            ConnectionState = ConnectionState.WaitToReconnect;
+            var timeLeft = NextReconnectTime.Value - _timeService.Time;
+
+            _logSb.Append("Reconnect scheduled to time: <b>");
+            _logSb.Append(Math.Round(NextReconnectTime.Value));
+            _logSb.Append(" seconds</b>, current time: <b>");
+            _logSb.Append(Math.Round(_timeService.Time));
+            _logSb.Append(" seconds</b>, time left: <b>");
+            _logSb.Append(Math.Round(timeLeft));
+            _logSb.Append(" seconds</b>");
+
+            _logs.Info(_logSb.ToString());
+            _logSb.Clear();
         }
     }
 }

@@ -23,6 +23,7 @@ using StreamChat.Libs.Auth;
 using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
@@ -58,7 +59,7 @@ namespace StreamChat.Core
         public event ConnectionChangeHandler ConnectionStateChanged;
 
         public event ChannelDeleteHandler ChannelDeleted;
-        
+
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
 
@@ -96,9 +97,10 @@ namespace StreamChat.Core
             var timeService = StreamDependenciesFactory.CreateTimeService();
             var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
             var gameObjectRunner = StreamDependenciesFactory.CreateChatClientRunner();
+            var networkMonitor = StreamDependenciesFactory.CreateNetworkMonitor();
 
-            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo,
-                logs, config);
+            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, networkMonitor,
+                applicationInfo, logs, config);
 
             gameObjectRunner?.RunChatInstance(client);
             return client;
@@ -122,11 +124,10 @@ namespace StreamChat.Core
         /// Important! Custom created client require calling the <see cref="Update"/> and <see cref="Destroy"/> methods.
         /// </summary>
         public static IStreamChatClient CreateClientWithCustomDependencies(IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo,
-            ILogs logs,
-            IStreamClientConfig config)
-            => new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs,
-                config);
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
+            IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
+            => new StreamChatClient(websocketClient, httpClient, serializer, timeService, networkMonitor,
+                applicationInfo, logs, config);
 
         /// <inheritdoc cref="StreamChatLowLevelClient.CreateDeveloperAuthToken"/>
         public static string CreateDeveloperAuthToken(string userId)
@@ -369,15 +370,18 @@ namespace StreamChat.Core
             return result;
         }
 
-        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IEnumerable<IFieldFilterRule> filters = null, UsersSortObject sort = null, int offset = 0, int limit = 30)
+        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IEnumerable<IFieldFilterRule> filters = null,
+            UsersSortObject sort = null, int offset = 0, int limit = 30)
         {
             StreamAsserts.AssertWithinRange(limit, 0, QueryUsersLimitMaxValue, nameof(limit));
             StreamAsserts.AssertWithinRange(offset, 0, QueryUsersOffsetMaxValue, nameof(offset));
-            
-            //StreamTodo: Missing filter, and stuff like IdGte etc
+
+            //StreamTodo: Missing IdGt, IdLt, etc. We could wrap all pagination parameters in a single struct
             var requestBodyDto = new QueryUsersRequestInternalDTO
             {
-                FilterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<string, object>(),
+                FilterConditions
+                    = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value) ??
+                      new Dictionary<string, object>(),
                 IdGt = null,
                 IdGte = null,
                 IdLt = null,
@@ -621,13 +625,14 @@ namespace StreamChat.Core
         /// In case you want to inject custom dependencies into the chat client you can use the <see cref="CreateClientWithCustomDependencies"/>
         /// </summary>
         private StreamChatClient(IWebsocketClient websocketClient, IHttpClient httpClient, ISerializer serializer,
-            ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
+            ITimeService timeService, INetworkMonitor networkMonitor, IApplicationInfo applicationInfo, ILogs logs,
+            IStreamClientConfig config)
         {
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
             InternalLowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient,
-                serializer, _timeService, applicationInfo, logs, config);
+                serializer, _timeService, networkMonitor, applicationInfo, logs, config);
 
             _cache = new Cache(this, serializer, _logs);
 

@@ -1,6 +1,4 @@
-﻿using StreamChat.Core.StatefulModels;
-
-namespace StreamChat.Core.QueryBuilders.Sort
+﻿namespace StreamChat.Core.QueryBuilders.Sort
 {
     /// <summary>
     /// Sort object for <see cref="IStreamUser"/> query: <see cref="IStreamChatClient.QueryUsersAsync"/>

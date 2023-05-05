@@ -8,6 +8,11 @@ using StreamChat.Libs.Auth;
 namespace StreamChat.Core.LowLevelClient
 {
     /// <summary>
+    /// Handler delegate for a connection state change
+    /// </summary>
+    public delegate void ConnectionStateChangeHandler(ConnectionState previous, ConnectionState current);
+    
+    /// <summary>
     /// Stream Chat Client
     /// </summary>
     public interface IStreamChatLowLevelClient : IAuthProvider, IConnectionProvider, IStreamRealtimeEventsProvider, IDisposable
@@ -16,6 +21,11 @@ namespace StreamChat.Core.LowLevelClient
         /// Client established WebSockets connection and is ready to send and receive data
         /// </summary>
         event ConnectionHandler Connected;
+        
+        /// <summary>
+        /// Client is attempting to reconnect after lost connection
+        /// </summary>
+        event Action Reconnecting;
 
         /// <summary>
         /// Client lost connection with the server. if ReconnectStrategy is Exponential or Constant it will attempt to reconnect.
@@ -26,7 +36,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// Raised when connection state changes. Returns previous and the current connection state respectively
         /// </summary>
-        event Action<ConnectionState, ConnectionState> ConnectionStateChanged;
+        event ConnectionStateChangeHandler ConnectionStateChanged;
 
         ConnectionState ConnectionState { get; }
         ReconnectStrategy ReconnectStrategy { get; }
@@ -75,6 +85,6 @@ namespace StreamChat.Core.LowLevelClient
 
         void ConnectUser(AuthCredentials userAuthCredentials);
 
-        Task DisconnectAsync(bool permanently = false);
+        Task DisconnectAsync(bool permanent = false);
     }
 }
