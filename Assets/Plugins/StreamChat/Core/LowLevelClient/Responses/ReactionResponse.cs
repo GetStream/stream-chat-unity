@@ -5,7 +5,7 @@ using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Responses
 {
-    public class ReactionResponse : ResponseObjectBase, ILoadableFrom<ReactionResponseInternalInternalDTO, ReactionResponse>
+    public class ReactionResponse : ResponseObjectBase, ILoadableFrom<ReactionResponseInternalDTO, ReactionResponse>
     {
         /// <summary>
         /// Duration of the request in human-readable format
@@ -16,7 +16,7 @@ namespace StreamChat.Core.LowLevelClient.Responses
 
         public Reaction Reaction { get; set; }
 
-        ReactionResponse ILoadableFrom<ReactionResponseInternalInternalDTO, ReactionResponse>.LoadFromDto(ReactionResponseInternalInternalDTO dto)
+        ReactionResponse ILoadableFrom<ReactionResponseInternalDTO, ReactionResponse>.LoadFromDto(ReactionResponseInternalDTO dto)
         {
             Duration = dto.Duration;
             Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);

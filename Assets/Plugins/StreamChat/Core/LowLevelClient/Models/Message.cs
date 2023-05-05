@@ -191,7 +191,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             PinExpires = dto.PinExpires;
             Pinned = dto.Pinned;
             PinnedAt = dto.PinnedAt;
-            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.PinnedBy);
+            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.PinnedBy);
             QuotedMessage = QuotedMessage.TryLoadFromDto<MessageInternalDTO, Message>(dto.QuotedMessage);
             QuotedMessageId = dto.QuotedMessageId;
             ReactionCounts = dto.ReactionCounts;
@@ -204,7 +204,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
@@ -231,7 +231,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             PinExpires = dto.PinExpires;
             Pinned = dto.Pinned;
             PinnedAt = dto.PinnedAt;
-            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.PinnedBy);
+            PinnedBy = PinnedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.PinnedBy);
             QuotedMessage = QuotedMessage.TryLoadFromDto<MessageInternalDTO, Message>(dto.QuotedMessage);
             QuotedMessageId = dto.QuotedMessageId;
             ReactionCounts = dto.ReactionCounts;
@@ -244,7 +244,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

@@ -6,7 +6,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
     /// <summary>
     /// Contains all information needed to send new message
     /// </summary>
-    public class SendMessageRequest : RequestObjectBase, ISavableTo<SendMessageRequestInternalInternalDTO>
+    public class SendMessageRequest : RequestObjectBase, ISavableTo<SendMessageRequestInternalDTO>
     {
         /// <summary>
         /// Make the message a pending message. This message will not be viewable to others until it is committed.
@@ -27,8 +27,8 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// </summary>
         public bool? SkipPush { get; set; }
 
-        SendMessageRequestInternalInternalDTO ISavableTo<SendMessageRequestInternalInternalDTO>.SaveToDto() =>
-            new SendMessageRequestInternalInternalDTO
+        SendMessageRequestInternalDTO ISavableTo<SendMessageRequestInternalDTO>.SaveToDto() =>
+            new SendMessageRequestInternalDTO
             {
                 IsPendingMessage = IsPendingMessage,
                 Message = Message.TrySaveToDto(),

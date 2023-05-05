@@ -56,7 +56,7 @@ namespace StreamChat.Core.StatefulModels
         {
         }
         
-        internal void InternalHandleMarkReadNotification(EventNotificationMarkReadInternalDTO eventDto)
+        internal void InternalHandleMarkReadNotification(NotificationMarkReadEventInternalDTO eventDto)
         {
             TotalUnreadCount = GetOrDefault(eventDto.TotalUnreadCount, TotalUnreadCount);
             UnreadChannels = GetOrDefault(eventDto.UnreadChannels, UnreadChannels);

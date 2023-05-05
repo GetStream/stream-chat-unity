@@ -5,9 +5,9 @@
 //----------------------
 
 
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.InternalDTO.Responses
 {

@@ -27,7 +27,6 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 Id = Id,
                 Set = Set,
                 Unset = Unset,
-                AdditionalProperties = AdditionalProperties,
             };
         }
     }

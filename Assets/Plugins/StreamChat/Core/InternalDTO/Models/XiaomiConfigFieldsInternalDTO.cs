@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Models
     internal partial class XiaomiConfigFieldsInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Enabled { get; set; }
+        public bool Enabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("package_name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string PackageName { get; set; }

@@ -16,17 +16,17 @@ namespace StreamChat.Core.InternalDTO.Requests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class ImageUploadRequestInternalDTO
     {
-        /// <summary>
-        /// multipart/form-data file field
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("file", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string File { get; set; }
 
         /// <summary>
-        /// multipart/form-data field with JSON-encoded array of image size configurations
+        /// field with JSON-encoded array of image size configurations
         /// </summary>
         [Newtonsoft.Json.JsonProperty("upload_sizes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<ImageSizeRequestInternalDTO> UploadSizes { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public OnlyUserIDRequestInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

@@ -16,9 +16,9 @@ namespace StreamChat.Core.InternalDTO.Requests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class QueryUsersRequestInternalDTO
     {
-        /// <summary>
-        /// Websocket connection ID to interact with. You can pass it as body or URL parameter
-        /// </summary>
+        [Newtonsoft.Json.JsonProperty("client_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ClientId { get; set; }
+
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ConnectionId { get; set; }
 
@@ -28,39 +28,21 @@ namespace StreamChat.Core.InternalDTO.Requests
         [Newtonsoft.Json.JsonProperty("filter_conditions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
-        /// <summary>
-        /// Matches IDs that are greater than the specified ID
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("id_gt", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string IdGt { get; set; }
 
-        /// <summary>
-        /// Matches IDs that are greater than or equal to the specified ID
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("id_gte", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string IdGte { get; set; }
 
-        /// <summary>
-        /// Matches IDs that are less than the specified ID
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("id_lt", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string IdLt { get; set; }
 
-        /// <summary>
-        /// Matches IDs that are less than or equal to the specified ID
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("id_lte", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string IdLte { get; set; }
 
-        /// <summary>
-        /// Number of records to return
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Limit { get; set; }
 
-        /// <summary>
-        /// Number of records to offset
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("offset", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Offset { get; set; }
 
@@ -75,6 +57,12 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// </summary>
         [Newtonsoft.Json.JsonProperty("sort", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<SortParamInternalDTO> Sort { get; set; } = new System.Collections.Generic.List<SortParamInternalDTO>();
+
+        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public UserObjectInternalDTO User { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string UserId { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

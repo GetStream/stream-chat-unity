@@ -8,7 +8,7 @@ using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.Requests
 {
-    public class StreamUpdateMessageRequest : ISavableTo<UpdateMessageRequestInternalInternalDTO>
+    public class StreamUpdateMessageRequest : ISavableTo<UpdateMessageRequestInternalDTO>
     {
         public Dictionary<string, string> PendingMessageMetadata { get; set; }
 
@@ -79,9 +79,9 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public StreamCustomDataRequest CustomData { get; set; }
 
-        UpdateMessageRequestInternalInternalDTO ISavableTo<UpdateMessageRequestInternalInternalDTO>.SaveToDto()
+        UpdateMessageRequestInternalDTO ISavableTo<UpdateMessageRequestInternalDTO>.SaveToDto()
         {
-            var messageRequestDto = new MessageRequestInternalInternalDTO
+            var messageRequestDto = new MessageRequestInternalDTO
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<StreamAttachmentRequest, AttachmentRequestInternalDTO>(),
                 // Cid = Cid, Purposely ignored because it has no effect and endpoint already contains channel type&id
@@ -102,7 +102,7 @@ namespace StreamChat.Core.Requests
                 AdditionalProperties = CustomData?.ToDictionary()
             };
 
-            return new UpdateMessageRequestInternalInternalDTO
+            return new UpdateMessageRequestInternalDTO
             {
                 Message = messageRequestDto,
                 PendingMessageMetadata = PendingMessageMetadata,

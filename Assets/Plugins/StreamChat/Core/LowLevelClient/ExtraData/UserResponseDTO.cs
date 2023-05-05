@@ -12,7 +12,3 @@
         public string Image { get; set; }
     }
 }
-
-namespace StreamChat.Core.InternalDTO.Events
-{
-}

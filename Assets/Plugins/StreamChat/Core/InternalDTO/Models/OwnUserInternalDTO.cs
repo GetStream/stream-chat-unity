@@ -17,13 +17,13 @@ namespace StreamChat.Core.InternalDTO.Models
     internal partial class OwnUserInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("banned", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Banned { get; set; }
+        public bool Banned { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_mutes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelMuteInternalDTO> ChannelMutes { get; set; }
+        public System.Collections.Generic.List<ChannelMuteInternalDTO> ChannelMutes { get; set; } = new System.Collections.Generic.List<ChannelMuteInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deactivated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeactivatedAt { get; set; }
@@ -32,7 +32,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public System.DateTimeOffset? DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("devices", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<DeviceInternalDTO> Devices { get; set; }
+        public System.Collections.Generic.List<DeviceInternalDTO> Devices { get; set; } = new System.Collections.Generic.List<DeviceInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
@@ -50,10 +50,10 @@ namespace StreamChat.Core.InternalDTO.Models
         public System.Collections.Generic.List<string> LatestHiddenChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("mutes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserMuteInternalDTO> Mutes { get; set; }
+        public System.Collections.Generic.List<UserMuteInternalDTO> Mutes { get; set; } = new System.Collections.Generic.List<UserMuteInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("online", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Online { get; set; }
+        public bool Online { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PushNotificationSettingsInternalDTO PushNotifications { get; set; }
@@ -65,16 +65,16 @@ namespace StreamChat.Core.InternalDTO.Models
         public System.Collections.Generic.List<string> Teams { get; set; }
 
         [Newtonsoft.Json.JsonProperty("total_unread_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? TotalUnreadCount { get; set; }
+        public int TotalUnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? UnreadChannels { get; set; }
+        public int UnreadChannels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? UnreadCount { get; set; }
+        public int UnreadCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

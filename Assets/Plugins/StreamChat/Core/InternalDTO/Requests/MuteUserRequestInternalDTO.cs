@@ -28,15 +28,9 @@ namespace StreamChat.Core.InternalDTO.Requests
         [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Timeout { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectRequestInternalDTO User { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 

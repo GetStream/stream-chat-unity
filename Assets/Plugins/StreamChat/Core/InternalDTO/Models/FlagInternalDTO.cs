@@ -29,10 +29,10 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by_automod", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? CreatedByAutomod { get; set; }
+        public bool CreatedByAutomod { get; set; }
 
         [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public FlagDetailsInternalDTO Details { get; set; }
@@ -62,19 +62,19 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Flagged user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("target_user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO TargetUser { get; set; }
+        public UserObjectInternalDTO TargetUser { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// User who flagged a message or a user
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

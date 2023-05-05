@@ -102,54 +102,54 @@ namespace StreamChat.Core.LowLevelClient
 
         #region Internal Events
 
-        internal event Action<EventHealthCheckInternalDTO> InternalConnected;
+        internal event Action<HealthCheckEventInternalDTO> InternalConnected;
 
-        internal event Action<EventMessageNewInternalDTO> InternalMessageReceived;
-        internal event Action<EventMessageUpdatedInternalDTO> InternalMessageUpdated;
-        internal event Action<EventMessageDeletedInternalDTO> InternalMessageDeleted;
-        internal event Action<EventMessageReadInternalDTO> InternalMessageRead;
+        internal event Action<MessageNewEventInternalDTO> InternalMessageReceived;
+        internal event Action<MessageUpdatedEventInternalDTO> InternalMessageUpdated;
+        internal event Action<MessageDeletedEventInternalDTO> InternalMessageDeleted;
+        internal event Action<MessageReadEventInternalDTO> InternalMessageRead;
 
-        internal event Action<EventChannelUpdatedInternalDTO> InternalChannelUpdated;
-        internal event Action<EventChannelDeletedInternalDTO> InternalChannelDeleted;
-        internal event Action<EventChannelTruncatedInternalDTO> InternalChannelTruncated;
-        internal event Action<EventChannelVisibleInternalDTO> InternalChannelVisible;
-        internal event Action<EventChannelHiddenInternalDTO> InternalChannelHidden;
+        internal event Action<ChannelUpdatedEventInternalDTO> InternalChannelUpdated;
+        internal event Action<ChannelDeletedEventInternalDTO> InternalChannelDeleted;
+        internal event Action<ChannelTruncatedEventInternalDTO> InternalChannelTruncated;
+        internal event Action<ChannelVisibleEventInternalDTO> InternalChannelVisible;
+        internal event Action<ChannelHiddenEventInternalDTO> InternalChannelHidden;
 
-        internal event Action<EventMemberAddedInternalDTO> InternalMemberAdded;
-        internal event Action<EventMemberRemovedInternalDTO> InternalMemberRemoved;
-        internal event Action<EventMemberUpdatedInternalDTO> InternalMemberUpdated;
+        internal event Action<MemberAddedEventInternalDTO> InternalMemberAdded;
+        internal event Action<MemberRemovedEventInternalDTO> InternalMemberRemoved;
+        internal event Action<MemberUpdatedEventInternalDTO> InternalMemberUpdated;
 
-        internal event Action<EventUserPresenceChangedInternalDTO> InternalUserPresenceChanged;
-        internal event Action<EventUserUpdatedInternalDTO> InternalUserUpdated;
-        internal event Action<EventUserDeletedInternalDTO> InternalUserDeleted;
-        internal event Action<EventUserBannedInternalDTO> InternalUserBanned;
-        internal event Action<EventUserUnbannedInternalDTO> InternalUserUnbanned;
+        internal event Action<UserPresenceChangedEventInternalDTO> InternalUserPresenceChanged;
+        internal event Action<UserUpdatedEventInternalDTO> InternalUserUpdated;
+        internal event Action<UserDeletedEventInternalDTO> InternalUserDeleted;
+        internal event Action<UserBannedEventInternalDTO> InternalUserBanned;
+        internal event Action<UserUnbannedEventInternalDTO> InternalUserUnbanned;
 
-        internal event Action<EventUserWatchingStartInternalDTO> InternalUserWatchingStart;
-        internal event Action<EventUserWatchingStopInternalDTO> InternalUserWatchingStop;
+        internal event Action<UserWatchingStartEventInternalDTO> InternalUserWatchingStart;
+        internal event Action<UserWatchingStopEventInternalDTO> InternalUserWatchingStop;
 
-        internal event Action<EventReactionNewInternalDTO> InternalReactionReceived;
-        internal event Action<EventReactionUpdatedInternalDTO> InternalReactionUpdated;
-        internal event Action<EventReactionDeletedInternalDTO> InternalReactionDeleted;
+        internal event Action<ReactionNewEventInternalDTO> InternalReactionReceived;
+        internal event Action<ReactionUpdatedEventInternalDTO> InternalReactionUpdated;
+        internal event Action<ReactionDeletedEventInternalDTO> InternalReactionDeleted;
 
-        internal event Action<EventTypingStartInternalDTO> InternalTypingStarted;
-        internal event Action<EventTypingStopInternalDTO> InternalTypingStopped;
+        internal event Action<TypingStartEventInternalDTO> InternalTypingStarted;
+        internal event Action<TypingStopEventInternalDTO> InternalTypingStopped;
 
-        internal event Action<EventNotificationChannelMutesUpdatedInternalDTO> InternalNotificationChannelMutesUpdated;
-        internal event Action<EventNotificationMutesUpdatedInternalDTO> InternalNotificationMutesUpdated;
+        internal event Action<NotificationChannelMutesUpdatedEventInternalDTO> InternalNotificationChannelMutesUpdated;
+        internal event Action<NotificationMutesUpdatedEventInternalDTO> InternalNotificationMutesUpdated;
 
-        internal event Action<EventNotificationMessageNewInternalDTO> InternalNotificationMessageReceived;
-        internal event Action<EventNotificationMarkReadInternalDTO> InternalNotificationMarkRead;
+        internal event Action<NotificationNewMessageEventInternalDTO> InternalNotificationMessageReceived;
+        internal event Action<NotificationMarkReadEventInternalDTO> InternalNotificationMarkRead;
 
-        internal event Action<EventNotificationChannelDeletedInternalDTO> InternalNotificationChannelDeleted;
-        internal event Action<EventNotificationChannelTruncatedInternalDTO> InternalNotificationChannelTruncated;
+        internal event Action<NotificationChannelDeletedEventInternalDTO> InternalNotificationChannelDeleted;
+        internal event Action<NotificationChannelTruncatedEventInternalDTO> InternalNotificationChannelTruncated;
 
-        internal event Action<EventNotificationAddedToChannelInternalDTO> InternalNotificationAddedToChannel;
-        internal event Action<EventNotificationRemovedFromChannelInternalDTO> InternalNotificationRemovedFromChannel;
+        internal event Action<NotificationAddedToChannelEventInternalDTO> InternalNotificationAddedToChannel;
+        internal event Action<NotificationRemovedFromChannelEventInternalDTO> InternalNotificationRemovedFromChannel;
 
-        internal event Action<EventNotificationInvitedInternalDTO> InternalNotificationInvited;
-        internal event Action<EventNotificationInviteAcceptedInternalDTO> InternalNotificationInviteAccepted;
-        internal event Action<EventNotificationInviteRejectedInternalDTO> InternalNotificationInviteRejected;
+        internal event Action<NotificationInvitedEventInternalDTO> InternalNotificationInvited;
+        internal event Action<NotificationInviteAcceptedEventInternalDTO> InternalNotificationInviteAccepted;
+        internal event Action<NotificationInviteRejectedEventInternalDTO> InternalNotificationInviteRejected;
 
         #endregion
 
@@ -569,7 +569,7 @@ namespace StreamChat.Core.LowLevelClient
         /// Based on receiving initial health check event from the server
         /// </summary>
         private void OnConnectionConfirmed(EventHealthCheck healthCheckEvent,
-            EventHealthCheckInternalDTO eventHealthCheckInternalDto)
+            HealthCheckEventInternalDTO eventHealthCheckInternalDto)
         {
             //StreamTodo: resolve issue that expired token also triggers connection confirmed that gets immediately disconnected
 
@@ -614,109 +614,109 @@ namespace StreamChat.Core.LowLevelClient
 
         private void RegisterEventHandlers()
         {
-            RegisterEventType<EventHealthCheckInternalDTO, EventHealthCheck>(WSEventType.HealthCheck,
+            RegisterEventType<HealthCheckEventInternalDTO, EventHealthCheck>(WSEventType.HealthCheck,
                 HandleHealthCheckEvent);
 
-            RegisterEventType<EventMessageNewInternalDTO, EventMessageNew>(WSEventType.MessageNew,
+            RegisterEventType<MessageNewEventInternalDTO, EventMessageNew>(WSEventType.MessageNew,
                 (e, dto) => MessageReceived?.Invoke(e), dto => InternalMessageReceived?.Invoke(dto));
-            RegisterEventType<EventMessageDeletedInternalDTO, EventMessageDeleted>(WSEventType.MessageDeleted,
+            RegisterEventType<MessageDeletedEventInternalDTO, EventMessageDeleted>(WSEventType.MessageDeleted,
                 (e, dto) => MessageDeleted?.Invoke(e), dto => InternalMessageDeleted?.Invoke(dto));
-            RegisterEventType<EventMessageUpdatedInternalDTO, EventMessageUpdated>(WSEventType.MessageUpdated,
+            RegisterEventType<MessageUpdatedEventInternalDTO, EventMessageUpdated>(WSEventType.MessageUpdated,
                 (e, dto) => MessageUpdated?.Invoke(e), dto => InternalMessageUpdated?.Invoke(dto));
-            RegisterEventType<EventMessageReadInternalDTO, EventMessageRead>(WSEventType.MessageRead,
+            RegisterEventType<MessageReadEventInternalDTO, EventMessageRead>(WSEventType.MessageRead,
                 (e, dto) => MessageRead?.Invoke(e), dto => InternalMessageRead?.Invoke(dto));
 
-            RegisterEventType<EventChannelUpdatedInternalDTO, EventChannelUpdated>(WSEventType.ChannelUpdated,
+            RegisterEventType<ChannelUpdatedEventInternalDTO, EventChannelUpdated>(WSEventType.ChannelUpdated,
                 (e, dto) => ChannelUpdated?.Invoke(e), dto => InternalChannelUpdated?.Invoke(dto));
-            RegisterEventType<EventChannelDeletedInternalDTO, EventChannelDeleted>(WSEventType.ChannelDeleted,
+            RegisterEventType<ChannelDeletedEventInternalDTO, EventChannelDeleted>(WSEventType.ChannelDeleted,
                 (e, dto) => ChannelDeleted?.Invoke(e), dto => InternalChannelDeleted?.Invoke(dto));
-            RegisterEventType<EventChannelTruncatedInternalDTO, EventChannelTruncated>(WSEventType.ChannelTruncated,
+            RegisterEventType<ChannelTruncatedEventInternalDTO, EventChannelTruncated>(WSEventType.ChannelTruncated,
                 (e, dto) => ChannelTruncated?.Invoke(e), dto => InternalChannelTruncated?.Invoke(dto));
-            RegisterEventType<EventChannelVisibleInternalDTO, EventChannelVisible>(WSEventType.ChannelVisible,
+            RegisterEventType<ChannelVisibleEventInternalDTO, EventChannelVisible>(WSEventType.ChannelVisible,
                 (e, dto) => ChannelVisible?.Invoke(e), dto => InternalChannelVisible?.Invoke(dto));
-            RegisterEventType<EventChannelHiddenInternalDTO, EventChannelHidden>(WSEventType.ChannelHidden,
+            RegisterEventType<ChannelHiddenEventInternalDTO, EventChannelHidden>(WSEventType.ChannelHidden,
                 (e, dto) => ChannelHidden?.Invoke(e), dto => InternalChannelHidden?.Invoke(dto));
 
-            RegisterEventType<EventReactionNewInternalDTO, EventReactionNew>(WSEventType.ReactionNew,
+            RegisterEventType<ReactionNewEventInternalDTO, EventReactionNew>(WSEventType.ReactionNew,
                 (e, dto) => ReactionReceived?.Invoke(e), dto => InternalReactionReceived?.Invoke(dto));
-            RegisterEventType<EventReactionUpdatedInternalDTO, EventReactionUpdated>(WSEventType.ReactionUpdated,
+            RegisterEventType<ReactionUpdatedEventInternalDTO, EventReactionUpdated>(WSEventType.ReactionUpdated,
                 (e, dto) => ReactionUpdated?.Invoke(e), dto => InternalReactionUpdated?.Invoke(dto));
-            RegisterEventType<EventReactionDeletedInternalDTO, EventReactionDeleted>(WSEventType.ReactionDeleted,
+            RegisterEventType<ReactionDeletedEventInternalDTO, EventReactionDeleted>(WSEventType.ReactionDeleted,
                 (e, dto) => ReactionDeleted?.Invoke(e), dto => InternalReactionDeleted?.Invoke(dto));
 
-            RegisterEventType<EventMemberAddedInternalDTO, EventMemberAdded>(WSEventType.MemberAdded,
+            RegisterEventType<MemberAddedEventInternalDTO, EventMemberAdded>(WSEventType.MemberAdded,
                 (e, dto) => MemberAdded?.Invoke(e), dto => InternalMemberAdded?.Invoke(dto));
-            RegisterEventType<EventMemberRemovedInternalDTO, EventMemberRemoved>(WSEventType.MemberRemoved,
+            RegisterEventType<MemberRemovedEventInternalDTO, EventMemberRemoved>(WSEventType.MemberRemoved,
                 (e, dto) => MemberRemoved?.Invoke(e), dto => InternalMemberRemoved?.Invoke(dto));
-            RegisterEventType<EventMemberUpdatedInternalDTO, EventMemberUpdated>(WSEventType.MemberUpdated,
+            RegisterEventType<MemberUpdatedEventInternalDTO, EventMemberUpdated>(WSEventType.MemberUpdated,
                 (e, dto) => MemberUpdated?.Invoke(e), dto => InternalMemberUpdated?.Invoke(dto));
 
-            RegisterEventType<EventUserPresenceChangedInternalDTO, EventUserPresenceChanged>(
+            RegisterEventType<UserPresenceChangedEventInternalDTO, EventUserPresenceChanged>(
                 WSEventType.UserPresenceChanged,
                 (e, dto) => UserPresenceChanged?.Invoke(e), dto => InternalUserPresenceChanged?.Invoke(dto));
-            RegisterEventType<EventUserUpdatedInternalDTO, EventUserUpdated>(WSEventType.UserUpdated,
+            RegisterEventType<UserUpdatedEventInternalDTO, EventUserUpdated>(WSEventType.UserUpdated,
                 (e, dto) => UserUpdated?.Invoke(e), dto => InternalUserUpdated?.Invoke(dto));
-            RegisterEventType<EventUserDeletedInternalDTO, EventUserDeleted>(WSEventType.UserDeleted,
+            RegisterEventType<UserDeletedEventInternalDTO, EventUserDeleted>(WSEventType.UserDeleted,
                 (e, dto) => UserDeleted?.Invoke(e), dto => InternalUserDeleted?.Invoke(dto));
-            RegisterEventType<EventUserBannedInternalDTO, EventUserBanned>(WSEventType.UserBanned,
+            RegisterEventType<UserBannedEventInternalDTO, EventUserBanned>(WSEventType.UserBanned,
                 (e, dto) => UserBanned?.Invoke(e), dto => InternalUserBanned?.Invoke(dto));
-            RegisterEventType<EventUserUnbannedInternalDTO, EventUserUnbanned>(WSEventType.UserUnbanned,
+            RegisterEventType<UserUnbannedEventInternalDTO, EventUserUnbanned>(WSEventType.UserUnbanned,
                 (e, dto) => UserUnbanned?.Invoke(e), dto => InternalUserUnbanned?.Invoke(dto));
 
-            RegisterEventType<EventUserWatchingStartInternalDTO, EventUserWatchingStart>(WSEventType.UserWatchingStart,
+            RegisterEventType<UserWatchingStartEventInternalDTO, EventUserWatchingStart>(WSEventType.UserWatchingStart,
                 (e, dto) => UserWatchingStart?.Invoke(e), dto => InternalUserWatchingStart?.Invoke(dto));
-            RegisterEventType<EventUserWatchingStopInternalDTO, EventUserWatchingStop>(WSEventType.UserWatchingStop,
+            RegisterEventType<UserWatchingStopEventInternalDTO, EventUserWatchingStop>(WSEventType.UserWatchingStop,
                 (e, dto) => UserWatchingStop?.Invoke(e), dto => InternalUserWatchingStop?.Invoke(dto));
 
-            RegisterEventType<EventTypingStartInternalDTO, EventTypingStart>(WSEventType.TypingStart,
+            RegisterEventType<TypingStartEventInternalDTO, EventTypingStart>(WSEventType.TypingStart,
                 (e, dto) => TypingStarted?.Invoke(e), dto => InternalTypingStarted?.Invoke(dto));
-            RegisterEventType<EventTypingStopInternalDTO, EventTypingStop>(WSEventType.TypingStop,
+            RegisterEventType<TypingStopEventInternalDTO, EventTypingStop>(WSEventType.TypingStop,
                 (e, dto) => TypingStopped?.Invoke(e), dto => InternalTypingStopped?.Invoke(dto));
 
             // Notifications
 
-            RegisterEventType<EventNotificationChannelMutesUpdatedInternalDTO, EventNotificationChannelMutesUpdated>(
+            RegisterEventType<NotificationChannelMutesUpdatedEventInternalDTO, EventNotificationChannelMutesUpdated>(
                 WSEventType.NotificationChannelMutesUpdated,
                 (e, dto) => NotificationChannelMutesUpdated?.Invoke(e),
                 dto => InternalNotificationChannelMutesUpdated?.Invoke(dto));
-            RegisterEventType<EventNotificationMutesUpdatedInternalDTO, EventNotificationMutesUpdated>(
+            RegisterEventType<NotificationMutesUpdatedEventInternalDTO, EventNotificationMutesUpdated>(
                 WSEventType.NotificationMutesUpdated,
                 (e, dto) => NotificationMutesUpdated?.Invoke(e), dto => InternalNotificationMutesUpdated?.Invoke(dto));
 
-            RegisterEventType<EventNotificationMarkReadInternalDTO, EventNotificationMarkRead>(
+            RegisterEventType<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>(
                 WSEventType.NotificationMarkRead,
                 (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto));
-            RegisterEventType<EventNotificationMessageNewInternalDTO, EventNotificationMessageNew>(
+            RegisterEventType<NotificationNewMessageEventInternalDTO, EventNotificationMessageNew>(
                 WSEventType.NotificationMessageNew,
                 (e, dto) => NotificationMessageReceived?.Invoke(e),
                 dto => InternalNotificationMessageReceived?.Invoke(dto));
 
-            RegisterEventType<EventNotificationChannelDeletedInternalDTO, EventNotificationChannelDeleted>(
+            RegisterEventType<NotificationChannelDeletedEventInternalDTO, EventNotificationChannelDeleted>(
                 WSEventType.NotificationChannelDeleted,
                 (e, dto) => NotificationChannelDeleted?.Invoke(e),
                 dto => InternalNotificationChannelDeleted?.Invoke(dto));
-            RegisterEventType<EventNotificationChannelTruncatedInternalDTO, EventNotificationChannelTruncated>(
+            RegisterEventType<NotificationChannelTruncatedEventInternalDTO, EventNotificationChannelTruncated>(
                 WSEventType.NotificationChannelTruncated,
                 (e, dto) => NotificationChannelTruncated?.Invoke(e),
                 dto => InternalNotificationChannelTruncated?.Invoke(dto));
 
-            RegisterEventType<EventNotificationAddedToChannelInternalDTO, EventNotificationAddedToChannel>(
+            RegisterEventType<NotificationAddedToChannelEventInternalDTO, EventNotificationAddedToChannel>(
                 WSEventType.NotificationAddedToChannel,
                 (e, dto) => NotificationAddedToChannel?.Invoke(e),
                 dto => InternalNotificationAddedToChannel?.Invoke(dto));
-            RegisterEventType<EventNotificationRemovedFromChannelInternalDTO, EventNotificationRemovedFromChannel>(
+            RegisterEventType<NotificationRemovedFromChannelEventInternalDTO, EventNotificationRemovedFromChannel>(
                 WSEventType.NotificationRemovedFromChannel,
                 (e, dto) => NotificationRemovedFromChannel?.Invoke(e),
                 dto => InternalNotificationRemovedFromChannel?.Invoke(dto));
 
-            RegisterEventType<EventNotificationInvitedInternalDTO, EventNotificationInvited>(
+            RegisterEventType<NotificationInvitedEventInternalDTO, EventNotificationInvited>(
                 WSEventType.NotificationInvited,
                 (e, dto) => NotificationInvited?.Invoke(e), dto => InternalNotificationInvited?.Invoke(dto));
-            RegisterEventType<EventNotificationInviteAcceptedInternalDTO, EventNotificationInviteAccepted>(
+            RegisterEventType<NotificationInviteAcceptedEventInternalDTO, EventNotificationInviteAccepted>(
                 WSEventType.NotificationInviteAccepted,
                 (e, dto) => NotificationInviteAccepted?.Invoke(e),
                 dto => InternalNotificationInviteAccepted?.Invoke(dto));
-            RegisterEventType<EventNotificationInviteRejectedInternalDTO, EventNotificationInviteRejected>(
+            RegisterEventType<NotificationInviteRejectedEventInternalDTO, EventNotificationInviteRejected>(
                 WSEventType.NotificationInviteRejected,
                 (e, dto) => NotificationInviteRejected?.Invoke(e),
                 dto => InternalNotificationInviteRejected?.Invoke(dto));
@@ -841,7 +841,7 @@ namespace StreamChat.Core.LowLevelClient
 #endif
         }
 
-        private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, EventHealthCheckInternalDTO dto)
+        private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, HealthCheckEventInternalDTO dto)
         {
             _lastHealthCheckReceivedTime = _timeService.Time;
 

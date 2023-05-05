@@ -70,15 +70,9 @@ namespace StreamChat.Core.InternalDTO.Requests
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 

@@ -16,15 +16,9 @@ namespace StreamChat.Core.InternalDTO.Responses
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class GetExportChannelsStatusResponseInternalDTO
     {
-        /// <summary>
-        /// Date/time of creation
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
-        /// <summary>
-        /// Duration of the request in human-readable format
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
@@ -43,17 +37,11 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Status { get; set; }
 
-        /// <summary>
-        /// Task status
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TaskId { get; set; }
 
-        /// <summary>
-        /// Date/time of the last update
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

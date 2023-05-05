@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public bool? Banned { get; set; }
 
         [Newtonsoft.Json.JsonProperty("channel_mutes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelMuteRequestInternalInternalDTO> ChannelMutes { get; set; }
+        public System.Collections.Generic.List<ChannelMuteRequestInternalDTO> ChannelMutes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? CreatedAt { get; set; }

@@ -20,11 +20,8 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Object with all channel types
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_types", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, ChannelTypeConfigInternalDTO> ChannelTypes { get; set; }
+        public System.Collections.Generic.Dictionary<string, ChannelTypeConfigInternalDTO> ChannelTypes { get; set; } = new System.Collections.Generic.Dictionary<string, ChannelTypeConfigInternalDTO>();
 
-        /// <summary>
-        /// Duration of the request in human-readable format
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 

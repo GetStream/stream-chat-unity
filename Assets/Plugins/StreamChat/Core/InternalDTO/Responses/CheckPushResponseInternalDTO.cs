@@ -22,9 +22,6 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("device_errors", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, DeviceErrorInfoInternalDTO> DeviceErrors { get; set; }
 
-        /// <summary>
-        /// Duration of the request in human-readable format
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 

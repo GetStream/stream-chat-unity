@@ -237,7 +237,7 @@ namespace StreamChat.Core.StatefulModels
             Text = string.Empty;
         }
 
-        internal void HandleReactionNewEvent(EventReactionNewInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
+        internal void HandleReactionNewEvent(ReactionNewEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
         {
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);
@@ -251,7 +251,7 @@ namespace StreamChat.Core.StatefulModels
             ReactionAdded?.Invoke(channel, this, reaction);
         }
 
-        internal void HandleReactionUpdatedEvent(EventReactionUpdatedInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
+        internal void HandleReactionUpdatedEvent(ReactionUpdatedEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
         {
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);
@@ -264,7 +264,7 @@ namespace StreamChat.Core.StatefulModels
             ReactionUpdated?.Invoke(channel, this, reaction);
         }
 
-        internal void HandleReactionDeletedEvent(EventReactionDeletedInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
+        internal void HandleReactionDeletedEvent(ReactionDeletedEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
         {
             AssertCid(eventDto.Cid);
             AssertMessageId(eventDto.Message.Id);

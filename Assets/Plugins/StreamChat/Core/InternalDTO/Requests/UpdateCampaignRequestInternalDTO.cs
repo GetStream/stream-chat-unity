@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     internal partial class UpdateCampaignRequestInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("campaign", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public CampaignUpdateableFieldsRequestInternalDTO Campaign { get; set; }
+        public CampaignUpdateableFieldsRequestInternalDTO Campaign { get; set; } = new CampaignUpdateableFieldsRequestInternalDTO();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

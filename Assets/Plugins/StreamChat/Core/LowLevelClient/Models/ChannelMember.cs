@@ -84,7 +84,7 @@ namespace StreamChat.Core.LowLevelClient.Models
 #pragma warning restore 0618
             ShadowBanned = dto.ShadowBanned;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
 
@@ -96,9 +96,9 @@ namespace StreamChat.Core.LowLevelClient.Models
             return new ChannelMemberInternalDTO
             {
                 BanExpires = BanExpires,
-                Banned = Banned,
+                Banned = Banned.GetValueOrDefault(),
                 ChannelRole = ChannelRole,
-                CreatedAt = CreatedAt,
+                CreatedAt = CreatedAt.GetValueOrDefault(),
                 DeletedAt = DeletedAt,
                 InviteAcceptedAt = InviteAcceptedAt,
                 InviteRejectedAt = InviteRejectedAt,
@@ -107,8 +107,8 @@ namespace StreamChat.Core.LowLevelClient.Models
 #pragma warning disable 0618
                 Role = Role,
 #pragma warning restore 0618
-                ShadowBanned = ShadowBanned,
-                UpdatedAt = UpdatedAt,
+                ShadowBanned = ShadowBanned.GetValueOrDefault(),
+                UpdatedAt = UpdatedAt.GetValueOrDefault(),
                 User = User.TrySaveToDto(),
                 UserId = UserId,
                 AdditionalProperties = AdditionalProperties,

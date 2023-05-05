@@ -482,7 +482,7 @@ namespace StreamChat.Core.StatefulModels
                 new TruncateChannelRequestInternalDTO
                 {
                     HardDelete = isHardDelete,
-                    Message = new MessageRequestInternalInternalDTO
+                    Message = new MessageRequestInternalDTO
                     {
                         Text = systemMessage
                     },
@@ -585,7 +585,7 @@ namespace StreamChat.Core.StatefulModels
             #endregion
         }
 
-        internal void HandleMessageNewEvent(EventMessageNewInternalDTO dto)
+        internal void HandleMessageNewEvent(MessageNewEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
@@ -594,13 +594,13 @@ namespace StreamChat.Core.StatefulModels
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
         }
 
-        internal void InternalHandleMessageNewNotification(EventNotificationMessageNewInternalDTO dto)
+        internal void InternalHandleMessageNewNotification(NotificationNewMessageEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
         }
 
-        internal void HandleMessageUpdatedEvent(EventMessageUpdatedInternalDTO dto)
+        internal void HandleMessageUpdatedEvent(MessageUpdatedEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
             if (!Cache.Messages.TryGet(dto.Message.Id, out var message))
@@ -612,7 +612,7 @@ namespace StreamChat.Core.StatefulModels
             MessageUpdated?.Invoke(this, message);
         }
 
-        internal void HandleMessageDeletedEvent(EventMessageDeletedInternalDTO dto)
+        internal void HandleMessageDeletedEvent(MessageDeletedEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
             if (!Cache.Messages.TryGet(dto.Message.Id, out var message))
@@ -623,7 +623,7 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(dto.Message);
 
             //StreamTodo: consider moving this logic into StreamMessage.HandleMessageDeletedEvent
-            var isHardDelete = dto.HardDelete.GetValueOrDefault(false);
+            var isHardDelete = dto.HardDelete;
             if (isHardDelete)
             {
                 Cache.Messages.Remove(message);
@@ -637,19 +637,19 @@ namespace StreamChat.Core.StatefulModels
             MessageDeleted?.Invoke(this, message, isHardDelete);
         }
 
-        internal void HandleChannelUpdatedEvent(EventChannelUpdatedInternalDTO eventDto)
+        internal void HandleChannelUpdatedEvent(ChannelUpdatedEventInternalDTO eventDto)
         {
             Cache.TryCreateOrUpdate(eventDto.Channel);
             Updated?.Invoke(this);
         }
 
-        internal void HandleChannelTruncatedEvent(EventChannelTruncatedInternalDTO eventDto)
+        internal void HandleChannelTruncatedEvent(ChannelTruncatedEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
             InternalTruncateMessages(eventDto.CreatedAt, eventDto.Message);
         }
 
-        internal void HandleChannelTruncatedEvent(EventNotificationChannelTruncatedInternalDTO eventDto)
+        internal void HandleChannelTruncatedEvent(NotificationChannelTruncatedEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
             InternalTruncateMessages(eventDto.CreatedAt);
@@ -804,20 +804,20 @@ namespace StreamChat.Core.StatefulModels
             #endregion
         }
 
-        internal void InternalHandleMessageReadEvent(EventMessageReadInternalDTO eventDto)
+        internal void InternalHandleMessageReadEvent(MessageReadEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            HandleMessageRead(eventDto.User, eventDto.CreatedAt.Value);
+            HandleMessageRead(eventDto.User, eventDto.CreatedAt);
         }
 
-        internal void InternalHandleMessageReadNotification(EventNotificationMarkReadInternalDTO eventDto)
+        internal void InternalHandleMessageReadNotification(NotificationMarkReadEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            HandleMessageRead(eventDto.User, eventDto.CreatedAt.Value);
+            HandleMessageRead(eventDto.User, eventDto.CreatedAt);
             //StreamTodo: update eventDto.Channel as well?
         }
 
-        internal void InternalHandleUserWatchingStartEvent(EventUserWatchingStartInternalDTO eventDto)
+        internal void InternalHandleUserWatchingStartEvent(UserWatchingStartEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
 
@@ -830,7 +830,7 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        internal void InternalHandleUserWatchingStop(EventUserWatchingStopInternalDTO eventDto)
+        internal void InternalHandleUserWatchingStop(UserWatchingStopEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
 
@@ -849,7 +849,7 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        internal void InternalHandleTypingStopped(EventTypingStopInternalDTO eventDto)
+        internal void InternalHandleTypingStopped(TypingStopEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
             var user = Cache.TryCreateOrUpdate(eventDto.User);
@@ -867,7 +867,7 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        internal void InternalHandleTypingStarted(EventTypingStartInternalDTO eventDto)
+        internal void InternalHandleTypingStarted(TypingStartEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
             var user = Cache.TryCreateOrUpdate(eventDto.User);
@@ -893,7 +893,7 @@ namespace StreamChat.Core.StatefulModels
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
         private readonly List<IStreamUser> _typingUsers = new List<IStreamUser>();
 
-        private void HandleMessageRead(UserObjectInternalInternalDTO userDto, DateTimeOffset createAt)
+        private void HandleMessageRead(UserObjectInternalDTO userDto, DateTimeOffset createAt)
         {
             //we can only mark messages based on created_at
             //we mark this per user

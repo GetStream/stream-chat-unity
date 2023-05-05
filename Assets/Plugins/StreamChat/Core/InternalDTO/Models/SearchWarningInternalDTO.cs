@@ -32,7 +32,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Code corresponding to the warning
         /// </summary>
         [Newtonsoft.Json.JsonProperty("warning_code", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? WarningCode { get; set; }
+        public int WarningCode { get; set; }
 
         /// <summary>
         /// Description of the warning

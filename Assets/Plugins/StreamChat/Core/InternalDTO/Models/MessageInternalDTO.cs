@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Array of message attachments
         /// </summary>
         [Newtonsoft.Json.JsonProperty("attachments", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<AttachmentInternalDTO> Attachments { get; set; }
+        public System.Collections.Generic.List<AttachmentInternalDTO> Attachments { get; set; } = new System.Collections.Generic.List<AttachmentInternalDTO>();
 
         /// <summary>
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
@@ -47,7 +47,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Date/time of deletion
@@ -83,13 +83,13 @@ namespace StreamChat.Core.InternalDTO.Models
         /// List of 10 latest reactions to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("latest_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ReactionInternalDTO> LatestReactions { get; set; }
+        public System.Collections.Generic.List<ReactionInternalDTO> LatestReactions { get; set; } = new System.Collections.Generic.List<ReactionInternalDTO>();
 
         /// <summary>
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalInternalDTO> MentionedUsers { get; set; }
+        public System.Collections.Generic.List<UserObjectInternalDTO> MentionedUsers { get; set; } = new System.Collections.Generic.List<UserObjectInternalDTO>();
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -101,7 +101,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// List of 10 latest reactions of authenticated user to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ReactionInternalDTO> OwnReactions { get; set; }
+        public System.Collections.Generic.List<ReactionInternalDTO> OwnReactions { get; set; } = new System.Collections.Generic.List<ReactionInternalDTO>();
 
         /// <summary>
         /// ID of parent message (thread)
@@ -119,7 +119,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Whether message is pinned or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Pinned { get; set; }
+        public bool Pinned { get; set; }
 
         /// <summary>
         /// Date when message got pinned
@@ -131,7 +131,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Contains user who pinned the message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO PinnedBy { get; set; }
+        public UserObjectInternalDTO PinnedBy { get; set; }
 
         /// <summary>
         /// Contains quoted message
@@ -146,25 +146,25 @@ namespace StreamChat.Core.InternalDTO.Models
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; }
+        public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; }
+        public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
 
         /// <summary>
         /// Number of replies to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reply_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? ReplyCount { get; set; }
+        public int ReplyCount { get; set; }
 
         /// <summary>
         /// Whether the message was shadowed or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("shadowed", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Shadowed { get; set; }
+        public bool Shadowed { get; set; }
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well
@@ -176,7 +176,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Whether message is silent or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("silent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Silent { get; set; }
+        public bool Silent { get; set; }
 
         /// <summary>
         /// Text of the message. Should be empty if `mml` is provided
@@ -188,7 +188,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// List of users who participate in thread
         /// </summary>
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalInternalDTO> ThreadParticipants { get; set; }
+        public System.Collections.Generic.List<UserObjectInternalDTO> ThreadParticipants { get; set; }
 
         /// <summary>
         /// Contains type of the message
@@ -201,13 +201,13 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Sender of the message. Required when using server-side API
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

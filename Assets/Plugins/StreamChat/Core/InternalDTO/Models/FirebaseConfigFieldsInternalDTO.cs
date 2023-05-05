@@ -26,7 +26,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public string DataTemplate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Enabled { get; set; }
+        public bool Enabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("notification_template", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string NotificationTemplate { get; set; }

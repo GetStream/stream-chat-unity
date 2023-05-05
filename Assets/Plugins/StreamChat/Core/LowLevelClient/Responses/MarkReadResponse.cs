@@ -1,5 +1,6 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Responses;
+using StreamChat.Core.LowLevelClient.Events;
 
 namespace StreamChat.Core.LowLevelClient.Responses
 {
@@ -13,7 +14,7 @@ namespace StreamChat.Core.LowLevelClient.Responses
         /// <summary>
         /// Mark read event
         /// </summary>
-        public Event Event { get; set; }
+        public EventMessageRead Event { get; set; }
 
         MarkReadResponse ILoadableFrom<MarkReadResponseInternalDTO, MarkReadResponse>.LoadFromDto(MarkReadResponseInternalDTO dto)
         {

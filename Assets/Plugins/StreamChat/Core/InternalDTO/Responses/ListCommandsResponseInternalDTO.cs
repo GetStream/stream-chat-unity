@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class ListCommandsResponseInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("commands", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<CommandInternalDTO> Commands { get; set; }
+        public System.Collections.Generic.List<CommandInternalDTO> Commands { get; set; } = new System.Collections.Generic.List<CommandInternalDTO>();
 
         /// <summary>
         /// Duration of the request in human-readable format

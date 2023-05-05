@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// ID of a message user reacted to
@@ -35,7 +35,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Reaction score. If not specified reaction has score of 1
         /// </summary>
         [Newtonsoft.Json.JsonProperty("score", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Score { get; set; }
+        public int Score { get; set; }
 
         /// <summary>
         /// The type of reaction (e.g. 'like', 'laugh', 'wow')
@@ -47,10 +47,10 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         /// <summary>
         /// ID of a user who reacted to a message

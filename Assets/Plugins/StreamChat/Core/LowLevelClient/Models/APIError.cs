@@ -14,7 +14,7 @@ namespace StreamChat.Core.LowLevelClient.Models
         /// <summary>
         /// API error code
         /// </summary>
-        public int? Code { get; set; }
+        public int Code { get; set; }
 
         public System.Collections.Generic.List<string> Details { get; set; }
 

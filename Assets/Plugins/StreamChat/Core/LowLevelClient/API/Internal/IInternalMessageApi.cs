@@ -7,16 +7,16 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
     internal interface IInternalMessageApi
     {
         Task<MessageResponseInternalDTO> SendNewMessageAsync(string channelType, string channelId,
-            SendMessageRequestInternalInternalDTO sendMessageRequest);
+            SendMessageRequestInternalDTO sendMessageRequest);
 
-        Task<MessageResponseInternalDTO> UpdateMessageAsync(UpdateMessageRequestInternalInternalDTO updateMessageRequest);
+        Task<MessageResponseInternalDTO> UpdateMessageAsync(UpdateMessageRequestInternalDTO updateMessageRequest);
 
         Task<MessageResponseInternalDTO> UpdateMessagePartialAsync(string messageId,
             UpdateMessagePartialRequestInternalDTO updateMessagePartialRequest);
 
         Task<MessageResponseInternalDTO> DeleteMessageAsync(string messageId, bool hard);
 
-        Task<ReactionResponseInternalInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest);
+        Task<ReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest);
 
         Task<ReactionRemovalResponseInternalDTO> DeleteReactionAsync(string messageId, string reactionType);
 

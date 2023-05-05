@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     internal partial class UpdateSegmentRequestInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("segment", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public SegmentUpdateableFieldsRequestInternalDTO Segment { get; set; }
+        public SegmentUpdateableFieldsRequestInternalDTO Segment { get; set; } = new SegmentUpdateableFieldsRequestInternalDTO();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

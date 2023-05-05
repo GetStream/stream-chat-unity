@@ -64,9 +64,6 @@ namespace StreamChat.Core.InternalDTO.Requests
         [Newtonsoft.Json.JsonProperty("truncated_by_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TruncatedById { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
-
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]

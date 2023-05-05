@@ -14,19 +14,19 @@ namespace StreamChat.Core.InternalDTO.Events
     using System = global::System;
 
     /// <summary>
-    /// Represents an event that happened in Stream Chat
+    /// Represents an BaseEvent that happened in Stream Chat
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class EventInternalDTO
     {
         /// <summary>
-        /// Only applicable to `message.flagged` event.
+        /// Only applicable to `message.flagged` BaseEvent.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automoderation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? Automoderation { get; set; }
 
         /// <summary>
-        /// Only applicable to `message.flagged` event.
+        /// Only applicable to `message.flagged` BaseEvent.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("automoderation_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ModerationResponseInternalDTO AutomoderationScores { get; set; }
@@ -47,7 +47,7 @@ namespace StreamChat.Core.InternalDTO.Events
         public string Cid { get; set; }
 
         /// <summary>
-        /// Only applicable to `health.check` event
+        /// Only applicable to `health.check` BaseEvent
         /// </summary>
         [Newtonsoft.Json.JsonProperty("connection_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ConnectionId { get; set; }
@@ -56,13 +56,13 @@ namespace StreamChat.Core.InternalDTO.Events
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// User who issued moderation action. Only applicable to moderation-related events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO CreatedBy { get; set; }
+        public UserObjectInternalDTO CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("me", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public OwnUserInternalDTO Me { get; set; }
@@ -83,7 +83,7 @@ namespace StreamChat.Core.InternalDTO.Events
         public ReactionInternalDTO Reaction { get; set; }
 
         /// <summary>
-        /// Ban reason. Only applicable to `user.banned` event
+        /// Ban reason. Only applicable to `user.banned` BaseEvent
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reason", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Reason { get; set; }
@@ -92,19 +92,19 @@ namespace StreamChat.Core.InternalDTO.Events
         public string Team { get; set; }
 
         /// <summary>
-        /// Event type. To use custom event types see Custom Events documentation
+        /// Event type. To use custom BaseEvent types see Custom Events documentation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 
         /// <summary>
-        /// Number of watchers who received this event
+        /// Number of watchers who received this BaseEvent
         /// </summary>
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? WatcherCount { get; set; }

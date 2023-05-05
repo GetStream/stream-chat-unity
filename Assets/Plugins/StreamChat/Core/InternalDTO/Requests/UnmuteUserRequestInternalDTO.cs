@@ -16,9 +16,6 @@ namespace StreamChat.Core.InternalDTO.Requests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class UnmuteUserRequestInternalDTO
     {
-        /// <summary>
-        /// User IDs to mute (if multiple users)
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("target_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TargetId { get; set; }
 
@@ -28,15 +25,9 @@ namespace StreamChat.Core.InternalDTO.Requests
         [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Timeout { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectRequestInternalDTO User { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 

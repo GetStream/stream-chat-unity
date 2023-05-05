@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public bool? HardDelete { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageRequestInternalInternalDTO Message { get; set; }
+        public MessageRequestInternalDTO Message { get; set; }
 
         /// <summary>
         /// When `message` is set disables all push notifications for it

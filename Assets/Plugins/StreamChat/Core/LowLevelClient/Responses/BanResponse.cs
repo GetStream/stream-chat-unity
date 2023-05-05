@@ -23,13 +23,13 @@ namespace StreamChat.Core.LowLevelClient.Responses
 
         BanResponse ILoadableFrom<BanResponseInternalDTO, BanResponse>.LoadFromDto(BanResponseInternalDTO dto)
         {
-            BannedBy = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.BannedBy);
+            BannedBy = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.BannedBy);
             Channel = Channel.TryLoadFromDto(dto.Channel);
             CreatedAt = dto.CreatedAt;
             Expires = dto.Expires;
             Reason = dto.Reason;
             Shadow = dto.Shadow;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

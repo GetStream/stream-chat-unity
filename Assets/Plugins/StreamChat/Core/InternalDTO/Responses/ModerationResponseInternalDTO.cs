@@ -19,14 +19,17 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("action", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Action { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("automod_response", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object AutomodResponse { get; set; }
+
         [Newtonsoft.Json.JsonProperty("explicit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float? Explicit { get; set; }
+        public float Explicit { get; set; }
 
         [Newtonsoft.Json.JsonProperty("spam", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float? Spam { get; set; }
+        public float Spam { get; set; }
 
         [Newtonsoft.Json.JsonProperty("toxic", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public float? Toxic { get; set; }
+        public float Toxic { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

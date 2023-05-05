@@ -6,7 +6,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public sealed class EventUserWatchingStop : EventBase,
-        ILoadableFrom<EventUserWatchingStopInternalDTO, EventUserWatchingStop>
+        ILoadableFrom<UserWatchingStopEventInternalDTO, EventUserWatchingStop>
     {
         public string ChannelId { get; set; }
 
@@ -22,15 +22,15 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public int? WatcherCount { get; set; }
 
-        EventUserWatchingStop ILoadableFrom<EventUserWatchingStopInternalDTO, EventUserWatchingStop>.LoadFromDto(
-            EventUserWatchingStopInternalDTO dto)
+        EventUserWatchingStop ILoadableFrom<UserWatchingStopEventInternalDTO, EventUserWatchingStop>.LoadFromDto(
+            UserWatchingStopEventInternalDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             WatcherCount = dto.WatcherCount;
             AdditionalProperties = dto.AdditionalProperties;
 

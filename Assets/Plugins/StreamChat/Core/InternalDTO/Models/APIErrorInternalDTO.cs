@@ -20,19 +20,20 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Response HTTP status code
         /// </summary>
         [Newtonsoft.Json.JsonProperty("StatusCode", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? StatusCode { get; set; }
+        public int StatusCode { get; set; }
 
         /// <summary>
         /// API error code
         /// </summary>
         [Newtonsoft.Json.JsonProperty("code", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Code { get; set; }
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        public int Code { get; set; }
 
         /// <summary>
         /// Additional error-specific information
         /// </summary>
         [Newtonsoft.Json.JsonProperty("details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> Details { get; set; } //Changed manually from int to string, int seems wrong for details field
+        public System.Collections.Generic.List<string> Details { get; set; }
 
         /// <summary>
         /// Request duration

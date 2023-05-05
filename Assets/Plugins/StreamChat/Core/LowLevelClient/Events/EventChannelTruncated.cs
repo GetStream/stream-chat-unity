@@ -6,14 +6,14 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public sealed class EventChannelTruncated : EventBase,
-        ILoadableFrom<EventChannelTruncatedInternalDTO, EventChannelTruncated>
+        ILoadableFrom<ChannelTruncatedEventInternalDTO, EventChannelTruncated>
     {
         public Channel Channel { get; set; }
 
         public string ChannelId { get; set; }
 
         public string ChannelType { get; set; }
-        public Message Message { get; set; }
+        //public Message Message { get; set; }
 
         public string Cid { get; set; }
 
@@ -21,13 +21,14 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Type { get; set; }
 
-        EventChannelTruncated ILoadableFrom<EventChannelTruncatedInternalDTO, EventChannelTruncated>.LoadFromDto(
-            EventChannelTruncatedInternalDTO dto)
+        EventChannelTruncated ILoadableFrom<ChannelTruncatedEventInternalDTO, EventChannelTruncated>.LoadFromDto(
+            ChannelTruncatedEventInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
-            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
+            //StreamTodo: verify that Message is no longer part of truncated event
+            //Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Type = dto.Type;

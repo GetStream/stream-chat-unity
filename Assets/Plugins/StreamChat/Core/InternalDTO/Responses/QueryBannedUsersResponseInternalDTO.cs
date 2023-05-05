@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class QueryBannedUsersResponseInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("bans", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<BanResponseInternalDTO> Bans { get; set; }
+        public System.Collections.Generic.List<BanResponseInternalDTO> Bans { get; set; } = new System.Collections.Generic.List<BanResponseInternalDTO>();
 
         /// <summary>
         /// Duration of the request in human-readable format

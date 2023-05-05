@@ -20,13 +20,13 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
         /// Whether this is a custom role or built-in
         /// </summary>
         [Newtonsoft.Json.JsonProperty("custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Custom { get; set; }
+        public bool Custom { get; set; }
 
         /// <summary>
         /// Unique role name
@@ -38,13 +38,13 @@ namespace StreamChat.Core.InternalDTO.Models
         /// List of scopes where this role is currently present. `.app` means that role is present in app-level grants
         /// </summary>
         [Newtonsoft.Json.JsonProperty("scopes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> Scopes { get; set; }
+        public System.Collections.Generic.List<string> Scopes { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

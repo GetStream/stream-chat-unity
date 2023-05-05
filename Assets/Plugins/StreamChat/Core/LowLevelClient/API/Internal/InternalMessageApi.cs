@@ -18,16 +18,16 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         }
 
         public Task<MessageResponseInternalDTO> SendNewMessageAsync(string channelType, string channelId,
-            SendMessageRequestInternalInternalDTO sendMessageRequest)
+            SendMessageRequestInternalDTO sendMessageRequest)
         {
             var endpoint = MessageEndpoints.SendMessage(channelType, channelId);
-            return Post<SendMessageRequestInternalInternalDTO, MessageResponseInternalDTO>(endpoint, sendMessageRequest);
+            return Post<SendMessageRequestInternalDTO, MessageResponseInternalDTO>(endpoint, sendMessageRequest);
         }
 
-        public Task<MessageResponseInternalDTO> UpdateMessageAsync(UpdateMessageRequestInternalInternalDTO updateMessageRequest)
+        public Task<MessageResponseInternalDTO> UpdateMessageAsync(UpdateMessageRequestInternalDTO updateMessageRequest)
         {
             var endpoint = MessageEndpoints.UpdateMessage(updateMessageRequest.Message.Id);
-            return Post<UpdateMessageRequestInternalInternalDTO, MessageResponseInternalDTO>(endpoint, updateMessageRequest);
+            return Post<UpdateMessageRequestInternalDTO, MessageResponseInternalDTO>(endpoint, updateMessageRequest);
         }
 
         public Task<MessageResponseInternalDTO> UpdateMessagePartialAsync(string messageId,
@@ -45,10 +45,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             return Delete<MessageResponseInternalDTO>(endpoint, parameters);
         }
 
-        public Task<ReactionResponseInternalInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest)
+        public Task<ReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest)
         {
             var endpoint = MessageEndpoints.SendReaction(messageId);
-            return Post<SendReactionRequestInternalDTO, ReactionResponseInternalInternalDTO>(endpoint, sendReactionRequest);
+            return Post<SendReactionRequestInternalDTO, ReactionResponseInternalDTO>(endpoint, sendReactionRequest);
         }
 
         public Task<ReactionRemovalResponseInternalDTO> DeleteReactionAsync(string messageId, string reactionType)

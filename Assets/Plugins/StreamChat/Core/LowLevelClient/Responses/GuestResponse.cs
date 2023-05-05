@@ -26,7 +26,7 @@ namespace StreamChat.Core.LowLevelClient.Responses
         {
             AccessToken = dto.AccessToken;
             Duration = dto.Duration;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
