@@ -77,8 +77,8 @@ namespace StreamChat.Libs.Websockets
                 return;
             }
 
-            _backgroundSendTimer = new Timer(SendMessagesCallback, null, 0, 100);
-            _backgroundReceiveTimer = new Timer(ReceiveMessagesCallback, null, 50, 100);
+            _backgroundSendTimer = new Timer(SendMessagesCallback, null, 0, UpdatePeriod);
+            _backgroundReceiveTimer = new Timer(ReceiveMessagesCallback, null, UpdatePeriodOffset, UpdatePeriod);
 
             Connected?.Invoke();
         }
@@ -128,6 +128,10 @@ namespace StreamChat.Libs.Websockets
             DisconnectAsync(WebSocketCloseStatus.NormalClosure, "WebSocket client is disposed")
                 .ContinueWith(_ => LogExceptionIfDebugMode(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
         }
+        
+        private const int UpdatesPerSecond = 20;
+        private const int UpdatePeriod = 1000 / UpdatesPerSecond;
+        private const int UpdatePeriodOffset = UpdatePeriod / 2;
 
         private static Encoding DefaultEncoding { get; } = Encoding.UTF8;
 
