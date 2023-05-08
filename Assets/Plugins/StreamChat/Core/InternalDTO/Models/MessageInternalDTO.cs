@@ -83,13 +83,13 @@ namespace StreamChat.Core.InternalDTO.Models
         /// List of 10 latest reactions to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("latest_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ReactionInternalDTO> LatestReactions { get; set; } = new System.Collections.Generic.List<ReactionInternalDTO>();
+        public System.Collections.Generic.List<ReactionInternalDTO> LatestReactions { get; set; }
 
         /// <summary>
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalDTO> MentionedUsers { get; set; } = new System.Collections.Generic.List<UserObjectInternalDTO>();
+        public System.Collections.Generic.List<UserObjectInternalDTO> MentionedUsers { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -101,7 +101,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// List of 10 latest reactions of authenticated user to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ReactionInternalDTO> OwnReactions { get; set; } = new System.Collections.Generic.List<ReactionInternalDTO>();
+        public System.Collections.Generic.List<ReactionInternalDTO> OwnReactions { get; set; }
 
         /// <summary>
         /// ID of parent message (thread)
@@ -146,13 +146,13 @@ namespace StreamChat.Core.InternalDTO.Models
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
+        public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; }
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
+        public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; }
 
         /// <summary>
         /// Number of replies to this message

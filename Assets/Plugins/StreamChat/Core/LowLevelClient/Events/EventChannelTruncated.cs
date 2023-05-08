@@ -13,7 +13,7 @@ namespace StreamChat.Core.LowLevelClient.Events
         public string ChannelId { get; set; }
 
         public string ChannelType { get; set; }
-        //public Message Message { get; set; }
+        public Message Message { get; set; }
 
         public string Cid { get; set; }
 
@@ -27,8 +27,7 @@ namespace StreamChat.Core.LowLevelClient.Events
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
-            //StreamTodo: verify that Message is no longer part of truncated event
-            //Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Type = dto.Type;

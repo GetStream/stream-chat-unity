@@ -6,6 +6,11 @@ namespace StreamChat.Core.LowLevelClient.Requests
     public partial class ChannelGetOrCreateRequest : RequestObjectBase, ISavableTo<ChannelGetOrCreateRequestInternalDTO>
     {
         public ChannelRequest Data { get; set; }
+        
+        /// <summary>
+        /// Whether this channel will be hidden for the user who created the channel or not
+        /// </summary>
+        public bool? HideForCreator { get; set; }
 
         public PaginationParamsRequest Members { get; set; }
 
@@ -34,6 +39,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
             {
                 AdditionalProperties = AdditionalProperties,
                 Data = Data.TrySaveToDto(),
+                HideForCreator = HideForCreator,
                 Members = Members.TrySaveToDto(),
                 Messages = Messages.TrySaveToDto(),
                 Presence = Presence,

@@ -26,7 +26,6 @@ namespace StreamChat.Core.InternalDTO.Models
         /// API error code
         /// </summary>
         [Newtonsoft.Json.JsonProperty("code", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public int Code { get; set; }
 
         /// <summary>

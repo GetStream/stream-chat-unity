@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Events
     internal partial class UserUnreadReminderEventInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, ChannelMessagesInternalDTO> Channels { get; set; } = new System.Collections.Generic.Dictionary<string, ChannelMessagesInternalDTO>();
+        public System.Collections.Generic.Dictionary<string, ChannelMessagesInternalDTO> Channels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset CreatedAt { get; set; }

@@ -29,7 +29,7 @@ namespace StreamChat.Core.InternalDTO.Events
         public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO CreatedBy { get; set; } = new UserObjectInternalDTO();
+        public UserObjectInternalDTO CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("expiration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? Expiration { get; set; }
