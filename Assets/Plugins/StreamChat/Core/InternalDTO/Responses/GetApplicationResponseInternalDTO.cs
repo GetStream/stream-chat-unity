@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class GetApplicationResponseInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("app", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public AppInternalDTO App { get; set; }
+        public AppInternalDTO App { get; set; } = new AppInternalDTO();
 
         /// <summary>
         /// Duration of the request in human-readable format

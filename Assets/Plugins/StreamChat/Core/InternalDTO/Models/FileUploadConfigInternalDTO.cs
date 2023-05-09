@@ -17,16 +17,16 @@ namespace StreamChat.Core.InternalDTO.Models
     internal partial class FileUploadConfigInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("allowed_file_extensions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> AllowedFileExtensions { get; set; }
+        public System.Collections.Generic.List<string> AllowedFileExtensions { get; set; } = new System.Collections.Generic.List<string>();
 
         [Newtonsoft.Json.JsonProperty("allowed_mime_types", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> AllowedMimeTypes { get; set; }
+        public System.Collections.Generic.List<string> AllowedMimeTypes { get; set; } = new System.Collections.Generic.List<string>();
 
         [Newtonsoft.Json.JsonProperty("blocked_file_extensions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> BlockedFileExtensions { get; set; }
+        public System.Collections.Generic.List<string> BlockedFileExtensions { get; set; } = new System.Collections.Generic.List<string>();
 
         [Newtonsoft.Json.JsonProperty("blocked_mime_types", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> BlockedMimeTypes { get; set; }
+        public System.Collections.Generic.List<string> BlockedMimeTypes { get; set; } = new System.Collections.Generic.List<string>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

@@ -1,6 +1,6 @@
 ﻿namespace StreamChat.Core.InternalDTO.Requests
 {
-    internal partial class UpdateUserPartialRequestEntryInternalDTO
+    internal class UpdateUserPartialRequestEntryInternalDTO
     {
         /// <summary>
         /// User ID to update
@@ -20,14 +20,6 @@
         [Newtonsoft.Json.JsonProperty("unset", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<string> Unset { get; set; }
 
-        private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
-
-        [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties; }
-            set { _additionalProperties = value; }
-        }
 
     }
 }

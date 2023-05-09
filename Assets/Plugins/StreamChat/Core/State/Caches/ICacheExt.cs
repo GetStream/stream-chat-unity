@@ -45,16 +45,16 @@ namespace StreamChat.Core.State.Caches
         public static StreamUser TryCreateOrUpdate(this ICache cache, UserResponseInternalDTO dto)
             => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserResponseInternalDTO>(dto, out _);
 
-        public static StreamUser TryCreateOrUpdate(this ICache cache, UserObjectInternalInternalDTO dto)
-            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalInternalDTO>(dto, out _);
+        public static StreamUser TryCreateOrUpdate(this ICache cache, UserObjectInternalDTO dto)
+            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalDTO>(dto, out _);
 
-        public static StreamUser TryCreateOrUpdate(this ICache cache, UserObjectInternalInternalDTO dto,
+        public static StreamUser TryCreateOrUpdate(this ICache cache, UserObjectInternalDTO dto,
             out bool wasCreated)
         {
             wasCreated = false;
             return dto == null
                 ? null
-                : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalInternalDTO>(dto, out wasCreated);
+                : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalDTO>(dto, out wasCreated);
         }
 
         public static StreamLocalUserData TryCreateOrUpdate(this ICache cache, OwnUserInternalDTO dto)

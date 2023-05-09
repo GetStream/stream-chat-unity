@@ -17,16 +17,28 @@ namespace StreamChat.Core.InternalDTO.Requests
     /// Contains all information needed to send new message
     /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
-    internal partial class SendMessageRequestInternalInternalDTO
+    internal partial class SendMessageRequestInternalDTO
     {
+        /// <summary>
+        /// Enable moderation on server-side requests
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("force_moderation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? ForceModeration { get; set; }
+
         /// <summary>
         /// Make the message a pending message. This message will not be viewable to others until it is committed.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("is_pending_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? IsPendingMessage { get; set; }
 
+        /// <summary>
+        /// Keeps the channel hidden for the sender
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("keep_channel_hidden", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? KeepChannelHidden { get; set; }
+
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageRequestInternalInternalDTO Message { get; set; } = new MessageRequestInternalInternalDTO();
+        public MessageRequestInternalDTO Message { get; set; } = new MessageRequestInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("pending_message_metadata", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, string> PendingMessageMetadata { get; set; }

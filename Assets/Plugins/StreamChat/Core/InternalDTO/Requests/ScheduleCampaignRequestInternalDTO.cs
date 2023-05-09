@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     internal partial class ScheduleCampaignRequestInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("scheduled_for", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? ScheduledFor { get; set; }
+        public long? ScheduledFor { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

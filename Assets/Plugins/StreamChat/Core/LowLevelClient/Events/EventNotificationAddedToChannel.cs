@@ -5,7 +5,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public sealed class EventNotificationAddedToChannel : EventBase,
-        ILoadableFrom<EventNotificationAddedToChannelInternalDTO, EventNotificationAddedToChannel>
+        ILoadableFrom<NotificationAddedToChannelEventInternalDTO, EventNotificationAddedToChannel>
     {
         public Channel Channel { get; set; }
 
@@ -22,8 +22,8 @@ namespace StreamChat.Core.LowLevelClient.Events
         public string Type { get; set; }
 
         EventNotificationAddedToChannel
-            ILoadableFrom<EventNotificationAddedToChannelInternalDTO, EventNotificationAddedToChannel>.LoadFromDto(
-                EventNotificationAddedToChannelInternalDTO dto)
+            ILoadableFrom<NotificationAddedToChannelEventInternalDTO, EventNotificationAddedToChannel>.LoadFromDto(
+                NotificationAddedToChannelEventInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;

@@ -6,7 +6,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public sealed class EventUserUpdated : EventBase,
-        ILoadableFrom<EventUserUpdatedInternalDTO, EventUserUpdated>
+        ILoadableFrom<UserUpdatedEventInternalDTO, EventUserUpdated>
     {
         public System.DateTimeOffset? CreatedAt { get; set; }
 
@@ -14,12 +14,12 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public User User { get; set; }
 
-        EventUserUpdated ILoadableFrom<EventUserUpdatedInternalDTO, EventUserUpdated>.LoadFromDto(
-            EventUserUpdatedInternalDTO dto)
+        EventUserUpdated ILoadableFrom<UserUpdatedEventInternalDTO, EventUserUpdated>.LoadFromDto(
+            UserUpdatedEventInternalDTO dto)
         {
             CreatedAt = dto.CreatedAt;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

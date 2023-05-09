@@ -16,7 +16,7 @@ namespace StreamChat.Core.StatefulModels
 
     /// <inheritdoc cref="IStreamUser"/>
     internal sealed class StreamUser : StreamStatefulModelBase<StreamUser>,
-        IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>,
+        IUpdateableFrom<UserObjectInternalDTO, StreamUser>,
         IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>,
         IStreamUser
     {
@@ -137,7 +137,7 @@ namespace StreamChat.Core.StatefulModels
         
         public override string ToString() => $"User - Id: {Id}, Name: {Name}";
 
-        void IUpdateableFrom<UserObjectInternalInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalInternalDTO dto,
+        void IUpdateableFrom<UserObjectInternalDTO, StreamUser>.UpdateFromDto(UserObjectInternalDTO dto,
             ICache cache)
         {
             BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
@@ -234,7 +234,7 @@ namespace StreamChat.Core.StatefulModels
         {
         }
 
-        internal void InternalHandlePresenceChanged(EventUserPresenceChangedInternalDTO eventDto)
+        internal void InternalHandlePresenceChanged(UserPresenceChangedEventInternalDTO eventDto)
         {
             Cache.TryCreateOrUpdate(eventDto.User);
         }

@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string Duration { get; set; }
 
         [Newtonsoft.Json.JsonProperty("permission", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PermissionInternalInternalDTO Permission { get; set; }
+        public PermissionInternalDTO Permission { get; set; } = new PermissionInternalDTO();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

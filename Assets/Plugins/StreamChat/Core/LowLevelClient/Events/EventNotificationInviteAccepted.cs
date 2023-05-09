@@ -6,7 +6,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public sealed class EventNotificationInviteAccepted : EventBase,
-        ILoadableFrom<EventNotificationInviteAcceptedInternalDTO, EventNotificationInviteAccepted>
+        ILoadableFrom<NotificationInviteAcceptedEventInternalDTO, EventNotificationInviteAccepted>
     {
         public Channel Channel { get; set; }
 
@@ -25,8 +25,8 @@ namespace StreamChat.Core.LowLevelClient.Events
         public User User { get; set; }
 
         EventNotificationInviteAccepted
-            ILoadableFrom<EventNotificationInviteAcceptedInternalDTO, EventNotificationInviteAccepted>.LoadFromDto(
-                EventNotificationInviteAcceptedInternalDTO dto)
+            ILoadableFrom<NotificationInviteAcceptedEventInternalDTO, EventNotificationInviteAccepted>.LoadFromDto(
+                NotificationInviteAcceptedEventInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;
@@ -35,7 +35,7 @@ namespace StreamChat.Core.LowLevelClient.Events
             CreatedAt = dto.CreatedAt;
             Member = Member.TryLoadFromDto(dto.Member);
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

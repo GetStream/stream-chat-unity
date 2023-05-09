@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public ConfigInternalDTO AgoraOptions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("async_url_enrich_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? AsyncUrlEnrichEnabled { get; set; }
+        public bool AsyncUrlEnrichEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("auto_translation_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? AutoTranslationEnabled { get; set; }
@@ -28,50 +28,53 @@ namespace StreamChat.Core.InternalDTO.Models
         [Newtonsoft.Json.JsonProperty("before_message_send_hook_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string BeforeMessageSendHookUrl { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("call_types", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, CallTypeInternalDTO> CallTypes { get; set; } = new System.Collections.Generic.Dictionary<string, CallTypeInternalDTO>();
+
         [Newtonsoft.Json.JsonProperty("campaign_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? CampaignEnabled { get; set; }
+        public bool CampaignEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cdn_expiration_seconds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? CdnExpirationSeconds { get; set; }
+        public int CdnExpirationSeconds { get; set; }
 
         /// <summary>
         /// Object with channel configs
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_configs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, ChannelConfigInternalDTO> ChannelConfigs { get; set; }
+        public System.Collections.Generic.Dictionary<string, ChannelConfigInternalDTO> ChannelConfigs { get; set; } = new System.Collections.Generic.Dictionary<string, ChannelConfigInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("custom_action_handler_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CustomActionHandlerUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disable_auth_checks", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? DisableAuthChecks { get; set; }
+        public bool DisableAuthChecks { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disable_permissions_checks", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? DisablePermissionsChecks { get; set; }
+        public bool DisablePermissionsChecks { get; set; }
 
         [Newtonsoft.Json.JsonProperty("enforce_unique_usernames", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string EnforceUniqueUsernames { get; set; }
 
         [Newtonsoft.Json.JsonProperty("file_upload_config", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public FileUploadConfigInternalDTO FileUploadConfig { get; set; }
+        public FileUploadConfigInternalDTO FileUploadConfig { get; set; } = new FileUploadConfigInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; } = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>();
 
         [Newtonsoft.Json.JsonProperty("hms_options", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ConfigInternalDTO HmsOptions { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? ImageModerationEnabled { get; set; }
+        public bool ImageModerationEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_moderation_labels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<string> ImageModerationLabels { get; set; }
 
         [Newtonsoft.Json.JsonProperty("image_upload_config", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public FileUploadConfigInternalDTO ImageUploadConfig { get; set; }
+        public FileUploadConfigInternalDTO ImageUploadConfig { get; set; } = new FileUploadConfigInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("multi_tenant_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? MultiTenantEnabled { get; set; }
+        public bool MultiTenantEnabled { get; set; }
 
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
@@ -83,13 +86,13 @@ namespace StreamChat.Core.InternalDTO.Models
         public string PermissionVersion { get; set; }
 
         [Newtonsoft.Json.JsonProperty("policies", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<PolicyInternalDTO>> Policies { get; set; }
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<PolicyInternalDTO>> Policies { get; set; } = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<PolicyInternalDTO>>();
 
         [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushNotificationFieldsInternalDTO PushNotifications { get; set; }
+        public PushNotificationFieldsInternalDTO PushNotifications { get; set; } = new PushNotificationFieldsInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("reminders_interval", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? RemindersInterval { get; set; }
+        public int RemindersInterval { get; set; }
 
         [Newtonsoft.Json.JsonProperty("revoke_tokens_issued_before", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? RevokeTokensIssuedBefore { get; set; }
@@ -99,7 +102,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// </summary>
         [Newtonsoft.Json.JsonProperty("search_backend", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public AppSearchBackend? SearchBackend { get; set; }
+        public AppSearchBackend SearchBackend { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sqs_key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SqsKey { get; set; }
@@ -111,19 +114,19 @@ namespace StreamChat.Core.InternalDTO.Models
         public string SqsUrl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("suspended", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Suspended { get; set; }
+        public bool Suspended { get; set; }
 
         [Newtonsoft.Json.JsonProperty("suspended_explanation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string SuspendedExplanation { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_search_disallowed_roles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> UserSearchDisallowedRoles { get; set; }
+        public System.Collections.Generic.List<string> UserSearchDisallowedRoles { get; set; } = new System.Collections.Generic.List<string>();
 
         [Newtonsoft.Json.JsonProperty("video_provider", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string VideoProvider { get; set; }
 
         [Newtonsoft.Json.JsonProperty("webhook_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> WebhookEvents { get; set; }
+        public System.Collections.Generic.List<string> WebhookEvents { get; set; } = new System.Collections.Generic.List<string>();
 
         [Newtonsoft.Json.JsonProperty("webhook_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string WebhookUrl { get; set; }

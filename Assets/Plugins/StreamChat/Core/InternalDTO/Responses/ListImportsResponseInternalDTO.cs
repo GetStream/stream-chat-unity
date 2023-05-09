@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string Duration { get; set; }
 
         [Newtonsoft.Json.JsonProperty("import_tasks", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ImportTaskInternalDTO> ImportTasks { get; set; }
+        public System.Collections.Generic.List<ImportTaskInternalDTO> ImportTasks { get; set; } = new System.Collections.Generic.List<ImportTaskInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

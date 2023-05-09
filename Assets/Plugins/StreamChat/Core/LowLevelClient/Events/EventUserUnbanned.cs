@@ -6,7 +6,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public sealed class EventUserUnbanned : EventBase,
-        ILoadableFrom<EventUserUnbannedInternalDTO, EventUserUnbanned>
+        ILoadableFrom<UserUnbannedEventInternalDTO, EventUserUnbanned>
     {
         public string ChannelId { get; set; }
 
@@ -24,8 +24,8 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public User User { get; set; }
 
-        EventUserUnbanned ILoadableFrom<EventUserUnbannedInternalDTO, EventUserUnbanned>.LoadFromDto(
-            EventUserUnbannedInternalDTO dto)
+        EventUserUnbanned ILoadableFrom<UserUnbannedEventInternalDTO, EventUserUnbanned>.LoadFromDto(
+            UserUnbannedEventInternalDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
@@ -34,7 +34,7 @@ namespace StreamChat.Core.LowLevelClient.Events
             Shadow = dto.Shadow;
             Team = dto.Team;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

@@ -35,7 +35,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of channel members
         /// </summary>
         [Newtonsoft.Json.JsonProperty("members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelMemberInternalDTO> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMemberInternalDTO> Members { get; set; } = new System.Collections.Generic.List<ChannelMemberInternalDTO>();
 
         /// <summary>
         /// Current user membership object
@@ -47,7 +47,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of channel messages
         /// </summary>
         [Newtonsoft.Json.JsonProperty("messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<MessageInternalDTO> Messages { get; set; }
+        public System.Collections.Generic.List<MessageInternalDTO> Messages { get; set; } = new System.Collections.Generic.List<MessageInternalDTO>();
 
         /// <summary>
         /// Pending messages that this user has sent
@@ -59,7 +59,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of pinned messages in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<MessageInternalDTO> PinnedMessages { get; set; }
+        public System.Collections.Generic.List<MessageInternalDTO> PinnedMessages { get; set; } = new System.Collections.Generic.List<MessageInternalDTO>();
 
         /// <summary>
         /// List of read states
@@ -77,7 +77,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of user who is watching the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("watchers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalInternalDTO> Watchers { get; set; }
+        public System.Collections.Generic.List<UserObjectInternalDTO> Watchers { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

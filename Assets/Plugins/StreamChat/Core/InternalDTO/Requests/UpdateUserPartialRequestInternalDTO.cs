@@ -8,7 +8,6 @@
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.InternalDTO.Requests
 {
@@ -19,26 +18,20 @@ namespace StreamChat.Core.InternalDTO.Requests
     {
         [Newtonsoft.Json.JsonProperty("users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<UpdateUserPartialRequestEntryInternalDTO> Users { get; set; }
-
+        
         /// <summary>
         /// User ID to update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        /// <summary>
-        /// Sets new field values
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("set", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, object> Set { get; set; }
+        public System.Collections.Generic.Dictionary<string, object> Set { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
-        /// <summary>
-        /// Array of field names to unset
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("unset", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> Unset { get; set; }
+        public System.Collections.Generic.List<string> Unset { get; set; } = new System.Collections.Generic.List<string>();
 
-        private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
         public System.Collections.Generic.Dictionary<string, object> AdditionalProperties
@@ -48,5 +41,6 @@ namespace StreamChat.Core.InternalDTO.Requests
         }
 
     }
+
 }
 

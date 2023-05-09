@@ -17,10 +17,10 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class QueryRecipientsResponseInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("campaigns", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, CampaignInternalDTO> Campaigns { get; set; }
+        public System.Collections.Generic.Dictionary<string, CampaignInternalDTO> Campaigns { get; set; } = new System.Collections.Generic.Dictionary<string, CampaignInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, ChannelInternalDTO> Channels { get; set; }
+        public System.Collections.Generic.Dictionary<string, ChannelInternalDTO> Channels { get; set; } = new System.Collections.Generic.Dictionary<string, ChannelInternalDTO>();
 
         /// <summary>
         /// Duration of the request in human-readable format
@@ -29,13 +29,13 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string Duration { get; set; }
 
         [Newtonsoft.Json.JsonProperty("recipients", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<RecipientInternalDTO> Recipients { get; set; }
+        public System.Collections.Generic.List<RecipientInternalDTO> Recipients { get; set; } = new System.Collections.Generic.List<RecipientInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("segments", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, SegmentInternalDTO> Segments { get; set; }
+        public System.Collections.Generic.Dictionary<string, SegmentInternalDTO> Segments { get; set; } = new System.Collections.Generic.Dictionary<string, SegmentInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, UserObjectInternalInternalDTO> Users { get; set; }
+        public System.Collections.Generic.Dictionary<string, UserObjectInternalDTO> Users { get; set; } = new System.Collections.Generic.Dictionary<string, UserObjectInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

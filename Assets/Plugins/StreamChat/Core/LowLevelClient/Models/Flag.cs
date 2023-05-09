@@ -62,9 +62,9 @@ namespace StreamChat.Core.LowLevelClient.Models
             ReviewedAt = dto.ReviewedAt;
             TargetMessage = TargetMessage.TryLoadFromDto<MessageInternalDTO, Message>(dto.TargetMessage);
             TargetMessageId = dto.TargetMessageId;
-            TargetUser = TargetUser.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.TargetUser);
+            TargetUser = TargetUser.TryLoadFromDto<UserObjectInternalDTO, User>(dto.TargetUser);
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

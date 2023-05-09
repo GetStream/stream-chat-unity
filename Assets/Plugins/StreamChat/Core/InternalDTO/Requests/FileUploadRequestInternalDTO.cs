@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     internal partial class FileUploadRequestInternalDTO
     {
         /// <summary>
-        /// multipart/form-data file field
+        /// file field
         /// </summary>
         [Newtonsoft.Json.JsonProperty("file", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string File { get; set; }
