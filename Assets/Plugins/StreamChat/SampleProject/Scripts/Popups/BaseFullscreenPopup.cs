@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using StreamChat.SampleProject.Views;
+using UnityEngine;
 using UnityEngine.UI;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject.Popups
 {
     /// <summary>
     /// Base class for fullscreen popups

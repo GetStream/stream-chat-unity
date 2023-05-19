@@ -514,5 +514,29 @@ namespace StreamChat.Core.StatefulModels
         /// Stop being a member (<see cref="IStreamChannelMember"/>) of this channel. Only possible if local user has the `Leave Own Channel` permission
         /// </summary>
         Task LeaveAsMemberChannelAsync();
+        
+        /// <summary>
+        /// Invite new members to this channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
+        Task InviteMembersAsync(IEnumerable<string> userIds);
+
+        /// <summary>
+        /// Invite new members to this channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
+        Task InviteMembersAsync(IEnumerable<IStreamUser> users);
+        
+        /// <summary>
+        /// Accept an invite to this channel
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/#accepting-an-invite</remarks>
+        Task AcceptInviteAsync();
+
+        /// <summary>
+        /// Reject an invite to this channel
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/#rejecting-an-invite</remarks>
+        Task RejectInviteAsync();
     }
 }

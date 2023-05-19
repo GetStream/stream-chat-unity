@@ -24,6 +24,11 @@ namespace StreamChat.SampleProject.Views
             _popupsContainer = popupsContainer ? popupsContainer : throw new ArgumentNullException(nameof(popupsContainer));
 
             _appConfig.Emojis.LoadEmojisSprites();
+            
+            _popupPrefabs.Add(typeof(CreateNewChannelFormPopup), _config.CreateNewChannelFormPopupPrefab);
+            _popupPrefabs.Add(typeof(InviteChannelMembersPopup), _config.InviteChannelMembersPopupPrefab);
+            _popupPrefabs.Add(typeof(InviteReceivedPopup), _config.InviteReceivedPopup);
+            _popupPrefabs.Add(typeof(ErrorPopup), _config.ErrorPopupPrefab);
         }
 
         public void Init(IChatViewContext viewContext)
@@ -109,6 +114,9 @@ namespace StreamChat.SampleProject.Views
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
 
+        private readonly Dictionary<Type, BaseFullscreenPopup> _popupPrefabs
+            = new Dictionary<Type, BaseFullscreenPopup>();
+
         private IChatViewContext _viewContext;
 
         private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, IStreamMessage message)
@@ -136,15 +144,13 @@ namespace StreamChat.SampleProject.Views
         private BaseFullscreenPopup GetFullscreenPopupPrefab<TPopup>()
             where TPopup : BaseFullscreenPopup
         {
-            switch (typeof(TPopup))
+            var key = typeof(TPopup);
+            if (!_popupPrefabs.ContainsKey(key))
             {
-                case Type createNewChannel when createNewChannel == typeof(CreateNewChannelFormPopup):
-                    return _config.CreateNewChannelFormPopupPrefab;
-                case Type createNewChannel when createNewChannel == typeof(ErrorPopup):
-                    return _config.ErrorPopupPrefab;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(TPopup), typeof(TPopup), null);
+                throw new ArgumentOutOfRangeException(nameof(TPopup), typeof(TPopup), null);
             }
+
+            return (TPopup)_popupPrefabs[key];
         }
     }
 }
