@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
@@ -91,6 +92,10 @@ namespace StreamChat.SampleProject.Popups
             try
             {
                 await State.ActiveChannel.InviteMembersAsync(userIds);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
             }
             finally
             {

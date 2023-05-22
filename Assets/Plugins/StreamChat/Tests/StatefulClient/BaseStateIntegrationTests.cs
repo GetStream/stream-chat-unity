@@ -82,10 +82,13 @@ namespace StreamChat.Tests.StatefulClient
             _tempChannels.Remove(channel);
         }
 
-        protected IEnumerator ConnectAndExecute(Func<Task> test)
+        protected static IEnumerator ConnectAndExecute(Func<Task> test)
         {
             yield return ConnectAndExecuteAsync(test).RunAsIEnumerator(statefulClient: Client);
         }
+
+        protected Task<IStreamChatClient> GetConnectedOtherClient()
+            => StreamTestClients.Instance.ConnectOtherStateClientAsync();
 
         //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible
         /// <summary>
@@ -116,7 +119,15 @@ namespace StreamChat.Tests.StatefulClient
                 await Task.Delay(2);
             }
         }
-        
+
+        protected static async Task WaitWithTimeout(Task task, int maxSeconds, string exceptionMsg)
+        {
+            if (await Task.WhenAny(task, Task.Delay(maxSeconds * 1000)) != task)
+            {
+                throw new TimeoutException(exceptionMsg);
+            }
+        }
+
         /// <summary>
         /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
         /// </summary>
@@ -147,7 +158,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private static async Task ConnectAndExecuteAsync(Func<Task> test)
         {
-            await StreamTestClients.Instance.TryConnectStateClientAsync();
+            await StreamTestClients.Instance.ConnectStateClientAsync();
             const int maxAttempts = 3;
             int currentAttempt = 0;
             while (maxAttempts > currentAttempt)

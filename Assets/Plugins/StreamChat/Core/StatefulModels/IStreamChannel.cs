@@ -520,6 +520,12 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
         Task InviteMembersAsync(IEnumerable<string> userIds);
+        
+        /// <summary>
+        /// Invite new members to this channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
+        Task InviteMembersAsync(params string[] userIds);
 
         /// <summary>
         /// Invite new members to this channel.
@@ -527,6 +533,12 @@ namespace StreamChat.Core.StatefulModels
         /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
         Task InviteMembersAsync(IEnumerable<IStreamUser> users);
         
+        /// <summary>
+        /// Invite new members to this channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
+        Task InviteMembersAsync(params IStreamUser[] users);
+
         /// <summary>
         /// Accept an invite to this channel
         /// </summary>

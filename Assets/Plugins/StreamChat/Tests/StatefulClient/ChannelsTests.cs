@@ -356,6 +356,56 @@ namespace StreamChat.Tests.StatefulClient
             Assert.Contains(channel, channelsSecondPage);
             Assert.Contains(channel2, channelsSecondPage);
         }
+
+        [UnityTest]
+        public IEnumerator When_inviting_a_member_expect_channel_updated_with_invited_user()
+            => ConnectAndExecute(When_inviting_a_member_expect_channel_updated_with_invited_user_Async);
+
+        private async Task When_inviting_a_member_expect_channel_updated_with_invited_user_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+            channel.Updated += streamChannel =>
+            {
+                var invitedMember = streamChannel.Members.FirstOrDefault(m => m.User.Id == OtherUserId);
+
+                Assert.IsNotNull(invitedMember);
+                Assert.IsTrue(invitedMember.Invited);
+
+                taskCompletionSource.SetResult(true);
+            };
+
+            await channel.InviteMembersAsync(OtherUserId);
+
+            await WaitWithTimeout(taskCompletionSource.Task, maxSeconds: 3,
+                $"Event {nameof(channel.Updated)} was not received");
+        }
+        
+        //StreamTODO: debug why having 2 clients connected simultaneously doesn't work
+        // [UnityTest]
+        // public IEnumerator When_inviting_a_member_expect_invited_user_to_receive_an_invite()
+        //     => ConnectAndExecute(When_inviting_a_member_expect_invited_user_to_receive_an_invite_Async);
+        //
+        // private async Task When_inviting_a_member_expect_invited_user_to_receive_an_invite_Async()
+        // {
+        //     var otherClient = await GetConnectedOtherClient();
+        //     var channel = await CreateUniqueTempChannelAsync();
+        //
+        //     var taskCompletionSource = new TaskCompletionSource<bool>();
+        //     otherClient.ChannelInviteReceived += (streamChannel, invitee) =>
+        //     {
+        //         Assert.AreEqual(streamChannel.Cid, channel.Cid);
+        //         Assert.AreEqual(invitee.Id, otherClient.LocalUserData.UserId);
+        //         
+        //         taskCompletionSource.SetResult(true);
+        //     };
+        //
+        //     await channel.InviteMembersAsync(OtherUserId);
+        //
+        //     await WaitWithTimeout(taskCompletionSource.Task, maxSeconds: 3,
+        //         $"Event {nameof(otherClient.ChannelInviteReceived)} was not received");
+        // }
     }
 }
 

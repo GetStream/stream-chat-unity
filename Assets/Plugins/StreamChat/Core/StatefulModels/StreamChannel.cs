@@ -7,7 +7,6 @@ using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
-using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
@@ -223,8 +222,9 @@ namespace StreamChat.Core.StatefulModels
         }
 
         //StreamTodo: LoadNewerMessages? This would only make sense if we would start somewhere in the history. Maybe its possible with search? You jump in to past message and scroll to load newer
-        public async Task UpdateOverwriteAsync() //StreamTodo: NOT IMPLEMENTED
+        public Task UpdateOverwriteAsync() //StreamTodo: NOT IMPLEMENTED
         {
+            throw new NotImplementedException();
             // var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
             //     new UpdateChannelRequestInternalDTO
             //     {
@@ -477,11 +477,15 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
+        public Task InviteMembersAsync(params string[] userIds) => InviteMembersAsync(userIds as IEnumerable<string>);
+
         public Task InviteMembersAsync(IEnumerable<IStreamUser> users)
         {
             StreamAsserts.AssertNotNull(users, nameof(users));
             return InviteMembersAsync(users.Select(_ => _.Id));
         }
+        
+        public Task InviteMembersAsync(params IStreamUser[] users) => InviteMembersAsync(users as IEnumerable<IStreamUser>);
 
         public async Task AcceptInviteAsync()
         {
@@ -489,16 +493,6 @@ namespace StreamChat.Core.StatefulModels
             updateRequest.AcceptInvite = true;
             
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id, updateRequest);
-            
-            // var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
-            //     new UpdateChannelPartialRequestInternalDTO
-            //     {
-            //         //StreamTodo: get key from Json Mapping
-            //         Set = new Dictionary<string, object>
-            //         {
-            //             { "accept_invite", true }
-            //         },
-            //     });
 
             Cache.TryCreateOrUpdate(response.Channel);
             foreach (var member in response.Members)
@@ -513,16 +507,6 @@ namespace StreamChat.Core.StatefulModels
             updateRequest.RejectInvite = true;
             
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id, updateRequest);
-            
-            // var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
-            //     new UpdateChannelPartialRequestInternalDTO
-            //     {
-            //         //StreamTodo: get key from Json Mapping
-            //         Set = new Dictionary<string, object>
-            //         {
-            //             { "reject_invite", true }
-            //         },
-            //     });
 
             Cache.TryCreateOrUpdate(response.Channel);
             foreach (var member in response.Members)

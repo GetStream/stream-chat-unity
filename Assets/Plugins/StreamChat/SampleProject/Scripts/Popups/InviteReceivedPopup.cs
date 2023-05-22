@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using StreamChat.Core.StatefulModels;
 using TMPro;
 using UnityEngine;
@@ -58,36 +56,32 @@ namespace StreamChat.SampleProject.Popups
         private string _textTemplate;
         private bool _isProcessing;
 
-        private void OnRejectButtonClicked()
+        private async void OnRejectButtonClicked()
         {
             if (_isProcessing)
             {
                 return;
             }
-
+            
             _isProcessing = true;
-            var threadId = Thread.CurrentThread.ManagedThreadId;
-            _channel.RejectInviteAsync().ContinueWith(t =>
-            {
-                _isProcessing = false;
-                if (t.IsFaulted)
-                {
-                    Debug.LogException(t.Exception);
-                    return;
-                }
-                
-                var threadId2 = Thread.CurrentThread.ManagedThreadId;
-                if (threadId != threadId2)
-                {
-                    Debug.LogError($"----------------------- Thread Mismatch: {threadId} vs {threadId2}");
-                }
 
+            try
+            {
+                await _channel.RejectInviteAsync();
                 Debug.Log($"Rejected invitation to {_channel.Name}");
                 Hide();
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
+                _isProcessing = false;
+            }
         }
 
-        private void OnAcceptButtonClicked()
+        private async void OnAcceptButtonClicked()
         {
             if (_isProcessing)
             {
@@ -95,25 +89,21 @@ namespace StreamChat.SampleProject.Popups
             }
 
             _isProcessing = true;
-            var threadId = Thread.CurrentThread.ManagedThreadId;
-            _channel.AcceptInviteAsync().ContinueWith(t =>
-            {
-                _isProcessing = false;
-                if (t.IsFaulted)
-                {
-                    Debug.LogException(t.Exception);
-                    return;
-                }
-                
-                var threadId2 = Thread.CurrentThread.ManagedThreadId;
-                if (threadId != threadId2)
-                {
-                    Debug.LogError($"----------------------- Thread Mismatch: {threadId} vs {threadId2}");
-                }
 
+            try
+            {
+                await _channel.AcceptInviteAsync();
                 Debug.Log($"Accepted invitation to {_channel.Name}");
                 Hide();
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
+                _isProcessing = false;
+            }
         }
     }
 }
