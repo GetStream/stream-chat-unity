@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework.Interfaces;
@@ -10,7 +11,7 @@ using StreamChat.Core.Configs;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Libs.Auth;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace StreamChat.Tests
@@ -20,10 +21,7 @@ namespace StreamChat.Tests
     /// </summary>
     internal class StreamTestClients
     {
-        public static StreamTestClients Instance
-        {
-            get { return _instance ??= new StreamTestClients(); }
-        }
+        public static StreamTestClients Instance => _instance ??= new StreamTestClients();
 
         public void AddLock(object owner) => _locks.Add(owner);
 
@@ -46,18 +44,9 @@ namespace StreamChat.Tests
             }
         }
 
-        public StreamChatClient StateClient
-        {
-            get
-            {
-                if (_stateClient == null)
-                {
-                    InitStateClient();
-                }
+        public StreamChatClient StateClient => _stateClient ??= CreateStateClient();
 
-                return _stateClient;
-            }
-        }
+        public StreamChatClient OtherStateClient => _otherStateClient ??= CreateStateClient();
 
         public OwnUser LowLevelClientOwnUser { get; private set; }
 
@@ -72,26 +61,10 @@ namespace StreamChat.Tests
             yield return LowLevelClient.WaitForClientToConnect();
         }
 
-        public async Task TryConnectStateClientAsync()
-        {
-            if (StateClient.IsConnected)
-            {
-                return;
-            }
+        public Task ConnectStateClientAsync() => ConnectStateClientAsync(StateClient, _stateClientCredentials);
 
-            var connectTask = StateClient.ConnectUserAsync(_stateClientCredentials);
-            while (!connectTask.IsCompleted)
-            {
-#if STREAM_DEBUG_ENABLED
-                Debug.Log($"Wait for {nameof(StatefulClient)} to connect");
-#endif
-
-                await Task.Delay(1);
-            }
-
-            Debug.Log(
-                $"------------ State client connection made: {StateClient.ConnectionState}, user ID: {StateClient.LocalUserData.User.Id}");
-        }
+        public Task<IStreamChatClient> ConnectOtherStateClientAsync()
+            => ConnectStateClientAsync(OtherStateClient, _otherUserCredentials);
 
         private static StreamTestClients _instance;
 
@@ -104,6 +77,7 @@ namespace StreamChat.Tests
 
         private IStreamChatLowLevelClient _lowLevelClient;
         private StreamChatClient _stateClient;
+        private StreamChatClient _otherStateClient;
 
         private bool _runFinished;
 
@@ -123,6 +97,40 @@ namespace StreamChat.Tests
             _stateClientCredentials = adminData[1];
             _otherUserCredentials = adminData[2];
             _otherUsersCredentials = adminData.Skip(3).ToList();
+        }
+
+        private static async Task<IStreamChatClient> ConnectStateClientAsync(IStreamChatClient client,
+            AuthCredentials credentials)
+        {
+            if (client.IsConnected)
+            {
+                return client;
+            }
+
+            const int timeout = 5000;
+            var timer = new Stopwatch();
+            timer.Start();
+            
+            var connectTask = client.ConnectUserAsync(credentials);
+            while (!connectTask.IsCompleted)
+            {
+#if STREAM_DEBUG_ENABLED
+                Debug.Log($"Wait for {nameof(StatefulClient)} to connect user with ID: {credentials.UserId}");
+#endif
+
+                await Task.Delay(1);
+
+                if (timer.ElapsedMilliseconds > timeout)
+                {
+                    throw new TimeoutException($"Reached timeout when trying to connect user: {credentials.UserId}");
+                }
+            }
+            
+            timer.Stop();
+
+            Debug.Log(
+                $"------------ State client connection made: {client.ConnectionState}, user ID: {client.LocalUserData.User.Id} after {timer.Elapsed.TotalSeconds}");
+            return client;
         }
 
         private void OnClientConnected(OwnUser localUser)
@@ -148,28 +156,30 @@ namespace StreamChat.Tests
             Debug.Log("------------  Tests finished - dispose client instances");
 
             DisposeLowLevelClient();
-            return DisposeStateClientAsync();
+            return DisposeStateClientsAsync();
         }
 
-        private void InitStateClient()
-        {
-            _stateClient = (StreamChatClient)StreamChatClient.CreateDefaultClient(new StreamClientConfig
+        private static StreamChatClient CreateStateClient()
+            => (StreamChatClient)StreamChatClient.CreateDefaultClient(new StreamClientConfig
             {
                 LogLevel = StreamLogLevel.Debug
             });
-        }
 
-        private async Task DisposeStateClientAsync()
+        private async Task DisposeStateClientsAsync()
         {
-            if (_stateClient == null)
+            if (_stateClient != null)
             {
-                return;
+                await _stateClient.DisconnectUserAsync();
+                _stateClient.Dispose();
+                _stateClient = null;
             }
 
-            await _stateClient.DisconnectUserAsync();
-
-            _stateClient.Dispose();
-            _stateClient = null;
+            if (_otherStateClient != null)
+            {
+                await _otherStateClient.DisconnectUserAsync();
+                _otherStateClient.Dispose();
+                _otherStateClient = null;
+            }
         }
 
         private void InitLowLevelClient()

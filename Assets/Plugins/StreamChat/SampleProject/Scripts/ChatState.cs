@@ -6,15 +6,16 @@ using StreamChat.Core;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.LowLevelClient.Events;
 using StreamChat.Core.LowLevelClient.Models;
-using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Libs.Logs;
+using StreamChat.SampleProject.Popups;
 using StreamChat.SampleProject.Views;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace StreamChat.SampleProject
 {
@@ -56,6 +57,11 @@ namespace StreamChat.SampleProject
 
             Client.Connected += OnClientConnected;
             Client.ConnectionStateChanged += OnClientConnectionStateChanged;
+            
+            Client.ChannelInviteReceived += OnClientChannelInviteReceived;
+            Client.ChannelInviteAccepted += ClientOnChannelInviteAccepted;
+            Client.ChannelInviteRejected += ClientOnChannelInviteRejected;
+
             //StreamTodo: handle this
             // Client.MessageRead += OnMessageRead;
             //
@@ -66,6 +72,11 @@ namespace StreamChat.SampleProject
         {
             Client.Connected -= OnClientConnected;
             Client.ConnectionStateChanged -= OnClientConnectionStateChanged;
+            
+            Client.ChannelInviteReceived -= OnClientChannelInviteReceived;
+            Client.ChannelInviteAccepted -= ClientOnChannelInviteAccepted;
+            Client.ChannelInviteRejected -= ClientOnChannelInviteRejected;
+            
             // Client.MessageRead -= OnMessageRead;
             //
             // Client.NotificationMarkRead -= OnNotificationMarkRead;
@@ -73,16 +84,16 @@ namespace StreamChat.SampleProject
             Client.Dispose();
         }
 
-        public void ShowPopup<TPopup>()
+        public TPopup ShowPopup<TPopup>()
             where TPopup : BaseFullscreenPopup
         {
-            _viewFactory.CreateFullscreenPopup<TPopup>();
+            return _viewFactory.CreateFullscreenPopup<TPopup>();
         }
 
         public void HidePopup<TPopup>(TPopup instance)
             where TPopup : BaseFullscreenPopup
         {
-            GameObject.Destroy(instance.gameObject);
+            Object.Destroy(instance.gameObject);
         }
 
         public Task<IStreamChannel> CreateNewChannelAsync(string channelName)
@@ -155,6 +166,22 @@ namespace StreamChat.SampleProject
             {
                 ActiveChannel = _channels.First();
             }
+        }
+
+        private void OnClientChannelInviteReceived(IStreamChannel channel, IStreamUser invitee)
+        {
+            var popup = ShowPopup<InviteReceivedPopup>();
+            popup.SetData(channel);
+        }
+
+        private void ClientOnChannelInviteAccepted(IStreamChannel channel, IStreamUser invitee)
+        {
+            Debug.LogError("ClientOnChannelInviteAccepted");
+        }
+
+        private void ClientOnChannelInviteRejected(IStreamChannel channel, IStreamUser invitee)
+        {
+            Debug.LogError("ClientOnChannelInviteRejected");
         }
 
         private void OnNotificationMarkRead(EventNotificationMarkRead eventNotificationMarkRead)

@@ -46,7 +46,9 @@ namespace StreamChat.Core
     /// </summary>
     public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
 
-    //StreamTodo: Handle restoring state after lost connection + include Unity Network Monitor
+    //StreamTodo: Handle restoring state after lost connection
+
+    public delegate void ChannelInviteHandler(IStreamChannel channel, IStreamUser invitee);
 
     public sealed class StreamChatClient : IStreamChatClient
     {
@@ -59,6 +61,10 @@ namespace StreamChat.Core
         public event ConnectionChangeHandler ConnectionStateChanged;
 
         public event ChannelDeleteHandler ChannelDeleted;
+
+        public event ChannelInviteHandler ChannelInviteReceived;
+        public event ChannelInviteHandler ChannelInviteAccepted;
+        public event ChannelInviteHandler ChannelInviteRejected;
 
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
@@ -844,19 +850,28 @@ namespace StreamChat.Core
 //StreamTodo: IMPLEMENT
         }
 
-        private void OnInvitedNotification(NotificationInvitedEventInternalDTO obj)
+        private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)
         {
-//StreamTodo: IMPLEMENT
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var user = _cache.TryCreateOrUpdate(eventDto.User);
+
+            ChannelInviteReceived?.Invoke(channel, user);
         }
 
-        private void OnInviteAcceptedNotification(NotificationInviteAcceptedEventInternalDTO obj)
+        private void OnInviteAcceptedNotification(NotificationInviteAcceptedEventInternalDTO eventDto)
         {
-//StreamTodo: IMPLEMENT
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var user = _cache.TryCreateOrUpdate(eventDto.User);
+
+            ChannelInviteAccepted?.Invoke(channel, user);
         }
 
-        private void OnInviteRejectedNotification(NotificationInviteRejectedEventInternalDTO obj)
+        private void OnInviteRejectedNotification(NotificationInviteRejectedEventInternalDTO eventDto)
         {
-//StreamTodo: IMPLEMENT
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var user = _cache.TryCreateOrUpdate(eventDto.User);
+
+            ChannelInviteRejected?.Invoke(channel, user);
         }
 
         private void OnReactionReceived(ReactionNewEventInternalDTO eventDto)

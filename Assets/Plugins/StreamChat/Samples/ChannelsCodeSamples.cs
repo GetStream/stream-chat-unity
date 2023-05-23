@@ -542,6 +542,21 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task Invite()
         {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var filters = new IFieldFilterRule[]
+            {
+                UserFilter.Id.In("other-user-id-1", "other-user-id-2", "other-user-id-3")
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
+
+// Invite IStreamUser collection as new members
+            await channel.InviteMembersAsync(users);
+
+// Or add by ID
+            await channel.InviteMembersAsync("some-user-id-1", "some-user-id-2");
+
             //StreamTodo: IMPLEMENT send invite
             await Task.CompletedTask;
         }
@@ -551,8 +566,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task AcceptInvite()
         {
-            //StreamTodo: IMPLEMENT accept invite
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.AcceptInviteAsync();
         }
 
         /// <summary>
@@ -560,8 +575,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task RejectInvite()
         {
-            //StreamTodo: IMPLEMENT reject invite
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.RejectInviteAsync();
         }
 
         /// <summary>
@@ -569,8 +584,14 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryAcceptedInvites()
         {
-            //StreamTodo: IMPLEMENT query accepted invites
-            await Task.CompletedTask;
+            var filter = new List<IFieldFilterRule>
+            {
+                ChannelFilter.Invite.EqualsTo(ChannelFieldInvite.Status.Accepted)
+            };
+
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
+
+            var acceptedInvites = await Client.QueryChannelsAsync(filter, sort);
         }
 
         /// <summary>
@@ -578,8 +599,14 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryRejectedInvites()
         {
-            //StreamTodo: IMPLEMENT query rejected invites
-            await Task.CompletedTask;
+            var filter = new List<IFieldFilterRule>
+            {
+                ChannelFilter.Invite.EqualsTo(ChannelFieldInvite.Status.Rejected)
+            };
+
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
+
+            var rejectedInvites = await Client.QueryChannelsAsync(filter, sort);
         }
 
         /// <summary>
@@ -587,8 +614,14 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryPendingInvites()
         {
-            //StreamTodo: IMPLEMENT query pending invites
-            await Task.CompletedTask;
+            var filter = new List<IFieldFilterRule>
+            {
+                ChannelFilter.Invite.EqualsTo(ChannelFieldInvite.Status.Pending)
+            };
+
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
+
+            var pendingInvites = await Client.QueryChannelsAsync(filter, sort);
         }
 
         /// <summary>

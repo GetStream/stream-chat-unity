@@ -5,18 +5,23 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace StreamChat.SampleProject.Views
+namespace StreamChat.SampleProject.Popups
 {
     /// <summary>
     /// Create new channel form
     /// </summary>
     public class CreateNewChannelFormPopup : BaseFullscreenPopup
     {
+        protected override void OnInited()
+        {
+            base.OnInited();
+            
+            _createButton.onClick.AddListener(OnCreateButtonClicked);
+        }
+
         protected override void OnShow()
         {
             base.OnShow();
-
-            _createButton.onClick.AddListener(OnCreateButtonClicked);
 
             _channelIdInput.Select();
             _channelIdInput.ActivateInputField();
@@ -25,16 +30,25 @@ namespace StreamChat.SampleProject.Views
         protected override void OnUpdate()
         {
             base.OnUpdate();
-
+            
             if (InputSystem.WasEnteredPressedThisFrame && !_isProcessing)
             {
                 OnCreateButtonClicked();
             }
         }
 
-        [SerializeField] private TMP_InputField _channelIdInput;
+        protected override void OnDisposing()
+        {
+            _createButton.onClick.RemoveListener(OnCreateButtonClicked);
+            
+            base.OnDisposing();
+        }
 
-        [SerializeField] private Button _createButton;
+        [SerializeField] 
+        private TMP_InputField _channelIdInput;
+
+        [SerializeField] 
+        private Button _createButton;
 
         private bool _isProcessing;
 

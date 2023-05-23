@@ -42,6 +42,21 @@ namespace StreamChat.Core
         /// Channel was deleted
         /// </summary>
         event ChannelDeleteHandler ChannelDeleted;
+        
+        /// <summary>
+        /// Invite to a <see cref="IStreamChannel"/> was received
+        /// </summary>
+        event ChannelInviteHandler ChannelInviteReceived;
+        
+        /// <summary>
+        /// Invite to a <see cref="IStreamChannel"/> was accepted
+        /// </summary>
+        event ChannelInviteHandler ChannelInviteAccepted;
+        
+        /// <summary>
+        /// Invite to a <see cref="IStreamChannel"/> was rejected
+        /// </summary>
+        event ChannelInviteHandler ChannelInviteRejected;
 
         /// <summary>
         /// Current connection state
