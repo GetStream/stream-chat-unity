@@ -94,7 +94,7 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Use this if state update depends on receiving WS event that might come after the REST call was completed
         /// </summary>
-        protected static async Task WaitWhileConditionTrue(Func<bool> condition, int maxIterations = 500)
+        protected static async Task WaitWhileConditionTrueAsync(Func<bool> condition, int maxIterations = 500)
         {
             for (int i = 0; i < maxIterations; i++)
             {
@@ -107,7 +107,7 @@ namespace StreamChat.Tests.StatefulClient
             }
         }
 
-        protected static async Task WaitWhileConditionFalse(Func<bool> condition, int maxIterations = 500)
+        protected static async Task WaitWhileConditionFalseAsync(Func<bool> condition, int maxIterations = 500)
         {
             for (int i = 0; i < maxIterations; i++)
             {
@@ -120,7 +120,7 @@ namespace StreamChat.Tests.StatefulClient
             }
         }
 
-        protected static async Task WaitWithTimeout(Task task, int maxSeconds, string exceptionMsg)
+        protected static async Task WaitWithTimeoutAsync(Task task, int maxSeconds, string exceptionMsg)
         {
             if (await Task.WhenAny(task, Task.Delay(maxSeconds * 1000)) != task)
             {
@@ -131,7 +131,7 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
         /// </summary>
-        protected static async Task<T> Try<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
+        protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
             int initTimeoutMs = 150)
         {
             var response = default(T);

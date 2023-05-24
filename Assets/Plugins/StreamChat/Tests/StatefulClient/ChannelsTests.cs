@@ -108,7 +108,7 @@ namespace StreamChat.Tests.StatefulClient
             await channel.MuteChannelAsync();
 
             // Wait for data to propagate
-            await WaitWhileConditionTrue(() => Client.LocalUserData.ChannelMutes.Count == 0);
+            await WaitWhileConditionTrueAsync(() => Client.LocalUserData.ChannelMutes.Count == 0);
 
             Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
@@ -140,7 +140,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.UnmuteChannelAsync();
 
-            await WaitWhileConditionTrue(() =>
+            await WaitWhileConditionTrueAsync(() =>
             {
                 channelMute = Client.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
                 return channelMute != null;
@@ -172,7 +172,7 @@ namespace StreamChat.Tests.StatefulClient
             SkipThisTempChannelDeletionInTearDown(channel);
             SkipThisTempChannelDeletionInTearDown(channel2);
 
-            await WaitWhileConditionTrue(
+            await WaitWhileConditionTrueAsync(
                 () => Client.WatchedChannels.Contains(channel) || Client.WatchedChannels.Contains(channel2));
 
             Assert.IsFalse(Client.WatchedChannels.Contains(channel));
@@ -262,7 +262,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             });
 
-            await WaitWhileConditionFalse(
+            await WaitWhileConditionFalseAsync(
                 () => new[] { "owned_dogs", "breakfast", "clan_info" }.All(channel.CustomData.ContainsKey));
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
@@ -295,7 +295,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             });
 
-            await WaitWhileConditionFalse(
+            await WaitWhileConditionFalseAsync(
                 () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey));
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
@@ -378,7 +378,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.InviteMembersAsync(OtherUserId);
 
-            await WaitWithTimeout(taskCompletionSource.Task, maxSeconds: 3,
+            await WaitWithTimeoutAsync(taskCompletionSource.Task, maxSeconds: 3,
                 $"Event {nameof(channel.Updated)} was not received");
         }
         
