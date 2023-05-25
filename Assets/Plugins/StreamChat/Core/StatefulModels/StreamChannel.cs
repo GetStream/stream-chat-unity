@@ -221,16 +221,14 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(response);
         }
 
-        //StreamTodo: LoadNewerMessages? This would only make sense if we would start somewhere in the history. Maybe its possible with search? You jump in to past message and scroll to load newer
-        public Task UpdateOverwriteAsync() //StreamTodo: NOT IMPLEMENTED
+        public async Task UpdateOverwriteAsync(StreamUpdateOverwriteChannelRequest updateOverwriteRequest)
         {
-            throw new NotImplementedException();
-            // var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
-            //     new UpdateChannelRequestInternalDTO
-            //     {
-            //     });
+            StreamAsserts.AssertNotNull(updateOverwriteRequest, nameof(updateOverwriteRequest));
+            
+             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
+                 updateOverwriteRequest.TrySaveToDto());
 
-            //Cache.TryCreateOrUpdate(response.Channel);
+            Cache.TryCreateOrUpdate(response.Channel);
         }
 
         public async Task UpdatePartialAsync(IDictionary<string, object> setFields = null,
@@ -653,7 +651,7 @@ namespace StreamChat.Core.StatefulModels
 
             #region ChannelState
 
-            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); //Updated from Channel
+            _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers);
 
             #endregion
         }
@@ -712,7 +710,11 @@ namespace StreamChat.Core.StatefulModels
 
         internal void HandleChannelUpdatedEvent(ChannelUpdatedEventInternalDTO eventDto)
         {
-            Cache.TryCreateOrUpdate(eventDto.Channel);
+            // Skip normal update. Channel Update is an overwrite operation. If something was not present in the request it was removed
+            // Cache.TryCreateOrUpdate(eventDto.Channel);
+            
+            UpdateChannelFieldsFromDtoOverwrite(eventDto.Channel, Cache);
+            
             Updated?.Invoke(this);
         }
 
@@ -873,6 +875,43 @@ namespace StreamChat.Core.StatefulModels
 
             //Not in API spec
             Name = GetOrDefault(dto.Name, Name);
+
+            #endregion
+        }
+        
+        private void UpdateChannelFieldsFromDtoOverwrite(ChannelResponseInternalDTO dto, ICache cache)
+        {
+            #region Channel
+
+            AutoTranslationEnabled = GetOrDefault(dto.AutoTranslationEnabled, false);
+            AutoTranslationLanguage = GetOrDefault(dto.AutoTranslationLanguage, string.Empty);
+            Cid = GetOrDefault(dto.Cid, Cid);
+            Config = Config.TryLoadFromDto(dto.Config, cache);
+            Cooldown = GetOrDefault(dto.Cooldown, null);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            CreatedBy = cache.TryCreateOrUpdate(dto.CreatedBy);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Disabled = GetOrDefault(dto.Disabled, false);
+            Frozen = GetOrDefault(dto.Frozen, false);
+            Hidden = GetOrDefault(dto.Hidden, false);
+            HideMessagesBefore = GetOrDefault(dto.HideMessagesBefore, null);
+            Id = GetOrDefault(dto.Id, Id);
+            LastMessageAt = GetOrDefault(dto.LastMessageAt, null);
+            MemberCount = GetOrDefault(dto.MemberCount, MemberCount);
+            _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers);
+            MuteExpiresAt = GetOrDefault(dto.MuteExpiresAt, null);
+            Muted = GetOrDefault(dto.Muted, false);
+            _ownCapabilities.TryReplaceValuesFromDto(dto.OwnCapabilities);
+            Team = GetOrDefault(dto.Team, string.Empty);
+            TruncatedAt = GetOrDefault(dto.TruncatedAt, null);
+            TruncatedBy = cache.TryCreateOrUpdate(dto.TruncatedBy);
+            Type = new ChannelType(GetOrDefault(dto.Type, Type));
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
+
+            LoadAdditionalProperties(dto.AdditionalProperties);
+
+            //Not in API spec
+            Name = GetOrDefault(dto.Name, string.Empty);
 
             #endregion
         }

@@ -11,6 +11,7 @@ using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.QueryBuilders.Sort;
+using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
@@ -310,6 +311,141 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.IsFalse(channel.CustomData.ContainsKey("owned_dogs"));
             Assert.IsFalse(channel.CustomData.ContainsKey("breakfast"));
+        }
+        
+        [UnityTest]
+        public IEnumerator When_update_overwrite_channel_with_full_data_expect_no_change()
+            => ConnectAndExecute(When_update_overwrite_channel_with_full_data_expect_no_change_Async);
+
+        private async Task When_update_overwrite_channel_with_full_data_expect_no_change_Async()
+        {
+            const string channelName = "AwesomeNews";
+            var channel = await CreateUniqueTempChannelAsync(channelName);
+
+            var cts = new TaskCompletionSource<bool>();
+            var channelUpdatedEventsCount = 0;
+            channel.Updated += streamChannel =>
+            {
+                channelUpdatedEventsCount++;
+                if (channelUpdatedEventsCount == 2)
+                {
+                    cts.SetResult(true);
+                }
+            };
+            
+            await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>
+            {
+                { "owned_dogs", 5 },
+                {
+                    "breakfast", new string[]
+                    {
+                        "donuts"
+                    }
+                }
+            });
+
+            await channel.UpdateOverwriteAsync(new StreamUpdateOverwriteChannelRequest(channel));
+
+            await WaitWithTimeoutAsync(cts.Task, 5, $"Channel {nameof(channel.Updated)} event was not received");
+            
+            Assert.AreEqual(channelName, channel.Name);
+            Assert.AreEqual(2, channel.CustomData.Count);
+            Assert.IsTrue(channel.CustomData.ContainsKey("owned_dogs"));
+            Assert.IsTrue(channel.CustomData.ContainsKey("breakfast"));
+            Assert.AreEqual(5, channel.CustomData.Get<int>("owned_dogs"));
+            Assert.AreEqual("donuts", channel.CustomData.Get<string[]>("breakfast")[0]);
+        }
+        
+        [UnityTest]
+        public IEnumerator When_update_overwrite_channel_with_no_data_expect_data_cleared()
+            => ConnectAndExecute(When_update_overwrite_channel_with_no_data_expect_data_cleared_Async);
+
+        private async Task When_update_overwrite_channel_with_no_data_expect_data_cleared_Async()
+        {
+            const string channelName = "AwesomeNews";
+            var channel = await CreateUniqueTempChannelAsync(channelName);
+
+            var cts = new TaskCompletionSource<bool>();
+            var channelUpdatedEventsCount = 0;
+            channel.Updated += streamChannel =>
+            {
+                channelUpdatedEventsCount++;
+                if (channelUpdatedEventsCount == 2)
+                {
+                    cts.SetResult(true);
+                }
+            };
+            
+            await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>
+            {
+                { "owned_dogs", 5 },
+                {
+                    "breakfast", new string[]
+                    {
+                        "donuts"
+                    }
+                }
+            });
+
+            await channel.UpdateOverwriteAsync(new StreamUpdateOverwriteChannelRequest());
+
+            await WaitWithTimeoutAsync(cts.Task, 5, $"Channel {nameof(channel.Updated)} event was not received");
+            
+            Assert.AreEqual(string.Empty, channel.Name);
+            Assert.AreEqual(0, channel.CustomData.Count);
+        }
+        
+        [UnityTest]
+        public IEnumerator When_update_overwrite_channel_with_partial_data_expect_data_partially_cleared()
+            => ConnectAndExecute(When_update_overwrite_channel_with_partial_data_expect_data_partially_cleared_Async);
+
+        private async Task When_update_overwrite_channel_with_partial_data_expect_data_partially_cleared_Async()
+        {
+            const string channelName = "AwesomeNews";
+            const string channelName2 = "DifferentName";
+            var channel = await CreateUniqueTempChannelAsync(channelName);
+
+            var cts = new TaskCompletionSource<bool>();
+            var channelUpdatedEventsCount = 0;
+            channel.Updated += streamChannel =>
+            {
+                channelUpdatedEventsCount++;
+                if (channelUpdatedEventsCount == 2)
+                {
+                    cts.SetResult(true);
+                }
+            };
+            
+            await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>
+            {
+                { "owned_dogs", 5 },
+                {
+                    "breakfast", new string[]
+                    {
+                        "donuts"
+                    }
+                }
+            });
+
+            await channel.UpdateOverwriteAsync(new StreamUpdateOverwriteChannelRequest
+            {
+                Name = channelName2,
+                CustomData = new StreamCustomDataRequest
+                {
+                    {"owned_dogs", 7},
+                    {"owned_cats", "twenty"}
+                }
+            });
+
+            await WaitWithTimeoutAsync(cts.Task, 5, $"Channel {nameof(channel.Updated)} event was not received");
+            
+            Assert.AreEqual(channelName2, channel.Name);
+            Assert.AreEqual(2, channel.CustomData.Count);
+            Assert.IsTrue(channel.CustomData.ContainsKey("owned_dogs"));
+            Assert.IsTrue(channel.CustomData.ContainsKey("owned_cats"));
+            Assert.IsFalse(channel.CustomData.ContainsKey("breakfast"));
+            Assert.AreEqual(7, channel.CustomData.Get<int>("owned_dogs"));
+            Assert.AreEqual("twenty", channel.CustomData.Get<string>("owned_cats"));
         }
 
         [UnityTest]

@@ -200,7 +200,6 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         bool Muted { get; }
 
-        //StreamTodo: change to enum? this would simplify usage
         /// <summary>
         /// List of channel capabilities of authenticated user
         /// </summary>
@@ -294,7 +293,8 @@ namespace StreamChat.Core.StatefulModels
         /// Important! Any data that is present on the channel and not included in a full update will be deleted.
         /// If you want to update only some fields of the channel use the <see cref="IStreamChannel.UpdatePartialAsync"/>
         /// </summary>
-        Task UpdateOverwriteAsync(); //StreamTodo: NOT IMPLEMENTED
+        /// <param name="updateOverwriteRequest"></param>
+        Task UpdateOverwriteAsync(StreamUpdateOverwriteChannelRequest updateOverwriteRequest);
 
         /// <summary>
         /// Update channel in a partial mode. You can selectively set and unset fields of the channel

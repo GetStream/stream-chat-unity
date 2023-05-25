@@ -47,11 +47,11 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
-        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync()
+        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync(string name = null)
         {
             var channelId = "random-channel-11111-" + Guid.NewGuid();
 
-            var channelState = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId);
+            var channelState = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name);
             _tempChannels.Add(channelState);
             return channelState;
         }
