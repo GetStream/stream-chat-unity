@@ -256,7 +256,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         
         private static async Task ExecuteAsync(Func<Task> test)
         {
-            const int maxAttempts = 3;
+            const int maxAttempts = 7;
             var currentAttempt = 0;
             var completed = false;
             var exceptions = new List<Exception>();
@@ -274,7 +274,8 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     exceptions.Add(e);
                     if (e.IsRateLimitExceededError())
                     {
-                        await Task.Delay(1000);
+                        var seconds = (int)Math.Max(1, Math.Min(60, Math.Pow(2, currentAttempt)));
+                        await Task.Delay(1000 * seconds);
                         continue;
                     }
 
