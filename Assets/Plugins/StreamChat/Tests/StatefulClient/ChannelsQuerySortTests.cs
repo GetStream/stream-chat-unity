@@ -63,11 +63,11 @@ namespace StreamChat.Tests.StatefulClient
             var channel3 = await CreateUniqueTempChannelAsync();
             var channel4 = await CreateUniqueTempChannelAsync();
 
-            await channel1.AddMembersAsync(TestAdminId, TestUserId);
-            await channel3.AddMembersAsync(TestAdminId, TestUserId);
+            await channel1.AddMembersAsync(hideHistory: default, optionalMessage: default, TestAdminId, TestUserId);
+            await channel3.AddMembersAsync(hideHistory: default, optionalMessage: default, TestAdminId, TestUserId);
 
-            await channel2.AddMembersAsync(TestAdminId);
-            await channel4.AddMembersAsync(TestAdminId);
+            await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, TestAdminId);
+            await channel4.AddMembersAsync(hideHistory: default, optionalMessage: default, TestAdminId);
 
             var filters = new IFieldFilterRule[]
             {

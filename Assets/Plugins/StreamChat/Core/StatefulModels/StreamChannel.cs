@@ -379,21 +379,25 @@ namespace StreamChat.Core.StatefulModels
             => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO());
 
         //StreamTodo: write test
-        public Task HideAsync(bool? clearHistory = false)
+        public Task HideAsync(bool? clearHistory = default)
             => LowLevelClient.InternalChannelApi.HideChannelAsync(Type, Id, new HideChannelRequestInternalDTO
             {
                 ClearHistory = clearHistory
             });
 
-        public Task AddMembersAsync(IEnumerable<IStreamUser> users)
+        public Task AddMembersAsync(IEnumerable<IStreamUser> users, bool? hideHistory = default,
+            StreamMessageRequest optionalMessage = default)
         {
             StreamAsserts.AssertNotNull(users, nameof(users));
-            return AddMembersAsync(users.Select(u => u.Id));
+            return AddMembersAsync(users.Select(u => u.Id), hideHistory, optionalMessage);
         }
 
-        public Task AddMembersAsync(params IStreamUser[] users) => AddMembersAsync(users as IEnumerable<IStreamUser>);
+        public Task AddMembersAsync(bool? hideHistory = default, StreamMessageRequest optionalMessage = default,
+            params IStreamUser[] users)
+            => AddMembersAsync(users, hideHistory, optionalMessage);
 
-        public async Task AddMembersAsync(IEnumerable<string> userIds)
+        public async Task AddMembersAsync(IEnumerable<string> userIds, bool? hideHistory = default,
+            StreamMessageRequest optionalMessage = default)
         {
             StreamAsserts.AssertNotNull(userIds, nameof(userIds));
 
@@ -409,12 +413,16 @@ namespace StreamChat.Core.StatefulModels
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
                 new UpdateChannelRequestInternalDTO
                 {
-                    AddMembers = membersRequest
+                    AddMembers = membersRequest,
+                    HideHistory = hideHistory,
+                    Message = optionalMessage?.TrySaveToDto(),
                 });
             Cache.TryCreateOrUpdate(response);
         }
 
-        public Task AddMembersAsync(params string[] users) => AddMembersAsync(users as IEnumerable<string>);
+        public Task AddMembersAsync(bool? hideHistory = default, StreamMessageRequest optionalMessage = default,
+            params string[] users)
+            => AddMembersAsync(users, hideHistory, optionalMessage);
 
         public Task RemoveMembersAsync(IEnumerable<IStreamChannelMember> members)
         {
@@ -448,7 +456,7 @@ namespace StreamChat.Core.StatefulModels
 
         public Task RemoveMembersAsync(params string[] userIds) => RemoveMembersAsync(userIds as IEnumerable<string>);
 
-        public Task JoinAsMemberAsync() => AddMembersAsync(Client.LocalUserData.User);
+        public Task JoinAsMemberAsync() => AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
 
         public Task LeaveAsMemberChannelAsync() => RemoveMembersAsync(Client.LocalUserData.User);
 
@@ -467,7 +475,7 @@ namespace StreamChat.Core.StatefulModels
 
             var updateRequest = GetUpdateRequestWithCurrentData();
             updateRequest.Invites = invites;
-            
+
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id, updateRequest);
 
             Cache.TryCreateOrUpdate(response.Channel);
@@ -484,14 +492,15 @@ namespace StreamChat.Core.StatefulModels
             StreamAsserts.AssertNotNull(users, nameof(users));
             return InviteMembersAsync(users.Select(_ => _.Id));
         }
-        
-        public Task InviteMembersAsync(params IStreamUser[] users) => InviteMembersAsync(users as IEnumerable<IStreamUser>);
+
+        public Task InviteMembersAsync(params IStreamUser[] users)
+            => InviteMembersAsync(users as IEnumerable<IStreamUser>);
 
         public async Task AcceptInviteAsync()
         {
             var updateRequest = GetUpdateRequestWithCurrentData();
             updateRequest.AcceptInvite = true;
-            
+
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id, updateRequest);
 
             Cache.TryCreateOrUpdate(response.Channel);
@@ -505,7 +514,7 @@ namespace StreamChat.Core.StatefulModels
         {
             var updateRequest = GetUpdateRequestWithCurrentData();
             updateRequest.RejectInvite = true;
-            
+
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id, updateRequest);
 
             Cache.TryCreateOrUpdate(response.Channel);
@@ -1003,18 +1012,20 @@ namespace StreamChat.Core.StatefulModels
         {
             _messages.Sort((msg1, msg2) => msg1.CreatedAt.CompareTo(msg2.CreatedAt));
         }
-        
-        private UpdateChannelRequestInternalDTO GetUpdateRequestWithCurrentData() => new UpdateChannelRequestInternalDTO
-        {
-            Data = new ChannelRequestInternalDTO
+
+        private UpdateChannelRequestInternalDTO GetUpdateRequestWithCurrentData()
+            => new UpdateChannelRequestInternalDTO
             {
-                AutoTranslationEnabled = AutoTranslationEnabled,
-                AutoTranslationLanguage = AutoTranslationLanguage,
-                Disabled = Disabled,
-                Frozen = Frozen,
+                Data = new ChannelRequestInternalDTO
+                {
+                    AutoTranslationEnabled = AutoTranslationEnabled,
+                    AutoTranslationLanguage = AutoTranslationLanguage,
+                    Disabled = Disabled,
+                    Frozen = Frozen,
+                    AdditionalProperties = GetInternalAdditionalPropertiesDictionary(),
+                    Name = Name
+                },
                 AdditionalProperties = GetInternalAdditionalPropertiesDictionary(),
-                Name = Name
-            },
-        };
+            };
     }
 }

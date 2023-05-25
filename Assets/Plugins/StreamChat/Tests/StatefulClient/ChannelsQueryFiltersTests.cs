@@ -157,13 +157,13 @@ namespace StreamChat.Tests.StatefulClient
             var userDaniel = await CreateUniqueTempUserAsync("Daniel");
             var userJonathan = await CreateUniqueTempUserAsync("Jonathan");
 
-            await channel1.AddMembersAsync(userAnna);
-            await channel2.AddMembersAsync(userDaniel);
-            await channel3.AddMembersAsync(userJonathan);
+            await channel1.AddMembersAsync(hideHistory: default, optionalMessage: default, userAnna);
+            await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, userDaniel);
+            await channel3.AddMembersAsync(hideHistory: default, optionalMessage: default, userJonathan);
             
             // The search filter for MemberUserName relies on the `read-channel-members` permissions being enabled.
             // For channel type `Messaging` you can only view other members if you're a member yourself
-            await channel2.AddMembersAsync(Client.LocalUserData.User);
+            await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
 
             var filters2 = new IFieldFilterRule[]
             {
@@ -188,9 +188,9 @@ namespace StreamChat.Tests.StatefulClient
             var userDaniel = await CreateUniqueTempUserAsync("Daniel");
             var userJonathan = await CreateUniqueTempUserAsync("Jonathan");
 
-            await channel2.AddMembersAsync(userAnna);
-            await channel2.AddMembersAsync(userDaniel);
-            await channel2.AddMembersAsync(userJonathan);
+            await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, userAnna);
+            await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, userDaniel);
+            await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, userJonathan);
 
             var filters = new IFieldFilterRule[]
             {

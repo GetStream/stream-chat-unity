@@ -7,6 +7,7 @@ using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.QueryBuilders.Sort;
+using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine;
 
@@ -319,7 +320,8 @@ namespace StreamChat.Samples
             await channel.AddMembersAsync(users);
 
 // Or add by ID
-            await channel.AddMembersAsync("some-user-id-1", "some-user-id-2");
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, "some-user-id-1",
+                "some-user-id-2");
 
 // Access channel members via channel.Members, let's remove the first member as an example
             var member = channel.Members.First();
@@ -338,8 +340,19 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task AddMembersWithMessage()
         {
-            //StreamTodo: IMPLEMENT add members and hide history
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var filters = new IFieldFilterRule[]
+            {
+                UserFilter.Id.In("other-user-id-1", "other-user-id-2", "other-user-id-3")
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
+
+            await channel.AddMembersAsync(users, hideHistory: default, new StreamMessageRequest
+            {
+                Text = "John has joined the channel"
+            });
         }
 
         /// <summary>
@@ -347,8 +360,16 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task AddMembersAndHideHistory()
         {
-            //StreamTodo: IMPLEMENT add members and hide history
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var filters = new IFieldFilterRule[]
+            {
+                UserFilter.Id.In("other-user-id-1", "other-user-id-2", "other-user-id-3")
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
+
+            await channel.AddMembersAsync(users, hideHistory: true);
         }
 
         /// <summary>
