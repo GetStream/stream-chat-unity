@@ -45,7 +45,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         /// Id of other user than currently logged one
         /// </summary>
         protected static string OtherUserId => StreamTestClients.Instance.OtherUserId;
-        
+
         protected static OwnUser LowLevelClientOwnUser => StreamTestClients.Instance.LowLevelClientOwnUser;
 
         protected static IEnumerator ReconnectClient() => StreamTestClients.Instance.ReconnectLowLevelClientClient();
@@ -115,7 +115,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             while (attempt <= maxAttempts)
             {
                 attempt++;
-                
+
                 response = await task();
 
                 if (successCondition(response))
@@ -123,8 +123,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     return response;
                 }
 
-                var power = Math.Max(attempt, 5);
-                var delay = initTimeoutMs * Math.Pow(2, power);
+                var delay = Math.Min(1000, initTimeoutMs + Math.Pow(2, attempt));
                 await Task.Delay((int)delay);
             }
 
@@ -253,7 +252,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             _tempChannelsCidsToDelete.Clear();
         }
-        
+
         private static async Task ExecuteAsync(Func<Task> test)
         {
             const int maxAttempts = 7;
@@ -285,7 +284,8 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             if (!completed)
             {
-                throw new AggregateException($"Failed all attempts. Last Exception: {exceptions.Last().Message} ", exceptions);
+                throw new AggregateException($"Failed all attempts. Last Exception: {exceptions.Last().Message} ",
+                    exceptions);
             }
         }
     }

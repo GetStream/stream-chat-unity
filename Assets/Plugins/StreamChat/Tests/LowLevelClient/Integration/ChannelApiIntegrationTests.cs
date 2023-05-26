@@ -312,23 +312,18 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         }
 
         [UnityTest]
-        public IEnumerator When_deleting_existing_channel_expect_success()
+        public IEnumerator When_deleting_existing_channel_expect_success() 
+            => ConnectAndExecute(When_deleting_existing_channel_expect_success_Async);
+
+        private async Task When_deleting_existing_channel_expect_success_Async()
         {
-            yield return LowLevelClient.WaitForClientToConnect();
+            const string channelType = "messaging";
 
-            var channelType = "messaging";
-
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState = state);
+            var channelState = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
             var channelId = channelState.Channel.Id;
 
-            var deleteChannelTask
-                = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
-            yield return deleteChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(response.Channel.Id, channelId);
-            });
+            var response = await LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
+            Assert.AreEqual(response.Channel.Id, channelId);
         }
 
         [UnityTest]
