@@ -294,8 +294,30 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task FullUpdate()
         {
-//StreamTodo: IMPLEMENT channel full update
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var updateRequest = new StreamUpdateOverwriteChannelRequest
+            {
+                Name = "New name",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "my-custom-int", 12 },
+                    { "my-custom-array", new string[] { "one", "two" } }
+                }
+            };
+
+// This request will have all channel data removed except what is being passed in the request
+            await channel.UpdateOverwriteAsync(updateRequest);
+
+// You can also pass an instance of channel to the request constructor to have all of the date copied over
+// This way you alter only the fields you wish to change
+            var updateRequest2 = new StreamUpdateOverwriteChannelRequest(channel)
+            {
+                Name = "Bran new name"
+            };
+
+// This will update only the name because all other data was copied over
+            await channel.UpdateOverwriteAsync(updateRequest2);
         }
 
         #endregion
