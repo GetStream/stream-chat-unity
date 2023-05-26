@@ -501,6 +501,18 @@ namespace StreamChat.Core.StatefulModels
         Task StopWatchingAsync();
 
         /// <summary>
+        /// Freezing a channel will disallow sending new messages and sending / deleting reactions
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#freeze-a-channel</remarks>
+        Task FreezeAsync();
+        
+        /// <summary>
+        /// Unfreeze this channel
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#unfreeze-a-channel</remarks>
+        Task UnfreezeAsync();
+
+        /// <summary>
         /// Delete this channel. By default channel is soft deleted. You can hard delete it only by using a server-side SDK due to security
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>

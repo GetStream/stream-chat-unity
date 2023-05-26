@@ -568,6 +568,32 @@ namespace StreamChat.Core.StatefulModels
             => LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
                 new ChannelStopWatchingRequestInternalDTO());
 
+        public async Task FreezeAsync()
+        {
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
+                new UpdateChannelPartialRequestInternalDTO()
+                {
+                    Set = new Dictionary<string, object>
+                    {
+                        { "frozen", true }
+                    }
+                });
+            Cache.TryCreateOrUpdate(response.Channel);
+        }
+        
+        public async Task UnfreezeAsync()
+        {
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
+                new UpdateChannelPartialRequestInternalDTO()
+                {
+                    Set = new Dictionary<string, object>
+                    {
+                        { "frozen", false }
+                    }
+                });
+            Cache.TryCreateOrUpdate(response.Channel);
+        }
+
         public Task DeleteAsync()
             => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete: false);
 
