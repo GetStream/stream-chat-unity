@@ -34,6 +34,14 @@ namespace StreamChat.Core.Requests
             InternalCustomData = internalDictionary ?? throw new ArgumentNullException(nameof(internalDictionary));
         }
 
+        public StreamCustomDataRequest(IStreamCustomData customData) : this()
+        {
+            foreach (var key in customData.Keys)
+            {
+                Add(key, customData.Get<object>(key));
+            }
+        }
+
         public void Add(string key, object value) => InternalCustomData.Add(key, value);
 
         public IEnumerator GetEnumerator() => InternalCustomData.GetEnumerator();

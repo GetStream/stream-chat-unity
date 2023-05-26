@@ -52,7 +52,7 @@ namespace StreamChat.Core.Requests
         public string Image;
 
         /// <summary>
-        /// Any custom data to associate with this message. This will be accessible through <see cref="IStreamUser.CustomData"/>
+        /// Any custom data to associate with this message. This will be accessible through <see cref="IStreamMessage.CustomData"/>
         /// </summary>
         public StreamCustomDataRequest CustomData { get; set; }
 
@@ -64,7 +64,7 @@ namespace StreamChat.Core.Requests
                 Id = Id,
                 Invisible = Invisible,
                 Language = Language,
-                PushNotifications = PushNotifications.TrySaveToDto(),
+                PushNotifications = PushNotifications?.TrySaveToDto(),
                 RevokeTokensIssuedBefore = RevokeTokensIssuedBefore,
                 Role = Role,
                 Teams = Teams,

@@ -47,7 +47,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public System.Collections.Generic.List<ChannelMemberRequestInternalDTO> Members { get; set; }
 
         [Newtonsoft.Json.JsonProperty("own_capabilities", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<int> OwnCapabilities { get; set; }
+        public System.Collections.Generic.List<string> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (if multi-tenant mode is enabled)

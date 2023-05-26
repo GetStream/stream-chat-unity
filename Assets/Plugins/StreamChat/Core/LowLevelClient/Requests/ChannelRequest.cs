@@ -28,7 +28,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
 
         public System.Collections.Generic.List<ChannelMemberRequest> Members { get; set; }
 
-        public System.Collections.Generic.List<int> OwnCapabilities { get; set; }
+        public System.Collections.Generic.List<string> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (if multi-tenant mode is enabled)
