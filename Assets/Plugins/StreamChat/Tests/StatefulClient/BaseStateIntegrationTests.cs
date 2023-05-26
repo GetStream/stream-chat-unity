@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -10,7 +11,7 @@ using StreamChat.Core.Exceptions;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Auth;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace StreamChat.Tests.StatefulClient
 {
@@ -96,9 +97,17 @@ namespace StreamChat.Tests.StatefulClient
         /// </summary>
         protected static async Task WaitWhileTrueAsync(Func<bool> condition, int maxIterations = 500)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+            
             for (int i = 0; i < maxIterations; i++)
             {
                 if (!condition())
+                {
+                    return;
+                }
+
+                if (sw.Elapsed.Seconds > 60)
                 {
                     return;
                 }
@@ -110,9 +119,17 @@ namespace StreamChat.Tests.StatefulClient
 
         protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxIterations = 500)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+            
             for (int i = 0; i < maxIterations; i++)
             {
                 if (condition())
+                {
+                    return;
+                }
+                
+                if (sw.Elapsed.Seconds > 60)
                 {
                     return;
                 }

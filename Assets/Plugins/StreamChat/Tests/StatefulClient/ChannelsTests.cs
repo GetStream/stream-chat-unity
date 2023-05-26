@@ -192,11 +192,17 @@ namespace StreamChat.Tests.StatefulClient
             await channel.SendNewMessageAsync("Hello 2");
             await channel.SendNewMessageAsync("Hello 3");
 
+            var cts = new TaskCompletionSource<bool>();
+            channel.MessageReceived += (streamChannel, streamMessage) => cts.SetResult(true);
+
             Assert.AreEqual(3, channel.Messages.Count);
 
             var beforeDate = DateTimeOffset.UtcNow.AddHours(-1);
 
-            await channel.TruncateAsync(beforeDate, "Hi sorry for deleting all", isHardDelete: true);
+            await channel.TruncateAsync(beforeDate, "Truncated everything from an hour ago", isHardDelete: true);
+
+            // Wait for message.received event
+            await cts.Task;
 
             //expect no messages removed + system message added
             Assert.AreEqual(4, channel.Messages.Count);
@@ -216,7 +222,7 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.AreEqual(3, channel.Messages.Count);
 
-            const string systemMessage = "Hi sorry for deleting all";
+            const string systemMessage = "Hi, sorry for deleting all";
             await channel.TruncateAsync(systemMessage: systemMessage);
 
             // Wait for truncated event to be received
