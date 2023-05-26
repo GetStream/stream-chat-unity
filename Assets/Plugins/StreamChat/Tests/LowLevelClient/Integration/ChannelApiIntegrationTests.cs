@@ -268,7 +268,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         //[UnityTest] StreamTodo: re-enable this test once Watchers issue is resolved
         public IEnumerator When_start_watching_a_channel_expect_user_included_in_watchers()
         {
-            yield return RunTest(When_start_watching_a_channel_expect_user_included_in_watchers_Async);
+            yield return ConnectAndExecute(When_start_watching_a_channel_expect_user_included_in_watchers_Async);
         }
 
         private async Task When_start_watching_a_channel_expect_user_included_in_watchers_Async()
@@ -848,8 +848,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         [UnityTest]
         public IEnumerator When_sending_typing_start_stop_events_expect_no_errors()
         {
-            yield return LowLevelClient.WaitForClientToConnect();
-            yield return When_sending_typing_start_stop_events_expect_no_exceptions_Async().RunAsIEnumerator();
+            yield return ConnectAndExecute(When_sending_typing_start_stop_events_expect_no_exceptions_Async);
         }
 
         private async Task When_sending_typing_start_stop_events_expect_no_exceptions_Async()

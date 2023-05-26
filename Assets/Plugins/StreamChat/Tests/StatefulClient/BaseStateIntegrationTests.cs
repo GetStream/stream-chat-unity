@@ -159,26 +159,36 @@ namespace StreamChat.Tests.StatefulClient
         private static async Task ConnectAndExecuteAsync(Func<Task> test)
         {
             await StreamTestClients.Instance.ConnectStateClientAsync();
-            const int maxAttempts = 3;
-            int currentAttempt = 0;
+            const int maxAttempts = 7;
+            var currentAttempt = 0;
+            var completed = false;
+            var exceptions = new List<Exception>();
             while (maxAttempts > currentAttempt)
             {
                 currentAttempt++;
                 try
                 {
                     await test();
+                    completed = true;
                     break;
                 }
                 catch (StreamApiException e)
                 {
+                    exceptions.Add(e);
                     if (e.IsRateLimitExceededError())
                     {
-                        await Task.Delay(1000);
+                        var seconds = (int)Math.Max(1, Math.Min(60, Math.Pow(2, currentAttempt)));
+                        await Task.Delay(1000 * seconds);
                         continue;
                     }
 
                     throw;
                 }
+            }
+
+            if (!completed)
+            {
+                throw new AggregateException($"Failed all attempts. Last Exception: {exceptions.Last().Message} ", exceptions);
             }
         }
 
