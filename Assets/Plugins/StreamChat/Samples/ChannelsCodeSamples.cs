@@ -713,7 +713,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task DisableChannel()
         {
-            //StreamTodo: IMPLEMENT disable channel
+            // Feature only available via a server-side SDK
             await Task.CompletedTask;
         }
 
@@ -722,8 +722,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task FreezeChannel()
         {
-            //StreamTodo: IMPLEMENT freeze channel
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.FreezeAsync();
         }
 
         /// <summary>
@@ -731,8 +731,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task UnfreezeChannel()
         {
-            //StreamTodo: IMPLEMENT unfreeze channel
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.UnfreezeAsync();
         }
 
         /// <summary>

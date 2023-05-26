@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core;
+using StreamChat.Core.Models;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Filters.Users;
@@ -551,6 +552,60 @@ namespace StreamChat.Tests.StatefulClient
         //     await WaitWithTimeout(taskCompletionSource.Task, maxSeconds: 3,
         //         $"Event {nameof(otherClient.ChannelInviteReceived)} was not received");
         // }
+        
+        [UnityTest]
+        public IEnumerator When_freezing_a_channel_expect_channel_frozen()
+            => ConnectAndExecute(When_freezing_a_channel_expect_channel_frozen_Async);
+
+        private async Task When_freezing_a_channel_expect_channel_frozen_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            await channel.FreezeAsync();
+            Assert.IsTrue(channel.Frozen);
+        }
+        
+        [UnityTest]
+        public IEnumerator When_sending_message_to_frozen_channel_expect_error_message_returned()
+            => ConnectAndExecute(When_sending_message_to_frozen_channel_expect_error_message_returned_Async);
+
+        private async Task When_sending_message_to_frozen_channel_expect_error_message_returned_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            await channel.SendNewMessageAsync("Test1");
+            var lastNormalMessage = channel.Messages.LastOrDefault();
+            Assert.IsNotNull(lastNormalMessage);
+            Assert.AreNotEqual(StreamMessageType.Error, lastNormalMessage.Type);
+            
+            await channel.FreezeAsync();
+            Assert.IsTrue(channel.Frozen);
+            
+            await channel.SendNewMessageAsync("MessageAfterFrozenChannel");
+
+            var lastMessage = channel.Messages.LastOrDefault();
+            
+            Assert.IsNotNull(lastMessage);
+            Assert.AreEqual(StreamMessageType.Error, lastMessage.Type);
+        }
+        
+        [UnityTest]
+        public IEnumerator When_unfreezing_a_frozen_channel_expect_channel_unfrozen()
+            => ConnectAndExecute(When_unfreezing_a_frozen_channel_expect_channel_unfrozen_Async);
+
+        private async Task When_unfreezing_a_frozen_channel_expect_channel_unfrozen_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            await channel.FreezeAsync();
+            Assert.IsTrue(channel.Frozen);
+            await channel.UnfreezeAsync();
+            Assert.IsFalse(channel.Frozen);
+            
+            await channel.SendNewMessageAsync("MessageAfterUnfrozenChannel");
+            var lastMessage = channel.Messages.LastOrDefault();
+            Assert.IsNotNull(lastMessage);
+            Assert.AreEqual("MessageAfterUnfrozenChannel", lastMessage.Text);
+            Assert.AreNotEqual(StreamMessageType.Error, lastMessage.Type);
+        }
     }
 }
 
