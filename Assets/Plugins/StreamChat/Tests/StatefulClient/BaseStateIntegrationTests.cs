@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -10,7 +11,7 @@ using StreamChat.Core.Exceptions;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Auth;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace StreamChat.Tests.StatefulClient
 {
@@ -94,8 +95,11 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Use this if state update depends on receiving WS event that might come after the REST call was completed
         /// </summary>
-        protected static async Task WaitWhileConditionTrueAsync(Func<bool> condition, int maxIterations = 500)
+        protected static async Task WaitWhileTrueAsync(Func<bool> condition, int maxIterations = 500)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+            
             for (int i = 0; i < maxIterations; i++)
             {
                 if (!condition())
@@ -103,20 +107,35 @@ namespace StreamChat.Tests.StatefulClient
                     return;
                 }
 
-                await Task.Delay(2);
+                if (sw.Elapsed.Seconds > 60)
+                {
+                    return;
+                }
+
+                var delay = (int)Math.Max(1, Math.Min(400, Math.Pow(2, i)));
+                await Task.Delay(delay);
             }
         }
 
-        protected static async Task WaitWhileConditionFalseAsync(Func<bool> condition, int maxIterations = 500)
+        protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxIterations = 500)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+            
             for (int i = 0; i < maxIterations; i++)
             {
                 if (condition())
                 {
                     return;
                 }
+                
+                if (sw.Elapsed.Seconds > 60)
+                {
+                    return;
+                }
 
-                await Task.Delay(2);
+                var delay = (int)Math.Max(1, Math.Min(400, Math.Pow(2, i)));
+                await Task.Delay(delay);
             }
         }
 

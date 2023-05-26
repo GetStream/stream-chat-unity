@@ -109,7 +109,7 @@ namespace StreamChat.Tests.StatefulClient
             await channel.MuteChannelAsync();
 
             // Wait for data to propagate
-            await WaitWhileConditionTrueAsync(() => Client.LocalUserData.ChannelMutes.Count == 0);
+            await WaitWhileTrueAsync(() => Client.LocalUserData.ChannelMutes.Count == 0);
 
             Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
@@ -141,7 +141,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.UnmuteChannelAsync();
 
-            await WaitWhileConditionTrueAsync(() =>
+            await WaitWhileTrueAsync(() =>
             {
                 channelMute = Client.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
                 return channelMute != null;
@@ -173,7 +173,7 @@ namespace StreamChat.Tests.StatefulClient
             SkipThisTempChannelDeletionInTearDown(channel);
             SkipThisTempChannelDeletionInTearDown(channel2);
 
-            await WaitWhileConditionTrueAsync(
+            await WaitWhileTrueAsync(
                 () => Client.WatchedChannels.Contains(channel) || Client.WatchedChannels.Contains(channel2));
 
             Assert.IsFalse(Client.WatchedChannels.Contains(channel));
@@ -192,11 +192,17 @@ namespace StreamChat.Tests.StatefulClient
             await channel.SendNewMessageAsync("Hello 2");
             await channel.SendNewMessageAsync("Hello 3");
 
+            var cts = new TaskCompletionSource<bool>();
+            channel.MessageReceived += (streamChannel, streamMessage) => cts.SetResult(true);
+
             Assert.AreEqual(3, channel.Messages.Count);
 
             var beforeDate = DateTimeOffset.UtcNow.AddHours(-1);
 
-            await channel.TruncateAsync(beforeDate, "Hi sorry for deleting all", isHardDelete: true);
+            await channel.TruncateAsync(beforeDate, "Truncated everything from an hour ago", isHardDelete: true);
+
+            // Wait for message.received event
+            await cts.Task;
 
             //expect no messages removed + system message added
             Assert.AreEqual(4, channel.Messages.Count);
@@ -216,8 +222,11 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.AreEqual(3, channel.Messages.Count);
 
-            const string systemMessage = "Hi sorry for deleting all";
+            const string systemMessage = "Hi, sorry for deleting all";
             await channel.TruncateAsync(systemMessage: systemMessage);
+
+            // Wait for truncated event to be received
+            await WaitWhileTrueAsync(() => channel.Messages.Count != 1);
 
             Assert.AreEqual(1, channel.Messages.Count);
             Assert.AreEqual(systemMessage, channel.Messages[0].Text);
@@ -263,7 +272,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             });
 
-            await WaitWhileConditionFalseAsync(
+            await WaitWhileFalseAsync(
                 () => new[] { "owned_dogs", "breakfast", "clan_info" }.All(channel.CustomData.ContainsKey));
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
@@ -296,7 +305,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             });
 
-            await WaitWhileConditionFalseAsync(
+            await WaitWhileFalseAsync(
                 () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey));
 
             var ownedDogs = channel.CustomData.Get<int>("owned_dogs");
