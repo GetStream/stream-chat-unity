@@ -561,10 +561,6 @@ namespace StreamChat.Core.StatefulModels
                     TruncatedAt = truncatedAt
                 });
             Cache.TryCreateOrUpdate(response.Channel);
-
-            //StreamTodo: this should not be needed but the truncate response doesn't contain messages nor any events are sent
-            //so we can only query the channel to get the messages
-            await Client.GetOrCreateChannelWithIdAsync(Type, Id);
         }
 
         //StreamTodo: write test and check Client.WatchedChannels
@@ -721,13 +717,13 @@ namespace StreamChat.Core.StatefulModels
         internal void HandleChannelTruncatedEvent(ChannelTruncatedEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            InternalTruncateMessages(eventDto.CreatedAt, eventDto.Message);
+            InternalTruncateMessages(eventDto.Channel.TruncatedAt, eventDto.Message);
         }
 
         internal void HandleChannelTruncatedEvent(NotificationChannelTruncatedEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            InternalTruncateMessages(eventDto.CreatedAt);
+            InternalTruncateMessages(eventDto.Channel.TruncatedAt);
         }
 
         internal void InternalAddMember(StreamChannelMember member)

@@ -141,7 +141,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await messageInChannel.SoftDeleteAsync();
 
-            await WaitWhileConditionTrueAsync(() => !messageInChannel.DeletedAt.HasValue);
+            await WaitWhileTrueAsync(() => !messageInChannel.DeletedAt.HasValue);
 
             Assert.NotNull(messageInChannel);
             Assert.IsNotNull(messageInChannel.DeletedAt);
@@ -166,7 +166,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await messageInChannel.HardDeleteAsync();
 
-            await WaitWhileConditionTrueAsync(() => !messageInChannel.DeletedAt.HasValue);
+            await WaitWhileTrueAsync(() => !messageInChannel.DeletedAt.HasValue);
 
             messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.IsNull(messageInChannel);
