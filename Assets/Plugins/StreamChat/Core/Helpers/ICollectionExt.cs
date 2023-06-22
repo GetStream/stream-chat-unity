@@ -23,6 +23,10 @@ namespace StreamChat.Core.Helpers
 
             foreach (var item in source)
             {
+                if (item == null)
+                {
+                    continue;
+                }
                 dtos.Add(item.SaveToDto());
             }
 

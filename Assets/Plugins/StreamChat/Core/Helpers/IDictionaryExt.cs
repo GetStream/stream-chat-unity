@@ -20,6 +20,11 @@ namespace StreamChat.Core.Helpers
 
             foreach (var sourceKeyValue in source)
             {
+                if (sourceKeyValue.Value == null)
+                {
+                    continue;
+                }
+
                 dict.Add(sourceKeyValue.Key, sourceKeyValue.Value.SaveToDto());
             }
 
@@ -39,6 +44,11 @@ namespace StreamChat.Core.Helpers
 
             foreach (var sourceKeyValue in dtos)
             {
+                if (sourceKeyValue.Value == null)
+                {
+                    continue;
+                }
+
                 dict.Add(sourceKeyValue.Key, new TSource().LoadFromDto(sourceKeyValue.Value));
             }
 
