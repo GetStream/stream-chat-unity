@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
@@ -15,10 +16,12 @@ namespace StreamChat.Core.LowLevelClient.Requests
         {
             var dto = new UpdateUsersRequestInternalDTO
             {
+                // Users = Users.TrySaveToDtoDictionary<UserObjectRequestInternalDTO, UserObjectRequest, string>(),
                 AdditionalProperties = AdditionalProperties,
             };
 
             // Ticket#38178 TrySaveToDtoDictionary caused crashes on old Android versions with IL2CPP
+            // Perhaps this due to IL2CPP not handling well complex generic signatures
             if (Users != null)
             {
                 var dict = new Dictionary<string, UserObjectRequestInternalDTO>();
@@ -29,9 +32,13 @@ namespace StreamChat.Core.LowLevelClient.Requests
                     {
                         continue;
                     }
-                    
-                    dict.Add(sourceKeyValue.Key,
-                        ((ISavableTo<UserObjectRequestInternalDTO>)sourceKeyValue.Value).SaveToDto());
+
+                    var serialized = sourceKeyValue.Value.TrySaveToDto();
+
+                    if (serialized != null)
+                    {
+                        dict.Add(sourceKeyValue.Key,serialized);
+                    }
                 }
             
                 dto.Users = dict;
