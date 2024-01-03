@@ -42,7 +42,8 @@ namespace StreamChat.SampleProject.Views
                 return;
             }
 
-            if (_scrollRect.verticalNormalizedPosition >= 1f && !IsScrollListRebuilding)
+            // Check against 1f + threshold because idle ScrollRect after scrolling can have fractional values above 1f
+            if (_scrollRect.verticalNormalizedPosition >= 1.05f && !IsScrollListRebuilding)
             {
                 TryLoadPreviousMessagesAsync().LogIfFailed();
             }
@@ -283,9 +284,8 @@ namespace StreamChat.SampleProject.Views
                 return;
             }
 
-            if (Input.touchCount == 0)
+            if (Input.touchCount == 0 || _activePopup == null)
             {
-                
                 return;
             }
 
