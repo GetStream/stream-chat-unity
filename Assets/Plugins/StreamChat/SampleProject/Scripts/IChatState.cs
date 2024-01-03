@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.StatefulModels;
+using StreamChat.SampleProject.Popups;
 using StreamChat.SampleProject.Views;
 
 namespace StreamChat.SampleProject
@@ -26,7 +27,7 @@ namespace StreamChat.SampleProject
 
         Task<IStreamChannel> CreateNewChannelAsync(string channelName);
 
-        void ShowPopup<TPopup>()
+        TPopup ShowPopup<TPopup>()
             where TPopup : BaseFullscreenPopup;
 
         void HidePopup<TPopup>(TPopup instance)

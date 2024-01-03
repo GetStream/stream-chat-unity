@@ -7,6 +7,7 @@ using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Users;
+using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
@@ -35,9 +36,9 @@ namespace StreamChat.Tests.StatefulClient
             var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
-            await channel.AddMembersAsync(otherUser);
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, otherUser);
 
-            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
+            await WaitWhileTrueAsync(() => channel.Members.All(m => m.User != otherUser));
             Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
         }
 
@@ -59,10 +60,47 @@ namespace StreamChat.Tests.StatefulClient
             var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
-            await channel.AddMembersAsync(otherUser.Id);
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, otherUser.Id);
 
-            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
+            await WaitWhileTrueAsync(() => channel.Members.All(m => m.User != otherUser));
             Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
+        }
+        
+        [UnityTest]
+        public IEnumerator When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent()
+            => ConnectAndExecute(When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent_Async);
+
+        private async Task When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+
+            var memberAddedMsg = $"{otherUserId} was added to the channel";
+
+            var tcs = new TaskCompletionSource<bool>();
+            channel.MessageReceived += (streamChannel, message) =>
+            {
+                Assert.AreEqual(message.Text, memberAddedMsg);
+                tcs.SetResult(true);
+            };
+
+            var filters = new IFieldFilterRule[]
+            {
+                UserFilter.Id.EqualsTo(otherUserId)
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
+            var otherUser = users.First();
+
+            await channel.AddMembersAsync(hideHistory: true, optionalMessage: new StreamMessageRequest
+            {
+                Text = memberAddedMsg
+            }, otherUser.Id);
+
+            await WaitWhileTrueAsync(() => channel.Members.All(m => m.User != otherUser));
+            Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
+
+            await WaitWithTimeoutAsync(tcs.Task, 5, $"Event {nameof(channel.MessageReceived)} was not received");
         }
 
         [UnityTest]
@@ -84,14 +122,14 @@ namespace StreamChat.Tests.StatefulClient
             var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
-            await channel.AddMembersAsync(otherUser);
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, otherUser);
 
-            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
+            await WaitWhileTrueAsync(() => channel.Members.All(m => m.User != otherUser));
 
             var otherUserMember = channel.Members.FirstOrDefault(m => m.User == otherUser);
 
             await channel.RemoveMembersAsync(otherUserMember);
-            await WaitWhileConditionTrue(() => channel.Members.Any(m => m.User == otherUser));
+            await WaitWhileTrueAsync(() => channel.Members.Any(m => m.User == otherUser));
             Assert.IsNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
         }
 
@@ -114,12 +152,12 @@ namespace StreamChat.Tests.StatefulClient
             var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
 
-            await channel.AddMembersAsync(otherUser.Id);
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, otherUser.Id);
 
-            await WaitWhileConditionTrue(() => channel.Members.All(m => m.User != otherUser));
+            await WaitWhileTrueAsync(() => channel.Members.All(m => m.User != otherUser));
 
             await channel.RemoveMembersAsync(otherUser.Id);
-            await WaitWhileConditionTrue(() => channel.Members.Any(m => m.User == otherUser));
+            await WaitWhileTrueAsync(() => channel.Members.Any(m => m.User == otherUser));
             Assert.IsNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
         }
 
@@ -198,9 +236,9 @@ namespace StreamChat.Tests.StatefulClient
                 opType = op;
             };
 
-            await channel.AddMembersAsync(user);
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, user);
 
-            await WaitWhileConditionFalse(() => receivedEvent && receivedEvent2);
+            await WaitWhileFalseAsync(() => receivedEvent && receivedEvent2);
 
             Assert.IsTrue(receivedEvent);
             Assert.IsNotNull(eventChannel);
@@ -247,10 +285,10 @@ namespace StreamChat.Tests.StatefulClient
                 opType = op;
             };
 
-            await channel.AddMembersAsync(user);
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, user);
             await channel.RemoveMembersAsync(user);
 
-            await WaitWhileConditionFalse(() => receivedEvent && receivedEvent2);
+            await WaitWhileFalseAsync(() => receivedEvent && receivedEvent2);
 
             Assert.IsTrue(receivedEvent);
             Assert.IsNotNull(eventChannel);

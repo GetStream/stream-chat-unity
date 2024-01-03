@@ -8,7 +8,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
     /// <summary>
     /// Represents any chat message
     /// </summary>
-    public class MessageRequest : RequestObjectBase, ISavableTo<MessageRequestInternalInternalDTO>
+    public class MessageRequest : RequestObjectBase, ISavableTo<MessageRequestInternalDTO>
     {
         /// <summary>
         /// Array of message attachments
@@ -96,8 +96,8 @@ namespace StreamChat.Core.LowLevelClient.Requests
 
         public string UserId { get; set; }
 
-        MessageRequestInternalInternalDTO ISavableTo<MessageRequestInternalInternalDTO>.SaveToDto() =>
-            new MessageRequestInternalInternalDTO
+        MessageRequestInternalDTO ISavableTo<MessageRequestInternalDTO>.SaveToDto() =>
+            new MessageRequestInternalDTO
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<AttachmentRequest, AttachmentRequestInternalDTO>(),
                 Html = Html,

@@ -5,8 +5,8 @@ using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Events
 {
-    public partial class EventTypingStart : EventBase, ILoadableFrom<EventTypingStartInternalDTO, EventTypingStart>,
-        ISavableTo<EventTypingStartInternalDTO>
+    public partial class EventTypingStart : EventBase, ILoadableFrom<TypingStartEventInternalDTO, EventTypingStart>,
+        ISavableTo<TypingStartEventInternalDTO>
     {
         public string ChannelId { get; set; }
 
@@ -14,7 +14,7 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Cid { get; set; }
 
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         public string ParentId { get; set; }
 
@@ -22,7 +22,7 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public User User { get; internal set; }
 
-        EventTypingStart ILoadableFrom<EventTypingStartInternalDTO, EventTypingStart>.LoadFromDto(EventTypingStartInternalDTO dto)
+        EventTypingStart ILoadableFrom<TypingStartEventInternalDTO, EventTypingStart>.LoadFromDto(TypingStartEventInternalDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
@@ -30,14 +30,14 @@ namespace StreamChat.Core.LowLevelClient.Events
             CreatedAt = dto.CreatedAt;
             ParentId = dto.ParentId;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }
 
-        EventTypingStartInternalDTO ISavableTo<EventTypingStartInternalDTO>.SaveToDto() =>
-            new EventTypingStartInternalDTO
+        TypingStartEventInternalDTO ISavableTo<TypingStartEventInternalDTO>.SaveToDto() =>
+            new TypingStartEventInternalDTO
             {
                 ChannelId = ChannelId,
                 ChannelType = ChannelType,

@@ -23,6 +23,7 @@ using StreamChat.Libs.Auth;
 using StreamChat.Libs.ChatInstanceRunner;
 using StreamChat.Libs.Http;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
@@ -45,7 +46,9 @@ namespace StreamChat.Core
     /// </summary>
     public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
 
-    //StreamTodo: Handle restoring state after lost connection + include Unity Network Monitor
+    //StreamTodo: Handle restoring state after lost connection
+
+    public delegate void ChannelInviteHandler(IStreamChannel channel, IStreamUser invitee);
 
     public sealed class StreamChatClient : IStreamChatClient
     {
@@ -58,7 +61,11 @@ namespace StreamChat.Core
         public event ConnectionChangeHandler ConnectionStateChanged;
 
         public event ChannelDeleteHandler ChannelDeleted;
-        
+
+        public event ChannelInviteHandler ChannelInviteReceived;
+        public event ChannelInviteHandler ChannelInviteAccepted;
+        public event ChannelInviteHandler ChannelInviteRejected;
+
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
 
@@ -96,9 +103,10 @@ namespace StreamChat.Core
             var timeService = StreamDependenciesFactory.CreateTimeService();
             var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
             var gameObjectRunner = StreamDependenciesFactory.CreateChatClientRunner();
+            var networkMonitor = StreamDependenciesFactory.CreateNetworkMonitor();
 
-            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo,
-                logs, config);
+            var client = new StreamChatClient(websocketClient, httpClient, serializer, timeService, networkMonitor,
+                applicationInfo, logs, config);
 
             gameObjectRunner?.RunChatInstance(client);
             return client;
@@ -122,11 +130,10 @@ namespace StreamChat.Core
         /// Important! Custom created client require calling the <see cref="Update"/> and <see cref="Destroy"/> methods.
         /// </summary>
         public static IStreamChatClient CreateClientWithCustomDependencies(IWebsocketClient websocketClient,
-            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, IApplicationInfo applicationInfo,
-            ILogs logs,
-            IStreamClientConfig config)
-            => new StreamChatClient(websocketClient, httpClient, serializer, timeService, applicationInfo, logs,
-                config);
+            IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
+            IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
+            => new StreamChatClient(websocketClient, httpClient, serializer, timeService, networkMonitor,
+                applicationInfo, logs, config);
 
         /// <inheritdoc cref="StreamChatLowLevelClient.CreateDeveloperAuthToken"/>
         public static string CreateDeveloperAuthToken(string userId)
@@ -369,15 +376,18 @@ namespace StreamChat.Core
             return result;
         }
 
-        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IEnumerable<IFieldFilterRule> filters = null, UsersSortObject sort = null, int offset = 0, int limit = 30)
+        public async Task<IEnumerable<IStreamUser>> QueryUsersAsync(IEnumerable<IFieldFilterRule> filters = null,
+            UsersSortObject sort = null, int offset = 0, int limit = 30)
         {
             StreamAsserts.AssertWithinRange(limit, 0, QueryUsersLimitMaxValue, nameof(limit));
             StreamAsserts.AssertWithinRange(offset, 0, QueryUsersOffsetMaxValue, nameof(offset));
-            
-            //StreamTodo: Missing filter, and stuff like IdGte etc
+
+            //StreamTodo: Missing IdGt, IdLt, etc. We could wrap all pagination parameters in a single struct
             var requestBodyDto = new QueryUsersRequestInternalDTO
             {
-                FilterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<string, object>(),
+                FilterConditions
+                    = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value) ??
+                      new Dictionary<string, object>(),
                 IdGt = null,
                 IdGte = null,
                 IdLt = null,
@@ -621,13 +631,14 @@ namespace StreamChat.Core
         /// In case you want to inject custom dependencies into the chat client you can use the <see cref="CreateClientWithCustomDependencies"/>
         /// </summary>
         private StreamChatClient(IWebsocketClient websocketClient, IHttpClient httpClient, ISerializer serializer,
-            ITimeService timeService, IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
+            ITimeService timeService, INetworkMonitor networkMonitor, IApplicationInfo applicationInfo, ILogs logs,
+            IStreamClientConfig config)
         {
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _logs = logs ?? throw new ArgumentNullException(nameof(logs));
 
             InternalLowLevelClient = new StreamChatLowLevelClient(authCredentials: default, websocketClient, httpClient,
-                serializer, _timeService, applicationInfo, logs, config);
+                serializer, _timeService, networkMonitor, applicationInfo, logs, config);
 
             _cache = new Cache(this, serializer, _logs);
 
@@ -657,7 +668,7 @@ namespace StreamChat.Core
 
         #region Events
 
-        private void OnConnected(EventHealthCheckInternalDTO dto)
+        private void OnConnected(HealthCheckEventInternalDTO dto)
         {
             try
             {
@@ -681,7 +692,7 @@ namespace StreamChat.Core
         private void OnConnectionStateChanged(ConnectionState previous, ConnectionState current)
             => ConnectionStateChanged?.Invoke(previous, current);
 
-        private void OnMessageDeleted(EventMessageDeletedInternalDTO eventMessageDeleted)
+        private void OnMessageDeleted(MessageDeletedEventInternalDTO eventMessageDeleted)
         {
             if (_cache.Channels.TryGet(eventMessageDeleted.Cid, out var streamChannel))
             {
@@ -689,7 +700,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnMessageUpdated(EventMessageUpdatedInternalDTO eventMessageUpdated)
+        private void OnMessageUpdated(MessageUpdatedEventInternalDTO eventMessageUpdated)
         {
             if (_cache.Channels.TryGet(eventMessageUpdated.Cid, out var streamChannel))
             {
@@ -697,7 +708,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnMessageReceived(EventMessageNewInternalDTO eventDto)
+        private void OnMessageReceived(MessageNewEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -705,7 +716,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnChannelTruncated(EventChannelTruncatedInternalDTO eventDto)
+        private void OnChannelTruncated(ChannelTruncatedEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -713,7 +724,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnChannelDeletedNotification(EventNotificationChannelDeletedInternalDTO eventDto)
+        private void OnChannelDeletedNotification(NotificationChannelDeletedEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -721,7 +732,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnChannelVisible(EventChannelVisibleInternalDTO eventDto)
+        private void OnChannelVisible(ChannelVisibleEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -729,7 +740,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnChannelHidden(EventChannelHiddenInternalDTO eventDto)
+        private void OnChannelHidden(ChannelHiddenEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -737,7 +748,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnChannelDeleted(EventChannelDeletedInternalDTO eventDto)
+        private void OnChannelDeleted(ChannelDeletedEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -745,7 +756,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnChannelUpdated(EventChannelUpdatedInternalDTO eventDto)
+        private void OnChannelUpdated(ChannelUpdatedEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -754,7 +765,7 @@ namespace StreamChat.Core
         }
 
         private void OnChannelTruncatedNotification(
-            EventNotificationChannelTruncatedInternalDTO eventDto)
+            NotificationChannelTruncatedEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -762,12 +773,12 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnChannelMutesUpdatedNotification(EventNotificationChannelMutesUpdatedInternalDTO eventDto)
+        private void OnChannelMutesUpdatedNotification(NotificationChannelMutesUpdatedEventInternalDTO eventDto)
         {
             UpdateLocalUser(eventDto.Me);
         }
 
-        private void OnMessageReceivedNotification(EventNotificationMessageNewInternalDTO eventDto)
+        private void OnMessageReceivedNotification(NotificationNewMessageEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -775,12 +786,12 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnMutesUpdatedNotification(EventNotificationMutesUpdatedInternalDTO eventDto)
+        private void OnMutesUpdatedNotification(NotificationMutesUpdatedEventInternalDTO eventDto)
         {
             UpdateLocalUser(eventDto.Me);
         }
 
-        private void OnMemberAdded(EventMemberAddedInternalDTO eventDto)
+        private void OnMemberAdded(MemberAddedEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -790,7 +801,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnMemberUpdated(EventMemberUpdatedInternalDTO eventDto)
+        private void OnMemberUpdated(MemberUpdatedEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -800,7 +811,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnMemberRemoved(EventMemberRemovedInternalDTO eventDto)
+        private void OnMemberRemoved(MemberRemovedEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -810,7 +821,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnMessageRead(EventMessageReadInternalDTO eventDto)
+        private void OnMessageRead(MessageReadEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -818,7 +829,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnMarkReadNotification(EventNotificationMarkReadInternalDTO eventDto)
+        private void OnMarkReadNotification(NotificationMarkReadEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -828,33 +839,42 @@ namespace StreamChat.Core
             _localUserData.InternalHandleMarkReadNotification(eventDto);
         }
 
-        private void OnAddedToChannelNotification(EventNotificationAddedToChannelInternalDTO obj)
+        private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO obj)
         {
             //StreamTodo: IMPLEMENT
         }
 
         private void OnRemovedFromChannelNotification(
-            EventNotificationRemovedFromChannelInternalDTO obj)
+            NotificationRemovedFromChannelEventInternalDTO obj)
         {
 //StreamTodo: IMPLEMENT
         }
 
-        private void OnInvitedNotification(EventNotificationInvitedInternalDTO obj)
+        private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)
         {
-//StreamTodo: IMPLEMENT
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var user = _cache.TryCreateOrUpdate(eventDto.User);
+
+            ChannelInviteReceived?.Invoke(channel, user);
         }
 
-        private void OnInviteAcceptedNotification(EventNotificationInviteAcceptedInternalDTO obj)
+        private void OnInviteAcceptedNotification(NotificationInviteAcceptedEventInternalDTO eventDto)
         {
-//StreamTodo: IMPLEMENT
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var user = _cache.TryCreateOrUpdate(eventDto.User);
+
+            ChannelInviteAccepted?.Invoke(channel, user);
         }
 
-        private void OnInviteRejectedNotification(EventNotificationInviteRejectedInternalDTO obj)
+        private void OnInviteRejectedNotification(NotificationInviteRejectedEventInternalDTO eventDto)
         {
-//StreamTodo: IMPLEMENT
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var user = _cache.TryCreateOrUpdate(eventDto.User);
+
+            ChannelInviteRejected?.Invoke(channel, user);
         }
 
-        private void OnReactionReceived(EventReactionNewInternalDTO eventDto)
+        private void OnReactionReceived(ReactionNewEventInternalDTO eventDto)
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
             {
@@ -869,7 +889,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnReactionUpdated(EventReactionUpdatedInternalDTO eventDto)
+        private void OnReactionUpdated(ReactionUpdatedEventInternalDTO eventDto)
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
             {
@@ -884,7 +904,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnReactionDeleted(EventReactionDeletedInternalDTO eventDto)
+        private void OnReactionDeleted(ReactionDeletedEventInternalDTO eventDto)
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var channel))
             {
@@ -899,7 +919,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnUserWatchingStop(EventUserWatchingStopInternalDTO eventDto)
+        private void OnUserWatchingStop(UserWatchingStopEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -907,7 +927,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnUserWatchingStart(EventUserWatchingStartInternalDTO eventDto)
+        private void OnUserWatchingStart(UserWatchingStartEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -915,22 +935,22 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnLowLevelClientUserUnbanned(EventUserUnbannedInternalDTO obj)
+        private void OnLowLevelClientUserUnbanned(UserUnbannedEventInternalDTO obj)
         {
             //StreamTodo: IMPLEMENT
         }
 
-        private void OnLowLevelClientUserBanned(EventUserBannedInternalDTO obj)
+        private void OnLowLevelClientUserBanned(UserBannedEventInternalDTO obj)
         {
             //StreamTodo: IMPLEMENT
         }
 
-        private void OnLowLevelClientUserDeleted(EventUserDeletedInternalDTO obj)
+        private void OnLowLevelClientUserDeleted(UserDeletedEventInternalDTO obj)
         {
             //StreamTodo: IMPLEMENT
         }
 
-        private void OnLowLevelUserUpdated(EventUserUpdatedInternalDTO eventDto)
+        private void OnLowLevelUserUpdated(UserUpdatedEventInternalDTO eventDto)
         {
             if (_cache.Users.TryGet(eventDto.User.Id, out var streamUser))
             {
@@ -938,7 +958,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnUserPresenceChanged(EventUserPresenceChangedInternalDTO eventDto)
+        private void OnUserPresenceChanged(UserPresenceChangedEventInternalDTO eventDto)
         {
             if (_cache.Users.TryGet(eventDto.User.Id, out var streamUser))
             {
@@ -946,7 +966,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnTypingStopped(EventTypingStopInternalDTO eventDto)
+        private void OnTypingStopped(TypingStopEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
@@ -954,7 +974,7 @@ namespace StreamChat.Core
             }
         }
 
-        private void OnTypingStarted(EventTypingStartInternalDTO eventDto)
+        private void OnTypingStarted(TypingStartEventInternalDTO eventDto)
         {
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {

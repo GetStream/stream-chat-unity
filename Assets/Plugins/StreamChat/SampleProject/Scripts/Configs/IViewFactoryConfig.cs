@@ -10,6 +10,8 @@ namespace StreamChat.SampleProject.Configs
     {
         MessageOptionsPopup MessageOptionsPopupPrefab { get; }
         CreateNewChannelFormPopup CreateNewChannelFormPopupPrefab { get; }
+        InviteChannelMembersPopup InviteChannelMembersPopupPrefab { get; }
         ErrorPopup ErrorPopupPrefab { get; }
+        InviteReceivedPopup InviteReceivedPopup { get; }
     }
 }

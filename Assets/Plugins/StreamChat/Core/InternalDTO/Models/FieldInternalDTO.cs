@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Models
     internal partial class FieldInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("short", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Short { get; set; }
+        public bool Short { get; set; }
 
         [Newtonsoft.Json.JsonProperty("title", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Title { get; set; }

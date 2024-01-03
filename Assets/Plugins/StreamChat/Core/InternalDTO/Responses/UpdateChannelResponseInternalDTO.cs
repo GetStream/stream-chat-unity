@@ -26,7 +26,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string Duration { get; set; }
 
         [Newtonsoft.Json.JsonProperty("members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelMemberInternalDTO> Members { get; set; }
+        public System.Collections.Generic.List<ChannelMemberInternalDTO> Members { get; set; } = new System.Collections.Generic.List<ChannelMemberInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageInternalDTO Message { get; set; }

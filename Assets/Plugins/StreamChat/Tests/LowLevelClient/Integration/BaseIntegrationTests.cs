@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -44,15 +45,15 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         /// Id of other user than currently logged one
         /// </summary>
         protected static string OtherUserId => StreamTestClients.Instance.OtherUserId;
-        
+
         protected static OwnUser LowLevelClientOwnUser => StreamTestClients.Instance.LowLevelClientOwnUser;
 
         protected static IEnumerator ReconnectClient() => StreamTestClients.Instance.ReconnectLowLevelClientClient();
 
-        protected IEnumerator RunTest(Func<Task> task)
+        protected static IEnumerator ConnectAndExecute(Func<Task> task)
         {
             yield return LowLevelClient.WaitForClientToConnect();
-            yield return task().RunAsIEnumerator();
+            yield return ExecuteAsync(task).RunAsIEnumerator();
         }
 
         /// <summary>
@@ -92,9 +93,9 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 Debug.LogError($"Channel with id {channelId} already exists!");
             }
 
-            var channelState
-                = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
-                    channelGetOrCreateRequest);
+            var channelState = await Try(() => LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+                channelGetOrCreateRequest), channelState => channelState != null);
+
             _tempChannelsCidsToDelete.Add(channelState.Channel.Cid);
             return channelState;
         }
@@ -110,9 +111,11 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             var response = default(T);
 
-            var attemptsLeft = maxAttempts;
-            while (attemptsLeft > 0)
+            var attempt = 1;
+            while (attempt <= maxAttempts)
             {
+                attempt++;
+
                 response = await task();
 
                 if (successCondition(response))
@@ -120,9 +123,8 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     return response;
                 }
 
-                var delay = initTimeoutMs * Math.Pow(2, (maxAttempts - attemptsLeft));
+                var delay = Math.Min(1000, initTimeoutMs + Math.Pow(2, attempt));
                 await Task.Delay((int)delay);
-                attemptsLeft--;
             }
 
             return response;
@@ -249,6 +251,42 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             }
 
             _tempChannelsCidsToDelete.Clear();
+        }
+
+        private static async Task ExecuteAsync(Func<Task> test)
+        {
+            const int maxAttempts = 7;
+            var currentAttempt = 0;
+            var completed = false;
+            var exceptions = new List<Exception>();
+            while (maxAttempts > currentAttempt)
+            {
+                currentAttempt++;
+                try
+                {
+                    await test();
+                    completed = true;
+                    break;
+                }
+                catch (StreamApiException e)
+                {
+                    exceptions.Add(e);
+                    if (e.IsRateLimitExceededError())
+                    {
+                        var seconds = (int)Math.Max(1, Math.Min(60, Math.Pow(2, currentAttempt)));
+                        await Task.Delay(1000 * seconds);
+                        continue;
+                    }
+
+                    throw;
+                }
+            }
+
+            if (!completed)
+            {
+                throw new AggregateException($"Failed all attempts. Last Exception: {exceptions.Last().Message} ",
+                    exceptions);
+            }
         }
     }
 }

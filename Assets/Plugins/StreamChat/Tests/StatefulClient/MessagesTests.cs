@@ -141,7 +141,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await messageInChannel.SoftDeleteAsync();
 
-            await WaitWhileConditionTrue(() => !messageInChannel.DeletedAt.HasValue);
+            await WaitWhileTrueAsync(() => !messageInChannel.DeletedAt.HasValue);
 
             Assert.NotNull(messageInChannel);
             Assert.IsNotNull(messageInChannel.DeletedAt);
@@ -166,7 +166,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await messageInChannel.HardDeleteAsync();
 
-            await WaitWhileConditionTrue(() => !messageInChannel.DeletedAt.HasValue);
+            await WaitWhileTrueAsync(() => !messageInChannel.DeletedAt.HasValue);
 
             messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.IsNull(messageInChannel);
@@ -337,7 +337,7 @@ namespace StreamChat.Tests.StatefulClient
             });
 
             //StreamTodo: implement with stateful client
-            var searchResult = await Try(() => Client.LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
+            var searchResult = await TryAsync(() => Client.LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {

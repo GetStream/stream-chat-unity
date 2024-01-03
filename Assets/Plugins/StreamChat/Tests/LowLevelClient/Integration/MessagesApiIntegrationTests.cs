@@ -98,7 +98,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         //[UnityTest] //StreamTodo: debug, works when triggered manually but fails in GitHub Actions
         public IEnumerator Send_message_with_url()
         {
-            yield return RunTest(Send_message_with_url_Async);
+            yield return ConnectAndExecute(Send_message_with_url_Async);
         }
         
         private async Task Send_message_with_url_Async()
@@ -137,37 +137,17 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         }
 
         [UnityTest]
-        public IEnumerator Send_silent_message()
+        public IEnumerator When_sending_silent_message_expect_message_received_in_channel()
         {
-            yield return LowLevelClient.WaitForClientToConnect();
-
+            yield return ConnectAndExecute(When_sending_silent_message_expect_message_received_in_channel_Async);
+        }
+        
+        private async Task When_sending_silent_message_expect_message_received_in_channel_Async()
+        {
             const string channelType = "messaging";
 
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState = state);
+            var channelState = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
             var channelId = channelState.Channel.Id;
-
-            var sendMessageRequest = new SendMessageRequest
-            {
-                Message = new MessageRequest
-                {
-                    Text = "Regular message"
-                }
-            };
-
-            var messageResponseTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
-
-            yield return messageResponseTask.RunAsIEnumerator();
-
-            var createChannelTask2 = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
-                new ChannelGetOrCreateRequest
-                {
-                    Watch = true,
-                    State = true,
-                });
-
-            yield return createChannelTask2.RunAsIEnumerator();
 
             var sendSilentMessageRequest = new SendMessageRequest
             {
@@ -178,21 +158,15 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 }
             };
 
-            var silentMessageResponseTask =
-                LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendSilentMessageRequest);
+            await LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendSilentMessageRequest);
 
-            yield return silentMessageResponseTask.RunAsIEnumerator();
-
-            var createChannelTask3 = LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
+            var channelState2 = await LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 new ChannelGetOrCreateRequest
                 {
                     State = true,
                 });
 
-            yield return createChannelTask3.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(response.Messages.Last().Silent, true);
-            });
+            Assert.AreEqual(channelState2.Messages.Last().Silent, true);
         }
 
         [UnityTest]

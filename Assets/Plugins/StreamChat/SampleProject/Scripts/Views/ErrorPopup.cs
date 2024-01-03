@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using StreamChat.SampleProject.Popups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -40,6 +41,13 @@ namespace StreamChat.SampleProject.Views
             _okButton.onClick.AddListener(OnOkButtonClicked);
         }
 
+        protected override void OnDisposing()
+        {
+            _okButton.onClick.RemoveListener(OnOkButtonClicked);
+            
+            base.OnDisposing();
+        }
+
         [SerializeField]
         private TMP_Text _header;
 
@@ -51,9 +59,6 @@ namespace StreamChat.SampleProject.Views
 
         private IDictionary<string, string> _linkIdToUrlMap;
 
-        private void OnOkButtonClicked()
-        {
-            Hide();
-        }
+        private void OnOkButtonClicked() => Hide();
     }
 }

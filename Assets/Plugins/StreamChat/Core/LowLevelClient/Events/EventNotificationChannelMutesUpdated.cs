@@ -6,7 +6,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public partial class EventNotificationChannelMutesUpdated : EventBase,
-        ILoadableFrom<EventNotificationChannelMutesUpdatedInternalDTO, EventNotificationChannelMutesUpdated>
+        ILoadableFrom<NotificationChannelMutesUpdatedEventInternalDTO, EventNotificationChannelMutesUpdated>
     {
         public System.DateTimeOffset? CreatedAt { get; set; }
 
@@ -15,8 +15,8 @@ namespace StreamChat.Core.LowLevelClient.Events
         public string Type { get; set; }
 
         EventNotificationChannelMutesUpdated
-            ILoadableFrom<EventNotificationChannelMutesUpdatedInternalDTO, EventNotificationChannelMutesUpdated>.
-            LoadFromDto(EventNotificationChannelMutesUpdatedInternalDTO dto)
+            ILoadableFrom<NotificationChannelMutesUpdatedEventInternalDTO, EventNotificationChannelMutesUpdated>.
+            LoadFromDto(NotificationChannelMutesUpdatedEventInternalDTO dto)
         {
             CreatedAt = dto.CreatedAt;
             Me = Me.TryLoadFromDto<OwnUserInternalDTO, OwnUser>(dto.Me);

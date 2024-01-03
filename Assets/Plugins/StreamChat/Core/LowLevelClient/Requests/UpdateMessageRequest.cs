@@ -3,7 +3,7 @@ using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
-    public partial class UpdateMessageRequest : RequestObjectBase, ISavableTo<UpdateMessageRequestInternalInternalDTO>
+    public partial class UpdateMessageRequest : RequestObjectBase, ISavableTo<UpdateMessageRequestInternalDTO>
     {
         public MessageRequest Message { get; set; }
 
@@ -14,8 +14,8 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// </summary>
         public bool? SkipEnrichUrl { get; set; }
 
-        UpdateMessageRequestInternalInternalDTO ISavableTo<UpdateMessageRequestInternalInternalDTO>.SaveToDto() =>
-            new UpdateMessageRequestInternalInternalDTO
+        UpdateMessageRequestInternalDTO ISavableTo<UpdateMessageRequestInternalDTO>.SaveToDto() =>
+            new UpdateMessageRequestInternalDTO
             {
                 Message = Message.TrySaveToDto(),
                 PendingMessageMetadata = PendingMessageMetadata,

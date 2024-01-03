@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string Duration { get; set; }
 
         [Newtonsoft.Json.JsonProperty("push_providers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<PushProviderInternalDTO> PushProviders { get; set; }
+        public System.Collections.Generic.List<PushProviderInternalDTO> PushProviders { get; set; } = new System.Collections.Generic.List<PushProviderInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

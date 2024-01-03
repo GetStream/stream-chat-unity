@@ -17,25 +17,25 @@ namespace StreamChat.Core.InternalDTO.Models
     internal partial class ImagesInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("fixed_height", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataInternalDTO FixedHeight { get; set; }
+        public ImageDataInternalDTO FixedHeight { get; set; } = new ImageDataInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("fixed_height_downsampled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataInternalDTO FixedHeightDownsampled { get; set; }
+        public ImageDataInternalDTO FixedHeightDownsampled { get; set; } = new ImageDataInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("fixed_height_still", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataInternalDTO FixedHeightStill { get; set; }
+        public ImageDataInternalDTO FixedHeightStill { get; set; } = new ImageDataInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("fixed_width", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataInternalDTO FixedWidth { get; set; }
+        public ImageDataInternalDTO FixedWidth { get; set; } = new ImageDataInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("fixed_width_downsampled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataInternalDTO FixedWidthDownsampled { get; set; }
+        public ImageDataInternalDTO FixedWidthDownsampled { get; set; } = new ImageDataInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("fixed_width_still", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataInternalDTO FixedWidthStill { get; set; }
+        public ImageDataInternalDTO FixedWidthStill { get; set; } = new ImageDataInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("original", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ImageDataInternalDTO Original { get; set; }
+        public ImageDataInternalDTO Original { get; set; } = new ImageDataInternalDTO();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

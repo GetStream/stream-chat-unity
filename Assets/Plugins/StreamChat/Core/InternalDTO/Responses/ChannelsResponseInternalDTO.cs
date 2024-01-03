@@ -20,11 +20,8 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of channels
         /// </summary>
         [Newtonsoft.Json.JsonProperty("channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelStateResponseFieldsInternalDTO> Channels { get; set; }
+        public System.Collections.Generic.List<ChannelStateResponseFieldsInternalDTO> Channels { get; set; } = new System.Collections.Generic.List<ChannelStateResponseFieldsInternalDTO>();
 
-        /// <summary>
-        /// Duration of the request in human-readable format
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 

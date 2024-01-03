@@ -35,6 +35,8 @@ namespace StreamChat.Core.State
             InternalUniqueId = uniqueId;
             Repository.Track(Self);
         }
+        
+        protected Dictionary<string, object> GetInternalAdditionalPropertiesDictionary() => _additionalProperties; 
 
         protected abstract string InternalUniqueId { get; set; }
 
@@ -49,6 +51,8 @@ namespace StreamChat.Core.State
         {
             //StreamTodo: investigate if there's a case we don't want to clear here
             //Without clear channel full update or partial update unset won't work because we'll ignore that WS sent channel without custom data
+            
+            //StreamTodo: 2, wrap into _customData.Sync(additionalProperties); instead of having a collection here
 
             _additionalProperties.Clear();
             foreach (var keyValuePair in additionalProperties)

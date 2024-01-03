@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using StreamChat.Core.StatefulModels;
+using StreamChat.SampleProject.Popups;
 using StreamChat.SampleProject.Utils;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace StreamChat.SampleProject.Views
 {
@@ -15,6 +17,7 @@ namespace StreamChat.SampleProject.Views
             base.OnInited();
 
             State.ActiveChanelChanged += OnActiveChannelChanged;
+            _inviteButton.onClick.AddListener(OnInviteButtonClicked);
 
             RebuildMembers();
         }
@@ -36,6 +39,9 @@ namespace StreamChat.SampleProject.Views
 
         [SerializeField]
         private Transform _membersContainer;
+        
+        [SerializeField]
+        private Button _inviteButton;
 
         private void ClearAll()
         {
@@ -46,6 +52,8 @@ namespace StreamChat.SampleProject.Views
 
             _members.Clear();
         }
+        
+        private void OnInviteButtonClicked() => State.ShowPopup<InviteChannelMembersPopup>();
 
         private void OnActiveChannelChanged(IStreamChannel streamChannel) => RebuildMembers();
 

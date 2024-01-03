@@ -34,9 +34,9 @@ namespace StreamChat.Core.LowLevelClient.Models
             ModerationResult = ModerationResult.TryLoadFromDto(dto.ModerationResult);
             RejectedAt = dto.RejectedAt;
             ReviewedAt = dto.ReviewedAt;
-            ReviewedBy = ReviewedBy.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.ReviewedBy);
+            ReviewedBy = ReviewedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.ReviewedBy);
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

@@ -58,7 +58,7 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a <see cref="IStreamChannelMember"/> was updated
         /// </summary>
         event StreamChannelMemberChangeHandler MemberUpdated;
-        
+
         /// <summary>
         /// Event fired when a <see cref="IStreamChannelMember"/> was added, updated, or removed.
         /// </summary>
@@ -200,7 +200,6 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         bool Muted { get; }
 
-        //StreamTodo: change to enum? this would simplify usage
         /// <summary>
         /// List of channel capabilities of authenticated user
         /// </summary>
@@ -294,7 +293,8 @@ namespace StreamChat.Core.StatefulModels
         /// Important! Any data that is present on the channel and not included in a full update will be deleted.
         /// If you want to update only some fields of the channel use the <see cref="IStreamChannel.UpdatePartialAsync"/>
         /// </summary>
-        Task UpdateOverwriteAsync(); //StreamTodo: NOT IMPLEMENTED
+        /// <param name="updateOverwriteRequest"></param>
+        Task UpdateOverwriteAsync(StreamUpdateOverwriteChannelRequest updateOverwriteRequest);
 
         /// <summary>
         /// Update channel in a partial mode. You can selectively set and unset fields of the channel
@@ -335,11 +335,14 @@ namespace StreamChat.Core.StatefulModels
         /// Query channel members based on provided criteria. Results will not be
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<IStreamChannelMember>> QueryMembersAsync(IDictionary<string, object> filters = null, int limit = 30, int offset = 0);
-        
-        [Obsolete("This method was renamed to QueryMembersAsync. Please use the QueryMembersAsync. The QueryMembers will be removed in a future release.")]
-        Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters = null, int limit = 30, int offset = 0);
-    
+        Task<IEnumerable<IStreamChannelMember>> QueryMembersAsync(IDictionary<string, object> filters = null,
+            int limit = 30, int offset = 0);
+
+        [Obsolete(
+            "This method was renamed to QueryMembersAsync. Please use the QueryMembersAsync. The QueryMembers will be removed in a future release.")]
+        Task<IEnumerable<IStreamChannelMember>> QueryMembers(IDictionary<string, object> filters = null, int limit = 30,
+            int offset = 0);
+
         void QueryWatchers(); //StreamTodo: IMPLEMENT
 
         /// <summary>
@@ -416,25 +419,33 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         /// <param name="clearHistory">Whether to clear message history of the channel or not</param>
         /// <remarks>https://getstream.io/chat/docs/unity/muting_channels/?language=unity</remarks>
-        Task HideAsync(bool? clearHistory = false);
+        Task HideAsync(bool? clearHistory = default);
 
         /// <summary>
         /// Add users as members to this channel
         /// </summary>
         /// <param name="users">Users to become members of this channel</param>
-        Task AddMembersAsync(IEnumerable<IStreamUser> users);
+        /// <param name="hideHistory"></param>
+        /// <param name="optionalMessage"></param>
+        Task AddMembersAsync(IEnumerable<IStreamUser> users, bool? hideHistory = default,
+            StreamMessageRequest optionalMessage = default);
 
-        /// <inheritdoc cref="AddMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamUser})}"/>
-        Task AddMembersAsync(params IStreamUser[] users);
-        
+        /// <inheritdoc cref="AddMembersAsync(System.Collections.Generic.IEnumerable{string},System.Nullable{bool},StreamChat.Core.Requests.StreamMessageRequest)"/>
+        Task AddMembersAsync(bool? hideHistory = default, StreamMessageRequest optionalMessage = default,
+            params IStreamUser[] users);
+
         /// <summary>
         /// Add users as members to this channel
         /// </summary>
         /// <param name="userIds">User IDs to become members of this channel</param>
-        Task AddMembersAsync(IEnumerable<string> userIds);
-        
-        /// <inheritdoc cref="AddMembersAsync(IEnumerable{System.String})}"/>
-        Task AddMembersAsync(params string[] users);
+        /// <param name="hideHistory">Hide history for the new members</param>
+        /// <param name="optionalMessage"></param>
+        Task AddMembersAsync(IEnumerable<string> userIds, bool? hideHistory = default,
+            StreamMessageRequest optionalMessage = default);
+
+        /// <inheritdoc cref="AddMembersAsync(System.Collections.Generic.IEnumerable{string},System.Nullable{bool},StreamChat.Core.Requests.StreamMessageRequest)"/>
+        Task AddMembersAsync(bool? hideHistory = default, StreamMessageRequest optionalMessage = default,
+            params string[] users);
 
         /// <summary>
         /// Remove members from this channel
@@ -444,7 +455,7 @@ namespace StreamChat.Core.StatefulModels
 
         /// <inheritdoc cref="RemoveMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamChannelMember})}"/>
         Task RemoveMembersAsync(params IStreamChannelMember[] members);
-        
+
         /// <summary>
         /// Remove members from this channel
         /// </summary>
@@ -453,7 +464,7 @@ namespace StreamChat.Core.StatefulModels
 
         /// <inheritdoc cref="RemoveMembersAsync(IEnumerable{StreamChat.Core.StatefulModels.IStreamUser})}"/>
         Task RemoveMembersAsync(params IStreamUser[] members);
-        
+
         /// <summary>
         /// Remove members from this channel
         /// </summary>
@@ -490,6 +501,18 @@ namespace StreamChat.Core.StatefulModels
         Task StopWatchingAsync();
 
         /// <summary>
+        /// Freezing a channel will disallow sending new messages and sending / deleting reactions
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#freeze-a-channel</remarks>
+        Task FreezeAsync();
+        
+        /// <summary>
+        /// Unfreeze this channel
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#unfreeze-a-channel</remarks>
+        Task UnfreezeAsync();
+
+        /// <summary>
         /// Delete this channel. By default channel is soft deleted. You can hard delete it only by using a server-side SDK due to security
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/channel_delete/?language=unity</remarks>
@@ -514,5 +537,41 @@ namespace StreamChat.Core.StatefulModels
         /// Stop being a member (<see cref="IStreamChannelMember"/>) of this channel. Only possible if local user has the `Leave Own Channel` permission
         /// </summary>
         Task LeaveAsMemberChannelAsync();
+
+        /// <summary>
+        /// Invite new members to this channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
+        Task InviteMembersAsync(IEnumerable<string> userIds);
+
+        /// <summary>
+        /// Invite new members to this channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
+        Task InviteMembersAsync(params string[] userIds);
+
+        /// <summary>
+        /// Invite new members to this channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
+        Task InviteMembersAsync(IEnumerable<IStreamUser> users);
+
+        /// <summary>
+        /// Invite new members to this channel.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/</remarks>
+        Task InviteMembersAsync(params IStreamUser[] users);
+
+        /// <summary>
+        /// Accept an invite to this channel
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/#accepting-an-invite</remarks>
+        Task AcceptInviteAsync();
+
+        /// <summary>
+        /// Reject an invite to this channel
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/channel_invites/?language=unity/#rejecting-an-invite</remarks>
+        Task RejectInviteAsync();
     }
 }

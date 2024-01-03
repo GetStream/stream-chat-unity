@@ -32,7 +32,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// List of user IDs to make channel moderators
         /// </summary>
         [Newtonsoft.Json.JsonProperty("add_moderators", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> AddModerators { get; set; } = new System.Collections.Generic.List<string>();
+        public System.Collections.Generic.List<string> AddModerators { get; set; }
 
         /// <summary>
         /// List of channel member role assignments. If any specified user is not part of the channel, the request will fail
@@ -46,9 +46,6 @@ namespace StreamChat.Core.InternalDTO.Requests
         [Newtonsoft.Json.JsonProperty("cooldown", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Cooldown { get; set; }
 
-        /// <summary>
-        /// Channel data to update
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("data", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelRequestInternalDTO Data { get; set; }
 
@@ -56,7 +53,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// List of user IDs to take away moderators status from
         /// </summary>
         [Newtonsoft.Json.JsonProperty("demote_moderators", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> DemoteModerators { get; set; } = new System.Collections.Generic.List<string>();
+        public System.Collections.Generic.List<string> DemoteModerators { get; set; }
 
         /// <summary>
         /// Set to `true` to hide channel's history when adding new members
@@ -74,7 +71,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Message to send to the chat when channel is successfully updated
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageRequestInternalInternalDTO Message { get; set; }
+        public MessageRequestInternalDTO Message { get; set; }
 
         /// <summary>
         /// Set to `true` to reject the invite
@@ -86,7 +83,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// List of user IDs to remove from the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("remove_members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> RemoveMembers { get; set; } = new System.Collections.Generic.List<string>();
+        public System.Collections.Generic.List<string> RemoveMembers { get; set; }
 
         /// <summary>
         /// When `message` is set disables all push notifications for it
@@ -94,15 +91,9 @@ namespace StreamChat.Core.InternalDTO.Requests
         [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? SkipPush { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User object which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectRequestInternalDTO User { get; set; }
 
-        /// <summary>
-        /// **Server-side only**. User ID which server acts upon
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }
 

@@ -5,9 +5,9 @@
 //----------------------
 
 
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Events;
-using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.InternalDTO.Models
 {
@@ -20,10 +20,10 @@ namespace StreamChat.Core.InternalDTO.Models
         public System.DateTimeOffset? ApprovedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("created_by_automod", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? CreatedByAutomod { get; set; }
+        public bool CreatedByAutomod { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageInternalDTO Message { get; set; }
@@ -38,13 +38,13 @@ namespace StreamChat.Core.InternalDTO.Models
         public System.DateTimeOffset? ReviewedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("reviewed_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO ReviewedBy { get; set; }
+        public UserObjectInternalDTO ReviewedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? UpdatedAt { get; set; }
+        public System.DateTimeOffset UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO User { get; set; }
+        public UserObjectInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

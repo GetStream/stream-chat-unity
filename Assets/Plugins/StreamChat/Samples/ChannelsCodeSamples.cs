@@ -7,6 +7,7 @@ using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.QueryBuilders.Sort;
+using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine;
 
@@ -293,8 +294,30 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task FullUpdate()
         {
-//StreamTodo: IMPLEMENT channel full update
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var updateRequest = new StreamUpdateOverwriteChannelRequest
+            {
+                Name = "New name",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "my-custom-int", 12 },
+                    { "my-custom-array", new string[] { "one", "two" } }
+                }
+            };
+
+// This request will have all channel data removed except what is being passed in the request
+            await channel.UpdateOverwriteAsync(updateRequest);
+
+// You can also pass an instance of channel to the request constructor to have all of the date copied over
+// This way you alter only the fields you wish to change
+            var updateRequest2 = new StreamUpdateOverwriteChannelRequest(channel)
+            {
+                Name = "Bran new name"
+            };
+
+// This will update only the name because all other data was copied over
+            await channel.UpdateOverwriteAsync(updateRequest2);
         }
 
         #endregion
@@ -319,7 +342,8 @@ namespace StreamChat.Samples
             await channel.AddMembersAsync(users);
 
 // Or add by ID
-            await channel.AddMembersAsync("some-user-id-1", "some-user-id-2");
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, "some-user-id-1",
+                "some-user-id-2");
 
 // Access channel members via channel.Members, let's remove the first member as an example
             var member = channel.Members.First();
@@ -338,8 +362,19 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task AddMembersWithMessage()
         {
-            //StreamTodo: IMPLEMENT add members and hide history
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var filters = new IFieldFilterRule[]
+            {
+                UserFilter.Id.In("other-user-id-1", "other-user-id-2", "other-user-id-3")
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
+
+            await channel.AddMembersAsync(users, hideHistory: default, new StreamMessageRequest
+            {
+                Text = "John has joined the channel"
+            });
         }
 
         /// <summary>
@@ -347,8 +382,16 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task AddMembersAndHideHistory()
         {
-            //StreamTodo: IMPLEMENT add members and hide history
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var filters = new IFieldFilterRule[]
+            {
+                UserFilter.Id.In("other-user-id-1", "other-user-id-2", "other-user-id-3")
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
+
+            await channel.AddMembersAsync(users, hideHistory: true);
         }
 
         /// <summary>
@@ -542,6 +585,21 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task Invite()
         {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            var filters = new IFieldFilterRule[]
+            {
+                UserFilter.Id.In("other-user-id-1", "other-user-id-2", "other-user-id-3")
+            };
+
+            var users = await Client.QueryUsersAsync(filters);
+
+// Invite IStreamUser collection as new members
+            await channel.InviteMembersAsync(users);
+
+// Or add by ID
+            await channel.InviteMembersAsync("some-user-id-1", "some-user-id-2");
+
             //StreamTodo: IMPLEMENT send invite
             await Task.CompletedTask;
         }
@@ -551,8 +609,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task AcceptInvite()
         {
-            //StreamTodo: IMPLEMENT accept invite
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.AcceptInviteAsync();
         }
 
         /// <summary>
@@ -560,8 +618,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task RejectInvite()
         {
-            //StreamTodo: IMPLEMENT reject invite
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.RejectInviteAsync();
         }
 
         /// <summary>
@@ -569,8 +627,14 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryAcceptedInvites()
         {
-            //StreamTodo: IMPLEMENT query accepted invites
-            await Task.CompletedTask;
+            var filter = new List<IFieldFilterRule>
+            {
+                ChannelFilter.Invite.EqualsTo(ChannelFieldInvite.Status.Accepted)
+            };
+
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
+
+            var acceptedInvites = await Client.QueryChannelsAsync(filter, sort);
         }
 
         /// <summary>
@@ -578,8 +642,14 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryRejectedInvites()
         {
-            //StreamTodo: IMPLEMENT query rejected invites
-            await Task.CompletedTask;
+            var filter = new List<IFieldFilterRule>
+            {
+                ChannelFilter.Invite.EqualsTo(ChannelFieldInvite.Status.Rejected)
+            };
+
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
+
+            var rejectedInvites = await Client.QueryChannelsAsync(filter, sort);
         }
 
         /// <summary>
@@ -587,8 +657,14 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task QueryPendingInvites()
         {
-            //StreamTodo: IMPLEMENT query pending invites
-            await Task.CompletedTask;
+            var filter = new List<IFieldFilterRule>
+            {
+                ChannelFilter.Invite.EqualsTo(ChannelFieldInvite.Status.Pending)
+            };
+
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
+
+            var pendingInvites = await Client.QueryChannelsAsync(filter, sort);
         }
 
         /// <summary>
@@ -637,7 +713,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task DisableChannel()
         {
-            //StreamTodo: IMPLEMENT disable channel
+            // Feature only available via a server-side SDK
             await Task.CompletedTask;
         }
 
@@ -646,8 +722,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task FreezeChannel()
         {
-            //StreamTodo: IMPLEMENT freeze channel
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.FreezeAsync();
         }
 
         /// <summary>
@@ -655,8 +731,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task UnfreezeChannel()
         {
-            //StreamTodo: IMPLEMENT unfreeze channel
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.UnfreezeAsync();
         }
 
         /// <summary>

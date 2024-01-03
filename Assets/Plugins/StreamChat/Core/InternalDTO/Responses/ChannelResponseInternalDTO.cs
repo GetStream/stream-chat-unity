@@ -59,7 +59,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Creator of the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO CreatedBy { get; set; }
+        public UserObjectInternalDTO CreatedBy { get; set; }
 
         /// <summary>
         /// Date/time of deletion
@@ -68,13 +68,13 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.DateTimeOffset? DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("disabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Disabled { get; set; }
+        public bool Disabled { get; set; }
 
         /// <summary>
         /// Whether channel is frozen or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("frozen", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Frozen { get; set; }
+        public bool Frozen { get; set; }
 
         /// <summary>
         /// Whether this channel is hidden by current user or not
@@ -143,7 +143,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.DateTimeOffset? TruncatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("truncated_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalInternalDTO TruncatedBy { get; set; }
+        public UserObjectInternalDTO TruncatedBy { get; set; }
 
         /// <summary>
         /// Type of the channel

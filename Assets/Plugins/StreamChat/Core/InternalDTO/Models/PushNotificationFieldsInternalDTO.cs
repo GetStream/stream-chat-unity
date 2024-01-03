@@ -17,16 +17,16 @@ namespace StreamChat.Core.InternalDTO.Models
     internal partial class PushNotificationFieldsInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("apn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public APNConfigFieldsInternalDTO Apn { get; set; }
+        public APNConfigFieldsInternalDTO Apn { get; set; } = new APNConfigFieldsInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("firebase", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public FirebaseConfigFieldsInternalDTO Firebase { get; set; }
+        public FirebaseConfigFieldsInternalDTO Firebase { get; set; } = new FirebaseConfigFieldsInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("huawei", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public HuaweiConfigFieldsInternalDTO Huawei { get; set; }
+        public HuaweiConfigFieldsInternalDTO Huawei { get; set; } = new HuaweiConfigFieldsInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("offline_only", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? OfflineOnly { get; set; }
+        public bool OfflineOnly { get; set; }
 
         [Newtonsoft.Json.JsonProperty("providers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<PushProviderInternalDTO> Providers { get; set; }
@@ -35,7 +35,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public string Version { get; set; }
 
         [Newtonsoft.Json.JsonProperty("xiaomi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public XiaomiConfigFieldsInternalDTO Xiaomi { get; set; }
+        public XiaomiConfigFieldsInternalDTO Xiaomi { get; set; } = new XiaomiConfigFieldsInternalDTO();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

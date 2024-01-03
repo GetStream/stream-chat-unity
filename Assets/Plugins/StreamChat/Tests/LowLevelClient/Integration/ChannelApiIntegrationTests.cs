@@ -268,7 +268,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         //[UnityTest] StreamTodo: re-enable this test once Watchers issue is resolved
         public IEnumerator When_start_watching_a_channel_expect_user_included_in_watchers()
         {
-            yield return RunTest(When_start_watching_a_channel_expect_user_included_in_watchers_Async);
+            yield return ConnectAndExecute(When_start_watching_a_channel_expect_user_included_in_watchers_Async);
         }
 
         private async Task When_start_watching_a_channel_expect_user_included_in_watchers_Async()
@@ -312,23 +312,18 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         }
 
         [UnityTest]
-        public IEnumerator When_deleting_existing_channel_expect_success()
+        public IEnumerator When_deleting_existing_channel_expect_success() 
+            => ConnectAndExecute(When_deleting_existing_channel_expect_success_Async);
+
+        private async Task When_deleting_existing_channel_expect_success_Async()
         {
-            yield return LowLevelClient.WaitForClientToConnect();
+            const string channelType = "messaging";
 
-            var channelType = "messaging";
-
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState = state);
+            var channelState = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
             var channelId = channelState.Channel.Id;
 
-            var deleteChannelTask
-                = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
-            yield return deleteChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(response.Channel.Id, channelId);
-            });
+            var response = await LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
+            Assert.AreEqual(response.Channel.Id, channelId);
         }
 
         [UnityTest]
@@ -848,8 +843,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         [UnityTest]
         public IEnumerator When_sending_typing_start_stop_events_expect_no_errors()
         {
-            yield return LowLevelClient.WaitForClientToConnect();
-            yield return When_sending_typing_start_stop_events_expect_no_exceptions_Async().RunAsIEnumerator();
+            yield return ConnectAndExecute(When_sending_typing_start_stop_events_expect_no_exceptions_Async);
         }
 
         private async Task When_sending_typing_start_stop_events_expect_no_exceptions_Async()

@@ -6,7 +6,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public sealed class EventChannelTruncated : EventBase,
-        ILoadableFrom<EventChannelTruncatedInternalDTO, EventChannelTruncated>
+        ILoadableFrom<ChannelTruncatedEventInternalDTO, EventChannelTruncated>
     {
         public Channel Channel { get; set; }
 
@@ -21,8 +21,8 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Type { get; set; }
 
-        EventChannelTruncated ILoadableFrom<EventChannelTruncatedInternalDTO, EventChannelTruncated>.LoadFromDto(
-            EventChannelTruncatedInternalDTO dto)
+        EventChannelTruncated ILoadableFrom<ChannelTruncatedEventInternalDTO, EventChannelTruncated>.LoadFromDto(
+            ChannelTruncatedEventInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;

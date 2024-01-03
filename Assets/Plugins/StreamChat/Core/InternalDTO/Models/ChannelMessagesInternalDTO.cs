@@ -5,9 +5,9 @@
 //----------------------
 
 
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Events;
-using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.InternalDTO.Models
 {
@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public ChannelResponseInternalDTO Channel { get; set; }
 
         [Newtonsoft.Json.JsonProperty("messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<MessageInternalDTO> Messages { get; set; }
+        public System.Collections.Generic.List<MessageInternalDTO> Messages { get; set; } = new System.Collections.Generic.List<MessageInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

@@ -5,8 +5,8 @@ using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Events
 {
-    public partial class EventTypingStop : EventBase, ILoadableFrom<EventTypingStopInternalDTO, EventTypingStop>,
-        ISavableTo<EventTypingStopInternalDTO>
+    public partial class EventTypingStop : EventBase, ILoadableFrom<TypingStopEventInternalDTO, EventTypingStop>,
+        ISavableTo<TypingStopEventInternalDTO>
     {
         public string ChannelId { get; set; }
 
@@ -14,7 +14,7 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Cid { get; set; }
 
-        public System.DateTimeOffset? CreatedAt { get; set; }
+        public System.DateTimeOffset CreatedAt { get; set; }
 
         public string ParentId { get; set; }
 
@@ -22,7 +22,7 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public User User { get; internal set; }
 
-        EventTypingStop ILoadableFrom<EventTypingStopInternalDTO, EventTypingStop>.LoadFromDto(EventTypingStopInternalDTO dto)
+        EventTypingStop ILoadableFrom<TypingStopEventInternalDTO, EventTypingStop>.LoadFromDto(TypingStopEventInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             ChannelId = dto.ChannelId;
@@ -31,13 +31,13 @@ namespace StreamChat.Core.LowLevelClient.Events
             CreatedAt = dto.CreatedAt;
             ParentId = dto.ParentId;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
 
             return this;
         }
 
-        EventTypingStopInternalDTO ISavableTo<EventTypingStopInternalDTO>.SaveToDto() =>
-            new EventTypingStopInternalDTO
+        TypingStopEventInternalDTO ISavableTo<TypingStopEventInternalDTO>.SaveToDto() =>
+            new TypingStopEventInternalDTO
             {
                 ChannelId = ChannelId,
                 ChannelType = ChannelType,

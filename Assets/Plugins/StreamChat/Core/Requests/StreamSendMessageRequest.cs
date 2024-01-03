@@ -8,7 +8,7 @@ using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.Requests
 {
-    public class StreamSendMessageRequest : ISavableTo<SendMessageRequestInternalInternalDTO>
+    public class StreamSendMessageRequest : ISavableTo<SendMessageRequestInternalDTO>
     {
         /// <summary>
         /// Make the message a pending message. This message will not be viewable to others until it is committed.
@@ -93,9 +93,9 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public StreamCustomDataRequest CustomData { get; set; }
 
-        SendMessageRequestInternalInternalDTO ISavableTo<SendMessageRequestInternalInternalDTO>.SaveToDto()
+        SendMessageRequestInternalDTO ISavableTo<SendMessageRequestInternalDTO>.SaveToDto()
         {
-            var messageRequestDto = new MessageRequestInternalInternalDTO
+            var messageRequestDto = new MessageRequestInternalDTO
             {
                 Attachments = Attachments?.TrySaveToDtoCollection<StreamAttachmentRequest, AttachmentRequestInternalDTO>(),
                 // Cid = Cid, Purposely ignored because it has no effect and endpoint already contains channel type&id
@@ -114,7 +114,7 @@ namespace StreamChat.Core.Requests
                 AdditionalProperties = CustomData?.ToDictionary()
             };
 
-            return new SendMessageRequestInternalInternalDTO
+            return new SendMessageRequestInternalDTO
             {
                 IsPendingMessage = IsPendingMessage,
                 Message = messageRequestDto,

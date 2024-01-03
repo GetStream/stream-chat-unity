@@ -4,7 +4,7 @@ using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public class User : ModelBase, ILoadableFrom<UserObjectInternalInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>, ISavableTo<UserObjectInternalInternalDTO>
+    public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>, ISavableTo<UserObjectInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -14,7 +14,7 @@ namespace StreamChat.Core.LowLevelClient.Models
         /// <summary>
         /// Whether a user is banned or not
         /// </summary>
-        public bool? Banned { get; set; }
+        public bool Banned { get; set; }
 
         /// <summary>
         /// Date/time of creation
@@ -79,7 +79,7 @@ namespace StreamChat.Core.LowLevelClient.Models
         public string Name;
         public string Image;
 
-        User ILoadableFrom<UserObjectInternalInternalDTO, User>.LoadFromDto(UserObjectInternalInternalDTO dto)
+        User ILoadableFrom<UserObjectInternalDTO, User>.LoadFromDto(UserObjectInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;
@@ -131,8 +131,8 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        UserObjectInternalInternalDTO ISavableTo<UserObjectInternalInternalDTO>.SaveToDto() =>
-            new UserObjectInternalInternalDTO
+        UserObjectInternalDTO ISavableTo<UserObjectInternalDTO>.SaveToDto() =>
+            new UserObjectInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,
@@ -143,7 +143,8 @@ namespace StreamChat.Core.LowLevelClient.Models
                 Invisible = Invisible,
                 Language = Language,
                 LastActive = LastActive,
-                Online = Online,
+                // Most probably backend should control the online status and we should never write it
+                //Online = Online,
                 PushNotifications = PushNotifications.TrySaveToDto(),
                 RevokeTokensIssuedBefore = RevokeTokensIssuedBefore,
                 Role = Role,

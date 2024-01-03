@@ -221,13 +221,12 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(response);
         }
 
-        //StreamTodo: LoadNewerMessages? This would only make sense if we would start somewhere in the history. Maybe its possible with search? You jump in to past message and scroll to load newer
-        public async Task UpdateOverwriteAsync() //StreamTodo: NOT IMPLEMENTED
+        public async Task UpdateOverwriteAsync(StreamUpdateOverwriteChannelRequest updateOverwriteRequest)
         {
-            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
-                new UpdateChannelRequestInternalDTO
-                {
-                });
+            StreamAsserts.AssertNotNull(updateOverwriteRequest, nameof(updateOverwriteRequest));
+            
+             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
+                 updateOverwriteRequest.TrySaveToDto());
 
             Cache.TryCreateOrUpdate(response.Channel);
         }
@@ -378,21 +377,25 @@ namespace StreamChat.Core.StatefulModels
             => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO());
 
         //StreamTodo: write test
-        public Task HideAsync(bool? clearHistory = false)
+        public Task HideAsync(bool? clearHistory = default)
             => LowLevelClient.InternalChannelApi.HideChannelAsync(Type, Id, new HideChannelRequestInternalDTO
             {
                 ClearHistory = clearHistory
             });
 
-        public Task AddMembersAsync(IEnumerable<IStreamUser> users)
+        public Task AddMembersAsync(IEnumerable<IStreamUser> users, bool? hideHistory = default,
+            StreamMessageRequest optionalMessage = default)
         {
             StreamAsserts.AssertNotNull(users, nameof(users));
-            return AddMembersAsync(users.Select(u => u.Id));
+            return AddMembersAsync(users.Select(u => u.Id), hideHistory, optionalMessage);
         }
 
-        public Task AddMembersAsync(params IStreamUser[] users) => AddMembersAsync(users as IEnumerable<IStreamUser>);
+        public Task AddMembersAsync(bool? hideHistory = default, StreamMessageRequest optionalMessage = default,
+            params IStreamUser[] users)
+            => AddMembersAsync(users, hideHistory, optionalMessage);
 
-        public async Task AddMembersAsync(IEnumerable<string> userIds)
+        public async Task AddMembersAsync(IEnumerable<string> userIds, bool? hideHistory = default,
+            StreamMessageRequest optionalMessage = default)
         {
             StreamAsserts.AssertNotNull(userIds, nameof(userIds));
 
@@ -408,12 +411,16 @@ namespace StreamChat.Core.StatefulModels
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id,
                 new UpdateChannelRequestInternalDTO
                 {
-                    AddMembers = membersRequest
+                    AddMembers = membersRequest,
+                    HideHistory = hideHistory,
+                    Message = optionalMessage?.TrySaveToDto(),
                 });
             Cache.TryCreateOrUpdate(response);
         }
 
-        public Task AddMembersAsync(params string[] users) => AddMembersAsync(users as IEnumerable<string>);
+        public Task AddMembersAsync(bool? hideHistory = default, StreamMessageRequest optionalMessage = default,
+            params string[] users)
+            => AddMembersAsync(users, hideHistory, optionalMessage);
 
         public Task RemoveMembersAsync(IEnumerable<IStreamChannelMember> members)
         {
@@ -447,9 +454,73 @@ namespace StreamChat.Core.StatefulModels
 
         public Task RemoveMembersAsync(params string[] userIds) => RemoveMembersAsync(userIds as IEnumerable<string>);
 
-        public Task JoinAsMemberAsync() => AddMembersAsync(Client.LocalUserData.User);
+        public Task JoinAsMemberAsync() => AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
 
         public Task LeaveAsMemberChannelAsync() => RemoveMembersAsync(Client.LocalUserData.User);
+
+        public async Task InviteMembersAsync(IEnumerable<string> userIds)
+        {
+            StreamAsserts.AssertNotNull(userIds, nameof(userIds));
+
+            var invites = new List<ChannelMemberRequestInternalDTO>();
+            foreach (var uid in userIds)
+            {
+                invites.Add(new ChannelMemberRequestInternalDTO
+                {
+                    UserId = uid
+                });
+            }
+
+            var updateRequest = GetUpdateRequestWithCurrentData();
+            updateRequest.Invites = invites;
+
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id, updateRequest);
+
+            Cache.TryCreateOrUpdate(response.Channel);
+            foreach (var member in response.Members)
+            {
+                Cache.TryCreateOrUpdate(member);
+            }
+        }
+
+        public Task InviteMembersAsync(params string[] userIds) => InviteMembersAsync(userIds as IEnumerable<string>);
+
+        public Task InviteMembersAsync(IEnumerable<IStreamUser> users)
+        {
+            StreamAsserts.AssertNotNull(users, nameof(users));
+            return InviteMembersAsync(users.Select(_ => _.Id));
+        }
+
+        public Task InviteMembersAsync(params IStreamUser[] users)
+            => InviteMembersAsync(users as IEnumerable<IStreamUser>);
+
+        public async Task AcceptInviteAsync()
+        {
+            var updateRequest = GetUpdateRequestWithCurrentData();
+            updateRequest.AcceptInvite = true;
+
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id, updateRequest);
+
+            Cache.TryCreateOrUpdate(response.Channel);
+            foreach (var member in response.Members)
+            {
+                Cache.TryCreateOrUpdate(member);
+            }
+        }
+
+        public async Task RejectInviteAsync()
+        {
+            var updateRequest = GetUpdateRequestWithCurrentData();
+            updateRequest.RejectInvite = true;
+
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelAsync(Type, Id, updateRequest);
+
+            Cache.TryCreateOrUpdate(response.Channel);
+            foreach (var member in response.Members)
+            {
+                Cache.TryCreateOrUpdate(member);
+            }
+        }
 
         //StreamTodo: write test
         public async Task MuteChannelAsync(int? milliseconds = default)
@@ -482,7 +553,7 @@ namespace StreamChat.Core.StatefulModels
                 new TruncateChannelRequestInternalDTO
                 {
                     HardDelete = isHardDelete,
-                    Message = new MessageRequestInternalInternalDTO
+                    Message = new MessageRequestInternalDTO
                     {
                         Text = systemMessage
                     },
@@ -490,16 +561,38 @@ namespace StreamChat.Core.StatefulModels
                     TruncatedAt = truncatedAt
                 });
             Cache.TryCreateOrUpdate(response.Channel);
-
-            //StreamTodo: this should not be needed but the truncate response doesn't contain messages nor any events are sent
-            //so we can only query the channel to get the messages
-            await Client.GetOrCreateChannelWithIdAsync(Type, Id);
         }
 
         //StreamTodo: write test and check Client.WatchedChannels
         public Task StopWatchingAsync()
             => LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
                 new ChannelStopWatchingRequestInternalDTO());
+
+        public async Task FreezeAsync()
+        {
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
+                new UpdateChannelPartialRequestInternalDTO()
+                {
+                    Set = new Dictionary<string, object>
+                    {
+                        { "frozen", true }
+                    }
+                });
+            Cache.TryCreateOrUpdate(response.Channel);
+        }
+        
+        public async Task UnfreezeAsync()
+        {
+            var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
+                new UpdateChannelPartialRequestInternalDTO()
+                {
+                    Set = new Dictionary<string, object>
+                    {
+                        { "frozen", false }
+                    }
+                });
+            Cache.TryCreateOrUpdate(response.Channel);
+        }
 
         public Task DeleteAsync()
             => LowLevelClient.InternalChannelApi.DeleteChannelAsync(Type, Id, isHardDelete: false);
@@ -580,12 +673,12 @@ namespace StreamChat.Core.StatefulModels
 
             #region ChannelState
 
-            _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers); //Updated from Channel
+            _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers);
 
             #endregion
         }
 
-        internal void HandleMessageNewEvent(EventMessageNewInternalDTO dto)
+        internal void HandleMessageNewEvent(MessageNewEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
@@ -594,13 +687,13 @@ namespace StreamChat.Core.StatefulModels
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
         }
 
-        internal void InternalHandleMessageNewNotification(EventNotificationMessageNewInternalDTO dto)
+        internal void InternalHandleMessageNewNotification(NotificationNewMessageEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
         }
 
-        internal void HandleMessageUpdatedEvent(EventMessageUpdatedInternalDTO dto)
+        internal void HandleMessageUpdatedEvent(MessageUpdatedEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
             if (!Cache.Messages.TryGet(dto.Message.Id, out var message))
@@ -612,7 +705,7 @@ namespace StreamChat.Core.StatefulModels
             MessageUpdated?.Invoke(this, message);
         }
 
-        internal void HandleMessageDeletedEvent(EventMessageDeletedInternalDTO dto)
+        internal void HandleMessageDeletedEvent(MessageDeletedEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
             if (!Cache.Messages.TryGet(dto.Message.Id, out var message))
@@ -623,7 +716,7 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(dto.Message);
 
             //StreamTodo: consider moving this logic into StreamMessage.HandleMessageDeletedEvent
-            var isHardDelete = dto.HardDelete.GetValueOrDefault(false);
+            var isHardDelete = dto.HardDelete;
             if (isHardDelete)
             {
                 Cache.Messages.Remove(message);
@@ -637,22 +730,26 @@ namespace StreamChat.Core.StatefulModels
             MessageDeleted?.Invoke(this, message, isHardDelete);
         }
 
-        internal void HandleChannelUpdatedEvent(EventChannelUpdatedInternalDTO eventDto)
+        internal void HandleChannelUpdatedEvent(ChannelUpdatedEventInternalDTO eventDto)
         {
-            Cache.TryCreateOrUpdate(eventDto.Channel);
+            // Skip normal update. Channel Update is an overwrite operation. If something was not present in the request it was removed
+            // Cache.TryCreateOrUpdate(eventDto.Channel);
+            
+            UpdateChannelFieldsFromDtoOverwrite(eventDto.Channel, Cache);
+            
             Updated?.Invoke(this);
         }
 
-        internal void HandleChannelTruncatedEvent(EventChannelTruncatedInternalDTO eventDto)
+        internal void HandleChannelTruncatedEvent(ChannelTruncatedEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            InternalTruncateMessages(eventDto.CreatedAt, eventDto.Message);
+            InternalTruncateMessages(eventDto.Channel.TruncatedAt, eventDto.Message);
         }
 
-        internal void HandleChannelTruncatedEvent(EventNotificationChannelTruncatedInternalDTO eventDto)
+        internal void HandleChannelTruncatedEvent(NotificationChannelTruncatedEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            InternalTruncateMessages(eventDto.CreatedAt);
+            InternalTruncateMessages(eventDto.Channel.TruncatedAt);
         }
 
         internal void InternalAddMember(StreamChannelMember member)
@@ -803,21 +900,58 @@ namespace StreamChat.Core.StatefulModels
 
             #endregion
         }
-
-        internal void InternalHandleMessageReadEvent(EventMessageReadInternalDTO eventDto)
+        
+        private void UpdateChannelFieldsFromDtoOverwrite(ChannelResponseInternalDTO dto, ICache cache)
         {
-            AssertCid(eventDto.Cid);
-            HandleMessageRead(eventDto.User, eventDto.CreatedAt.Value);
+            #region Channel
+
+            AutoTranslationEnabled = GetOrDefault(dto.AutoTranslationEnabled, false);
+            AutoTranslationLanguage = GetOrDefault(dto.AutoTranslationLanguage, string.Empty);
+            Cid = GetOrDefault(dto.Cid, Cid);
+            Config = Config.TryLoadFromDto(dto.Config, cache);
+            Cooldown = GetOrDefault(dto.Cooldown, null);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            CreatedBy = cache.TryCreateOrUpdate(dto.CreatedBy);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Disabled = GetOrDefault(dto.Disabled, false);
+            Frozen = GetOrDefault(dto.Frozen, false);
+            Hidden = GetOrDefault(dto.Hidden, false);
+            HideMessagesBefore = GetOrDefault(dto.HideMessagesBefore, null);
+            Id = GetOrDefault(dto.Id, Id);
+            LastMessageAt = GetOrDefault(dto.LastMessageAt, null);
+            MemberCount = GetOrDefault(dto.MemberCount, MemberCount);
+            _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers);
+            MuteExpiresAt = GetOrDefault(dto.MuteExpiresAt, null);
+            Muted = GetOrDefault(dto.Muted, false);
+            _ownCapabilities.TryReplaceValuesFromDto(dto.OwnCapabilities);
+            Team = GetOrDefault(dto.Team, string.Empty);
+            TruncatedAt = GetOrDefault(dto.TruncatedAt, null);
+            TruncatedBy = cache.TryCreateOrUpdate(dto.TruncatedBy);
+            Type = new ChannelType(GetOrDefault(dto.Type, Type));
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
+
+            LoadAdditionalProperties(dto.AdditionalProperties);
+
+            //Not in API spec
+            Name = GetOrDefault(dto.Name, string.Empty);
+
+            #endregion
         }
 
-        internal void InternalHandleMessageReadNotification(EventNotificationMarkReadInternalDTO eventDto)
+        internal void InternalHandleMessageReadEvent(MessageReadEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
-            HandleMessageRead(eventDto.User, eventDto.CreatedAt.Value);
+            HandleMessageRead(eventDto.User, eventDto.CreatedAt);
+        }
+
+        internal void InternalHandleMessageReadNotification(NotificationMarkReadEventInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            HandleMessageRead(eventDto.User, eventDto.CreatedAt);
             //StreamTodo: update eventDto.Channel as well?
         }
 
-        internal void InternalHandleUserWatchingStartEvent(EventUserWatchingStartInternalDTO eventDto)
+        internal void InternalHandleUserWatchingStartEvent(UserWatchingStartEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
 
@@ -830,7 +964,7 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        internal void InternalHandleUserWatchingStop(EventUserWatchingStopInternalDTO eventDto)
+        internal void InternalHandleUserWatchingStop(UserWatchingStopEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
 
@@ -849,7 +983,7 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        internal void InternalHandleTypingStopped(EventTypingStopInternalDTO eventDto)
+        internal void InternalHandleTypingStopped(TypingStopEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
             var user = Cache.TryCreateOrUpdate(eventDto.User);
@@ -867,7 +1001,7 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        internal void InternalHandleTypingStarted(EventTypingStartInternalDTO eventDto)
+        internal void InternalHandleTypingStarted(TypingStartEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
             var user = Cache.TryCreateOrUpdate(eventDto.User);
@@ -893,7 +1027,7 @@ namespace StreamChat.Core.StatefulModels
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
         private readonly List<IStreamUser> _typingUsers = new List<IStreamUser>();
 
-        private void HandleMessageRead(UserObjectInternalInternalDTO userDto, DateTimeOffset createAt)
+        private void HandleMessageRead(UserObjectInternalDTO userDto, DateTimeOffset createAt)
         {
             //we can only mark messages based on created_at
             //we mark this per user
@@ -939,5 +1073,20 @@ namespace StreamChat.Core.StatefulModels
         {
             _messages.Sort((msg1, msg2) => msg1.CreatedAt.CompareTo(msg2.CreatedAt));
         }
+
+        private UpdateChannelRequestInternalDTO GetUpdateRequestWithCurrentData()
+            => new UpdateChannelRequestInternalDTO
+            {
+                Data = new ChannelRequestInternalDTO
+                {
+                    AutoTranslationEnabled = AutoTranslationEnabled,
+                    AutoTranslationLanguage = AutoTranslationLanguage,
+                    Disabled = Disabled,
+                    Frozen = Frozen,
+                    AdditionalProperties = GetInternalAdditionalPropertiesDictionary(),
+                    Name = Name
+                },
+                AdditionalProperties = GetInternalAdditionalPropertiesDictionary(),
+            };
     }
 }

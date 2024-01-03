@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class ListBlockListResponseInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("blocklists", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<BlockListInternalDTO> Blocklists { get; set; }
+        public System.Collections.Generic.List<BlockListInternalDTO> Blocklists { get; set; } = new System.Collections.Generic.List<BlockListInternalDTO>();
 
         /// <summary>
         /// Duration of the request in human-readable format

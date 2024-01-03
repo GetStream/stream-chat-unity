@@ -9,7 +9,7 @@ namespace StreamChat.Core.LowLevelClient.Events
     /// Trigger: when a channel is marked as read
     /// Recipients: clients watching the channel
     /// </summary>
-    public partial class EventMessageRead : EventBase, ILoadableFrom<EventMessageReadInternalDTO, EventMessageRead>
+    public partial class EventMessageRead : EventBase, ILoadableFrom<MessageReadEventInternalDTO, EventMessageRead>
     {
         public string ChannelId { get; set; }
 
@@ -25,7 +25,7 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public User User { get; set; }
 
-        EventMessageRead ILoadableFrom<EventMessageReadInternalDTO, EventMessageRead>.LoadFromDto(EventMessageReadInternalDTO dto)
+        EventMessageRead ILoadableFrom<MessageReadEventInternalDTO, EventMessageRead>.LoadFromDto(MessageReadEventInternalDTO dto)
         {
             ChannelId = dto.ChannelId;
             ChannelType = dto.ChannelType;
@@ -33,7 +33,7 @@ namespace StreamChat.Core.LowLevelClient.Events
             CreatedAt = dto.CreatedAt;
             Team = dto.Team;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
