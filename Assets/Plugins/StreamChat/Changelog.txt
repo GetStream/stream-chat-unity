@@ -1,3 +1,23 @@
+v4.3.0:
+Fixes:
+* Fixed state update after channel.truncated event with a past date 
+* Added potential fix for a crash on Android with IL2CPP 
+	
+Improvements:
+* Improved reconnection logic to monitor Unity's [Network Reachability](https://docs.unity3d.com/ScriptReference/NetworkReachability.html) for faster reaction to when the network is available again 
+* Reduced the overhead and potential heating issues on mobile devices by optimizing the background tasks that handle WebSocket connection 
+* Updated DTOs to the latest OpenAPI spec 
+* Implemented invites  -> [Invites Docs](https://getstream.io/chat/docs/unity/channel_invites/?language=unity)
+* Added optional hide history & message parameters to IStreamChannel.AddMembersAsync 
+* Implemented IStreamChannel.UpdateOverwriteAsync  -> [Channel Overwrite Update Docs](https://getstream.io/chat/docs/unity/channel_update/?language=unity&q=update#full-update-(overwrite))
+* Added channel freezing & unfreezing  -> [Channel Freeze Docs](https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#freeze-a-channel)
+	
+Sample Project:
+* Fixes:
+	* Fixed excessive TryLoadPreviousMessagesAsync calling - this could lead to performance issues after loading older messages
+* Improvements
+	* Added invite mechanics
+
 v4.2.0:
 Deprecated (will be removed in a future release):
 * IStreamChatClient.QueryChannelsAsync overload with IDictionary<string, object> filters parameter. Please use the other overload with IEnumerable<IFieldFilterRule> filters parameter.
