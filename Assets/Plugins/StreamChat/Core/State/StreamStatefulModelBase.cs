@@ -36,6 +36,7 @@ namespace StreamChat.Core.State
             Repository.Track(Self);
         }
         
+        //StreamTodo: wrap completely the _additionalProperties in StreamCustomData and not operate on both
         protected Dictionary<string, object> GetInternalAdditionalPropertiesDictionary() => _additionalProperties; 
 
         protected abstract string InternalUniqueId { get; set; }

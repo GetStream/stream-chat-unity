@@ -38,6 +38,6 @@ namespace StreamChat.Core.State
         private readonly ILogs _logs;
         private readonly StreamChatClient _streamChatClient;
         private readonly IStatefulModelContext _context;
-        private readonly Cache _cache;
+        private readonly ICache _cache;
     }
 }
