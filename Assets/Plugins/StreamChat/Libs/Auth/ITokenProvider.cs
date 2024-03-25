@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using UnityEngine;
 
 namespace StreamChat.Libs.Auth
 {
@@ -14,4 +13,6 @@ namespace StreamChat.Libs.Auth
         /// <remarks>https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#token-providers</remarks>
         Task<string> GetTokenAsync(string userId);
     }
+    
+    //StreamTodo: we could split this into IAsyncTokenProvider for async/await syntax and IEnumeratorTokenProvider for coroutines? 
 }

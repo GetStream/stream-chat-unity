@@ -205,7 +205,11 @@ namespace StreamChat.Core.LowLevelClient
         public static IStreamChatLowLevelClient CreateDefaultClient(AuthCredentials authCredentials,
             IStreamClientConfig config = default)
         {
-            config ??= StreamClientConfig.Default;
+            if (config == null)
+            {
+                config = StreamClientConfig.Default;
+            }
+            
             var logs = StreamDependenciesFactory.CreateLogger(config.LogLevel.ToLogLevel());
             var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
             var websocketClient
