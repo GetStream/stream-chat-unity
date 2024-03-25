@@ -94,7 +94,11 @@ namespace StreamChat.Core
         /// <param name="config">[Optional] configuration</param>
         public static IStreamChatClient CreateDefaultClient(IStreamClientConfig config = default)
         {
-            config ??= StreamClientConfig.Default;
+            if (config == null)
+            {
+                config = StreamClientConfig.Default;
+            }
+            
             var logs = StreamDependenciesFactory.CreateLogger(config.LogLevel.ToLogLevel());
             var websocketClient
                 = StreamDependenciesFactory.CreateWebsocketClient(logs, config.LogLevel.IsDebugEnabled());

@@ -96,7 +96,11 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
             if (httpMethod == HttpMethodType.Get && serializedContent != null)
             {
-                queryParameters ??= QueryParameters.Default;
+                if (queryParameters == null)
+                {
+                    queryParameters = QueryParameters.Default;
+                }
+
                 queryParameters.Append("payload", serializedContent);
             }
 

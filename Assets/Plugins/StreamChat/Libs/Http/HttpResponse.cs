@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
+using StreamChat.Libs.Utils;
 using UnityEngine.Networking;
 
 namespace StreamChat.Libs.Http
@@ -22,9 +23,8 @@ namespace StreamChat.Libs.Http
 
         public static HttpResponse CreateFromUnityWebRequest(UnityWebRequest unityWebRequest)
         {
-            var isSuccessStatusCode = unityWebRequest.result == UnityWebRequest.Result.Success;
             var result = unityWebRequest.downloadHandler?.text ?? string.Empty;
-            return new HttpResponse(isSuccessStatusCode, (int)unityWebRequest.responseCode, result);
+            return new HttpResponse(unityWebRequest.IsRequestSuccessful(), (int)unityWebRequest.responseCode, result);
         }
 
         public HttpResponse(bool isSuccessStatusCode, int statusCode, string result)

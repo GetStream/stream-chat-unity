@@ -290,7 +290,10 @@ namespace StreamChat.Core.StatefulModels
             IDictionary<string, object> filters = null, int limit = 30, int offset = 0)
         {
             // filter_conditions is required by API but empty object is accepted
-            filters ??= new Dictionary<string, object>();
+            if (filters == null)
+            {
+                filters = new Dictionary<string, object>();
+            }
 
             var response = await LowLevelClient.InternalChannelApi.QueryMembersAsync(new QueryMembersRequestInternalDTO
             {
