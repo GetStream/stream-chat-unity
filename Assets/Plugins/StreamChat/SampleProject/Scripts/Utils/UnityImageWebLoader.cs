@@ -14,7 +14,7 @@ namespace StreamChat.SampleProject.Utils
     {
         public async Task<Sprite> LoadImageAsync(string url)
         {
-            //Todo: validate url
+            //StreamTodo: validate url
 
             if (_cachedImages.ContainsKey(url))
             {
@@ -49,7 +49,7 @@ namespace StreamChat.SampleProject.Utils
 
                 var request = requestAsyncHandler.webRequest;
 
-                if (request.result != UnityWebRequest.Result.Success)
+                if (!string.IsNullOrEmpty(request.error))
                 {
                     if (request.responseCode == 404)
                     {
@@ -70,7 +70,7 @@ namespace StreamChat.SampleProject.Utils
                         tcs.SetResult(sprite);
                     }
 
-                    _subscribers.Clear();
+                    _subscribers[url].Clear();
                 }
 
                 return _cachedImages[url] = sprite;

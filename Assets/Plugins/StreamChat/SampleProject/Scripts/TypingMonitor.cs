@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using StreamChat.Core;
-using StreamChat.Core.Models;
+using StreamChat.Core.StatefulModels;
 using TMPro;
 using UnityEngine;
 
@@ -39,7 +39,7 @@ namespace StreamChat.SampleProject
             }
         }
 
-        public void NotifyChannelStoppedTyping(Channel channel)
+        public void NotifyChannelStoppedTyping(IStreamChannel channel)
             => TrySendStopTypingEvent(channel);
 
         public void Dispose()
@@ -65,21 +65,21 @@ namespace StreamChat.SampleProject
         private readonly Dictionary<string, float> _channelCidToTypingStartEventSentTime =
             new Dictionary<string, float>();
 
-        private readonly List<Channel> _startedTypingChannels = new List<Channel>();
+        private readonly List<IStreamChannel> _startedTypingChannels = new List<IStreamChannel>();
 
         private void OnInputValueChanged(string text)
         {
-            if (!_isActive())
+            if (!_isActive() || _chatState.ActiveChannel == null)
             {
                 return;
             }
 
-            var activeChannel = _chatState.ActiveChannel.Channel;
+            var activeChannel = _chatState.ActiveChannel;
 
             TrySendStartTypingEvent(activeChannel);
         }
 
-        private void TrySendStartTypingEvent(Channel channel)
+        private void TrySendStartTypingEvent(IStreamChannel channel)
         {
             if (_channelCidToTypingStartEventSentTime.TryGetValue(channel.Cid, out var typingStartSentTime) &&
                 Time.time - typingStartSentTime < TypingStartEventThrottleInterval)
@@ -87,7 +87,7 @@ namespace StreamChat.SampleProject
                 return;
             }
 
-            _client.ChannelApi.SendTypingStartEventAsync(channel.Type, channel.Id);
+            channel.SendTypingStartedEventAsync();
 
             if (!_channelCidToTypingStartEventSentTime.ContainsKey(channel.Cid))
             {
@@ -97,14 +97,14 @@ namespace StreamChat.SampleProject
             _channelCidToTypingStartEventSentTime[channel.Cid] = Time.time;
         }
 
-        private void TrySendStopTypingEvent(Channel channel)
+        private void TrySendStopTypingEvent(IStreamChannel channel)
         {
             if (!_channelCidToTypingStartEventSentTime.ContainsKey(channel.Cid))
             {
                 return;
             }
 
-            _client.ChannelApi.SendTypingStopEventAsync(channel.Type, channel.Id);
+            channel.SendTypingStoppedEventAsync();
 
             _channelCidToTypingStartEventSentTime.Remove(channel.Cid);
 

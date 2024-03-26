@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SampleProject.Scripts.Popups;
-using StreamChat.Core;
-using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.StatefulModels;
 using StreamChat.SampleProject.Configs;
 using StreamChat.SampleProject.Popups;
-using StreamChat.SampleProject.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +22,13 @@ namespace StreamChat.SampleProject.Views
             _appConfig = config ?? throw new ArgumentNullException(nameof(config));
             _config = config.ViewFactoryConfig ?? throw new ArgumentNullException(nameof(config.ViewFactoryConfig));
             _popupsContainer = popupsContainer ? popupsContainer : throw new ArgumentNullException(nameof(popupsContainer));
+
+            _appConfig.Emojis.LoadEmojisSprites();
+            
+            _popupPrefabs.Add(typeof(CreateNewChannelFormPopup), _config.CreateNewChannelFormPopupPrefab);
+            _popupPrefabs.Add(typeof(InviteChannelMembersPopup), _config.InviteChannelMembersPopupPrefab);
+            _popupPrefabs.Add(typeof(InviteReceivedPopup), _config.InviteReceivedPopup);
+            _popupPrefabs.Add(typeof(ErrorPopup), _config.ErrorPopupPrefab);
         }
 
         public void Init(IChatViewContext viewContext)
@@ -44,8 +48,8 @@ namespace StreamChat.SampleProject.Views
 
             var options = new List<MenuOptionEntry>
             {
-                new MenuOptionEntry("Reply", () => throw new NotImplementedException("Reply")),
-                new MenuOptionEntry("Pin", () => throw new NotImplementedException("Pin")),
+                //new MenuOptionEntry("Reply", () => throw new NotImplementedException("Reply")),
+                new MenuOptionEntry("Pin", () => message.PinAsync().LogExceptionsOnFailed()),
             };
 
             if (isSelfMessage)
@@ -54,30 +58,22 @@ namespace StreamChat.SampleProject.Views
             }
             else
             {
-                options.Add(new MenuOptionEntry("Flag", () => throw new NotImplementedException("Flag")));
+                options.Add(new MenuOptionEntry("Flag message", () => message.FlagAsync().LogExceptionsOnFailed()));
+                options.Add(new MenuOptionEntry("Flag user", () => message.User.FlagAsync().LogExceptionsOnFailed()));
 
-                //Todo: muted ? => show unmute instead
+                //StreamTodo: muted ? => show unmute instead
                 var user = message.User;
-                options.Add(new MenuOptionEntry("Mute", () =>
-                {
-                    var muteUserRequest = new MuteUserRequest
-                    {
-                        TargetIds = new List<string> { user.Id }
-                    };
-
-                    //Todo: we could take OwnUser from response, save it in ViewContext and from OwnUser retrieve muted users
-                    client.ModerationApi.MuteUserAsync(muteUserRequest).LogStreamExceptionIfFailed();
-                }));
+                options.Add(new MenuOptionEntry("Mute User", () => user.MuteAsync().LogExceptionsOnFailed()));
             }
 
-            options.Add(new MenuOptionEntry("Mark as read", () => state.MarkMessageAsLastRead(message)));
+            options.Add(new MenuOptionEntry("Mark as read", () => message.MarkMessageAsLastReadAsync()));
 
             options.Add(new MenuOptionEntry("Delete",
-                () => client.MessageApi.DeleteMessageAsync(message.Id, hard: false).LogStreamExceptionIfFailed()));
+                () => message.SoftDeleteAsync().LogExceptionsOnFailed()));
 
             var emojis = new List<EmojiOptionEntry>();
 
-            AddReactionsEmojiOptions(emojis, message, client);
+            AddReactionsEmojiOptions(emojis, message);
 
             var args = new MessageOptionsPopup.Args(hideOnPointerExit: true, hideOnButtonClicked: true, options, emojis);
             popup.Show(args);
@@ -88,10 +84,9 @@ namespace StreamChat.SampleProject.Views
         public void CreateEmoji(Image prefab, Transform container, string key)
         {
             var sprite = _appConfig.Emojis.AllSprites.FirstOrDefault(_ => _.name == key);
-
             if (sprite == default)
             {
-                Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _appConfig.Emojis.AllSprites.Select(_ => _.name)));
+                //Debug.LogError($"Failed to find emoji entry with key: `{key}`. Available keys: " + string.Join(", ", _appConfig.Emojis.AllSprites.Select(_ => _.name)));
                 return;
             }
 
@@ -106,7 +101,7 @@ namespace StreamChat.SampleProject.Views
             var instance = GameObject.Instantiate(prefab, _popupsContainer);
             var popup = instance.GetComponent<TPopup>();
 
-            //Todo: fix this dependency, some popups don't need view context like ErrorPopup
+            //StreamTodo: fix this dependency, some popups don't need view context like ErrorPopup
             if (_viewContext != null)
             {
                 popup.Init(_viewContext);
@@ -119,10 +114,12 @@ namespace StreamChat.SampleProject.Views
         private readonly IViewFactoryConfig _config;
         private readonly Transform _popupsContainer;
 
+        private readonly Dictionary<Type, BaseFullscreenPopup> _popupPrefabs
+            = new Dictionary<Type, BaseFullscreenPopup>();
+
         private IChatViewContext _viewContext;
 
-        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, Message message,
-            IStreamChatClient client)
+        private void AddReactionsEmojiOptions(ICollection<EmojiOptionEntry> emojis, IStreamMessage message)
         {
             foreach (var sprite in _appConfig.Emojis.ReactionSprites)
             {
@@ -134,17 +131,11 @@ namespace StreamChat.SampleProject.Views
                  {
                      if (isAdded)
                      {
-                         client.MessageApi.DeleteReactionAsync(message.Id, key);
+                         message.DeleteReactionAsync(key);
                      }
                      else
                      {
-                         client.MessageApi.SendReactionAsync(message.Id, new SendReactionRequest
-                         {
-                             Reaction = new ReactionRequest
-                             {
-                                 Type = key,
-                             }
-                         });
+                         message.SendReactionAsync(key);
                      }
                  }));
             }
@@ -153,15 +144,13 @@ namespace StreamChat.SampleProject.Views
         private BaseFullscreenPopup GetFullscreenPopupPrefab<TPopup>()
             where TPopup : BaseFullscreenPopup
         {
-            switch (typeof(TPopup))
+            var key = typeof(TPopup);
+            if (!_popupPrefabs.ContainsKey(key))
             {
-                case Type createNewChannel when createNewChannel == typeof(CreateNewChannelFormPopup):
-                    return _config.CreateNewChannelFormPopupPrefab;
-                case Type createNewChannel when createNewChannel == typeof(ErrorPopup):
-                    return _config.ErrorPopupPrefab;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(TPopup), typeof(TPopup), null);
+                throw new ArgumentOutOfRangeException(nameof(TPopup), typeof(TPopup), null);
             }
+
+            return (TPopup)_popupPrefabs[key];
         }
     }
 }

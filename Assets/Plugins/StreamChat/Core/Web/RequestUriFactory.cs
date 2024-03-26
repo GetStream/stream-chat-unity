@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Utils;
 using StreamChat.Core.Auth;
-using StreamChat.Core.Models;
-using StreamChat.Core.Requests.DTO;
+using StreamChat.Core.LowLevelClient;
+using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Core.LowLevelClient.Requests.DTO;
 
 namespace StreamChat.Core.Web
 {
@@ -14,7 +14,7 @@ namespace StreamChat.Core.Web
     /// </summary>
     internal class RequestUriFactory : IRequestUriFactory
     {
-        public RequestUriFactory(IAuthProvider authProvider, IStreamChatClient connectionProvider,
+        public RequestUriFactory(IAuthProvider authProvider, IStreamChatLowLevelClient connectionProvider,
             ISerializer serializer)
         {
             _authProvider = authProvider ?? throw new ArgumentNullException(nameof(authProvider));
@@ -27,7 +27,7 @@ namespace StreamChat.Core.Web
             var connectPayloadDTO = new ConnectPayload
             {
                 UserId = _authProvider.UserId,
-                User = new User
+                User = new UserObjectRequest()
                 {
                     Id = _authProvider.UserId
                 },
@@ -68,7 +68,7 @@ namespace StreamChat.Core.Web
 
         private readonly IAuthProvider _authProvider;
         private readonly ISerializer _serializer;
-        private readonly IStreamChatClient _connectionProvider;
+        private readonly IStreamChatLowLevelClient _connectionProvider;
 
         private Dictionary<string, string> GetDefaultParameters() =>
             new Dictionary<string, string>
@@ -78,7 +78,7 @@ namespace StreamChat.Core.Web
                 { "connection_id", _connectionProvider.ConnectionId },
             };
 
-        private Uri CreateRequestUri(string endPoint, IDictionary<string, string> parameters)
+        private Uri CreateRequestUri(string endPoint, IReadOnlyDictionary<string, string> parameters)
             => CreateRequestUri(endPoint, parameters.ToQueryParameters());
 
         private Uri CreateRequestUri(string endPoint, string query)

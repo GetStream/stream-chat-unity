@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using SampleProject.Scripts.Popups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,6 +31,13 @@ namespace StreamChat.SampleProject.Popups
         }
 
         public bool IsPointerOver { get; private set; }
+        public RectTransform RectTransform { get; private set; }
+
+        protected override void OnStart()
+        {
+            base.OnStart();
+            RectTransform = GetComponent<RectTransform>();
+        }
 
         protected override void OnShow(Args args)
         {

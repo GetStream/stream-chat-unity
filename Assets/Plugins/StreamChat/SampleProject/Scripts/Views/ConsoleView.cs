@@ -22,7 +22,8 @@ namespace StreamChat.SampleProject.Views
         {
             base.OnInited();
 
-            Client.EventReceived += OnEventReceived;
+            //StreamTodo: figure out if want to somehow get this debug info
+            //Client.EventReceived += OnEventReceived;
             Client.ConnectionStateChanged += OnConnectionStateChanged;
         }
 
@@ -30,9 +31,15 @@ namespace StreamChat.SampleProject.Views
         {
             base.OnUpdate();
 
+            if (!_connectionLogEnabled)
+            {
+                return;
+            }
+
             if (Client.NextReconnectTime != _prevNextReconnectTime)
             {
-                Debug.LogWarning($"{nameof(Client.NextReconnectTime)} changed from: `{_prevNextReconnectTime:0:00}` to: `{Client.NextReconnectTime:0:00}`");
+                Debug.LogWarning(
+                    $"{nameof(Client.NextReconnectTime)} changed from: `{_prevNextReconnectTime:0:00}` to: `{Client.NextReconnectTime:0:00}`");
                 _prevNextReconnectTime = Client.NextReconnectTime;
                 UpdateConnectionLog();
             }
@@ -40,7 +47,8 @@ namespace StreamChat.SampleProject.Views
             if (_prevNetworkReachability != Application.internetReachability)
             {
                 var reachabilityName = Enum.GetName(typeof(NetworkReachability), Application.internetReachability);
-                Debug.LogWarning($"{nameof(NetworkReachability)} changed from `{_prevNetworkReachability}` to `{reachabilityName}`");
+                Debug.LogWarning(
+                    $"{nameof(NetworkReachability)} changed from `{_prevNetworkReachability}` to `{reachabilityName}`");
                 _prevNetworkReachability = Application.internetReachability;
                 UpdateConnectionLog();
             }
@@ -48,7 +56,8 @@ namespace StreamChat.SampleProject.Views
 
         protected override void OnDisposing()
         {
-            Client.EventReceived -= OnEventReceived;
+            //StreamTodo:
+            //Client.EventReceived -= OnEventReceived;
             Client.ConnectionStateChanged -= OnConnectionStateChanged;
 
             base.OnDisposing();
@@ -68,6 +77,7 @@ namespace StreamChat.SampleProject.Views
 
         private double? _prevNextReconnectTime;
         private NetworkReachability _prevNetworkReachability;
+        private bool _connectionLogEnabled;
 
         private void OnEventReceived(string obj)
         {
@@ -94,10 +104,16 @@ namespace StreamChat.SampleProject.Views
             UpdateConnectionLog();
         }
 
-        private void UpdateEventsLog() => _eventsLogText.text = "Received events:" + "<br>" + string.Join("<br>", _records);
+        private void UpdateEventsLog()
+            => _eventsLogText.text = "Received events:" + "<br>" + string.Join("<br>", _records);
 
         private void UpdateConnectionLog()
         {
+            if (!_connectionLogEnabled)
+            {
+                return;
+            }
+
             _sb.AppendLine("Connection:");
 
             _sb.Append("State: ");

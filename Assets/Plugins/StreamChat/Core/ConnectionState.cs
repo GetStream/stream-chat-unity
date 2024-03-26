@@ -1,15 +1,16 @@
 ﻿using System;
+using StreamChat.Core.LowLevelClient;
 
 namespace StreamChat.Core
 {
     /// <summary>
-    /// <see cref="IStreamChatClient"/> connection state
+    /// <see cref="IStreamChatLowLevelClient"/> connection state
     /// </summary>
     public enum ConnectionState
     {
         /// <summary>
         /// StreamChatClient is Disconnected from the server.
-        /// If was Connected before and allowed by <see cref="IStreamChatClient.ReconnectStrategy"/> it will switch to WaitToReconnect and attempt to connect again after a timeout
+        /// If was Connected before and allowed by <see cref="IStreamChatLowLevelClient.ReconnectStrategy"/> it will switch to WaitToReconnect and attempt to connect again after a timeout
         /// </summary>
         Disconnected,
 
@@ -45,6 +46,7 @@ namespace StreamChat.Core
             {
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                case ConnectionState.Closing:
                     return false;
                 case ConnectionState.Disconnected:
                 case ConnectionState.WaitToReconnect:

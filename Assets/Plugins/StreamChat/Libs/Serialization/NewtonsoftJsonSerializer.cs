@@ -20,6 +20,38 @@ namespace StreamChat.Libs.Serialization
         public TType Deserialize<TType>(string serializedObj)
             => JsonConvert.DeserializeObject<TType>(serializedObj);
 
+        public TTargetType TryConvertTo<TTargetType>(object serializedObj)
+        {
+            if (serializedObj is JObject jObject)
+            {
+                return jObject.ToObject<TTargetType>();
+            }
+
+            if (serializedObj is JArray jArray)
+            {
+                return jArray.ToObject<TTargetType>();
+            }
+
+            if (serializedObj is JToken jToken)
+            {
+                return jToken.ToObject<TTargetType>();
+            }
+
+            if (serializedObj is TTargetType targetType)
+            {
+                return targetType;
+            }
+
+            try
+            {
+                return (TTargetType) Convert.ChangeType(serializedObj, typeof(TTargetType));
+            }
+            catch (InvalidCastException)
+            {
+                return default;
+            }
+        }
+
         public object DeserializeObject(string serializedObj)
             => JsonConvert.DeserializeObject(serializedObj);
 

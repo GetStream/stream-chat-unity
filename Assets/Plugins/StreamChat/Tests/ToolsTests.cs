@@ -9,7 +9,7 @@ using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Tests
 {
-    public class ToolsTests
+    internal class ToolsTests
     {
         [Test]
         public void when_provided_json_base64_test_auth_data_expect_valid_deserialization()

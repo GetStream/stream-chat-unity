@@ -1,17 +1,21 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.Events;
 using StreamChat.Core.Exceptions;
-using StreamChat.Core.Models;
-using StreamChat.Core.Requests;
+using StreamChat.Core.LowLevelClient.Events;
+using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core.StatefulModels;
+using StreamChat.Core.Helpers;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Libs.Logs;
-using StreamChat.SampleProject.Utils;
+using StreamChat.SampleProject.Popups;
 using StreamChat.SampleProject.Views;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace StreamChat.SampleProject
 {
@@ -22,13 +26,12 @@ namespace StreamChat.SampleProject
     {
         public const string MessageDeletedInfo = "This message was deleted...";
 
-        public event Action<ChannelState> ActiveChanelChanged;
-        public event Action<ChannelState, Message> ActiveChanelMessageReceived;
+        public event Action<IStreamChannel> ActiveChanelChanged;
         public event Action ChannelsUpdated;
 
-        public event Action<Message> MessageEditRequested;
+        public event Action<IStreamMessage> MessageEditRequested;
 
-        public ChannelState ActiveChannel
+        public IStreamChannel ActiveChannel
         {
             get => _activeChannel;
             private set
@@ -43,7 +46,7 @@ namespace StreamChat.SampleProject
             }
         }
 
-        public IReadOnlyList<ChannelState> Channels => _channels;
+        public IReadOnlyList<IStreamChannel> Channels => _channels;
 
         public IStreamChatClient Client { get; }
 
@@ -54,133 +57,76 @@ namespace StreamChat.SampleProject
 
             Client.Connected += OnClientConnected;
             Client.ConnectionStateChanged += OnClientConnectionStateChanged;
-            Client.MessageReceived += OnMessageReceived;
-            Client.MessageDeleted += OnMessageDeleted;
-            Client.MessageUpdated += OnMessageUpdated;
-            Client.MessageRead += OnMessageRead;
-            Client.ReactionReceived += OnReactionReceived;
-            Client.ReactionUpdated += OnReactionUpdated;
-            Client.ReactionDeleted += OnReactionDeleted;
+            
+            Client.ChannelInviteReceived += OnClientChannelInviteReceived;
+            Client.ChannelInviteAccepted += ClientOnChannelInviteAccepted;
+            Client.ChannelInviteRejected += ClientOnChannelInviteRejected;
 
-            Client.TypingStarted += OnTypingStarted;
-            Client.TypingStopped += OnTypingStopped;
-
-            Client.NotificationMarkRead += OnNotificationMarkRead;
+            //StreamTodo: handle this
+            // Client.MessageRead += OnMessageRead;
+            //
+            // Client.NotificationMarkRead += OnNotificationMarkRead;
         }
 
         public void Dispose()
         {
             Client.Connected -= OnClientConnected;
             Client.ConnectionStateChanged -= OnClientConnectionStateChanged;
-            Client.MessageReceived -= OnMessageReceived;
-            Client.MessageDeleted -= OnMessageDeleted;
-            Client.MessageUpdated -= OnMessageUpdated;
-            Client.MessageRead -= OnMessageRead;
-            Client.ReactionReceived -= OnReactionReceived;
-            Client.ReactionUpdated -= OnReactionUpdated;
-            Client.ReactionDeleted -= OnReactionDeleted;
-
-            Client.TypingStarted -= OnTypingStarted;
-            Client.TypingStopped -= OnTypingStopped;
-
-            Client.NotificationMarkRead -= OnNotificationMarkRead;
+            
+            Client.ChannelInviteReceived -= OnClientChannelInviteReceived;
+            Client.ChannelInviteAccepted -= ClientOnChannelInviteAccepted;
+            Client.ChannelInviteRejected -= ClientOnChannelInviteRejected;
+            
+            // Client.MessageRead -= OnMessageRead;
+            //
+            // Client.NotificationMarkRead -= OnNotificationMarkRead;
 
             Client.Dispose();
         }
 
-        public void ShowPopup<TPopup>()
+        public TPopup ShowPopup<TPopup>()
             where TPopup : BaseFullscreenPopup
         {
-            _viewFactory.CreateFullscreenPopup<TPopup>();
+            return _viewFactory.CreateFullscreenPopup<TPopup>();
         }
 
         public void HidePopup<TPopup>(TPopup instance)
             where TPopup : BaseFullscreenPopup
         {
-            GameObject.Destroy(instance.gameObject);
+            Object.Destroy(instance.gameObject);
         }
 
-        public Task<ChannelState> CreateNewChannelAsync(string channelName)
-            => Client.ChannelApi.GetOrCreateChannelAsync(channelType: "messaging", channelId: Guid.NewGuid().ToString(),
-                new ChannelGetOrCreateRequest
-                {
-                    Data = new ChannelRequest
-                    {
-                        Name = channelName
-                    }
-                });
+        public Task<IStreamChannel> CreateNewChannelAsync(string channelName)
+            => Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: Guid.NewGuid().ToString(),
+                channelName);
 
-        public void OpenChannel(ChannelState channel) => ActiveChannel = channel;
+        public void OpenChannel(IStreamChannel channel) => ActiveChannel = channel;
 
-        public void EditMessage(Message message) => MessageEditRequested?.Invoke(message);
-
-        public void MarkMessageAsLastRead(Message message)
-        {
-            var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == message.Cid);
-            if (channel == null)
-            {
-                Debug.LogError("Failed to find channel with CID: " + message.Cid);
-                return;
-            }
-
-            Client.ChannelApi.MarkReadAsync(channel.Channel.Type, channel.Channel.Id, new MarkReadRequest()
-            {
-                MessageId = message.Id
-            }).LogStreamExceptionIfFailed();
-        }
+        public void EditMessage(IStreamMessage message) => MessageEditRequested?.Invoke(message);
 
         public async Task UpdateChannelsAsync()
         {
-            var request = new QueryChannelsRequest
+            var filter = new List<IFieldFilterRule>
             {
-                Sort = new List<SortParamRequest>
-                {
-                    new SortParamRequest
-                    {
-                        Field = "created_at",
-                        Direction = -1,
-                    }
-                },
-
-                // Limit & Offset results
-                Limit = 30,
-                Offset = 0,
-
-                // Get only channels containing a specific member
-                FilterConditions = new Dictionary<string, object>
-                {
-                    {
-                        "members", new Dictionary<string, object>
-                        {
-                            { "$in", new string[] { Client.UserId } }
-                        }
-                    }
-                }
+                ChannelFilter.Members.In(Client.LocalUserData.User)
             };
+            var sort = ChannelSort.OrderByAscending(ChannelSortFieldName.CreatedAt);
 
             try
             {
-                var queryChannelsResponse = await Client.ChannelApi.QueryChannelsAsync(request);
+                var channels = await Client.QueryChannelsAsync(filter, sort);
 
                 _channels.Clear();
-                _channels.AddRange(queryChannelsResponse.Channels);
+                _channels.AddRange(channels);
 
-                if (ActiveChannel != null)
+                if (ActiveChannel == null)
                 {
-                    var activeChannel = _channels.FirstOrDefault(_ => _.Channel.Cid == ActiveChannel.Channel.Cid);
-                    if (activeChannel != null)
-                    {
-                        ActiveChannel = activeChannel;
-                    }
-                    else
-                    {
-                        ActiveChannel = _channels.FirstOrDefault();
-                    }
+                    ActiveChannel = _channels.FirstOrDefault();
                 }
             }
             catch (StreamApiException e)
             {
-                e.LogStreamApiExceptionDetails(_unityLogger);
+                e.LogStreamExceptionDetails();
             }
             catch (Exception e)
             {
@@ -190,82 +136,29 @@ namespace StreamChat.SampleProject
             ChannelsUpdated?.Invoke();
         }
 
-        public async Task LoadPreviousMessagesAsync()
+        public Task LoadPreviousMessagesAsync()
         {
             if (ActiveChannel == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            if (_maxHistoryReachedChannelCids.Contains(ActiveChannel.Channel.Cid))
-            {
-                return;
-            }
-
-            var firstMessage = ActiveChannel.Messages.FirstOrDefault();
-
-            if (firstMessage == null)
-            {
-                return;
-            }
-
-            var activeChannelCid = ActiveChannel.Channel.Cid;
-
-            _activeHistoryRequestChannelCids.Add(activeChannelCid);
-
-            var currentMessages = ActiveChannel.Messages;
-
-            try
-            {
-                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type,
-                    ActiveChannel.Channel.Id, new ChannelGetOrCreateRequest
-                    {
-                        State = true,
-                        Messages = new MessagePaginationParamsRequest
-                        {
-                            IdLt = firstMessage.Id,
-                            Limit = 50,
-                        },
-                    });
-
-                if (channelState.Messages == null || channelState.Messages.Count == 0)
-                {
-                    _maxHistoryReachedChannelCids.Add(channelState.Channel.Cid);
-                }
-
-                channelState.Messages.AddRange(currentMessages);
-
-                ActiveChannel = channelState;
-            }
-            catch (StreamApiException e)
-            {
-                Debug.LogException(e);
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
-            finally
-            {
-                _activeHistoryRequestChannelCids.Remove(activeChannelCid);
-            }
+            return ActiveChannel.LoadOlderMessagesAsync();
         }
 
-        private readonly HashSet<string> _maxHistoryReachedChannelCids = new HashSet<string>();
-        private readonly HashSet<string> _activeHistoryRequestChannelCids = new HashSet<string>();
-        private readonly List<ChannelState> _channels = new List<ChannelState>();
+        private readonly List<IStreamChannel> _channels = new List<IStreamChannel>();
 
         private readonly IViewFactory _viewFactory;
         private readonly ILogs _unityLogger = new UnityLogs();
 
-        //Todo: get it initially from health check event
+        //StreamTodo: get it initially from health check event
         private OwnUser _localUser;
-        private ChannelState _activeChannel;
+        private IStreamChannel _activeChannel;
 
         private Task _activeLoadPreviousMessagesTask;
         private bool _restoreStateAfterReconnect;
 
-        private async void OnClientConnected(OwnUser ownUser)
+        private async void OnClientConnected(IStreamLocalUserData localUserData)
         {
             await UpdateChannelsAsync();
 
@@ -275,102 +168,28 @@ namespace StreamChat.SampleProject
             }
         }
 
-        private void OnMessageReceived(EventMessageNew messageNewEvent)
+        private void OnClientChannelInviteReceived(IStreamChannel channel, IStreamUser invitee)
         {
-            var channel = GetChannel(messageNewEvent.ChannelId);
-            channel.Messages.Add(messageNewEvent.Message);
-
-            if (AreChannelsEqual(channel, ActiveChannel))
-            {
-                ActiveChanelMessageReceived?.Invoke(ActiveChannel, messageNewEvent.Message);
-            }
+            var popup = ShowPopup<InviteReceivedPopup>();
+            popup.SetData(channel);
         }
 
-        private void OnMessageDeleted(EventMessageDeleted messageDeletedEvent)
+        private void ClientOnChannelInviteAccepted(IStreamChannel channel, IStreamUser invitee)
         {
-            var channel = GetChannel(messageDeletedEvent.ChannelId);
-            var message = channel.Messages.First(_ => _.Id == messageDeletedEvent.Message.Id);
-            message.Text = MessageDeletedInfo;
-
-            if (AreChannelsEqual(channel, ActiveChannel))
-            {
-                ActiveChanelChanged?.Invoke(ActiveChannel);
-            }
+            Debug.LogError("ClientOnChannelInviteAccepted");
         }
 
-        private void OnMessageUpdated(EventMessageUpdated messageUpdatedEvent)
+        private void ClientOnChannelInviteRejected(IStreamChannel channel, IStreamUser invitee)
         {
-            var channel = GetChannel(messageUpdatedEvent.ChannelId);
-
-            if (AreChannelsEqual(channel, ActiveChannel))
-            {
-                ActiveChanelChanged?.Invoke(ActiveChannel);
-            }
+            Debug.LogError("ClientOnChannelInviteRejected");
         }
 
-        private static bool AreChannelsEqual(ChannelState channelA, ChannelState channelB) =>
-            channelA.Channel.Cid == channelB.Channel.Cid;
+        private void OnNotificationMarkRead(EventNotificationMarkRead eventNotificationMarkRead)
+            => Debug.Log($"Notified mark read for channel: {eventNotificationMarkRead.Cid}, " +
+                         $"TotalUnreadCount: {eventNotificationMarkRead.TotalUnreadCount}, UnreadChannels: {eventNotificationMarkRead.UnreadChannels}");
 
-        private void OnReactionReceived(EventReactionNew eventReactionNew) =>
-            UpdateChannelMessage(eventReactionNew.Message);
-
-        private void OnReactionDeleted(EventReactionDeleted eventReactionDeleted) =>
-            UpdateChannelMessage(eventReactionDeleted.Message);
-
-        private void OnReactionUpdated(EventReactionUpdated eventReactionUpdated) =>
-            UpdateChannelMessage(eventReactionUpdated.Message);
-
-        private void OnTypingStarted(EventTypingStart obj)
-        {
-            Debug.Log($"OnTypingStarted - CID: {obj.Cid}, User: {obj.User.Id}, Created at: {obj.CreatedAt}");
-        }
-
-        private void OnTypingStopped(EventTypingStop obj)
-        {
-            Debug.Log($"OnTypingStopped - CID: {obj.Cid}, User: {obj.User.Id}, Created at: {obj.CreatedAt}");
-        }
-
-        private void OnNotificationMarkRead(EventNotificationMarkRead eventNotificationMarkRead) =>
-            Debug.Log($"Notified mark read for channel: {eventNotificationMarkRead.Cid}, " +
-                      $"TotalUnreadCount: {eventNotificationMarkRead.TotalUnreadCount}, UnreadChannels: {eventNotificationMarkRead.UnreadChannels}");
-
-        private void OnMessageRead(EventMessageRead eventMessageRead) =>
-            Debug.Log("Message read received for channel: " + eventMessageRead.Cid);
-
-        private ChannelState GetChannel(string id) => _channels.First(_ => _.Channel.Id == id);
-
-        private void UpdateChannelMessage(Message message)
-        {
-            var channelCid = message.Cid;
-
-            var channel = _channels.FirstOrDefault(_ => _.Channel.Cid == channelCid);
-            if (channel == null)
-            {
-                return;
-            }
-
-            if (channel.Messages is IList<Message> channelMessages)
-            {
-                for (var i = channelMessages.Count - 1; i >= 0; i--)
-                {
-                    if (channelMessages[i].Id == message.Id)
-                    {
-                        channelMessages.RemoveAt(i);
-                        channelMessages.Insert(i, message);
-                        break;
-                    }
-                }
-
-                if (channel == ActiveChannel)
-                {
-                    ActiveChanelChanged?.Invoke(ActiveChannel);
-                }
-            }
-            else
-            {
-                Debug.LogError("Failed to update channel message");
-            }
-        }
+        private void OnMessageRead(EventMessageRead eventMessageRead)
+            => Debug.Log("Message read received for channel: " + eventMessageRead.Cid);
 
         private void OnClientConnectionStateChanged(ConnectionState prev, ConnectionState current)
         {
@@ -382,51 +201,7 @@ namespace StreamChat.SampleProject
             if (current == ConnectionState.Connected && _restoreStateAfterReconnect)
             {
                 _restoreStateAfterReconnect = false;
-                RestoreLostStateAsync().LogIfFailed();
-            }
-        }
-
-        private async Task RestoreLostStateAsync()
-        {
-            if (ActiveChannel == null)
-            {
-                return;
-            }
-
-            var lastMessage = ActiveChannel.Messages.LastOrDefault();
-
-            var getOrCreateRequest = new ChannelGetOrCreateRequest
-            {
-                State = true,
-                Watch = true,
-            };
-
-            if (lastMessage != null)
-            {
-                getOrCreateRequest.Messages = new MessagePaginationParamsRequest
-                {
-                    IdGt = lastMessage.Id,
-                    Limit = 50,
-                };
-            }
-
-            try
-            {
-                var channelState = await Client.ChannelApi.GetOrCreateChannelAsync(ActiveChannel.Channel.Type, ActiveChannel.Channel.Id, getOrCreateRequest);
-                ActiveChannel.Messages.AddRange(channelState.Messages);
-
-                foreach (var message in channelState.Messages)
-                {
-                    ActiveChanelMessageReceived?.Invoke(ActiveChannel, message);
-                }
-            }
-            catch (StreamApiException e)
-            {
-                e.LogStreamApiExceptionDetails(_unityLogger);
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
+                //StreamTodo: this should be handled by state client
             }
         }
     }

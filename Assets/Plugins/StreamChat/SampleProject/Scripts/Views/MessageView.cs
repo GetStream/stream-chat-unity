@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using StreamChat.Core.DTO.Models;
 using StreamChat.Core.Models;
+using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
 using StreamChat.SampleProject.Utils;
-using StreamChat.SampleProject.Popups;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,9 +18,11 @@ namespace StreamChat.SampleProject.Views
     /// </summary>
     public class MessageView : BaseView, IPointerDownHandler
     {
-        public Message Message { get; private set; }
+        public event Action<MessageView, PointerEventData> PointedDown;
+        
+        public IStreamMessage Message { get; private set; }
 
-        public void UpdateData(Message message, IImageLoader imageLoader)
+        public void UpdateData(IStreamMessage message, IImageLoader imageLoader)
         {
             imageLoader = imageLoader ?? throw new ArgumentNullException(nameof(imageLoader));
             Message = message ?? throw new ArgumentNullException(nameof(message));
@@ -48,7 +49,9 @@ namespace StreamChat.SampleProject.Views
                 _videoPlayer.GetComponentInChildren<RawImage>().texture = _renderTexture;
             }
 
-            _text.text = $"{GetMessageText(message)}<br>{Message.User.Name}";
+            _text.text = GetMessageText(message);
+            _author.text = Message.User.Name;
+            _date.text = Message.CreatedAt.DateTime.TimeAgo();
 
             ShowAvatarAsync(Message.User.Image, imageLoader).LogIfFailed();
 
@@ -63,15 +66,7 @@ namespace StreamChat.SampleProject.Views
             }
         }
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            if (!InputSystem.GetMouseButton(1))
-            {
-                return;
-            }
-
-            SetOptionsMenuActive(true);
-        }
+        public void OnPointerDown(PointerEventData eventData) => PointedDown?.Invoke(this, eventData);
 
         protected void Awake()
         {
@@ -92,11 +87,16 @@ namespace StreamChat.SampleProject.Views
         }
 
         private bool _isDestroyed;
-        private MessageOptionsPopup _activePopup;
         private RenderTexture _renderTexture;
 
         [SerializeField]
         private TMP_Text _text;
+
+        [SerializeField]
+        private TMP_Text _author;
+
+        [SerializeField]
+        private TMP_Text _date;
 
         [SerializeField]
         private VideoPlayer _videoPlayer;
@@ -123,9 +123,7 @@ namespace StreamChat.SampleProject.Views
                 return;
             }
 
-            Debug.Log("ShowAvatarAsync " + url);
             var sprite = await imageLoader.LoadImageAsync(url);
-
             if (_isDestroyed || sprite == null)
             {
                 return;
@@ -134,38 +132,22 @@ namespace StreamChat.SampleProject.Views
             _avatar.sprite = sprite;
         }
 
-        private void ShowReactions(Message message)
+        private void ShowReactions(IStreamMessage message)
         {
+            var anyShown = false;
             foreach (var reactionCount in message.ReactionCounts)
             {
+                anyShown = true;
                 Factory.CreateEmoji(_emojiPrefab, _emojisContainer, reactionCount.Key);
             }
+
+            _emojisContainer.gameObject.SetActive(anyShown);
         }
 
-        private void SetOptionsMenuActive(bool active)
-        {
-            if (_activePopup != null)
-            {
-                Destroy(_activePopup.gameObject);
-                _activePopup = null;
-            }
+        private static string GetMessageText(IStreamMessage message)
+            => message.IsDeleted ? ChatState.MessageDeletedInfo : message.Text;
 
-            if (active)
-            {
-                var mousePosition = InputSystem.MousePosition;
-
-                _activePopup = Factory.CreateMessageOptionsPopup(this, State);
-
-                var rectTransform = ((RectTransform)_activePopup.transform);
-
-                rectTransform.position = mousePosition + new Vector2(-10, 10);
-            }
-        }
-
-        private static string GetMessageText(Message message)
-            => message.Type == MessageType.Deleted ? ChatState.MessageDeletedInfo : message.Text;
-
-        private bool HasVideoAttachment(Message message, out Attachment videoAttachment)
+        private bool HasVideoAttachment(IStreamMessage message, out StreamMessageAttachment videoAttachment)
         {
             for (int i = 0; i < message.Attachments.Count; i++)
             {

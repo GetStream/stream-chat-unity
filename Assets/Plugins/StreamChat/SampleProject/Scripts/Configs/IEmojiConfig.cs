@@ -6,8 +6,11 @@ namespace StreamChat.SampleProject.Configs
 {
     public interface IEmojiConfig
     {
-        IEnumerable<Sprite> AllSprites { get; }
-        IEnumerable<Sprite> ReactionSprites { get; }
         TMP_SpriteAsset TMPSpriteAsset { get; }
+        Texture2D EmojisAtlasTexture { get; }
+        IEnumerable<Sprite> ReactionSprites { get; }
+        IEnumerable<Sprite> AllSprites { get; }
+
+        void LoadEmojisSprites();
     }
 }

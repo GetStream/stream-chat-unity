@@ -1,3 +1,222 @@
+v4.3.0:
+Fixes:
+* Fixed state update after channel.truncated event with a past date 
+* Added potential fix for a crash on Android with IL2CPP 
+	
+Improvements:
+* Improved reconnection logic to monitor Unity's [Network Reachability](https://docs.unity3d.com/ScriptReference/NetworkReachability.html) for faster reaction to when the network is available again 
+* Reduced the overhead and potential heating issues on mobile devices by optimizing the background tasks that handle WebSocket connection 
+* Updated DTOs to the latest OpenAPI spec 
+* Implemented invites  -> [Invites Docs](https://getstream.io/chat/docs/unity/channel_invites/?language=unity)
+* Added optional hide history & message parameters to IStreamChannel.AddMembersAsync 
+* Implemented IStreamChannel.UpdateOverwriteAsync  -> [Channel Overwrite Update Docs](https://getstream.io/chat/docs/unity/channel_update/?language=unity&q=update#full-update-(overwrite))
+* Added channel freezing & unfreezing  -> [Channel Freeze Docs](https://getstream.io/chat/docs/unity/disabling_channels/?language=unity#freeze-a-channel)
+	
+Sample Project:
+* Fixes:
+	* Fixed excessive TryLoadPreviousMessagesAsync calling - this could lead to performance issues after loading older messages
+* Improvements
+	* Added invite mechanics
+
+v4.2.0:
+Deprecated (will be removed in a future release):
+* IStreamChatClient.QueryChannelsAsync overload with IDictionary<string, object> filters parameter. Please use the other overload with IEnumerable<IFieldFilterRule> filters parameter.
+
+Fixes:
+* Change connection update monitor to not throw an error if the client is disposed or closing 
+* Fix StreamChannel members list not always being updated  
+* Fix IStreamChatClient.QueryChannelsAsync pagination 
+* Fix emoji sprites sometimes having missing references when importing SDK to a fresh project 
+* Fix reaction.new clearing the OwnReactions - this field is by design for performance reasons 
+* Remove this sample "mini" project as it is not finished and not helpful in its current form 
+* Fix IStreamUser.MarkVisibleAsync & IStreamUser.MarkInvisibleAsync 
+* Fix PresenceChanged to be always called when Online status changes 
+* Added Rest Call Log if case deserialization of the stream API error failed 
+	
+Improvements:
+* Implement IStreamChatClient.QueryUsersAsync pagination and sorting 
+* Add simple starting prefab + remove config asset 
+* Implement IStreamChannel.MembersChanged event to trigger on add, remove, update + add integration tests 
+* Implement syntax based users query filters + add integration tests & code samples 
+* Improve XML comments
+* Change IStreamChatClient.QueryUsersAsync filters parameter to be optional 
+* Add IStreamChannel helper method JoinAsMemberAsync and LeaveAsMemberChannelAsync 
+* Remove default allocations for the user upsert DTOs 
+* Add code samples for user and channel mute/unmute
+* Refactor dependencies so they can be easier replaced with C# Console or .NET MAUI projects 
+
+Code Samples:
+* Add code samples for channel query filters 
+* Update code examples using IStreamChatClient.QueryUsersAsync to use the new syntax-based filters 
+
+Sample Project:
+* Fixes:
+	* Fix null ref when closing the project 
+	* Fix images not showing at the start
+	* fix loading of previous messages called when the message list is empty
+	* Fix input height
+	* Change missing credentials error not to be thrown per frame 
+	* Fix online status sprites sometimes breaking after project import 
+
+* Improvements:
+	* UI/UX improvements
+	* Change ChannelView to show an icon if possible or a letter symbol
+	* Implement members list with an online status 
+	* Implement local user header with online and invisibility status 
+	* Support mobile touch for popup (show on touch and hide when touching outside) 
+	* Change default mobile screen orientation 	
+
+Tests:
+* Disable update monitor when tests are enabled
+* Improve integration tests stability
+
+v4.1.0:
+Fixes:
+* Fix "no await in async method" warning 
+* Fix When_delete_multiple_channels_expect_no_channels_in_state_client test failing when there a non test related channels already present in watched channels
+* Fix non deterministic SearchMessages test due to data propagation search result not being instant (takes few ms) so make few attempts before failing the test
+* Add potential fix for nondeterministic tests where WS event is not received during REST API call -> Add optional waiting for state to update
+	
+Improvements:
+* Implement token provider with auto refresh when the token expires 
+* refactor API client to disconnect and wait for reconnect if the API call failed due to expired token
+* Change reconnection logic to have few instant attempts + Add TokenProviderException
+* reduce default reconnection intervals
+* Add a simple menu option to toggle Debug mode for the SDK
+* Add overloads to StreamChannel to allow adding/removing members by their ID 
+* Add WebGL support 
+* Add sort parameter to IStreamChatClient.QueryChannelsAsync
+* Make filters parameter optional in IStreamChatClient.QueryChannelsAsync
+
+v4.0.0:
+🚀 Stateful Client release 🚀 
+This major update brings the new fully stateful Stream Chat Client! This means that the new client fully handles state management and synchronization between the application and the Stream server. Previously available client was a only low-level client providing a simple abstraction layer over the Stream Chat API and handling realtime communication through WebSocket.
+
+Stateful models
+We introduce high-level stateful objects:
+* IStreamChannel
+* IStreamMessage
+* IStreamUser
+* IStreamChannelMember
+* IStreamLocalUserData
+which update their internal state automatically based on your API requests and incoming WebSocket events. You can always rely on them having the most up to date state and update your UI based on the events exposed by these objects and the IStreamChatClient instance.
+
+Easier features access
+The new client as well as the new stateful models make API features usage much simpler through high level methods like:
+* channel.AddMembersAsync()
+* channel.MuteChannelAsync()
+* message.SendReactionAsync()
+* message.PinAsync()
+* message.FlagAsync()
+* user.MuteAsync()
+The API requests are pre configured with context-specific parameters and due to being accessible through model object they're much easier to discover and use than before.
+These are only very few examples of how simply you can use certain features. Explore our [Unity Docs](https://getstream.io/chat/docs/unity/?language=unity) to learn more.
+
+⚠️  Breaking changes
+Please note that the new stateful client is named exactly as the previous one and is meant to be a successor of the previous client. The old client and all of the related objects have been renamed. New client is the primary recommended way of communicating with Stream server.
+* Previous StreamChatClient has been renamed to StreamChatnLowLevelClient and moved from StreamChat.Core to StreamChat.Core.LowLevelClient namespace
+* Likewise the previous IStreamChatClient interface has been renamed to IStreamChatLowLevelClient and moved from StreamChat.Core to StreamChat.Core.LowLevelClient namespace
+
+Code Samples:
+We encourage you to browser trough our Samples folder and checkout numerous code examples of how to work with the new Stream Chat Client.
+
+Sample Project:
+* Sample project has been refactored to use the new stateful client
+
+v3.9.0:
+Deprecated (will be removed in a future release):
+* EventNotificationMarkRead.UnreadCount - it duplicates the EventNotificationMarkRead.TotalUnreadCount
+* StreamChatClient.LocalUser - it is not updated after the connection  
+
+Fixes:
+* Fix tests to not use obsolete code and therefore show warnings in the logs/console 
+* Fix WS exception when disconnecting 
+* Remove UserMute json attributes & MessageRequest.PinnedBy type & mark invalid fields as obsolete 
+* Fix IsDebugEnabled - StreamLogLevel is not a flags enum 
+* Fix WebSocket token cancellation and resources cleanup  
+* Fix start/stop typing events not containing event type 
+* Fix Disconnected event not being triggered when mocking WS Client disconnection in unit test 
+* Fix when_stream_client_connection_failed_expect_reconnect not properly simulating scenario 
+* Fix invalid data types in DTOs 
+* Fix Limit & Offset field types for QueryMembersRequest 
+* Change code sample to not use method marked as obsolete 
+* Fix ArgumentOutOfRangeException when Closing state is checked 
+
+Improvements:
+* Implement missing real-time events and notifications that might come from the WebSocket connection 
+* Implement StreamChatClient.ChannelMutesUpdated event 
+* Implement StreamChatClient.MessageApi.UpdateMessagePartialAsync 
+* Implement StreamChatClient.MessageApi.UploadImageAsync endpoint + add upload image with resize integration test 
+* Update DTOs according to Stream Open API spec 
+* Remove server-side only fields from DTOs
+* Add detailed info to the Message of StreamApiException in order for Unity Console to present more info 
+* Add utility method to allow running Task as callback 
+* Add config option to control log level 
+* Add RunAsIEnumerator with argumentless Task
+
+v3.6.0:
+Deprecated (will be removed in a future release):
+* ChannelState's NewMessageAdded and AddMessage methods
+
+Fixes:
+* ConnectionStateChanged event invalid previous state argument 
+* Fixed Connection "not being updated" error to not show if the client disconnects before the health event timeout
+* Fixed StreamApiException passing message to base Exception
+* Fixed detailed request log not showing for POST
+* Added missing EventMessageNew fields
+* Change client state to Disconnected if HealthCheck not received
+* Kill WebSocket if healthcheck not received + Close Websocket on Disconnect
+	
+Improvements:
+* Client will automatically reconnect whenever a connection gets lost based on reconnect strategy settings 
+	* Added SetReconnectStrategy to allow control of the reconnect strategy
+* Added Moderation API Endpoints & Code Samples:
+	* Unmute
+	* Ban
+	* Unban
+	* ShadowBanUser
+	* RemoveUserShadowBan
+	* QueryBannedUsers
+	* FlagUser
+	* FlagMessage
+	* QueryMessageFlags
+* Added ChannelApi API Endpoints & Code Samples:
+	* MarkRead & MarkManyRead  - marking read state
+	* SendTypingStartEvent & SendTypingStopEvent  - typing indicators
+* Added MessageAip Endpoint & Code Samples:
+	* SearchMessages 
+* Added events:
+	* MessageRead
+	* NotificationMarkRead
+	* Disconnected
+* Added LocalUser property to IStreamChatClient
+* Added XML summaries Stream Chat Client events:
+* Improved description & optimized API calls logs 
+* Added code samples:
+	* users upsert 
+	* reply in a thread
+	* quote message
+	* get read states
+	* get the next 25 messages since last read
+	* update the channel to hide history for new members
+	* paginating: messages, members, or watchers 
+	* mark read endpoints 
+	* typing indicators 
+* Added error log if a user forgets to update the connection per frame
+* Added option to toggle compilation of SDK unity & integration tests
+	
+Sample Project:
+* Fixes:
+	* (Sample Project) Fixed receiving active channel messages after reconnect
+	* (Sample Project) Fixed null ref exception on app start 
+* Improvements:
+	* Added emojis sprite atlas using Twemoji + Added auto replacing of emoji shortcodes with TMP sprites 
+	* Added option to mark the message as the last read
+	* Logs for MessageRead & NotificationMarkRead events
+	* Added connection details info
+	* Added forcing reconnect based on Unity's NetworkReachability feature
+	* Added typing indicators
+
 v3.0.0:
 * Fixes:
 	* Fixed Sample Project compatibility with .NET 4.x
@@ -46,6 +265,3 @@ v1.0.0:
 	* Messages Endpoints: CRUD
 	* Users Endpoints: CRUD, Query
 	* Sample project
-
-
-

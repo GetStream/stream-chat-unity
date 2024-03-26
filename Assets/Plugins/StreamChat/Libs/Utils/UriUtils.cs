@@ -8,23 +8,25 @@ namespace StreamChat.Libs.Utils
     /// </summary>
     public static class UriUtils
     {
-        public static string ToQueryParameters(this IDictionary<string, string> dict)
+        public static string ToQueryParameters(this IReadOnlyDictionary<string, string> dict)
         {
-            var sb = new StringBuilder();
+            _sb.Length = 0;
 
             foreach(var item in dict)
             {
-                if (sb.Length > 0)
+                if (_sb.Length > 0)
                 {
-                    sb.Append("&");
+                    _sb.Append("&");
                 }
 
-                sb.Append(item.Key);
-                sb.Append("=");
-                sb.Append(item.Value); //Todo: Uri.EscapeDataString ?
+                _sb.Append(item.Key);
+                _sb.Append("=");
+                _sb.Append(item.Value); //StreamTodo: Uri.EscapeDataString ?
             }
 
-            return sb.ToString();
+            return _sb.ToString();
         }
+
+        private static readonly StringBuilder _sb = new StringBuilder();
     }
 }

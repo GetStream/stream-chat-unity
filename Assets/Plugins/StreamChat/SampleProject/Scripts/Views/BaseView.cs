@@ -34,16 +34,24 @@ namespace StreamChat.SampleProject.Views
             {
                 OnDisposing();
             }
+
+            _destroyed = true;
         }
+
+        protected void Start() => OnStart();
 
         protected void Update()
         {
-            if (!_isInited)
+            if (!_isInited || _destroyed)
             {
                 return;
             }
 
             OnUpdate();
+        }
+        
+        protected virtual void OnStart()
+        {
         }
 
         protected virtual void OnInited()
@@ -62,5 +70,6 @@ namespace StreamChat.SampleProject.Views
         }
 
         private bool _isInited;
+        private bool _destroyed;
     }
 }
