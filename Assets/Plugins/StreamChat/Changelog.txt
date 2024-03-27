@@ -1,3 +1,12 @@
+v4.4.0:
+Fixes:
+* Fixed Unity 2019.4 compiler errors (due to older C# syntax) 
+* Fixed unnecessary DLLs being added to the Windows build. Test framework dependencies (Tasks.Extensions, CompilerServices.Unsafe) + changed NativeWebSocket to be only included in a WebGL build 
+	
+Sample Project:
+* Fixes:
+	* Fixed Json deserialization error due to code being stripped by the IL2CPP
+
 v4.3.0:
 Fixes:
 * Fixed state update after channel.truncated event with a past date 
