@@ -88,8 +88,9 @@ namespace StreamChat.SampleProject.Views
             _mode = Mode.Edit;
             _messageInput.text = message.Text;
 
-            _messageInput.Select();
-            _messageInput.ActivateInputField();
+            //StreamTodo: this was causing SteamDeck keyboard to be shown because it's hooked to OnSelected event
+            //_messageInput.Select();
+            //_messageInput.ActivateInputField();
         }
 
         private enum Mode
@@ -202,10 +203,12 @@ namespace StreamChat.SampleProject.Views
             }
 
             _lastAttachmentUrl = string.Empty;
-            _messageInput.text = "";
+            //_messageInput.text = "";
+            
+            _messageInput.SetTextWithoutNotify("");
 
-            _messageInput.Select();
-            _messageInput.ActivateInputField();
+            //_messageInput.Select();
+            //_messageInput.ActivateInputField();
 
             _currentEditMessage = null;
             _mode = Mode.Create;
@@ -221,7 +224,7 @@ namespace StreamChat.SampleProject.Views
             filters[1] = string.Join(", ", AllowedVideoFormats);
 
             _lastAttachmentUrl = EditorUtility.OpenFilePanelWithFilters("Pick attachment", "", filters);
-            _messageInput.text = "Attachment ready: " + _lastAttachmentUrl;
+            //_messageInput.text = "Attachment ready: " + _lastAttachmentUrl;
 #else
             Debug.LogError("Please implement file picker for this platform. File picker in demo only works in editor.");
 #endif
@@ -240,8 +243,8 @@ namespace StreamChat.SampleProject.Views
 
             if (source != _messageInput.text)
             {
-                _messageInput.SetTextWithoutNotify(source);
-                _messageInput.caretPosition = _messageInput.text.Length;
+                //_messageInput.SetTextWithoutNotify(source);
+                //_messageInput.caretPosition = _messageInput.text.Length;
             }
         }
     }

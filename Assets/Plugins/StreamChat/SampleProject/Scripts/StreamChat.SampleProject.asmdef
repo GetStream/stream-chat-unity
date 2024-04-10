@@ -1,10 +1,10 @@
 {
     "name": "StreamChat.SampleProject",
-    "rootNamespace": "",
     "references": [
         "StreamChat.Core",
         "Unity.TextMeshPro",
-        "StreamChat.Libs"
+        "StreamChat.Libs",
+        "com.rlabrecque.steamworks.net"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
