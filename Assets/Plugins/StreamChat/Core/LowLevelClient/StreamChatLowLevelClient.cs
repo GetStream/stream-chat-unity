@@ -790,8 +790,11 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
-            EventReceived?.Invoke($"{time} - Event received: <b>{type}</b>");
+            if (EventReceived != null)
+            {
+                var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
+                EventReceived.Invoke($"{time} - Event received: <b>{type}</b>");
+            }
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {

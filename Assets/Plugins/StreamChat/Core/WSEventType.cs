@@ -41,5 +41,6 @@
         public const string NotificationRemovedFromChannel = "notification.removed_from_channel";
         public const string NotificationMutesUpdated = "notification.mutes_updated";
         public const string NotificationChannelMutesUpdated = "notification.channel_mutes_updated";
+        //StreamTodo: implement NOTIFICATION.MARK_UNREAD
     }
 }
