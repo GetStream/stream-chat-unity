@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
+using StreamChat.SampleProject.Pooling;
 using StreamChat.SampleProject.Utils;
 using TMPro;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace StreamChat.SampleProject.Views
     /// <summary>
     /// Message view
     /// </summary>
-    public class MessageView : BaseView, IPointerDownHandler
+    public class MessageView : BaseView, IPointerDownHandler, IPoolItem
     {
         public event Action<MessageView, PointerEventData> PointedDown;
         
@@ -67,6 +68,10 @@ namespace StreamChat.SampleProject.Views
         }
 
         public void OnPointerDown(PointerEventData eventData) => PointedDown?.Invoke(this, eventData);
+
+        void IPoolItem.OnRenting() => gameObject.SetActive(true);
+
+        void IPoolItem.OnReturning() => gameObject.SetActive(false);
 
         protected void Awake()
         {

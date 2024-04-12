@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
+using StreamChat.SampleProject.Pooling;
 using StreamChat.SampleProject.Popups;
 using StreamChat.SampleProject.Utils;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -25,6 +27,9 @@ namespace StreamChat.SampleProject.Views
             State.ActiveChanelChanged += OnActiveChannelChanged;
 
             _scrollRect = GetComponent<ScrollRect>();
+            
+            _otherUsersMessagesPool = new ObjectsPool<MessageView>(CreateOtherUserMessageView, DestroyMessageView);
+            _localUserMessagesPool = new ObjectsPool<MessageView>(CreateLocalUserMessageView, DestroyMessageView);
         }
 
         protected override void OnUpdate()
@@ -61,6 +66,9 @@ namespace StreamChat.SampleProject.Views
         private readonly List<MessageView> _messages = new List<MessageView>();
         private readonly UnityImageWebLoader _imageLoader = new UnityImageWebLoader();
 
+        private ObjectsPool<MessageView> _otherUsersMessagesPool;
+        private ObjectsPool<MessageView> _localUserMessagesPool;
+
         [SerializeField]
         private Transform _messagesContainer;
 
@@ -70,6 +78,7 @@ namespace StreamChat.SampleProject.Views
         [SerializeField]
         private MessageView _localUserMessageViewPrefab;
 
+        //StreamTodo: investigate optimized alternatives for ScrollRect. The default Unity ScrollRect allocates lots of memory during updates, even without instantiating new objects
         private ScrollRect _scrollRect;
 
         private int _scrollListLastUpdateFrame;
@@ -133,8 +142,9 @@ namespace StreamChat.SampleProject.Views
         {
             foreach (var m in _messages)
             {
+                var pool = GetMessagePool(m.Message);
                 m.PointedDown -= OnMessagePointedDown;
-                Destroy(m.gameObject);
+                pool.Return(m);
             }
 
             _messages.Clear();
@@ -222,12 +232,35 @@ namespace StreamChat.SampleProject.Views
         //StreamTodo: extract to ViewFactory
         private MessageView CreateMessageView(IStreamMessage message)
         {
-            var isLocal = Client.IsLocalUser(message.User);
-            var prefab = isLocal ? _localUserMessageViewPrefab : _messageViewPrefab;
-            var view = Instantiate(prefab, _messagesContainer);
-            view.Init(ViewContext);
+            var pool = GetMessagePool(message);
+
+            var view = pool.Rent();
             view.PointedDown += OnMessagePointedDown;
             return view;
+        }
+
+        private ObjectsPool<MessageView> GetMessagePool(IStreamMessage message)
+        {
+            var isLocal = Client.IsLocalUser(message.User);
+            return isLocal ? _localUserMessagesPool : _otherUsersMessagesPool;
+        }
+
+        private MessageView CreateLocalUserMessageView() => CreateMessageView(_localUserMessageViewPrefab);
+
+        private MessageView CreateOtherUserMessageView() => CreateMessageView(_messageViewPrefab);
+
+        private MessageView CreateMessageView(MessageView prefab)
+        {
+            var view =  Instantiate(prefab, _messagesContainer);
+            view.Init(ViewContext);
+            view.gameObject.SetActive(false);
+            return view;
+        }
+
+        private void DestroyMessageView(MessageView view)
+        {
+            view.PointedDown -= OnMessagePointedDown;
+            Destroy(view.gameObject);
         }
 
         private IEnumerator ScrollToBottomAfterResized()
@@ -254,8 +287,6 @@ namespace StreamChat.SampleProject.Views
         {
             HideContextMenu();
 
-            Debug.Log("ShowContextMenu on fame " + Time.frameCount);
-
             var pointerPosition = pointerEventData.position;
 
             _activePopup = Factory.CreateMessageOptionsPopup(parent, State);
@@ -271,7 +302,6 @@ namespace StreamChat.SampleProject.Views
         {
             if (_activePopup != null)
             {
-                Debug.Log("HideContextMenu on fame " + Time.frameCount);
                 Destroy(_activePopup.gameObject);
                 _activePopup = null;
             }
