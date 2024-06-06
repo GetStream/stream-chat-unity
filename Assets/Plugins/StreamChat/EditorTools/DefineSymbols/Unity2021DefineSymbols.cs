@@ -1,4 +1,4 @@
-﻿#if UNITY_2021
+﻿#if UNITY_2021_1_OR_NEWER
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Build;

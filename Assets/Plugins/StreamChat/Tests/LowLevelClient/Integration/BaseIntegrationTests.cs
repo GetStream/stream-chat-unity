@@ -94,7 +94,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             }
 
             var channelState = await Try(() => LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
-                channelGetOrCreateRequest), channelState => channelState != null);
+                channelGetOrCreateRequest), state => state != null);
 
             _tempChannelsCidsToDelete.Add(channelState.Channel.Cid);
             return channelState;
@@ -116,7 +116,20 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             {
                 attempt++;
 
-                response = await task();
+                try
+                {
+                    response = await task();
+                }
+                catch (StreamApiException streamApiException)
+                {
+                    // Check for "Too many requests" error
+                    if (streamApiException.StatusCode == 429)
+                    {
+                        const int tooManyRequestsDelay = 4;
+                        Debug.Log($"Wait {tooManyRequestsDelay} seconds due to \"too many requests\" error");
+                        await Task.Delay(tooManyRequestsDelay * 1000);
+                    }
+                }
 
                 if (successCondition(response))
                 {

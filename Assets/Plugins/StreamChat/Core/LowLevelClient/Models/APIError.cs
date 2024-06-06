@@ -86,7 +86,6 @@ namespace StreamChat.Core.LowLevelClient.Models
             ExceptionFields = dto.ExceptionFields;
             Message = dto.Message;
             MoreInfo = dto.MoreInfo;
-            AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }

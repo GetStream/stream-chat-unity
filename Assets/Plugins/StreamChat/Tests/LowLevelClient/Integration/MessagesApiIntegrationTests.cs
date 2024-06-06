@@ -128,7 +128,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                         Limit = 30,
                         Offset = 0,
                     },
-                }),channelState => channelState.Messages != null && channelState.Messages.Count > 0);
+                }),state => state.Messages != null && state.Messages.Count > 0);
 
             Assert.IsNotNull(channelState.Messages);
             Assert.IsNotEmpty(channelState.Messages);

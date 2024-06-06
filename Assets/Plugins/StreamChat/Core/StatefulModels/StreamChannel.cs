@@ -193,6 +193,9 @@ namespace StreamChat.Core.StatefulModels
 
             var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id,
                 sendMessageRequest.TrySaveToDto());
+            
+            //StreamTodo: we update internal cache message without server confirmation that message got accepted. e.g. message could be rejected
+            //It's ok to update the cache "in good faith" to not introduce update delay but we should handle if message got rejected
             var streamMessage = InternalAppendOrUpdateMessage(response.Message);
             return streamMessage;
         }
@@ -290,7 +293,10 @@ namespace StreamChat.Core.StatefulModels
             IDictionary<string, object> filters = null, int limit = 30, int offset = 0)
         {
             // filter_conditions is required by API but empty object is accepted
-            filters ??= new Dictionary<string, object>();
+            if (filters == null)
+            {
+                filters = new Dictionary<string, object>();
+            }
 
             var response = await LowLevelClient.InternalChannelApi.QueryMembersAsync(new QueryMembersRequestInternalDTO
             {
@@ -754,7 +760,7 @@ namespace StreamChat.Core.StatefulModels
 
         internal void InternalAddMember(StreamChannelMember member)
         {
-            if (_members.Contains(member))
+            if (_members.ContainsNoAlloc(member))
             {
                 return;
             }
@@ -766,7 +772,7 @@ namespace StreamChat.Core.StatefulModels
 
         internal void InternalRemoveMember(StreamChannelMember member)
         {
-            if (!_members.Contains(member))
+            if (!_members.ContainsNoAlloc(member))
             {
                 return;
             }
@@ -778,7 +784,7 @@ namespace StreamChat.Core.StatefulModels
 
         internal void InternalUpdateMember(StreamChannelMember member)
         {
-            if (!_members.Contains(member))
+            if (!_members.ContainsNoAlloc(member))
             {
                 _members.Add(member);
             }
@@ -819,7 +825,7 @@ namespace StreamChat.Core.StatefulModels
             var streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
             if (wasCreated)
             {
-                if (!_messages.Contains(streamMessage))
+                if (!_messages.ContainsNoAlloc(streamMessage))
                 {
                     _messages.Add(streamMessage);
                     MessageReceived?.Invoke(this, streamMessage);
@@ -956,7 +962,7 @@ namespace StreamChat.Core.StatefulModels
             AssertCid(eventDto.Cid);
 
             var user = Cache.TryCreateOrUpdate(eventDto.User, out var wasCreated);
-            if (wasCreated || !_watchers.Contains(user))
+            if (wasCreated || !_watchers.ContainsNoAlloc(user))
             {
                 WatcherCount += 1;
                 _watchers.Add(user);
@@ -1007,7 +1013,7 @@ namespace StreamChat.Core.StatefulModels
             var user = Cache.TryCreateOrUpdate(eventDto.User);
             StreamAsserts.AssertNotNull(user, nameof(user));
 
-            if (!_typingUsers.Contains(user))
+            if (!_typingUsers.ContainsNoAlloc(user))
             {
                 _typingUsers.Add(user);
                 UserStartedTyping?.Invoke(this, user);

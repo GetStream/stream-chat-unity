@@ -196,7 +196,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// SDK Version number
         /// </summary>
-        public static readonly Version SDKVersion = new Version(4, 2, 0);
+        public static readonly Version SDKVersion = new Version(4, 4, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
@@ -205,7 +205,11 @@ namespace StreamChat.Core.LowLevelClient
         public static IStreamChatLowLevelClient CreateDefaultClient(AuthCredentials authCredentials,
             IStreamClientConfig config = default)
         {
-            config ??= StreamClientConfig.Default;
+            if (config == null)
+            {
+                config = StreamClientConfig.Default;
+            }
+            
             var logs = StreamDependenciesFactory.CreateLogger(config.LogLevel.ToLogLevel());
             var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
             var websocketClient
@@ -786,8 +790,11 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
-            EventReceived?.Invoke($"{time} - Event received: <b>{type}</b>");
+            if (EventReceived != null)
+            {
+                var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
+                EventReceived.Invoke($"{time} - Event received: <b>{type}</b>");
+            }
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {

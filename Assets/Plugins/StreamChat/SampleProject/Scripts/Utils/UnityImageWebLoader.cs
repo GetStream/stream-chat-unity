@@ -49,7 +49,7 @@ namespace StreamChat.SampleProject.Utils
 
                 var request = requestAsyncHandler.webRequest;
 
-                if (request.result != UnityWebRequest.Result.Success)
+                if (!string.IsNullOrEmpty(request.error))
                 {
                     if (request.responseCode == 404)
                     {

@@ -17,8 +17,8 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task Overview()
         {
-var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-var message = await channel.SendNewMessageAsync("Hello world!");
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            var message = await channel.SendNewMessageAsync("Hello world!");
         }
 
         /// <summary>
@@ -26,30 +26,30 @@ var message = await channel.SendNewMessageAsync("Hello world!");
         /// </summary>
         public async Task ComplexExample()
         {
-var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
 
-IStreamUser someUser = null;
-
-// Send simple message with text only
-var message3 = await channel.SendNewMessageAsync("Hello");
+            IStreamUser someUser = null;
 
 // Send simple message with text only
-var message2 = await channel.SendNewMessageAsync("Let's start a thread!");
+            var message3 = await channel.SendNewMessageAsync("Hello");
 
-var message = await channel.SendNewMessageAsync(new StreamSendMessageRequest
-{
-    MentionedUsers = new List<IStreamUser> { someUser }, // Mention a user
-    ParentId = message2.Id, // Write in thread
-    PinExpires = new DateTimeOffset(DateTime.Now).AddDays(7), // Pin for 7 days
-    Pinned = true,
-    QuotedMessage = message3,
-    ShowInChannel = true,
-    Text = "Hello",
-    CustomData = new StreamCustomDataRequest
-    {
-        { "my_lucky_numbers", new List<int> { 7, 13, 81 } }
-    }
-});
+// Send simple message with text only
+            var message2 = await channel.SendNewMessageAsync("Let's start a thread!");
+
+            var message = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                MentionedUsers = new List<IStreamUser> { someUser }, // Mention a user
+                ParentId = message2.Id, // Write in thread
+                PinExpires = new DateTimeOffset(DateTime.Now).AddDays(7), // Pin for 7 days
+                Pinned = true,
+                QuotedMessage = message3,
+                ShowInChannel = true,
+                Text = "Hello",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "my_lucky_numbers", new List<int> { 7, 13, 81 } }
+                }
+            });
         }
 
         /// <summary>
@@ -65,18 +65,18 @@ var message = await channel.SendNewMessageAsync(new StreamSendMessageRequest
         /// </summary>
         public async Task UpdateAMessage()
         {
-var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-var message = await channel.SendNewMessageAsync("Hello world!");
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            var message = await channel.SendNewMessageAsync("Hello world!");
 
 // Edit message text and some custom data
-await message.UpdateAsync(new StreamUpdateMessageRequest
-{
-    Text = "Hi everyone!",
-    CustomData = new StreamCustomDataRequest
-    {
-        {"tags", new [] {"Funny", "Unique"}}
-    }
-});
+            await message.UpdateAsync(new StreamUpdateMessageRequest
+            {
+                Text = "Hi everyone!",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "tags", new[] { "Funny", "Unique" } }
+                }
+            });
         }
 
         /// <summary>
@@ -92,14 +92,14 @@ await message.UpdateAsync(new StreamUpdateMessageRequest
         /// </summary>
         public async Task DeleteAMessage()
         {
-var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-var message = await channel.SendNewMessageAsync("Hello world!");
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            var message = await channel.SendNewMessageAsync("Hello world!");
 
 // Soft delete
-await message.SoftDeleteAsync();
+            await message.SoftDeleteAsync();
 
 // Hard delete
-await message.HardDeleteAsync();
+            await message.HardDeleteAsync();
         }
 
         /// <summary>
@@ -118,15 +118,14 @@ await message.HardDeleteAsync();
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
 
 // Get file byte array however you want e.g. Addressables.LoadAsset, Resources.Load, etc.
-var sampleFile = File.ReadAllBytes("path/to/file");
-var fileUploadResponse = await channel.UploadFileAsync(sampleFile, "my-file-name");
-var fileWebUrl = fileUploadResponse.FileUrl;
+            var sampleFile = File.ReadAllBytes("path/to/file");
+            var fileUploadResponse = await channel.UploadFileAsync(sampleFile, "my-file-name");
+            var fileWebUrl = fileUploadResponse.FileUrl;
 
 // Get image byte array however you want e.g. Addressables.LoadAsset, Resources.Load, etc.
-var sampleImage = File.ReadAllBytes("path/to/file");
-var imageUploadResponse = await channel.UploadImageAsync(sampleFile, "my-image-name");
-var imageWebUrl = imageUploadResponse.FileUrl;
-
+            var sampleImage = File.ReadAllBytes("path/to/file");
+            var imageUploadResponse = await channel.UploadImageAsync(sampleFile, "my-image-name");
+            var imageWebUrl = imageUploadResponse.FileUrl;
         }
 
         /// <summary>
@@ -134,8 +133,8 @@ var imageWebUrl = imageUploadResponse.FileUrl;
         /// </summary>
         public async Task DeleteFileOrImage()
         {
-var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-await channel.DeleteFileOrImageAsync("file-url");
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            await channel.DeleteFileOrImageAsync("file-url");
         }
 
         /// <summary>
@@ -146,19 +145,19 @@ await channel.DeleteFileOrImageAsync("file-url");
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
 
 //Implement your own CDN upload and obtain the file URL
-var fileUrl = "file-url-to-your-cdn";
+            var fileUrl = "file-url-to-your-cdn";
 
-await channel.SendNewMessageAsync(new StreamSendMessageRequest
-{
-    Text = "Message with file attachment",
-    Attachments = new List<StreamAttachmentRequest>
-    {
-        new StreamAttachmentRequest
-        {
-            AssetUrl = fileUrl,
-        }
-    }
-});
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = "Message with file attachment",
+                Attachments = new List<StreamAttachmentRequest>
+                {
+                    new StreamAttachmentRequest
+                    {
+                        AssetUrl = fileUrl,
+                    }
+                }
+            });
 
             await Task.CompletedTask;
         }
@@ -172,16 +171,16 @@ await channel.SendNewMessageAsync(new StreamSendMessageRequest
             var message = await channel.SendNewMessageAsync("Hello world!");
 
 // Send simple reaction with a score of 1
-await message.SendReactionAsync("like");
+            await message.SendReactionAsync("like");
 
 // Send reaction with a custom score value
-await message.SendReactionAsync("clap", 10);
+            await message.SendReactionAsync("clap", 10);
 
 // Send reaction with a custom score value
-await message.SendReactionAsync("clap", 10);
+            await message.SendReactionAsync("clap", 10);
 
 // Send reaction and replace all previous reactions (if any) from this user
-await message.SendReactionAsync("love", enforceUnique: true);
+            await message.SendReactionAsync("love", enforceUnique: true);
         }
 
         /// <summary>
@@ -192,7 +191,7 @@ await message.SendReactionAsync("love", enforceUnique: true);
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             var message = await channel.SendNewMessageAsync("Hello world!");
 
-await message.DeleteReactionAsync("like");
+            await message.DeleteReactionAsync("like");
         }
 
         /// <summary>
@@ -214,7 +213,7 @@ await message.DeleteReactionAsync("like");
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             var message = await channel.SendNewMessageAsync("Hello world!");
 
-await message.SendReactionAsync("clap", score: 3);
+            await message.SendReactionAsync("clap", score: 3);
         }
 
         /// <summary>
@@ -228,14 +227,14 @@ await message.SendReactionAsync("clap", score: 3);
             var message3 = await channel.SendNewMessageAsync("Hello");
 
 // Send simple message with text only
-var parentMessage = await channel.SendNewMessageAsync("Let's start a thread!");
+            var parentMessage = await channel.SendNewMessageAsync("Let's start a thread!");
 
-var messageInThread = await channel.SendNewMessageAsync(new StreamSendMessageRequest
-{
-    ParentId = parentMessage.Id, // Write in thread
-    ShowInChannel = false, // Optionally send to both thread and the main channel like in Slack
-    Text = "Hello",
-});
+            var messageInThread = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parentMessage.Id, // Write in thread
+                ShowInChannel = false, // Optionally send to both thread and the main channel like in Slack
+                Text = "Hello",
+            });
         }
 
         /// <summary>
@@ -259,11 +258,11 @@ var messageInThread = await channel.SendNewMessageAsync(new StreamSendMessageReq
 // Send simple message with text only
             var quotedMessage = await channel.SendNewMessageAsync("Let's start a thread!");
 
-var messageWithQuote = await channel.SendNewMessageAsync(new StreamSendMessageRequest
-{
-    QuotedMessage = quotedMessage,
-    Text = "Hello",
-});
+            var messageWithQuote = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                QuotedMessage = quotedMessage,
+                Text = "Hello",
+            });
         }
 
         /// <summary>
@@ -282,11 +281,11 @@ var messageWithQuote = await channel.SendNewMessageAsync(new StreamSendMessageRe
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
 
 // This message will not trigger events for channel members
-var silentMessage = await channel.SendNewMessageAsync(new StreamSendMessageRequest
-{
-    Text = "System message",
-    Silent = true
-});
+            var silentMessage = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = "System message",
+                Silent = true
+            });
         }
 
         /// <summary>
@@ -294,33 +293,32 @@ var silentMessage = await channel.SendNewMessageAsync(new StreamSendMessageReque
         /// </summary>
         public async Task Search()
         {
-
 // Access to low-level client is left for backward compatibility. Soon simplified syntax for searching will be implemented
-var searchResponse = await Client.LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
-{
-    //Filter is required for search
-    FilterConditions = new Dictionary<string, object>
-    {
-        {
-            //Get channels that local user is a member of
-            "members", new Dictionary<string, object>
+            var searchResponse = await Client.LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
             {
-                { "$in", new[] { "John" } }
+                //Filter is required for search
+                FilterConditions = new Dictionary<string, object>
+                {
+                    {
+                        //Get channels that local user is a member of
+                        "members", new Dictionary<string, object>
+                        {
+                            { "$in", new[] { "John" } }
+                        }
+                    }
+                },
+
+                //search phrase
+                Query = "supercalifragilisticexpialidocious"
+            });
+
+            foreach (var searchResult in searchResponse.Results)
+            {
+                Debug.Log(searchResult.Message.Id); //Message ID
+                Debug.Log(searchResult.Message.Text); //Message text
+                Debug.Log(searchResult.Message.User); //Message author info
+                Debug.Log(searchResult.Message.Channel); //Channel info
             }
-        }
-    },
-
-    //search phrase
-    Query = "supercalifragilisticexpialidocious"
-});
-
-foreach (var searchResult in searchResponse.Results)
-{
-    Debug.Log(searchResult.Message.Id); //Message ID
-    Debug.Log(searchResult.Message.Text); //Message text
-    Debug.Log(searchResult.Message.User); //Message author info
-    Debug.Log(searchResult.Message.Channel); //Channel info
-}
         }
 
         /// <summary>
@@ -339,13 +337,13 @@ foreach (var searchResult in searchResponse.Results)
             IStreamMessage message = null;
 
 // Pin until unpinned
-await message.PinAsync();
+            await message.PinAsync();
 
 // Pin for 7 days
-await message.PinAsync(new DateTime().AddDays(7));
+            await message.PinAsync(new DateTime().AddDays(7));
 
 // Unpin previously pinned message
-await message.UnpinAsync();
+            await message.UnpinAsync();
         }
 
         /// <summary>

@@ -48,7 +48,7 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Invisible user will appear as offline to other users
-        /// You can change user visibility with <see cref="ChangeVisibilityAsync"/>
+        /// You can change user visibility with <see cref="MarkInvisibleAsync"/> & <see cref="MarkVisibleAsync"/>
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/presence_format/?language=unity</remarks>
         bool Invisible { get; }

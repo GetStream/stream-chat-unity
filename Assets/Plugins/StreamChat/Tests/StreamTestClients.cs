@@ -21,7 +21,18 @@ namespace StreamChat.Tests
     /// </summary>
     internal class StreamTestClients
     {
-        public static StreamTestClients Instance => _instance ??= new StreamTestClients();
+        public static StreamTestClients Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new StreamTestClients();
+                }
+
+                return _instance;
+            }
+        }
 
         public void AddLock(object owner) => _locks.Add(owner);
 
@@ -44,9 +55,31 @@ namespace StreamChat.Tests
             }
         }
 
-        public StreamChatClient StateClient => _stateClient ??= CreateStateClient();
+        public StreamChatClient StateClient
+        {
+            get
+            {
+                if (_stateClient == null)
+                {
+                    _stateClient = CreateStateClient();
+                }
 
-        public StreamChatClient OtherStateClient => _otherStateClient ??= CreateStateClient();
+                return _stateClient;
+            }
+        }
+
+        public StreamChatClient OtherStateClient
+        {
+            get
+            {
+                if (_otherStateClient == null)
+                {
+                    _otherStateClient = CreateStateClient();
+                }
+
+                return _otherStateClient;
+            }
+        }
 
         public OwnUser LowLevelClientOwnUser { get; private set; }
 
@@ -110,7 +143,7 @@ namespace StreamChat.Tests
             const int timeout = 5000;
             var timer = new Stopwatch();
             timer.Start();
-            
+
             var connectTask = client.ConnectUserAsync(credentials);
             while (!connectTask.IsCompleted)
             {
@@ -125,7 +158,7 @@ namespace StreamChat.Tests
                     throw new TimeoutException($"Reached timeout when trying to connect user: {credentials.UserId}");
                 }
             }
-            
+
             timer.Stop();
 
             Debug.Log(

@@ -52,7 +52,7 @@ namespace StreamChat.Core.LowLevelClient.Models
         /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)
         /// </summary>
         [Obsolete("Use ChannelRole instead")]
-        public ChannelMemberRoleType? Role { get; set; }
+        public string Role { get; set; }
 
         /// <summary>
         /// Whether member is shadow banned in this channel or not

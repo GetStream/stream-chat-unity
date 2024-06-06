@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
+using StreamChat.Libs.Utils;
 using UnityEngine.Networking;
 
 namespace StreamChat.Libs.Http
@@ -79,7 +79,7 @@ namespace StreamChat.Libs.Http
                     await Task.Yield();
                 }
 
-                if (unityWebRequest.result != UnityWebRequest.Result.Success)
+                if (!unityWebRequest.IsRequestSuccessful())
                 {
                     throw new Exception(unityWebRequest.error);
                 }
@@ -117,7 +117,7 @@ namespace StreamChat.Libs.Http
                     await Task.Yield();
                 }
 
-                if (unityWebRequest.result != UnityWebRequest.Result.Success)
+                if (!unityWebRequest.IsRequestSuccessful())
                 {
                     throw new Exception(unityWebRequest.error);
                 }

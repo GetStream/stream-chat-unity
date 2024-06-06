@@ -1,6 +1,5 @@
-﻿#if UNITY_2020_1_OR_NEWER && !UNITY_2021
+﻿#if UNITY_2019_1_OR_NEWER && !UNITY_2021_1_OR_NEWER
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 
 namespace StreamChat.EditorTools.DefineSymbols

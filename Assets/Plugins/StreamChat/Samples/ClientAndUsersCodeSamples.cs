@@ -49,6 +49,18 @@ namespace StreamChat.Samples
             var localUserData = await client.ConnectUserAsync("api_key", "chat_user", "chat_user_token");
 // After await is complete the user is connected
 
+        }
+        
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unreal#connecting-the-user
+        /// </summary>
+        public async Task ConnectUser2()
+        {
+            var client = StreamChatClient.CreateDefaultClient();
+
+            await client.ConnectUserAsync("api_key", "chat_user", "chat_user_token");
+// After await is complete the user is connected
+
 // Alternatively, you subscribe to the IStreamChatClient.Connected event
             client.Connected += localUserData =>
             {

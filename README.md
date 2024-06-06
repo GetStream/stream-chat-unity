@@ -30,20 +30,20 @@
 
 The **Stream Chat SDK** is the official Unity SDK for [Stream Chat](https://getstream.io/chat/sdk/unity/), a service for building chat and messaging games and applications.
 
-- **Unity Engine 2023.x, 2022.x, 2021.x & 2020.x Support**
+- **Unity Engine 6, 2023.x, 2022.x, 2021.x, 2020.x, and 2019.x Support**
 - **IL2CPP** Support
-- **Automatic State Management** The Chat Client completely manages the state. You work with high level models that simplify API interaction and are always up to date
-- **Automatic Reconnection** Whenever the connection is lost the chat client will reconnect automatically when the network is back
+- **Automatic State Management** The Chat Client completely manages the state. You work with high-level models that simplify API interaction and are always up-to-date
+- **Automatic Reconnection** Whenever the connection is lost, the chat client will reconnect automatically when the network is back
 - **Realtime** Highly responsive experience using Websockets
 - **Messaging:** Send direct or group messages, and have the messages persist across sessions
 - **Channels:** group channels, private messages, etc.
-- **Reactions:** Every message can be reacted to by multiple users
+- **Reactions:** Multiple users can react to every message, custom reactions
 - **Moderation:** Banning (temporary, permanent, shadow), Muting (users, channels), Flagging (messages, users)
 - **Roles & Permissions:** Admins, Moderators, custom roles with custom permission
 - **Moderation Dashboard** Dedicated web panel to handle moderation
-- **Search** search through messages history 
-- **Unread counts** mark read state and count unread messages for each user
-- **Typing indicators** see who's currently writing a new message
+- **Search** Search through message history 
+- **Unread counts** Show the last read message per user and count unread messages
+- **Typing indicators** See who's currently writing a new message
 - **Fully open-source**: Complete access to the SDK source code here on GitHub
 
 ## IL2CPP
@@ -54,7 +54,7 @@ WebGL is supported :rocket:
 
 ## Free for Indie Developers
 
-Stream is free for most side and hobby projects. You can use Stream Chat for free if you have less than five team members and no more than $10,000 in monthly revenue. Visit our website and [apply for the Makers Account](https://getstream.io/maker-account/).
+Stream is free for most side and hobby projects. You can use Stream Chat for free with less than five team members and no more than $10,000 in monthly revenue. Visit our website and [apply for the Makers Account](https://getstream.io/maker-account/).
 
 ## Getting Started
 
