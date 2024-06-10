@@ -49,7 +49,17 @@ namespace StreamChat.Core
     //StreamTodo: Handle restoring state after lost connection
 
     public delegate void ChannelInviteHandler(IStreamChannel channel, IStreamUser invitee);
-
+    
+    /// <summary>
+    /// Member added to the channel handler
+    /// </summary>
+    public delegate void ChannelMemberAddedHandler(IStreamChannel channel, IStreamChannelMember member);
+    
+    /// <summary>
+    /// Member removed from the channel handler
+    /// </summary>
+    public delegate void ChannelMemberRemovedHandler(IStreamChannel channel, IStreamChannelMember member);
+    
     public sealed class StreamChatClient : IStreamChatClient
     {
         public event ConnectionMadeHandler Connected;
@@ -65,6 +75,9 @@ namespace StreamChat.Core
         public event ChannelInviteHandler ChannelInviteReceived;
         public event ChannelInviteHandler ChannelInviteAccepted;
         public event ChannelInviteHandler ChannelInviteRejected;
+        
+        public event ChannelMemberAddedHandler AddedToChannelAsMember;
+        public event ChannelMemberRemovedHandler RemovedFromChannelAsMember;
 
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
@@ -197,33 +210,9 @@ namespace StreamChat.Core
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
 
-        public async Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId,
+        public Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId,
             string name = null, IDictionary<string, object> optionalCustomData = null)
-        {
-            StreamAsserts.AssertChannelTypeIsValid(channelType);
-            StreamAsserts.AssertChannelIdLength(channelId);
-
-            var requestBodyDto = new ChannelGetOrCreateRequestInternalDTO
-            {
-                Presence = true,
-                State = true,
-                Watch = true,
-                Data = new ChannelRequestInternalDTO
-                {
-                    Name = name,
-                },
-            };
-
-            if (optionalCustomData != null && optionalCustomData.Any())
-            {
-                requestBodyDto.Data.AdditionalProperties = optionalCustomData?.ToDictionary(x => x.Key, x => x.Value);
-            }
-
-            var channelResponseDto = await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(
-                channelType,
-                channelId, requestBodyDto);
-            return _cache.TryCreateOrUpdate(channelResponseDto);
-        }
+            => InternalGetOrCreateChannelWithIdAsync(channelType, channelId, name, presence: true, state: true, watch: true, optionalCustomData);
 
         public async Task<IStreamChannel> GetOrCreateChannelWithMembersAsync(ChannelType channelType,
             IEnumerable<IStreamUser> members, IDictionary<string, object> optionalCustomData = null)
@@ -579,6 +568,36 @@ namespace StreamChat.Core
         void IStreamChatClientEventsListener.Update() => InternalLowLevelClient.Update(_timeService.DeltaTime);
 
         internal StreamChatLowLevelClient InternalLowLevelClient { get; }
+        
+        // We probably don't want to expose the presence, state, watch params to the public API
+        internal async Task<IStreamChannel> InternalGetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId, 
+            string name = null, bool presence = true, bool state = true, bool watch = true, 
+            IDictionary<string, object> optionalCustomData = null)
+        {
+            StreamAsserts.AssertChannelTypeIsValid(channelType);
+            StreamAsserts.AssertChannelIdLength(channelId);
+
+            var requestBodyDto = new ChannelGetOrCreateRequestInternalDTO
+            {
+                Presence = presence,
+                State = state,
+                Watch = watch,
+                Data = new ChannelRequestInternalDTO
+                {
+                    Name = name,
+                },
+            };
+
+            if (optionalCustomData != null && optionalCustomData.Any())
+            {
+                requestBodyDto.Data.AdditionalProperties = optionalCustomData?.ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            var channelResponseDto = await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(
+                channelType,
+                channelId, requestBodyDto);
+            return _cache.TryCreateOrUpdate(channelResponseDto);
+        }
 
         internal IStreamLocalUserData UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
         {
@@ -843,15 +862,23 @@ namespace StreamChat.Core
             _localUserData.InternalHandleMarkReadNotification(eventDto);
         }
 
-        private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO obj)
+        private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO eventDto)
         {
-            //StreamTodo: IMPLEMENT
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var member = _cache.TryCreateOrUpdate(eventDto.Member);
+            _cache.TryCreateOrUpdate(eventDto.Member.User);
+            
+            AddedToChannelAsMember?.Invoke(channel, member);
         }
 
         private void OnRemovedFromChannelNotification(
-            NotificationRemovedFromChannelEventInternalDTO obj)
+            NotificationRemovedFromChannelEventInternalDTO eventDto)
         {
-//StreamTodo: IMPLEMENT
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var member = _cache.TryCreateOrUpdate(eventDto.Member);
+            _cache.TryCreateOrUpdate(eventDto.Member.User);
+            
+            RemovedFromChannelAsMember?.Invoke(channel, member);
         }
 
         private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)

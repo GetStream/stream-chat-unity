@@ -65,12 +65,15 @@ namespace StreamChat.Tests.StatefulClient
             await WaitWhileTrueAsync(() => channel.Members.All(m => m.User != otherUser));
             Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
         }
-        
-        [UnityTest]
-        public IEnumerator When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent()
-            => ConnectAndExecute(When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent_Async);
 
-        private async Task When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent_Async()
+        [UnityTest]
+        public IEnumerator
+            When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent()
+            => ConnectAndExecute(
+                When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent_Async);
+
+        private async Task
+            When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
             var otherUserId = OtherAdminUsersCredentials.First().UserId;
@@ -266,22 +269,22 @@ namespace StreamChat.Tests.StatefulClient
             var receivedEvent = false;
             IStreamChannelMember eventMember = null;
             IStreamChannel eventChannel = null;
-            channel.MemberRemoved += (chanel, member) =>
+            channel.MemberRemoved += (channel2, member) =>
             {
                 receivedEvent = true;
                 eventMember = member;
-                eventChannel = chanel;
+                eventChannel = channel2;
             };
 
             var receivedEvent2 = false;
             IStreamChannelMember eventMember2 = null;
             IStreamChannel eventChannel2 = null;
             OperationType? opType = default;
-            channel.MembersChanged += (chanel, member, op) =>
+            channel.MembersChanged += (channel3, member, op) =>
             {
                 receivedEvent2 = true;
                 eventMember2 = member;
-                eventChannel2 = chanel;
+                eventChannel2 = channel3;
                 opType = op;
             };
 
@@ -302,6 +305,71 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(channel, eventChannel2);
             Assert.AreEqual(user, eventMember2.User);
             Assert.AreEqual(OperationType.Removed, opType.Value);
+        }
+
+        [UnityTest]
+        public IEnumerator When_user_added_to_not_watched_channel_expect_user_receive_added_to_channel_event()
+            => ConnectAndExecute(
+                When_user_added_to_not_watched_channel_expect_user_receive_added_to_channel_event_Async);
+
+        private async Task When_user_added_to_not_watched_channel_expect_user_receive_added_to_channel_event_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync(watch: false);
+
+            var receivedEvent = false;
+            IStreamChannelMember eventMember = null;
+            IStreamChannel eventChannel = null;
+            Client.AddedToChannelAsMember += (channel2, member) =>
+            {
+                receivedEvent = true;
+                eventMember = member;
+                eventChannel = channel2;
+            };
+
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => receivedEvent);
+
+            Assert.IsTrue(receivedEvent);
+            Assert.IsNotNull(eventChannel);
+            Assert.IsNotNull(eventMember);
+            Assert.AreEqual(channel, eventChannel);
+            Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
+        }
+
+        [UnityTest]
+        public IEnumerator When_user_removed_from_not_watched_channel_expect_user_removed_from_channel_event()
+            => ConnectAndExecute(
+                When_user_removed_from_not_watched_channel_expect_user_removed_from_channel_event_Async);
+
+        private async Task When_user_removed_from_not_watched_channel_expect_user_removed_from_channel_event_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync(watch: false);
+
+            var receivedAddedEvent = false;
+            var receivedRemovedEvent = false;
+            IStreamChannelMember eventMember = null;
+            IStreamChannel eventChannel = null;
+
+            Client.AddedToChannelAsMember += (channel2, member) => { receivedAddedEvent = true; };
+
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => receivedAddedEvent);
+
+            Client.RemovedFromChannelAsMember += (channel3, member2) =>
+            {
+                receivedRemovedEvent = true;
+                eventMember = member2;
+                eventChannel = channel3;
+            };
+
+            await channel.RemoveMembersAsync(new IStreamUser[] { Client.LocalUserData.User });
+            await WaitWhileFalseAsync(() => receivedRemovedEvent);
+            
+            Assert.IsTrue(receivedRemovedEvent);
+            Assert.IsNotNull(eventChannel);
+            Assert.IsNotNull(eventMember);
+            Assert.AreEqual(channel, eventChannel);
+            Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
         }
     }
 }

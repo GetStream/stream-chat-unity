@@ -62,7 +62,7 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Event fired when a <see cref="IStreamChannelMember"/> was added, updated, or removed.
         /// </summary>
-        event StreamChannelMemberAnyChangeHandler MembersChanged;
+        event StreamChannelMemberAnyChangeHandler MembersChanged; //StreamTodo: typo, this should be MemberChanged
 
         /// <summary>
         /// Event fired when visibility of this channel changed. Check <see cref="IStreamChannel.Hidden"/> to know if channel is hidden
