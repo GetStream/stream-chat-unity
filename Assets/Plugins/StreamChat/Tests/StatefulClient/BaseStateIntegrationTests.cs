@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Exceptions;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Auth;
@@ -48,11 +49,11 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
-        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync(string name = null)
+        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync(string name = null, bool watch = true)
         {
             var channelId = "random-channel-11111-" + Guid.NewGuid();
 
-            var channelState = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name);
+            var channelState = await Client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
             _tempChannels.Add(channelState);
             return channelState;
         }
@@ -210,7 +211,7 @@ namespace StreamChat.Tests.StatefulClient
                 throw new AggregateException($"Failed all attempts. Last Exception: {exceptions.Last().Message} ", exceptions);
             }
         }
-
+        
         private async Task DeleteTempChannelsAsync()
         {
             if (_tempChannels.Count == 0)
@@ -218,20 +219,24 @@ namespace StreamChat.Tests.StatefulClient
                 return;
             }
 
-            try
+            for (int i = 0; i < 5; i++)
             {
-                await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
-            }
-            catch (StreamApiException streamApiException)
-            {
-                if (streamApiException.Code == StreamApiException.RateLimitErrorHttpStatusCode)
+                try
                 {
-                    await Task.Delay(500);
+                    await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
+                }
+                catch (StreamApiException streamApiException)
+                {
+                    if (streamApiException.Code == StreamApiException.RateLimitErrorHttpStatusCode)
+                    {
+                        await Task.Delay(1000);
+                    }
+
+                    Debug.Log($"Attempt {i} failed. Try {nameof(DeleteTempChannelsAsync)} again due to exception:  " + streamApiException);
+                    continue;
                 }
 
-                Debug.Log($"Try {nameof(DeleteTempChannelsAsync)} again due to exception:  " + streamApiException);
-
-                await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
+                break;
             }
 
             _tempChannels.Clear();

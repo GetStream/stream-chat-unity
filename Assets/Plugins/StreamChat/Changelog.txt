@@ -1,3 +1,13 @@
+v4.5.0:
+Fixes:
+* Fixed channel member role deserialization breaking 
+
+Improvements:
+* Reduced memory allocations 
+	
+Code Samples:
+* Added code examples for the user presence (online status)
+
 v4.4.0:
 Fixes:
 * Fixed Unity 2019.4 compiler errors (due to older C# syntax) 

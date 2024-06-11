@@ -57,6 +57,18 @@ namespace StreamChat.Core
         /// Invite to a <see cref="IStreamChannel"/> was rejected
         /// </summary>
         event ChannelInviteHandler ChannelInviteRejected;
+        
+        /// <summary>
+        /// Local user was added to a channel as a member. This event fires only for channels that are not tracked locally.
+        /// Use this event to get notified when the local user is added to a new channel. For tracked channels, use the <see cref="IStreamChannel.MemberAdded"/> event.
+        /// </summary>
+        event ChannelMemberAddedHandler AddedToChannelAsMember;
+        
+        /// <summary>
+        /// Local user was removed from a channel as a member. This event fires only for channels that are not tracked locally.
+        /// Use this event to get notified when the local user was removed from a channel. For tracked channels use <see cref="IStreamChannel.MemberRemoved"/> event
+        /// </summary>
+        event ChannelMemberRemovedHandler RemovedFromChannelAsMember;
 
         /// <summary>
         /// Current connection state
@@ -64,7 +76,7 @@ namespace StreamChat.Core
         ConnectionState ConnectionState { get; }
 
         /// <summary>
-        /// Is client connected. Subscribe to <see cref="Connected"/> to get notified when connection is established
+        /// Is client connected. Subscribe to <see cref="Connected"/> event to get notified when connection is established
         /// </summary>
         bool IsConnected { get; }
 
