@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.Models;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Samples
@@ -12,6 +15,13 @@ namespace StreamChat.Samples
             // Get a single channel
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
 
+            // Or multiple with optional filters
+            var channels = await Client.QueryChannelsAsync(new List<IFieldFilterRule>()
+            {
+                ChannelFilter.Members.In(Client.LocalUserData.User)
+            });
+
+            // Subscribe to events
             channel.MessageReceived += OnMessageReceived;
             channel.MessageUpdated += OnMessageUpdated;
             channel.MessageDeleted += OnMessageDeleted;
@@ -112,7 +122,7 @@ namespace StreamChat.Samples
         {
         }
 
-        public void ClientEvents()
+        public void SubscribeToClientEvents()
         {
             Client.AddedToChannelAsMember += OnAddedToChannelAsMember;
             Client.RemovedFromChannelAsMember += OnRemovedFromChannel;
@@ -130,14 +140,14 @@ namespace StreamChat.Samples
             // member - object containing channel membership information
         }
 
-        public void ConnectionEvents()
+        public void SubscribeToConnectionEvents()
         {
             Client.Connected += OnConnected;
             Client.Disconnected += OnDisconnected;
             Client.ConnectionStateChanged += OnConnectionStateChanged;
         }
 
-        private void OnConnectionStateChanged(ConnectionState previous, ConnectionState current)
+        private void OnConnected(IStreamLocalUserData localUserData)
         {
         }
 
@@ -145,7 +155,7 @@ namespace StreamChat.Samples
         {
         }
 
-        private void OnConnected(IStreamLocalUserData localUserData)
+        private void OnConnectionStateChanged(ConnectionState previous, ConnectionState current)
         {
         }
 
