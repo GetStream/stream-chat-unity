@@ -49,11 +49,12 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
-        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync(string name = null, bool watch = true)
+        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync(string name = null, bool watch = true, StreamChatClient overrideClient = null)
         {
             var channelId = "random-channel-11111-" + Guid.NewGuid();
+            var client = overrideClient ?? Client;
 
-            var channelState = await Client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
+            var channelState = await client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
             _tempChannels.Add(channelState);
             return channelState;
         }
@@ -89,7 +90,7 @@ namespace StreamChat.Tests.StatefulClient
             yield return ConnectAndExecuteAsync(test).RunAsIEnumerator(statefulClient: Client);
         }
 
-        protected Task<IStreamChatClient> GetConnectedOtherClient()
+        protected Task<StreamChatClient> GetConnectedOtherClient()
             => StreamTestClients.Instance.ConnectOtherStateClientAsync();
 
         //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible

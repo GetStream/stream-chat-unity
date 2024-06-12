@@ -96,7 +96,7 @@ namespace StreamChat.Tests
 
         public Task ConnectStateClientAsync() => ConnectStateClientAsync(StateClient, _stateClientCredentials);
 
-        public Task<IStreamChatClient> ConnectOtherStateClientAsync()
+        public Task<StreamChatClient> ConnectOtherStateClientAsync()
             => ConnectStateClientAsync(OtherStateClient, _otherUserCredentials);
 
         private static StreamTestClients _instance;
@@ -132,7 +132,7 @@ namespace StreamChat.Tests
             _otherUsersCredentials = adminData.Skip(3).ToList();
         }
 
-        private static async Task<IStreamChatClient> ConnectStateClientAsync(IStreamChatClient client,
+        private static async Task<StreamChatClient> ConnectStateClientAsync(StreamChatClient client,
             AuthCredentials credentials)
         {
             if (client.IsConnected)
@@ -151,6 +151,7 @@ namespace StreamChat.Tests
                 Debug.Log($"Wait for {nameof(StatefulClient)} to connect user with ID: {credentials.UserId}");
 #endif
 
+                client.LowLevelClient.Update(0.1f);
                 await Task.Delay(1);
 
                 if (timer.ElapsedMilliseconds > timeout)

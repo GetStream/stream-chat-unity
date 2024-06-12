@@ -1,3 +1,7 @@
+v4.6.0:
+Improvements:
+* Added client events that are fired when the local user is added to a new channel -> IStreamChatClient.AddedToChannelAsMember or removed from a channel IStreamChatClient.RemovedFromChannelAsMember - These two events fire only for channels that are not tracked locally. For tracked channels, the IStreamChannel.MemberAdded & IStreamChannel.MemberRemoved should be used
+
 v4.5.0:
 Fixes:
 * Fixed channel member role deserialization breaking 
