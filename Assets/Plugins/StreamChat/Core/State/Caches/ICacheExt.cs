@@ -21,6 +21,14 @@ namespace StreamChat.Core.State.Caches
             => dto == null
                 ? null
                 : cache.Channels.CreateOrUpdate<StreamChannel, ChannelResponseInternalDTO>(dto, out _);
+        
+        public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelResponseInternalDTO dto, out bool wasCreated)
+        {
+            wasCreated = false;
+            return dto == null
+                ? null
+                : cache.Channels.CreateOrUpdate<StreamChannel, ChannelResponseInternalDTO>(dto, out wasCreated);
+        }
 
         public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelStateResponseFieldsInternalDTO dto)
             => dto == null

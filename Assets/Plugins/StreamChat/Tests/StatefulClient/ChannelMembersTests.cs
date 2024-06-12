@@ -335,6 +335,53 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(channel, eventChannel);
             Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
         }
+        
+        [UnityTest]
+        public IEnumerator When_user_added_to_not_watched_channel_expect_received_channel_being_watched()
+            => ConnectAndExecute(
+                When_user_added_to_not_watched_channel_expect_received_channel_being_watched_Async);
+
+        private async Task When_user_added_to_not_watched_channel_expect_received_channel_being_watched_Async()
+        {
+            var otherClient = await GetConnectedOtherClient();
+            var otherClientChannel = await CreateUniqueTempChannelAsync(watch: false, overrideClient: otherClient);
+
+            var receivedEvent = false;
+            IStreamChannelMember eventMember = null;
+            IStreamChannel eventChannel = null;
+            Client.AddedToChannelAsMember += (channel2, member) =>
+            {
+                receivedEvent = true;
+                eventMember = member;
+                eventChannel = channel2;
+            };
+
+            await otherClientChannel.AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => receivedEvent);
+
+            Assert.IsTrue(receivedEvent);
+            Assert.IsNotNull(eventChannel);
+            Assert.IsNotNull(eventMember);
+            Assert.AreEqual(otherClientChannel.Cid, eventChannel.Cid);
+            Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
+
+            var receivedMessageEvent = false;
+            var receivedMessage = string.Empty;
+            IStreamChannel receivedMessageChannel = null;
+            otherClientChannel.MessageReceived += (messageChannel, message) =>
+            {
+                receivedMessageEvent = true;
+                receivedMessage = message.Text;
+                receivedMessageChannel = messageChannel;
+            };
+            
+            await otherClientChannel.SendNewMessageAsync("Hello");
+            await WaitWhileFalseAsync(() => receivedEvent);
+            
+            Assert.IsTrue(receivedMessageEvent);
+            Assert.AreEqual(otherClientChannel.Cid, receivedMessageChannel.Cid);
+            Assert.AreEqual(receivedMessage, "Hello");
+        }
 
         [UnityTest]
         public IEnumerator When_user_removed_from_not_watched_channel_expect_user_removed_from_channel_event()
@@ -371,6 +418,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(channel, eventChannel);
             Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
         }
+        
     }
 }
 #endif

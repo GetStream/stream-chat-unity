@@ -864,45 +864,135 @@ namespace StreamChat.Core
 
         private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var member = _cache.TryCreateOrUpdate(eventDto.Member);
             _cache.TryCreateOrUpdate(eventDto.Member.User);
+
+            if (!wasCreated)
+            {
+                AddedToChannelAsMember?.Invoke(channel, member);
+                return;
+            }
             
-            AddedToChannelAsMember?.Invoke(channel, member);
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(AddedToChannelAsMember)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
+
+                AddedToChannelAsMember?.Invoke(channel, member);
+            });
         }
 
         private void OnRemovedFromChannelNotification(
             NotificationRemovedFromChannelEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var member = _cache.TryCreateOrUpdate(eventDto.Member);
             _cache.TryCreateOrUpdate(eventDto.Member.User);
             
-            RemovedFromChannelAsMember?.Invoke(channel, member);
+            if (!wasCreated)
+            {
+                RemovedFromChannelAsMember?.Invoke(channel, member);
+                return;
+            }
+            
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(RemovedFromChannelAsMember)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
+
+                RemovedFromChannelAsMember?.Invoke(channel, member);
+            });
         }
 
         private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var user = _cache.TryCreateOrUpdate(eventDto.User);
+            
+            if (!wasCreated)
+            {
+                ChannelInviteReceived?.Invoke(channel, user);
+                return;
+            }
+            
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(ChannelInviteReceived)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
 
-            ChannelInviteReceived?.Invoke(channel, user);
+                ChannelInviteReceived?.Invoke(channel, user);
+            });
         }
 
         private void OnInviteAcceptedNotification(NotificationInviteAcceptedEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var user = _cache.TryCreateOrUpdate(eventDto.User);
+            
+            if (!wasCreated)
+            {
+                ChannelInviteAccepted?.Invoke(channel, user);
+                return;
+            }
+            
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(ChannelInviteAccepted)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
 
-            ChannelInviteAccepted?.Invoke(channel, user);
+                ChannelInviteAccepted?.Invoke(channel, user);
+            });
         }
 
         private void OnInviteRejectedNotification(NotificationInviteRejectedEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var user = _cache.TryCreateOrUpdate(eventDto.User);
+            
+            if (!wasCreated)
+            {
+                ChannelInviteRejected?.Invoke(channel, user);
+                return;
+            }
+            
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(ChannelInviteRejected)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
 
-            ChannelInviteRejected?.Invoke(channel, user);
+                ChannelInviteRejected?.Invoke(channel, user);
+            });
         }
 
         private void OnReactionReceived(ReactionNewEventInternalDTO eventDto)
