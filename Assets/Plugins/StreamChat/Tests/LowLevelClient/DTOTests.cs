@@ -27,7 +27,7 @@ namespace StreamChat.Tests.LowLevelClient
 
             foreach (var type in streamChatCoreAssembly.GetTypes())
             {
-                if (type.Namespace.IndexOf(DTOKeyword, StringComparison.InvariantCulture) != -1 &&
+                if (type.Namespace != null && type.Namespace.IndexOf(DTOKeyword, StringComparison.InvariantCulture) != -1 &&
                     type.Namespace.IndexOf(IgnoredNamespace, StringComparison.InvariantCultureIgnoreCase) == 0)
                 {
                     dtoTypes.Add(type);

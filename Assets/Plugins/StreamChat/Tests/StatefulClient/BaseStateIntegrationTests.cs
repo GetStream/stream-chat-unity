@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
@@ -36,6 +37,8 @@ namespace StreamChat.Tests.StatefulClient
 
         protected static StreamChatClient Client => StreamTestClients.Instance.StateClient;
 
+        protected int MainThreadId { get; } = Thread.CurrentThread.ManagedThreadId;
+
         // StreamTodo: replace with admin ids fetched from loaded data set
         protected const string TestUserId = TestUtils.TestUserId;
         protected const string TestAdminId = TestUtils.TestAdminId;
@@ -45,6 +48,8 @@ namespace StreamChat.Tests.StatefulClient
 
         protected static IEnumerable<AuthCredentials> OtherAdminUsersCredentials
             => StreamTestClients.Instance.OtherUserCredentials;
+
+        protected int GetCurrentThreadId() => Thread.CurrentThread.ManagedThreadId;
 
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
