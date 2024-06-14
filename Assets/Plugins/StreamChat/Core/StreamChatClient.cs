@@ -562,7 +562,7 @@ namespace StreamChat.Core
                 }
 
                 Dispose();
-            });
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         void IStreamChatClientEventsListener.Update() => InternalLowLevelClient.Update(_timeService.DeltaTime);
@@ -886,7 +886,7 @@ namespace StreamChat.Core
                 }
 
                 AddedToChannelAsMember?.Invoke(channel, member);
-            });
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnRemovedFromChannelNotification(
@@ -914,7 +914,7 @@ namespace StreamChat.Core
                 }
 
                 RemovedFromChannelAsMember?.Invoke(channel, member);
-            });
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)
@@ -940,7 +940,7 @@ namespace StreamChat.Core
                 }
 
                 ChannelInviteReceived?.Invoke(channel, user);
-            });
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnInviteAcceptedNotification(NotificationInviteAcceptedEventInternalDTO eventDto)
@@ -966,7 +966,7 @@ namespace StreamChat.Core
                 }
 
                 ChannelInviteAccepted?.Invoke(channel, user);
-            });
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnInviteRejectedNotification(NotificationInviteRejectedEventInternalDTO eventDto)
@@ -992,7 +992,7 @@ namespace StreamChat.Core
                 }
 
                 ChannelInviteRejected?.Invoke(channel, user);
-            });
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnReactionReceived(ReactionNewEventInternalDTO eventDto)

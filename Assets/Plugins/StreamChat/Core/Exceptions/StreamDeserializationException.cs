@@ -11,10 +11,16 @@ namespace StreamChat.Core.Exceptions
         public Type TargetType { get; }
 
         public StreamDeserializationException(string content, Type targetType, Exception innerException)
-            : base($"Failed to deserialize string to type: `{targetType.Name}` ", innerException)
+            : base($"Failed to deserialize string to type: `{targetType.Name}`", innerException)
         {
             TargetType = targetType;
             Content = content;
+        }
+        
+        public override string ToString()
+        {
+            var innerExceptionMessage = InnerException != null ? InnerException.ToString() : string.Empty;
+            return $"Failed to deserialize string to type: `{TargetType.Name}`\nContent: {Content}\nInnerException: {innerExceptionMessage}";
         }
     }
 }
