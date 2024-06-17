@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient.Events;
 

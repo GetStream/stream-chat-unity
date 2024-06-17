@@ -193,6 +193,8 @@ namespace StreamChat.Core.LowLevelClient
         public int ReconnectMaxInstantTrials => _reconnectScheduler.ReconnectMaxInstantTrials;
         public double? NextReconnectTime => _reconnectScheduler.NextReconnectTime;
 
+        public DateTimeOffset LastEventReceivedAt { get; private set; }
+
         /// <summary>
         /// SDK Version number
         /// </summary>
@@ -584,6 +586,7 @@ namespace StreamChat.Core.LowLevelClient
             _lastHealthCheckReceivedTime = _timeService.Time;
             
             ConnectionState = ConnectionState.Connected;
+            LastEventReceivedAt = _timeService.Now;
 
             _connectUserTaskSource?.SetResult(eventHealthCheckInternalDto.Me);
 
@@ -728,7 +731,7 @@ namespace StreamChat.Core.LowLevelClient
 
         private void RegisterEventType<TDto, TEvent>(string key,
             Action<TEvent, TDto> handler, Action<TDto> internalHandler = null)
-            where TEvent : ILoadableFrom<TDto, TEvent>, new()
+            where TEvent : EventBase, ILoadableFrom<TDto, TEvent>, new()
         {
             if (_eventKeyToHandler.ContainsKey(key))
             {
@@ -741,6 +744,8 @@ namespace StreamChat.Core.LowLevelClient
                 try
                 {
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
+                    LastEventReceivedAt = eventObj.CreatedAt;
+                    _logs.Warning("Last Event RECEIVED AT: " + LastEventReceivedAt);
                     handler?.Invoke(eventObj, dto);
                     internalHandler?.Invoke(dto);
                 }

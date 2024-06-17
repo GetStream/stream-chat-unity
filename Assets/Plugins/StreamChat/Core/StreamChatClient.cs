@@ -27,6 +27,8 @@ using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
+using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core
 {
@@ -698,6 +700,9 @@ namespace StreamChat.Core
                 var localUserDto = dto.Me;
                 UpdateLocalUser(localUserDto);
                 Connected?.Invoke(LocalUserData);
+
+                // StreamTodo: make sure calling this here covers all cases
+                RestoreStateLostDuringDisconnect().LogIfFailed();
             }
             finally
             {
@@ -708,6 +713,31 @@ namespace StreamChat.Core
                     _connectUserTaskSource = null;
                 }
             }
+        }
+
+        private async Task RestoreStateLostDuringDisconnect()
+        {
+            if (!WatchedChannels.Any())
+            {
+                return;
+            }
+
+            var lastEventReceivedAt = LowLevelClient.LastEventReceivedAt;
+
+            // Check if less than 30 days
+            var diff = lastEventReceivedAt - _timeService.Now;
+            if(diff.Days > 30)
+            {
+                return;
+            }
+
+            var response = await LowLevelClient.ChannelApi.SyncAsync(new SyncRequest
+            {
+                ChannelCids = WatchedChannels.Select(c => c.Cid).ToList(),
+                LastSyncAt = InternalLowLevelClient.LastEventReceivedAt,
+            });
+
+            //StreamTodo: process received events
         }
 
         private void OnDisconnected() => Disconnected?.Invoke();

@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<EventInternalDTO> Events { get; set; } = new System.Collections.Generic.List<EventInternalDTO>();
+        public System.Collections.Generic.List<object> Events { get; set; } = new System.Collections.Generic.List<object>();
 
         /// <summary>
         /// List of CIDs that user can't access

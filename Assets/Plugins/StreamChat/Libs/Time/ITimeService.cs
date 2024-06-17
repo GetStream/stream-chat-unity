@@ -1,4 +1,6 @@
-﻿namespace StreamChat.Libs.Time
+﻿using System;
+
+namespace StreamChat.Libs.Time
 {
     /// <summary>
     /// Provides time information
@@ -7,5 +9,6 @@
     {
         float Time { get; }
         float DeltaTime { get; }
+        DateTimeOffset Now { get; }
     }
 }

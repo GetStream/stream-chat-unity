@@ -377,7 +377,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private async Task When_user_added_to_not_watched_channel_expect_received_channel_being_watched_Async()
         {
-            var otherClient = await GetConnectedOtherClient();
+            var otherClient = await GetConnectedOtherClientAsync();
             var otherClientChannel = await CreateUniqueTempChannelAsync(watch: false, overrideClient: otherClient);
 
             var receivedEvent = false;
