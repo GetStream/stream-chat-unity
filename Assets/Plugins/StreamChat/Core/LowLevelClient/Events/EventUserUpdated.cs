@@ -8,8 +8,6 @@ namespace StreamChat.Core.LowLevelClient.Events
     public sealed class EventUserUpdated : EventBase,
         ILoadableFrom<UserUpdatedEventInternalDTO, EventUserUpdated>
     {
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public string Type { get; set; }
 
         public User User { get; set; }

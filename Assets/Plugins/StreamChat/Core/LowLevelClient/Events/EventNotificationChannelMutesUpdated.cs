@@ -8,8 +8,6 @@ namespace StreamChat.Core.LowLevelClient.Events
     public partial class EventNotificationChannelMutesUpdated : EventBase,
         ILoadableFrom<NotificationChannelMutesUpdatedEventInternalDTO, EventNotificationChannelMutesUpdated>
     {
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public OwnUser Me { get; set; }
 
         public string Type { get; set; }

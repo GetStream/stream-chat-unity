@@ -20,8 +20,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Cid { get; set; }
 
-        public DateTimeOffset? CreatedAt { get; set; }
-
         public string Team { get; set; }
 
         public int? TotalUnreadCount { get; set; }

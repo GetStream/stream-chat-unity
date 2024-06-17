@@ -14,8 +14,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Cid { get; set; }
 
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public bool? Shadow { get; set; }
 
         public string Team { get; set; }
