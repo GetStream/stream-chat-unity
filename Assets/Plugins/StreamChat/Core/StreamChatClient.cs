@@ -203,11 +203,11 @@ namespace StreamChat.Core
             return UpdateLocalUser(ownUserDto);
         }
 
-        //StreamTodo: test scenario: ConnectUserAsync and immediately all DisconnectUserAsync
+        //StreamTodo: test scenario: ConnectUserAsync and immediately call DisconnectUserAsync
         public Task DisconnectUserAsync()
         {
             TryCancelWaitingForUserConnection();
-            return InternalLowLevelClient.DisconnectAsync();
+            return InternalLowLevelClient.DisconnectAsync(permanent: true);
         }
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
@@ -700,9 +700,6 @@ namespace StreamChat.Core
                 var localUserDto = dto.Me;
                 UpdateLocalUser(localUserDto);
                 Connected?.Invoke(LocalUserData);
-
-                // StreamTodo: make sure calling this here covers all cases
-                RestoreStateLostDuringDisconnect().LogIfFailed();
             }
             finally
             {
@@ -713,29 +710,34 @@ namespace StreamChat.Core
                     _connectUserTaskSource = null;
                 }
             }
+
+            // StreamTodo: make sure calling this here covers all cases
+            RestoreStateLostDuringDisconnect().LogIfFailed();
         }
 
-        private async Task RestoreStateLostDuringDisconnect()
+        private Task RestoreStateLostDuringDisconnect()
         {
             if (!WatchedChannels.Any())
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            var lastEventReceivedAt = LowLevelClient.LastEventReceivedAt;
+            return LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(WatchedChannels.Select(c => c.Cid));
 
-            // Check if less than 30 days
-            var diff = lastEventReceivedAt - _timeService.Now;
-            if(diff.Days > 30)
-            {
-                return;
-            }
+            //var lastEventReceivedAt = LowLevelClient.LastEventReceivedAt;
 
-            var response = await LowLevelClient.ChannelApi.SyncAsync(new SyncRequest
-            {
-                ChannelCids = WatchedChannels.Select(c => c.Cid).ToList(),
-                LastSyncAt = InternalLowLevelClient.LastEventReceivedAt,
-            });
+            //// Check if less than 30 days
+            //var diff = lastEventReceivedAt - _timeService.Now;
+            //if (diff.Days > 30)
+            //{
+            //    return;
+            //}
+
+            //var response = await LowLevelClient.ChannelApi.SyncAsync(new SyncRequest
+            //{
+            //    ChannelCids = WatchedChannels.Select(c => c.Cid).ToList(),
+            //    LastSyncAt = InternalLowLevelClient.LastEventReceivedAt,
+            //});
 
             //StreamTodo: process received events
         }

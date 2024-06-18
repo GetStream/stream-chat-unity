@@ -25,6 +25,10 @@ using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Utils;
 using StreamChat.Libs.Websockets;
+using StreamChat.Core.LowLevelClient.Requests;
+using System.Linq;
+
+
 #if STREAM_TESTS_ENABLED
 using System.Runtime.CompilerServices;
 #endif
@@ -180,6 +184,8 @@ namespace StreamChat.Core.LowLevelClient
 
                 if (value == ConnectionState.Disconnected)
                 {
+                    OnDisconnectionLastEventReceivedAt = LastEventReceivedAt;
+                    _logs.Warning(_authCredentials.UserId + " Disconnect Last Event Received At: " + LastEventReceivedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
                     Disconnected?.Invoke();
                 }
             }
@@ -193,7 +199,8 @@ namespace StreamChat.Core.LowLevelClient
         public int ReconnectMaxInstantTrials => _reconnectScheduler.ReconnectMaxInstantTrials;
         public double? NextReconnectTime => _reconnectScheduler.NextReconnectTime;
 
-        public DateTimeOffset LastEventReceivedAt { get; private set; }
+        public DateTimeOffset LastEventReceivedAt { get; set; } //StreamTodo: remove public set, this is for debug only
+        public DateTimeOffset? OnDisconnectionLastEventReceivedAt { get; private set; }
 
         /// <summary>
         /// SDK Version number
@@ -364,7 +371,7 @@ namespace StreamChat.Core.LowLevelClient
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
 #if STREAM_DEBUG_ENABLED
-                _logs.Info("WS message: " + msg);
+                _logs.Info(_authCredentials.UserId + " WS message: " + msg);
 #endif
                 HandleNewWebsocketMessage(msg);
             }
@@ -379,6 +386,50 @@ namespace StreamChat.Core.LowLevelClient
             float? exponentialMaxInterval, float? constantInterval)
         {
             _reconnectScheduler.SetReconnectStrategySettings(reconnectStrategy, exponentialMinInterval, exponentialMaxInterval, constantInterval);
+        }
+
+        public async Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids)
+        {
+            if (!channelCids.Any() || !OnDisconnectionLastEventReceivedAt.HasValue)
+            {
+                return;
+            }
+
+            var lastEventReceivedAt = OnDisconnectionLastEventReceivedAt.Value;
+
+            var currentServerTime = DateTimeOffset.UtcNow.ToOffset(lastEventReceivedAt.Offset);
+
+            // Check if less than 30 days
+            var diff = lastEventReceivedAt - _timeService.Now;
+            if (diff.TotalDays > 30)
+            {
+                return;
+            }
+
+            //StreamTodo: according to Android SDK there's an error if there are > 1000 events 
+
+            var response = await ChannelApi.SyncAsync(new SyncRequest
+            {
+                ChannelCids = channelCids.ToList(),
+                LastSyncAt = lastEventReceivedAt,
+            });
+
+            if(response.Events.Count == 0)
+            {
+                return;
+            }
+
+            foreach(var e in response.Events)
+            {
+                //StreamTodo: debug only, handle this without serializing again
+                var serializedMsg = _serializer.Serialize(e);
+
+                HandleNewWebsocketMessage(serializedMsg);
+            }
+
+
+
+            //StreamTodo: process received events
         }
 
         public void Dispose()
@@ -586,7 +637,6 @@ namespace StreamChat.Core.LowLevelClient
             _lastHealthCheckReceivedTime = _timeService.Time;
             
             ConnectionState = ConnectionState.Connected;
-            LastEventReceivedAt = _timeService.Now;
 
             _connectUserTaskSource?.SetResult(eventHealthCheckInternalDto.Me);
 
@@ -745,7 +795,7 @@ namespace StreamChat.Core.LowLevelClient
                 {
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
                     LastEventReceivedAt = eventObj.CreatedAt;
-                    _logs.Warning("Last Event RECEIVED AT: " + LastEventReceivedAt);
+                    _logs.Warning(_authCredentials.UserId + "  Last Event RECEIVED AT: " + LastEventReceivedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
                     handler?.Invoke(eventObj, dto);
                     internalHandler?.Invoke(dto);
                 }

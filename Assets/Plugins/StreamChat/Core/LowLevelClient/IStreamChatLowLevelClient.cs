@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.Auth;
 using StreamChat.Core.LowLevelClient.API;
@@ -59,7 +60,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// Date Time of the last received WebSocket event from the API
         /// </summary>
-        DateTimeOffset LastEventReceivedAt { get; } //StreamTodo: probbaly change this to nullable so it's either a valid date or null
+        DateTimeOffset LastEventReceivedAt { get; set; } //StreamTodo: probbaly change this to nullable so it's either a valid date or null
 
         /// <summary>
         /// Per frame update of the StreamChatClient. This method triggers sending and receiving data between the client and the server. Make sure to call it every frame.
@@ -91,5 +92,7 @@ namespace StreamChat.Core.LowLevelClient
         void ConnectUser(AuthCredentials userAuthCredentials);
 
         Task DisconnectAsync(bool permanent = false);
+
+        Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids);
     }
 }
