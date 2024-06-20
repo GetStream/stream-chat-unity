@@ -28,7 +28,6 @@ using StreamChat.Libs.Websockets;
 using StreamChat.Core.LowLevelClient.Requests;
 using System.Linq;
 
-
 #if STREAM_TESTS_ENABLED
 using System.Runtime.CompilerServices;
 #endif
@@ -184,7 +183,7 @@ namespace StreamChat.Core.LowLevelClient
 
                 if (value == ConnectionState.Disconnected)
                 {
-                    OnDisconnectionLastEventReceivedAt = LastEventReceivedAt;
+                    OnDisconnectionLastEventReceivedAt = _lastEventReceivedAt;
                     Disconnected?.Invoke();
                 }
             }
@@ -197,9 +196,6 @@ namespace StreamChat.Core.LowLevelClient
         public float ReconnectExponentialMaxInterval => _reconnectScheduler.ReconnectExponentialMaxInterval;
         public int ReconnectMaxInstantTrials => _reconnectScheduler.ReconnectMaxInstantTrials;
         public double? NextReconnectTime => _reconnectScheduler.NextReconnectTime;
-
-        public DateTimeOffset? LastEventReceivedAt { get; private set; }
-        public DateTimeOffset? OnDisconnectionLastEventReceivedAt { get; private set; }
 
         /// <summary>
         /// SDK Version number
@@ -537,6 +533,16 @@ namespace StreamChat.Core.LowLevelClient
         private bool _websocketConnectionFailed;
         private ITokenProvider _tokenProvider;
 
+        /// <summary>
+        /// Date Time of the last received WebSocket event from the API. When calling /sync endpoint use <see cref="OnDisconnectionLastEventReceivedAt"/>
+        /// </summary>
+        private DateTimeOffset? _lastEventReceivedAt;
+
+        /// <summary>
+        /// The last value of <see cref="_lastEventReceivedAt"/> when the client disconnected. Use this value when calling /sync endpoint
+        /// </summary>
+        private DateTimeOffset? OnDisconnectionLastEventReceivedAt;
+
         private async Task RefreshAuthTokenFromProvider()
         {
 #if STREAM_DEBUG_ENABLED
@@ -790,7 +796,7 @@ namespace StreamChat.Core.LowLevelClient
                 try
                 {
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
-                    LastEventReceivedAt = eventObj.CreatedAt;
+                    _lastEventReceivedAt = eventObj.CreatedAt;
                     handler?.Invoke(eventObj, dto);
                     internalHandler?.Invoke(dto);
                 }

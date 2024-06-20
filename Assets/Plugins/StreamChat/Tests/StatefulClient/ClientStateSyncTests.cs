@@ -125,7 +125,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(2, otherClientMessage1.ReactionCounts.Values.Sum());
             Assert.AreEqual(3, otherClientMessage2.ReactionCounts.Values.Sum());
             Assert.IsTrue(new[] { "like", "heart" }.All(otherClientMessage1.ReactionCounts.Keys.Contains));
-            Assert.IsTrue(new[] { "like", "smile" }.All(otherClientMessage2.ReactionCounts.Keys.Contains));
+            Assert.IsTrue(new[] { "like", "nice", "smile" }.All(otherClientMessage2.ReactionCounts.Keys.Contains));
 
             // Check for duplicates
             var uniqueIds = new HashSet<string>();
