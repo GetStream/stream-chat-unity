@@ -711,7 +711,18 @@ namespace StreamChat.Core
             try
             {
                 var localUserDto = dto.Me;
-                UpdateLocalUser(localUserDto);
+
+                // This can sometimes be null. I think it's when the client lost network and believes he's reconnecting
+                // but the healthcheck timeout didn't pass on server and from the server perspective the client never disconnected
+                if(localUserDto != null)
+                {
+                    UpdateLocalUser(localUserDto);
+                }
+                else
+                {
+                    _logs.Warning("OnConnected localUserDto was NULL and current LocalUserData is " + (LocalUserData != null) + " value " + LocalUserData);
+                }
+
                 Connected?.Invoke(LocalUserData);
             }
             finally
