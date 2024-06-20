@@ -60,7 +60,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// Date Time of the last received WebSocket event from the API
         /// </summary>
-        DateTimeOffset LastEventReceivedAt { get; set; } //StreamTodo: probbaly change this to nullable so it's either a valid date or null
+        DateTimeOffset? LastEventReceivedAt { get; }
 
         /// <summary>
         /// Per frame update of the StreamChatClient. This method triggers sending and receiving data between the client and the server. Make sure to call it every frame.

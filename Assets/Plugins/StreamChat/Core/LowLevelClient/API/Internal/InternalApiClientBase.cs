@@ -59,10 +59,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
         private readonly IHttpClient _httpClient;
         private readonly ISerializer _serializer;
-        protected readonly ILogs _logs;
+        private readonly ILogs _logs;
         private readonly IRequestUriFactory _requestUriFactory;
         private readonly StringBuilder _sb = new StringBuilder();
-        protected readonly IStreamChatLowLevelClient _lowLevelClient;
+        private readonly IStreamChatLowLevelClient _lowLevelClient;
 
         private object TrySerializeRequestBodyContent(object content, out string serializedContent)
         {

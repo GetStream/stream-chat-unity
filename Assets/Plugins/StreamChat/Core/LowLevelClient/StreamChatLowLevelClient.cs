@@ -185,7 +185,6 @@ namespace StreamChat.Core.LowLevelClient
                 if (value == ConnectionState.Disconnected)
                 {
                     OnDisconnectionLastEventReceivedAt = LastEventReceivedAt;
-                    _logs.Warning(_authCredentials.UserId + " Disconnect Last Event Received At: " + LastEventReceivedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
                     Disconnected?.Invoke();
                 }
             }
@@ -199,7 +198,7 @@ namespace StreamChat.Core.LowLevelClient
         public int ReconnectMaxInstantTrials => _reconnectScheduler.ReconnectMaxInstantTrials;
         public double? NextReconnectTime => _reconnectScheduler.NextReconnectTime;
 
-        public DateTimeOffset LastEventReceivedAt { get; set; } //StreamTodo: remove public set, this is for debug only
+        public DateTimeOffset? LastEventReceivedAt { get; private set; }
         public DateTimeOffset? OnDisconnectionLastEventReceivedAt { get; private set; }
 
         /// <summary>
@@ -421,15 +420,12 @@ namespace StreamChat.Core.LowLevelClient
 
             foreach(var e in response.Events)
             {
-                //StreamTodo: debug only, handle this without serializing again
+                // StreamTodo: check if we can not serialized this again. Investigate adding a custom EventsJsonConverter that would populate the list as serialized strings
                 var serializedMsg = _serializer.Serialize(e);
 
+                //StreamTodo: try block?
                 HandleNewWebsocketMessage(serializedMsg);
             }
-
-
-
-            //StreamTodo: process received events
         }
 
         public void Dispose()
@@ -795,7 +791,6 @@ namespace StreamChat.Core.LowLevelClient
                 {
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
                     LastEventReceivedAt = eventObj.CreatedAt;
-                    _logs.Warning(_authCredentials.UserId + "  Last Event RECEIVED AT: " + LastEventReceivedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
                     handler?.Invoke(eventObj, dto);
                     internalHandler?.Invoke(dto);
                 }

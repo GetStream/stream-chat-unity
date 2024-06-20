@@ -711,7 +711,6 @@ namespace StreamChat.Core
                 }
             }
 
-            // StreamTodo: make sure calling this here covers all cases
             RestoreStateLostDuringDisconnect().LogIfFailed();
         }
 
@@ -723,23 +722,6 @@ namespace StreamChat.Core
             }
 
             return LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(WatchedChannels.Select(c => c.Cid));
-
-            //var lastEventReceivedAt = LowLevelClient.LastEventReceivedAt;
-
-            //// Check if less than 30 days
-            //var diff = lastEventReceivedAt - _timeService.Now;
-            //if (diff.Days > 30)
-            //{
-            //    return;
-            //}
-
-            //var response = await LowLevelClient.ChannelApi.SyncAsync(new SyncRequest
-            //{
-            //    ChannelCids = WatchedChannels.Select(c => c.Cid).ToList(),
-            //    LastSyncAt = InternalLowLevelClient.LastEventReceivedAt,
-            //});
-
-            //StreamTodo: process received events
         }
 
         private void OnDisconnected() => Disconnected?.Invoke();

@@ -7,8 +7,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 {
     public partial class EventUserFlagged : EventBase, ILoadableFrom<UserFlaggedEventInternalDTO, EventUserFlagged>
     {
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public string TargetUser { get; set; }
 
         public System.Collections.Generic.List<string> TargetUsers { get; set; }

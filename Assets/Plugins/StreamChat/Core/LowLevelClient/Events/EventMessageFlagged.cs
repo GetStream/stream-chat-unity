@@ -9,8 +9,6 @@ namespace StreamChat.Core.LowLevelClient.Events
     {
         public string Cid { get; set; }
 
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public Flag Flag { get; set; }
 
         public Message Message { get; set; }

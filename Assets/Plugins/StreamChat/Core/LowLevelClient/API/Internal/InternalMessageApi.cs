@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net.Http;
-using System.Net.WebSockets;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Web;
@@ -19,16 +16,11 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         {
         }
 
-        public async Task<MessageResponseInternalDTO> SendNewMessageAsync(string channelType, string channelId,
+        public Task<MessageResponseInternalDTO> SendNewMessageAsync(string channelType, string channelId,
             SendMessageRequestInternalDTO sendMessageRequest)
         {
             var endpoint = MessageEndpoints.SendMessage(channelType, channelId);
-            var response = await Post<SendMessageRequestInternalDTO, MessageResponseInternalDTO>(endpoint, sendMessageRequest);
-
-            _lowLevelClient.LastEventReceivedAt = response.Message.CreatedAt;
-            _logs.Warning(_lowLevelClient.UserId + " UPDATED LastEventReceivedAt: " + _lowLevelClient.LastEventReceivedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
-
-            return response;
+            return Post<SendMessageRequestInternalDTO, MessageResponseInternalDTO>(endpoint, sendMessageRequest);
         }
 
         public Task<MessageResponseInternalDTO> UpdateMessageAsync(UpdateMessageRequestInternalDTO updateMessageRequest)
@@ -52,13 +44,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             return Delete<MessageResponseInternalDTO>(endpoint, parameters);
         }
 
-        public async Task<ReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest)
+        public Task<ReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest)
         {
             var endpoint = MessageEndpoints.SendReaction(messageId);
-            var response = await Post<SendReactionRequestInternalDTO, ReactionResponseInternalDTO>(endpoint, sendReactionRequest);
-            _lowLevelClient.LastEventReceivedAt = response.Reaction.CreatedAt;
-            _logs.Warning(_lowLevelClient.UserId + " UPDATED LastEventReceivedAt: " + _lowLevelClient.LastEventReceivedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffffffzzz"));
-            return response;
+            return Post<SendReactionRequestInternalDTO, ReactionResponseInternalDTO>(endpoint, sendReactionRequest);
         }
 
         public Task<ReactionRemovalResponseInternalDTO> DeleteReactionAsync(string messageId, string reactionType)
