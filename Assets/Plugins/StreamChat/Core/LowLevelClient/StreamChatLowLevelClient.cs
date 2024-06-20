@@ -183,7 +183,7 @@ namespace StreamChat.Core.LowLevelClient
 
                 if (value == ConnectionState.Disconnected)
                 {
-                    OnDisconnectionLastEventReceivedAt = _lastEventReceivedAt;
+                    _disconnectionLastEventReceivedAt = _lastEventReceivedAt;
                     Disconnected?.Invoke();
                 }
             }
@@ -385,12 +385,12 @@ namespace StreamChat.Core.LowLevelClient
 
         public async Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids)
         {
-            if (!channelCids.Any() || !OnDisconnectionLastEventReceivedAt.HasValue)
+            if (!channelCids.Any() || !_disconnectionLastEventReceivedAt.HasValue)
             {
                 return;
             }
 
-            var lastEventReceivedAt = OnDisconnectionLastEventReceivedAt.Value;
+            var lastEventReceivedAt = _disconnectionLastEventReceivedAt.Value;
 
             var currentServerTime = DateTimeOffset.UtcNow.ToOffset(lastEventReceivedAt.Offset);
 
@@ -534,14 +534,14 @@ namespace StreamChat.Core.LowLevelClient
         private ITokenProvider _tokenProvider;
 
         /// <summary>
-        /// Date Time of the last received WebSocket event from the API. When calling /sync endpoint use <see cref="OnDisconnectionLastEventReceivedAt"/>
+        /// Date Time of the last received WebSocket event from the API. When calling /sync endpoint use <see cref="_disconnectionLastEventReceivedAt"/>
         /// </summary>
         private DateTimeOffset? _lastEventReceivedAt;
 
         /// <summary>
         /// The last value of <see cref="_lastEventReceivedAt"/> when the client disconnected. Use this value when calling /sync endpoint
         /// </summary>
-        private DateTimeOffset? OnDisconnectionLastEventReceivedAt;
+        private DateTimeOffset? _disconnectionLastEventReceivedAt;
 
         private async Task RefreshAuthTokenFromProvider()
         {

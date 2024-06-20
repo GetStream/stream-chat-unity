@@ -133,6 +133,8 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.AreEqual(3, otherClientChannel.Messages.Count);
         }
+
+        //StreamTodo: validate that appropriate events are being triggered on the StreamChatClient instance
     }
 }
 #endif
