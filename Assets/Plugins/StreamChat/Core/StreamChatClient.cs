@@ -605,12 +605,25 @@ namespace StreamChat.Core
         {
             _localUserData = _cache.TryCreateOrUpdate(ownUserInternalDto);
 
-            //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
-            // This could be solved if ChannelMutes would be an observable collection
-            foreach (var channel in _cache.Channels.AllItems)
+            if(LocalUserData == null)
             {
-                var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
-                channel.Muted = isMuted;
+                _logs.Error("Local User Data is null");
+                return _localUserData;
+            }
+
+            if(LocalUserData.ChannelMutes != null)
+            {
+                //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
+                // This could be solved if ChannelMutes would be an observable collection
+                foreach (var channel in _cache.Channels.AllItems)
+                {
+                    var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
+                    channel.Muted = isMuted;
+                }
+            }
+            else
+            {
+                _logs.Info("ChannelMutes is null");
             }
 
             return _localUserData;
