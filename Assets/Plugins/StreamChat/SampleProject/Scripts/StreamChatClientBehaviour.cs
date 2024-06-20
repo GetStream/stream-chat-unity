@@ -80,27 +80,6 @@ namespace StreamChat.SampleProject
             }
         }
 
-        protected void Update()
-        {
-            if (_client == null || _missingCredentials)
-            {
-                return;
-            }
-
-            var isClientConnectedOrConnecting = _client.ConnectionState == ConnectionState.Connected ||
-                                                _client.ConnectionState == ConnectionState.Connecting;
-
-            var isNetworkReachable =
-                Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork ||
-                Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork;
-
-            if (!isClientConnectedOrConnecting && isNetworkReachable)
-            {
-                Debug.LogWarning("Client is not connected, but network is reachable. Force reconnect.");
-                _client.ConnectUserAsync(_authCredentialsAsset.Credentials);
-            }
-        }
-
         private IStreamChatClient _client;
         private bool _missingCredentials;
 
