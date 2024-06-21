@@ -348,6 +348,8 @@ namespace StreamChat.Core.LowLevelClient
 
         public void Update(float deltaTime)
         {
+            _networkMonitor?.Update();
+
 #if !STREAM_TESTS_ENABLED
             _updateCallReceived = true;
 #endif

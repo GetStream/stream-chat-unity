@@ -60,6 +60,8 @@ namespace StreamChat.Core.LowLevelClient
                 _client.Reconnecting -= OnReconnecting;
                 _client.ConnectionStateChanged -= OnConnectionStateChanged;
             }
+
+            _networkMonitor.NetworkAvailabilityChanged -= OnNetworkAvailabilityChanged;
         }
 
         public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
