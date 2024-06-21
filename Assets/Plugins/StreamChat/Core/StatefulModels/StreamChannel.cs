@@ -827,12 +827,35 @@ namespace StreamChat.Core.StatefulModels
             {
                 if (!_messages.ContainsNoAlloc(streamMessage))
                 {
+                    var lastMessage = _messages.LastOrDefault();
+
                     _messages.Add(streamMessage);
+
+                    // If local user sends message during the sync operation.
+                    // It is possible that the locally sent message will be added before the /sync endpoint returns past message events
+                    if (lastMessage != null && streamMessage.CreatedAt < lastMessage.CreatedAt)
+                    {
+                        //StreamTodo: test this more. A good way was to toggle Ethernet on PC and send messages on Android
+                        _messages.Sort(_messageCreateAtComparer);
+                    }
+
                     MessageReceived?.Invoke(this, streamMessage);
                 }
             }
 
             return streamMessage;
+        }
+
+        //StreamTodo: move this to the right place
+        private MessageCreateAtComparer _messageCreateAtComparer = new MessageCreateAtComparer();
+
+        //StreamTodo: move outside and change to internal
+        private class MessageCreateAtComparer : IComparer<IStreamMessage>
+        {
+            public int Compare(IStreamMessage x, IStreamMessage y)
+            {
+                return x.CreatedAt.CompareTo(y.CreatedAt);
+            }
         }
 
         //StreamTodo: This deleteBeforeCreatedAt date is the date of event, it does not equal the passed TruncatedAt
