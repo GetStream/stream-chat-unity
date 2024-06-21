@@ -27,6 +27,8 @@ using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
+using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core
 {
@@ -201,11 +203,11 @@ namespace StreamChat.Core
             return UpdateLocalUser(ownUserDto);
         }
 
-        //StreamTodo: test scenario: ConnectUserAsync and immediately all DisconnectUserAsync
+        //StreamTodo: test scenario: ConnectUserAsync and immediately call DisconnectUserAsync
         public Task DisconnectUserAsync()
         {
             TryCancelWaitingForUserConnection();
-            return InternalLowLevelClient.DisconnectAsync();
+            return InternalLowLevelClient.DisconnectAsync(permanent: true);
         }
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
@@ -603,12 +605,25 @@ namespace StreamChat.Core
         {
             _localUserData = _cache.TryCreateOrUpdate(ownUserInternalDto);
 
-            //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
-            // This could be solved if ChannelMutes would be an observable collection
-            foreach (var channel in _cache.Channels.AllItems)
+            if(LocalUserData == null)
             {
-                var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
-                channel.Muted = isMuted;
+                _logs.Error("Local User Data is null");
+                return _localUserData;
+            }
+
+            if(LocalUserData.ChannelMutes != null)
+            {
+                //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
+                // This could be solved if ChannelMutes would be an observable collection
+                foreach (var channel in _cache.Channels.AllItems)
+                {
+                    var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
+                    channel.Muted = isMuted;
+                }
+            }
+            else
+            {
+                _logs.Info("ChannelMutes is null");
             }
 
             return _localUserData;
@@ -696,7 +711,18 @@ namespace StreamChat.Core
             try
             {
                 var localUserDto = dto.Me;
-                UpdateLocalUser(localUserDto);
+
+                // This can sometimes be null. I think it's when the client lost network and believes he's reconnecting
+                // but the healthcheck timeout didn't pass on server and from the server perspective the client never disconnected
+                if(localUserDto != null)
+                {
+                    UpdateLocalUser(localUserDto);
+                }
+                else
+                {
+                    _logs.Warning("OnConnected localUserDto was NULL and current LocalUserData is " + (LocalUserData != null) + " value " + LocalUserData);
+                }
+
                 Connected?.Invoke(LocalUserData);
             }
             finally
@@ -708,6 +734,18 @@ namespace StreamChat.Core
                     _connectUserTaskSource = null;
                 }
             }
+
+            RestoreStateLostDuringDisconnect().LogIfFailed();
+        }
+
+        private Task RestoreStateLostDuringDisconnect()
+        {
+            if (!WatchedChannels.Any())
+            {
+                return Task.CompletedTask;
+            }
+
+            return LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(WatchedChannels.Select(c => c.Cid));
         }
 
         private void OnDisconnected() => Disconnected?.Invoke();
@@ -864,6 +902,12 @@ namespace StreamChat.Core
 
         private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO eventDto)
         {
+            //StreamTodo: sometimes when I run all tests the eventDto.Channel.Type is null. Inspect how different is this DTO from the channel kept in cache. If its incomplete we shouldn't update the cached value
+            if (eventDto.Channel.Type == null && eventDto.ChannelType != null)
+            {
+                eventDto.Channel.Type = eventDto.ChannelType;
+            }
+
             var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var member = _cache.TryCreateOrUpdate(eventDto.Member);
             _cache.TryCreateOrUpdate(eventDto.Member.User);

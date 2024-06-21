@@ -95,7 +95,7 @@ namespace StreamChat.Tests.StatefulClient
             yield return ConnectAndExecuteAsync(test).RunAsIEnumerator(statefulClient: Client);
         }
 
-        protected Task<StreamChatClient> GetConnectedOtherClient()
+        protected Task<StreamChatClient> GetConnectedOtherClientAsync()
             => StreamTestClients.Instance.ConnectOtherStateClientAsync();
 
         //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible

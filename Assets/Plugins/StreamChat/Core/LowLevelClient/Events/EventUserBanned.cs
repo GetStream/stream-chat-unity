@@ -14,8 +14,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Cid { get; set; }
 
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public User CreatedBy { get; set; }
 
         public System.DateTimeOffset? Expiration { get; set; }

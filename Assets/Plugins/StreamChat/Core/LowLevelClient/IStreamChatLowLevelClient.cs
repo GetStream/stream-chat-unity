@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.Auth;
 using StreamChat.Core.LowLevelClient.API;
@@ -86,5 +87,7 @@ namespace StreamChat.Core.LowLevelClient
         void ConnectUser(AuthCredentials userAuthCredentials);
 
         Task DisconnectAsync(bool permanent = false);
+
+        Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids);
     }
 }

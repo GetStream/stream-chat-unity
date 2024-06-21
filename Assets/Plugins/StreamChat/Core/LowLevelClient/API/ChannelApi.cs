@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.LowLevelClient.Models;
@@ -140,6 +141,12 @@ namespace StreamChat.Core.LowLevelClient.API
 
         public Task SendTypingStopEventAsync(string channelType, string channelId)
             => _internalChannelApi.SendTypingStopEventAsync(channelType, channelId);
+
+        public async Task<SyncResponse> SyncAsync(SyncRequest syncRequest)
+        {
+            var dto = await _internalChannelApi.SyncAsync(syncRequest.TrySaveToDto());
+            return dto.ToDomain<SyncResponseInternalDTO, SyncResponse>();
+        }
 
         private readonly IInternalChannelApi _internalChannelApi;
     }

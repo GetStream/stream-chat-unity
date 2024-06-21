@@ -18,8 +18,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public bool? ClearHistory { get; set; }
 
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public string Type { get; set; }
 
         public User User { get; set; }

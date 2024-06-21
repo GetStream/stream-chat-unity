@@ -25,6 +25,9 @@ using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Utils;
 using StreamChat.Libs.Websockets;
+using StreamChat.Core.LowLevelClient.Requests;
+using System.Linq;
+
 #if STREAM_TESTS_ENABLED
 using System.Runtime.CompilerServices;
 #endif
@@ -180,6 +183,7 @@ namespace StreamChat.Core.LowLevelClient
 
                 if (value == ConnectionState.Disconnected)
                 {
+                    _disconnectionLastEventReceivedAt = _lastEventReceivedAt;
                     Disconnected?.Invoke();
                 }
             }
@@ -364,7 +368,7 @@ namespace StreamChat.Core.LowLevelClient
             while (_websocketClient.TryDequeueMessage(out var msg))
             {
 #if STREAM_DEBUG_ENABLED
-                _logs.Info("WS message: " + msg);
+                _logs.Info(_authCredentials.UserId + " WS message: " + msg);
 #endif
                 HandleNewWebsocketMessage(msg);
             }
@@ -379,6 +383,47 @@ namespace StreamChat.Core.LowLevelClient
             float? exponentialMaxInterval, float? constantInterval)
         {
             _reconnectScheduler.SetReconnectStrategySettings(reconnectStrategy, exponentialMinInterval, exponentialMaxInterval, constantInterval);
+        }
+
+        public async Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids)
+        {
+            if (!channelCids.Any() || !_disconnectionLastEventReceivedAt.HasValue)
+            {
+                return;
+            }
+
+            var lastEventReceivedAt = _disconnectionLastEventReceivedAt.Value;
+
+            var currentServerTime = DateTimeOffset.UtcNow.ToOffset(lastEventReceivedAt.Offset);
+
+            // Check if less than 30 days
+            var diff = lastEventReceivedAt - _timeService.Now;
+            if (diff.TotalDays > 30)
+            {
+                return;
+            }
+
+            //StreamTodo: according to Android SDK there's an error if there are > 1000 events 
+
+            var response = await ChannelApi.SyncAsync(new SyncRequest
+            {
+                ChannelCids = channelCids.ToList(),
+                LastSyncAt = lastEventReceivedAt,
+            });
+
+            if(response.Events.Count == 0)
+            {
+                return;
+            }
+
+            foreach(var e in response.Events)
+            {
+                // StreamTodo: check if we can not serialized this again. Investigate adding a custom EventsJsonConverter that would populate the list as serialized strings
+                var serializedMsg = _serializer.Serialize(e);
+
+                //StreamTodo: try block?
+                HandleNewWebsocketMessage(serializedMsg);
+            }
         }
 
         public void Dispose()
@@ -489,6 +534,16 @@ namespace StreamChat.Core.LowLevelClient
 
         private bool _websocketConnectionFailed;
         private ITokenProvider _tokenProvider;
+
+        /// <summary>
+        /// Date Time of the last received WebSocket event from the API. When calling /sync endpoint use <see cref="_disconnectionLastEventReceivedAt"/>
+        /// </summary>
+        private DateTimeOffset? _lastEventReceivedAt;
+
+        /// <summary>
+        /// The last value of <see cref="_lastEventReceivedAt"/> when the client disconnected. Use this value when calling /sync endpoint
+        /// </summary>
+        private DateTimeOffset? _disconnectionLastEventReceivedAt;
 
         private async Task RefreshAuthTokenFromProvider()
         {
@@ -730,7 +785,7 @@ namespace StreamChat.Core.LowLevelClient
 
         private void RegisterEventType<TDto, TEvent>(string key,
             Action<TEvent, TDto> handler, Action<TDto> internalHandler = null)
-            where TEvent : ILoadableFrom<TDto, TEvent>, new()
+            where TEvent : EventBase, ILoadableFrom<TDto, TEvent>, new()
         {
             if (_eventKeyToHandler.ContainsKey(key))
             {
@@ -743,6 +798,7 @@ namespace StreamChat.Core.LowLevelClient
                 try
                 {
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
+                    _lastEventReceivedAt = eventObj.CreatedAt;
                     handler?.Invoke(eventObj, dto);
                     internalHandler?.Invoke(dto);
                 }

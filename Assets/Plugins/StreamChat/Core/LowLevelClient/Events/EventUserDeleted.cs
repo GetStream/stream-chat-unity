@@ -8,8 +8,6 @@ namespace StreamChat.Core.LowLevelClient.Events
     public sealed class EventUserDeleted : EventBase,
         ILoadableFrom<UserDeletedEventInternalDTO, EventUserDeleted>
     {
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public bool? DeleteConversationChannels { get; set; }
 
         public bool? HardDelete { get; set; }

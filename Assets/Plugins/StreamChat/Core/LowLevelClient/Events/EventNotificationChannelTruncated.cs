@@ -15,8 +15,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Cid { get; set; }
 
-        public System.DateTimeOffset? CreatedAt { get; set; }
-
         public string Type { get; set; }
 
         EventNotificationChannelTruncated

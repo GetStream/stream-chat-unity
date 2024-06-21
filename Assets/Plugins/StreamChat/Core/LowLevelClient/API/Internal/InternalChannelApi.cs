@@ -133,5 +133,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             {
                 Type = WSEventType.TypingStop
             });
+
+        public Task<SyncResponseInternalDTO> SyncAsync(SyncRequestInternalDTO syncRequest)
+            => Post<SyncRequestInternalDTO, SyncResponseInternalDTO>($"/sync", syncRequest);
     }
 }
