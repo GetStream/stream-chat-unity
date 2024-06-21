@@ -902,6 +902,12 @@ namespace StreamChat.Core
 
         private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO eventDto)
         {
+            //StreamTodo: sometimes when I run all tests the eventDto.Channel.Type is null. Inspect how different is this DTO from the channel kept in cache. If its incomplete we shouldn't update the cached value
+            if (eventDto.Channel.Type == null && eventDto.ChannelType != null)
+            {
+                eventDto.Channel.Type = eventDto.ChannelType;
+            }
+
             var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var member = _cache.TryCreateOrUpdate(eventDto.Member);
             _cache.TryCreateOrUpdate(eventDto.Member.User);
