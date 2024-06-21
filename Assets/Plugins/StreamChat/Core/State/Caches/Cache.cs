@@ -29,8 +29,16 @@ namespace StreamChat.Core.State.Caches
 
             LocalUser.RegisterDtoIdMapping<StreamLocalUserData, OwnUserInternalDTO>(dto => dto.Id);
 
-            //In some cases the ChannelMemberInternalDTO.UserId was null
-            ChannelMembers.RegisterDtoIdMapping<StreamChannelMember, ChannelMemberInternalDTO>(dto => dto.User.Id);
+            //In some cases the ChannelMemberInternalDTO.UserId was null -> only known case is channelDto.Membership
+            ChannelMembers.RegisterDtoIdMapping<StreamChannelMember, ChannelMemberInternalDTO>(dto =>
+            {
+                if(dto.User != null)
+                {
+                    return dto.User.Id;
+                }
+
+                return dto.UserId;
+            });
 
             Messages.RegisterDtoIdMapping<StreamMessage, MessageInternalDTO>(dto => dto.Id);
         }
