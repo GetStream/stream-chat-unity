@@ -45,7 +45,8 @@ namespace StreamChat.Core.LowLevelClient
             _client = lowLevelClient ?? throw new ArgumentNullException(nameof(lowLevelClient));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _networkMonitor = networkMonitor ?? throw new ArgumentNullException(nameof(networkMonitor));
-            _logs = logs;
+            _logs = logs ?? throw new ArgumentNullException(nameof(logs));
+            
             _networkMonitor.NetworkAvailabilityChanged += OnNetworkAvailabilityChanged;
 
             _client.Connected += OnConnected;
