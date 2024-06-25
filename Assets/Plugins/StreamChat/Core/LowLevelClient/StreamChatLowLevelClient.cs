@@ -179,6 +179,11 @@ namespace StreamChat.Core.LowLevelClient
 
                 var previous = _connectionState;
                 _connectionState = value;
+
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"Connection state changed from: {previous} to: {value}");
+#endif
+
                 ConnectionStateChanged?.Invoke(previous, _connectionState);
 
                 if (value == ConnectionState.Disconnected)
@@ -302,7 +307,7 @@ namespace StreamChat.Core.LowLevelClient
             UserApi = new UserApi(InternalUserApi);
             DeviceApi = new DeviceApi(InternalDeviceApi);
 
-            _reconnectScheduler = new ReconnectScheduler(_timeService, this, _networkMonitor);
+            _reconnectScheduler = new ReconnectScheduler(_timeService, this, _networkMonitor, _logs);
             _reconnectScheduler.ReconnectionScheduled += OnReconnectionScheduled;
 
             RegisterEventHandlers();
@@ -483,6 +488,7 @@ namespace StreamChat.Core.LowLevelClient
 
                 var connectionUri = _requestUriFactory.CreateConnectionUri();
 
+                //StreamTodo: pass the cancellation token here cancellationToken
                 await _websocketClient.ConnectAsync(connectionUri);
 
                 var ownUserDto = await _connectUserTaskSource.Task;

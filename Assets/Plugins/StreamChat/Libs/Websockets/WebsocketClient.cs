@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using StreamChat.Libs.Logs;
+#if STREAM_DEBUG_ENABLED
+using System.Diagnostics;
+#endif
 
 namespace StreamChat.Libs.Websockets
 {
@@ -52,7 +55,20 @@ namespace StreamChat.Libs.Websockets
                 _connectionCts = new CancellationTokenSource();
 
                 _internalClient = new ClientWebSocket();
+
+#if STREAM_DEBUG_ENABLED
+                var ws = new Stopwatch();
+                ws.Start();
+                _logs.Warning($"Internal WS ConnectAsync");
+#endif
+
                 await _internalClient.ConnectAsync(_uri, _connectionCts.Token).ConfigureAwait(false);
+
+#if STREAM_DEBUG_ENABLED
+                ws.Stop();
+                _logs.Warning($"Internal WS ConnectAsync COMPLETED in {ws.ElapsedMilliseconds} ms.");
+#endif
+
             }
             catch (OperationCanceledException e)
             {
@@ -91,8 +107,18 @@ namespace StreamChat.Libs.Websockets
             _sendQueue.Add(messageSegment);
         }
 
+
         public void Update()
         {
+#if STREAM_DEBUG_ENABLED
+
+            if(_internalClient != null && _internalClient.State != _lastState)
+            {
+                _logs.Warning($"Internal WS state -> changed from {_lastState} to " + _internalClient.State);
+                _lastState = _internalClient.State;
+            }
+#endif
+
             var disconnect = false;
             while (_threadWebsocketExceptionsLog.TryDequeue(out var webSocketException))
             {
@@ -162,6 +188,8 @@ namespace StreamChat.Libs.Websockets
         private Uri _uri;
         private ClientWebSocket _internalClient;
         private CancellationTokenSource _connectionCts;
+
+        private WebSocketState _lastState;
 
         private async void SendMessagesCallback(object state)
         {
@@ -281,6 +309,9 @@ namespace StreamChat.Libs.Websockets
             {
                 if (!_clientClosedStates.Contains(_internalClient.State))
                 {
+#if STREAM_DEBUG_ENABLED
+                    _logs.Warning("Internal WS - Close in state: " + _internalClient.State);
+#endif
                     await _internalClient.CloseOutputAsync(closeStatus, closeMessage, CancellationToken.None);
                 }
             }
@@ -290,6 +321,9 @@ namespace StreamChat.Libs.Websockets
             }
             finally
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning("Internal WS - Dispose in state: " + _internalClient.State);
+#endif
                 _internalClient.Dispose();
                 _internalClient = null;
             }
