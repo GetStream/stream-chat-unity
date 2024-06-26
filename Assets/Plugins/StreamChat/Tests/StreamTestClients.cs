@@ -85,6 +85,7 @@ namespace StreamChat.Tests
 
         public string OtherUserId => _otherUserCredentials.UserId;
         public IEnumerable<AuthCredentials> OtherUserCredentials => _otherUsersCredentials;
+        public AuthCredentials LowLevelClientCredentials { get; }
 
         public IEnumerator ReconnectLowLevelClientClient()
         {
@@ -103,7 +104,6 @@ namespace StreamChat.Tests
 
         private readonly HashSet<object> _locks = new HashSet<object>();
 
-        private readonly AuthCredentials _lowLevelClientCredentials;
         private readonly AuthCredentials _stateClientCredentials;
         private readonly AuthCredentials _otherUserCredentials;
         private readonly List<AuthCredentials> _otherUsersCredentials;
@@ -126,7 +126,7 @@ namespace StreamChat.Tests
 
             var adminData = testAuthDataSet.TestAdminData.OrderBy(_ => Random.value).ToList();
 
-            _lowLevelClientCredentials = adminData[0];
+            LowLevelClientCredentials = adminData[0];
             _stateClientCredentials = adminData[1];
             _otherUserCredentials = adminData[2];
             _otherUsersCredentials = adminData.Skip(3).ToList();
@@ -218,7 +218,7 @@ namespace StreamChat.Tests
 
         private void InitLowLevelClient()
         {
-            _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(_lowLevelClientCredentials);
+            _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(LowLevelClientCredentials);
             _lowLevelClient.Connected += OnClientConnected;
             _lowLevelClient.Connect();
         }
