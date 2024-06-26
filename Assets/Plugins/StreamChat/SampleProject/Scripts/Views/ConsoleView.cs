@@ -99,8 +99,6 @@ namespace StreamChat.SampleProject.Views
                 UpdateEventsLog();
             }
 
-            Debug.LogWarning($"Connection changed from `{prev}` to `{current}`");
-
             UpdateConnectionLog();
         }
 
