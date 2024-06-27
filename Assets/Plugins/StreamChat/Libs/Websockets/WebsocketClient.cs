@@ -283,11 +283,19 @@ namespace StreamChat.Libs.Websockets
         {
             try
             {
+#if UNITY_2021_2_OR_NEWER
                 if (_backgroundReceiveTimer != null)
                 {
                     await _backgroundReceiveTimer.DisposeAsync();
                     _backgroundReceiveTimer = null;
                 }
+#else
+                if (_backgroundReceiveTimer != null)
+                {
+                    _backgroundReceiveTimer.Dispose();
+                    _backgroundReceiveTimer = null;
+                }
+#endif
             }
             catch (Exception e)
             {
@@ -296,11 +304,20 @@ namespace StreamChat.Libs.Websockets
 
             try
             {
+#if UNITY_2021_2_OR_NEWER
                 if (_backgroundSendTimer != null)
                 {
                     await _backgroundSendTimer.DisposeAsync();
                     _backgroundSendTimer = null;
                 }
+#else
+                if (_backgroundSendTimer != null)
+                {
+                    _backgroundSendTimer.Dispose();
+                    _backgroundSendTimer = null;
+                }
+#endif
+
             }
             catch (Exception e)
             {
@@ -375,7 +392,7 @@ namespace StreamChat.Libs.Websockets
             }
             catch (Exception e)
             {
-                _logs.Exception(exception);
+                _logs.Exception(e);
             }
             
             var isHandledExceptionType = exception is OperationCanceledException || exception is WebSocketException || exception is SocketException;
