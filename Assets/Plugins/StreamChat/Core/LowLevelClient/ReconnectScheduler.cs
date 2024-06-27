@@ -1,5 +1,6 @@
 ﻿using System;
 using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Libs.Logs;
 using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Time;
 
@@ -39,12 +40,13 @@ namespace StreamChat.Core.LowLevelClient
         }
 
         public ReconnectScheduler(ITimeService timeService, IStreamChatLowLevelClient lowLevelClient,
-            INetworkMonitor networkMonitor)
+            INetworkMonitor networkMonitor, ILogs logs)
         {
             _client = lowLevelClient ?? throw new ArgumentNullException(nameof(lowLevelClient));
             _timeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
             _networkMonitor = networkMonitor ?? throw new ArgumentNullException(nameof(networkMonitor));
-
+            _logs = logs ?? throw new ArgumentNullException(nameof(logs));
+            
             _networkMonitor.NetworkAvailabilityChanged += OnNetworkAvailabilityChanged;
 
             _client.Connected += OnConnected;
@@ -106,6 +108,7 @@ namespace StreamChat.Core.LowLevelClient
         private readonly IStreamChatLowLevelClient _client;
         private readonly ITimeService _timeService;
         private readonly INetworkMonitor _networkMonitor;
+        private readonly ILogs _logs;
 
         private int _reconnectAttempts;
         private bool _isStopped;
@@ -178,6 +181,9 @@ namespace StreamChat.Core.LowLevelClient
 
         private void OnNetworkAvailabilityChanged(bool isNetworkAvailable)
         {
+#if STREAM_DEBUG_ENABLED
+            _logs.Warning($"Network availability changed to: {isNetworkAvailable}");
+#endif
             if (!isNetworkAvailable)
             {
                 return;

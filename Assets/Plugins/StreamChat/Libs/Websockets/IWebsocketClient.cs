@@ -15,7 +15,7 @@ namespace StreamChat.Libs.Websockets
 
         bool TryDequeueMessage(out string message);
 
-        Task ConnectAsync(Uri serverUri);
+        Task ConnectAsync(Uri serverUri, int timeout = 3);
 
         void Update();
 

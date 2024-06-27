@@ -8,6 +8,7 @@ using NUnit.Framework;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.LowLevelClient.Integration
@@ -59,8 +60,14 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel("messaging", requestBody, state => channelState = state);
 
-            Assert.AreEqual(3, channelState.Channel.AdditionalProperties.Count);
-            Assert.AreEqual(3, channelState.Channel.AdditionalProperties.Count);
+            Assert.IsTrue(channelState.Channel.AdditionalProperties.ContainsKey("MyNumber"));
+            Assert.AreEqual(3, channelState.Channel.AdditionalProperties["MyNumber"]);
+            Assert.IsTrue(channelState.Channel.AdditionalProperties.ContainsKey("MyString"));
+            Assert.AreEqual("Hey Joe!", channelState.Channel.AdditionalProperties["MyString"]);
+            Assert.IsTrue(channelState.Channel.AdditionalProperties.ContainsKey("MyIntArray"));
+            
+            //StreamTodo: fix returned array here to not be JArray https://stream-io.atlassian.net/browse/PBE-4851
+            //Assert.AreEqual(new int[] { 5, 8, 9 }, (int[])channelState.Channel.AdditionalProperties["MyIntArray"]);
         }
 
         [UnityTest]

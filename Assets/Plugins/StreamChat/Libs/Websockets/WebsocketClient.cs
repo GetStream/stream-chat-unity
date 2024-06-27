@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using StreamChat.Libs.Logs;
+#if STREAM_DEBUG_ENABLED
+using System.Diagnostics;
+#endif
 
 namespace StreamChat.Libs.Websockets
 {
@@ -35,7 +38,7 @@ namespace StreamChat.Libs.Websockets
 
         public bool TryDequeueMessage(out string message) => _receiveQueue.TryDequeue(out message);
 
-        public async Task ConnectAsync(Uri serverUri)
+        public async Task ConnectAsync(Uri serverUri, int timeout = 3)
         {
             if (IsConnected || IsConnecting)
             {
@@ -47,33 +50,50 @@ namespace StreamChat.Libs.Websockets
 
             try
             {
-                await TryDisposeResourcesAsync(WebSocketCloseStatus.NormalClosure,
+                await TryCloseAndDisposeAsync(WebSocketCloseStatus.NormalClosure,
                     "Clean up resources before connecting");
                 _connectionCts = new CancellationTokenSource();
 
                 _internalClient = new ClientWebSocket();
-                await _internalClient.ConnectAsync(_uri, _connectionCts.Token).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException e)
-            {
-                LogExceptionIfDebugMode(e);
-            }
-            catch (WebSocketException e)
-            {
-                LogExceptionIfDebugMode(e);
-                OnConnectionFailed();
-                return;
-            }
-            catch (SocketException e)
-            {
-                LogExceptionIfDebugMode(e);
-                OnConnectionFailed();
-                return;
+
+#if STREAM_DEBUG_ENABLED
+                var ws = new Stopwatch();
+                ws.Start();
+                _logs.Warning($"Internal WS ConnectAsync CALL");
+#endif
+
+                var connectTask = _internalClient.ConnectAsync(_uri, _connectionCts.Token);
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(timeout));
+
+                // We handle timeout this way because ConnectAsync was hanging after multiple attempts on Unity 2022.3.29 & Android 14 and cancellation via passed token didn't work
+                var finishedTask = await Task.WhenAny(connectTask, timeoutTask);
+
+                if (finishedTask == timeoutTask)
+                {
+#if STREAM_DEBUG_ENABLED
+                    _logs.Warning("Internal WS Connection attempt timed out.");
+#endif
+                    throw new TimeoutException($"Connection attempt timed out after {timeout} seconds.");
+                }
+
+                if (_connectionCts == null || _connectionCts.Token.IsCancellationRequested)
+                {
+#if STREAM_DEBUG_ENABLED
+                    _logs.Warning("Internal WS Connection attempt cancelled.");
+#endif
+                    throw new OperationCanceledException();
+                }
+
+                await connectTask;
+
+#if STREAM_DEBUG_ENABLED
+                ws.Stop();
+                _logs.Warning($"Internal WS ConnectAsync COMPLETED in {ws.ElapsedMilliseconds} ms.");
+#endif
             }
             catch (Exception e)
             {
-                _logs.Exception(e);
-                OnConnectionFailed();
+                await HandleConnectionFailedAsync(e);
                 return;
             }
 
@@ -93,6 +113,15 @@ namespace StreamChat.Libs.Websockets
 
         public void Update()
         {
+#if STREAM_DEBUG_ENABLED
+
+            if (_internalClient != null && _internalClient.State != _lastState)
+            {
+                _logs.Warning($"Internal WS state -> changed from {_lastState} to " + _internalClient.State);
+                _lastState = _internalClient.State;
+            }
+#endif
+
             var disconnect = false;
             while (_threadWebsocketExceptionsLog.TryDequeue(out var webSocketException))
             {
@@ -117,18 +146,22 @@ namespace StreamChat.Libs.Websockets
         public async Task DisconnectAsync(WebSocketCloseStatus closeStatus, string closeMessage)
         {
             LogInfoIfDebugMode("Disconnect");
-            await TryDisposeResourcesAsync(closeStatus, closeMessage);
+            await TryCloseAndDisposeAsync(closeStatus, closeMessage);
 
             Disconnected?.Invoke();
         }
 
         public void Dispose()
         {
-            LogInfoIfDebugMode("Dispose");
-            DisconnectAsync(WebSocketCloseStatus.NormalClosure, "WebSocket client is disposed")
-                .ContinueWith(_ => LogExceptionIfDebugMode(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
+            LogInfoIfDebugMode("Dispose " + Thread.CurrentThread.ManagedThreadId);
+
+            if (_internalClient != null && !_clientClosedStates.Contains(_internalClient.State))
+            {
+                DisconnectAsync(WebSocketCloseStatus.NormalClosure, "WebSocket client is disposed")
+                    .ContinueWith(t => LogExceptionIfDebugMode(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+            }
         }
-        
+
         private const int UpdatesPerSecond = 20;
         private const int UpdatePeriod = 1000 / UpdatesPerSecond;
         private const int UpdatePeriodOffset = UpdatePeriod / 2;
@@ -162,6 +195,8 @@ namespace StreamChat.Libs.Websockets
         private Uri _uri;
         private ClientWebSocket _internalClient;
         private CancellationTokenSource _connectionCts;
+
+        private WebSocketState _lastState;
 
         private async void SendMessagesCallback(object state)
         {
@@ -244,14 +279,45 @@ namespace StreamChat.Libs.Websockets
             }
         }
 
-        private async Task TryDisposeResourcesAsync(WebSocketCloseStatus closeStatus, string closeMessage)
+        private async Task TryCloseAndDisposeAsync(WebSocketCloseStatus closeStatus, string closeMessage)
         {
             try
             {
-                _backgroundReceiveTimer?.Dispose();
-                _backgroundReceiveTimer = null;
-                _backgroundSendTimer?.Dispose();
-                _backgroundSendTimer = null;
+#if UNITY_2021_2_OR_NEWER
+                if (_backgroundReceiveTimer != null)
+                {
+                    await _backgroundReceiveTimer.DisposeAsync();
+                    _backgroundReceiveTimer = null;
+                }
+#else
+                if (_backgroundReceiveTimer != null)
+                {
+                    _backgroundReceiveTimer.Dispose();
+                    _backgroundReceiveTimer = null;
+                }
+#endif
+            }
+            catch (Exception e)
+            {
+                LogExceptionIfDebugMode(e);
+            }
+
+            try
+            {
+#if UNITY_2021_2_OR_NEWER
+                if (_backgroundSendTimer != null)
+                {
+                    await _backgroundSendTimer.DisposeAsync();
+                    _backgroundSendTimer = null;
+                }
+#else
+                if (_backgroundSendTimer != null)
+                {
+                    _backgroundSendTimer.Dispose();
+                    _backgroundSendTimer = null;
+                }
+#endif
+
             }
             catch (Exception e)
             {
@@ -262,7 +328,11 @@ namespace StreamChat.Libs.Websockets
             {
                 if (_connectionCts != null)
                 {
-                    _connectionCts.Cancel();
+                    if (!_connectionCts.IsCancellationRequested)
+                    {
+                        _connectionCts.Cancel();
+                    }
+
                     _connectionCts.Dispose();
                     _connectionCts = null;
                 }
@@ -279,9 +349,20 @@ namespace StreamChat.Libs.Websockets
 
             try
             {
-                if (!_clientClosedStates.Contains(_internalClient.State))
+                if (_internalClient.State == WebSocketState.Open)
                 {
+#if STREAM_DEBUG_ENABLED
+                    _logs.Warning("Internal WS - Disposing; Is open -> CloseOutputAsync");
+#endif
                     await _internalClient.CloseOutputAsync(closeStatus, closeMessage, CancellationToken.None);
+                }
+
+                if (_internalClient.State == WebSocketState.Connecting)
+                {
+#if STREAM_DEBUG_ENABLED
+                    _logs.Warning("Internal WS - Disposing; Is Connecting -> Abort");
+#endif
+                    _internalClient.Abort();
                 }
             }
             catch (Exception e)
@@ -290,17 +371,47 @@ namespace StreamChat.Libs.Websockets
             }
             finally
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning("Internal WS - Dispose in state: " + _internalClient.State);
+#endif
                 _internalClient.Dispose();
                 _internalClient = null;
             }
         }
 
-        private void OnConnectionFailed() => ConnectionFailed?.Invoke();
+        private async Task HandleConnectionFailedAsync(Exception exception)
+        {
+#if STREAM_DEBUG_ENABLED
+            _logs.Warning("Internal WS - Connection Failed - trigger ConnectionFailed event");
+#endif
+
+            try
+            {
+                await TryCloseAndDisposeAsync(WebSocketCloseStatus.ProtocolError,
+                    "Closing due to exception thrown during connection attempt: " + exception.Message);
+            }
+            catch (Exception e)
+            {
+                _logs.Exception(e);
+            }
+            
+            var isHandledExceptionType = exception is OperationCanceledException || exception is WebSocketException || exception is SocketException;
+            if (isHandledExceptionType)
+            {
+                LogExceptionIfDebugMode(exception);
+            }
+            else
+            {
+                _logs.Exception(exception);
+            }
+           
+            ConnectionFailed?.Invoke();
+        }
 
         // Called from a background thread
         private void OnReceivedCloseMessage()
             => DisconnectAsync(WebSocketCloseStatus.InternalServerError, "Server closed the connection")
-                .ContinueWith(_ => LogThreadExceptionIfDebugMode(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
+                .ContinueWith(t => LogThreadExceptionIfDebugMode(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
 
         private async Task<string> TryReceiveSingleMessageAsync()
         {
@@ -344,7 +455,7 @@ namespace StreamChat.Libs.Websockets
                     throw new Exception("Unhandled WebSocket message type: " + WebSocketMessageType.Binary);
                 }
 
-                return "";
+                return string.Empty;
             }
         }
 

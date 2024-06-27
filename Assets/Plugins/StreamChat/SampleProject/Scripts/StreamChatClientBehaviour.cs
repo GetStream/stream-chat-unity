@@ -66,8 +66,6 @@ namespace StreamChat.SampleProject
                         }
                     });
 
-                _missingCredentials = true;
-
 #if UNITY_EDITOR
 
                 StartCoroutine(BlinkProjectAsset(_authCredentialsAsset, popup));
@@ -81,7 +79,6 @@ namespace StreamChat.SampleProject
         }
 
         private IStreamChatClient _client;
-        private bool _missingCredentials;
 
         [SerializeField]
         private RootView _rootView;

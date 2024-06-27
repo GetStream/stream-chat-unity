@@ -3,6 +3,7 @@ using NSubstitute;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.LowLevelClient;
+using StreamChat.Libs.Logs;
 using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Time;
 
@@ -16,9 +17,10 @@ namespace StreamChat.Tests.LowLevelClient
         {
             _mockTimeService = Substitute.For<ITimeService>();
             _mockNetworkMonitor = Substitute.For<INetworkMonitor>();
+            var mockLogs = Substitute.For<ILogs>();
 
             _clientMock = Substitute.For<IStreamChatLowLevelClient>();
-            _timeScheduler = new ReconnectScheduler(_mockTimeService, _clientMock, _mockNetworkMonitor);
+            _timeScheduler = new ReconnectScheduler(_mockTimeService, _clientMock, _mockNetworkMonitor, mockLogs);
         }
 
         [TearDown]

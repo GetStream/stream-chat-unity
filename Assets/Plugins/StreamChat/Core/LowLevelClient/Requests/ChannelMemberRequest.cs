@@ -81,7 +81,9 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 InviteRejectedAt = InviteRejectedAt,
                 Invited = Invited,
                 IsModerator = IsModerator,
+#pragma warning disable CS0618
                 Role = Role,
+#pragma warning restore CS0618
                 ShadowBanned = ShadowBanned,
                 UpdatedAt = UpdatedAt,
                 User = User.TrySaveToDto(),
