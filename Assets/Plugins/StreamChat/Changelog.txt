@@ -1,3 +1,13 @@
+v4.7.0:
+Fixes:
+* Fix the IStreamChannel  instance provided by an event not triggering its own events (the channel was not being watched if it was only returned via event) 
+* Fix client events:  IStreamChatClient.AddedToChannelAsMember,  IStreamChatClient.RemovedFromChannelAsMember,  IStreamChatClient.ChannelInviteReceived, IStreamChatClient.ChannelInviteAccepted, IStreamChatClient.ChannelInviteRejected not being executed on the main thread 
+* Fix the client not reconnecting immediately after losing network connection when the network is available again 
+* Fix internal WebSocket client sometimes getting stuck in the Connecting state on Android when the network was not available 
+
+Features:
+* Add state recovery after the disconnected period - once the client reconnects, it will fetch any missed events (like new messages, etc.) from the server and reconstruct the missed state
+
 v4.6.0:
 Improvements:
 * Added client events that are fired when the local user is added to a new channel -> IStreamChatClient.AddedToChannelAsMember or removed from a channel IStreamChatClient.RemovedFromChannelAsMember - These two events fire only for channels that are not tracked locally. For tracked channels, the IStreamChannel.MemberAdded & IStreamChannel.MemberRemoved should be used
