@@ -27,8 +27,10 @@ using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
-using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Libs.Utils;
+#if STREAM_TESTS_ENABLED
+using System.Text;
+#endif
 
 namespace StreamChat.Core
 {
