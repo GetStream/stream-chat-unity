@@ -118,18 +118,29 @@ namespace StreamChat.Tests
         {
             UnityTestRunnerCallbacks.RunFinishedCallback += OnRunFinishedCallback;
 
-            var testAuthDataSet = TestUtils.GetTestAuthCredentials();
+            var testAuthDataSet = TestUtils.GetTestAuthCredentials(out var optionalTestDataIndex);
             if (testAuthDataSet.TestAdminData.Length < 3)
             {
-                throw new ArgumentException("At least 3 admin credentials required");
+                throw new ArgumentException("At least 3 admin credentials are required");
             }
 
-            var adminData = testAuthDataSet.TestAdminData.OrderBy(_ => Random.value).ToList();
+            AuthCredentials primaryAdminSet;
+            if (optionalTestDataIndex.HasValue)
+            {
+                primaryAdminSet = testAuthDataSet.TestAdminData[optionalTestDataIndex.Value];
+            }
+            else
+            {
+                var shuffledSets = testAuthDataSet.TestAdminData.OrderBy(_ => Random.value);
+                primaryAdminSet = shuffledSets.First();
+            }
 
-            LowLevelClientCredentials = adminData[0];
-            _stateClientCredentials = adminData[1];
-            _otherUserCredentials = adminData[2];
-            _otherUsersCredentials = adminData.Skip(3).ToList();
+            var otherAdminSets = testAuthDataSet.TestAdminData.Except(new[] { primaryAdminSet }).ToArray();
+
+            LowLevelClientCredentials = primaryAdminSet;
+            _stateClientCredentials = primaryAdminSet;
+            _otherUserCredentials = otherAdminSets[1];
+            _otherUsersCredentials = otherAdminSets.Skip(2).ToList();
         }
 
         private static async Task<StreamChatClient> ConnectStateClientAsync(StreamChatClient client,

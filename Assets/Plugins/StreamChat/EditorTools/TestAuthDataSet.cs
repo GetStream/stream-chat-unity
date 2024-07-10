@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Libs.Auth;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace StreamChat.EditorTools
@@ -20,11 +21,25 @@ namespace StreamChat.EditorTools
             TestGuestData = testGuestData;
         }
 
-        public AuthCredentials GetAdminData(string forcedAdminId = null)
+        public AuthCredentials GetAdminData(string forcedAdminId = default, int? forceIndex = default)
         {
-            return forcedAdminId != null
-                ? TestAdminData.First(_ => _.UserId == forcedAdminId)
-                : TestAdminData[Random.Range(0, TestAdminData.Length)];
+            if (!string.IsNullOrEmpty(forcedAdminId))
+            {
+                return TestAdminData.First(credentials => credentials.UserId == forcedAdminId);
+            }
+
+            if (forceIndex.HasValue)
+            {
+                if (forceIndex < TestAdminData.Length)
+                {
+                    return TestAdminData[forceIndex.Value];
+                }
+
+                Debug.LogWarning(
+                    $"{nameof(forceIndex)} is out of range -> given: {forceIndex}, max allowed: {TestAdminData.Length - 1}. Using random admin data instead.");
+            }
+
+            return TestAdminData[Random.Range(0, TestAdminData.Length)];
         }
 
         public AuthCredentials GetOtherThan(AuthCredentials authCredentials)

@@ -21,16 +21,17 @@ namespace StreamChat.Tests
             out AuthCredentials userAuthCredentials, out AuthCredentials adminAuthCredentials,
             out AuthCredentials otherUserAuthCredentials, string forcedAdminId = null)
         {
-            var testAuthDataSet = GetTestAuthCredentials();
+            var testAuthDataSet = GetTestAuthCredentials(out var forceDataSetIndex);
 
             guestAuthCredentials = testAuthDataSet.TestGuestData;
             userAuthCredentials = testAuthDataSet.TestUserData;
-            adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId);
+            adminAuthCredentials = testAuthDataSet.GetAdminData(forcedAdminId, forceDataSetIndex);
             otherUserAuthCredentials = testAuthDataSet.GetOtherThan(adminAuthCredentials);
         }
 
-        public static TestAuthDataSet GetTestAuthCredentials()
+        public static TestAuthDataSet GetTestAuthCredentials(out int? forceDataSetIndex)
         {
+            forceDataSetIndex = default;
             const string TestAuthDataFilePath = "test_auth_data_xSpgxW.txt";
 
             if (Application.isBatchMode)
@@ -40,7 +41,7 @@ namespace StreamChat.Tests
                 var parser = new BuildSettingsCommandLineParser();
                 var argsDict = parser.GetParsedCommandLineArguments();
 
-                var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
+                var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict, out forceDataSetIndex);
 
                 Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.TestAdminData[0].UserId);
 

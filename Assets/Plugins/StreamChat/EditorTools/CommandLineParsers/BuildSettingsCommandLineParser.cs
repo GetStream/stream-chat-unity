@@ -17,6 +17,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
         public const string BuildTargetPathArgKey = "-buildTargetPath";
 
         public const string StreamBase64TestDataArgKey = "-streamBase64TestDataSet";
+        public const string TestDataSetIndexArgKey = "-testDataSetIndex";
 
         protected override (BuildSettings buildSettings, AuthCredentials authCredentials) Parse(
             IDictionary<string, string> args)
@@ -53,39 +54,56 @@ namespace StreamChat.EditorTools.CommandLineParsers
             var scriptingImplementation = GetScriptingImplementation(scriptingBackend);
             var targetPath = args[BuildTargetPathArgKey];
 
-            var testAuthDataSet = ParseTestAuthDataSetArg(args);
+            var testAuthDataSet = ParseTestAuthDataSetArg(args, out var optionalTestDataIndex);
 
             return (new BuildSettings(buildTargetGroup, apiCompatibilityLevel, scriptingImplementation, targetPath),
-                testAuthDataSet.GetAdminData());
+                testAuthDataSet.GetAdminData(forceIndex: optionalTestDataIndex));
+            
+
         }
 
-        public TestAuthDataSet ParseTestAuthDataSetArg(IDictionary<string, string> args)
+        public TestAuthDataSet ParseTestAuthDataSetArg(IDictionary<string, string> args, out int? forceDataSetIndex)
         {
             if (!args.ContainsKey(StreamBase64TestDataArgKey))
             {
                 throw new ArgumentException($"Missing argument: `{StreamBase64TestDataArgKey}`");
             }
 
+            forceDataSetIndex = GetOptionalTestDataIndex();
             var rawTestDataSet = GetTestDataSet(args);
             var serializer = new NewtonsoftJsonSerializer();
             return serializer.Deserialize<TestAuthDataSet>(rawTestDataSet);
-        }
-
-        private BuildTargetGroup GetBuildTargetGroup(BuildTargetPlatform targetPlatform)
-        {
-            if (targetPlatform == BuildTargetPlatform.Standalone)
+            
+            int? GetOptionalTestDataIndex()
             {
-                return BuildTargetGroup.Standalone;
-            }
+                if (!args.TryGetValue(TestDataSetIndexArgKey, out var arg))
+                {
+                    return default;
+                }
 
-#if UNITY_STANDALONE_OSX
-            return BuildTargetGroup.iOS;
-#else
-            return BuildTargetGroup.Android;
-#endif
+                return int.Parse(arg);
+            }
         }
 
-        private ApiCompatibilityLevel GetApiCompatibilityLevel(ApiCompatibility apiCompatibility)
+        private static BuildTargetGroup GetBuildTargetGroup(BuildTargetPlatform targetPlatform)
+        {
+            switch (targetPlatform)
+            {
+                case BuildTargetPlatform.Standalone: return BuildTargetGroup.Standalone;
+                case BuildTargetPlatform.Mobile:
+#if UNITY_STANDALONE_OSX
+                    return BuildTargetGroup.iOS;
+#else
+                    return BuildTargetGroup.Android;
+#endif
+                case BuildTargetPlatform.Android: return BuildTargetGroup.Android;
+                case BuildTargetPlatform.IOS: return BuildTargetGroup.iOS;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(targetPlatform), targetPlatform, null);
+            }
+        }
+
+        private static ApiCompatibilityLevel GetApiCompatibilityLevel(ApiCompatibility apiCompatibility)
         {
 #if UNITY_2021
             switch (apiCompatibility)
@@ -108,7 +126,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
 #endif
         }
 
-        private ScriptingImplementation GetScriptingImplementation(ScriptingBackend scriptingBackend)
+        private static ScriptingImplementation GetScriptingImplementation(ScriptingBackend scriptingBackend)
         {
             switch (scriptingBackend)
             {
@@ -119,7 +137,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
             }
         }
 
-        private string GetTestDataSet(IDictionary<string, string> args)
+        private static string GetTestDataSet(IDictionary<string, string> args)
         {
             var decodedBytes = Convert.FromBase64String(args[StreamBase64TestDataArgKey]);
             return Encoding.UTF8.GetString(decodedBytes);
