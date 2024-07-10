@@ -338,17 +338,14 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             yield return LowLevelClient.WaitForClientToConnect();
 
-            var channelType = "messaging";
-            var channelId = "new-channel-id-1";
+            const string channelType = "messaging";
 
             var createChannelTask =
-                LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
-                    new ChannelGetOrCreateRequest());
+                CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
 
-            yield return createChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(response.Channel.Id, channelId);
-            });
+            yield return createChannelTask.RunAsIEnumerator();
+
+            var channelId = createChannelTask.Result.Channel.Id;
 
             var deleteChannelTask
                 = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
