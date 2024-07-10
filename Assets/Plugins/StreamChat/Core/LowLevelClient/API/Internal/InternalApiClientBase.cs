@@ -121,6 +121,16 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 catch (Exception e)
                 {
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
+                    
+#if STREAM_TESTS_ENABLED || STREAM_DEBUG_ENABLED
+                    var sb = new StringBuilder();
+                    sb.AppendLine("API Response Deserialization failed - StreamDeserializationException:");
+                    sb.AppendLine("Target type: " + typeof(APIErrorInternalDTO));
+                    sb.AppendLine("Content:");
+                    sb.AppendLine(responseContent);
+                    _logs.Error(sb.ToString());
+#endif
+                    
                     throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
                 }
                 
@@ -175,6 +185,16 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             catch (Exception e)
             {
                 LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
+                
+#if STREAM_TESTS_ENABLED || STREAM_DEBUG_ENABLED
+                var sb = new StringBuilder();
+                sb.AppendLine("API Response Deserialization failed - StreamDeserializationException:");
+                sb.AppendLine("Target type: " + typeof(APIErrorInternalDTO));
+                sb.AppendLine("Content:");
+                sb.AppendLine(responseContent);
+                _logs.Error(sb.ToString());
+#endif
+                
                 throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
             }
         }

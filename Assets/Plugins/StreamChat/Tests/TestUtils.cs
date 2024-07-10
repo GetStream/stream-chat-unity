@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Text;
+using StreamChat.EditorTools.CommandLineParsers;
 using StreamChat.EditorTools;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Serialization;
@@ -36,7 +37,7 @@ namespace StreamChat.Tests
             {
                 Debug.Log("Batch mode, expecting data injected through CLI args");
 
-                var parser = new CommandLineParser();
+                var parser = new BuildSettingsCommandLineParser();
                 var argsDict = parser.GetParsedCommandLineArguments();
 
                 var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict);
