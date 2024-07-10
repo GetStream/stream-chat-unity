@@ -286,7 +286,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
             var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
-            var videoFilePath = "Assets/Plugins/StreamChat/Tests/SampleFiles/" + filename;
+            var videoFilePath = Path.Combine("Assets", "Plugins", "StreamChat", "Tests", "SampleFiles", filename);
 
             var videoClip = AssetDatabase.LoadAssetAtPath<VideoClip>(videoFilePath);
             Assert.NotNull(videoClip);
@@ -295,9 +295,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             Assert.NotNull(videoFileContent);
             Assert.IsNotEmpty(videoFileContent);
 
-            var request = new ChannelGetOrCreateRequest();
-
-            var channelType = "messaging";
+            const string channelType = "messaging";
 
             ChannelState channelState = null;
             yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
@@ -320,13 +318,8 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 result = response;
             });
 
-            bool isEqual = videoFileContent.SequenceEqual(result);
-            Debug.Log($"resultsEqual: {isEqual}, videoFileContent: {videoFileContent.Length}, result: {result.Length}");
-
-
-            var _pathToFile = Path.Combine(Application.persistentDataPath, "video.mp4");
-            Debug.Log("m" + _pathToFile);
-            File.WriteAllBytes(_pathToFile, result);
+            var isEqual = videoFileContent.SequenceEqual(result);
+            Assert.IsTrue(isEqual);
 
             var deleteFileTask = LowLevelClient.MessageApi.DeleteFileAsync(channelType, channelId, fileUrl);
 
