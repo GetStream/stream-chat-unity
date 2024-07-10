@@ -1,4 +1,5 @@
 #if STREAM_TESTS_ENABLED
+using System;
 using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,24 +24,24 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
         private async Task Test_complete_device_cycle_add_list_remove_Async()
         {
-            const string NewDeviceId = "aaaa-bbb-ccc-111-2222-333";
+            var newDeviceId = Guid.NewGuid().ToString();
             
             //Add device, expect no errors
             await LowLevelClient.DeviceApi.AddDeviceAsync(new CreateDeviceRequest
             {
-                Id = NewDeviceId,
+                Id = newDeviceId,
                 PushProvider = PushProviderType.Firebase,
             });
 
             //List devices, expect newly added device returned
             var listDevices = await LowLevelClient.DeviceApi.ListDevicesAsync(LowLevelClient.UserId);
             Assert.NotNull(listDevices.Devices);
-            var addedDevice = listDevices.Devices.FirstOrDefault(d => d.Id == NewDeviceId);
+            var addedDevice = listDevices.Devices.FirstOrDefault(d => d.Id == newDeviceId);
             Assert.NotNull(addedDevice);
             Assert.AreEqual(PushProviderType.Firebase, addedDevice.PushProvider);
             
             //Remove devices, expect no errors
-            await LowLevelClient.DeviceApi.RemoveDeviceAsync(NewDeviceId, LowLevelClient.UserId);
+            await LowLevelClient.DeviceApi.RemoveDeviceAsync(newDeviceId, LowLevelClient.UserId);
             
             //Expect device list empty
             listDevices = await LowLevelClient.DeviceApi.ListDevicesAsync(LowLevelClient.UserId);
