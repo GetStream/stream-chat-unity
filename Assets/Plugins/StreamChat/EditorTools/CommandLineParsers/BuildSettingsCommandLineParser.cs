@@ -58,8 +58,6 @@ namespace StreamChat.EditorTools.CommandLineParsers
 
             return (new BuildSettings(buildTargetGroup, apiCompatibilityLevel, scriptingImplementation, targetPath),
                 testAuthDataSet.GetAdminData(forceIndex: optionalTestDataIndex));
-            
-
         }
 
         public TestAuthDataSet ParseTestAuthDataSetArg(IDictionary<string, string> args, out int? forceDataSetIndex)

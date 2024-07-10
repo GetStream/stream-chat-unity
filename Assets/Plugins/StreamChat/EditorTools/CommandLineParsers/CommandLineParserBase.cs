@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace StreamChat.EditorTools.CommandLineParsers
 {
@@ -22,7 +23,19 @@ namespace StreamChat.EditorTools.CommandLineParsers
         protected abstract TResult Parse(IDictionary<string, string> args);
 
         protected void ParseCommandLineArguments(string[] args, IDictionary<string, string> result)
-            => ParseCommandLineArguments(args, _ => result.Add(_.Key, _.Value));
+            => ParseCommandLineArguments(args, _ =>
+            {
+                if (result.ContainsKey(_.Key) && result[_.Key] == _.Value)
+                {
+                    return;
+                }
+                if (result.ContainsKey(_.Key))
+                {
+                    Debug.LogError(
+                        $"Duplicated key {_.Key} with value given: {_.Value} and already stored: {result[_.Key]}. Values equal: {result[_.Key] == _.Value}");
+                }
+                result.Add(_.Key, _.Value);
+            });
 
         protected void ParseCommandLineArguments(string[] args, Action<(string Key, string Value)> onArgumentParsed)
         {
@@ -31,7 +44,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
                 if (args[i].StartsWith("-"))
                 {
                     var key = args[i];
-                    var value = i < args.Length - 1 ? args[i + 1] : "";
+                    var value = (i < args.Length - 1 && !args[i + 1].StartsWith("-")) ? args[i + 1] : null;
 
                     onArgumentParsed?.Invoke((key, value));
                 }
