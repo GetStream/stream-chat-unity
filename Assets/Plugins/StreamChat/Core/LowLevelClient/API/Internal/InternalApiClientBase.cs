@@ -120,8 +120,20 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 }
                 catch (Exception e)
                 {
+                    // StreamTODO: verify where this error is coming from. This occurs when running tests in a docker container. Perhaps it's not returned from the API but by the network layer
+                    if (responseContent == "upstream request timeout")
+                    {
+                        // Handle API error returned as plain text
+                        apiError = new APIErrorInternalDTO
+                        {
+                            Message = responseContent,
+                            Code = 504,
+                        };
+                        throw new StreamApiException(apiError);
+                    }
+
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
-                    
+
 #if STREAM_TESTS_ENABLED || STREAM_DEBUG_ENABLED
                     var sb = new StringBuilder();
                     sb.AppendLine("API Response Deserialization failed - StreamDeserializationException:");
@@ -130,10 +142,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                     sb.AppendLine(responseContent);
                     _logs.Error(sb.ToString());
 #endif
-                    
+
                     throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
                 }
-                
+
                 if (apiError.Code != InvalidAuthTokenErrorCode)
                 {
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
@@ -142,7 +154,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
                 if (_lowLevelClient.ConnectionState == ConnectionState.Connected)
                 {
-                    _logs.Info($"Http request failed due to expired token, connection id: {_lowLevelClient.ConnectionId}");
+                    _logs.Info(
+                        $"Http request failed due to expired token, connection id: {_lowLevelClient.ConnectionId}");
                     await _lowLevelClient.DisconnectAsync();
                 }
 
@@ -150,7 +163,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
                 const int maxMsToWait = 500;
                 var i = 0;
-                
+
                 //StreamTodo: we can create cancellation token instead of Task.Delay in loop
                 while (_lowLevelClient.ConnectionState != ConnectionState.Connected)
                 {
@@ -185,7 +198,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             catch (Exception e)
             {
                 LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
-                
+
 #if STREAM_TESTS_ENABLED || STREAM_DEBUG_ENABLED
                 var sb = new StringBuilder();
                 sb.AppendLine("API Response Deserialization failed - StreamDeserializationException:");
@@ -194,13 +207,14 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 sb.AppendLine(responseContent);
                 _logs.Error(sb.ToString());
 #endif
-                
+
                 throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
             }
         }
 
         private static bool IsRequestBodyRequiredByHttpMethod(HttpMethodType httpMethod)
-            => httpMethod == HttpMethodType.Post || httpMethod == HttpMethodType.Put || httpMethod == HttpMethodType.Patch;
+            => httpMethod == HttpMethodType.Post || httpMethod == HttpMethodType.Put ||
+               httpMethod == HttpMethodType.Patch;
 
         private void LogFutureRequestIfDebug(Uri uri, string endpoint, HttpMethodType httpMethod, string request = null)
         {
