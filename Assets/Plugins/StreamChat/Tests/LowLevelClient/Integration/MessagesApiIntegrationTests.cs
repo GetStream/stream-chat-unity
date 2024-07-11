@@ -176,7 +176,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
             var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
-            var videoFilePath = "Assets/Plugins/StreamChat/Tests/SampleFiles/" + filename;
+            var videoFilePath = Path.Combine("Assets", "Plugins", "StreamChat", "Tests", "SampleFiles", filename);
 
             var videoClip = AssetDatabase.LoadAssetAtPath<VideoClip>(videoFilePath);
             Assert.NotNull(videoClip);
