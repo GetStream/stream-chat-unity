@@ -27,6 +27,7 @@ using StreamChat.Libs.Utils;
 using StreamChat.Libs.Websockets;
 using StreamChat.Core.LowLevelClient.Requests;
 using System.Linq;
+using StreamChat.Core.Helpers;
 
 #if STREAM_TESTS_ENABLED
 using System.Runtime.CompilerServices;
@@ -752,45 +753,45 @@ namespace StreamChat.Core.LowLevelClient
 
             RegisterEventType<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>(
                 WSEventType.NotificationMarkRead,
-                (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto));
+                (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationNewMessageEventInternalDTO, EventNotificationMessageNew>(
                 WSEventType.NotificationMessageNew,
                 (e, dto) => NotificationMessageReceived?.Invoke(e),
-                dto => InternalNotificationMessageReceived?.Invoke(dto));
+                dto => InternalNotificationMessageReceived?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationChannelDeletedEventInternalDTO, EventNotificationChannelDeleted>(
                 WSEventType.NotificationChannelDeleted,
                 (e, dto) => NotificationChannelDeleted?.Invoke(e),
-                dto => InternalNotificationChannelDeleted?.Invoke(dto));
+                dto => InternalNotificationChannelDeleted?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationChannelTruncatedEventInternalDTO, EventNotificationChannelTruncated>(
                 WSEventType.NotificationChannelTruncated,
                 (e, dto) => NotificationChannelTruncated?.Invoke(e),
-                dto => InternalNotificationChannelTruncated?.Invoke(dto));
+                dto => InternalNotificationChannelTruncated?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationAddedToChannelEventInternalDTO, EventNotificationAddedToChannel>(
                 WSEventType.NotificationAddedToChannel,
                 (e, dto) => NotificationAddedToChannel?.Invoke(e),
-                dto => InternalNotificationAddedToChannel?.Invoke(dto));
+                dto => InternalNotificationAddedToChannel?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationRemovedFromChannelEventInternalDTO, EventNotificationRemovedFromChannel>(
                 WSEventType.NotificationRemovedFromChannel,
                 (e, dto) => NotificationRemovedFromChannel?.Invoke(e),
-                dto => InternalNotificationRemovedFromChannel?.Invoke(dto));
+                dto => InternalNotificationRemovedFromChannel?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationInvitedEventInternalDTO, EventNotificationInvited>(
                 WSEventType.NotificationInvited,
-                (e, dto) => NotificationInvited?.Invoke(e), dto => InternalNotificationInvited?.Invoke(dto));
+                (e, dto) => NotificationInvited?.Invoke(e), dto => InternalNotificationInvited?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationInviteAcceptedEventInternalDTO, EventNotificationInviteAccepted>(
                 WSEventType.NotificationInviteAccepted,
                 (e, dto) => NotificationInviteAccepted?.Invoke(e),
-                dto => InternalNotificationInviteAccepted?.Invoke(dto));
+                dto => InternalNotificationInviteAccepted?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationInviteRejectedEventInternalDTO, EventNotificationInviteRejected>(
                 WSEventType.NotificationInviteRejected,
                 (e, dto) => NotificationInviteRejected?.Invoke(e),
-                dto => InternalNotificationInviteRejected?.Invoke(dto));
+                dto => InternalNotificationInviteRejected?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
         }
 
         private void RegisterEventType<TDto, TEvent>(string key,
-            Action<TEvent, TDto> handler, Action<TDto> internalHandler = null)
+            Action<TEvent, TDto> handler, Action<TDto> internalHandler = null, Action<TDto> postprocess = null)
             where TEvent : EventBase, ILoadableFrom<TDto, TEvent>, new()
         {
             if (_eventKeyToHandler.ContainsKey(key))
@@ -804,6 +805,7 @@ namespace StreamChat.Core.LowLevelClient
                 try
                 {
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
+                    postprocess?.Invoke(dto);
                     _lastEventReceivedAt = eventObj.CreatedAt;
                     handler?.Invoke(eventObj, dto);
                     internalHandler?.Invoke(dto);
