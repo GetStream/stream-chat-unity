@@ -1,4 +1,4 @@
-name: Unity CI
+name: CI/CD - Run Tests & Build Project
 
 on:
   workflow_dispatch:
