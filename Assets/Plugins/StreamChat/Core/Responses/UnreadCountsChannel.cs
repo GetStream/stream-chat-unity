@@ -1,10 +1,8 @@
 using StreamChat.Core.InternalDTO.Extra;
-using StreamChat.Core.State;
-using StreamChat.Core.State.Caches;
 
-namespace Assets.StreamChat.Core.Responses
+namespace StreamChat.Core.Responses
 {
-    public sealed class UnreadCountsChannel  : IStateLoadableFrom<UnreadCountsChannelInternalDTO, UnreadCountsChannel>
+    public sealed class UnreadCountsChannel  : ILoadableFrom<UnreadCountsChannelInternalDTO, UnreadCountsChannel>
     {
         public string ChannelId { get; private set; }
 
@@ -12,7 +10,7 @@ namespace Assets.StreamChat.Core.Responses
 
         public int UnreadCount { get; private set; }
         
-        UnreadCountsChannel IStateLoadableFrom<UnreadCountsChannelInternalDTO, UnreadCountsChannel>.LoadFromDto(UnreadCountsChannelInternalDTO dto, ICache cache)
+        UnreadCountsChannel ILoadableFrom<UnreadCountsChannelInternalDTO, UnreadCountsChannel>.LoadFromDto(UnreadCountsChannelInternalDTO dto)
         {
             ChannelId = dto.ChannelId;
             LastRead = dto.LastRead;

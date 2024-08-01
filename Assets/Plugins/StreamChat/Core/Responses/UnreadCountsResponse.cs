@@ -1,31 +1,33 @@
-using Assets.StreamChat.Core.Responses;
 using StreamChat.Core.InternalDTO.Extra;
-using StreamChat.Core.State;
-using StreamChat.Core.State.Caches;
+using System.Collections.Generic;
+using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Responses
 {
-    public sealed class UnreadCountsResponse  : IStateLoadableFrom<WrappedUnreadCountsResponseInternalDTO, UnreadCountsResponse>
+    public sealed class UnreadCountsResponse : ILoadableFrom<WrappedUnreadCountsResponseInternalDTO, UnreadCountsResponse>
     {
-        public System.Collections.Generic.List<UnreadCountsChannelType> ChannelType { get; private set; }
-
-        public System.Collections.Generic.List<UnreadCountsChannel> Channels { get; private set; }
-
-        public System.Collections.Generic.List<UnreadCountsThread> Threads { get; private set; }
+        public IReadOnlyList<UnreadCountsChannelType> ChannelType => _channelType;
+        public IReadOnlyList<UnreadCountsChannel> Channels => _channels;
+        public IReadOnlyList<UnreadCountsThread> Threads => _threads;
 
         public int TotalUnreadCount { get; private set; }
 
         public int TotalUnreadThreadsCount { get; private set; }
-        
-        UnreadCountsResponse IStateLoadableFrom<WrappedUnreadCountsResponseInternalDTO, UnreadCountsResponse>.LoadFromDto(WrappedUnreadCountsResponseInternalDTO dto, ICache cache)
+
+        UnreadCountsResponse ILoadableFrom<WrappedUnreadCountsResponseInternalDTO, UnreadCountsResponse>.LoadFromDto(WrappedUnreadCountsResponseInternalDTO dto)
         {
-            ChannelType = ChannelType.TryLoadFromDtoCollection(dto.ChannelType, cache);
-            Channels = Channels.TryLoadFromDtoCollection(dto.Channels, cache);
-            Threads = Threads.TryLoadFromDtoCollection(dto.Threads, cache);
+            _channelType = _channelType.TryLoadFromDtoCollection(dto.ChannelType);
+            _channels = _channels.TryLoadFromDtoCollection(dto.Channels);
+            _threads = _threads.TryLoadFromDtoCollection(dto.Threads);
+
             TotalUnreadCount = dto.TotalUnreadCount;
             TotalUnreadThreadsCount = dto.TotalUnreadThreadsCount;
 
             return this;
         }
+        
+        private List<UnreadCountsChannelType> _channelType = new List<UnreadCountsChannelType>();
+        private List<UnreadCountsChannel> _channels = new List<UnreadCountsChannel>();
+        private List<UnreadCountsThread> _threads = new List<UnreadCountsThread>();
     }
 }

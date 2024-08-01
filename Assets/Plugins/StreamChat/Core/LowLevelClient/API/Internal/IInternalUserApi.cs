@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 
@@ -21,7 +20,5 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         Task<UpdateUsersResponseInternalDTO> UpsertManyUsersAsync(UpdateUsersRequestInternalDTO updateUsersRequest);
 
         Task<UpdateUsersResponseInternalDTO> UpdateUserPartialAsync(UpdateUserPartialRequestInternalDTO updateUserPartialRequest);
-
-        Task<WrappedUnreadCountsResponseInternalDTO> GetUnreadCountsAsync();
     }
 }

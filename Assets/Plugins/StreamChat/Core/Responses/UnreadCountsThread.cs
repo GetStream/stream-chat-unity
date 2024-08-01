@@ -1,10 +1,8 @@
 using StreamChat.Core.InternalDTO.Extra;
-using StreamChat.Core.State;
-using StreamChat.Core.State.Caches;
 
-namespace Assets.StreamChat.Core.Responses
+namespace StreamChat.Core.Responses
 {
-    public sealed class UnreadCountsThread  : IStateLoadableFrom<UnreadCountsThreadInternalDTO, UnreadCountsThread>
+    public sealed class UnreadCountsThread  : ILoadableFrom<UnreadCountsThreadInternalDTO, UnreadCountsThread>
     {
         public System.DateTimeOffset LastRead { get; private set; }
 
@@ -14,7 +12,7 @@ namespace Assets.StreamChat.Core.Responses
 
         public int UnreadCount { get; private set; }
         
-        UnreadCountsThread IStateLoadableFrom<UnreadCountsThreadInternalDTO, UnreadCountsThread>.LoadFromDto(UnreadCountsThreadInternalDTO dto, ICache cache)
+        UnreadCountsThread ILoadableFrom<UnreadCountsThreadInternalDTO, UnreadCountsThread>.LoadFromDto(UnreadCountsThreadInternalDTO dto)
         {
             LastRead = dto.LastRead;
             LastReadMessageId = dto.LastReadMessageId;

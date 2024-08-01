@@ -88,7 +88,7 @@ namespace StreamChat.SampleProject
             if (Input.GetKeyDown(KeyCode.K))
             {
                 Debug.LogWarning("Fetct");
-                await _client.GetUnreadCounts();
+                await _client.GetLatestUnreadCounts();
             }
 
             if (Input.GetKeyDown(KeyCode.S))

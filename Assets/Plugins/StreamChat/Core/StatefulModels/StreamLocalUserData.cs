@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
@@ -8,7 +9,7 @@ using StreamChat.Core.Models;
 namespace StreamChat.Core.StatefulModels
 {
     internal sealed class StreamLocalUserData : StreamStatefulModelBase<StreamLocalUserData>,
-        IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>, IStreamLocalUserData
+        IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>, IUpdateableFrom<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>, IStreamLocalUserData
     {
         #region OwnUser
         
@@ -48,6 +49,16 @@ namespace StreamChat.Core.StatefulModels
             User = cache.Users.CreateOrUpdate<StreamUser, OwnUserInternalDTO>(dto, out _);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
+        }
+        
+        void IUpdateableFrom<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>.UpdateFromDto(WrappedUnreadCountsResponseInternalDTO dto,
+            ICache cache)
+        {
+
+            TotalUnreadCount = GetOrDefault(dto.TotalUnreadCount, TotalUnreadCount);
+
+            // StreamTodo: verify if this is correct
+            UnreadChannels = dto.Channels?.Count ?? 0;
         }
         
         internal StreamLocalUserData(string uniqueId, ICacheRepository<StreamLocalUserData> repository,
