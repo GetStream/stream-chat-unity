@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Web;
