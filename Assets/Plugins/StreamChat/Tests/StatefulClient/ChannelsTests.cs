@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Requests;
@@ -14,6 +15,7 @@ using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
@@ -115,6 +117,21 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
             var channelMute = Client.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+
+            if (channelMute == null)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine($"Channel to mute: " + channel.Cid);
+                sb.AppendLine($"Client.LocalUserData.ChannelMutes count: " + Client.LocalUserData.ChannelMutes.Count);
+                foreach (var m in Client.LocalUserData.ChannelMutes)
+                {
+                    sb.AppendLine($"mute channel not null: " + (m.Channel != null));
+                    sb.AppendLine($"mute cid: " + m.Channel?.Cid);
+                }
+                
+                Debug.Log("When_mute_channel_expect_muted_Async extra logs: \n " + sb);
+            }
+            
             Assert.IsNotNull(channelMute);
 
             Assert.AreEqual(channelMute.User, Client.LocalUserData.User);

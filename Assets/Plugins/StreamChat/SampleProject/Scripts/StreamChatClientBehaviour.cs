@@ -78,6 +78,25 @@ namespace StreamChat.SampleProject
             }
         }
 
+        public async void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                Debug.LogWarning("Disconnect");
+                await _client.DisconnectUserAsync();
+            }
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                Debug.LogWarning("Fetct");
+                await _client.GetUnreadCounts();
+            }
+
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                Debug.LogWarning("Status: " + _client.ConnectionState);
+            }
+        }
+
         private IStreamChatClient _client;
 
         [SerializeField]

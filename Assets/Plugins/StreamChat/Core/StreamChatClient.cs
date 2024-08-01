@@ -214,6 +214,12 @@ namespace StreamChat.Core
             return InternalLowLevelClient.DisconnectAsync(permanent: true);
         }
 
+        public async Task GetUnreadCounts()
+        {
+            var response = await InternalLowLevelClient.InternalUserApi.GetUnreadCountsAsync();
+            
+        }
+
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
 
         public Task<IStreamChannel> GetOrCreateChannelWithIdAsync(ChannelType channelType, string channelId,

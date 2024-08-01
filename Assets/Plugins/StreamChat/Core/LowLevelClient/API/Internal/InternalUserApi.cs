@@ -30,5 +30,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             UpdateUserPartialAsync(UpdateUserPartialRequestInternalDTO updateUserPartialRequest)
             => Patch<UpdateUserPartialRequestInternalDTO, UpdateUsersResponseInternalDTO>("/users",
                 updateUserPartialRequest);
+        
+        public Task<WrappedUnreadCountsResponseInternalDTO> GetUnreadCountsAsync()
+            => Get<WrappedUnreadCountsResponseInternalDTO>("/unread");
     }
 }

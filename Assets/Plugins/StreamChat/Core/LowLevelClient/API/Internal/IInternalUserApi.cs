@@ -20,5 +20,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         Task<UpdateUsersResponseInternalDTO> UpsertManyUsersAsync(UpdateUsersRequestInternalDTO updateUsersRequest);
 
         Task<UpdateUsersResponseInternalDTO> UpdateUserPartialAsync(UpdateUserPartialRequestInternalDTO updateUserPartialRequest);
+
+        Task<WrappedUnreadCountsResponseInternalDTO> GetUnreadCountsAsync();
     }
 }
