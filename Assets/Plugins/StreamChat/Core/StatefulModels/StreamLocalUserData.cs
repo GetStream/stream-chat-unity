@@ -49,6 +49,10 @@ namespace StreamChat.Core.StatefulModels
             User = cache.Users.CreateOrUpdate<StreamUser, OwnUserInternalDTO>(dto, out _);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
+            
+#if STREAM_DEBUG_ENABLED
+            Logs.Info($"Local User Data Loaded. {nameof(TotalUnreadCount)}: {TotalUnreadCount}, UnreadChannels: {UnreadChannels}");
+#endif
         }
         
         void IUpdateableFrom<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>.UpdateFromDto(WrappedUnreadCountsResponseInternalDTO dto,
