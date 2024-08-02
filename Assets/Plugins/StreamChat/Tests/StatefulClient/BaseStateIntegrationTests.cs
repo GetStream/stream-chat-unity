@@ -87,7 +87,7 @@ namespace StreamChat.Tests.StatefulClient
 
         protected static IEnumerator ConnectAndExecute(Func<Task> test)
         {
-            yield return ConnectAndExecuteAsync(test).RunAsIEnumerator(statefulClient: Client);
+            yield return ConnectAndExecuteAsync(test).RunAsIEnumerator();
         }
 
         protected Task<StreamChatClient> GetConnectedOtherClientAsync()

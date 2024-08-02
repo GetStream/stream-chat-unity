@@ -19,7 +19,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         public IEnumerator Test_complete_device_cycle_add_list_remove()
         {
             yield return LowLevelClient.WaitForClientToConnect();
-            yield return Test_complete_device_cycle_add_list_remove_Async().RunTaskAsEnumerator(LowLevelClient);
+            yield return Test_complete_device_cycle_add_list_remove_Async().RunTaskAsEnumerator();
         }
 
         private async Task Test_complete_device_cycle_add_list_remove_Async()
