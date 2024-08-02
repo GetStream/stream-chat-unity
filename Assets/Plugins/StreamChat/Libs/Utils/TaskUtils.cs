@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace StreamChat.Libs.Utils
 {
+    // StreamTodo: make this internal
     public static class TaskUtils
     {
         public static void LogIfFailed(this Task t, ILogs logger)

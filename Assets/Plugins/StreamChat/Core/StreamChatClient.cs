@@ -7,6 +7,7 @@ using StreamChat.Core.Configs;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.LowLevelClient;
@@ -212,6 +213,16 @@ namespace StreamChat.Core
         {
             TryCancelWaitingForUserConnection();
             return InternalLowLevelClient.DisconnectAsync(permanent: true);
+        }
+
+        public async Task<UnreadCountsResponse> GetLatestUnreadCounts()
+        {
+            var dto = await InternalLowLevelClient.InternalChannelApi.GetUnreadCountsAsync();
+            var response = dto.ToDomain<WrappedUnreadCountsResponseInternalDTO, UnreadCountsResponse>();
+            
+            _localUserData.TryUpdateFromDto<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>(dto, _cache);
+
+            return response;
         }
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;

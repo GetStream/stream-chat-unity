@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Web;
@@ -136,5 +137,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
         public Task<SyncResponseInternalDTO> SyncAsync(SyncRequestInternalDTO syncRequest)
             => Post<SyncRequestInternalDTO, SyncResponseInternalDTO>($"/sync", syncRequest);
+        
+        public Task<WrappedUnreadCountsResponseInternalDTO> GetUnreadCountsAsync()
+            => Get<WrappedUnreadCountsResponseInternalDTO>("/unread");
     }
 }

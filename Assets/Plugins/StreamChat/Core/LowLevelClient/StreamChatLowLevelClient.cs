@@ -796,7 +796,9 @@ namespace StreamChat.Core.LowLevelClient
         {
             if (_eventKeyToHandler.ContainsKey(key))
             {
-                _logs.Warning($"Event handler with key `{key}` is already registered. Ignored");
+#if STREAM_DEBUG_ENABLED
+                _logs.Error($"Event handler with key `{key}` is already registered. Ignored");
+#endif
                 return;
             }
 
@@ -891,7 +893,7 @@ namespace StreamChat.Core.LowLevelClient
             var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
-                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, reset connection");
+                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, resetting connection");
                 _websocketClient
                     .DisconnectAsync(WebSocketCloseStatus.InternalServerError,
                         $"Health check was not received since: {timeSinceLastHealthCheck}")
@@ -908,10 +910,6 @@ namespace StreamChat.Core.LowLevelClient
 
             _websocketClient.Send(_serializer.Serialize(healthCheck));
             _lastHealthCheckSendTime = _timeService.Time;
-
-#if STREAM_DEBUG_ENABLED
-            _logs.Info("Health check sent");
-#endif
         }
 
         private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, HealthCheckEventInternalDTO dto)

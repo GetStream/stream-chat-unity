@@ -11,7 +11,9 @@ using UnityEngine;
 
 namespace StreamChat.EditorTools.CommandLineParsers
 {
-    public class BuildSettingsCommandLineParser : CommandLineParserBase<(BuildSettings buildSettings, AuthCredentials authCredentials)>
+    public class
+        BuildSettingsCommandLineParser : CommandLineParserBase<(BuildSettings buildSettings, AuthCredentials
+        authCredentials)>
     {
         public const string ApiCompatibilityArgKey = "-apiCompatibility";
         public const string ScriptingBackendArgKey = "-scriptingBackend";
@@ -30,21 +32,21 @@ namespace StreamChat.EditorTools.CommandLineParsers
                 throw new ArgumentException($"Missing argument: `{missingArgsInfo}`");
             }
 
-            if (!Enum.TryParse<BuildTargetPlatform>(args[BuildTargetPlatformArgKey], ignoreCase: true,
+            if (!TryParseEnum<BuildTargetPlatform>(args[BuildTargetPlatformArgKey], ignoreCase: true,
                     out var targetPlatform))
             {
                 throw new ArgumentException(
                     $"Failed to parse argument: `{args[BuildTargetPlatformArgKey]}` to enum: {typeof(BuildTargetPlatform)}");
             }
 
-            if (!Enum.TryParse<ApiCompatibility>(args[ApiCompatibilityArgKey], ignoreCase: true,
+            if (!TryParseEnum<ApiCompatibility>(args[ApiCompatibilityArgKey], ignoreCase: true,
                     out var apiCompatibility))
             {
                 throw new ArgumentException(
                     $"Failed to parse argument: `{args[BuildTargetPlatformArgKey]}` to enum: {typeof(BuildTargetPlatform)}");
             }
 
-            if (!Enum.TryParse<ScriptingBackend>(args[ScriptingBackendArgKey], ignoreCase: true,
+            if (!TryParseEnum<ScriptingBackend>(args[ScriptingBackendArgKey], ignoreCase: true,
                     out var scriptingBackend))
             {
                 throw new ArgumentException(
@@ -78,7 +80,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
             var base64TestAuthDataSet = args[StreamBase64TestDataArgKey];
 
             return DeserializeFromBase64(base64TestAuthDataSet);
-            
+
             int? GetOptionalTestDataIndex()
             {
                 if (!args.TryGetValue(TestDataSetIndexArgKey, out var arg))
@@ -89,7 +91,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
                 return int.Parse(arg);
             }
         }
-        
+
         public TestAuthDataSets DeserializeFromBase64(string urlSafeBase64)
         {
             Debug.Log($"Test Data Set. URL-safe Base 64 encoded length: {urlSafeBase64.Length}");
@@ -99,10 +101,11 @@ namespace StreamChat.EditorTools.CommandLineParsers
 
             var decodedString = DecompressString(decodedBytes);
             Debug.Log($"Test Data Set. Decompressed to UTF8 string length: {decodedString.Length}");
-            
+
             var serializer = new NewtonsoftJsonSerializer();
-            var testAuthDataSet =  serializer.Deserialize<TestAuthDataSets>(decodedString);
-            Debug.Log($"Test Data Set. Admin sets: {testAuthDataSet.Admins.Length}, User sets: {testAuthDataSet.Users.Length}");
+            var testAuthDataSet = serializer.Deserialize<TestAuthDataSets>(decodedString);
+            Debug.Log(
+                $"Test Data Set. Admin sets: {testAuthDataSet.Admins.Length}, User sets: {testAuthDataSet.Users.Length}");
 
             return testAuthDataSet;
         }
@@ -110,14 +113,19 @@ namespace StreamChat.EditorTools.CommandLineParsers
         private static string UrlSafeBase64ToBase64(string urlSafeBase64)
         {
             var result = urlSafeBase64.Replace('_', '/').Replace('-', '+');
-            switch(urlSafeBase64.Length % 4) {
-                case 2: result += "=="; break;
-                case 3: result += "="; break;
+            switch (urlSafeBase64.Length % 4)
+            {
+                case 2:
+                    result += "==";
+                    break;
+                case 3:
+                    result += "=";
+                    break;
             }
 
             return result;
         }
-        
+
         private static string DecompressString(byte[] bytes)
         {
             using (var memoryStream = new MemoryStream(bytes))
@@ -182,6 +190,12 @@ namespace StreamChat.EditorTools.CommandLineParsers
                 default:
                     throw new ArgumentOutOfRangeException(nameof(scriptingBackend), scriptingBackend, null);
             }
+        }
+
+        private static bool TryParseEnum<TEnum>(string rawValue, bool ignoreCase, out TEnum value) where TEnum : struct
+        {
+            Debug.Log($"Try parse `{rawValue}` to enum of type `{typeof(TEnum)}`");
+            return Enum.TryParse(rawValue, ignoreCase, out value);
         }
     }
 }

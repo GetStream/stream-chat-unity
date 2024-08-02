@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 
@@ -54,5 +55,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         Task SendTypingStopEventAsync(string channelType, string channelId);
 
         Task<SyncResponseInternalDTO> SyncAsync(SyncRequestInternalDTO syncRequest);
+
+        Task<WrappedUnreadCountsResponseInternalDTO> GetUnreadCountsAsync();
     }
 }
