@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework.Interfaces;
 using StreamChat.Core;
@@ -11,6 +12,7 @@ using StreamChat.Core.Configs;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Libs.Auth;
+using StreamChat.Libs.ChatInstanceRunner;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
@@ -113,6 +115,9 @@ namespace StreamChat.Tests
         private StreamChatClient _otherStateClient;
 
         private bool _runFinished;
+        
+        private Task _updateTask;
+        private CancellationTokenSource _updateTaskCts;
 
         private StreamTestClients()
         {
@@ -131,6 +136,32 @@ namespace StreamChat.Tests
             AdminSecondaryCredentials = GetCredentialsFromSet(testAuthSets.Admins, optionalTestDataIndex + offset);
             UserPrimaryCredentials = GetCredentialsFromSet(testAuthSets.Admins, optionalTestDataIndex);
             UserSecondaryCredentials = GetCredentialsFromSet(testAuthSets.Admins, optionalTestDataIndex + offset);
+            
+            _updateTaskCts = new CancellationTokenSource();
+            _updateTask = UpdateTaskAsync();
+        }
+        
+        private async Task UpdateTaskAsync()
+        {
+            Debug.LogWarning("UpdateTaskAsync STARTED");
+            while (!_updateTaskCts.Token.IsCancellationRequested)
+            {
+                try
+                {
+                    _updateTaskCts.Token.ThrowIfCancellationRequested();
+                }
+                catch (Exception)
+                {
+                    Debug.LogWarning("UpdateTaskAsync STOPPED");
+                    throw;
+                }
+                
+                ((IStreamChatClientEventsListener)_stateClient)?.Update();
+                ((IStreamChatClientEventsListener)_otherStateClient)?.Update();
+                _lowLevelClient?.Update(0.1f);
+
+                await Task.Delay(1);
+            }
         }
 
         private AuthCredentials GetCredentialsFromSet(AuthCredentials[] set, int? forcedIndex)
@@ -209,6 +240,8 @@ namespace StreamChat.Tests
 
             Debug.Log("------------  Tests finished - dispose client instances");
 
+            _updateTaskCts.Cancel();
+            
             DisposeLowLevelClient();
             return DisposeStateClientsAsync();
         }

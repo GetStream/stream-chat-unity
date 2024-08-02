@@ -31,7 +31,7 @@ namespace StreamChat.Tests
                     onFaulted(ex);
                     yield break;
                 }
-                
+
                 throw ex;
             }
 
@@ -39,11 +39,10 @@ namespace StreamChat.Tests
         }
 
         public static IEnumerator RunAsIEnumerator(this Task task,
-            Action onSuccess = null, Action<Exception> onFaulted = null, IStreamChatClient statefulClient = null)
+            Action onSuccess = null, Action<Exception> onFaulted = null)
         {
             while (!task.IsCompleted)
             {
-                statefulClient?.Update();
                 yield return null;
             }
 
@@ -55,13 +54,13 @@ namespace StreamChat.Tests
                     onFaulted(ex);
                     yield break;
                 }
-                
+
                 throw ex;
             }
 
             onSuccess?.Invoke();
         }
-        
+
         public static IEnumerator RunAsIEnumerator(this Task task,
             IStreamChatLowLevelClient lowLevelClient, Action onSuccess = null, Action<Exception> onFaulted = null)
         {
@@ -79,7 +78,7 @@ namespace StreamChat.Tests
                     onFaulted(ex);
                     yield break;
                 }
-                
+
                 throw ex;
             }
 
@@ -92,7 +91,7 @@ namespace StreamChat.Tests
             {
                 yield break;
             }
-            
+
             const float maxTimeToConnect = 3;
             var timeStarted = EditorApplication.timeSinceStartup;
 
@@ -105,8 +104,6 @@ namespace StreamChat.Tests
                     Debug.LogError("Waiting for connection exceeded max time. Terminating");
                     break;
                 }
-
-                lowLevelClient.Update(0.1f);
 
                 if (lowLevelClient.ConnectionState == ConnectionState.Connecting)
                 {
@@ -126,19 +123,18 @@ namespace StreamChat.Tests
             }
         }
 
-        public static IEnumerator RunTaskAsEnumerator(this Task task, IStreamChatLowLevelClient client)
+        public static IEnumerator RunTaskAsEnumerator(this Task task)
         {
             while (!task.IsCompleted)
             {
-                client.Update(0.1f);
                 yield return null;
             }
-            
+
             if (!task.IsFaulted)
             {
                 yield break;
             }
-            
+
             if (task.Exception is AggregateException aggregateException &&
                 aggregateException.InnerExceptions.Count == 1)
             {
@@ -147,8 +143,8 @@ namespace StreamChat.Tests
 
             throw task.Exception;
         }
-        
-        public static string ToRfc3339String(this DateTime dateTime) 
+
+        public static string ToRfc3339String(this DateTime dateTime)
             => dateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
 
         private static Exception UnwrapAggregateException(Exception exception)
