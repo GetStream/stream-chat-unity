@@ -109,7 +109,7 @@ namespace StreamChat.Tests.StatefulClient
                     return;
                 }
 
-                if (sw.Elapsed.Seconds > maxSeconds)
+                if (sw.Elapsed.TotalSeconds > maxSeconds)
                 {
                     throw new TimeoutException("Timeout while waiting for condition");
                 }
@@ -133,7 +133,7 @@ namespace StreamChat.Tests.StatefulClient
                     return;
                 }
                 
-                if (sw.Elapsed.Seconds > maxSeconds)
+                if (sw.Elapsed.TotalSeconds > maxSeconds)
                 {
                     throw new TimeoutException("Timeout while waiting for condition");
                 }
@@ -171,7 +171,7 @@ namespace StreamChat.Tests.StatefulClient
                     return response;
                 }
                 
-                if (sw.Elapsed.Seconds > maxSeconds)
+                if (sw.Elapsed.TotalSeconds > maxSeconds)
                 {
                     throw new TimeoutException("Timeout while waiting for condition");
                 }
