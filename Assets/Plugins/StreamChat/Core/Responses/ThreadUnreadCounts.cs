@@ -2,7 +2,7 @@ using StreamChat.Core.InternalDTO.Extra;
 
 namespace StreamChat.Core.Responses
 {
-    public sealed class UnreadCountsThread  : ILoadableFrom<UnreadCountsThreadInternalDTO, UnreadCountsThread>
+    public sealed class ThreadUnreadCounts  : ILoadableFrom<UnreadCountsThreadInternalDTO, ThreadUnreadCounts>
     {
         public System.DateTimeOffset LastRead { get; private set; }
 
@@ -12,7 +12,7 @@ namespace StreamChat.Core.Responses
 
         public int UnreadCount { get; private set; }
         
-        UnreadCountsThread ILoadableFrom<UnreadCountsThreadInternalDTO, UnreadCountsThread>.LoadFromDto(UnreadCountsThreadInternalDTO dto)
+        ThreadUnreadCounts ILoadableFrom<UnreadCountsThreadInternalDTO, ThreadUnreadCounts>.LoadFromDto(UnreadCountsThreadInternalDTO dto)
         {
             LastRead = dto.LastRead;
             LastReadMessageId = dto.LastReadMessageId;

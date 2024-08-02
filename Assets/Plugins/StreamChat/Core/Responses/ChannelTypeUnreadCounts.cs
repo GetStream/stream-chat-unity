@@ -2,7 +2,7 @@ using StreamChat.Core.InternalDTO.Extra;
 
 namespace StreamChat.Core.Responses
 {
-    public sealed class UnreadCountsChannelType  : ILoadableFrom<UnreadCountsChannelTypeInternalDTO, UnreadCountsChannelType>
+    public sealed class ChannelTypeUnreadCounts  : ILoadableFrom<UnreadCountsChannelTypeInternalDTO, ChannelTypeUnreadCounts>
     {
         public int ChannelCount { get; private set; }
 
@@ -10,7 +10,7 @@ namespace StreamChat.Core.Responses
 
         public int UnreadCount { get; private set; }
         
-        UnreadCountsChannelType ILoadableFrom<UnreadCountsChannelTypeInternalDTO, UnreadCountsChannelType>.LoadFromDto(UnreadCountsChannelTypeInternalDTO dto)
+        ChannelTypeUnreadCounts ILoadableFrom<UnreadCountsChannelTypeInternalDTO, ChannelTypeUnreadCounts>.LoadFromDto(UnreadCountsChannelTypeInternalDTO dto)
         {
             ChannelCount = dto.ChannelCount;
             ChannelType = new ChannelType(dto.ChannelType);
