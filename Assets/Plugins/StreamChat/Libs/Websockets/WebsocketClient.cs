@@ -153,7 +153,7 @@ namespace StreamChat.Libs.Websockets
 
         public void Dispose()
         {
-            LogInfoIfDebugMode("Dispose " + Thread.CurrentThread.ManagedThreadId);
+            LogInfoIfDebugMode("Dispose ThreadID: " + Thread.CurrentThread.ManagedThreadId);
 
             if (_internalClient != null && !_clientClosedStates.Contains(_internalClient.State))
             {

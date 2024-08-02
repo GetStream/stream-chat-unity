@@ -253,6 +253,6 @@ namespace StreamChat.Core
 
         bool IsLocalUser(IStreamUser messageUser);
 
-        Task<UnreadCountsResponse> GetLatestUnreadCounts();
+        Task<UnreadCountsResponse> GetLatestUnreadCountsAsync();
     }
 }
