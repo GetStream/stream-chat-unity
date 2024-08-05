@@ -46,7 +46,7 @@ namespace StreamChat.Tests.StatefulClient
             // Get latest unread counts
             var unreadCounts = await otherClient.GetLatestUnreadCountsAsync();
 
-            var unreadChannel = unreadCounts.UnreadChannels.Single(c => c.ChannelId == channel.Cid);
+            var unreadChannel = unreadCounts.UnreadChannels.Single(c => c.ChannelCid == channel.Cid);
             Assert.AreEqual(1, unreadChannel.UnreadCount);
         }
     }

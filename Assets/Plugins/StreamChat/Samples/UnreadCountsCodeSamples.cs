@@ -69,35 +69,34 @@ namespace StreamChat.Samples
             await channel.MarkChannelReadAsync();
         }
 
-        private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
-    }
-
-    internal sealed class TypingIndicatorsCodeSamples
-    {
-        public async Task SendStartStopTypingEvents()
+        public async Task GetCurrentUnreadCounts()
         {
-            IStreamChannel channel = null;
+var current = await Client.GetLatestUnreadCountsAsync();
 
-// Send typing started event
-            await channel.SendTypingStartedEventAsync();
+Debug.Log(current.TotalUnreadCount); // Total unread messages
+Debug.Log(current.TotalUnreadThreadsCount); // Total unread threads
 
-// Send typing stopped event
-            await channel.SendTypingStoppedEventAsync();
-        }
+foreach (var unreadChannel in current.UnreadChannels)
+{
+    Debug.Log(unreadChannel.ChannelCid); // CID of the channel with unread messages
+    Debug.Log(unreadChannel.UnreadCount); // Count of unread messages
+    Debug.Log(unreadChannel.LastRead); // Datetime of the last read message
+}
 
-        public async Task ReceivingTypingEvents()
-        {
-            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "channel-id");
-            channel.UserStartedTyping += OnUserStartedTyping;
-            channel.UserStoppedTyping += OnUserStoppedTyping;
-        }
+foreach (var unreadChannelByType in current.UnreadChannelsByType)
+{
+    Debug.Log(unreadChannelByType.ChannelType); // Channel type
+    Debug.Log(unreadChannelByType.ChannelCount); // How many channels of this type have unread messages
+    Debug.Log(unreadChannelByType.UnreadCount); // How many unread messages in all channels of this type
+}
 
-        private void OnUserStartedTyping(IStreamChannel channel, IStreamUser user)
-        {
-        }
-
-        private void OnUserStoppedTyping(IStreamChannel channel, IStreamUser user)
-        {
+foreach (var unreadThread in current.UnreadThreads)
+{
+    Debug.Log(unreadThread.ParentMessageId); // Message ID of the parent message for this thread
+    Debug.Log(unreadThread.LastReadMessageId); // Last read message in this thread
+    Debug.Log(unreadThread.UnreadCount); // Count of unread messages
+    Debug.Log(unreadThread.LastRead); // Datetime of the last read message
+}
         }
 
         private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();

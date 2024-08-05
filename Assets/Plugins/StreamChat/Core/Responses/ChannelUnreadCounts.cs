@@ -7,7 +7,7 @@ namespace StreamChat.Core.Responses
         /// <summary>
         /// CID of the channel
         /// </summary>
-        public string ChannelId { get; private set; }
+        public string ChannelCid { get; private set; }
 
         /// <summary>
         /// DateTimeOffset of the last read message
@@ -21,7 +21,7 @@ namespace StreamChat.Core.Responses
         
         ChannelUnreadCounts ILoadableFrom<UnreadCountsChannelInternalDTO, ChannelUnreadCounts>.LoadFromDto(UnreadCountsChannelInternalDTO dto)
         {
-            ChannelId = dto.ChannelId;
+            ChannelCid = dto.ChannelId;
             LastRead = dto.LastRead;
             UnreadCount = dto.UnreadCount;
 

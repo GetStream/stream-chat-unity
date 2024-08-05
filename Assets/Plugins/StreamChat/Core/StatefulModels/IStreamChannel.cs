@@ -248,7 +248,7 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// List of read states
         /// </summary>
-        IReadOnlyList<StreamRead> Read { get; }
+        IReadOnlyList<StreamRead> Read { get; } //StreamTodo: perhaps rename to ReadStatus or ReadState
 
         /// <summary>
         /// Number of channel watchers
