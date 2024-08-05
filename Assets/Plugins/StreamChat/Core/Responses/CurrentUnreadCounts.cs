@@ -4,7 +4,10 @@ using StreamChat.Core.Helpers;
 
 namespace StreamChat.Core.Responses
 {
-    public sealed class UnreadCountsResponse : ILoadableFrom<WrappedUnreadCountsResponseInternalDTO, UnreadCountsResponse>
+    /// <summary>
+    /// Represents the current state of unread counts for the user. Unread counts mean how many messages and threads are unread in the channels and threads the user is participating in
+    /// </summary>
+    public sealed class CurrentUnreadCounts : ILoadableFrom<WrappedUnreadCountsResponseInternalDTO, CurrentUnreadCounts>
     {
         /// <summary>
         /// Unread status grouped by <see cref="ChannelType"/>. Each entry represents a channel type with unread messages among all channels of that type
@@ -31,7 +34,7 @@ namespace StreamChat.Core.Responses
         /// </summary>
         public int TotalUnreadThreadsCount { get; private set; }
 
-        UnreadCountsResponse ILoadableFrom<WrappedUnreadCountsResponseInternalDTO, UnreadCountsResponse>.LoadFromDto(WrappedUnreadCountsResponseInternalDTO dto)
+        CurrentUnreadCounts ILoadableFrom<WrappedUnreadCountsResponseInternalDTO, CurrentUnreadCounts>.LoadFromDto(WrappedUnreadCountsResponseInternalDTO dto)
         {
             _unreadChannelsByType = _unreadChannelsByType.TryLoadFromDtoCollection(dto.ChannelType);
             _unreadChannels = _unreadChannels.TryLoadFromDtoCollection(dto.Channels);

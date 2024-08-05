@@ -155,6 +155,6 @@ namespace StreamChat.Core.LowLevelClient.API
         //StreamTodo: perhaps we can skip this declaration and use the Internal one directly
         Task<SyncResponse> SyncAsync(SyncRequest syncRequest);
 
-        Task<UnreadCountsResponse> GetUnreadCountsAsync();
+        Task<CurrentUnreadCounts> GetUnreadCountsAsync();
     }
 }

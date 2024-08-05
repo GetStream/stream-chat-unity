@@ -149,10 +149,10 @@ namespace StreamChat.Core.LowLevelClient.API
             return dto.ToDomain<SyncResponseInternalDTO, SyncResponse>();
         }
         
-        public async Task<UnreadCountsResponse> GetUnreadCountsAsync()
+        public async Task<CurrentUnreadCounts> GetUnreadCountsAsync()
         {
             var dto = await _internalChannelApi.GetUnreadCountsAsync();
-            return dto.ToDomain<WrappedUnreadCountsResponseInternalDTO, UnreadCountsResponse>();
+            return dto.ToDomain<WrappedUnreadCountsResponseInternalDTO, CurrentUnreadCounts>();
         }
 
         private readonly IInternalChannelApi _internalChannelApi;
