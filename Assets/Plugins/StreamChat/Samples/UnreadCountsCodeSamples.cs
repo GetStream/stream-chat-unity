@@ -48,7 +48,7 @@ namespace StreamChat.Samples
         {
             IStreamChannel channel = null;
 
-// Every channel maintains a full list of read state for each channel member
+            // Every channel maintains a full list of read state for each channel member
             foreach (var read in channel.Read)
             {
                 Debug.Log(read.User); // User
@@ -62,41 +62,41 @@ namespace StreamChat.Samples
             IStreamChannel channel = null;
             IStreamMessage message = null;
 
-// Mark this message as last read
+            // Mark this message as last read
             await message.MarkMessageAsLastReadAsync();
 
-// Mark whole channel as read
+            // Mark whole channel as read
             await channel.MarkChannelReadAsync();
         }
 
         public async Task GetCurrentUnreadCounts()
         {
-var current = await Client.GetLatestUnreadCountsAsync();
+            var current = await Client.GetLatestUnreadCountsAsync();
 
-Debug.Log(current.TotalUnreadCount); // Total unread messages
-Debug.Log(current.TotalUnreadThreadsCount); // Total unread threads
+            Debug.Log(current.TotalUnreadCount); // Total unread messages
+            Debug.Log(current.TotalUnreadThreadsCount); // Total unread threads
 
-foreach (var unreadChannel in current.UnreadChannels)
-{
-    Debug.Log(unreadChannel.ChannelCid); // CID of the channel with unread messages
-    Debug.Log(unreadChannel.UnreadCount); // Count of unread messages
-    Debug.Log(unreadChannel.LastRead); // Datetime of the last read message
-}
+            foreach (var unreadChannel in current.UnreadChannels)
+            {
+                Debug.Log(unreadChannel.ChannelCid); // CID of the channel with unread messages
+                Debug.Log(unreadChannel.UnreadCount); // Count of unread messages
+                Debug.Log(unreadChannel.LastRead); // Datetime of the last read message
+            }
 
-foreach (var unreadChannelByType in current.UnreadChannelsByType)
-{
-    Debug.Log(unreadChannelByType.ChannelType); // Channel type
-    Debug.Log(unreadChannelByType.ChannelCount); // How many channels of this type have unread messages
-    Debug.Log(unreadChannelByType.UnreadCount); // How many unread messages in all channels of this type
-}
+            foreach (var unreadChannelByType in current.UnreadChannelsByType)
+            {
+                Debug.Log(unreadChannelByType.ChannelType); // Channel type
+                Debug.Log(unreadChannelByType.ChannelCount); // How many channels of this type have unread messages
+                Debug.Log(unreadChannelByType.UnreadCount); // How many unread messages in all channels of this type
+            }
 
-foreach (var unreadThread in current.UnreadThreads)
-{
-    Debug.Log(unreadThread.ParentMessageId); // Message ID of the parent message for this thread
-    Debug.Log(unreadThread.LastReadMessageId); // Last read message in this thread
-    Debug.Log(unreadThread.UnreadCount); // Count of unread messages
-    Debug.Log(unreadThread.LastRead); // Datetime of the last read message
-}
+            foreach (var unreadThread in current.UnreadThreads)
+            {
+                Debug.Log(unreadThread.ParentMessageId); // Message ID of the parent message for this thread
+                Debug.Log(unreadThread.LastReadMessageId); // Last read message in this thread
+                Debug.Log(unreadThread.UnreadCount); // Count of unread messages
+                Debug.Log(unreadThread.LastRead); // Datetime of the last read message
+            }
         }
 
         private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();
