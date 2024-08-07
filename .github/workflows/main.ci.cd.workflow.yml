@@ -1,0 +1,219 @@
+name: CI/CD - Run Tests & Build Project
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target_platform: [android, ios]
+        unity_version: [2020, 2021]
+        dotnet_version: [NET_4_x, STANDARD_2_x]
+        compiler: [mono, il2cpp]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Calculate Sequential Index
+        id: calculate-index
+        run: |
+          target_index=$([[ "${{ matrix.target_platform }}" == 'android' ]] && echo '0' || echo '1')
+          unity_index=$([[ "${{ matrix.unity_version }}" == '2020' ]] && echo '0' || echo '1')
+          dotnet_index=$([[ "${{ matrix.dotnet_version }}" == 'NET_4_x' ]] && echo '0' || echo '1')
+          compiler_index=$([[ "${{ matrix.compiler }}" == 'mono' ]] && echo '0' || echo '1')
+          
+          index=$((target_index * 1 + unity_index * 2 + dotnet_index * 4 + compiler_index * 8))
+          
+          echo "SEQUENTIAL_INDEX=$index" >> $GITHUB_ENV
+
+      - name: Print Sequential Index
+        run: |
+          echo "Sequential Index: $SEQUENTIAL_INDEX"
+
+      - name: Install Git
+        run: git config --global --add safe.directory /github/workspace
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update
+      
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew update
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y libxtst6 libgtk-3-0
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask adoptopenjdk
+          brew install gtk+3
+
+      - name: Determine Docker Image
+        id: dockerImageSelector
+        run: |
+          if [ "${{ matrix.unity_version }}" == '2020' ]; then
+            if [ "${{ matrix.target_platform }}" == 'android' ]; then
+              TAG='unityci/editor:ubuntu-2020.3.40f1-android-3.1.0'
+            elif [ "${{ matrix.target_platform }}" == 'ios' ]; then
+              TAG='unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0'
+            else
+              echo "Unsupported platform"
+              exit 1
+            fi
+          elif [ "${{ matrix.unity_version }}" == '2021' ]; then
+            if [ "${{ matrix.target_platform }}" == 'android' ]; then
+              TAG='unityci/editor:ubuntu-2021.3.36f1-android-3.1.0'
+            elif [ "${{ matrix.target_platform }}" == 'ios' ]; then
+              TAG='unityci/editor:ubuntu-2021.3.36f1-ios-3.1.0'
+            else
+              echo "Unsupported platform"
+              exit 1
+            fi
+          else
+            echo "Unsupported Unity version"
+            exit 1
+          fi
+          echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Echo Docker Image
+        run: |
+          echo ${{ env.DOCKER_TAG }}
+
+      - name: Determine Build Name
+        run: |
+          RUNNER_ID="${{ matrix.unity_version }}_${{ matrix.target_platform }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}"
+          
+          if [ "${{ matrix.target_platform }}" == "android" ]; then
+            BUILD_NAME="${RUNNER_ID}.apk"
+          elif [ "${{ matrix.target_platform }}" == "ios" ]; then
+            BUILD_NAME="${RUNNER_ID}.ipa"
+          else
+            echo "Unsupported platform"
+            exit 1
+          fi
+          
+          echo "RUNNER_ID=$RUNNER_ID" >> $GITHUB_ENV
+          echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
+      
+      - name: Enable Tests
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          buildMethod: StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag
+          customImage: ${{ env.DOCKER_TAG }}
+
+      - name: Run Tests (Attempt 1)
+        id: run_tests_1
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Tests (Attempt 2)
+        id: run_tests_2
+        if: steps.run_tests_1.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Tests (Attempt 3)
+        id: run_tests_3
+        if: steps.run_tests_2.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Tests (Attempt 4)
+        id: run_tests_4
+        if: steps.run_tests_3.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Tests (Attempt 5)
+        id: run_tests_5
+        if: steps.run_tests_4.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+
+      - name: Upload Test Results as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test_Results_${{ env.RUNNER_ID }}
+          path: artifacts
+
+      - name: Free Disk space
+        uses: jlumbroso/free-disk-space@v1.2.0
+        if: matrix.target_platform == 'android' || matrix.target_platform == 'ios'
+        with:
+          dotnet: false
+
+      - name: List changes
+        run: |
+          git diff
+
+      - name: Build Sample Project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
+          customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/${{ env.BUILD_NAME }}
+          customImage: ${{ env.DOCKER_TAG }}
+          allowDirtyBuild: true #Needed because the import process may update ProjectSettings
+
+      - name: Upload Build as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build_${{ env.BUILD_NAME }}
+          path: $(pwd)/SampleAppBuild/${{ env.BUILD_NAME }}

@@ -93,7 +93,10 @@ namespace StreamChat.Tests.StatefulClient
                 ChannelFilter.Frozen.EqualsTo(false),
             };
 
-            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
+            var channels = (await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
+                channels => channels.Contains(channel1) && !channels.Contains(channel2) &&
+                            !channels.Contains(channel3))).ToArray();
+            
             Assert.Contains(channel1, channels);
             Assert.IsNull(channels.FirstOrDefault(c => c == channel2));
             Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
@@ -108,13 +111,15 @@ namespace StreamChat.Tests.StatefulClient
             var channel1 = await CreateUniqueTempChannelAsync();
             var channel2 = await CreateUniqueTempChannelAsync();
             var channel3 = await CreateUniqueTempChannelAsync();
+            var allChannels = new[] { channel1, channel2, channel3 };
 
             var filters = new IFieldFilterRule[]
             {
                 ChannelFilter.CreatedById.EqualsTo(Client.LocalUserData.User),
             };
 
-            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
+            var channels = (await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
+                channels => allChannels.All(channels.Contains))).ToArray();
             Assert.Contains(channel1, channels);
             Assert.Contains(channel2, channels);
             Assert.Contains(channel3, channels);
@@ -160,7 +165,7 @@ namespace StreamChat.Tests.StatefulClient
             await channel1.AddMembersAsync(hideHistory: default, optionalMessage: default, userAnna);
             await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, userDaniel);
             await channel3.AddMembersAsync(hideHistory: default, optionalMessage: default, userJonathan);
-            
+
             // The search filter for MemberUserName relies on the `read-channel-members` permissions being enabled.
             // For channel type `Messaging` you can only view other members if you're a member yourself
             await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
@@ -173,7 +178,7 @@ namespace StreamChat.Tests.StatefulClient
             var channels2 = (await Client.QueryChannelsAsync(filters2, _sortByCreatedAtAscending)).ToArray();
             Assert.Contains(channel2, channels2);
         }
-        
+
         [UnityTest]
         public IEnumerator When_query_channel_with_members_count_filter_expect_valid_results()
             => ConnectAndExecute(When_query_channel_with_members_count_filter_expect_valid_results_Async);
@@ -183,7 +188,7 @@ namespace StreamChat.Tests.StatefulClient
             var channel1 = await CreateUniqueTempChannelAsync();
             var channel2 = await CreateUniqueTempChannelAsync();
             var channel3 = await CreateUniqueTempChannelAsync();
-            
+
             var userAnna = await CreateUniqueTempUserAsync("Anna");
             var userDaniel = await CreateUniqueTempUserAsync("Daniel");
             var userJonathan = await CreateUniqueTempUserAsync("Jonathan");
@@ -197,14 +202,15 @@ namespace StreamChat.Tests.StatefulClient
                 ChannelFilter.MembersCount.EqualsTo(3),
             };
 
-            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
+            var channels = (await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
+                channels => channels.All(c => c.MemberCount == 3))).ToArray();
             Assert.IsNull(channels.FirstOrDefault(c => c == channel1));
             Assert.Contains(channel2, channels);
             Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
-            
+
             Assert.IsTrue(channels.All(c => c.MemberCount == 3));
         }
-        
+
         [UnityTest]
         public IEnumerator When_query_channel_by_created_at_filter_expect_valid_results()
             => ConnectAndExecute(When_query_channel_by_created_at_filter_expect_valid_results_Async);
@@ -214,16 +220,16 @@ namespace StreamChat.Tests.StatefulClient
             var channel1 = await CreateUniqueTempChannelAsync();
             var channel2 = await CreateUniqueTempChannelAsync();
             var channel3 = await CreateUniqueTempChannelAsync();
+            var allChannels = new[] { channel1, channel2, channel3 };
 
             var filters = new IFieldFilterRule[]
             {
-                ChannelFilter.CreatedAt.GreaterThanOrEquals(DateTime.Now.AddMinutes(-5)),
+                ChannelFilter.CreatedAt.GreaterThanOrEquals(DateTime.UtcNow.AddMinutes(-5)),
             };
 
-            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
-            Assert.Contains(channel1, channels);
-            Assert.Contains(channel2, channels); 
-            Assert.Contains(channel3, channels);
+            var channels = await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
+                channels => allChannels.All(channels.Contains));
+            Assert.IsTrue(allChannels.All(channels.Contains));
         }
 
         private readonly ChannelSortObject _sortByCreatedAtAscending

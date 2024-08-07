@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
-using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.LowLevelClient.Responses;
+using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.LowLevelClient.API
 {
@@ -146,6 +147,12 @@ namespace StreamChat.Core.LowLevelClient.API
         {
             var dto = await _internalChannelApi.SyncAsync(syncRequest.TrySaveToDto());
             return dto.ToDomain<SyncResponseInternalDTO, SyncResponse>();
+        }
+        
+        public async Task<CurrentUnreadCounts> GetUnreadCountsAsync()
+        {
+            var dto = await _internalChannelApi.GetUnreadCountsAsync();
+            return dto.ToDomain<WrappedUnreadCountsResponseInternalDTO, CurrentUnreadCounts>();
         }
 
         private readonly IInternalChannelApi _internalChannelApi;

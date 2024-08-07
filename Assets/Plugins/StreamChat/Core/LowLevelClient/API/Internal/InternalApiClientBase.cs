@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StreamChat.Core.Exceptions;
@@ -83,7 +84,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         }
 
         private async Task<TResponse> HttpRequest<TResponse>(HttpMethodType httpMethod, string endpoint,
-            object requestBody = default, QueryParameters queryParameters = null)
+            object requestBody = default, QueryParameters queryParameters = null, int attempt = 0)
         {
             //StreamTodo: perhaps remove this requirement, sometimes we send empty body without any properties
             if (requestBody == null && IsRequestBodyRequiredByHttpMethod(httpMethod))
@@ -101,7 +102,14 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                     queryParameters = QueryParameters.Default;
                 }
 
-                queryParameters.Append("payload", serializedContent);
+                if (queryParameters.ContainsKey("paload"))
+                {
+                    queryParameters["payload"] = serializedContent;
+                }
+                else
+                {
+                    queryParameters.Append("payload", serializedContent);
+                }
             }
 
             var uri = _requestUriFactory.CreateEndpointUri(endpoint, queryParameters);
@@ -120,10 +128,52 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 }
                 catch (Exception e)
                 {
+                    // StreamTODO: verify where this error is coming from. This occurs when running tests in a docker container. Perhaps it's not returned from the API but by the network layer
+                    if (responseContent == "upstream request timeout")
+                    {
+                        // Handle API error returned as plain text
+                        apiError = new APIErrorInternalDTO
+                        {
+                            Message = responseContent,
+                            Code = 504,
+                        };
+
+#if !STREAM_TESTS_ENABLED
+                        throw new StreamApiException(apiError);
+#else
+                        if (attempt >= 20)
+                        {
+                            throw new StreamApiException(apiError);
+                        }
+
+                        _logs.Warning($"API CLIENT, TESTS MODE, Upstream Request Timeout - Make another attempt");
+                        return await HttpRequest<TResponse>(httpMethod, endpoint,
+                            requestBody, queryParameters, ++attempt);
+#endif
+                    }
+
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
+
+#if STREAM_TESTS_ENABLED || STREAM_DEBUG_ENABLED
+                    var sb = new StringBuilder();
+                    sb.AppendLine("API Response Deserialization failed - StreamDeserializationException:");
+                    sb.AppendLine("Target type: " + typeof(APIErrorInternalDTO));
+                    sb.AppendLine("Content:");
+                    sb.AppendLine(responseContent);
+                    _logs.Error(sb.ToString());
+#endif
+
                     throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
                 }
-                
+
+#if STREAM_TESTS_ENABLED
+                if (apiError.StatusCode == StreamApiException.RateLimitErrorHttpStatusCode && attempt < 50)
+                {
+                    return await HandleRateLimit<TResponse>(httpMethod, endpoint, requestBody, queryParameters, attempt,
+                        httpResponse);
+                }
+#endif
+
                 if (apiError.Code != InvalidAuthTokenErrorCode)
                 {
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
@@ -132,7 +182,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
                 if (_lowLevelClient.ConnectionState == ConnectionState.Connected)
                 {
-                    _logs.Info($"Http request failed due to expired token, connection id: {_lowLevelClient.ConnectionId}");
+                    _logs.Info(
+                        $"Http request failed due to expired token, connection id: {_lowLevelClient.ConnectionId}");
                     await _lowLevelClient.DisconnectAsync();
                 }
 
@@ -140,7 +191,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
                 const int maxMsToWait = 500;
                 var i = 0;
-                
+
                 //StreamTodo: we can create cancellation token instead of Task.Delay in loop
                 while (_lowLevelClient.ConnectionState != ConnectionState.Connected)
                 {
@@ -175,12 +226,23 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             catch (Exception e)
             {
                 LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
+
+#if STREAM_TESTS_ENABLED || STREAM_DEBUG_ENABLED
+                var sb = new StringBuilder();
+                sb.AppendLine("API Response Deserialization failed - StreamDeserializationException:");
+                sb.AppendLine("Target type: " + typeof(APIErrorInternalDTO));
+                sb.AppendLine("Content:");
+                sb.AppendLine(responseContent);
+                _logs.Error(sb.ToString());
+#endif
+
                 throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
             }
         }
 
         private static bool IsRequestBodyRequiredByHttpMethod(HttpMethodType httpMethod)
-            => httpMethod == HttpMethodType.Post || httpMethod == HttpMethodType.Put || httpMethod == HttpMethodType.Patch;
+            => httpMethod == HttpMethodType.Post || httpMethod == HttpMethodType.Put ||
+               httpMethod == HttpMethodType.Patch;
 
         private void LogFutureRequestIfDebug(Uri uri, string endpoint, HttpMethodType httpMethod, string request = null)
         {
@@ -238,6 +300,46 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             _sb.Append(Environment.NewLine);
 
             _logs.Info(_sb.ToString());
+        }
+
+        private async Task<TResponse> HandleRateLimit<TResponse>(HttpMethodType httpMethod, string endpoint,
+            object requestBody, QueryParameters queryParameters, int attempt, HttpResponse httpResponse)
+        {
+            if (attempt >= 50)
+            {
+                throw new StreamApiException(new APIErrorInternalDTO
+                    { Code = StreamApiException.RateLimitErrorHttpStatusCode });
+            }
+
+            var delaySeconds = GetBackoffDelay(attempt, httpResponse, out var resetHeaderTimestamp);
+            var now = (int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds. " +
+                          $"Timestamp reset header: {resetHeaderTimestamp}, Current timestamp: {now}, Dif: {resetHeaderTimestamp - now}");
+            await Task.Delay(delaySeconds * 1000);
+            return await HttpRequest<TResponse>(httpMethod, endpoint, requestBody, queryParameters, ++attempt);
+        }
+
+        private int GetBackoffDelay(int attempt, HttpResponse httpResponse, out int resetHeaderTimestamp)
+        {
+            resetHeaderTimestamp = -1;
+            // StreamTodo: Backoff based on the header doesn't seem to work. Perhaps concurrency is conflicting with this approach
+            if (httpResponse.TryGetHeader("x-ratelimit-reset", out var values))
+            {
+                var resetTimestamp = values.FirstOrDefault();
+
+                if (int.TryParse(resetTimestamp, out var rateLimitTimestamp))
+                {
+                    resetHeaderTimestamp = rateLimitTimestamp;
+                    var now = (int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+                    var secondsLeft = rateLimitTimestamp - now;
+                    // if (secondsLeft > 0)
+                    // {
+                    //     return secondsLeft + 5;
+                    // }
+                }
+            }
+
+            return 61 + attempt * 20;
         }
     }
 }

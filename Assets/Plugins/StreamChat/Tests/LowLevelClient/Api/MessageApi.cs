@@ -59,7 +59,7 @@ namespace StreamChat.Tests.LowLevelClient.Api
         {
             _lowLevelClient.Connect();
 
-            var response = new HttpResponse(true, 200, "{\"reaction\": {\"type\": \"like\"}}");
+            var response = new HttpResponse(true, 200, "{\"reaction\": {\"type\": \"like\"}}", null, null);
 
             _mockHttpClient.SendHttpRequestAsync(Arg.Is(HttpMethodType.Post),Arg.Any<Uri>(), Arg.Any<object>())
                 .Returns(response);
@@ -77,7 +77,7 @@ namespace StreamChat.Tests.LowLevelClient.Api
         {
             _lowLevelClient.Connect();
             
-            var response = new HttpResponse(true, 200, "{\"reaction\": {\"type\": \"like\"}}");
+            var response = new HttpResponse(true, 200, "{\"reaction\": {\"type\": \"like\"}}", null, null);
 
             _mockHttpClient.SendHttpRequestAsync(Arg.Is(HttpMethodType.Post),Arg.Any<Uri>(), Arg.Any<HttpContent>())
                 .Returns(response);

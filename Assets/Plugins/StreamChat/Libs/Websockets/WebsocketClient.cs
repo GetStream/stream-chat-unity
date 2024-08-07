@@ -153,7 +153,7 @@ namespace StreamChat.Libs.Websockets
 
         public void Dispose()
         {
-            LogInfoIfDebugMode("Dispose " + Thread.CurrentThread.ManagedThreadId);
+            LogInfoIfDebugMode("Dispose ThreadID: " + Thread.CurrentThread.ManagedThreadId);
 
             if (_internalClient != null && !_clientClosedStates.Contains(_internalClient.State))
             {
@@ -351,9 +351,10 @@ namespace StreamChat.Libs.Websockets
             {
                 if (_internalClient.State == WebSocketState.Open)
                 {
-#if STREAM_DEBUG_ENABLED
-                    _logs.Warning("Internal WS - Disposing; Is open -> CloseOutputAsync");
+#if STREAM_DEBUG_ENABLED || STREAM_TESTS_ENABLED
+                    _logs.Warning($"Internal WS - Disposing; Is open -> CloseOutputAsync. Has credentials: {_internalClient.Options.Credentials != null}, Has cookies: {_internalClient.Options.Cookies != null}");
 #endif
+                    // StreamTODO. This can throw " InvalidOperationException: This operation is only allowed using a successfully authenticated context."
                     await _internalClient.CloseOutputAsync(closeStatus, closeMessage, CancellationToken.None);
                 }
 

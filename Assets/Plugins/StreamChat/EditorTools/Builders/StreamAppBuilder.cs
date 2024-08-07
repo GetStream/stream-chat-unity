@@ -2,13 +2,14 @@
 using System.IO;
 using StreamChat.Libs.Auth;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace StreamChat.EditorTools.Builders
 {
     public class StreamAppBuilder
     {
-        public void BuildSampleApp(BuildSettings settings, AuthCredentials authCredentials)
+        public BuildReport BuildSampleApp(BuildSettings settings, AuthCredentials authCredentials)
         {
             var buildTarget = GetBuildTargetFromGroup(settings.BuildTargetGroup);
 
@@ -47,7 +48,7 @@ namespace StreamChat.EditorTools.Builders
 
             Debug.Log("Building sample app with settings: " + settings);
 
-            BuildPipeline.BuildPlayer(options);
+            return BuildPipeline.BuildPlayer(options);
         }
 
         private const string SampleAppSceneGuid = "78fbad76b0116d442a58c1552d9de372";

@@ -207,13 +207,14 @@ namespace StreamChat.Tests.StatefulClient
             var sentMessage = await channel.SendNewMessageAsync(MessageText);
             Assert.AreEqual(sentMessage.Text, MessageText);
 
-            await sentMessage.PinAsync(DateTime.UtcNow.Add(new TimeSpan(0, 0, 10, 0)));
+            // Use hours because due to rate limit the response can potentially take some time
+            var targetExpiryDate = DateTime.UtcNow.Add(new TimeSpan(0, 5, 0, 0));
+            await sentMessage.PinAsync(targetExpiryDate);
+            await WaitWhileFalseAsync(() => sentMessage.Pinned && sentMessage.PinExpires.HasValue);
 
-            var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
-            Assert.AreEqual(true, messageInChannel.Pinned);
+            Assert.AreEqual(true, sentMessage.Pinned);
 
-            var expiresInMinutes = (messageInChannel.PinExpires.Value - DateTime.UtcNow).TotalMinutes;
-            Assert.That(expiresInMinutes, Is.InRange(9, 11));
+            Assert.That(sentMessage.PinExpires.Value, Is.EqualTo(new DateTimeOffset(targetExpiryDate)).Within(3).Minutes);
         }
 
         [UnityTest]

@@ -27,6 +27,7 @@ using StreamChat.Libs.Utils;
 using StreamChat.Libs.Websockets;
 using StreamChat.Core.LowLevelClient.Requests;
 using System.Linq;
+using StreamChat.Core.Helpers;
 
 #if STREAM_TESTS_ENABLED
 using System.Runtime.CompilerServices;
@@ -205,7 +206,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// SDK Version number
         /// </summary>
-        public static readonly Version SDKVersion = new Version(4, 6, 0);
+        public static readonly Version SDKVersion = new Version(4, 7, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
@@ -752,50 +753,52 @@ namespace StreamChat.Core.LowLevelClient
 
             RegisterEventType<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>(
                 WSEventType.NotificationMarkRead,
-                (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto));
+                (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationNewMessageEventInternalDTO, EventNotificationMessageNew>(
                 WSEventType.NotificationMessageNew,
                 (e, dto) => NotificationMessageReceived?.Invoke(e),
-                dto => InternalNotificationMessageReceived?.Invoke(dto));
+                dto => InternalNotificationMessageReceived?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationChannelDeletedEventInternalDTO, EventNotificationChannelDeleted>(
                 WSEventType.NotificationChannelDeleted,
                 (e, dto) => NotificationChannelDeleted?.Invoke(e),
-                dto => InternalNotificationChannelDeleted?.Invoke(dto));
+                dto => InternalNotificationChannelDeleted?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationChannelTruncatedEventInternalDTO, EventNotificationChannelTruncated>(
                 WSEventType.NotificationChannelTruncated,
                 (e, dto) => NotificationChannelTruncated?.Invoke(e),
-                dto => InternalNotificationChannelTruncated?.Invoke(dto));
+                dto => InternalNotificationChannelTruncated?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationAddedToChannelEventInternalDTO, EventNotificationAddedToChannel>(
                 WSEventType.NotificationAddedToChannel,
                 (e, dto) => NotificationAddedToChannel?.Invoke(e),
-                dto => InternalNotificationAddedToChannel?.Invoke(dto));
+                dto => InternalNotificationAddedToChannel?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationRemovedFromChannelEventInternalDTO, EventNotificationRemovedFromChannel>(
                 WSEventType.NotificationRemovedFromChannel,
                 (e, dto) => NotificationRemovedFromChannel?.Invoke(e),
-                dto => InternalNotificationRemovedFromChannel?.Invoke(dto));
+                dto => InternalNotificationRemovedFromChannel?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationInvitedEventInternalDTO, EventNotificationInvited>(
                 WSEventType.NotificationInvited,
-                (e, dto) => NotificationInvited?.Invoke(e), dto => InternalNotificationInvited?.Invoke(dto));
+                (e, dto) => NotificationInvited?.Invoke(e), dto => InternalNotificationInvited?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationInviteAcceptedEventInternalDTO, EventNotificationInviteAccepted>(
                 WSEventType.NotificationInviteAccepted,
                 (e, dto) => NotificationInviteAccepted?.Invoke(e),
-                dto => InternalNotificationInviteAccepted?.Invoke(dto));
+                dto => InternalNotificationInviteAccepted?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationInviteRejectedEventInternalDTO, EventNotificationInviteRejected>(
                 WSEventType.NotificationInviteRejected,
                 (e, dto) => NotificationInviteRejected?.Invoke(e),
-                dto => InternalNotificationInviteRejected?.Invoke(dto));
+                dto => InternalNotificationInviteRejected?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
         }
 
         private void RegisterEventType<TDto, TEvent>(string key,
-            Action<TEvent, TDto> handler, Action<TDto> internalHandler = null)
+            Action<TEvent, TDto> handler, Action<TDto> internalHandler = null, Action<TDto> postprocess = null)
             where TEvent : EventBase, ILoadableFrom<TDto, TEvent>, new()
         {
             if (_eventKeyToHandler.ContainsKey(key))
             {
-                _logs.Warning($"Event handler with key `{key}` is already registered. Ignored");
+#if STREAM_DEBUG_ENABLED
+                _logs.Error($"Event handler with key `{key}` is already registered. Ignored");
+#endif
                 return;
             }
 
@@ -804,6 +807,7 @@ namespace StreamChat.Core.LowLevelClient
                 try
                 {
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
+                    postprocess?.Invoke(dto);
                     _lastEventReceivedAt = eventObj.CreatedAt;
                     handler?.Invoke(eventObj, dto);
                     internalHandler?.Invoke(dto);
@@ -889,7 +893,7 @@ namespace StreamChat.Core.LowLevelClient
             var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
-                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, reset connection");
+                _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, resetting connection");
                 _websocketClient
                     .DisconnectAsync(WebSocketCloseStatus.InternalServerError,
                         $"Health check was not received since: {timeSinceLastHealthCheck}")
@@ -906,10 +910,6 @@ namespace StreamChat.Core.LowLevelClient
 
             _websocketClient.Send(_serializer.Serialize(healthCheck));
             _lastHealthCheckSendTime = _timeService.Time;
-
-#if STREAM_DEBUG_ENABLED
-            _logs.Info("Health check sent");
-#endif
         }
 
         private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, HealthCheckEventInternalDTO dto)

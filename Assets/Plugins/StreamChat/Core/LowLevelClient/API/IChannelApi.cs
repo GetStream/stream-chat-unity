@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.LowLevelClient.Responses;
+using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.LowLevelClient.API
 {
@@ -152,6 +153,8 @@ namespace StreamChat.Core.LowLevelClient.API
         Task SendTypingStopEventAsync(string channelType, string channelId);
 
         //StreamTodo: perhaps we can skip this declaration and use the Internal one directly
-        Task<SyncResponse> SyncAsync(SyncRequest syncRequest); 
+        Task<SyncResponse> SyncAsync(SyncRequest syncRequest);
+
+        Task<CurrentUnreadCounts> GetUnreadCountsAsync();
     }
 }

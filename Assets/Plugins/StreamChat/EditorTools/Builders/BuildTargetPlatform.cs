@@ -3,6 +3,8 @@
     public enum BuildTargetPlatform
     {
         Standalone,
-        Mobile
+        Mobile,
+        Android,
+        IOS
     }
 }
