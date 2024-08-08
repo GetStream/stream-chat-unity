@@ -4,7 +4,8 @@ using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>, ISavableTo<UserObjectInternalDTO>
+    public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>, 
+        ILoadableFrom<UserResponseInternalDTO, User>, ISavableTo<UserObjectInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban

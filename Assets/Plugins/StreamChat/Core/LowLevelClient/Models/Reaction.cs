@@ -1,5 +1,6 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
@@ -7,7 +8,8 @@ namespace StreamChat.Core.LowLevelClient.Models
     /// <summary>
     /// Represents user reaction to a message
     /// </summary>
-    public class Reaction : ResponseObjectBase, ILoadableFrom<ReactionInternalDTO, Reaction>
+    public class Reaction : ResponseObjectBase, ILoadableFrom<ReactionInternalDTO, Reaction>, 
+        ILoadableFrom<ReactionResponseInternalDTO, Reaction>
     {
         /// <summary>
         /// Date/time of creation
@@ -50,6 +52,20 @@ namespace StreamChat.Core.LowLevelClient.Models
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            UserId = dto.UserId;
+
+            return this;
+        }
+        
+        Reaction ILoadableFrom<ReactionResponseInternalDTO, Reaction>.LoadFromDto(ReactionResponseInternalDTO dto)
+        {
+            AdditionalProperties = dto.AdditionalProperties;
+            CreatedAt = dto.CreatedAt;
+            MessageId = dto.MessageId;
+            Score = dto.Score;
+            Type = dto.Type;
+            UpdatedAt = dto.UpdatedAt;
+            User = User.TryLoadFromDto<UserResponseInternalDTO, User>(dto.User);
             UserId = dto.UserId;
 
             return this;

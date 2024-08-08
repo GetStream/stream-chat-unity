@@ -5,7 +5,7 @@ using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Responses
 {
-    public partial class GuestResponse : ResponseObjectBase, ILoadableFrom<GuestResponseInternalDTO, GuestResponse>
+    public partial class GuestResponse : ResponseObjectBase, ILoadableFrom<CreateGuestResponseInternalDTO, GuestResponse>
     {
         /// <summary>
         /// Authentication token to use for guest user
@@ -22,11 +22,11 @@ namespace StreamChat.Core.LowLevelClient.Responses
         /// </summary>
         public User User { get; set; }
 
-        GuestResponse ILoadableFrom<GuestResponseInternalDTO, GuestResponse>.LoadFromDto(GuestResponseInternalDTO dto)
+        GuestResponse ILoadableFrom<CreateGuestResponseInternalDTO, GuestResponse>.LoadFromDto(CreateGuestResponseInternalDTO dto)
         {
             AccessToken = dto.AccessToken;
             Duration = dto.Duration;
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserResponseInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

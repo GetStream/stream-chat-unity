@@ -4,7 +4,7 @@ using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Responses
 {
-    public partial class ChannelsResponse : ResponseObjectBase, ILoadableFrom<ChannelsResponseInternalDTO, ChannelsResponse>
+    public partial class ChannelsResponse : ResponseObjectBase, ILoadableFrom<QueryChannelsResponseInternalDTO, ChannelsResponse>
     {
         /// <summary>
         /// List of channels
@@ -16,7 +16,7 @@ namespace StreamChat.Core.LowLevelClient.Responses
         /// </summary>
         public string Duration { get; set; }
 
-        ChannelsResponse ILoadableFrom<ChannelsResponseInternalDTO, ChannelsResponse>.LoadFromDto(ChannelsResponseInternalDTO dto)
+        ChannelsResponse ILoadableFrom<QueryChannelsResponseInternalDTO, ChannelsResponse>.LoadFromDto(QueryChannelsResponseInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             Channels = Channels.TryLoadFromDtoCollection(dto.Channels);

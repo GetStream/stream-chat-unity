@@ -30,7 +30,7 @@ namespace StreamChat.Core.LowLevelClient.Events
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
-            Reaction = Reaction.TryLoadFromDto(dto.Reaction);
+            Reaction = Reaction.TryLoadFromDto<ReactionInternalDTO, Reaction>(dto.Reaction);
             Team = dto.Team;
             Type = dto.Type;
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);

@@ -16,9 +16,6 @@ namespace StreamChat.Core.InternalDTO.Requests
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class SendReactionRequestInternalDTO
     {
-        [Newtonsoft.Json.JsonProperty("ID", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ID { get; set; }
-
         /// <summary>
         /// Whether to replace all existing user reactions
         /// </summary>
@@ -26,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public bool? EnforceUnique { get; set; }
 
         [Newtonsoft.Json.JsonProperty("reaction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ReactionRequestInternalDTO Reaction { get; set; }
+        public ReactionRequestInternalDTO Reaction { get; set; } = new ReactionRequestInternalDTO();
 
         /// <summary>
         /// Skips any mobile push notifications

@@ -1,6 +1,6 @@
-using StreamChat.Core.InternalDTO.Extra;
 using System.Collections.Generic;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.Responses
 {

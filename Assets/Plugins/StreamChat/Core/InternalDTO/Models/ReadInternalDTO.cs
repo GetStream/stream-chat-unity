@@ -17,13 +17,13 @@ namespace StreamChat.Core.InternalDTO.Models
     internal partial class ReadInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("last_read", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? LastRead { get; set; }
+        public System.DateTimeOffset LastRead { get; set; }
 
         [Newtonsoft.Json.JsonProperty("last_read_message_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LastReadMessageId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("unread_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? UnreadMessages { get; set; }
+        public int UnreadMessages { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectInternalDTO User { get; set; }

@@ -16,9 +16,15 @@ namespace StreamChat.Core.InternalDTO.Models
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class SortParamInternalDTO
     {
+        /// <summary>
+        /// Direction of sorting, -1 for descending, 1 for ascending
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("direction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Direction { get; set; }
 
+        /// <summary>
+        /// Name of field to sort by
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("field", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Field { get; set; }
 

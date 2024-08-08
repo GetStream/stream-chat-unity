@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 
@@ -10,7 +9,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         Task<ShowChannelResponseInternalDTO> ShowChannelAsync(string channelType, string channelId,
             ShowChannelRequestInternalDTO showChannelRequest);
 
-        Task<ChannelsResponseInternalDTO> QueryChannelsAsync(QueryChannelsRequestInternalDTO queryChannelsRequest);
+        Task<QueryChannelsResponseInternalDTO> QueryChannelsAsync(QueryChannelsRequestInternalDTO queryChannelsRequest);
 
         Task<ChannelStateResponseInternalDTO> GetOrCreateChannelAsync(string channelType,
             ChannelGetOrCreateRequestInternalDTO getOrCreateRequest);

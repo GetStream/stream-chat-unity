@@ -16,21 +16,21 @@ namespace StreamChat.Core.InternalDTO.Responses
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class ImageUploadResponseInternalDTO
     {
+        /// <summary>
+        /// Duration of the request in milliseconds
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
-        /// <summary>
-        /// URL to the uploaded asset. Should be used to put to `asset_url` attachment field
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("file", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string File { get; set; }
 
-        /// <summary>
-        /// URL of the file thumbnail for supported file formats. Should be put to `thumb_url` attachment field
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("thumb_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ThumbUrl { get; set; }
 
+        /// <summary>
+        /// Array of image size configurations
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("upload_sizes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<ImageSizeInternalDTO> UploadSizes { get; set; }
 

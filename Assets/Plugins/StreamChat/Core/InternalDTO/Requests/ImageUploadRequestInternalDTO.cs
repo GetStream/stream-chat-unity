@@ -23,10 +23,10 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// field with JSON-encoded array of image size configurations
         /// </summary>
         [Newtonsoft.Json.JsonProperty("upload_sizes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ImageSizeRequestInternalDTO> UploadSizes { get; set; }
+        public System.Collections.Generic.List<ImageSizeInternalDTO> UploadSizes { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public OnlyUserIDRequestInternalDTO User { get; set; }
+        public OnlyUserIDInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

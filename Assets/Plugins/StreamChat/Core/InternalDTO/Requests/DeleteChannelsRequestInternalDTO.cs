@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// All channels that should be deleted
         /// </summary>
         [Newtonsoft.Json.JsonProperty("cids", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> Cids { get; set; }
+        public System.Collections.Generic.List<string> Cids { get; set; } = new System.Collections.Generic.List<string>();
 
         /// <summary>
         /// Specify if channels and all ressources should be hard deleted

@@ -16,6 +16,9 @@ namespace StreamChat.Core.InternalDTO.Responses
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class SyncResponseInternalDTO
     {
+        /// <summary>
+        /// Duration of the request in milliseconds
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
@@ -23,7 +26,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of events
         /// </summary>
         [Newtonsoft.Json.JsonProperty("events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<object> Events { get; set; } = new System.Collections.Generic.List<object>();
+        public System.Collections.Generic.List<object> Events { get; set; }
 
         /// <summary>
         /// List of CIDs that user can't access

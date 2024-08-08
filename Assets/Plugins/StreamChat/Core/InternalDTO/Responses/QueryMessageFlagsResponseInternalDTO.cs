@@ -17,13 +17,16 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class QueryMessageFlagsResponseInternalDTO
     {
         /// <summary>
-        /// Duration of the request in human-readable format
+        /// Duration of the request in milliseconds
         /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
+        /// <summary>
+        /// The flags that match the query
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("flags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<MessageFlagInternalDTO> Flags { get; set; } = new System.Collections.Generic.List<MessageFlagInternalDTO>();
+        public System.Collections.Generic.List<MessageFlagResponseInternalDTO> Flags { get; set; } = new System.Collections.Generic.List<MessageFlagResponseInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

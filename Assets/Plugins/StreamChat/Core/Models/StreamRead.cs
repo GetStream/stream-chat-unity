@@ -18,8 +18,8 @@ namespace StreamChat.Core.Models
         StreamRead IStateLoadableFrom<ReadInternalDTO, StreamRead>.LoadFromDto(ReadInternalDTO dto, ICache cache)
         {
             //Is this always set? What if a user marks empty channel as read? 
-            LastRead = dto.LastRead.GetValueOrDefault(); //StreamTodo: GetValueOrThrow? 
-            UnreadMessages = dto.UnreadMessages.GetValueOrDefault();
+            LastRead = dto.LastRead; //StreamTodo: GetValueOrThrow? 
+            UnreadMessages = dto.UnreadMessages;
             User = cache.TryCreateOrUpdate(dto.User);
 
             return this;

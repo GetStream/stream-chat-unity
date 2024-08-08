@@ -1,4 +1,5 @@
-﻿using StreamChat.Core.Helpers;
+﻿using System;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
@@ -50,8 +51,10 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// </summary>
         public string Type { get; set; }
 
+        [Obsolete("Has no effect and will be removed in a future release")] //StreamTODO: remove this in a major release
         public UserObjectRequest User { get; set; }
 
+        [Obsolete("Has no effect and will be removed in a future release")] //StreamTODO: remove this in a major release
         public string UserId { get; set; }
 
         BanRequestInternalDTO ISavableTo<BanRequestInternalDTO>.SaveToDto()
@@ -67,8 +70,6 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 TargetUserId = TargetUserId,
                 Timeout = Timeout,
                 Type = Type,
-                User = User.TrySaveToDto(),
-                UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };
         }

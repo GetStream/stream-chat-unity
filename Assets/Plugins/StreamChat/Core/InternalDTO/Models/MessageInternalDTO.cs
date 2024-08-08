@@ -49,11 +49,17 @@ namespace StreamChat.Core.InternalDTO.Models
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset CreatedAt { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, object> Custom { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+
         /// <summary>
         /// Date/time of deletion
         /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeletedAt { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("deleted_reply_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int DeletedReplyCount { get; set; }
 
         /// <summary>
         /// Contains HTML markup of the message. Can only be set when using server-side API
@@ -83,13 +89,16 @@ namespace StreamChat.Core.InternalDTO.Models
         /// List of 10 latest reactions to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("latest_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ReactionInternalDTO> LatestReactions { get; set; }
+        public System.Collections.Generic.List<ReactionInternalDTO> LatestReactions { get; set; } = new System.Collections.Generic.List<ReactionInternalDTO>();
 
         /// <summary>
         /// List of mentioned users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalDTO> MentionedUsers { get; set; }
+        public System.Collections.Generic.List<UserObjectInternalDTO> MentionedUsers { get; set; } = new System.Collections.Generic.List<UserObjectInternalDTO>();
+
+        [Newtonsoft.Json.JsonProperty("message_text_updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? MessageTextUpdatedAt { get; set; }
 
         /// <summary>
         /// Should be empty if `text` is provided. Can only be set when using server-side API
@@ -101,7 +110,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// List of 10 latest reactions of authenticated user to this message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("own_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ReactionInternalDTO> OwnReactions { get; set; }
+        public System.Collections.Generic.List<ReactionInternalDTO> OwnReactions { get; set; } = new System.Collections.Generic.List<ReactionInternalDTO>();
 
         /// <summary>
         /// ID of parent message (thread)
@@ -133,6 +142,15 @@ namespace StreamChat.Core.InternalDTO.Models
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectInternalDTO PinnedBy { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("poll", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public PollInternalDTO Poll { get; set; }
+
+        /// <summary>
+        /// Identifier of the poll to include in the message
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("poll_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PollId { get; set; }
+
         /// <summary>
         /// Contains quoted message
         /// </summary>
@@ -146,13 +164,16 @@ namespace StreamChat.Core.InternalDTO.Models
         /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; }
+        public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
+
+        [Newtonsoft.Json.JsonProperty("reaction_groups", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, ReactionGroupResponseInternalDTO> ReactionGroups { get; set; } = new System.Collections.Generic.Dictionary<string, ReactionGroupResponseInternalDTO>();
 
         /// <summary>
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; }
+        public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
 
         /// <summary>
         /// Number of replies to this message
@@ -195,7 +216,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// </summary>
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public MessageType? Type { get; set; }
+        public MessageType Type { get; set; }
 
         /// <summary>
         /// Date/time of the last update

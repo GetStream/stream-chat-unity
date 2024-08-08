@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Events;
-using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.Web;
@@ -19,10 +18,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         {
         }
 
-        public Task<ChannelsResponseInternalDTO> QueryChannelsAsync(QueryChannelsRequestInternalDTO queryChannelsRequest)
+        public Task<QueryChannelsResponseInternalDTO> QueryChannelsAsync(QueryChannelsRequestInternalDTO queryChannelsRequest)
         {
             var endpoint = ChannelEndpoints.QueryChannels();
-            return Post<QueryChannelsRequestInternalDTO, ChannelsResponseInternalDTO>(endpoint, queryChannelsRequest);
+            return Post<QueryChannelsRequestInternalDTO, QueryChannelsResponseInternalDTO>(endpoint, queryChannelsRequest);
         }
 
         public Task<ChannelStateResponseInternalDTO> GetOrCreateChannelAsync(string channelType,

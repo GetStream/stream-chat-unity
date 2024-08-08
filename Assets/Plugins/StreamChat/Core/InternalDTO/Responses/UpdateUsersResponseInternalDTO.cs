@@ -16,14 +16,20 @@ namespace StreamChat.Core.InternalDTO.Responses
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class UpdateUsersResponseInternalDTO
     {
+        /// <summary>
+        /// Duration of the request in milliseconds
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("membership_deletion_task_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string MembershipDeletionTaskId { get; set; }
 
         /// <summary>
         /// Object containing users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, UserObjectInternalDTO> Users { get; set; } = new System.Collections.Generic.Dictionary<string, UserObjectInternalDTO>();
+        public System.Collections.Generic.Dictionary<string, FullUserResponseInternalDTO> Users { get; set; } = new System.Collections.Generic.Dictionary<string, FullUserResponseInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

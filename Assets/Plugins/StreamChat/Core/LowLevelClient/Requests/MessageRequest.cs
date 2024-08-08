@@ -18,7 +18,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// <summary>
         /// Channel unique identifier in <type>:<id> format
         /// </summary>
-        [Obsolete("Has no effect and will be removed in a future release")]
+        [Obsolete("Has no effect and will be removed in a future release")] //StreamTODO: remove this in a major release
         public string Cid { get; set; }
 
         /// <summary>
@@ -49,22 +49,20 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// <summary>
         /// Date when pinned message expires
         /// </summary>
-        public DateTimeOffset? PinExpires { get; set; }
+        public DateTimeOffset? PinExpires { get; set; } //StreamTodo: check if this has any effect
 
         /// <summary>
         /// Whether message is pinned or not
         /// </summary>
-        public bool? Pinned { get; set; }
+        public bool? Pinned { get; set; } //StreamTodo: check if this has any effect
 
         /// <summary>
         /// Date when message got pinned
         /// </summary>
-        public DateTimeOffset? PinnedAt { get; set; }
+        public DateTimeOffset? PinnedAt { get; set; } //StreamTodo: check if this has any effect
 
-        /// <summary>
-        /// Contains user who pinned the message
-        /// </summary>
-        public string PinnedBy { get; set; }
+        [Obsolete("Has no effect and will be removed in a future release")]
+        public string PinnedBy { get; set; } //StreamTodo: check if this has any effect
 
         public string QuotedMessageId { get; set; }
 
@@ -72,7 +70,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
         /// </summary>
         [Obsolete("Has no effect and will be removed in a future release")]
-        public Dictionary<string, int> ReactionScores { get; set; }
+        public Dictionary<string, int> ReactionScores { get; set; } //StreamTODO: remove this in a major release
 
         /// <summary>
         /// Whether thread reply should be shown in the channel as well
@@ -89,12 +87,11 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// </summary>
         public string Text { get; set; }
 
-        /// <summary>
-        /// Sender of the message. Required when using server-side API
-        /// </summary>
-        public UserObjectRequest User { get; set; }
+        [Obsolete("Has no effect and will be removed in a future release")]
+        public UserObjectRequest User { get; set; } //StreamTODO: remove this in a major release
 
-        public string UserId { get; set; }
+        [Obsolete("Has no effect and will be removed in a future release")]
+        public string UserId { get; set; } //StreamTODO: remove this in a major release
 
         MessageRequestInternalDTO ISavableTo<MessageRequestInternalDTO>.SaveToDto() =>
             new MessageRequestInternalDTO
@@ -108,13 +105,10 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 PinExpires = PinExpires,
                 Pinned = Pinned,
                 PinnedAt = PinnedAt,
-                PinnedBy = PinnedBy,
                 QuotedMessageId = QuotedMessageId,
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,
                 Text = Text,
-                User = User.TrySaveToDto(),
-                UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };
     }
