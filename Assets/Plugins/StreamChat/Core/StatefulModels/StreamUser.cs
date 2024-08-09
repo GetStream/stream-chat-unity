@@ -153,7 +153,7 @@ namespace StreamChat.Core.StatefulModels
             PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications, cache);
             RevokeTokensIssuedBefore = GetOrDefault(dto.RevokeTokensIssuedBefore, RevokeTokensIssuedBefore);
             Role = GetOrDefault(dto.Role, Role);
-            //ShadowBanned = dto.ShadowBanned; Missing in DTO
+            //ShadowBanned = dto.ShadowBanned; StreamTODO; Missing in DTO
             _teams.TryReplaceValuesFromDto(dto.Teams);
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 

@@ -22,6 +22,9 @@ namespace StreamChat.Core.InternalDTO.Events
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ChannelId { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("channel_member_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int ChannelMemberCount { get; set; }
+
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ChannelType { get; set; }
 
@@ -57,6 +60,9 @@ namespace StreamChat.Core.InternalDTO.Events
 
         [Newtonsoft.Json.JsonProperty("unread_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int UnreadMessages { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("unread_threads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int UnreadThreads { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectInternalDTO User { get; set; }

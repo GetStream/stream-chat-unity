@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public int? AgoraUid { get; set; }
 
         /// <summary>
-        /// Duration of the request in human-readable format
+        /// Duration of the request in milliseconds
         /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }

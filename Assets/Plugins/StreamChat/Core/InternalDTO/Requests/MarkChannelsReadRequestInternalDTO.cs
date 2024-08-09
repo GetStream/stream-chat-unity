@@ -17,16 +17,10 @@ namespace StreamChat.Core.InternalDTO.Requests
     internal partial class MarkChannelsReadRequestInternalDTO
     {
         /// <summary>
-        /// Map which binds a CID to a message ID that is considered last read by client. If message ID is empty, the whole channel will be considered as read
+        /// Map of channel ID to last read message ID
         /// </summary>
         [Newtonsoft.Json.JsonProperty("read_by_channel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, string> ReadByChannel { get; set; }
-        
-        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequestInternalDTO User { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string UserId { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

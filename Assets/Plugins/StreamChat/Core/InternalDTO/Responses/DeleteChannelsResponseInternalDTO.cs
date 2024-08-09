@@ -17,13 +17,16 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class DeleteChannelsResponseInternalDTO
     {
         /// <summary>
-        /// Duration of the request in human-readable format
+        /// Duration of the request in milliseconds
         /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
+        /// <summary>
+        /// Map of channel IDs and their deletion results
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("result", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, DeleteChannelsResultInternalDTO> Result { get; set; }
+        public System.Collections.Generic.Dictionary<string, DeleteChannelsResultResponseInternalDTO> Result { get; set; }
 
         [Newtonsoft.Json.JsonProperty("task_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TaskId { get; set; }

@@ -18,13 +18,13 @@ namespace StreamChat.Core.LowLevelClient.API
         public async Task<UsersResponse> QueryUsersAsync(QueryUsersRequest queryUsersRequest)
         {
             var dto = await _internalUserApi.QueryUsersAsync(queryUsersRequest.TrySaveToDto());
-            return dto.ToDomain<UsersResponseInternalDTO, UsersResponse>();
+            return dto.ToDomain<QueryUsersResponseInternalDTO, UsersResponse>();
         }
 
         public async Task<GuestResponse> CreateGuestAsync(GuestRequest createGuestRequest)
         {
             var dto = await _internalUserApi.CreateGuestAsync(createGuestRequest.TrySaveToDto());
-            return dto.ToDomain<GuestResponseInternalDTO, GuestResponse>();
+            return dto.ToDomain<CreateGuestResponseInternalDTO, GuestResponse>();
         }
 
         public Task<UpdateUsersResponse> UpsertUsersAsync(UpdateUsersRequest updateUsersRequest)

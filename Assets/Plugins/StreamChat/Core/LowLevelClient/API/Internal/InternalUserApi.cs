@@ -16,11 +16,11 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         {
         }
 
-        public Task<UsersResponseInternalDTO> QueryUsersAsync(QueryUsersRequestInternalDTO queryUsersRequest)
-            => Get<QueryUsersRequestInternalDTO, UsersResponseInternalDTO>("/users", queryUsersRequest);
+        public Task<QueryUsersResponseInternalDTO> QueryUsersAsync(QueryUsersRequestInternalDTO queryUsersRequest)
+            => Get<QueryUsersRequestInternalDTO, QueryUsersResponseInternalDTO>("/users", queryUsersRequest);
 
-        public Task<GuestResponseInternalDTO> CreateGuestAsync(GuestRequestInternalDTO createGuestRequest)
-            => Post<GuestRequestInternalDTO, GuestResponseInternalDTO>("/guest", createGuestRequest);
+        public Task<CreateGuestResponseInternalDTO> CreateGuestAsync(CreateGuestRequestInternalDTO createGuestRequest)
+            => Post<CreateGuestRequestInternalDTO, CreateGuestResponseInternalDTO>("/guest", createGuestRequest);
 
         public Task<UpdateUsersResponseInternalDTO>
             UpsertManyUsersAsync(UpdateUsersRequestInternalDTO updateUsersRequest)

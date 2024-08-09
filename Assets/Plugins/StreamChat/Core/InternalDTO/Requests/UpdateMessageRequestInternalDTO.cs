@@ -13,20 +13,20 @@ namespace StreamChat.Core.InternalDTO.Requests
 {
     using System = global::System;
 
-    /// <summary>
-    /// Contains all information needed to update a message
-    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class UpdateMessageRequestInternalDTO
     {
+        [Newtonsoft.Json.JsonProperty("pending_message_metadata", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, string> PendingMessageMetadata { get; set; }
+        
+        /// <summary>
+        /// Message
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageRequestInternalDTO Message { get; set; } = new MessageRequestInternalDTO();
 
-        [Newtonsoft.Json.JsonProperty("pending_message_metadata", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, string> PendingMessageMetadata { get; set; }
-
         /// <summary>
-        /// Do not try to enrich the links within message
+        /// Skip enrich URL
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_enrich_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? SkipEnrichUrl { get; set; }

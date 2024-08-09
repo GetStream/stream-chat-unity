@@ -64,6 +64,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public DateTimeOffset? PinnedAt { get; set; }
 
+        //StreamTodo: isn't this server-side?
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>

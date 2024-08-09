@@ -3,6 +3,8 @@ using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
+    // StreamTodo: new openAPI spec makes more granular distinction of channel requests like
+    // UpdateChannelRequest, ShowChannelRequest, etc. so this class will have to be replaced by more specific types
     public partial class ChannelRequest : RequestObjectBase, ISavableTo<ChannelRequestInternalDTO>
     {
         /// <summary>
@@ -49,7 +51,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 AutoTranslationEnabled = AutoTranslationEnabled,
                 AutoTranslationLanguage = AutoTranslationLanguage,
                 ConfigOverrides = ConfigOverrides.TrySaveToDto(),
-                CreatedBy = CreatedBy.TrySaveToDto(),
+                CreatedBy = CreatedBy.TrySaveToDto<UserObjectRequestInternalDTO>(),
                 Disabled = Disabled,
                 Frozen = Frozen,
                 Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),

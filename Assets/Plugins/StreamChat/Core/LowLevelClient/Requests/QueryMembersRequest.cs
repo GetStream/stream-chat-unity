@@ -18,7 +18,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// <summary>
         /// Filter to apply to members
         /// </summary>
-        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+        public System.Collections.Generic.Dictionary<string, object> FilterConditions { get; set; }
 
         /// <summary>
         /// Channel ID to interact with
@@ -70,7 +70,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 Limit = Limit,
                 Members = Members.TrySaveToDtoCollection<ChannelMember, ChannelMemberInternalDTO>(),
                 Offset = Offset,
-                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamInternalDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParam, SortParamRequestInternalDTO>(),
                 Type = Type,
                 UserIdGt = UserIdGt,
                 UserIdGte = UserIdGte,

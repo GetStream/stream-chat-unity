@@ -26,7 +26,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Whether member is banned this channel or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("banned", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Banned { get; set; }
+        public bool? Banned { get; set; }
 
         /// <summary>
         /// Role of the member in the channel
@@ -38,7 +38,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// Date/time of creation
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset CreatedAt { get; set; }
+        public System.DateTimeOffset? CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeletedAt { get; set; }
@@ -67,23 +67,23 @@ namespace StreamChat.Core.InternalDTO.Models
         [Newtonsoft.Json.JsonProperty("is_moderator", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? IsModerator { get; set; }
 
-        /// <summary>
-        /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("role", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Role { get; set; }
+        [Newtonsoft.Json.JsonProperty("notifications_muted", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool NotificationsMuted { get; set; }
 
         /// <summary>
         /// Whether member is shadow banned in this channel or not
         /// </summary>
         [Newtonsoft.Json.JsonProperty("shadow_banned", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool ShadowBanned { get; set; }
+        public bool? ShadowBanned { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Status { get; set; }
 
         /// <summary>
         /// Date/time of the last update
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset UpdatedAt { get; set; }
+        public System.DateTimeOffset? UpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectInternalDTO User { get; set; }

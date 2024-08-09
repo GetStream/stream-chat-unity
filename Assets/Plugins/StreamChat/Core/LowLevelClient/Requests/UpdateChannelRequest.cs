@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
@@ -74,14 +75,14 @@ namespace StreamChat.Core.LowLevelClient.Requests
             new UpdateChannelRequestInternalDTO
             {
                 AcceptInvite = AcceptInvite,
-                AddMembers = AddMembers.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
+                AddMembers = AddMembers.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberInternalDTO>(),
                 AddModerators = AddModerators,
-                AssignRoles = AssignRoles.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
+                AssignRoles = AssignRoles.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberInternalDTO>(),
                 Cooldown = Cooldown,
                 Data = Data.TrySaveToDto(),
                 DemoteModerators = DemoteModerators,
                 HideHistory = HideHistory,
-                Invites = Invites.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
+                Invites = Invites.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberInternalDTO>(),
                 Message = Message.TrySaveToDto(),
                 RejectInvite = RejectInvite,
                 RemoveMembers = RemoveMembers,

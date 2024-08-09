@@ -37,8 +37,14 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset CreatedAt { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, object> Custom { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeletedAt { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("deleted_reply_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int DeletedReplyCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("html", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Html { get; set; }
@@ -57,6 +63,9 @@ namespace StreamChat.Core.InternalDTO.Responses
 
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<UserObjectInternalDTO> MentionedUsers { get; set; } = new System.Collections.Generic.List<UserObjectInternalDTO>();
+
+        [Newtonsoft.Json.JsonProperty("message_text_updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? MessageTextUpdatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("mml", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Mml { get; set; }
@@ -79,6 +88,12 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectInternalDTO PinnedBy { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("poll", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public PollInternalDTO Poll { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("poll_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PollId { get; set; }
+
         [Newtonsoft.Json.JsonProperty("quoted_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageInternalDTO QuotedMessage { get; set; }
 
@@ -87,6 +102,9 @@ namespace StreamChat.Core.InternalDTO.Responses
 
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
+
+        [Newtonsoft.Json.JsonProperty("reaction_groups", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, ReactionGroupResponseInternalDTO> ReactionGroups { get; set; } = new System.Collections.Generic.Dictionary<string, ReactionGroupResponseInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; } = new System.Collections.Generic.Dictionary<string, int>();

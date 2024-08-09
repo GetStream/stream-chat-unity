@@ -31,6 +31,9 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("mutes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<UserMuteInternalDTO> Mutes { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("non_existing_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<string> NonExistingUsers { get; set; }
+
         /// <summary>
         /// Authorized user object with fresh mutes information
         /// </summary>

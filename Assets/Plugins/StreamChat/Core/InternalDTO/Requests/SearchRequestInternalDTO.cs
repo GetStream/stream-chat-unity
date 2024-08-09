@@ -56,7 +56,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Sort parameters. Cannot be used with non-zero offset
         /// </summary>
         [Newtonsoft.Json.JsonProperty("sort", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<SortParamInternalDTO> Sort { get; set; }
+        public System.Collections.Generic.List<SortParamRequestInternalDTO> Sort { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

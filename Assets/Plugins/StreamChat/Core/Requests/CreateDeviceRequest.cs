@@ -9,7 +9,7 @@ namespace StreamChat.Core.Requests
     {
         public string Id { get; set; }
 
-        public PushProviderType? PushProvider { get; set; }
+        public PushProviderType PushProvider { get; set; }
 
         public string PushProviderName { get; set; }
 

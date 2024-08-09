@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Object containing users
         /// </summary>
         [Newtonsoft.Json.JsonProperty("users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, UserObjectRequestInternalDTO> Users { get; set; } = new System.Collections.Generic.Dictionary<string, UserObjectRequestInternalDTO>();
+        public System.Collections.Generic.Dictionary<string, UserRequestInternalDTO> Users { get; set; } = new System.Collections.Generic.Dictionary<string, UserRequestInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

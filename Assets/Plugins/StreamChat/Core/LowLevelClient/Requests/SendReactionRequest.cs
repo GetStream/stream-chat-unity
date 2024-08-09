@@ -1,10 +1,12 @@
-﻿using StreamChat.Core.Helpers;
+﻿using System;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
     public class SendReactionRequest : RequestObjectBase, ISavableTo<SendReactionRequestInternalDTO>
     {
+        [Obsolete("Has no effect and will be removed in a future release")] //StreamTODO: remove this in a major release
         public string ID { get; set; }
 
         /// <summary>
@@ -22,7 +24,6 @@ namespace StreamChat.Core.LowLevelClient.Requests
         SendReactionRequestInternalDTO ISavableTo<SendReactionRequestInternalDTO>.SaveToDto() =>
             new SendReactionRequestInternalDTO
             {
-                ID = ID,
                 EnforceUnique = EnforceUnique,
                 Reaction = Reaction.TrySaveToDto(),
                 SkipPush = SkipPush,

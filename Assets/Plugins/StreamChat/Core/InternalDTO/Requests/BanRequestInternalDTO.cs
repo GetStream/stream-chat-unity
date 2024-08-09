@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// User who issued a ban
         /// </summary>
         [Newtonsoft.Json.JsonProperty("banned_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequestInternalDTO BannedBy { get; set; }
+        public UserRequestInternalDTO BannedBy { get; set; }
 
         /// <summary>
         /// User ID who issued a ban
@@ -29,10 +29,10 @@ namespace StreamChat.Core.InternalDTO.Requests
         public string BannedById { get; set; }
 
         /// <summary>
-        /// Channel ID to ban user in
+        /// Channel CID to ban user in eg. messaging:123
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id { get; set; }
+        [Newtonsoft.Json.JsonProperty("channel_cid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ChannelCid { get; set; }
 
         /// <summary>
         /// Whether to perform IP ban or not
@@ -63,18 +63,6 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// </summary>
         [Newtonsoft.Json.JsonProperty("timeout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Timeout { get; set; }
-
-        /// <summary>
-        /// Channel type to ban user in
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Type { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequestInternalDTO User { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string UserId { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

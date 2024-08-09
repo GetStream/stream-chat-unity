@@ -16,17 +16,23 @@ namespace StreamChat.Core.InternalDTO.Responses
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v9.0.0.0))")]
     internal partial class UpdateChannelPartialResponseInternalDTO
     {
+        /// <summary>
+        /// Updated channel object
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("channel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelResponseInternalDTO Channel { get; set; }
 
         /// <summary>
-        /// Duration of the request in human-readable format
+        /// Duration of the request in milliseconds
         /// </summary>
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }
 
+        /// <summary>
+        /// List of updated members
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelMemberInternalDTO> Members { get; set; } = new System.Collections.Generic.List<ChannelMemberInternalDTO>();
+        public System.Collections.Generic.List<ChannelMemberResponseInternalDTO> Members { get; set; } = new System.Collections.Generic.List<ChannelMemberResponseInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

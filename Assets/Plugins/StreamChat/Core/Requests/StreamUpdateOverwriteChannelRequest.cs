@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.StatefulModels;
@@ -139,9 +140,9 @@ namespace StreamChat.Core.Requests
             return new UpdateChannelRequestInternalDTO
             {
                 AcceptInvite = AcceptInvite,
-                AddMembers = AddMembers?.TrySaveToDtoCollection<StreamChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
+                AddMembers = AddMembers?.TrySaveToDtoCollection<StreamChannelMemberRequest, ChannelMemberInternalDTO>(),
                 AddModerators = AddModerators,
-                AssignRoles = AssignRoles?.TrySaveToDtoCollection<StreamChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
+                AssignRoles = AssignRoles?.TrySaveToDtoCollection<StreamChannelMemberRequest, ChannelMemberInternalDTO>(),
                 Cooldown = Cooldown,
                 Data = new ChannelRequestInternalDTO
                 {
@@ -156,7 +157,7 @@ namespace StreamChat.Core.Requests
                 },
                 DemoteModerators = DemoteModerators,
                 HideHistory = HideHistory,
-                Invites = Invites?.TrySaveToDtoCollection<StreamChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
+                Invites = Invites?.TrySaveToDtoCollection<StreamChannelMemberRequest, ChannelMemberInternalDTO>(),
                 Message = Message?.TrySaveToDto(),
                 RejectInvite = RejectInvite,
                 RemoveMembers = RemoveMembers,

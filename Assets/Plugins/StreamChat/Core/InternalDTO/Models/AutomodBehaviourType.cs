@@ -23,6 +23,9 @@ namespace StreamChat.Core.InternalDTO.Models
         [System.Runtime.Serialization.EnumMember(Value = @"block")]
         Block = 1,
 
+        [System.Runtime.Serialization.EnumMember(Value = @"shadow_block")]
+        Shadow_block = 2,
+
     }
 
 }

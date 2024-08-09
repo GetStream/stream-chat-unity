@@ -415,6 +415,7 @@ namespace StreamChat.Core.LowLevelClient
             {
                 ChannelCids = channelCids.ToList(),
                 LastSyncAt = lastEventReceivedAt,
+                Watch = true,
             });
 
             if(response.Events.Count == 0)

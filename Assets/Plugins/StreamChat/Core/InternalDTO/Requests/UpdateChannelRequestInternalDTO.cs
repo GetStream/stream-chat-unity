@@ -26,7 +26,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// List of user IDs to add to the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("add_members", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelMemberRequestInternalDTO> AddMembers { get; set; }
+        public System.Collections.Generic.List<ChannelMemberInternalDTO> AddMembers { get; set; }
 
         /// <summary>
         /// List of user IDs to make channel moderators
@@ -38,7 +38,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// List of channel member role assignments. If any specified user is not part of the channel, the request will fail
         /// </summary>
         [Newtonsoft.Json.JsonProperty("assign_roles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelMemberRequestInternalDTO> AssignRoles { get; set; }
+        public System.Collections.Generic.List<ChannelMemberInternalDTO> AssignRoles { get; set; }
 
         /// <summary>
         /// Sets cool down period for the channel in seconds
@@ -65,7 +65,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// List of user IDs to invite to the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("invites", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ChannelMemberRequestInternalDTO> Invites { get; set; }
+        public System.Collections.Generic.List<ChannelMemberInternalDTO> Invites { get; set; }
 
         /// <summary>
         /// Message to send to the chat when channel is successfully updated
@@ -90,12 +90,6 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// </summary>
         [Newtonsoft.Json.JsonProperty("skip_push", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? SkipPush { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectRequestInternalDTO User { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string UserId { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
