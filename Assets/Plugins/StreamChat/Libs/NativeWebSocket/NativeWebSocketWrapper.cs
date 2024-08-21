@@ -61,13 +61,11 @@ namespace StreamChat.Libs.Websockets
                 var timeoutTask = Task.Delay(timeout * 1000);
                 var finished = await Task.WhenAny(timeoutTask, connectTask);
 
-                if (finished == timeoutTask)
+                if (finished == timeoutTask && _webSocket.State != WebSocketState.Open)
                 {
                     _webSocket.CancelConnection();
                     throw new TimeoutException($"Connection attempt timed out after {timeout} seconds.");
                 }
-
-                await connectTask;
             }
             catch (Exception)
             {
