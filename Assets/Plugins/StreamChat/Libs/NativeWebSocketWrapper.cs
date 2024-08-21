@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_WEBGL
+using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Text;
@@ -34,7 +35,7 @@ namespace StreamChat.Libs.Websockets
             return message != null;
         }
 
-        public async Task ConnectAsync(Uri serverUri)
+        public async Task ConnectAsync(Uri serverUri, int timeout = 3)
         {
             if (_webSocket != null)
             {
@@ -170,3 +171,4 @@ namespace StreamChat.Libs.Websockets
         }
     }
 }
+#endif

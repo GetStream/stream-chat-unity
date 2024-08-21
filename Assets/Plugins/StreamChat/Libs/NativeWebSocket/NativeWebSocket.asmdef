@@ -1,14 +1,15 @@
 {
-    "name": "endel.nativewebsocket",
+    "name": "NativeWebSocket",
+    "rootNamespace": "",
     "references": [],
-    "includePlatforms": [
+    "includePlatforms": [],
+    "excludePlatforms": [
         "WebGL"
     ],
-    "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

@@ -2,7 +2,7 @@
     "name": "StreamChat.Libs",
     "rootNamespace": "",
     "references": [
-        "GUID:04376767bc1f3b428aefa3d20743e819"
+        "GUID:d0b27dd31d90b8544b7acb7fe0516dd3"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
