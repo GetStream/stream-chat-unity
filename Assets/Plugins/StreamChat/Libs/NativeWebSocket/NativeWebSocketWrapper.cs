@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_WEBGL
+using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Text;
@@ -34,7 +35,7 @@ namespace StreamChat.Libs.Websockets
             return message != null;
         }
 
-        public async Task ConnectAsync(Uri serverUri)
+        public async Task ConnectAsync(Uri serverUri, int timeout = 5)
         {
             if (_webSocket != null)
             {
@@ -56,7 +57,15 @@ namespace StreamChat.Libs.Websockets
 
             try
             {
-                await _webSocket.Connect();
+                var connectTask = _webSocket.Connect();
+                var timeoutTask = Task.Delay(timeout * 1000);
+                var finished = await Task.WhenAny(timeoutTask, connectTask);
+
+                if (finished == timeoutTask && _webSocket.State != WebSocketState.Open)
+                {
+                    _webSocket.CancelConnection();
+                    throw new TimeoutException($"Connection attempt timed out after {timeout} seconds.");
+                }
             }
             catch (Exception)
             {
@@ -170,3 +179,4 @@ namespace StreamChat.Libs.Websockets
         }
     }
 }
+#endif

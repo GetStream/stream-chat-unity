@@ -1,3 +1,7 @@
+v4.8.0:
+Features:
+* Add method to get the current state of the unread counts with IStreamChatClient.GetLatestUnreadCountsAsync() -> this method also works when the client is disconnected. The unread counts state provides a detailed information about unread messages in each channel and thread.
+
 v4.7.0:
 Fixes:
 * Fix the IStreamChannel  instance provided by an event not triggering its own events (the channel was not being watched if it was only returned via event) 
