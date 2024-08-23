@@ -102,7 +102,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                     queryParameters = QueryParameters.Default;
                 }
 
-                if (queryParameters.ContainsKey("paload"))
+                if (queryParameters.ContainsKey("payload"))
                 {
                     queryParameters["payload"] = serializedContent;
                 }
