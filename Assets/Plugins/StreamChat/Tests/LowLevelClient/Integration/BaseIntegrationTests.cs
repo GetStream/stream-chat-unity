@@ -49,6 +49,8 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         protected static OwnUser LowLevelClientOwnUser => StreamTestClients.Instance.LowLevelClientOwnUser;
 
         protected static IEnumerator ReconnectClient() => StreamTestClients.Instance.ReconnectLowLevelClientClient();
+        
+        protected static Task ReconnectClientAsync() => StreamTestClients.Instance.ReconnectLowLevelClientClientAsync();
 
         protected static IEnumerator ConnectAndExecute(Func<Task> task)
         {

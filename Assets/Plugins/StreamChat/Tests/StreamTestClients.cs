@@ -13,6 +13,7 @@ using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.ChatInstanceRunner;
+using StreamChat.Libs.Utils;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
@@ -100,6 +101,14 @@ namespace StreamChat.Tests
 
             yield return LowLevelClient.WaitForClientToConnect();
         }
+        
+        public Task ReconnectLowLevelClientClientAsync()
+        {
+            DisposeLowLevelClient();
+            InitLowLevelClient();
+
+            return LowLevelClient.WaitForClientToConnectAsync();
+        }
 
         public Task ConnectStateClientAsync() => ConnectStateClientAsync(StateClient, AdminPrimaryCredentials);
 
@@ -162,6 +171,8 @@ namespace StreamChat.Tests
 
                 await Task.Delay(1);
             }
+            
+            Debug.LogWarning("UpdateTaskAsync STOPPED");
         }
 
         private AuthCredentials GetCredentialsFromSet(AuthCredentials[] set, int? forcedIndex)
@@ -228,14 +239,14 @@ namespace StreamChat.Tests
         private void OnRunFinishedCallback(ITestResult obj)
         {
             _runFinished = true;
-            TryDisposeInstancesAsync();
+            TryDisposeInstancesAsync().LogIfFailed();
         }
 
-        private Task TryDisposeInstancesAsync()
+        private async Task TryDisposeInstancesAsync()
         {
             if (!_runFinished || _locks.Any())
             {
-                return Task.CompletedTask;
+                return;
             }
 
             Debug.Log("------------  Tests finished - dispose client instances");
@@ -243,7 +254,8 @@ namespace StreamChat.Tests
             _updateTaskCts.Cancel();
             
             DisposeLowLevelClient();
-            return DisposeStateClientsAsync();
+            await DisposeStateClientsAsync();
+            _instance = null;
         }
 
         private static StreamChatClient CreateStateClient()
@@ -271,7 +283,10 @@ namespace StreamChat.Tests
 
         private void InitLowLevelClient()
         {
-            _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(LowLevelClientCredentials);
+            _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(LowLevelClientCredentials, new StreamClientConfig()
+            {
+                LogLevel = StreamLogLevel.Debug
+            });
             _lowLevelClient.Connected += OnClientConnected;
             _lowLevelClient.Connect();
         }

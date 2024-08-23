@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.LowLevelClient;
@@ -55,10 +56,23 @@ namespace StreamChat.Tests
                     yield break;
                 }
 
+                PreserveStackTrace(ex);
                 throw ex;
             }
 
             onSuccess?.Invoke();
+        }
+
+        // https://stackoverflow.com/questions/1009762/how-can-i-rethrow-an-inner-exception-while-maintaining-the-stack-trace-generated
+        private static void PreserveStackTrace(Exception e)
+        {
+            var ctx = new StreamingContext(StreamingContextStates.CrossAppDomain);
+            var mgr = new ObjectManager(null, ctx);
+            var si = new SerializationInfo(e.GetType(), new FormatterConverter());
+
+            e.GetObjectData(si, ctx);
+            mgr.RegisterObject(e, 1, si); // prepare for SetObjectData
+            mgr.DoFixups(); // ObjectManager calls SetObjectData
         }
 
         public static IEnumerator RunAsIEnumerator(this Task task,
@@ -108,6 +122,44 @@ namespace StreamChat.Tests
                 if (lowLevelClient.ConnectionState == ConnectionState.Connecting)
                 {
                     yield return null;
+                }
+
+                if (lowLevelClient.ConnectionState == ConnectionState.Connected)
+                {
+                    break;
+                }
+
+                if (lowLevelClient.ConnectionState == ConnectionState.Disconnected)
+                {
+                    Debug.LogError("Client disconnected when waiting for connection. Terminating");
+                    break;
+                }
+            }
+        }
+
+        public static async Task WaitForClientToConnectAsync(this IStreamChatLowLevelClient lowLevelClient)
+        {
+            if (lowLevelClient.ConnectionState == ConnectionState.Connected)
+            {
+                return;
+            }
+
+            const float maxTimeToConnect = 3;
+            var timeStarted = EditorApplication.timeSinceStartup;
+
+            while (true)
+            {
+                var elapsed = EditorApplication.timeSinceStartup - timeStarted;
+
+                if (elapsed > maxTimeToConnect)
+                {
+                    Debug.LogError("Waiting for connection exceeded max time. Terminating");
+                    throw new TimeoutException("Waiting for connection exceeded max time. Terminating");
+                }
+
+                if (lowLevelClient.ConnectionState == ConnectionState.Connecting)
+                {
+                    await Task.Delay(1);
                 }
 
                 if (lowLevelClient.ConnectionState == ConnectionState.Connected)
