@@ -1,3 +1,7 @@
+v4.9.0:
+Fixes:
+* Fix compiler errors after switching to WebGL platform
+
 v4.8.0:
 Features:
 * Add method to get the current state of the unread counts with IStreamChatClient.GetLatestUnreadCountsAsync() -> this method also works when the client is disconnected. The unread counts state provides a detailed information about unread messages in each channel and thread.
