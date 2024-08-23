@@ -8,6 +8,7 @@ using NUnit.Framework;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Core.LowLevelClient.Responses;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -700,50 +701,38 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             });
         }
 
-        /// <summary>
-        /// 1. Create 3 channels with 3 messages
-        /// 2. Mark first, second and third message as read for each channel respectively
-        /// 3. query channels and validate 2, 1, 0 unread messages respectively
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Mark_many_read_with_specified_message_id()
-        {
-            yield return LowLevelClient.WaitForClientToConnect();
 
-            var channelType = "messaging";
+        private async Task Mark_many_read_with_specified_message_id_Async()
+        {
+            const string channelType = "messaging";
+            
+            await LowLevelClient.WaitForClientToConnectAsync();
 
             // Create channels
+            var channel1 = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
+            var channel2 = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
+            
+            // Send messages
 
-            ChannelState channelState1 = null;
-            ChannelState channelState2 = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState1 = state);
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState2 = state);
-
-            //Send messages & pick the last read
-
-            //first is read -> 2 unread
-            var channelState1FirstMessageId = string.Empty;
-            yield return SendTestMessages(channelState1, count: 3, response =>
+            Task<MessageResponse> SendTestMessageAsync(string type, string id, string msg)
             {
-                if (response.Index == 0)
-                {
-                    channelState1FirstMessageId = response.MessageResponse.Message.Id;
-                }
-            });
-            //second is read -> 1 unread
-            var channelState2SecondMessageId = string.Empty;
-            yield return SendTestMessages(channelState2, count: 3, response =>
-            {
-                if (response.Index == 1)
-                {
-                    channelState2SecondMessageId = response.MessageResponse.Message.Id;
-                }
-            });
-
-            //Join channels as members
-
+                return LowLevelClient.MessageApi.SendNewMessageAsync(type,
+                    id, new SendMessageRequest
+                    {
+                        Message = new MessageRequest
+                        {
+                            Text = msg
+                        }
+                    });
+                ;
+            }
+            
+            var channel1MessageResponse1 = await SendTestMessageAsync(channel1.Channel.Type, channel1.Channel.Id, "#1");
+            var channel1MessageResponse2 = await SendTestMessageAsync(channel1.Channel.Type, channel1.Channel.Id, "#2");
+            var channel2MessageResponse1 = await SendTestMessageAsync(channel2.Channel.Type, channel2.Channel.Id, "#3");
+            var channel2MessageResponse2 = await SendTestMessageAsync(channel2.Channel.Type, channel2.Channel.Id, "#4");
+            
+            // Join as members
             var updateRequestBody = new UpdateChannelRequest
             {
                 AddMembers = new List<ChannelMemberRequest>
@@ -759,38 +748,33 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 }
             };
 
-            var updateChannelTask =
-                LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channelState1.Channel.Id, updateRequestBody);
-            yield return updateChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Members.Any(_ => _.UserId == LowLevelClient.UserId));
-            });
+            var updateChannelResponse = await
+                LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channel1.Channel.Id, updateRequestBody);
+            
+            Assert.AreEqual(channelType, updateChannelResponse.Channel.Type);
+            Assert.IsTrue(updateChannelResponse.Members.Any(_ => _.UserId == LowLevelClient.UserId));
+            
+            var updateChannel2Response =
+                await LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channel2.Channel.Id, updateRequestBody);
+            Assert.AreEqual(channelType, updateChannel2Response.Channel.Type);
+            Assert.IsTrue(updateChannel2Response.Members.Any(_ => _.UserId == LowLevelClient.UserId));
+            
+            // Send mark read state
 
-            var updateChannelTask2 =
-                LowLevelClient.ChannelApi.UpdateChannelAsync(channelType, channelState2.Channel.Id, updateRequestBody);
-            yield return updateChannelTask2.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(channelType, response.Channel.Type);
-                Assert.IsTrue(response.Members.Any(_ => _.UserId == LowLevelClient.UserId));
-            });
-
-            //Send mark read state
-
-            var markReadRequestTask = LowLevelClient.ChannelApi.MarkManyReadAsync(new MarkChannelsReadRequest
+            var markReadResponse = await LowLevelClient.ChannelApi.MarkManyReadAsync(new MarkChannelsReadRequest
             {
                 ReadByChannel = new Dictionary<string, string>
                 {
-                    { channelState1.Channel.Cid, channelState1FirstMessageId },
-                    { channelState2.Channel.Cid, channelState2SecondMessageId },
+                    { channel1.Channel.Cid, channel1MessageResponse1.Message.Id },
+                    { channel2.Channel.Cid, channel2MessageResponse1.Message.Id },
                 }
             });
+            
+            // Query channels to get the latest state
 
-            yield return markReadRequestTask.RunAsIEnumerator(markReadResponse => { });
-
-            //Query channels to confirm the read state
-
-            var queryChannelsTask = LowLevelClient.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
+            await Task.Delay(15 * 1000);
+            
+            var queryChannelsResponse = await LowLevelClient.ChannelApi.QueryChannelsAsync(new QueryChannelsRequest
             {
                 FilterConditions = new Dictionary<string, object>
                 {
@@ -801,47 +785,55 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                                 "$in",
                                 new[]
                                 {
-                                    channelState1.Channel.Cid, channelState2.Channel.Cid
+                                    channel1.Channel.Cid, channel2.Channel.Cid
                                 }
                             }
                         }
                     }
                 },
             });
+            
+            Assert.AreEqual(queryChannelsResponse.Channels.Count, 2);
 
-            // Expect specific unread counts
+            channel1 =
+                queryChannelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channel1.Channel.Cid);
+            channel2 =
+                queryChannelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channel2.Channel.Cid);
 
-            yield return queryChannelsTask.RunAsIEnumerator(channelsResponse =>
-            {
-                Assert.AreEqual(channelsResponse.Channels.Count, 2);
+            Assert.NotNull(channel1);
+            Assert.NotNull(channel2);
 
-                channelState1 =
-                    channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState1.Channel.Cid);
-                channelState2 =
-                    channelsResponse.Channels.FirstOrDefault(_ => _.Channel.Cid == channelState2.Channel.Cid);
+            var localUserChannelState1ReadState =
+                channel1.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
+            var localUserChannelState2ReadState =
+                channel2.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
 
-                Assert.NotNull(channelState1);
-                Assert.NotNull(channelState2);
+            Assert.NotNull(localUserChannelState1ReadState);
+            Assert.NotNull(localUserChannelState2ReadState);
 
-                var localUserChannelState1ReadState =
-                    channelState1.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
-                var localUserChannelState2ReadState =
-                    channelState2.Read.FirstOrDefault(_ => _.User.Id == LowLevelClient.UserId);
-
-                Assert.NotNull(localUserChannelState1ReadState);
-                Assert.NotNull(localUserChannelState2ReadState);
-
-                //Assert channel unread counts
-                Assert.AreEqual(localUserChannelState1ReadState.UnreadMessages, 2);
-                Assert.AreEqual(localUserChannelState2ReadState.UnreadMessages, 1);
-            });
-
-            yield return ReconnectClient();
+            //Assert channel unread counts
+            Assert.AreEqual(channel2MessageResponse1.Message.Id, localUserChannelState2ReadState.LastReadMessageId);
+            
+            Assert.AreEqual(2, localUserChannelState1ReadState.UnreadMessages);
+            Assert.AreEqual(1, localUserChannelState2ReadState.UnreadMessages);
+            
+            await ReconnectClientAsync();
 
             //Should use Assert.AreEqual but there seems to be some delay with updating the values
             Assert.IsNotNull(LowLevelClientOwnUser);
             Assert.GreaterOrEqual(LowLevelClientOwnUser.UnreadChannels, 2);
             Assert.GreaterOrEqual(LowLevelClientOwnUser.TotalUnreadCount, 3);
+        }
+        
+        /// <summary>
+        /// 1. Create 2 channels with 2 messages each
+        /// 2. Mark first, and second as read for each channel respectively
+        /// 3. query channels and validate 2, 1 unread messages respectively
+        /// </summary>
+        [UnityTest]
+        public IEnumerator Mark_many_read_with_specified_message_id()
+        {
+            yield return Mark_many_read_with_specified_message_id_Async().RunAsIEnumerator();
         }
 
         [UnityTest]
