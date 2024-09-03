@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Events
         public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("me", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public OwnUserInternalDTO Me { get; set; } = new OwnUserInternalDTO();
+        public OwnUserInternalDTO Me { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; } = "notification.channel_mutes_updated";

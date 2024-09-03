@@ -697,6 +697,8 @@ namespace StreamChat.Core.StatefulModels
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
+
+            MemberCount = dto.ChannelMemberCount;
         }
 
         internal void HandleMessageUpdatedEvent(MessageUpdatedEventInternalDTO dto)
@@ -742,7 +744,7 @@ namespace StreamChat.Core.StatefulModels
             // Cache.TryCreateOrUpdate(eventDto.Channel);
             
             UpdateChannelFieldsFromDtoOverwrite(eventDto.Channel, Cache);
-            
+            MemberCount = eventDto.ChannelMemberCount;
             Updated?.Invoke(this);
         }
 
@@ -750,12 +752,14 @@ namespace StreamChat.Core.StatefulModels
         {
             AssertCid(eventDto.Cid);
             InternalTruncateMessages(eventDto.Channel.TruncatedAt, eventDto.Message);
+            MemberCount = eventDto.ChannelMemberCount;
         }
 
         internal void HandleChannelTruncatedEvent(NotificationChannelTruncatedEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
             InternalTruncateMessages(eventDto.Channel.TruncatedAt);
+            MemberCount = eventDto.ChannelMemberCount;
         }
 
         internal void InternalAddMember(StreamChannelMember member)

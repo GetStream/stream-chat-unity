@@ -38,7 +38,7 @@ namespace StreamChat.Core.InternalDTO.Events
         public System.Collections.Generic.List<UserObjectInternalDTO> ThreadParticipants { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Type { get; set; } = "notification.thread_message_new";
+        public string Type { get; set; } = "message.new";
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectInternalDTO User { get; set; }

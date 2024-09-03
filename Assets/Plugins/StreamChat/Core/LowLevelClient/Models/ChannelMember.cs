@@ -86,6 +86,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
+            //StreamTodo: would be safer to update the dictionary instead of overwriting the reference
 
             return this;
         }
@@ -107,6 +108,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             User = User.TryLoadFromDto<UserResponseInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
+            //StreamTodo: would be safer to update the dictionary instead of overwriting the reference
 
             return this;
         }
