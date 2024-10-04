@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.LowLevelClient.Responses;
-using StreamChat.Core.Responses;
 
 namespace StreamChat.Core.LowLevelClient.API
 {

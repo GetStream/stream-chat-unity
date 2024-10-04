@@ -1,9 +1,10 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public partial class MessageFlag : ModelBase, ILoadableFrom<MessageFlagInternalDTO, MessageFlag>
+    public partial class MessageFlag : ModelBase, ILoadableFrom<MessageFlagResponseInternalDTO, MessageFlag>
     {
         public System.DateTimeOffset? ApprovedAt { get; set; }
 
@@ -25,7 +26,7 @@ namespace StreamChat.Core.LowLevelClient.Models
 
         public User User { get; set; }
 
-        MessageFlag ILoadableFrom<MessageFlagInternalDTO, MessageFlag>.LoadFromDto(MessageFlagInternalDTO dto)
+        MessageFlag ILoadableFrom<MessageFlagResponseInternalDTO, MessageFlag>.LoadFromDto(MessageFlagResponseInternalDTO dto)
         {
             ApprovedAt = dto.ApprovedAt;
             CreatedAt = dto.CreatedAt;
@@ -34,9 +35,9 @@ namespace StreamChat.Core.LowLevelClient.Models
             ModerationResult = ModerationResult.TryLoadFromDto(dto.ModerationResult);
             RejectedAt = dto.RejectedAt;
             ReviewedAt = dto.ReviewedAt;
-            ReviewedBy = ReviewedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.ReviewedBy);
+            ReviewedBy = ReviewedBy.TryLoadFromDto<UserResponseInternalDTO, User>(dto.ReviewedBy);
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserResponseInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

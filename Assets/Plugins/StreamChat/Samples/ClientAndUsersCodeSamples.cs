@@ -6,7 +6,6 @@ using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
-using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Auth;
 using UnityEngine;
 

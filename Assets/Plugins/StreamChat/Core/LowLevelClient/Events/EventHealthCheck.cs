@@ -13,7 +13,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Type { get; set; }
 
-        //Not in OpenAPI syntax but mentioned in docs
         public string ConnectionId { get; set; }
 
         EventHealthCheck ILoadableFrom<HealthCheckEventInternalDTO, EventHealthCheck>.LoadFromDto(HealthCheckEventInternalDTO dto)

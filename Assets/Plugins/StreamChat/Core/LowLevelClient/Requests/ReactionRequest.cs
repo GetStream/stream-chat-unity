@@ -1,4 +1,4 @@
-﻿using StreamChat.Core.Helpers;
+﻿using System;
 using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
@@ -20,11 +20,10 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// </summary>
         public string Type { get; set; }
 
+        [Obsolete("Has no effect and will be removed in a future release")] //StreamTODO: remove this in a major release
         public UserObjectRequest User { get; set; }
 
-        /// <summary>
-        /// ID of a user who reacted to a message
-        /// </summary>
+        [Obsolete("Has no effect and will be removed in a future release")] //StreamTODO: remove this in a major release
         public string UserId { get; set; }
 
         ReactionRequestInternalDTO ISavableTo<ReactionRequestInternalDTO>.SaveToDto() =>
@@ -33,8 +32,6 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 MessageId = MessageId,
                 Score = Score,
                 Type = Type,
-                User = User.TrySaveToDto(),
-                UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };
     }

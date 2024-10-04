@@ -7,7 +7,7 @@ using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.Requests
 {
-    public sealed class StreamUserUpsertRequest : ISavableTo<UserObjectRequestInternalDTO>
+    public sealed class StreamUserUpsertRequest : ISavableTo<UserObjectRequestInternalDTO>, ISavableTo<UserRequestInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -58,6 +58,23 @@ namespace StreamChat.Core.Requests
 
         UserObjectRequestInternalDTO ISavableTo<UserObjectRequestInternalDTO>.SaveToDto()
             => new UserObjectRequestInternalDTO
+            {
+                BanExpires = BanExpires,
+                Banned = Banned,
+                Id = Id,
+                Invisible = Invisible,
+                Language = Language,
+                PushNotifications = PushNotifications?.TrySaveToDto(),
+                RevokeTokensIssuedBefore = RevokeTokensIssuedBefore,
+                Role = Role,
+                Teams = Teams,
+                Name = Name,
+                Image = Image,
+                AdditionalProperties = CustomData?.ToDictionary()
+            };
+        
+        UserRequestInternalDTO ISavableTo<UserRequestInternalDTO>.SaveToDto()
+            => new UserRequestInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,

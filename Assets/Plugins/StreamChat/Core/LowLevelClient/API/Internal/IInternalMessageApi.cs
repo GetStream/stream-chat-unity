@@ -16,7 +16,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
         Task<MessageResponseInternalDTO> DeleteMessageAsync(string messageId, bool hard);
 
-        Task<ReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest);
+        Task<SendReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest);
 
         Task<ReactionRemovalResponseInternalDTO> DeleteReactionAsync(string messageId, string reactionType);
 

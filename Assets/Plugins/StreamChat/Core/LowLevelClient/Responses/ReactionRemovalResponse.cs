@@ -20,7 +20,7 @@ namespace StreamChat.Core.LowLevelClient.Responses
         {
             Duration = Duration;
             Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
-            Reaction = Reaction.TryLoadFromDto(dto.Reaction);
+            Reaction = Reaction.TryLoadFromDto<ReactionInternalDTO, Reaction>(dto.Reaction);
             AdditionalProperties = AdditionalProperties;
 
             return this;

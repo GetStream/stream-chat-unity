@@ -4,8 +4,8 @@ using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using StreamChat.Core.InternalDTO.Models;
-using StreamChat.Core.Requests;
+using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core.LowLevelClient.Requests;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.LowLevelClient.Integration

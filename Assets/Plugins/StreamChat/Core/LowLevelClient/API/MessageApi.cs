@@ -44,7 +44,7 @@ namespace StreamChat.Core.LowLevelClient.API
         public async Task<ReactionResponse> SendReactionAsync(string messageId, SendReactionRequest sendReactionRequest)
         {
             var dto = await _internalMessageApi.SendReactionAsync(messageId, sendReactionRequest.TrySaveToDto());
-            return dto.ToDomain<ReactionResponseInternalDTO, ReactionResponse>();
+            return dto.ToDomain<SendReactionResponseInternalDTO, ReactionResponse>();
         }
 
         public async Task<ReactionRemovalResponse> DeleteReactionAsync(string messageId, string reactionType)

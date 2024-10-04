@@ -1,3 +1,4 @@
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
@@ -28,9 +29,9 @@ namespace StreamChat.Core.Responses
 
         StreamImageSize IStateLoadableFrom<ImageSizeInternalDTO, StreamImageSize>.LoadFromDto(ImageSizeInternalDTO dto, ICache cache)
         {
-            Crop = dto.Crop?.ToStreamImageCropType();
+            Crop = Crop.TryLoadNullableStructFromDto(dto.Crop);
             Height = dto.Height;
-            Resize = dto.Resize?.ToStreamImageResizeType();
+            Resize = Resize.TryLoadNullableStructFromDto(dto.Resize);
             Width = dto.Width;
 
             return this;

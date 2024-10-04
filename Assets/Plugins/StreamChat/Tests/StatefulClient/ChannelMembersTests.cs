@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
+using StreamChat.Core.Models;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.Requests;

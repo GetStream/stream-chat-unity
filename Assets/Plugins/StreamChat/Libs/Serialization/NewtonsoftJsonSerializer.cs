@@ -9,6 +9,7 @@ namespace StreamChat.Libs.Serialization
     /// </summary>
     public class NewtonsoftJsonSerializer : ISerializer
     {
+        //StreamTodo: each serialize call create JsonSerializerSettings, it's better to create it once and reuse
         public string Serialize<TType>(TType obj)
             => JsonConvert.SerializeObject(obj, Formatting.None,
                 new JsonSerializerSettings
@@ -17,8 +18,7 @@ namespace StreamChat.Libs.Serialization
                     MissingMemberHandling = MissingMemberHandling.Ignore,
                 });
 
-        public TType Deserialize<TType>(string serializedObj)
-            => JsonConvert.DeserializeObject<TType>(serializedObj);
+        public TType Deserialize<TType>(string serializedObj) => JsonConvert.DeserializeObject<TType>(serializedObj);
 
         public TTargetType TryConvertTo<TTargetType>(object serializedObj)
         {
@@ -44,7 +44,7 @@ namespace StreamChat.Libs.Serialization
 
             try
             {
-                return (TTargetType) Convert.ChangeType(serializedObj, typeof(TTargetType));
+                return (TTargetType)Convert.ChangeType(serializedObj, typeof(TTargetType));
             }
             catch (InvalidCastException)
             {
@@ -52,8 +52,7 @@ namespace StreamChat.Libs.Serialization
             }
         }
 
-        public object DeserializeObject(string serializedObj)
-            => JsonConvert.DeserializeObject(serializedObj);
+        public object DeserializeObject(string serializedObj) => JsonConvert.DeserializeObject(serializedObj);
 
         public bool TryPeekValue<TValue>(string serializedObj, string key, out TValue value)
         {

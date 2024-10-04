@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
@@ -79,7 +80,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             Hidden = dto.Hidden;
             HideMessagesBefore = dto.HideMessagesBefore;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
-            Membership = Membership.TryLoadFromDto(dto.Membership);
+            Membership = Membership.TryLoadFromDto<ChannelMemberInternalDTO, ChannelMember>(dto.Membership);
             Messages = Messages.TryLoadFromDtoCollection(dto.Messages);
             PendingMessages = PendingMessages.TryLoadFromDtoCollection(dto.PendingMessages);
             PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);
@@ -97,7 +98,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             Hidden = dto.Hidden;
             HideMessagesBefore = dto.HideMessagesBefore;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
-            Membership = Membership.TryLoadFromDto(dto.Membership);
+            Membership = Membership.TryLoadFromDto<ChannelMemberInternalDTO, ChannelMember>(dto.Membership);
             Messages = Messages.TryLoadFromDtoCollection(dto.Messages);
             PendingMessages = PendingMessages.TryLoadFromDtoCollection(dto.PendingMessages);
             PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);

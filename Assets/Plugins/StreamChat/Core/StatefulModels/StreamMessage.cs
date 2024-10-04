@@ -5,6 +5,8 @@ using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.InternalDTO.Responses;
+using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
@@ -13,7 +15,7 @@ using StreamChat.Core.Requests;
 namespace StreamChat.Core.StatefulModels
 {
     internal sealed class StreamMessage : StreamStatefulModelBase<StreamMessage>,
-        IUpdateableFrom<MessageInternalDTO, StreamMessage>, IStreamMessage
+        IStreamMessage, IUpdateableFrom<MessageInternalDTO, StreamMessage>, IUpdateableFrom<MessageResponseInternalDTO, StreamMessage>
     {
         public event StreamMessageReactionHandler ReactionAdded;
         public event StreamMessageReactionHandler ReactionRemoved;
@@ -78,13 +80,13 @@ namespace StreamChat.Core.StatefulModels
 
         public IReadOnlyList<IStreamUser> ThreadParticipants => _threadParticipants;
 
-        public StreamMessageType? Type { get; private set; }
+        public StreamMessageType Type { get; private set; }
 
         public DateTimeOffset? UpdatedAt { get; private set; }
 
         public IStreamUser User { get; private set; }
         
-        public bool IsDeleted => Type == StreamMessageType.Deleted;
+        public bool IsDeleted => Type == MessageType.Deleted;
 
         //Do not update message from response, the WS event might have been processed and we would overwrite it with an old state
         public Task SoftDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: false);
@@ -220,7 +222,46 @@ namespace StreamChat.Core.StatefulModels
             Text = GetOrDefault(dto.Text, Text);
             _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
             _threadParticipants.TryReplaceTrackedObjects(dto.ThreadParticipants, cache.Users);
-            Type = dto.Type.TryConvertToStreamMessageType();
+            Type = Type.TryLoadFromDto(dto.Type);
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
+            User = cache.TryCreateOrUpdate(dto.User);
+            
+            LoadAdditionalProperties(dto.AdditionalProperties);
+        }
+        
+        void IUpdateableFrom<MessageResponseInternalDTO, StreamMessage>.UpdateFromDto(MessageResponseInternalDTO dto, ICache cache)
+        {
+            _attachments.TryReplaceRegularObjectsFromDto(dto.Attachments, cache);
+            //BeforeMessageSendFailed = GetOrDefault(dto.BeforeMessageSendFailed, BeforeMessageSendFailed);
+            Cid = GetOrDefault(dto.Cid, Cid);
+            Command = GetOrDefault(dto.Command, Command);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Html = GetOrDefault(dto.Html, Html);
+            _iI18n.TryReplaceValuesFromDto(dto.I18n);
+            Id = GetOrDefault(dto.Id, Id);
+            //_imageLabels.TryReplaceValuesFromDto(dto.ImageLabels); //StreamTodo: NOT IMPLEMENTED
+            _latestReactions.TryReplaceRegularObjectsFromDto(dto.LatestReactions, cache);
+            _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
+            //dto.Mml ignored because its only server-side
+            _ownReactions.TryReplaceRegularObjectsFromDto(dto.OwnReactions, cache);
+            ParentId = GetOrDefault(dto.ParentId, ParentId);
+            PinExpires = GetOrDefault(dto.PinExpires, PinExpires);
+            Pinned = GetOrDefault(dto.Pinned, Pinned);
+            PinnedAt = GetOrDefault(dto.PinnedAt, PinnedAt);
+            PinnedBy = cache.TryCreateOrUpdate(dto.PinnedBy);
+            QuotedMessage = cache.TryCreateOrUpdate(dto.QuotedMessage);
+            QuotedMessageId = GetOrDefault(dto.QuotedMessageId, QuotedMessageId);
+            _reactionCounts.TryReplaceValuesFromDto(dto.ReactionCounts); //StreamTodo: is this append only?
+            _reactionScores.TryReplaceValuesFromDto(dto.ReactionScores);
+            ReplyCount = GetOrDefault(dto.ReplyCount, ReplyCount);
+            Shadowed = GetOrDefault(dto.Shadowed, Shadowed);
+            ShowInChannel = GetOrDefault(dto.ShowInChannel, ShowInChannel);
+            Silent = GetOrDefault(dto.Silent, Silent);
+            Text = GetOrDefault(dto.Text, Text);
+            _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
+            _threadParticipants.TryReplaceTrackedObjects(dto.ThreadParticipants, cache.Users);
+            Type = Type.TryLoadFromDto(dto.Type);
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
             User = cache.TryCreateOrUpdate(dto.User);
             

@@ -44,10 +44,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             return Delete<MessageResponseInternalDTO>(endpoint, parameters);
         }
 
-        public Task<ReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest)
+        public Task<SendReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest)
         {
             var endpoint = MessageEndpoints.SendReaction(messageId);
-            return Post<SendReactionRequestInternalDTO, ReactionResponseInternalDTO>(endpoint, sendReactionRequest);
+            return Post<SendReactionRequestInternalDTO, SendReactionResponseInternalDTO>(endpoint, sendReactionRequest);
         }
 
         public Task<ReactionRemovalResponseInternalDTO> DeleteReactionAsync(string messageId, string reactionType)

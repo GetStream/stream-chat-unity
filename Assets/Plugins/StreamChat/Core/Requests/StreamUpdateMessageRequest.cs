@@ -52,7 +52,8 @@ namespace StreamChat.Core.Requests
         /// <summary>
         /// Contains user who pinned the message
         /// </summary>
-        public IStreamUser PinnedBy { get; set; }
+        [Obsolete("Has no effect and will be removed in a future release")]
+        public IStreamUser PinnedBy { get; set; } //StreamTodo: deprecate, this is most probably server-side only
 
         //StreamTodo: best to have StreamMessage QuotedMessage but we may not always have it in our cache
         public string QuotedMessageId { get; set; }
@@ -93,7 +94,6 @@ namespace StreamChat.Core.Requests
                 PinExpires = PinExpires,
                 Pinned = Pinned,
                 PinnedAt = PinnedAt,
-                PinnedBy = PinnedBy?.Id,
                 QuotedMessageId = QuotedMessageId,
                 //ReactionScores = ReactionScores, Purposely ignored because it has no effect, probably ignored by backend
                 ShowInChannel = ShowInChannel,

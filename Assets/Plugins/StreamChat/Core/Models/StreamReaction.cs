@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.StatefulModels;
@@ -8,7 +9,7 @@ namespace StreamChat.Core.Models
     /// <summary>
     /// Represents user reaction to a message
     /// </summary>
-    public class StreamReaction : IStateLoadableFrom<ReactionInternalDTO, StreamReaction>
+    public class StreamReaction : IStateLoadableFrom<ReactionInternalDTO, StreamReaction>, IStateLoadableFrom<ReactionResponseInternalDTO, StreamReaction>
     {
         /// <summary>
         /// Date/time of creation
@@ -46,6 +47,19 @@ namespace StreamChat.Core.Models
         public string UserId { get; private set; }
 
         StreamReaction IStateLoadableFrom<ReactionInternalDTO, StreamReaction>.LoadFromDto(ReactionInternalDTO dto, ICache cache)
+        {
+            CreatedAt = dto.CreatedAt;
+            MessageId = dto.MessageId;
+            Score = dto.Score;
+            Type = dto.Type;
+            UpdatedAt = dto.UpdatedAt;
+            User = cache.TryCreateOrUpdate(dto.User);
+            UserId = dto.UserId;
+
+            return this;
+        }
+        
+        StreamReaction IStateLoadableFrom<ReactionResponseInternalDTO, StreamReaction>.LoadFromDto(ReactionResponseInternalDTO dto, ICache cache)
         {
             CreatedAt = dto.CreatedAt;
             MessageId = dto.MessageId;

@@ -7,9 +7,9 @@ using StreamChat.Core.Configs;
 using StreamChat.Core.Exceptions;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
-using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
@@ -66,6 +66,7 @@ namespace StreamChat.Core
     /// </summary>
     public delegate void ChannelMemberRemovedHandler(IStreamChannel channel, IStreamChannelMember member);
 
+    /// <inheritdoc cref="IStreamChatClient"/>
     public sealed class StreamChatClient : IStreamChatClient
     {
         public event ConnectionMadeHandler Connected;
@@ -165,6 +166,9 @@ namespace StreamChat.Core
         /// <inheritdoc cref="StreamChatLowLevelClient.SanitizeUserId"/>
         public static string SanitizeUserId(string userId) => StreamChatLowLevelClient.SanitizeUserId(userId);
 
+        public void SetAuthorizationCredentials(AuthCredentials authCredentials)
+            => InternalLowLevelClient.SeAuthorizationCredentials(authCredentials);
+
         public Task<IStreamLocalUserData> ConnectUserAsync(AuthCredentials userAuthCredentials,
             CancellationToken cancellationToken = default)
         {
@@ -215,11 +219,11 @@ namespace StreamChat.Core
             return InternalLowLevelClient.DisconnectAsync(permanent: true);
         }
 
-        public async Task<CurrentUnreadCounts> GetLatestUnreadCountsAsync()
+        public async Task<StreamCurrentUnreadCounts> GetLatestUnreadCountsAsync()
         {
             var dto = await InternalLowLevelClient.InternalChannelApi.GetUnreadCountsAsync();
-            var response = dto.ToDomain<WrappedUnreadCountsResponseInternalDTO, CurrentUnreadCounts>();
-            
+            var response = dto.ToDomain<WrappedUnreadCountsResponseInternalDTO, StreamCurrentUnreadCounts>();
+
             _localUserData.TryUpdateFromDto<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>(dto, _cache);
 
             return response;
@@ -397,7 +401,7 @@ namespace StreamChat.Core
             var requestBodyDto = new QueryUsersRequestInternalDTO
             {
                 FilterConditions
-                    = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value) ??
+                    = filters?.Select(f => f.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value) ??
                       new Dictionary<string, object>(),
                 IdGt = null,
                 IdGte = null,
@@ -453,7 +457,8 @@ namespace StreamChat.Core
             StreamAsserts.AssertNotNullOrEmpty(userRequests, nameof(userRequests));
 
             //StreamTodo: items could be null
-            var requestDtos = userRequests.Select(_ => _.TrySaveToDto()).ToDictionary(_ => _.Id, _ => _);
+            var requestDtos = userRequests.Select(_ => _.TrySaveToDto<UserRequestInternalDTO>())
+                .ToDictionary(_ => _.Id, _ => _);
 
             var response = await InternalLowLevelClient.InternalUserApi.UpsertManyUsersAsync(
                 new UpdateUsersRequestInternalDTO
@@ -720,7 +725,7 @@ namespace StreamChat.Core
                 _connectUserTaskSource.TrySetCanceled();
             }
         }
-        
+
         private async Task InternalGetOrCreateChannelAsync(ChannelType channelType, string channelId)
         {
 #if STREAM_TESTS_ENABLED
@@ -749,7 +754,8 @@ namespace StreamChat.Core
 
                     var delay = 4 * i;
 #if STREAM_TESTS_ENABLED
-                    _logs.Warning($"InternalGetOrCreateChannelAsync attempt failed due to rate limit. Wait {delay} seconds and try again");
+                    _logs.Warning(
+                        $"InternalGetOrCreateChannelAsync attempt failed due to rate limit. Wait {delay} seconds and try again");
 #endif
                     //StreamTodo: pass CancellationToken
                     await Task.Delay(delay * 1000);
@@ -1144,7 +1150,9 @@ namespace StreamChat.Core
 
             if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
             {
-                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                var reaction
+                    = new StreamReaction().TryLoadFromDto<ReactionInternalDTO, StreamReaction>(eventDto.Reaction,
+                        _cache);
                 message.HandleReactionNewEvent(eventDto, channel, reaction);
                 channel.InternalNotifyReactionReceived(message, reaction);
             }
@@ -1159,7 +1167,9 @@ namespace StreamChat.Core
 
             if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
             {
-                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                var reaction
+                    = new StreamReaction().TryLoadFromDto<ReactionInternalDTO, StreamReaction>(eventDto.Reaction,
+                        _cache);
                 message.HandleReactionUpdatedEvent(eventDto, channel, reaction);
                 channel.InternalNotifyReactionUpdated(message, reaction);
             }
@@ -1174,7 +1184,9 @@ namespace StreamChat.Core
 
             if (_cache.Messages.TryGet(eventDto.Message.Id, out var message))
             {
-                var reaction = new StreamReaction().TryLoadFromDto(eventDto.Reaction, _cache);
+                var reaction
+                    = new StreamReaction().TryLoadFromDto<ReactionInternalDTO, StreamReaction>(eventDto.Reaction,
+                        _cache);
                 message.HandleReactionDeletedEvent(eventDto, channel, reaction);
                 channel.InternalNotifyReactionDeleted(message, reaction);
             }

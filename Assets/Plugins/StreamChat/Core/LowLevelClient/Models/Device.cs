@@ -1,4 +1,5 @@
-﻿using StreamChat.Core.InternalDTO.Models;
+﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
@@ -34,7 +35,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             Disabled = dto.Disabled;
             DisabledReason = dto.DisabledReason;
             Id = dto.Id;
-            PushProvider = dto.PushProvider;
+            PushProvider = PushProvider.TryLoadNullableStructFromDto(dto.PushProvider);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
 

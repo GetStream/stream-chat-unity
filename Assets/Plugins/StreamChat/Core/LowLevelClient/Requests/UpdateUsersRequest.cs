@@ -24,7 +24,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
             // Perhaps this due to IL2CPP not handling well complex generic signatures
             if (Users != null)
             {
-                var dict = new Dictionary<string, UserObjectRequestInternalDTO>();
+                var dict = new Dictionary<string, UserRequestInternalDTO>();
             
                 foreach (var sourceKeyValue in Users)
                 {
@@ -33,7 +33,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                         continue;
                     }
 
-                    var serialized = sourceKeyValue.Value.TrySaveToDto();
+                    var serialized = sourceKeyValue.Value.TrySaveToDto<UserRequestInternalDTO>();
 
                     if (serialized != null)
                     {

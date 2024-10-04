@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 
@@ -32,7 +33,7 @@ namespace StreamChat.Core.StatefulModels
         IReadOnlyList<StreamMessageAttachment> Attachments { get; }
 
         /// <summary>
-        /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
+        /// Channel unique identifier in type:id format
         /// </summary>
         string Cid { get; }
 
@@ -162,7 +163,7 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Contains type of the message
         /// </summary>
-        StreamMessageType? Type { get; }
+        StreamMessageType Type { get; }
 
         /// <summary>
         /// Date/time of the last update

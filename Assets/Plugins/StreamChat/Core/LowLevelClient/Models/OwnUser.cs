@@ -34,7 +34,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             LatestHiddenChannels = dto.LatestHiddenChannels;
             Mutes = Mutes.TryLoadFromDtoCollection(dto.Mutes);
             Online = dto.Online;
-            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications);
+            PushNotifications = PushNotifications.TryLoadFromDto<PushNotificationSettingsInternalDTO, PushNotificationSettings>(dto.PushNotifications);
             Role = dto.Role;
             Teams = dto.Teams;
             TotalUnreadCount = dto.TotalUnreadCount;

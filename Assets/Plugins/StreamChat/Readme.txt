@@ -11,9 +11,9 @@ Documentation:
 https://getstream.io/chat/docs/unity/?language=unity
 
 Plugin directory structure:
-- *Config - sample config
 - Core - the main logic of the Stream Chat SDK
-- Libs - dependencies of Stream Chat SDK, SDK depends on interfaces so you can provide you're own implementation
+- *Editor Tools - Editor helpers tools (e.g. top menu option to enable debug mode)
+- Libs - libraries that the Stream Chat SDK is using, Core module depends on interfaces, so you can provide you're own implementation for Websocket, logging, http client, etc. if you'd need to
 - *SampleProject - example project
 - *Samples - code sample for example scenarios
 - *Tests - unit & integration tests

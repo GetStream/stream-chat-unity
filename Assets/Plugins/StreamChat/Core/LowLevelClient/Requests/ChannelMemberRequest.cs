@@ -5,7 +5,7 @@ using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
-    public partial class ChannelMemberRequest : RequestObjectBase, ISavableTo<ChannelMemberRequestInternalDTO>
+    public partial class ChannelMemberRequest : RequestObjectBase, ISavableTo<ChannelMemberRequestInternalDTO>, ISavableTo<ChannelMemberInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -86,7 +86,26 @@ namespace StreamChat.Core.LowLevelClient.Requests
 #pragma warning restore CS0618
                 ShadowBanned = ShadowBanned,
                 UpdatedAt = UpdatedAt,
-                User = User.TrySaveToDto(),
+                User = User.TrySaveToDto<UserObjectRequestInternalDTO>(),
+                UserId = UserId,
+                AdditionalProperties = AdditionalProperties,
+            };
+        
+        ChannelMemberInternalDTO ISavableTo<ChannelMemberInternalDTO>.SaveToDto() =>
+            new ChannelMemberInternalDTO
+            {
+                BanExpires = BanExpires,
+                Banned = Banned,
+                ChannelRole = ChannelRole,
+                CreatedAt = CreatedAt,
+                DeletedAt = DeletedAt,
+                InviteAcceptedAt = InviteAcceptedAt,
+                InviteRejectedAt = InviteRejectedAt,
+                Invited = Invited,
+                IsModerator = IsModerator,
+                ShadowBanned = ShadowBanned,
+                UpdatedAt = UpdatedAt,
+                User = User.TrySaveToDto<UserObjectInternalDTO>(),
                 UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };

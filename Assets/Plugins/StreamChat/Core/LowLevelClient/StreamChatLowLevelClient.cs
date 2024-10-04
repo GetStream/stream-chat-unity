@@ -39,10 +39,7 @@ using System.Runtime.CompilerServices;
 
 namespace StreamChat.Core.LowLevelClient
 {
-    /// <summary>
-    /// Stream Chat Client - maintains WebSockets connection, executes API calls and exposes Stream events to which you can subscribe.
-    /// There should be only one instance of this client in your application.
-    /// </summary>
+    /// <inheritdoc cref="IStreamChatLowLevelClient"/>
     public class StreamChatLowLevelClient : IStreamChatLowLevelClient
     {
         public const string MenuPrefix = "Stream/";
@@ -206,7 +203,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// SDK Version number
         /// </summary>
-        public static readonly Version SDKVersion = new Version(4, 8, 0);
+        public static readonly Version SDKVersion = new Version(4, 9, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
@@ -318,13 +315,13 @@ namespace StreamChat.Core.LowLevelClient
 
         public void ConnectUser(AuthCredentials userAuthCredentials)
         {
-            SetConnectionCredentials(userAuthCredentials);
+            SeAuthorizationCredentials(userAuthCredentials);
             Connect();
         }
 
         public void Connect()
         {
-            SetConnectionCredentials(_authCredentials);
+            SeAuthorizationCredentials(_authCredentials);
 
             if (!ConnectionState.IsValidToConnect())
             {
@@ -341,6 +338,18 @@ namespace StreamChat.Core.LowLevelClient
             ConnectionState = ConnectionState.Connecting;
 
             _websocketClient.ConnectAsync(connectionUri).LogIfFailed(_logs);
+        }
+        
+        public void SeAuthorizationCredentials(AuthCredentials authCredentials)
+        {
+            if (authCredentials.IsAnyEmpty())
+            {
+                throw new StreamMissingAuthCredentialsException(
+                    "Please provide valid credentials: `Api Key`, 'User id`, `User token`");
+            }
+
+            _authCredentials = authCredentials;
+            _httpClient.SetDefaultAuthenticationHeader(authCredentials.UserToken);
         }
 
         public async Task DisconnectAsync(bool permanent = false)
@@ -415,6 +424,7 @@ namespace StreamChat.Core.LowLevelClient
             {
                 ChannelCids = channelCids.ToList(),
                 LastSyncAt = lastEventReceivedAt,
+                Watch = true,
             });
 
             if(response.Events.Count == 0)
@@ -561,7 +571,7 @@ namespace StreamChat.Core.LowLevelClient
             {
                 var token = await _tokenProvider.GetTokenAsync(_authCredentials.UserId);
                 _authCredentials = _authCredentials.CreateWithNewUserToken(token);
-                SetConnectionCredentials(_authCredentials);
+                SeAuthorizationCredentials(_authCredentials);
 
 #if STREAM_DEBUG_ENABLED
                 _logs.Info($"auth token received for user `{_authCredentials.UserId}`: " + token);
@@ -933,18 +943,6 @@ namespace StreamChat.Core.LowLevelClient
                 .Replace('+', '-')
                 .Replace('/', '_')
                 .Trim('=');
-
-        private void SetConnectionCredentials(AuthCredentials credentials)
-        {
-            if (credentials.IsAnyEmpty())
-            {
-                throw new StreamMissingAuthCredentialsException(
-                    "Please provide valid credentials: `Api Key`, 'User id`, `User token`");
-            }
-
-            _authCredentials = credentials;
-            _httpClient.SetDefaultAuthenticationHeader(credentials.UserToken);
-        }
 
         //StreamTodo: make it more clear that we either receive full set of credentials or apiKey, userId and the token provider
         private void SetPartialConnectionCredentials(string apiKey, string userId)

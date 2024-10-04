@@ -1,5 +1,7 @@
-﻿using StreamChat.Core.InternalDTO.Models;
+﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
@@ -28,9 +30,9 @@ namespace StreamChat.Core.LowLevelClient.Requests
         ImageSizeRequestInternalDTO ISavableTo<ImageSizeRequestInternalDTO>.SaveToDto() =>
             new ImageSizeRequestInternalDTO()
             {
-                Crop = Crop,
+                Crop = Crop.TrySaveNullableStructToDto<ImageCropType, ImageCropTypeInternalDTO>(),
                 Height = Height,
-                Resize = Resize,
+                Resize = Resize.TrySaveNullableStructToDto<ImageResizeType, ImageResizeTypeInternalDTO>(),
                 Width = Width,
                 AdditionalProperties = AdditionalProperties
             };

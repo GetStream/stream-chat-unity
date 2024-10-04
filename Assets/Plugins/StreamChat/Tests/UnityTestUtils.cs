@@ -92,7 +92,7 @@ namespace StreamChat.Tests
                 yield break;
             }
 
-            const float maxTimeToConnect = 3;
+            const float maxTimeToConnect = 15f;
             var timeStarted = EditorApplication.timeSinceStartup;
 
             while (true)
@@ -101,7 +101,7 @@ namespace StreamChat.Tests
 
                 if (elapsed > maxTimeToConnect)
                 {
-                    Debug.LogError("Waiting for connection exceeded max time. Terminating");
+                    Debug.LogError($"Waiting for connection exceeded max time, elapsed: {elapsed}. Terminating");
                     break;
                 }
 

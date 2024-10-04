@@ -1,9 +1,8 @@
-using StreamChat.Core;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Utils;
 using UnityEngine;
 
-namespace StreamChat
+namespace StreamChat.Core
 {
     /// <summary>
     /// Example showing how to create instance of <see cref="IStreamChatClient"/>

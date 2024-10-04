@@ -405,10 +405,10 @@ namespace StreamChat.Core.StatefulModels
         {
             StreamAsserts.AssertNotNull(userIds, nameof(userIds));
 
-            var membersRequest = new List<ChannelMemberRequestInternalDTO>();
+            var membersRequest = new List<ChannelMemberInternalDTO>();
             foreach (var u in userIds)
             {
-                membersRequest.Add(new ChannelMemberRequestInternalDTO
+                membersRequest.Add(new ChannelMemberInternalDTO
                 {
                     UserId = u,
                 });
@@ -468,10 +468,10 @@ namespace StreamChat.Core.StatefulModels
         {
             StreamAsserts.AssertNotNull(userIds, nameof(userIds));
 
-            var invites = new List<ChannelMemberRequestInternalDTO>();
+            var invites = new List<ChannelMemberInternalDTO>();
             foreach (var uid in userIds)
             {
-                invites.Add(new ChannelMemberRequestInternalDTO
+                invites.Add(new ChannelMemberInternalDTO
                 {
                     UserId = uid
                 });
@@ -697,6 +697,8 @@ namespace StreamChat.Core.StatefulModels
         {
             AssertCid(dto.Cid);
             InternalAppendOrUpdateMessage(dto.Message);
+
+            MemberCount = dto.ChannelMemberCount;
         }
 
         internal void HandleMessageUpdatedEvent(MessageUpdatedEventInternalDTO dto)
@@ -707,7 +709,7 @@ namespace StreamChat.Core.StatefulModels
                 return;
             }
 
-            message.TryUpdateFromDto(dto.Message, Cache);
+            message.TryUpdateFromDto<MessageInternalDTO, StreamMessage>(dto.Message, Cache);
             MessageUpdated?.Invoke(this, message);
         }
 
@@ -742,7 +744,7 @@ namespace StreamChat.Core.StatefulModels
             // Cache.TryCreateOrUpdate(eventDto.Channel);
             
             UpdateChannelFieldsFromDtoOverwrite(eventDto.Channel, Cache);
-            
+            MemberCount = eventDto.ChannelMemberCount;
             Updated?.Invoke(this);
         }
 
@@ -750,12 +752,14 @@ namespace StreamChat.Core.StatefulModels
         {
             AssertCid(eventDto.Cid);
             InternalTruncateMessages(eventDto.Channel.TruncatedAt, eventDto.Message);
+            MemberCount = eventDto.ChannelMemberCount;
         }
 
         internal void HandleChannelTruncatedEvent(NotificationChannelTruncatedEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
             InternalTruncateMessages(eventDto.Channel.TruncatedAt);
+            MemberCount = eventDto.ChannelMemberCount;
         }
 
         internal void InternalAddMember(StreamChannelMember member)
@@ -1083,18 +1087,12 @@ namespace StreamChat.Core.StatefulModels
 
             return LowLevelClient.InternalModerationApi.BanUserAsync(new BanRequestInternalDTO
             {
-                //BannedBy = null,
-                //BannedById = null,
-                Id = Id,
+                ChannelCid = Cid,
                 IpBan = isIpBan,
                 Reason = reason,
                 Shadow = isShadowBan,
                 TargetUserId = user.Id,
                 Timeout = timeoutMinutes,
-                Type = Type,
-                //User = null,
-                //UserId = null,
-                //AdditionalProperties = null
             });
         }
 

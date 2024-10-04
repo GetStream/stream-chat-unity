@@ -6,9 +6,9 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 {
     internal interface IInternalUserApi
     {
-        Task<UsersResponseInternalDTO> QueryUsersAsync(QueryUsersRequestInternalDTO queryUsersRequest);
+        Task<QueryUsersResponseInternalDTO> QueryUsersAsync(QueryUsersRequestInternalDTO queryUsersRequest);
 
-        Task<GuestResponseInternalDTO> CreateGuestAsync(GuestRequestInternalDTO createGuestRequest);
+        Task<CreateGuestResponseInternalDTO> CreateGuestAsync(CreateGuestRequestInternalDTO createGuestRequest);
 
         /// <summary>
         /// <para>Creates or updates users.</para>

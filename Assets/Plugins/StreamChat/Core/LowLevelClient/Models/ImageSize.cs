@@ -1,4 +1,5 @@
-﻿using StreamChat.Core.InternalDTO.Models;
+﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
@@ -26,9 +27,9 @@ namespace StreamChat.Core.LowLevelClient.Models
 
         ImageSize ILoadableFrom<ImageSizeInternalDTO, ImageSize>.LoadFromDto(ImageSizeInternalDTO dto)
         {
-            Crop = dto.Crop;
+            Crop = Crop.TryLoadNullableStructFromDto(dto.Crop);
             Height = dto.Height;
-            Resize = dto.Resize;
+            Resize = Resize.TryLoadNullableStructFromDto(dto.Resize);
             Width = dto.Width;
             AdditionalProperties = dto.AdditionalProperties;
 

@@ -174,7 +174,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             yield return LowLevelClient.WaitForClientToConnect();
 
-            //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
             var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
             
             // LoadAssetAtPath expects forward slashes
@@ -292,7 +291,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             yield return LowLevelClient.WaitForClientToConnect();
 
-            //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
             var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
             // LoadAssetAtPath expects forward slashes
             var videoFilePath = "Assets/Plugins/StreamChat/Tests/SampleFiles/" + filename;

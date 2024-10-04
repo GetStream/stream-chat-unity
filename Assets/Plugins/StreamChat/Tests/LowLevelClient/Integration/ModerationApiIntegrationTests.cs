@@ -80,8 +80,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             var banRequest = new BanRequest
             {
                 TargetUserId = SecondUserId,
-                Id = channelState.Channel.Id,
-                Type = channelType,
+                ChannelCid = channelState.Channel.Cid,
                 Timeout = BanTimeout
             };
 
@@ -131,8 +130,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             var banRequest = new BanRequest
             {
                 TargetUserId = SecondUserId,
-                Id = channelState.Channel.Id,
-                Type = channelType,
+                ChannelCid = channelState.Channel.Cid,
                 Timeout = BanTimeout
             };
 
@@ -263,7 +261,8 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             };
 
             var messageResponse2 = await
-                LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id, sendMessageRequest2);
+                LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelState.Channel.Id,
+                    sendMessageRequest2);
 
             //Flag messages
 
@@ -289,7 +288,8 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 }
             };
 
-            var flagsQueryResponse = await LowLevelClient.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
+            var flagsQueryResponse
+                = await LowLevelClient.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
 
             var message1 = flagsQueryResponse.Flags.FirstOrDefault(_ => _.Message.Id == messageResponse.Message.Id);
             var message2 = flagsQueryResponse.Flags.FirstOrDefault(_ => _.Message.Id == messageResponse2.Message.Id);
@@ -310,10 +310,10 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             const string channelType = "messaging";
             var channelState = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
-            
+
             var response = await LowLevelClient.ModerationApi.FlagUserAsync(SecondUserId);
             Assert.AreEqual(SecondUserId, response.Flag.TargetUser.Id);
-        } 
+        }
     }
 }
 #endif

@@ -1,23 +1,30 @@
-﻿using StreamChat.Core.Helpers;
+﻿using System;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
     public partial class BanRequest : RequestObjectBase, ISavableTo<BanRequestInternalDTO>
     {
+        //StreamTodo: isn't this server-side only? 
         /// <summary>
         /// User who issued a ban
         /// </summary>
         public UserObjectRequest BannedBy { get; set; }
 
+        //StreamTodo: isn't this server-side only? 
         /// <summary>
         /// User ID who issued a ban
         /// </summary>
         public string BannedById { get; set; }
-
+        
         /// <summary>
-        /// Channel ID to ban user in
+        /// Channel CID to ban user in e.g. messaging:123. You can grab the channel CID from objects like <see cref="IStreamChannel.Cid"/>, <see cref="IStreamMessage.Cid"/>
         /// </summary>
+        public string ChannelCid { get; set; }
+
+        [Obsolete("Will be removed in a future release. Please use the ChannelCid field")] //StreamTODO: remove this in a major release
         public string Id { get; set; }
 
         /// <summary>
@@ -31,7 +38,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
         public string Reason { get; set; }
 
         /// <summary>
-        /// Whether to perform shadow ban or not
+        /// Whether to perform shadow-ban or not
         /// </summary>
         public bool? Shadow { get; set; }
 
@@ -45,30 +52,38 @@ namespace StreamChat.Core.LowLevelClient.Requests
         /// </summary>
         public int? Timeout { get; set; }
 
-        /// <summary>
-        /// Channel type to ban user in
-        /// </summary>
+        [Obsolete("Will be removed in a future release. Please use the ChannelCid field")] //StreamTODO: remove this in a major release
         public string Type { get; set; }
 
+        [Obsolete("Has no effect and will be removed in a future release")] //StreamTODO: remove this in a major release
         public UserObjectRequest User { get; set; }
 
+        [Obsolete("Has no effect and will be removed in a future release")] //StreamTODO: remove this in a major release
         public string UserId { get; set; }
 
         BanRequestInternalDTO ISavableTo<BanRequestInternalDTO>.SaveToDto()
         {
+            #pragma warning disable CS0618
+            string GetCid()
+            {
+                if(string.IsNullOrEmpty(ChannelCid) && !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Type))
+                {
+                    return Type + ":" + Id;
+                }
+
+                return ChannelCid;
+            }
+            #pragma warning restore CS0618
             return new BanRequestInternalDTO
             {
-                BannedBy = BannedBy.TrySaveToDto(),
+                BannedBy = BannedBy.TrySaveToDto<UserRequestInternalDTO>(),
                 BannedById = BannedById,
-                Id = Id,
+                ChannelCid = GetCid(),
                 IpBan = IpBan,
                 Reason = Reason,
                 Shadow = Shadow,
                 TargetUserId = TargetUserId,
                 Timeout = Timeout,
-                Type = Type,
-                User = User.TrySaveToDto(),
-                UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };
         }

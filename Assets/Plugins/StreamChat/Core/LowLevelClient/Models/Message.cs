@@ -6,13 +6,16 @@ using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public class Message : ModelBase, ILoadableFrom<MessageInternalDTO, Message>, ILoadableFrom<SearchResultMessageInternalDTO, Message>
+    public class Message : ModelBase, ILoadableFrom<MessageInternalDTO, Message>, 
+        ILoadableFrom<SearchResultMessageInternalDTO, Message>, 
+        ILoadableFrom<MessageResponseInternalDTO, Message>
     {
         /// <summary>
         /// Array of message attachments
         /// </summary>
         public List<Attachment> Attachments { get; set; }
 
+        //StreamTodo: should we remove this? field summary says it's only available in a webhook
         /// <summary>
         /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
         /// </summary>
@@ -158,7 +161,7 @@ namespace StreamChat.Core.LowLevelClient.Models
         /// <summary>
         /// Contains type of the message
         /// </summary>
-        public MessageType? Type { get; set; }
+        public MessageType Type { get; set; }
 
         /// <summary>
         /// Date/time of the last update
@@ -202,7 +205,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             Silent = dto.Silent;
             Text = dto.Text;
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
-            Type = dto.Type;
+            Type = Type.TryLoadFromDto(dto.Type);
             UpdatedAt = dto.UpdatedAt;
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
@@ -242,9 +245,49 @@ namespace StreamChat.Core.LowLevelClient.Models
             Silent = dto.Silent;
             Text = dto.Text;
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
-            Type = dto.Type;
+            Type = Type.TryLoadFromDto(dto.Type);
             UpdatedAt = dto.UpdatedAt;
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            AdditionalProperties = dto.AdditionalProperties;
+
+            return this;
+        }
+        
+        Message ILoadableFrom<MessageResponseInternalDTO, Message>.LoadFromDto(MessageResponseInternalDTO dto)
+        {
+            Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);
+            BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
+            //Channel?
+            Cid = dto.Cid;
+            Command = dto.Command;
+            CreatedAt = dto.CreatedAt;
+            DeletedAt = dto.DeletedAt;
+            Html = dto.Html;
+            I18n = dto.I18n;
+            Id = dto.Id;
+            ImageLabels = dto.ImageLabels;
+            LatestReactions = LatestReactions.TryLoadFromDtoCollection(dto.LatestReactions);
+            MentionedUsers = MentionedUsers.TryLoadFromDtoCollection(dto.MentionedUsers);
+            Mml = dto.Mml;
+            OwnReactions = OwnReactions.TryLoadFromDtoCollection(dto.OwnReactions);
+            ParentId = dto.ParentId;
+            PinExpires = dto.PinExpires;
+            Pinned = dto.Pinned;
+            PinnedAt = dto.PinnedAt;
+            PinnedBy = PinnedBy.TryLoadFromDto<UserResponseInternalDTO, User>(dto.PinnedBy);
+            QuotedMessage = QuotedMessage.TryLoadFromDto<MessageInternalDTO, Message>(dto.QuotedMessage);
+            QuotedMessageId = dto.QuotedMessageId;
+            ReactionCounts = dto.ReactionCounts;
+            ReactionScores = dto.ReactionScores;
+            ReplyCount = dto.ReplyCount;
+            Shadowed = dto.Shadowed;
+            ShowInChannel = dto.ShowInChannel;
+            Silent = dto.Silent;
+            Text = dto.Text;
+            ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
+            Type = Type.TryLoadFromDto(dto.Type);
+            UpdatedAt = dto.UpdatedAt;
+            User = User.TryLoadFromDto<UserResponseInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

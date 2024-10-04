@@ -14,7 +14,10 @@ namespace StreamChat.Core.LowLevelClient
     public delegate void ConnectionStateChangeHandler(ConnectionState previous, ConnectionState current);
     
     /// <summary>
-    /// Stream Chat Client
+    /// Stream Low-Level Chat Client - maintains WebSockets connection, executes API calls and exposes Stream events to which you can subscribe.
+    /// There should be only one instance of this client in your application. This client does NOT maintain state.
+    ///
+    /// Unless you have a good reason to use the low-level client, you should be using the stateful <see cref="IStreamChatClient"/> which maintain client state
     /// </summary>
     public interface IStreamChatLowLevelClient : IAuthProvider, IConnectionProvider, IStreamRealtimeEventsProvider, IDisposable
     {
@@ -89,5 +92,11 @@ namespace StreamChat.Core.LowLevelClient
         Task DisconnectAsync(bool permanent = false);
 
         Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids);
+
+        /// <summary>
+        /// Set authorization credentials for the client to use when connecting to the API
+        /// </summary>
+        /// <param name="authCredentials">Credentials containing: api key, user ID, and a user Token</param>
+        void SeAuthorizationCredentials(AuthCredentials authCredentials);
     }
 }

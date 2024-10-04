@@ -17,7 +17,7 @@ namespace StreamChat.Core.LowLevelClient.Events
         {
             CreatedAt = dto.CreatedAt;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserEventPayloadInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

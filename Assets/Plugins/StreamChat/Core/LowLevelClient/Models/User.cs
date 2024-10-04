@@ -1,10 +1,14 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>, ILoadableFrom<UserResponseInternalDTO, User>, ISavableTo<UserObjectInternalDTO>
+    public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>,
+        ILoadableFrom<UserResponseInternalDTO, User>, ILoadableFrom<UserEventPayloadInternalDTO, User>,
+        ILoadableFrom<FullUserResponseInternalDTO, User>,
+        ISavableTo<UserObjectInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -83,7 +87,7 @@ namespace StreamChat.Core.LowLevelClient.Models
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;
-            Banned = dto.Banned;
+            Banned = dto.Banned.GetValueOrDefault();
             CreatedAt = dto.CreatedAt;
             DeactivatedAt = dto.DeactivatedAt;
             DeletedAt = dto.DeletedAt;
@@ -92,7 +96,10 @@ namespace StreamChat.Core.LowLevelClient.Models
             Language = dto.Language;
             LastActive = dto.LastActive;
             Online = dto.Online;
-            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications);
+            PushNotifications
+                = PushNotifications
+                    .TryLoadFromDto<PushNotificationSettingsInternalDTO, PushNotificationSettings>(
+                        dto.PushNotifications);
             RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
             Role = dto.Role;
             Teams = dto.Teams;
@@ -118,7 +125,9 @@ namespace StreamChat.Core.LowLevelClient.Models
             Language = dto.Language;
             LastActive = dto.LastActive;
             Online = dto.Online;
-            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications);
+            PushNotifications
+                = PushNotifications.TryLoadFromDto<PushNotificationSettingsInternalDTO, PushNotificationSettings>(
+                    dto.PushNotifications);
             RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
             Role = dto.Role;
             Teams = dto.Teams;
@@ -131,8 +140,36 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        UserObjectInternalDTO ISavableTo<UserObjectInternalDTO>.SaveToDto() =>
-            new UserObjectInternalDTO
+        User ILoadableFrom<UserEventPayloadInternalDTO, User>.LoadFromDto(UserEventPayloadInternalDTO dto)
+        {
+            AdditionalProperties = dto.AdditionalProperties;
+            BanExpires = dto.BanExpires;
+            Banned = dto.Banned;
+            CreatedAt = dto.CreatedAt;
+            DeactivatedAt = dto.DeactivatedAt;
+            DeletedAt = dto.DeletedAt;
+            Id = dto.Id;
+            Invisible = dto.Invisible;
+            Language = dto.Language;
+            LastActive = dto.LastActive;
+            Online = dto.Online;
+            PushNotifications
+                = PushNotifications.TryLoadFromDto<PushNotificationSettingsInternalDTO, PushNotificationSettings>(
+                    dto.PushNotifications);
+            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
+            Role = dto.Role;
+            Teams = dto.Teams;
+            UpdatedAt = dto.UpdatedAt;
+
+            //Not in API spec
+            Name = dto.Name;
+            Image = dto.Image;
+
+            return this;
+        }
+
+        UserObjectInternalDTO ISavableTo<UserObjectInternalDTO>.SaveToDto()
+            => new UserObjectInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,
@@ -145,7 +182,7 @@ namespace StreamChat.Core.LowLevelClient.Models
                 LastActive = LastActive,
                 // Most probably backend should control the online status and we should never write it
                 //Online = Online,
-                PushNotifications = PushNotifications.TrySaveToDto(),
+                PushNotifications = PushNotifications.TrySaveToDto<PushNotificationSettingsInternalDTO>(),
                 RevokeTokensIssuedBefore = RevokeTokensIssuedBefore,
                 Role = Role,
                 Teams = Teams,
@@ -154,5 +191,33 @@ namespace StreamChat.Core.LowLevelClient.Models
                 Name = Name,
                 Image = Image,
             };
+
+        User ILoadableFrom<FullUserResponseInternalDTO, User>.LoadFromDto(FullUserResponseInternalDTO dto)
+        {
+            AdditionalProperties = dto.AdditionalProperties;
+            BanExpires = dto.BanExpires;
+            Banned = dto.Banned;
+            CreatedAt = dto.CreatedAt;
+            DeactivatedAt = dto.DeactivatedAt;
+            DeletedAt = dto.DeletedAt;
+            Id = dto.Id;
+            Invisible = dto.Invisible;
+            Language = dto.Language;
+            LastActive = dto.LastActive;
+            Online = dto.Online;
+            PushNotifications
+                = PushNotifications.TryLoadFromDto<PushNotificationSettingsResponseInternalDTO, PushNotificationSettings>(
+                    dto.PushNotifications);
+            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
+            Role = dto.Role;
+            Teams = dto.Teams;
+            UpdatedAt = dto.UpdatedAt;
+
+            //Not in API spec
+            Name = dto.Name;
+            Image = dto.Image;
+
+            return this;
+        }
     }
 }

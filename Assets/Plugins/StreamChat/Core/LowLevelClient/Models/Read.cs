@@ -1,9 +1,10 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public class Read : ModelBase, ILoadableFrom<ReadInternalDTO, Read>
+    public class Read : ModelBase, ILoadableFrom<ReadStateResponseInternalDTO, Read>
     {
         public System.DateTimeOffset? LastRead { get; set; }
 
@@ -11,11 +12,11 @@ namespace StreamChat.Core.LowLevelClient.Models
 
         public User User { get; set; }
 
-        Read ILoadableFrom<ReadInternalDTO, Read>.LoadFromDto(ReadInternalDTO dto)
+        Read ILoadableFrom<ReadStateResponseInternalDTO, Read>.LoadFromDto(ReadStateResponseInternalDTO dto)
         {
             LastRead = dto.LastRead;
             UnreadMessages = dto.UnreadMessages;
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserResponseInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

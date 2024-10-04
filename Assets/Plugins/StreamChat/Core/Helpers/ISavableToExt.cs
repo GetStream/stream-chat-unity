@@ -8,7 +8,6 @@ namespace StreamChat.Core.Helpers
     internal static class ISavableToExt
     {
         public static TDto TrySaveToDto<TDto>(this ISavableTo<TDto> source)
-            where TDto : class
-            => source?.SaveToDto();
+            => source != default ? source.SaveToDto() : default;
     }
 }

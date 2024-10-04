@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using StreamChat.Core;
 using StreamChat.Core.StatefulModels;
+using StreamChat.Libs.Auth;
 using UnityEngine;
 
 namespace StreamChat.Samples
@@ -97,6 +98,16 @@ namespace StreamChat.Samples
                 Debug.Log(unreadThread.UnreadCount); // Count of unread messages
                 Debug.Log(unreadThread.LastRead); // Datetime of the last read message
             }
+        }
+        
+        public async Task GetLatestUnreadCountsInOfflineMode()
+        {
+            // Set authorization credentials
+            var authCredentials = new AuthCredentials("api_key", "user_id", "user_token");
+            Client.SetAuthorizationCredentials(authCredentials);
+
+            // Retrieve unread counts without connecting to the chat service via Client.ConnectUserAsync
+            var unreadCounts = await Client.GetLatestUnreadCountsAsync();
         }
 
         private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();

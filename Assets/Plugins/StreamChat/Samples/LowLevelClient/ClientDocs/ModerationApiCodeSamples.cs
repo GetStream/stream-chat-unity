@@ -38,8 +38,7 @@ namespace StreamChat.Samples.LowLevelClient.ClientDocs
             var banRequest = new BanRequest
             {
                 TargetUserId = "user-to-ban-id",
-                Id = channel.Id,
-                Type = channel.Type,
+                ChannelCid = channel.Cid,
                 Timeout = 60,
                 Reason = "Toxic behaviour towards other users"
             };
@@ -58,8 +57,7 @@ namespace StreamChat.Samples.LowLevelClient.ClientDocs
             var banRequest = new BanRequest
             {
                 TargetUserId = "user-to-ban-id",
-                Id = channel.Id,
-                Type = channel.Type,
+                ChannelCid = channel.Cid,
                 Reason = "Toxic behaviour towards other users",
             };
 
@@ -77,8 +75,7 @@ namespace StreamChat.Samples.LowLevelClient.ClientDocs
             var banRequest = new BanRequest
             {
                 TargetUserId = "user-to-ban-id",
-                Id = channel.Id,
-                Type = channel.Type,
+                ChannelCid = channel.Cid,
                 Timeout = 24 * 60,
                 Reason = "Toxic behaviour towards other users",
                 IpBan = true,
@@ -115,8 +112,7 @@ namespace StreamChat.Samples.LowLevelClient.ClientDocs
             var banRequest = new ShadowBanRequest
             {
                 TargetUserId = "user-to-ban-id",
-                Id = channel.Id,
-                Type = channel.Type,
+                ChannelCid = channel.Cid,
                 Timeout = 60 * 24,
                 Reason = "Toxic behaviour towards other users"
             };
@@ -152,8 +148,7 @@ namespace StreamChat.Samples.LowLevelClient.ClientDocs
             var shadowBanRequest = new ShadowBanRequest
             {
                 TargetUserId = "user-to-ban-id",
-                Id = channel.Id,
-                Type = channel.Type,
+                ChannelCid = channel.Cid,
                 Timeout = 24 * 60,
                 Reason = "Toxic behaviour towards other users",
             };
@@ -189,7 +184,8 @@ namespace StreamChat.Samples.LowLevelClient.ClientDocs
                 }
             };
 
-            var queryBannedUsersResponse = await _lowLevelClient.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
+            var queryBannedUsersResponse
+                = await _lowLevelClient.ModerationApi.QueryBannedUsersAsync(queryBannedUsersRequest);
         }
 
         public async Task FlagMessage()
@@ -222,7 +218,8 @@ namespace StreamChat.Samples.LowLevelClient.ClientDocs
                 }
             };
 
-            var queryMessageFlagsResponse = await _lowLevelClient.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
+            var queryMessageFlagsResponse
+                = await _lowLevelClient.ModerationApi.QueryMessageFlagsAsync(queryMessageFlagsRequest);
         }
 
         private IStreamChatLowLevelClient _lowLevelClient;

@@ -13,11 +13,11 @@ using StreamChat.Core.Models;
 namespace StreamChat.Core.StatefulModels
 {
     public delegate void StreamUserPresenceHandler(IStreamUser user, bool isOnline, DateTimeOffset? lastActive);
-
+    
     /// <inheritdoc cref="IStreamUser"/>
     internal sealed class StreamUser : StreamStatefulModelBase<StreamUser>,
         IUpdateableFrom<UserObjectInternalDTO, StreamUser>,
-        IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>,
+        IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>, IUpdateableFrom<FullUserResponseInternalDTO, StreamUser>, IUpdateableFrom<UserEventPayloadInternalDTO, StreamUser>,
         IStreamUser
     {
         public event StreamUserPresenceHandler PresenceChanged;
@@ -73,6 +73,7 @@ namespace StreamChat.Core.StatefulModels
 
         public Task FlagAsync() => LowLevelClient.InternalModerationApi.FlagUserAsync(Id);
 
+        // StreamTodo: check what happens when running this on a local user. You should probably not be able to mute/unmute yourself
         public async Task MuteAsync()
         {
             var response = await LowLevelClient.InternalModerationApi.MuteUserAsync(new MuteUserRequestInternalDTO
@@ -87,6 +88,7 @@ namespace StreamChat.Core.StatefulModels
             Client.UpdateLocalUser(response.OwnUser);
         }
 
+        // StreamTodo: check what happens when running this on a local user. You should probably not be able to mute/unmute yourself
         public Task UnmuteAsync()
             => LowLevelClient.InternalModerationApi.UnmuteUserAsync(new UnmuteUserRequestInternalDTO
             {
@@ -150,10 +152,10 @@ namespace StreamChat.Core.StatefulModels
             Language = GetOrDefault(dto.Language, Language);
             LastActive = GetOrDefault(dto.LastActive, LastActive);
             Online = GetOrDefault(dto.Online, Online);
-            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications, cache);
+            PushNotifications = PushNotifications.TryLoadFromDto<PushNotificationSettingsInternalDTO, StreamPushNotificationSettings>(dto.PushNotifications, cache);
             RevokeTokensIssuedBefore = GetOrDefault(dto.RevokeTokensIssuedBefore, RevokeTokensIssuedBefore);
             Role = GetOrDefault(dto.Role, Role);
-            //ShadowBanned = dto.ShadowBanned; Missing in DTO
+            //ShadowBanned = dto.ShadowBanned; StreamTODO; Missing in DTO
             _teams.TryReplaceValuesFromDto(dto.Teams);
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
@@ -177,7 +179,7 @@ namespace StreamChat.Core.StatefulModels
             Language = GetOrDefault(dto.Language, Language);
             LastActive = GetOrDefault(dto.LastActive, LastActive);
             Online = GetOrDefault(dto.Online, Online);
-            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications, cache);
+            PushNotifications = PushNotifications.TryLoadFromDto<PushNotificationSettingsInternalDTO, StreamPushNotificationSettings>(dto.PushNotifications, cache);
             RevokeTokensIssuedBefore = GetOrDefault(dto.RevokeTokensIssuedBefore, RevokeTokensIssuedBefore);
             Role = GetOrDefault(dto.Role, Role);
             ShadowBanned = GetOrDefault(dto.ShadowBanned, ShadowBanned);
@@ -206,7 +208,7 @@ namespace StreamChat.Core.StatefulModels
 
             #endregion
 
-            //BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
+            BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
             Banned = GetOrDefault(dto.Banned, Banned);
             CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
             DeactivatedAt = GetOrDefault(dto.DeactivatedAt, DeactivatedAt);
@@ -216,15 +218,69 @@ namespace StreamChat.Core.StatefulModels
             Language = GetOrDefault(dto.Language, Language);
             LastActive = GetOrDefault(dto.LastActive, LastActive);
             Online = GetOrDefault(dto.Online, Online);
-            PushNotifications = PushNotifications.TryLoadFromDto(dto.PushNotifications, cache);
-            //RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore; //Not present in this DTO
+            PushNotifications = PushNotifications.TryLoadFromDto<PushNotificationSettingsInternalDTO, StreamPushNotificationSettings>(dto.PushNotifications, cache);
+            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore; //Not present in this DTO
             Role = GetOrDefault(dto.Role, Role);
             _teams.TryReplaceValuesFromDto(dto.Teams);
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
             //Not in API spec //StreamTodo: Add to DTO?
-            //Name = GetOrDefault(dto.Name, Name);
-            //Image = GetOrDefault(dto.Image, Image);
+            Name = GetOrDefault(dto.Name, Name);
+            Image = GetOrDefault(dto.Image, Image);
+
+            LoadAdditionalProperties(dto.AdditionalProperties);
+        }
+        
+        void IUpdateableFrom<FullUserResponseInternalDTO, StreamUser>.UpdateFromDto(FullUserResponseInternalDTO dto,
+            ICache cache)
+        {
+            BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
+            Banned = GetOrDefault(dto.Banned, Banned);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            DeactivatedAt = GetOrDefault(dto.DeactivatedAt, DeactivatedAt);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Id = GetOrDefault(dto.Id, Id);
+            Invisible = GetOrDefault(dto.Invisible, Invisible);
+            Language = GetOrDefault(dto.Language, Language);
+            LastActive = GetOrDefault(dto.LastActive, LastActive);
+            Online = GetOrDefault(dto.Online, Online);
+            PushNotifications = PushNotifications.TryLoadFromDto<PushNotificationSettingsResponseInternalDTO, StreamPushNotificationSettings>(dto.PushNotifications, cache);
+            RevokeTokensIssuedBefore = GetOrDefault(dto.RevokeTokensIssuedBefore, RevokeTokensIssuedBefore);
+            Role = GetOrDefault(dto.Role, Role);
+            ShadowBanned = GetOrDefault(dto.ShadowBanned, ShadowBanned);
+            _teams.TryReplaceValuesFromDto(dto.Teams);
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
+
+            //Not in API spec
+            Name = GetOrDefault(dto.Name, Name);
+            Image = GetOrDefault(dto.Image, Image);
+
+            LoadAdditionalProperties(dto.AdditionalProperties);
+        }
+        
+        void IUpdateableFrom<UserEventPayloadInternalDTO, StreamUser>.UpdateFromDto(UserEventPayloadInternalDTO dto,
+            ICache cache)
+        {
+            BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
+            Banned = GetOrDefault(dto.Banned, Banned);
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
+            DeactivatedAt = GetOrDefault(dto.DeactivatedAt, DeactivatedAt);
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            Id = GetOrDefault(dto.Id, Id);
+            Invisible = GetOrDefault(dto.Invisible, Invisible);
+            Language = GetOrDefault(dto.Language, Language);
+            LastActive = GetOrDefault(dto.LastActive, LastActive);
+            Online = GetOrDefault(dto.Online, Online);
+            PushNotifications = PushNotifications.TryLoadFromDto<PushNotificationSettingsInternalDTO, StreamPushNotificationSettings>(dto.PushNotifications, cache);
+            RevokeTokensIssuedBefore = GetOrDefault(dto.RevokeTokensIssuedBefore, RevokeTokensIssuedBefore);
+            Role = GetOrDefault(dto.Role, Role);
+            ShadowBanned = GetOrDefault(dto.ShadowBanned, ShadowBanned);
+            _teams.TryReplaceValuesFromDto(dto.Teams);
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
+
+            //Not in API spec
+            Name = GetOrDefault(dto.Name, Name);
+            Image = GetOrDefault(dto.Image, Image);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
         }

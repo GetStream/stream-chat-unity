@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using StreamChat.Core.InternalDTO.Events;
-using StreamChat.Core.InternalDTO.Extra;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;

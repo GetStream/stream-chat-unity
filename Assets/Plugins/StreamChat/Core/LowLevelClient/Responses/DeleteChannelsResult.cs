@@ -2,13 +2,13 @@
 
 namespace StreamChat.Core.LowLevelClient.Responses
 {
-    public partial class DeleteChannelsResult : ResponseObjectBase, ILoadableFrom<DeleteChannelsResultInternalDTO, DeleteChannelsResult>
+    public partial class DeleteChannelsResult : ResponseObjectBase, ILoadableFrom<DeleteChannelsResultResponseInternalDTO, DeleteChannelsResult>
     {
         public string Error { get; set; }
 
         public string Status { get; set; }
 
-        DeleteChannelsResult ILoadableFrom<DeleteChannelsResultInternalDTO, DeleteChannelsResult>.LoadFromDto(DeleteChannelsResultInternalDTO dto)
+        DeleteChannelsResult ILoadableFrom<DeleteChannelsResultResponseInternalDTO, DeleteChannelsResult>.LoadFromDto(DeleteChannelsResultResponseInternalDTO dto)
         {
             Error = dto.Error;
             Status = dto.Status;

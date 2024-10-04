@@ -1,5 +1,7 @@
-﻿using StreamChat.Core.InternalDTO.Models;
+﻿using StreamChat.Core.Helpers;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
@@ -52,7 +54,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
             new ChannelConfigRequestInternalDTO
             {
                 Blocklist = Blocklist,
-                BlocklistBehavior = BlocklistBehavior,
+                BlocklistBehavior = BlocklistBehavior.TrySaveNullableStructToDto<AutomodBehaviourType, AutomodBehaviourTypeInternalDTO>(),
                 Commands = Commands,
                 Grants = Grants,
                 MaxMessageLength = MaxMessageLength,
