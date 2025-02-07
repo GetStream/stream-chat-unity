@@ -120,7 +120,7 @@ namespace StreamChat.Samples
             };
 
 // Upsert means: update user with a given ID or create a new one if it doesn't exist
-            var users = await Client.UpsertUsers(new[] { createOrUpdateUser });
+            var users = await Client.UpsertUsersAsync(new[] { createOrUpdateUser });
         }
 
         public async Task UserUpdatesMultiple()
@@ -150,7 +150,7 @@ namespace StreamChat.Samples
             };
 
 // Upsert means: update user with a given ID or create a new one if it doesn't exist
-            var users = await Client.UpsertUsers(usersToCreateOrUpdate);
+            var users = await Client.UpsertUsersAsync(usersToCreateOrUpdate);
         }
 
         #endregion
