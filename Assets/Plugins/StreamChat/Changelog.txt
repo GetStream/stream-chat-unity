@@ -1,3 +1,40 @@
+v5.0.0:
+Check out the [Migration Guide to 5.x](https://getstream.io/chat/docs/unity/migration_guide_to_5x/?language=unity) for guidance on adjusting your project.
+
+Added:
+* StreamChatClient.SetAuthorizationCredentials - allows setting the authorization credentials without connecting a user to the Stream Chat Service. This can be used in scenarios where you want to fetch unread counts via StreamChatClient.GetLatestUnreadCountsAsync in "offline" mode, without establishing a persistent connection, which would contribute towards CCU.
+
+Deprecated (will be removed in a future major release):
+* MessageRequest deprecated fields: Html, PinnedBy, User, UserId
+* StreamUpdateMessageRequest deprecated field: PinnedBy
+* StreamSendMessageRequest deprecated field: PinnedBy
+* StreamMessageRequest deprecated field: PinnedBy
+* MessageRequest deprecated field: Html
+
+Moved:
+* StreamChat.Core.Requests.CreateDeviceRequest -> StreamChat.Core.LowLevelClient.Requests.CreateDeviceRequest
+* StreamChat.Core.Responses.ListDevicesResponse -> StreamChat.Core.LowLevelClient.Responses.ListDevicesResponse
+
+Improvements:
+* Improved StreamChannel.MemberCount updates from additional API events.
+* Replaced enums with structs:
+  * StreamChat.Core.Models.StreamMessageType
+  * StreamChat.Core.Responses.StreamImageCropType
+  * StreamChat.Core.Responses.StreamImageResizeType
+  * StreamChat.Core.InternalDTO.Models.AutomodBehaviourType
+  * StreamChat.Core.InternalDTO.Models.AutomodType
+  * StreamChat.Core.InternalDTO.Models.BlockListOptionsBehavior
+  * StreamChat.Core.InternalDTO.Models.ImageCropType
+  * StreamChat.Core.InternalDTO.Models.ImageResizeType
+  * StreamChat.Core.InternalDTO.Models.MessageType
+  * StreamChat.Core.InternalDTO.Models.PushProviderType
+  * StreamChat.Core.InternalDTO.Requests.CreateCallRequestType
+  * StreamChat.Core.InternalDTO.Requests.CreatePollRequestVotingVisibility
+  * StreamChat.Core.InternalDTO.Requests.MessageRequestType
+  * StreamChat.Core.InternalDTO.Requests.TranslateMessageRequestLanguage
+  * StreamChat.Core.InternalDTO.Requests.UpdatePollRequestVotingVisibility
+  * StreamChat.Core.InternalDTO.Responses.ChannelMemberResponseRole
+
 v4.9.0:
 Fixes:
 * Fix compiler errors after switching to WebGL platform

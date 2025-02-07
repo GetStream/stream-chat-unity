@@ -452,6 +452,9 @@ namespace StreamChat.Core
             return result;
         }
 
+        public Task<IEnumerable<IStreamUser>> UpsertUsersAsync(IEnumerable<StreamUserUpsertRequest> userRequests)
+            => UpsertUsers(userRequests);
+
         public async Task<IEnumerable<IStreamUser>> UpsertUsers(IEnumerable<StreamUserUpsertRequest> userRequests)
         {
             StreamAsserts.AssertNotNullOrEmpty(userRequests, nameof(userRequests));

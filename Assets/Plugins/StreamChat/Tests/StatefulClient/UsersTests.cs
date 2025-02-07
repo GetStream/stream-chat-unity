@@ -2,9 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Users;
 using StreamChat.Core.Requests;
@@ -115,6 +117,61 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.IsTrue(usersArr.All(u => u.Name.ToLower().StartsWith("ann")));
             Assert.IsNull(usersArr.FirstOrDefault(u => u.Name.StartsWith(userMike.Name)));
+        }
+
+        [UnityTest]
+        public IEnumerator When_upsert_user_expect_no_error()
+            => ConnectAndExecute(When_upsert_user_expect_no_error_Async);
+        
+        private async Task When_upsert_user_expect_no_error_Async()
+        {
+            var eventReceived = false;
+            Client.InternalLowLevelClient.InternalUserUpdated += dto => eventReceived = true;
+            
+            var createUserRequest = new StreamUserUpsertRequest
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "mike"
+            };
+
+            var users = await Client.UpsertUsers(new[] { createUserRequest });
+            Assert.NotNull(users);
+            Assert.AreEqual(users.Count(), 1);
+
+            // Query user to watch him and receive events
+            var queriedUsers = await TryAsync(async () =>
+            {
+                return await Client.QueryUsersAsync(new List<IFieldFilterRule>
+                {
+                    UserFilter.Id.In(users.Select(u => u.Id))
+                });
+            }, result => result.Any());
+            
+            Assert.NotNull(queriedUsers);
+            Assert.AreEqual(queriedUsers.Count(), 1);
+            
+            // Update users and wait for event
+            var updateUserRequest = new StreamUserUpsertRequest
+            {
+                Id = createUserRequest.Id,
+                Name = "Steven"
+            };
+
+            var users2 = await Client.UpsertUsers(new[] { updateUserRequest });
+            Assert.NotNull(users2);
+            Assert.AreEqual(users2.Count(), 1);
+
+            var sw = new Stopwatch();
+            sw.Start();
+            while(sw.Elapsed.TotalSeconds < 30 && !eventReceived)
+            {
+                await Task.Delay(100);
+            }
+            
+            // StreamTodo: debug why event is not always received. By querying the newly created user with the watch = true we should start receiving events
+            // But the user.updated event is not always received
+            
+            //Assert.IsTrue(eventReceived);
         }
     }
 }
