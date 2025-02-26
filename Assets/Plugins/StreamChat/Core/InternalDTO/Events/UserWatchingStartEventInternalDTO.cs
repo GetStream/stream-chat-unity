@@ -35,7 +35,7 @@ namespace StreamChat.Core.InternalDTO.Events
         public string Type { get; set; } = "user.watching.start";
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO User { get; set; }
+        public UserInternalDTO User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int WatcherCount { get; set; }

@@ -32,7 +32,7 @@ namespace StreamChat.Core.InternalDTO.Events
         public string Type { get; set; } = "channel.visible";
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO User { get; set; }
+        public UserInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

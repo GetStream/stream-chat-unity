@@ -13,6 +13,9 @@ namespace StreamChat.Core.InternalDTO.Requests
 {
     using System = global::System;
 
+    /// <summary>
+    /// User request object
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class UserRequestInternalDTO
     {
@@ -41,10 +44,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public string Name { get; set; }
 
         [Newtonsoft.Json.JsonProperty("privacy_settings", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PrivacySettingsInternalDTO PrivacySettings { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PushNotificationSettingsRequestInternalDTO PushNotifications { get; set; }
+        public PrivacySettingsResponseInternalDTO PrivacySettings { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

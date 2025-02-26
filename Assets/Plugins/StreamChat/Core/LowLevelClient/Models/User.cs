@@ -5,10 +5,10 @@ using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>,
-        ILoadableFrom<UserResponseInternalDTO, User>, ILoadableFrom<UserEventPayloadInternalDTO, User>,
+    public class User : ModelBase, ILoadableFrom<UserInternalDTO, User>,
+        ILoadableFrom<UserResponseInternalDTO, User>,
         ILoadableFrom<FullUserResponseInternalDTO, User>,
-        ISavableTo<UserObjectInternalDTO>
+        ISavableTo<UserInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -83,7 +83,7 @@ namespace StreamChat.Core.LowLevelClient.Models
         public string Name;
         public string Image;
 
-        User ILoadableFrom<UserObjectInternalDTO, User>.LoadFromDto(UserObjectInternalDTO dto)
+        User ILoadableFrom<UserInternalDTO, User>.LoadFromDto(UserInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;
@@ -140,36 +140,8 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        User ILoadableFrom<UserEventPayloadInternalDTO, User>.LoadFromDto(UserEventPayloadInternalDTO dto)
-        {
-            AdditionalProperties = dto.AdditionalProperties;
-            BanExpires = dto.BanExpires;
-            Banned = dto.Banned;
-            CreatedAt = dto.CreatedAt;
-            DeactivatedAt = dto.DeactivatedAt;
-            DeletedAt = dto.DeletedAt;
-            Id = dto.Id;
-            Invisible = dto.Invisible;
-            Language = dto.Language;
-            LastActive = dto.LastActive;
-            Online = dto.Online;
-            PushNotifications
-                = PushNotifications.TryLoadFromDto<PushNotificationSettingsInternalDTO, PushNotificationSettings>(
-                    dto.PushNotifications);
-            RevokeTokensIssuedBefore = dto.RevokeTokensIssuedBefore;
-            Role = dto.Role;
-            Teams = dto.Teams;
-            UpdatedAt = dto.UpdatedAt;
-
-            //Not in API spec
-            Name = dto.Name;
-            Image = dto.Image;
-
-            return this;
-        }
-
-        UserObjectInternalDTO ISavableTo<UserObjectInternalDTO>.SaveToDto()
-            => new UserObjectInternalDTO
+        UserInternalDTO ISavableTo<UserInternalDTO>.SaveToDto()
+            => new UserInternalDTO
             {
                 BanExpires = BanExpires,
                 Banned = Banned,

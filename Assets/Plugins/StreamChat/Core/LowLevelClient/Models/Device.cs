@@ -1,9 +1,10 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public class Device : ModelBase, ILoadableFrom<DeviceInternalDTO, Device>
+    public class Device : ModelBase, ILoadableFrom<DeviceInternalDTO, Device>, ILoadableFrom<DeviceResponseInternalDTO, Device>
     {
         /// <summary>
         /// Date/time of creation
@@ -30,6 +31,19 @@ namespace StreamChat.Core.LowLevelClient.Models
         public string UserId { get; set; }
 
         Device ILoadableFrom<DeviceInternalDTO, Device>.LoadFromDto(DeviceInternalDTO dto)
+        {
+            CreatedAt = dto.CreatedAt;
+            Disabled = dto.Disabled;
+            DisabledReason = dto.DisabledReason;
+            Id = dto.Id;
+            PushProvider = PushProvider.TryLoadNullableStructFromDto(dto.PushProvider);
+            UserId = dto.UserId;
+            AdditionalProperties = dto.AdditionalProperties;
+
+            return this;
+        }
+        
+        Device ILoadableFrom<DeviceResponseInternalDTO, Device>.LoadFromDto(DeviceResponseInternalDTO dto)
         {
             CreatedAt = dto.CreatedAt;
             Disabled = dto.Disabled;

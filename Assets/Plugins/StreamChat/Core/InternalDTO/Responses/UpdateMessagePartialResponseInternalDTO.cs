@@ -26,7 +26,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Updated message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageInternalDTO Message { get; set; }
+        public MessageResponseInternalDTO Message { get; set; }
 
         /// <summary>
         /// Pending message metadata

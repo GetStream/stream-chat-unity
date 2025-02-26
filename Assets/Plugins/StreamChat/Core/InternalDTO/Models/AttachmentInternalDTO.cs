@@ -13,6 +13,9 @@ namespace StreamChat.Core.InternalDTO.Models
 {
     using System = global::System;
 
+    /// <summary>
+    /// An attachment is a message object that represents a file uploaded by a user.
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class AttachmentInternalDTO
     {
@@ -55,6 +58,18 @@ namespace StreamChat.Core.InternalDTO.Models
         [Newtonsoft.Json.JsonProperty("image_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ImageUrl { get; set; }
 
+        /// <summary>
+        /// The latitude of the location
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("latitude", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public float? Latitude { get; set; }
+
+        /// <summary>
+        /// The longitude of the location
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("longitude", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public float? Longitude { get; set; }
+
         [Newtonsoft.Json.JsonProperty("og_scrape_url", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string OgScrapeUrl { get; set; }
 
@@ -66,6 +81,12 @@ namespace StreamChat.Core.InternalDTO.Models
 
         [Newtonsoft.Json.JsonProperty("pretext", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Pretext { get; set; }
+
+        /// <summary>
+        /// If the user has stopped sharing their location
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("stopped_sharing", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? StoppedSharing { get; set; }
 
         [Newtonsoft.Json.JsonProperty("text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }

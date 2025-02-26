@@ -32,7 +32,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Truncated message object
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageInternalDTO Message { get; set; }
+        public MessageResponseInternalDTO Message { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

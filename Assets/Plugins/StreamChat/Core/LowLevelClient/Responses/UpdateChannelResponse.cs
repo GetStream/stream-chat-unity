@@ -23,7 +23,7 @@ namespace StreamChat.Core.LowLevelClient.Responses
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Duration = dto.Duration;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
-            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageResponseInternalDTO, Message>(dto.Message);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

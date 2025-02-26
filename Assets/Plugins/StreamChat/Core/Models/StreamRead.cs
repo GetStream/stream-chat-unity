@@ -8,8 +8,7 @@ using StreamChat.Core.StatefulModels;
 namespace StreamChat.Core.Models
 {
     //StreamTodo: this could contain the last read StreamMessage
-    public class StreamRead : IStateLoadableFrom<ReadInternalDTO, StreamRead>,
-        IStateLoadableFrom<ReadStateResponseInternalDTO, StreamRead>
+    public class StreamRead : IStateLoadableFrom<ReadStateResponseInternalDTO, StreamRead>
     {
         public DateTimeOffset LastRead { get; private set; }
 
@@ -17,16 +16,6 @@ namespace StreamChat.Core.Models
 
         public IStreamUser User { get; private set; }
 
-        StreamRead IStateLoadableFrom<ReadInternalDTO, StreamRead>.LoadFromDto(ReadInternalDTO dto, ICache cache)
-        {
-            //Is this always set? What if a user marks empty channel as read? 
-            LastRead = dto.LastRead; //StreamTodo: GetValueOrThrow? 
-            UnreadMessages = dto.UnreadMessages;
-            User = cache.TryCreateOrUpdate(dto.User);
-
-            return this;
-        }
-        
         StreamRead IStateLoadableFrom<ReadStateResponseInternalDTO, StreamRead>.LoadFromDto(ReadStateResponseInternalDTO dto, ICache cache)
         {
             //Is this always set? What if a user marks empty channel as read? 

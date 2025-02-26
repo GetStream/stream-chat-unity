@@ -16,6 +16,9 @@ namespace StreamChat.Core.InternalDTO.Responses
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class ChannelMemberResponseInternalDTO
     {
+        [Newtonsoft.Json.JsonProperty("archived_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? ArchivedAt { get; set; }
+
         /// <summary>
         /// Expiration date of the ban
         /// </summary>
@@ -39,6 +42,9 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset CreatedAt { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, object> Custom { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeletedAt { get; set; }
@@ -69,6 +75,9 @@ namespace StreamChat.Core.InternalDTO.Responses
 
         [Newtonsoft.Json.JsonProperty("notifications_muted", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool NotificationsMuted { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("pinned_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? PinnedAt { get; set; }
 
         /// <summary>
         /// Permission level of the member in the channel (DEPRECATED: use channel_role instead)

@@ -38,16 +38,19 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.Collections.Generic.List<MessageResponseInternalDTO> Messages { get; set; } = new System.Collections.Generic.List<MessageResponseInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("pending_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<PendingMessageInternalDTO> PendingMessages { get; set; }
+        public System.Collections.Generic.List<PendingMessageResponseInternalDTO> PendingMessages { get; set; }
 
         [Newtonsoft.Json.JsonProperty("pinned_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<MessageResponseInternalDTO> PinnedMessages { get; set; } = new System.Collections.Generic.List<MessageResponseInternalDTO>();
+
+        [Newtonsoft.Json.JsonProperty("push_preferences", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ChannelPushPreferencesInternalDTO PushPreferences { get; set; }
 
         [Newtonsoft.Json.JsonProperty("read", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<ReadStateResponseInternalDTO> Read { get; set; }
 
         [Newtonsoft.Json.JsonProperty("threads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ThreadStateInternalDTO> Threads { get; set; } = new System.Collections.Generic.List<ThreadStateInternalDTO>();
+        public System.Collections.Generic.List<ThreadStateResponseInternalDTO> Threads { get; set; } = new System.Collections.Generic.List<ThreadStateResponseInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("watcher_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? WatcherCount { get; set; }

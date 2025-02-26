@@ -49,6 +49,9 @@ namespace StreamChat.Core.InternalDTO.Requests
         [Newtonsoft.Json.JsonProperty("quoted_message_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string QuotedMessageId { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("restricted_visibility", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<string> RestrictedVisibility { get; set; }
+
         [Newtonsoft.Json.JsonProperty("show_in_channel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? ShowInChannel { get; set; }
 

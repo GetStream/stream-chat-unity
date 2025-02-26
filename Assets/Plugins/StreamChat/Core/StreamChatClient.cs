@@ -410,7 +410,7 @@ namespace StreamChat.Core
                 Limit = limit,
                 Offset = offset,
                 Presence = true, //StreamTodo: research whether user should be allowed to control this
-                Sort = sort?.ToSortParamInternalDTOs(),
+                Sort = sort?.ToSortParamRequestList(),
             };
 
             var response = await InternalLowLevelClient.InternalUserApi.QueryUsersAsync(requestBodyDto);

@@ -1,6 +1,7 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Events
@@ -19,7 +20,7 @@ namespace StreamChat.Core.LowLevelClient.Events
         {
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            Me = Me.TryLoadFromDto<OwnUserInternalDTO, OwnUser>(dto.Me);
+            Me = Me.TryLoadFromDto<OwnUserResponseInternalDTO, OwnUser>(dto.Me);
             Type = dto.Type;
             AdditionalProperties = dto.AdditionalProperties;
 

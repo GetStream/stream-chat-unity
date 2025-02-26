@@ -1060,7 +1060,7 @@ namespace StreamChat.Core.StatefulModels
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
         private readonly List<IStreamUser> _typingUsers = new List<IStreamUser>();
 
-        private void HandleMessageRead(UserObjectInternalDTO userDto, DateTimeOffset createAt)
+        private void HandleMessageRead(UserInternalDTO userDto, DateTimeOffset createAt)
         {
             //we can only mark messages based on created_at
             //we mark this per user

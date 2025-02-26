@@ -56,16 +56,16 @@ namespace StreamChat.Core.State.Caches
         public static StreamUser TryCreateOrUpdate(this ICache cache, UserResponseInternalDTO dto)
             => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserResponseInternalDTO>(dto, out _);
         
-        public static StreamUser TryCreateOrUpdate(this ICache cache, UserObjectInternalDTO dto)
-            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalDTO>(dto, out _);
+        public static StreamUser TryCreateOrUpdate(this ICache cache, UserInternalDTO dto)
+            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserInternalDTO>(dto, out _);
 
-        public static StreamUser TryCreateOrUpdate(this ICache cache, UserObjectInternalDTO dto,
+        public static StreamUser TryCreateOrUpdate(this ICache cache, UserInternalDTO dto,
             out bool wasCreated)
         {
             wasCreated = false;
             return dto == null
                 ? null
-                : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalDTO>(dto, out wasCreated);
+                : cache.Users.CreateOrUpdate<StreamUser, UserInternalDTO>(dto, out wasCreated);
         }
 
         public static StreamLocalUserData TryCreateOrUpdate(this ICache cache, OwnUserInternalDTO dto)
@@ -73,8 +73,5 @@ namespace StreamChat.Core.State.Caches
         
         public static StreamUser TryCreateOrUpdate(this ICache cache, FullUserResponseInternalDTO dto)
             => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, FullUserResponseInternalDTO>(dto, out _);
-        
-        public static StreamUser TryCreateOrUpdate(this ICache cache, UserEventPayloadInternalDTO dto)
-            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserEventPayloadInternalDTO>(dto, out _);
     }
 }

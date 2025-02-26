@@ -1,4 +1,5 @@
-﻿using StreamChat.Core.Helpers;
+﻿using System.Linq;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Responses;
 
@@ -127,7 +128,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             Config = Config.TryLoadFromDto(dto.Config);
             Cooldown = dto.Cooldown;
             CreatedAt = dto.CreatedAt;
-            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.CreatedBy);
+            CreatedBy = CreatedBy.TryLoadFromDto<UserResponseInternalDTO, User>(dto.CreatedBy);
             DeletedAt = dto.DeletedAt;
             Disabled = dto.Disabled;
             Frozen = dto.Frozen;
@@ -139,10 +140,10 @@ namespace StreamChat.Core.LowLevelClient.Models
             Members = Members.TryLoadFromDtoCollection(dto.Members);
             MuteExpiresAt = dto.MuteExpiresAt;
             Muted = dto.Muted;
-            OwnCapabilities = dto.OwnCapabilities;
+            OwnCapabilities = dto.OwnCapabilities?.Select(c => c.ToString()).ToList();
             Team = dto.Team;
             TruncatedAt = dto.TruncatedAt;
-            TruncatedBy = TruncatedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.TruncatedBy);
+            TruncatedBy = TruncatedBy.TryLoadFromDto<UserResponseInternalDTO, User>(dto.TruncatedBy);
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
             AdditionalProperties = dto.AdditionalProperties;

@@ -13,23 +13,12 @@ namespace StreamChat.Core.InternalDTO.Models
 {
     using System = global::System;
 
+    /// <summary>
+    /// Channel configuration overrides
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class ChannelConfigInternalDTO
     {
-        [Newtonsoft.Json.JsonProperty("allowed_flag_reasons", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> AllowedFlagReasons { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("automod", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(StreamChat.Core.Serialization.EnumeratedStructConverter<AutomodTypeInternalDTO>))]
-        public AutomodTypeInternalDTO Automod { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("automod_behavior", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(StreamChat.Core.Serialization.EnumeratedStructConverter<AutomodBehaviourTypeInternalDTO>))]
-        public AutomodBehaviourTypeInternalDTO AutomodBehavior { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("automod_thresholds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ThresholdsInternalDTO AutomodThresholds { get; set; }
-
         [Newtonsoft.Json.JsonProperty("blocklist", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Blocklist { get; set; }
 
@@ -37,77 +26,56 @@ namespace StreamChat.Core.InternalDTO.Models
         [Newtonsoft.Json.JsonConverter(typeof(StreamChat.Core.Serialization.EnumeratedStructConverter<AutomodBehaviourTypeInternalDTO>))]
         public AutomodBehaviourTypeInternalDTO? BlocklistBehavior { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("blocklists", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<BlockListOptionsInternalDTO> Blocklists { get; set; }
-
         /// <summary>
         /// List of commands that channel supports
         /// </summary>
         [Newtonsoft.Json.JsonProperty("commands", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> Commands { get; set; } = new System.Collections.Generic.List<string>();
+        public System.Collections.Generic.List<string> Commands { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("connect_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool ConnectEvents { get; set; }
+        [Newtonsoft.Json.JsonProperty("grants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> Grants { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset CreatedAt { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("custom_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool CustomEvents { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("mark_messages_pending", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool MarkMessagesPending { get; set; }
-
+        /// <summary>
+        /// Overrides max message length
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("max_message_length", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int MaxMessageLength { get; set; }
+        public int? MaxMessageLength { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("mutes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Mutes { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("partition_size", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? PartitionSize { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("partition_ttl", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? PartitionTtl { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("polls", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Polls { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("push_notifications", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool PushNotifications { get; set; }
-
+        /// <summary>
+        /// Enables message quotes
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("quotes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Quotes { get; set; }
+        public bool? Quotes { get; set; }
 
+        /// <summary>
+        /// Enables or disables reactions
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Reactions { get; set; }
+        public bool? Reactions { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("read_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool ReadEvents { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("reminders", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Reminders { get; set; }
-
+        /// <summary>
+        /// Enables message replies (threads)
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("replies", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Replies { get; set; }
+        public bool? Replies { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("search", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Search { get; set; }
-
+        /// <summary>
+        /// Enables or disables typing events
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool TypingEvents { get; set; }
+        public bool? TypingEvents { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset UpdatedAt { get; set; }
-
+        /// <summary>
+        /// Enables or disables file uploads
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("uploads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Uploads { get; set; }
+        public bool? Uploads { get; set; }
 
+        /// <summary>
+        /// Enables or disables URL enrichment
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("url_enrichment", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool UrlEnrichment { get; set; }
+        public bool? UrlEnrichment { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

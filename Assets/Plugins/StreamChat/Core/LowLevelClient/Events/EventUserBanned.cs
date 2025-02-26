@@ -35,13 +35,13 @@ namespace StreamChat.Core.LowLevelClient.Events
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.CreatedBy);
+            CreatedBy = CreatedBy.TryLoadFromDto<UserInternalDTO, User>(dto.CreatedBy);
             Expiration = dto.Expiration;
             Reason = dto.Reason;
             Shadow = dto.Shadow;
             Team = dto.Team;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

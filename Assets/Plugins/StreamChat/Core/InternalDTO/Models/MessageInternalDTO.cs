@@ -13,222 +13,128 @@ namespace StreamChat.Core.InternalDTO.Models
 {
     using System = global::System;
 
-    /// <summary>
-    /// Represents any chat message
-    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class MessageInternalDTO
     {
-        /// <summary>
-        /// Array of message attachments
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("attachments", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<AttachmentInternalDTO> Attachments { get; set; } = new System.Collections.Generic.List<AttachmentInternalDTO>();
 
-        /// <summary>
-        /// Whether `before_message_send webhook` failed or not. Field is only accessible in push webhook
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("before_message_send_failed", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? BeforeMessageSendFailed { get; set; }
 
-        /// <summary>
-        /// Channel unique identifier in &lt;type&gt;:&lt;id&gt; format
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
-        /// <summary>
-        /// Contains provided slash command
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("command", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Command { get; set; }
 
-        /// <summary>
-        /// Date/time of creation
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset CreatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, object> Custom { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
-        /// <summary>
-        /// Date/time of deletion
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeletedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("deleted_reply_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int DeletedReplyCount { get; set; }
 
-        /// <summary>
-        /// Contains HTML markup of the message. Can only be set when using server-side API
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("html", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Html { get; set; }
 
-        /// <summary>
-        /// Object with translations. Key `language` contains the original language key. Other keys contain translations
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("i18n", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, string> I18n { get; set; }
 
-        /// <summary>
-        /// Message ID is unique string identifier of the message
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        /// <summary>
-        /// Contains image moderation information
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("image_labels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> ImageLabels { get; set; }
 
-        /// <summary>
-        /// List of 10 latest reactions to this message
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("latest_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<ReactionInternalDTO> LatestReactions { get; set; } = new System.Collections.Generic.List<ReactionInternalDTO>();
 
-        /// <summary>
-        /// List of mentioned users
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("mentioned_users", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalDTO> MentionedUsers { get; set; } = new System.Collections.Generic.List<UserObjectInternalDTO>();
+        public System.Collections.Generic.List<UserInternalDTO> MentionedUsers { get; set; } = new System.Collections.Generic.List<UserInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("message_text_updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? MessageTextUpdatedAt { get; set; }
 
-        /// <summary>
-        /// Should be empty if `text` is provided. Can only be set when using server-side API
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("mml", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Mml { get; set; }
 
-        /// <summary>
-        /// List of 10 latest reactions of authenticated user to this message
-        /// </summary>
+        [Newtonsoft.Json.JsonProperty("moderation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ModerationV2ResponseInternalDTO Moderation { get; set; }
+
         [Newtonsoft.Json.JsonProperty("own_reactions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<ReactionInternalDTO> OwnReactions { get; set; } = new System.Collections.Generic.List<ReactionInternalDTO>();
 
-        /// <summary>
-        /// ID of parent message (thread)
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ParentId { get; set; }
 
-        /// <summary>
-        /// Date when pinned message expires
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("pin_expires", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? PinExpires { get; set; }
 
-        /// <summary>
-        /// Whether message is pinned or not
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Pinned { get; set; }
 
-        /// <summary>
-        /// Date when message got pinned
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? PinnedAt { get; set; }
 
-        /// <summary>
-        /// Contains user who pinned the message
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO PinnedBy { get; set; }
+        public UserInternalDTO PinnedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty("poll", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PollInternalDTO Poll { get; set; }
 
-        /// <summary>
-        /// Identifier of the poll to include in the message
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("poll_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string PollId { get; set; }
 
-        /// <summary>
-        /// Contains quoted message
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("quoted_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public MessageInternalDTO QuotedMessage { get; set; }
 
         [Newtonsoft.Json.JsonProperty("quoted_message_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string QuotedMessageId { get; set; }
 
-        /// <summary>
-        /// An object containing number of reactions of each type. Key: reaction type (string), value: number of reactions (int)
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_counts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, int> ReactionCounts { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
 
         [Newtonsoft.Json.JsonProperty("reaction_groups", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, ReactionGroupResponseInternalDTO> ReactionGroups { get; set; } = new System.Collections.Generic.Dictionary<string, ReactionGroupResponseInternalDTO>();
 
-        /// <summary>
-        /// An object containing scores of reactions of each type. Key: reaction type (string), value: total score of reactions (int)
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("reaction_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, int> ReactionScores { get; set; } = new System.Collections.Generic.Dictionary<string, int>();
 
-        /// <summary>
-        /// Number of replies to this message
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("reply_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int ReplyCount { get; set; }
 
-        /// <summary>
-        /// Whether the message was shadowed or not
-        /// </summary>
+        [Newtonsoft.Json.JsonProperty("restricted_visibility", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<string> RestrictedVisibility { get; set; } = new System.Collections.Generic.List<string>();
+
         [Newtonsoft.Json.JsonProperty("shadowed", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Shadowed { get; set; }
 
-        /// <summary>
-        /// Whether thread reply should be shown in the channel as well
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("show_in_channel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? ShowInChannel { get; set; }
 
-        /// <summary>
-        /// Whether message is silent or not
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("silent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Silent { get; set; }
 
-        /// <summary>
-        /// Text of the message. Should be empty if `mml` is provided
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }
 
-        /// <summary>
-        /// List of users who participate in thread
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("thread_participants", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<UserObjectInternalDTO> ThreadParticipants { get; set; }
+        public System.Collections.Generic.List<UserInternalDTO> ThreadParticipants { get; set; }
 
-        /// <summary>
-        /// Contains type of the message
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(StreamChat.Core.Serialization.EnumeratedStructConverter<MessageTypeInternalDTO>))]
-        public MessageTypeInternalDTO Type { get; set; }
+        public string Type { get; set; }
 
-        /// <summary>
-        /// Date/time of the last update
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset UpdatedAt { get; set; }
 
-        /// <summary>
-        /// Sender of the message. Required when using server-side API
-        /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO User { get; set; }
+        public UserInternalDTO User { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

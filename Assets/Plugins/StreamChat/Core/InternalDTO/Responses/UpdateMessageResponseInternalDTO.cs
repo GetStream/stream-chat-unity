@@ -13,6 +13,9 @@ namespace StreamChat.Core.InternalDTO.Responses
 {
     using System = global::System;
 
+    /// <summary>
+    /// Basic response information
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class UpdateMessageResponseInternalDTO
     {
@@ -23,7 +26,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string Duration { get; set; }
 
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageInternalDTO Message { get; set; } = new MessageInternalDTO();
+        public MessageResponseInternalDTO Message { get; set; } = new MessageResponseInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("pending_message_metadata", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, string> PendingMessageMetadata { get; set; }

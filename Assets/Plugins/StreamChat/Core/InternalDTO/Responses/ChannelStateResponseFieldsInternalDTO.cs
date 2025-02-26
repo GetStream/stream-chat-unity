@@ -53,13 +53,16 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Pending messages that this user has sent
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pending_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<PendingMessageInternalDTO> PendingMessages { get; set; }
+        public System.Collections.Generic.List<PendingMessageResponseInternalDTO> PendingMessages { get; set; }
 
         /// <summary>
         /// List of pinned messages in the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("pinned_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<MessageResponseInternalDTO> PinnedMessages { get; set; } = new System.Collections.Generic.List<MessageResponseInternalDTO>();
+
+        [Newtonsoft.Json.JsonProperty("push_preferences", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ChannelPushPreferencesInternalDTO PushPreferences { get; set; }
 
         /// <summary>
         /// List of read states
@@ -68,7 +71,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.Collections.Generic.List<ReadStateResponseInternalDTO> Read { get; set; }
 
         [Newtonsoft.Json.JsonProperty("threads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ThreadStateInternalDTO> Threads { get; set; } = new System.Collections.Generic.List<ThreadStateInternalDTO>();
+        public System.Collections.Generic.List<ThreadStateResponseInternalDTO> Threads { get; set; } = new System.Collections.Generic.List<ThreadStateResponseInternalDTO>();
 
         /// <summary>
         /// Number of channel watchers

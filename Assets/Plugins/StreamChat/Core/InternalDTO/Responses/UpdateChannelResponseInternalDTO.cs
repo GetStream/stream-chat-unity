@@ -38,7 +38,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Message sent to the chat
         /// </summary>
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageInternalDTO Message { get; set; }
+        public MessageResponseInternalDTO Message { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

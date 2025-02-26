@@ -26,7 +26,7 @@ namespace StreamChat.Core.LowLevelClient.Events
             HardDelete = dto.HardDelete;
             MarkMessagesDeleted = dto.MarkMessagesDeleted;
             Type = dto.Type;
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

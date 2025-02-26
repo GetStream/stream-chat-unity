@@ -105,7 +105,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 IsModerator = IsModerator,
                 ShadowBanned = ShadowBanned,
                 UpdatedAt = UpdatedAt,
-                User = User.TrySaveToDto<UserObjectInternalDTO>(),
+                User = User.TrySaveToDto<UserInternalDTO>(),
                 UserId = UserId,
                 AdditionalProperties = AdditionalProperties,
             };

@@ -49,7 +49,7 @@ namespace StreamChat.Core.LowLevelClient.Events
 #pragma warning disable 0618
             UnreadCount = dto.TotalUnreadCount;
 #pragma warning restore 0618
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

@@ -49,6 +49,9 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("is_closed", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? IsClosed { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("latest_answers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<PollVoteResponseDataInternalDTO> LatestAnswers { get; set; } = new System.Collections.Generic.List<PollVoteResponseDataInternalDTO>();
+
         [Newtonsoft.Json.JsonProperty("latest_votes_by_option", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<PollVoteResponseDataInternalDTO>> LatestVotesByOption { get; set; } = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<PollVoteResponseDataInternalDTO>>();
 

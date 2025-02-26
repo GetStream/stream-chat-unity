@@ -3,7 +3,7 @@ using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
-    public partial class SortParamRequest : RequestObjectBase, ISavableTo<SortParamRequestInternalDTO>, ISavableTo<SortParamInternalDTO>
+    public partial class SortParamRequest : RequestObjectBase, ISavableTo<SortParamRequestInternalDTO>
     {
         public int? Direction { get; set; }
 
@@ -11,14 +11,6 @@ namespace StreamChat.Core.LowLevelClient.Requests
 
         SortParamRequestInternalDTO ISavableTo<SortParamRequestInternalDTO>.SaveToDto() =>
             new SortParamRequestInternalDTO
-            {
-                Direction = Direction,
-                Field = Field,
-                AdditionalProperties = AdditionalProperties
-            };
-
-        SortParamInternalDTO ISavableTo<SortParamInternalDTO>.SaveToDto() =>
-            new SortParamInternalDTO
             {
                 Direction = Direction,
                 Field = Field,

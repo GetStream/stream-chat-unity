@@ -32,7 +32,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public bool? ShowDeletedMessages { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sort", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<SortParamInternalDTO> Sort { get; set; }
+        public System.Collections.Generic.List<SortParamRequestInternalDTO> Sort { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

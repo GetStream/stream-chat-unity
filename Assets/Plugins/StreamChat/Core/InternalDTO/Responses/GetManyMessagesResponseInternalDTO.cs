@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of messages
         /// </summary>
         [Newtonsoft.Json.JsonProperty("messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<MessageInternalDTO> Messages { get; set; } = new System.Collections.Generic.List<MessageInternalDTO>();
+        public System.Collections.Generic.List<MessageResponseInternalDTO> Messages { get; set; } = new System.Collections.Generic.List<MessageResponseInternalDTO>();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

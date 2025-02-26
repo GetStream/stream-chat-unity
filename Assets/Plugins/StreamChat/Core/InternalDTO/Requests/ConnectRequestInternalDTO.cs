@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public DeviceFieldsInternalDTO Device { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_details", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO UserDetails { get; set; } = new UserObjectInternalDTO();
+        public UserInternalDTO UserDetails { get; set; } = new UserInternalDTO();
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

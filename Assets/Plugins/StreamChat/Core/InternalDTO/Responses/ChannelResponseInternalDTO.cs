@@ -65,8 +65,11 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Creator of the channel
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO CreatedBy { get; set; }
+        public UserResponseInternalDTO CreatedBy { get; set; }
 
+        /// <summary>
+        /// Custom data for this object
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, object> Custom { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -136,8 +139,8 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// <summary>
         /// List of channel capabilities of authenticated user
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("own_capabilities", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<string> OwnCapabilities { get; set; }
+        [Newtonsoft.Json.JsonConverter(typeof(StreamChat.Core.Serialization.EnumeratedStructListConverter<ChannelOwnCapabilityInternalDTO>))]
+        public System.Collections.Generic.List<ChannelOwnCapabilityInternalDTO> OwnCapabilities { get; set; }
 
         /// <summary>
         /// Team the channel belongs to (multi-tenant only)
@@ -152,7 +155,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.DateTimeOffset? TruncatedAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("truncated_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO TruncatedBy { get; set; }
+        public UserResponseInternalDTO TruncatedBy { get; set; }
 
         /// <summary>
         /// Type of the channel

@@ -51,27 +51,6 @@ namespace StreamChat.Core.QueryBuilders.Sort
 
             return sortParams;
         }
-        
-        internal List<SortParamInternalDTO> ToSortParamInternalDTOs()
-        {
-            if (_order.Count == 0)
-            {
-                return null;
-            }
-
-            var sortParams = new List<SortParamInternalDTO>();
-
-            foreach (var entry in _order)
-            {
-                sortParams.Add(new SortParamInternalDTO
-                {
-                    Direction = entry.Direction,
-                    Field = ToUnderlyingFieldName(entry.Field),
-                });
-            }
-
-            return sortParams;
-        }
 
         protected abstract TSortType Instance { get; }
 

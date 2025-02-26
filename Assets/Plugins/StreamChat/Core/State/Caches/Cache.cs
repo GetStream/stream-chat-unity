@@ -23,11 +23,10 @@ namespace StreamChat.Core.State.Caches
             Channels.RegisterDtoIdMapping<StreamChannel, ChannelStateResponseFieldsInternalDTO>(dto => dto.Channel.Cid);
             Channels.RegisterDtoIdMapping<StreamChannel, UpdateChannelResponseInternalDTO>(dto => dto.Channel.Cid);
 
-            Users.RegisterDtoIdMapping<StreamUser, UserObjectInternalDTO>(dto => dto.Id);
+            Users.RegisterDtoIdMapping<StreamUser, UserInternalDTO>(dto => dto.Id);
             Users.RegisterDtoIdMapping<StreamUser, UserResponseInternalDTO>(dto => dto.Id);
             Users.RegisterDtoIdMapping<StreamUser, OwnUserInternalDTO>(dto => dto.Id);
             Users.RegisterDtoIdMapping<StreamUser, FullUserResponseInternalDTO>(dto => dto.Id);
-            Users.RegisterDtoIdMapping<StreamUser, UserEventPayloadInternalDTO>(dto => dto.Id);
 
             LocalUser.RegisterDtoIdMapping<StreamLocalUserData, OwnUserInternalDTO>(dto => dto.Id);
 

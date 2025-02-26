@@ -51,7 +51,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             Score = dto.Score;
             Type = dto.Type;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserInternalDTO, User>(dto.User);
             UserId = dto.UserId;
 
             return this;

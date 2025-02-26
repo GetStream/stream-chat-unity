@@ -56,10 +56,10 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// Array of sort parameters
         /// </summary>
         [Newtonsoft.Json.JsonProperty("sort", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<SortParamInternalDTO> Sort { get; set; } = new System.Collections.Generic.List<SortParamInternalDTO>();
+        public System.Collections.Generic.List<SortParamRequestInternalDTO> Sort { get; set; } = new System.Collections.Generic.List<SortParamRequestInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO User { get; set; }
+        public UserInternalDTO User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserId { get; set; }

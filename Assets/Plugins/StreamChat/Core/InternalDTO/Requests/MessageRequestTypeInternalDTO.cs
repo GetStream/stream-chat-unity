@@ -19,7 +19,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     {
         public string Value { get; }
 
-        public static readonly MessageRequestTypeInternalDTO Regular = new MessageRequestTypeInternalDTO("regular");
+        public static readonly MessageRequestTypeInternalDTO Regular = new MessageRequestTypeInternalDTO("''regular");
         public static readonly MessageRequestTypeInternalDTO System = new MessageRequestTypeInternalDTO("system");
 
         public MessageRequestTypeInternalDTO(string value)

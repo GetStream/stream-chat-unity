@@ -21,7 +21,6 @@ namespace StreamChat.Core.InternalDTO.Models
 
         public static readonly AutomodBehaviourTypeInternalDTO Flag = new AutomodBehaviourTypeInternalDTO("flag");
         public static readonly AutomodBehaviourTypeInternalDTO Block = new AutomodBehaviourTypeInternalDTO("block");
-        public static readonly AutomodBehaviourTypeInternalDTO ShadowBlock = new AutomodBehaviourTypeInternalDTO("shadow_block");
 
         public AutomodBehaviourTypeInternalDTO(string value)
         {

@@ -1,4 +1,5 @@
 ﻿using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
@@ -6,7 +7,7 @@ using StreamChat.Core.StatefulModels;
 
 namespace StreamChat.Core.Models
 {
-    public partial class StreamPendingMessage : ModelBase, IStateLoadableFrom<PendingMessageInternalDTO, StreamPendingMessage>
+    public partial class StreamPendingMessage : ModelBase, IStateLoadableFrom<PendingMessageResponseInternalDTO, StreamPendingMessage>
     {
         /// <summary>
         /// The message
@@ -18,7 +19,7 @@ namespace StreamChat.Core.Models
         /// </summary>
         public System.Collections.Generic.Dictionary<string, string> Metadata { get; private set; }
 
-        StreamPendingMessage IStateLoadableFrom<PendingMessageInternalDTO, StreamPendingMessage>.LoadFromDto(PendingMessageInternalDTO dto, ICache cache)
+        StreamPendingMessage IStateLoadableFrom<PendingMessageResponseInternalDTO, StreamPendingMessage>.LoadFromDto(PendingMessageResponseInternalDTO dto, ICache cache)
         {
             Message = cache.TryCreateOrUpdate(dto.Message);
             Metadata = dto.Metadata;

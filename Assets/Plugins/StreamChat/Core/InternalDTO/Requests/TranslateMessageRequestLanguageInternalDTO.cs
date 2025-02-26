@@ -74,6 +74,7 @@ namespace StreamChat.Core.InternalDTO.Requests
         public static readonly TranslateMessageRequestLanguageInternalDTO Uk = new TranslateMessageRequestLanguageInternalDTO("uk");
         public static readonly TranslateMessageRequestLanguageInternalDTO Ur = new TranslateMessageRequestLanguageInternalDTO("ur");
         public static readonly TranslateMessageRequestLanguageInternalDTO Vi = new TranslateMessageRequestLanguageInternalDTO("vi");
+        public static readonly TranslateMessageRequestLanguageInternalDTO Lt = new TranslateMessageRequestLanguageInternalDTO("lt");
 
         public TranslateMessageRequestLanguageInternalDTO(string value)
         {

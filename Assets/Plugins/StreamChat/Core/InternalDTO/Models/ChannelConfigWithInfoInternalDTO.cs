@@ -74,7 +74,7 @@ namespace StreamChat.Core.InternalDTO.Models
         public int? PartitionSize { get; set; }
 
         [Newtonsoft.Json.JsonProperty("partition_ttl", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? PartitionTtl { get; set; }
+        public System.TimeSpan? PartitionTtl { get; set; }
 
         [Newtonsoft.Json.JsonProperty("polls", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Polls { get; set; }
@@ -99,6 +99,9 @@ namespace StreamChat.Core.InternalDTO.Models
 
         [Newtonsoft.Json.JsonProperty("search", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Search { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("skip_last_msg_update_for_system_msgs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool SkipLastMsgUpdateForSystemMsgs { get; set; }
 
         [Newtonsoft.Json.JsonProperty("typing_events", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool TypingEvents { get; set; }

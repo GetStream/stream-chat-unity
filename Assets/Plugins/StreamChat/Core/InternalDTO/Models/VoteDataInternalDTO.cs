@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Models
     internal partial class VoteDataInternalDTO
     {
         [Newtonsoft.Json.JsonProperty("Option", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public PollOptionInternalDTO Option { get; set; }
+        public PollOptionResponseDataInternalDTO Option { get; set; }
 
         [Newtonsoft.Json.JsonProperty("answer_text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AnswerText { get; set; }

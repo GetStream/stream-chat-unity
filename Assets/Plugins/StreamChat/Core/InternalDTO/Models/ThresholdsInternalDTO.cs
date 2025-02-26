@@ -13,15 +13,27 @@ namespace StreamChat.Core.InternalDTO.Models
 {
     using System = global::System;
 
+    /// <summary>
+    /// Sets thresholds for AI moderation
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class ThresholdsInternalDTO
     {
+        /// <summary>
+        /// Thresholds for explicit messages
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("explicit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LabelThresholdsInternalDTO Explicit { get; set; }
 
+        /// <summary>
+        /// Thresholds for spam
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("spam", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LabelThresholdsInternalDTO Spam { get; set; }
 
+        /// <summary>
+        /// Thresholds for toxic messages
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("toxic", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LabelThresholdsInternalDTO Toxic { get; set; }
 

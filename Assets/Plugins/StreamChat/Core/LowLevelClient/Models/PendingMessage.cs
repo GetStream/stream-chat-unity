@@ -1,9 +1,10 @@
 ﻿using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Models;
+using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
-    public partial class PendingMessage : ModelBase, ILoadableFrom<PendingMessageInternalDTO, PendingMessage>
+    public partial class PendingMessage : ModelBase, ILoadableFrom<PendingMessageResponseInternalDTO, PendingMessage>
     {
         /// <summary>
         /// The message
@@ -15,9 +16,9 @@ namespace StreamChat.Core.LowLevelClient.Models
         /// </summary>
         public System.Collections.Generic.Dictionary<string, string> Metadata { get; set; }
 
-        PendingMessage ILoadableFrom<PendingMessageInternalDTO, PendingMessage>.LoadFromDto(PendingMessageInternalDTO dto)
+        PendingMessage ILoadableFrom<PendingMessageResponseInternalDTO, PendingMessage>.LoadFromDto(PendingMessageResponseInternalDTO dto)
         {
-            Message = Message.TryLoadFromDto<MessageInternalDTO, Message>(dto.Message);
+            Message = Message.TryLoadFromDto<MessageResponseInternalDTO, Message>(dto.Message);
             Metadata = dto.Metadata;
             AdditionalProperties = dto.AdditionalProperties;
 

@@ -13,18 +13,33 @@ namespace StreamChat.Core.InternalDTO.Responses
 {
     using System = global::System;
 
+    /// <summary>
+    /// ReactionGroupResponse contains all information about a reaction of the same type.
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class ReactionGroupResponseInternalDTO
     {
+        /// <summary>
+        /// Count is the number of reactions of this type.
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Count { get; set; }
 
+        /// <summary>
+        /// FirstReactionAt is the time of the first reaction of this type. This is the same also if all reaction of this type are deleted, because if someone will react again with the same type, will be preserved the sorting.
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("first_reaction_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset FirstReactionAt { get; set; }
 
+        /// <summary>
+        /// LastReactionAt is the time of the last reaction of this type.
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("last_reaction_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset LastReactionAt { get; set; }
 
+        /// <summary>
+        /// SumScores is the sum of all scores of reactions of this type. Medium allows you to clap articles more than once and shows the sum of all claps from all users. For example, you can send `clap` x5 using `score: 5`.
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("sum_scores", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int SumScores { get; set; }
 

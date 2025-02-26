@@ -13,6 +13,9 @@ namespace StreamChat.Core.InternalDTO.Responses
 {
     using System = global::System;
 
+    /// <summary>
+    /// Basic response information
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class DeleteMessageResponseInternalDTO
     {

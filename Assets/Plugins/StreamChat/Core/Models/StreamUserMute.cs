@@ -37,9 +37,9 @@ namespace StreamChat.Core.Models
         {
             CreatedAt = dto.CreatedAt;
             Expires = dto.Expires;
-            Target = Target.TryLoadFromDto<UserObjectInternalDTO, User>(dto.Target);
+            Target = Target.TryLoadFromDto<UserInternalDTO, User>(dto.Target);
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
+            User = User.TryLoadFromDto<UserInternalDTO, User>(dto.User);
 
             return this;
         }

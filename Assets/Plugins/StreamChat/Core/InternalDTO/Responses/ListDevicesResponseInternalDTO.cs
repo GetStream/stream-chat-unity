@@ -13,6 +13,9 @@ namespace StreamChat.Core.InternalDTO.Responses
 {
     using System = global::System;
 
+    /// <summary>
+    /// List devices response
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class ListDevicesResponseInternalDTO
     {
@@ -20,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// List of devices
         /// </summary>
         [Newtonsoft.Json.JsonProperty("devices", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<DeviceInternalDTO> Devices { get; set; } = new System.Collections.Generic.List<DeviceInternalDTO>();
+        public System.Collections.Generic.List<DeviceResponseInternalDTO> Devices { get; set; } = new System.Collections.Generic.List<DeviceResponseInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Duration { get; set; }

@@ -25,17 +25,20 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("file_upload_config", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public FileUploadConfigInternalDTO FileUploadConfig { get; set; } = new FileUploadConfigInternalDTO();
 
+        [Newtonsoft.Json.JsonProperty("guest_user_creation_disabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool GuestUserCreationDisabled { get; set; }
+
         [Newtonsoft.Json.JsonProperty("image_upload_config", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public FileUploadConfigInternalDTO ImageUploadConfig { get; set; } = new FileUploadConfigInternalDTO();
 
         [Newtonsoft.Json.JsonProperty("moderation_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool ModerationEnabled { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("moderation_multitenant_blocklist_enabled", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool ModerationMultitenantBlocklistEnabled { get; set; }
+
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("video_provider", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string VideoProvider { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 
