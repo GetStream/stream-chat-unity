@@ -134,7 +134,8 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
-            var mutes = await TryAsync(() => Task.FromResult(Client.LocalUserData.ChannelMutes), mutes => mutes.FirstOrDefault(m => m.Channel == channel) != null);
+            var mutes = await TryAsync(() => Task.FromResult(Client.LocalUserData.ChannelMutes),
+                mutes => mutes.FirstOrDefault(m => m.Channel == channel) != null);
             var channelMute = mutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNotNull(channelMute);
             Assert.AreEqual(true, channel.Muted);
@@ -338,7 +339,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsFalse(channel.CustomData.ContainsKey("owned_dogs"));
             Assert.IsFalse(channel.CustomData.ContainsKey("breakfast"));
         }
-        
+
         [UnityTest]
         public IEnumerator When_update_overwrite_channel_with_full_data_expect_no_change()
             => ConnectAndExecute(When_update_overwrite_channel_with_full_data_expect_no_change_Async);
@@ -366,7 +367,7 @@ namespace StreamChat.Tests.StatefulClient
             }
 
             channel.Updated += OnChannelUpdated;
-            
+
             await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>
             {
                 { "owned_dogs", 5 },
@@ -383,7 +384,7 @@ namespace StreamChat.Tests.StatefulClient
             await WaitWithTimeoutAsync(cts.Task, $"Channel {nameof(channel.Updated)} event was not received");
 
             channel.Updated -= OnChannelUpdated;
-            
+
             Assert.AreEqual(channelName, channel.Name);
             Assert.AreEqual(2, channel.CustomData.Count);
             Assert.IsTrue(channel.CustomData.ContainsKey("owned_dogs"));
@@ -391,7 +392,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(5, channel.CustomData.Get<int>("owned_dogs"));
             Assert.AreEqual("donuts", channel.CustomData.Get<string[]>("breakfast")[0]);
         }
-        
+
         [UnityTest]
         public IEnumerator When_update_overwrite_channel_with_no_data_expect_data_cleared()
             => ConnectAndExecute(When_update_overwrite_channel_with_no_data_expect_data_cleared_Async);
@@ -419,7 +420,7 @@ namespace StreamChat.Tests.StatefulClient
             }
 
             channel.Updated += OnChannelUpdated;
-            
+
             await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>
             {
                 { "owned_dogs", 5 },
@@ -436,11 +437,11 @@ namespace StreamChat.Tests.StatefulClient
             await WaitWithTimeoutAsync(cts.Task, $"Channel {nameof(channel.Updated)} event was not received");
 
             channel.Updated -= OnChannelUpdated;
-            
+
             Assert.AreEqual(string.Empty, channel.Name);
             Assert.AreEqual(0, channel.CustomData.Count);
         }
-        
+
         [UnityTest]
         public IEnumerator When_update_overwrite_channel_with_partial_data_expect_data_partially_cleared()
             => ConnectAndExecute(When_update_overwrite_channel_with_partial_data_expect_data_partially_cleared_Async);
@@ -469,7 +470,7 @@ namespace StreamChat.Tests.StatefulClient
             }
 
             channel.Updated += OnChannelUpdated;
-            
+
             await channel.UpdatePartialAsync(setFields: new Dictionary<string, object>
             {
                 { "owned_dogs", 5 },
@@ -486,15 +487,15 @@ namespace StreamChat.Tests.StatefulClient
                 Name = channelName2,
                 CustomData = new StreamCustomDataRequest
                 {
-                    {"owned_dogs", 7},
-                    {"owned_cats", "twenty"}
+                    { "owned_dogs", 7 },
+                    { "owned_cats", "twenty" }
                 }
             });
 
             await WaitWithTimeoutAsync(cts.Task, $"Channel {nameof(channel.Updated)} event was not received");
 
             channel.Updated -= OnChannelUpdated;
-            
+
             Assert.AreEqual(channelName2, channel.Name);
             Assert.AreEqual(2, channel.CustomData.Count);
             Assert.IsTrue(channel.CustomData.ContainsKey("owned_dogs"));
@@ -582,7 +583,7 @@ namespace StreamChat.Tests.StatefulClient
 
             channel.Updated -= OnChannelUpdated;
         }
-        
+
         //StreamTODO: debug why having 2 clients connected simultaneously doesn't work
         // [UnityTest]
         // public IEnumerator When_inviting_a_member_expect_invited_user_to_receive_an_invite()
@@ -612,7 +613,7 @@ namespace StreamChat.Tests.StatefulClient
         //     await WaitWithTimeout(taskCompletionSource.Task, maxSeconds: 3,
         //         $"Event {nameof(otherClient.ChannelInviteReceived)} was not received");
         // }
-        
+
         [UnityTest]
         public IEnumerator When_freezing_a_channel_expect_channel_frozen()
             => ConnectAndExecute(When_freezing_a_channel_expect_channel_frozen_Async);
@@ -623,7 +624,7 @@ namespace StreamChat.Tests.StatefulClient
             await channel.FreezeAsync();
             Assert.IsTrue(channel.Frozen);
         }
-        
+
         [UnityTest]
         public IEnumerator When_sending_message_to_frozen_channel_expect_error_message_returned()
             => ConnectAndExecute(When_sending_message_to_frozen_channel_expect_error_message_returned_Async);
@@ -636,18 +637,18 @@ namespace StreamChat.Tests.StatefulClient
             var lastNormalMessage = channel.Messages.LastOrDefault();
             Assert.IsNotNull(lastNormalMessage);
             Assert.AreNotEqual(StreamMessageType.Error, lastNormalMessage.Type);
-            
+
             await channel.FreezeAsync();
             await WaitWhileFalseAsync(() => channel.Frozen);
             Assert.IsTrue(channel.Frozen);
-            
+
             await channel.SendNewMessageAsync("MessageAfterFrozenChannel");
             var lastMessage = channel.Messages.LastOrDefault();
-            
+
             Assert.IsNotNull(lastMessage);
             Assert.AreEqual(StreamMessageType.Error, lastMessage.Type);
         }
-        
+
         [UnityTest]
         public IEnumerator When_unfreezing_a_frozen_channel_expect_channel_unfrozen()
             => ConnectAndExecute(When_unfreezing_a_frozen_channel_expect_channel_unfrozen_Async);
@@ -656,20 +657,34 @@ namespace StreamChat.Tests.StatefulClient
         {
             var channel = await CreateUniqueTempChannelAsync();
             await channel.FreezeAsync();
-            
+
             await WaitWhileFalseAsync(() => channel.Frozen);
             Assert.IsTrue(channel.Frozen);
-            
+
             await channel.UnfreezeAsync();
-            
+
             await WaitWhileTrueAsync(() => channel.Frozen);
             Assert.IsFalse(channel.Frozen);
-            
+
             await channel.SendNewMessageAsync("MessageAfterUnfrozenChannel");
             var lastMessage = channel.Messages.LastOrDefault();
             Assert.IsNotNull(lastMessage);
             Assert.AreEqual("MessageAfterUnfrozenChannel", lastMessage.Text);
             Assert.AreNotEqual(StreamMessageType.Error, lastMessage.Type);
+        }
+
+        [UnityTest]
+        public IEnumerator When_creating_channel_with_partition_ttl_and_size_expect_no_errors()
+            => ConnectAndExecute(When_setting_channel_partition_ttl_and_size_expect_no_errors_Async);
+
+        private async Task When_setting_channel_partition_ttl_and_size_expect_no_errors_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync(channelTypeOverride: ChannelType.Custom("test_partition"));
+            
+            // These values were set manually in the Dashboard. Atm they cannot be set via client-side SDK
+            Assert.AreEqual(50, channel.Config.PartitionSize);
+            Assert.AreEqual("24h", channel.Config.PartitionTtl);
+
         }
     }
 }

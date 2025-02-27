@@ -70,6 +70,16 @@ namespace StreamChat.Core.Models
         /// Channel type name
         /// </summary>
         public string Name { get; private set; }
+        
+        /// <summary>
+        /// Dynamic partition size. See: <see href="https://getstream.io/chat/docs/unity/dynamic_partitioning/"/>
+        /// </summary>
+        public int? PartitionSize { get; set; }
+
+        /// <summary>
+        /// Dynamic partition TTL (time to live). See: <see href="https://getstream.io/chat/docs/unity/dynamic_partitioning/"/>
+        /// </summary>
+        public string PartitionTtl { get; set; }
 
         /// <summary>
         /// Enables push notifications
@@ -139,6 +149,8 @@ namespace StreamChat.Core.Models
             MessageRetention = dto.MessageRetention;
             Mutes = dto.Mutes;
             Name = dto.Name;
+            PartitionSize = dto.PartitionSize;
+            PartitionTtl = dto.PartitionTtl;
             PushNotifications = dto.PushNotifications;
             Quotes = dto.Quotes;
             Reactions = dto.Reactions;

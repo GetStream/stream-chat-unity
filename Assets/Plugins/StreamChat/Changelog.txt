@@ -1,3 +1,10 @@
+v5.1.0:
+Deprecated (will be removed in a future major release):
+* IStreamChatClient.UpsertUsers is renamed to IStreamChatClient.UpsertUsersAsync. Please use the UpsertUsersAsync.
+
+Fixed:
+* Fixed exception being thrown when the user.updated event is received. This resulted in InvalidOperationException: Failed to find id getter for: StreamChat.Core.InternalDTO.Models.UserEventPayloadInternalDTO exception.
+
 v5.0.0:
 Check out the [Migration Guide to 5.x](https://getstream.io/chat/docs/unity/migration_guide_to_5x/?language=unity) for guidance on adjusting your project.
 
