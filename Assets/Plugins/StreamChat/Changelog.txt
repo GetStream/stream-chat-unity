@@ -1,3 +1,10 @@
+v5.1.1:
+Fixes:
+* Fix failing channel response deserialization for channels with dynamic partition enabled, caused by the PartitionTtl field in ChannelConfigInternalDTO and ChannelConfigWithInfoInternalDTO not being a string.
+
+Features:
+* Expose PartitionSize and PartitionTtl properties in IStreamChannel.Config
+
 v5.1.0:
 Deprecated (will be removed in a future major release):
 * IStreamChatClient.UpsertUsers is renamed to IStreamChatClient.UpsertUsersAsync. Please use the UpsertUsersAsync.

@@ -8,6 +8,7 @@ namespace StreamChat.Core.Helpers
     /// </summary>
     internal static class ILoadableFromExt
     {
+        //StreamTOdo: rename to TryCreateOrLoadFromDto
         /// <summary>
         /// Load domain object from the DTO. If the loadable is null, creates a new instance of the domain object.
         /// </summary>

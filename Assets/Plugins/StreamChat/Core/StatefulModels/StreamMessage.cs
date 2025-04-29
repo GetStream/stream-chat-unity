@@ -70,6 +70,8 @@ namespace StreamChat.Core.StatefulModels
 
         public int? ReplyCount { get; private set; }
 
+        //StreamTODO: Channel filters out messages based of this field but this won't work if the message got updated
+        //Channel needs to react to message.updated event and account for already present message becoming shadowed
         public bool? Shadowed { get; private set; }
 
         public bool? ShowInChannel { get; private set; }
@@ -189,6 +191,8 @@ namespace StreamChat.Core.StatefulModels
                     MessageId = Id
                 });
         }
+
+        public override string ToString() => $"{nameof(IStreamMessage)}: {Text}, From: {User}";
 
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
         {

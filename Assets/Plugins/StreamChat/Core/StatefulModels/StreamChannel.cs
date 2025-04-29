@@ -196,7 +196,7 @@ namespace StreamChat.Core.StatefulModels
             
             //StreamTodo: we update internal cache message without server confirmation that message got accepted. e.g. message could be rejected
             //It's ok to update the cache "in good faith" to not introduce update delay but we should handle if message got rejected
-            var streamMessage = InternalAppendOrUpdateMessage(response.Message);
+            InternalAppendOrUpdateMessage(response.Message, out var streamMessage);
             return streamMessage;
         }
 
@@ -687,7 +687,7 @@ namespace StreamChat.Core.StatefulModels
         internal void HandleMessageNewEvent(MessageNewEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
-            InternalAppendOrUpdateMessage(dto.Message);
+            InternalAppendOrUpdateMessage(dto.Message, out _);
 
             //StreamTodo: how can user react to this change? WatcherCount could internally fire WatchCountChanged event
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
@@ -696,7 +696,7 @@ namespace StreamChat.Core.StatefulModels
         internal void InternalHandleMessageNewNotification(NotificationNewMessageEventInternalDTO dto)
         {
             AssertCid(dto.Cid);
-            InternalAppendOrUpdateMessage(dto.Message);
+            InternalAppendOrUpdateMessage(dto.Message, out _);
 
             MemberCount = dto.ChannelMemberCount;
         }
@@ -806,15 +806,28 @@ namespace StreamChat.Core.StatefulModels
         }
 
         private readonly List<StreamChannelMember> _members = new List<StreamChannelMember>();
-        private readonly List<StreamMessage> _messages = new List<StreamMessage>();
-        private readonly List<StreamMessage> _pinnedMessages = new List<StreamMessage>();
+        private readonly FilteredList<StreamMessage> _messages = new FilteredList<StreamMessage>(MessageFilter);
+        private readonly FilteredList<StreamMessage> _pinnedMessages = new FilteredList<StreamMessage>(MessageFilter);
         private readonly List<StreamUser> _watchers = new List<StreamUser>();
         private readonly List<StreamRead> _read = new List<StreamRead>();
         private readonly List<string> _ownCapabilities = new List<string>();
         private readonly List<StreamPendingMessage> _pendingMessages = new List<StreamPendingMessage>();
+        
+        private readonly MessageCreateAtComparer _messageCreateAtComparer = new MessageCreateAtComparer();
 
         private bool _muted;
         private bool _hidden;
+        
+        //StreamTodo: move outside and change to internal
+        private class MessageCreateAtComparer : IComparer<IStreamMessage>
+        {
+            public int Compare(IStreamMessage x, IStreamMessage y)
+            {
+                return x.CreatedAt.CompareTo(y.CreatedAt);
+            }
+        }
+
+        private static bool MessageFilter(IStreamMessage message) => !message.Shadowed.HasValue || !message.Shadowed.Value;
 
         private void AssertCid(string cid)
         {
@@ -824,22 +837,30 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        private StreamMessage InternalAppendOrUpdateMessage(MessageInternalDTO dto)
+        private bool InternalAppendOrUpdateMessage(MessageInternalDTO dto, out StreamMessage streamMessage)
         {
-            var streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
+            streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
             if (wasCreated)
             {
                 if (!_messages.ContainsNoAlloc(streamMessage))
                 {
                     var lastMessage = _messages.LastOrDefault();
 
-                    _messages.Add(streamMessage);
+                    try
+                    {
+                        _messages.Add(streamMessage);
+                    }
+                    catch
+                    {
+                        streamMessage = null;
+                        return false;
+                    }
 
                     // If local user sends message during the sync operation.
                     // It is possible that the locally sent message will be added before the /sync endpoint returns past message events
                     if (lastMessage != null && streamMessage.CreatedAt < lastMessage.CreatedAt)
                     {
-                        //StreamTodo: test this more. A good way was to toggle Ethernet on PC and send messages on Android
+                        //StreamTodo: test this more. One way is to toggle Ethernet on PC and send messages from Android client
                         _messages.Sort(_messageCreateAtComparer);
                     }
 
@@ -847,19 +868,7 @@ namespace StreamChat.Core.StatefulModels
                 }
             }
 
-            return streamMessage;
-        }
-
-        //StreamTodo: move this to the right place
-        private MessageCreateAtComparer _messageCreateAtComparer = new MessageCreateAtComparer();
-
-        //StreamTodo: move outside and change to internal
-        private class MessageCreateAtComparer : IComparer<IStreamMessage>
-        {
-            public int Compare(IStreamMessage x, IStreamMessage y)
-            {
-                return x.CreatedAt.CompareTo(y.CreatedAt);
-            }
+            return true;
         }
 
         //StreamTodo: This deleteBeforeCreatedAt date is the date of event, it does not equal the passed TruncatedAt
@@ -890,7 +899,7 @@ namespace StreamChat.Core.StatefulModels
 
             if (systemMessageDto != null)
             {
-                InternalAppendOrUpdateMessage(systemMessageDto);
+                InternalAppendOrUpdateMessage(systemMessageDto, out _);
             }
 
             Truncated?.Invoke(this);
@@ -1096,10 +1105,7 @@ namespace StreamChat.Core.StatefulModels
             });
         }
 
-        private void SortMessagesByCreatedAt()
-        {
-            _messages.Sort((msg1, msg2) => msg1.CreatedAt.CompareTo(msg2.CreatedAt));
-        }
+        private void SortMessagesByCreatedAt() => _messages.Sort(_messageCreateAtComparer);
 
         private UpdateChannelRequestInternalDTO GetUpdateRequestWithCurrentData()
             => new UpdateChannelRequestInternalDTO

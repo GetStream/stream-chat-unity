@@ -28,15 +28,21 @@ namespace StreamChat.Core.State
             foreach (var dto in dtos)
             {
                 var trackedItem = repository.CreateOrUpdate<TTracked, TDto>(dto, out _);
-                target.Add(trackedItem);
+                try
+                {
+                    target.Add(trackedItem);
+                }
+                catch
+                {
+                }
             }
         }
 
         /// <summary>
-        /// Clear target list and replace with items created or updated from DTO collection
+        /// Append target list with items created from DTO enumeration. Fails silently if target or source are null.
         /// </summary>
-        public static void TryAppendUniqueTrackedObjects<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
-            ICacheRepository<TTracked> repository)
+        public static void TryAppendUniqueTrackedObjects<TTracked, TDto>(this IList<TTracked> target,
+            IEnumerable<TDto> dtos, ICacheRepository<TTracked> repository)
             where TTracked : class, IStreamStatefulModel, IUpdateableFrom<TDto, TTracked>
         {
             if (target == null)
@@ -49,6 +55,7 @@ namespace StreamChat.Core.State
                 return;
             }
 
+            //StreamTODO: change this to obtaining a hashset from a pool so (1) concurrent executions don't interfere (2) we use Hashset<TTracked> so there's no boxing
             _uniqueElements.Clear();
 
             foreach (var t in target)
@@ -62,7 +69,13 @@ namespace StreamChat.Core.State
 
                 if (_uniqueElements.Add(trackedItem))
                 {
-                    target.Add(trackedItem);
+                    try
+                    {
+                        target.Add(trackedItem);
+                    }
+                    catch
+                    {
+                    }
                 }
             }
         }

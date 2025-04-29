@@ -95,6 +95,8 @@ namespace StreamChat.Libs.Websockets
             {
                 await HandleConnectionFailedAsync(e);
                 return;
+                
+                //StreamTodo: failure should throw an exception. In our scenario this doesn't matter because the caller only logs a potential exception and handled failure based of the ConnectionFailed event only
             }
 
             _backgroundSendTimer = new Timer(SendMessagesCallback, null, 0, UpdatePeriod);
