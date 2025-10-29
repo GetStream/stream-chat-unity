@@ -101,6 +101,13 @@ namespace StreamChat.Core.LowLevelClient
         public event Action<EventNotificationInviteAccepted> NotificationInviteAccepted;
         public event Action<EventNotificationInviteRejected> NotificationInviteRejected;
 
+        public event Action<EventPollClosed> PollClosed;
+        public event Action<EventPollDeleted> PollDeleted;
+        public event Action<EventPollUpdated> PollUpdated;
+        public event Action<EventPollVoteCasted> PollVoteCasted;
+        public event Action<EventPollVoteChanged> PollVoteChanged;
+        public event Action<EventPollVoteRemoved> PollVoteRemoved;
+
         #region Internal Events
 
         internal event Action<HealthCheckEventInternalDTO> InternalConnected;
@@ -152,6 +159,13 @@ namespace StreamChat.Core.LowLevelClient
         internal event Action<NotificationInviteAcceptedEventInternalDTO> InternalNotificationInviteAccepted;
         internal event Action<NotificationInviteRejectedEventInternalDTO> InternalNotificationInviteRejected;
 
+        internal event Action<PollClosedEventInternalDTO> InternalPollClosed;
+        internal event Action<PollDeletedEventInternalDTO> InternalPollDeleted;
+        internal event Action<PollUpdatedEventInternalDTO> InternalPollUpdated;
+        internal event Action<PollVoteCastedEventInternalDTO> InternalPollVoteCasted;
+        internal event Action<PollVoteChangedEventInternalDTO> InternalPollVoteChanged;
+        internal event Action<PollVoteRemovedEventInternalDTO> InternalPollVoteRemoved;
+
         #endregion
 
         public IChannelApi ChannelApi { get; }
@@ -159,6 +173,7 @@ namespace StreamChat.Core.LowLevelClient
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
         public IDeviceApi DeviceApi { get; }
+        public IPollsApi PollsApi { get; }
 
         [Obsolete(
             "This property presents only initial state of the LocalUser when connection is made and is not ever updated. " +
@@ -298,12 +313,15 @@ namespace StreamChat.Core.LowLevelClient
                 = new InternalUserApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
             InternalDeviceApi
                 = new InternalDeviceApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
+            InternalPollsApi
+                = new InternalPollsApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
 
             ChannelApi = new ChannelApi(InternalChannelApi);
             MessageApi = new MessageApi(InternalMessageApi);
             ModerationApi = new ModerationApi(InternalModerationApi);
             UserApi = new UserApi(InternalUserApi);
             DeviceApi = new DeviceApi(InternalDeviceApi);
+            PollsApi = new PollsApi(InternalPollsApi);
 
             _reconnectScheduler = new ReconnectScheduler(_timeService, this, _networkMonitor, _logs);
             _reconnectScheduler.ReconnectionScheduled += OnReconnectionScheduled;
@@ -469,6 +487,7 @@ namespace StreamChat.Core.LowLevelClient
         internal IInternalModerationApi InternalModerationApi { get; }
         internal InternalUserApi InternalUserApi { get; }
         internal IInternalDeviceApi InternalDeviceApi { get; }
+        internal IInternalPollsApi InternalPollsApi { get; }
 
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
@@ -798,6 +817,21 @@ namespace StreamChat.Core.LowLevelClient
                 WSEventType.NotificationInviteRejected,
                 (e, dto) => NotificationInviteRejected?.Invoke(e),
                 dto => InternalNotificationInviteRejected?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+
+            // Polls
+
+            RegisterEventType<PollClosedEventInternalDTO, EventPollClosed>(WSEventType.PollClosed,
+                (e, dto) => PollClosed?.Invoke(e), dto => InternalPollClosed?.Invoke(dto));
+            RegisterEventType<PollDeletedEventInternalDTO, EventPollDeleted>(WSEventType.PollDeleted,
+                (e, dto) => PollDeleted?.Invoke(e), dto => InternalPollDeleted?.Invoke(dto));
+            RegisterEventType<PollUpdatedEventInternalDTO, EventPollUpdated>(WSEventType.PollUpdated,
+                (e, dto) => PollUpdated?.Invoke(e), dto => InternalPollUpdated?.Invoke(dto));
+            RegisterEventType<PollVoteCastedEventInternalDTO, EventPollVoteCasted>(WSEventType.PollVoteCasted,
+                (e, dto) => PollVoteCasted?.Invoke(e), dto => InternalPollVoteCasted?.Invoke(dto));
+            RegisterEventType<PollVoteChangedEventInternalDTO, EventPollVoteChanged>(WSEventType.PollVoteChanged,
+                (e, dto) => PollVoteChanged?.Invoke(e), dto => InternalPollVoteChanged?.Invoke(dto));
+            RegisterEventType<PollVoteRemovedEventInternalDTO, EventPollVoteRemoved>(WSEventType.PollVoteRemoved,
+                (e, dto) => PollVoteRemoved?.Invoke(e), dto => InternalPollVoteRemoved?.Invoke(dto));
         }
 
         private void RegisterEventType<TDto, TEvent>(string key,

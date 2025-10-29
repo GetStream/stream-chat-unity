@@ -86,6 +86,23 @@ namespace StreamChat.Core
         public event ChannelMemberAddedHandler AddedToChannelAsMember;
         public event ChannelMemberRemovedHandler RemovedFromChannelAsMember;
 
+        /// <summary>
+        /// Poll closed event handler
+        /// </summary>
+        public delegate void PollEventHandler(IStreamChannel channel, StreamChat.Core.LowLevelClient.Models.Poll poll);
+
+        /// <summary>
+        /// Poll vote event handler
+        /// </summary>
+        public delegate void PollVoteEventHandler(IStreamChannel channel, StreamChat.Core.LowLevelClient.Models.Poll poll, StreamChat.Core.LowLevelClient.Models.PollVote vote);
+
+        public event PollEventHandler PollClosed;
+        public event PollEventHandler PollDeleted;
+        public event PollEventHandler PollUpdated;
+        public event PollVoteEventHandler PollVoteCasted;
+        public event PollVoteEventHandler PollVoteChanged;
+        public event PollVoteEventHandler PollVoteRemoved;
+
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
 
@@ -1310,6 +1327,13 @@ namespace StreamChat.Core
             lowLevelClient.InternalNotificationInvited += OnInvitedNotification;
             lowLevelClient.InternalNotificationInviteAccepted += OnInviteAcceptedNotification;
             lowLevelClient.InternalNotificationInviteRejected += OnInviteRejectedNotification;
+
+            lowLevelClient.InternalPollClosed += OnPollClosed;
+            lowLevelClient.InternalPollDeleted += OnPollDeleted;
+            lowLevelClient.InternalPollUpdated += OnPollUpdated;
+            lowLevelClient.InternalPollVoteCasted += OnPollVoteCasted;
+            lowLevelClient.InternalPollVoteChanged += OnPollVoteChanged;
+            lowLevelClient.InternalPollVoteRemoved += OnPollVoteRemoved;
         }
 
         private void UnsubscribeFrom(StreamChatLowLevelClient lowLevelClient)
@@ -1364,6 +1388,70 @@ namespace StreamChat.Core
             lowLevelClient.InternalNotificationInvited -= OnInvitedNotification;
             lowLevelClient.InternalNotificationInviteAccepted -= OnInviteAcceptedNotification;
             lowLevelClient.InternalNotificationInviteRejected -= OnInviteRejectedNotification;
+
+            lowLevelClient.InternalPollClosed -= OnPollClosed;
+            lowLevelClient.InternalPollDeleted -= OnPollDeleted;
+            lowLevelClient.InternalPollUpdated -= OnPollUpdated;
+            lowLevelClient.InternalPollVoteCasted -= OnPollVoteCasted;
+            lowLevelClient.InternalPollVoteChanged -= OnPollVoteChanged;
+            lowLevelClient.InternalPollVoteRemoved -= OnPollVoteRemoved;
+        }
+
+        private void OnPollClosed(PollClosedEventInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                PollClosed?.Invoke(streamChannel, eventDto.Poll.ToDomain<PollResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.Poll>());
+            }
+        }
+
+        private void OnPollDeleted(PollDeletedEventInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                PollDeleted?.Invoke(streamChannel, eventDto.Poll.ToDomain<PollResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.Poll>());
+            }
+        }
+
+        private void OnPollUpdated(PollUpdatedEventInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                PollUpdated?.Invoke(streamChannel, eventDto.Poll.ToDomain<PollResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.Poll>());
+            }
+        }
+
+        private void OnPollVoteCasted(PollVoteCastedEventInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                PollVoteCasted?.Invoke(
+                    streamChannel, 
+                    eventDto.Poll.ToDomain<PollResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.Poll>(),
+                    eventDto.PollVote.ToDomain<PollVoteResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.PollVote>());
+            }
+        }
+
+        private void OnPollVoteChanged(PollVoteChangedEventInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                PollVoteChanged?.Invoke(
+                    streamChannel, 
+                    eventDto.Poll.ToDomain<PollResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.Poll>(),
+                    eventDto.PollVote.ToDomain<PollVoteResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.PollVote>());
+            }
+        }
+
+        private void OnPollVoteRemoved(PollVoteRemovedEventInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                PollVoteRemoved?.Invoke(
+                    streamChannel, 
+                    eventDto.Poll.ToDomain<PollResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.Poll>(),
+                    eventDto.PollVote.ToDomain<PollVoteResponseDataInternalDTO, StreamChat.Core.LowLevelClient.Models.PollVote>());
+            }
         }
 
         #endregion
