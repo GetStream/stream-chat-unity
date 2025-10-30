@@ -9,7 +9,7 @@ namespace StreamChat.Core.LowLevelClient.Models
     /// <summary>
     /// Represents a poll
     /// </summary>
-    public partial class Poll : ILoadableFrom<PollInternalDTO, Poll>, ILoadableFrom<PollResponseDataInternalDTO, Poll>
+    public partial class Poll : ModelBase, ILoadableFrom<PollInternalDTO, Poll>, ILoadableFrom<PollResponseDataInternalDTO, Poll>
     {
         public bool AllowAnswers { get; set; }
 
@@ -19,7 +19,7 @@ namespace StreamChat.Core.LowLevelClient.Models
 
         public DateTimeOffset CreatedAt { get; set; }
 
-        public User CreatedBy { get; set; }
+        public User CreatedBy { get; set; } // StreamTodo: check if we can replace with IStreamUser
 
         public string CreatedById { get; set; }
 
@@ -53,15 +53,13 @@ namespace StreamChat.Core.LowLevelClient.Models
 
         public string VotingVisibility { get; set; }
 
-        public Dictionary<string, object> AdditionalProperties { get; set; }
-
         Poll ILoadableFrom<PollInternalDTO, Poll>.LoadFromDto(PollInternalDTO dto)
         {
             AllowAnswers = dto.AllowAnswers;
             AllowUserSuggestedOptions = dto.AllowUserSuggestedOptions;
             AnswersCount = dto.AnswersCount;
             CreatedAt = dto.CreatedAt;
-            CreatedBy = CreatedBy.TryLoadFromDto(dto.CreatedBy);
+            CreatedBy = CreatedBy.TryLoadFromDto<UserObjectInternalDTO, User>(dto.CreatedBy);
             CreatedById = dto.CreatedById;
             Custom = dto.Custom;
             Description = dto.Description;
@@ -89,7 +87,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             AllowUserSuggestedOptions = dto.AllowUserSuggestedOptions;
             AnswersCount = dto.AnswersCount;
             CreatedAt = dto.CreatedAt;
-            CreatedBy = CreatedBy.TryLoadFromDto(dto.CreatedBy);
+            CreatedBy = CreatedBy.TryLoadFromDto<UserResponseInternalDTO, User>(dto.CreatedBy);
             CreatedById = dto.CreatedById;
             Custom = dto.Custom;
             Description = dto.Description;
@@ -112,6 +110,21 @@ namespace StreamChat.Core.LowLevelClient.Models
         }
 
         private Dictionary<string, List<PollVote>> LoadVotesByOption(Dictionary<string, List<PollVoteResponseDataInternalDTO>> dto)
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            var result = new Dictionary<string, List<PollVote>>();
+            foreach (var kvp in dto)
+            {
+                result[kvp.Key] = new List<PollVote>().TryLoadFromDtoCollection(kvp.Value);
+            }
+            return result;
+        }
+        
+        private Dictionary<string, List<PollVote>> LoadVotesByOption(Dictionary<string, List<PollVoteInternalDTO>> dto)
         {
             if (dto == null)
             {

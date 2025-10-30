@@ -40,7 +40,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             OptionId = dto.OptionId;
             PollId = dto.PollId;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto(dto.User);
+            User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
 
@@ -56,7 +56,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             OptionId = dto.OptionId;
             PollId = dto.PollId;
             UpdatedAt = dto.UpdatedAt;
-            User = User.TryLoadFromDto(dto.User);
+            User = User.TryLoadFromDto<UserResponseInternalDTO, User>(dto.User);
             UserId = dto.UserId;
             AdditionalProperties = dto.AdditionalProperties;
 

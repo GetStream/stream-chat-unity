@@ -45,7 +45,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 IsClosed = IsClosed,
                 MaxVotesAllowed = MaxVotesAllowed,
                 Name = Name,
-                Options = Options.TrySaveToDtoCollection<PollOptionInputInternalDTO>(),
+                Options = Options.TrySaveToDtoCollection<PollOptionInput, PollOptionInputInternalDTO>(),
                 VotingVisibility = VotingVisibility != null 
                     ? new CreatePollRequestVotingVisibilityInternalDTO { Value = VotingVisibility }
                     : (CreatePollRequestVotingVisibilityInternalDTO?)null,

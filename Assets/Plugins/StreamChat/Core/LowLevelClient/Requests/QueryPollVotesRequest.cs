@@ -9,6 +9,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
     /// </summary>
     public partial class QueryPollVotesRequest : RequestObjectBase, ISavableTo<QueryPollVotesRequestInternalDTO>
     {
+        //StreamTODO: replace later with filter query builder
         public Dictionary<string, object> Filter { get; set; }
 
         public int? Limit { get; set; }
@@ -26,7 +27,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 Limit = Limit,
                 Next = Next,
                 Prev = Prev,
-                Sort = Sort.TrySaveToDtoCollection<SortParamRequestInternalDTO>(),
+                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamRequestInternalDTO>(),
             };
     }
 }

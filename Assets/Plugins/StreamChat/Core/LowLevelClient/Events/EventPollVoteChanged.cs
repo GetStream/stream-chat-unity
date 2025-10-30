@@ -1,5 +1,6 @@
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Events
@@ -24,8 +25,8 @@ namespace StreamChat.Core.LowLevelClient.Events
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             MessageId = dto.MessageId;
-            Poll = Poll.TryLoadFromDto(dto.Poll);
-            PollVote = PollVote.TryLoadFromDto(dto.PollVote);
+            Poll = Poll.TryLoadFromDto<PollResponseDataInternalDTO, Poll>(dto.Poll);
+            PollVote = PollVote.TryLoadFromDto<PollVoteResponseDataInternalDTO, PollVote>(dto.PollVote);
             Type = dto.Type;
             AdditionalProperties = dto.AdditionalProperties;
 
