@@ -114,6 +114,11 @@ namespace StreamChat.Core.StatefulModels
         IStreamUser PinnedBy { get; }
 
         /// <summary>
+        /// ID of the poll attached to this message
+        /// </summary>
+        string PollId { get; }
+
+        /// <summary>
         /// Contains quoted message
         /// </summary>
         IStreamMessage QuotedMessage { get; }
