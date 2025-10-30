@@ -51,7 +51,7 @@ namespace StreamChat.Core.LowLevelClient.Models
 
         public Dictionary<string, int> VoteCountsByOption { get; set; }
 
-        public string VotingVisibility { get; set; }
+        public VotingVisibility VotingVisibility { get; set; }
 
         Poll ILoadableFrom<PollInternalDTO, Poll>.LoadFromDto(PollInternalDTO dto)
         {

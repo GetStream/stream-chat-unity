@@ -31,7 +31,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
 
         public List<PollOptionInput> Options { get; set; }
 
-        public string VotingVisibility { get; set; }
+        public VotingVisibility? VotingVisibility { get; set; }
 
         CreatePollRequestInternalDTO ISavableTo<CreatePollRequestInternalDTO>.SaveToDto()
             => new CreatePollRequestInternalDTO
@@ -46,9 +46,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 MaxVotesAllowed = MaxVotesAllowed,
                 Name = Name,
                 Options = Options.TrySaveToDtoCollection<PollOptionInput, PollOptionInputInternalDTO>(),
-                VotingVisibility = VotingVisibility != null 
-                    ? new CreatePollRequestVotingVisibilityInternalDTO { Value = VotingVisibility }
-                    : (CreatePollRequestVotingVisibilityInternalDTO?)null,
+                VotingVisibility = VotingVisibility?.ToCreatePollRequestDto(),
             };
     }
 }

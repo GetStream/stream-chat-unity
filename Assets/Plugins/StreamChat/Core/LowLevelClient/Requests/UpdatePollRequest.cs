@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Requests;
+using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
@@ -27,7 +28,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
 
         public string Name { get; set; }
 
-        public string VotingVisibility { get; set; }
+        public VotingVisibility? VotingVisibility { get; set; }
 
         UpdatePollRequestInternalDTO ISavableTo<UpdatePollRequestInternalDTO>.SaveToDto()
             => new UpdatePollRequestInternalDTO
@@ -41,9 +42,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 IsClosed = IsClosed,
                 MaxVotesAllowed = MaxVotesAllowed,
                 Name = Name,
-                VotingVisibility = VotingVisibility != null
-                    ? new UpdatePollRequestVotingVisibilityInternalDTO { Value = VotingVisibility }
-                    : (UpdatePollRequestVotingVisibilityInternalDTO?)null,
+                VotingVisibility = VotingVisibility?.ToUpdatePollRequestDto(),
             };
     }
 }
