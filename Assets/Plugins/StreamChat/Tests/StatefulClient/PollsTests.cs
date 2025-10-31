@@ -267,6 +267,46 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
+        public IEnumerator When_updating_poll_partially_expect_poll_updated()
+            => ConnectAndExecute(When_updating_poll_partially_expect_poll_updated_Async);
+
+        private async Task When_updating_poll_partially_expect_poll_updated_Async()
+        {
+            var pollId = CreateUniquePollId();
+
+            // Create a poll
+            var createPollRequest = new StreamCreatePollRequest
+            {
+                Id = pollId,
+                Name = "Original Name",
+                Description = "Original Description",
+                MaxVotesAllowed = 1,
+                Options = new List<StreamPollOptionRequest>
+                {
+                    new StreamPollOptionRequest { Text = "Option 1" }
+                }
+            };
+
+            var poll = await Client.Polls.CreatePollAsync(createPollRequest);
+            Assert.NotNull(poll);
+            Assert.AreEqual("Original Name", poll.Name);
+            Assert.AreEqual("Original Description", poll.Description);
+            Assert.AreEqual(1, poll.MaxVotesAllowed);
+
+            // Partially update the poll - set specific fields
+            await poll.UpdatePartialAsync(
+                setFields: new Dictionary<string, object>
+                {
+                    { "name", "Partially Updated Name" },
+                    { "max_votes_allowed", 3 }
+                });
+
+            Assert.AreEqual("Partially Updated Name", poll.Name);
+            Assert.AreEqual(3, poll.MaxVotesAllowed);
+            Assert.AreEqual("Original Description", poll.Description); // Should remain unchanged
+        }
+
+        [UnityTest]
         public IEnumerator When_closing_poll_expect_poll_closed()
             => ConnectAndExecute(When_closing_poll_expect_poll_closed_Async);
 

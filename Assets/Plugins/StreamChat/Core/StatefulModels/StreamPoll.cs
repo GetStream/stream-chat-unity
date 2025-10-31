@@ -121,6 +121,33 @@ namespace StreamChat.Core.StatefulModels
             this.TryUpdateFromDto(response.Poll, Cache);
         }
 
+        public async Task UpdatePartialAsync(IDictionary<string, object> setFields = null, IEnumerable<string> unsetFields = null)
+        {
+            if (setFields == null && unsetFields == null)
+            {
+                throw new ArgumentNullException($"{nameof(setFields)} and {nameof(unsetFields)} cannot be both null");
+            }
+
+            if (unsetFields != null && !unsetFields.Any())
+            {
+                throw new ArgumentException($"{nameof(unsetFields)} cannot be empty");
+            }
+
+            if (setFields != null && !setFields.Any())
+            {
+                throw new ArgumentException($"{nameof(setFields)} cannot be empty");
+            }
+
+            var response = await LowLevelClient.InternalPollsApi.UpdatePollPartialAsync(Id,
+                new UpdatePollPartialRequestInternalDTO
+                {
+                    Set = setFields?.ToDictionary(p => p.Key, p => p.Value),
+                    Unset = unsetFields?.ToList(),
+                });
+
+            this.TryUpdateFromDto(response.Poll, Cache);
+        }
+
         public async Task CloseAsync()
         {
             var request = new UpdatePollPartialRequestInternalDTO

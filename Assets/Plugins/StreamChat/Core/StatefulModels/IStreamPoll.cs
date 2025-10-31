@@ -173,6 +173,14 @@ namespace StreamChat.Core.StatefulModels
         Task UpdateAsync(StreamUpdatePollRequest updateRequest);
 
         /// <summary>
+        /// Update poll in a partial mode. You can selectively set and unset fields of the poll
+        /// If you want to completely overwrite the poll use the <see cref="UpdateAsync"/>
+        /// </summary>
+        /// <param name="setFields">Fields to set with new values</param>
+        /// <param name="unsetFields">Fields to unset (remove)</param>
+        Task UpdatePartialAsync(IDictionary<string, object> setFields = null, IEnumerable<string> unsetFields = null);
+
+        /// <summary>
         /// Close this poll
         /// </summary>
         Task CloseAsync();
