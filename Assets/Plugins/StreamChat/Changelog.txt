@@ -1,3 +1,7 @@
+v5.3.0:
+Features:
+* Add support for [Polls API](https://getstream.io/chat/docs/unity/polls_api/)
+
 v5.2.0:
 Features:
 * Handle message shadowing. The IStreamChannel.Messages and IStreamChannel.PinnedMessages will have shadowed message removed. A moderation policy can apply shadowing. Such a message will be visible to the author but invisible to other users.
