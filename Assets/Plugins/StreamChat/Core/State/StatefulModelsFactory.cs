@@ -35,6 +35,9 @@ namespace StreamChat.Core.State
         public StreamUser CreateStreamUser(string uniqueId)
             => new StreamUser(uniqueId, _cache.Users, _context);
 
+        public StreamPoll CreateStreamPoll(string uniqueId)
+            => new StreamPoll(uniqueId, _cache.Polls, _context);
+
         private readonly ILogs _logs;
         private readonly StreamChatClient _streamChatClient;
         private readonly IStatefulModelContext _context;
