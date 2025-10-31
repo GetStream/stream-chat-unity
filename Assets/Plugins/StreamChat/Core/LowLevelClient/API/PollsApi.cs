@@ -30,9 +30,9 @@ namespace StreamChat.Core.LowLevelClient.API
             return dto.ToDomain<PollResponseInternalDTO, PollResponse>();
         }
 
-        public async Task<PollResponse> UpdatePollAsync(string pollId, UpdatePollRequest updatePollRequest)
+        public async Task<PollResponse> UpdatePollAsync(UpdatePollRequest updatePollRequest)
         {
-            var dto = await _internalPollsApi.UpdatePollAsync(pollId, updatePollRequest.TrySaveToDto());
+            var dto = await _internalPollsApi.UpdatePollAsync(updatePollRequest.TrySaveToDto());
             return dto.ToDomain<PollResponseInternalDTO, PollResponse>();
         }
 

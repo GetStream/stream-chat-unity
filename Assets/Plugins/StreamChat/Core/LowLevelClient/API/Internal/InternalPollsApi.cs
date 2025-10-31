@@ -25,8 +25,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         public Task<PollResponseInternalDTO> GetPollAsync(string pollId)
             => Get<PollResponseInternalDTO>($"polls/{pollId}");
 
-        public Task<PollResponseInternalDTO> UpdatePollAsync(string pollId, UpdatePollRequestInternalDTO updatePollRequest)
-            => Put<UpdatePollRequestInternalDTO, PollResponseInternalDTO>($"polls/{pollId}", updatePollRequest);
+        public Task<PollResponseInternalDTO> UpdatePollAsync(UpdatePollRequestInternalDTO updatePollRequest)
+            => Put<UpdatePollRequestInternalDTO, PollResponseInternalDTO>("polls", updatePollRequest);
 
         public Task<PollResponseInternalDTO> UpdatePollPartialAsync(string pollId, UpdatePollPartialRequestInternalDTO updatePollPartialRequest)
             => Patch<UpdatePollPartialRequestInternalDTO, PollResponseInternalDTO>($"polls/{pollId}", updatePollPartialRequest);

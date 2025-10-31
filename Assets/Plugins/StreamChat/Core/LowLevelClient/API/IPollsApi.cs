@@ -22,7 +22,7 @@ namespace StreamChat.Core.LowLevelClient.API
         /// <summary>
         /// Updates a poll
         /// </summary>
-        Task<PollResponse> UpdatePollAsync(string pollId, UpdatePollRequest updatePollRequest);
+        Task<PollResponse> UpdatePollAsync(UpdatePollRequest updatePollRequest);
 
         /// <summary>
         /// Partially updates a poll

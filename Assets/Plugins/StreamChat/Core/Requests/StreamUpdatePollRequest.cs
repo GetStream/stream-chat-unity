@@ -38,11 +38,6 @@ namespace StreamChat.Core.Requests
         public bool? EnforceUniqueVote { get; set; }
 
         /// <summary>
-        /// Poll ID
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
         /// Whether the poll is closed
         /// </summary>
         public bool? IsClosed { get; set; }
@@ -71,7 +66,7 @@ namespace StreamChat.Core.Requests
                 AllowUserSuggestedOptions = AllowUserSuggestedOptions,
                 Description = Description,
                 EnforceUniqueVote = EnforceUniqueVote,
-                Id = Id,
+                //Id = Id, Omitted, ID is set internally, not by a user
                 IsClosed = IsClosed,
                 MaxVotesAllowed = MaxVotesAllowed,
                 Name = Name,

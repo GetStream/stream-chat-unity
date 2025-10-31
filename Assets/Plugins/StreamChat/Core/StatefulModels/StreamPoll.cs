@@ -114,8 +114,9 @@ namespace StreamChat.Core.StatefulModels
             StreamAsserts.AssertNotNull(updateRequest, nameof(updateRequest));
 
             var requestDto = updateRequest.TrySaveToDto();
+            requestDto.Id = Id;
 
-            var response = await LowLevelClient.InternalPollsApi.UpdatePollAsync(Id, requestDto);
+            var response = await LowLevelClient.InternalPollsApi.UpdatePollAsync(requestDto);
 
             this.TryUpdateFromDto(response.Poll, Cache);
         }
@@ -146,7 +147,13 @@ namespace StreamChat.Core.StatefulModels
 
             var response = await LowLevelClient.InternalPollsApi.CreatePollOptionAsync(Id, request);
             
-            return new StreamPollOption().TryLoadFromDto<PollOptionResponseDataInternalDTO, StreamPollOption>(response.PollOption, Cache);
+            var newOption = new StreamPollOption().TryLoadFromDto<PollOptionResponseDataInternalDTO, StreamPollOption>(response.PollOption, Cache);
+            
+            // The response does not return the full poll, so we need to fetch the latest state
+            var pollResponseDto = await LowLevelClient.InternalPollsApi.GetPollAsync(Id);
+            this.TryUpdateFromDto(pollResponseDto.Poll, Cache);
+
+            return newOption;
         }
 
         public async Task<StreamPollOption> UpdateOptionAsync(string optionId, string text)
