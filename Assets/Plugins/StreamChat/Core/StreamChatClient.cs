@@ -1388,14 +1388,14 @@ namespace StreamChat.Core
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollClosed)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
                 return;
             }
 
-            if (!_cache.Polls.TryGet(eventDto.Poll.Id, out var streamPoll))
-            {
-                streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
-                streamPoll.InternalSetChannel(streamChannel);
-            }
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
 
             streamPoll.HandlePollClosedEvent(eventDto);
         }
@@ -1404,6 +1404,9 @@ namespace StreamChat.Core
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollDeleted)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
                 return;
             }
 
@@ -1418,14 +1421,14 @@ namespace StreamChat.Core
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollUpdated)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
                 return;
             }
 
-            if (!_cache.Polls.TryGet(eventDto.Poll.Id, out var streamPoll))
-            {
-                streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
-                streamPoll.InternalSetChannel(streamChannel);
-            }
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
 
             streamPoll.HandlePollUpdatedEvent(eventDto);
         }
@@ -1434,14 +1437,14 @@ namespace StreamChat.Core
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollVoteCasted)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
                 return;
             }
 
-            if (!_cache.Polls.TryGet(eventDto.Poll.Id, out var streamPoll))
-            {
-                streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
-                streamPoll.InternalSetChannel(streamChannel);
-            }
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
 
             streamPoll.HandlePollVoteCastedEvent(eventDto);
         }
@@ -1450,14 +1453,14 @@ namespace StreamChat.Core
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollVoteChanged)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
                 return;
             }
 
-            if (!_cache.Polls.TryGet(eventDto.Poll.Id, out var streamPoll))
-            {
-                streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
-                streamPoll.InternalSetChannel(streamChannel);
-            }
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
 
             streamPoll.HandlePollVoteChangedEvent(eventDto);
         }
@@ -1466,14 +1469,14 @@ namespace StreamChat.Core
         {
             if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollVoteRemoved)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
                 return;
             }
 
-            if (!_cache.Polls.TryGet(eventDto.Poll.Id, out var streamPoll))
-            {
-                streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
-                streamPoll.InternalSetChannel(streamChannel);
-            }
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
 
             streamPoll.HandlePollVoteRemovedEvent(eventDto);
         }
