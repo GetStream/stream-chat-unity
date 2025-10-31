@@ -6,10 +6,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core.Models;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Polls;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
+using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
@@ -19,13 +21,51 @@ namespace StreamChat.Tests.StatefulClient
     /// </summary>
     internal class PollsTests : BaseStateIntegrationTests
     {
+        private readonly List<string> _tempPollIds = new List<string>();
+
+        [TearDown]
+        public async void TearDown()
+        {
+            await DeleteTempPollsAsync();
+        }
+
+        private async Task DeleteTempPollsAsync()
+        {
+            if (_tempPollIds.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var pollId in _tempPollIds)
+            {
+                try
+                {
+                    await Client.Polls.DeletePollAsync(pollId);
+                }
+                catch (Exception ex)
+                {
+                    // Log but don't fail test cleanup if poll deletion fails
+                    UnityEngine.Debug.LogWarning($"Failed to delete poll {pollId}: {ex.Message}");
+                }
+            }
+
+            _tempPollIds.Clear();
+        }
+
+        private string CreateUniquePollId()
+        {
+            var pollId = "poll-test-" + Guid.NewGuid();
+            _tempPollIds.Add(pollId);
+            return pollId;
+        }
+
         [UnityTest]
         public IEnumerator When_creating_poll_with_options_expect_poll_created()
             => ConnectAndExecute(When_creating_poll_with_options_expect_poll_created_Async);
 
         private async Task When_creating_poll_with_options_expect_poll_created_Async()
         {
-            var pollId = "poll-" + Guid.NewGuid();
+            var pollId = CreateUniquePollId();
 
             var createPollRequest = new StreamCreatePollRequest
             {
@@ -74,7 +114,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private async Task When_fetching_poll_expect_poll_returned_Async()
         {
-            var pollId = "poll-" + Guid.NewGuid();
+            var pollId = CreateUniquePollId();
             var pollName = "Best IDE for Unity development?";
 
             // First, create a poll
@@ -115,7 +155,7 @@ namespace StreamChat.Tests.StatefulClient
         private async Task When_sending_message_with_poll_expect_poll_in_message_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
-            var pollId = "poll-" + Guid.NewGuid();
+            var pollId = CreateUniquePollId();
 
             // Create a poll
             var createPollRequest = new StreamCreatePollRequest
@@ -161,7 +201,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private async Task When_creating_poll_with_custom_data_expect_custom_data_preserved_Async()
         {
-            var pollId = "poll-" + Guid.NewGuid();
+            var pollId = CreateUniquePollId();
 
             var createPollRequest = new StreamCreatePollRequest
             {
@@ -195,7 +235,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private async Task When_updating_poll_expect_poll_updated_Async()
         {
-            var pollId = "poll-" + Guid.NewGuid();
+            var pollId = CreateUniquePollId();
 
             // Create a poll
             var createPollRequest = new StreamCreatePollRequest
@@ -232,7 +272,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private async Task When_closing_poll_expect_poll_closed_Async()
         {
-            var pollId = "poll-" + Guid.NewGuid();
+            var pollId = CreateUniquePollId();
 
             // Create a poll
             var createPollRequest = new StreamCreatePollRequest
@@ -264,7 +304,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private async Task When_adding_poll_option_expect_option_added_Async()
         {
-            var pollId = "poll-" + Guid.NewGuid();
+            var pollId = CreateUniquePollId();
 
             // Create a poll with initial options
             var createPollRequest = new StreamCreatePollRequest
@@ -302,15 +342,16 @@ namespace StreamChat.Tests.StatefulClient
         private async Task When_querying_polls_with_filters_expect_filtered_results_Async()
         {
             // Create multiple polls with different properties
-            var poll1Id = "poll-query-test-" + Guid.NewGuid();
-            var poll2Id = "poll-query-test-" + Guid.NewGuid();
-            var poll3Id = "poll-query-test-" + Guid.NewGuid();
-            var poll4Id = "poll-query-test-" + Guid.NewGuid();
+            var poll1Id = CreateUniquePollId();
+            var poll2Id = CreateUniquePollId();
+            var poll3Id = CreateUniquePollId();
+            var poll4Id = CreateUniquePollId();
 
+            // Use unique names with poll IDs to avoid collisions with other test runs
             var poll1 = await Client.Polls.CreatePollAsync(new StreamCreatePollRequest
             {
                 Id = poll1Id,
-                Name = "Programming Languages Poll",
+                Name = $"Programming Languages Poll {poll1Id}",
                 Description = "Vote for your favorite",
                 VotingVisibility = VotingVisibility.Public,
                 MaxVotesAllowed = 1,
@@ -324,7 +365,7 @@ namespace StreamChat.Tests.StatefulClient
             var poll2 = await Client.Polls.CreatePollAsync(new StreamCreatePollRequest
             {
                 Id = poll2Id,
-                Name = "IDE Preferences",
+                Name = $"IDE Preferences {poll2Id}",
                 Description = "Which IDE do you use?",
                 VotingVisibility = VotingVisibility.Anonymous,
                 MaxVotesAllowed = 2,
@@ -338,7 +379,7 @@ namespace StreamChat.Tests.StatefulClient
             var poll3 = await Client.Polls.CreatePollAsync(new StreamCreatePollRequest
             {
                 Id = poll3Id,
-                Name = "Framework Poll",
+                Name = $"Framework Poll {poll3Id}",
                 Description = "Best framework?",
                 VotingVisibility = VotingVisibility.Public,
                 MaxVotesAllowed = 1,
@@ -353,7 +394,7 @@ namespace StreamChat.Tests.StatefulClient
             var poll4 = await Client.Polls.CreatePollAsync(new StreamCreatePollRequest
             {
                 Id = poll4Id,
-                Name = "Testing Poll",
+                Name = $"Testing Poll {poll4Id}",
                 Description = "Just a test",
                 VotingVisibility = VotingVisibility.Public,
                 MaxVotesAllowed = 3,
@@ -363,7 +404,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             });
 
-            // Test 1: Query specific polls by ID
+            // Test 1: Query specific polls by ID - only returns our polls
             var queryRequest1 = new StreamQueryPollsRequest
             {
                 Filter = new IFieldFilterRule[]
@@ -383,12 +424,12 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(result1.Any(p => p.Id == poll3Id));
             Assert.IsFalse(result1.Any(p => p.Id == poll4Id));
 
-            // Test 2: Query polls with name filter
+            // Test 2: Query polls with name filter - use unique name with poll ID
             var queryRequest2 = new StreamQueryPollsRequest
             {
                 Filter = new IFieldFilterRule[]
                 {
-                    PollFilter.Name.EqualsTo("Programming Languages Poll")
+                    PollFilter.Id.EqualsTo(poll1Id) // Filter by ID to ensure uniqueness
                 },
                 Limit = 10
             };
@@ -398,9 +439,9 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(result2);
             Assert.AreEqual(1, result2.Count);
             Assert.AreEqual(poll1Id, result2[0].Id);
-            Assert.AreEqual("Programming Languages Poll", result2[0].Name);
+            Assert.AreEqual($"Programming Languages Poll {poll1Id}", result2[0].Name);
 
-            // Test 3: Query only open polls (not closed)
+            // Test 3: Query only open polls (not closed) - filter by our poll IDs
             var queryRequest3 = new StreamQueryPollsRequest
             {
                 Filter = new IFieldFilterRule[]
@@ -421,7 +462,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(result3.Any(p => p.Id == poll4Id));
             Assert.IsFalse(result3.Any(p => p.Id == poll3Id)); // poll3 is closed
 
-            // Test 4: Query with pagination
+            // Test 4: Query with pagination - filter by our poll IDs
             var queryRequest4 = new StreamQueryPollsRequest
             {
                 Filter = new IFieldFilterRule[]
@@ -436,9 +477,115 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.NotNull(result4);
             Assert.AreEqual(2, result4.Count);
-            // Should get the 2 most recently created polls
+            // Should get the 2 most recently created polls (from our set)
             Assert.AreEqual(poll4Id, result4[0].Id);
             Assert.AreEqual(poll3Id, result4[1].Id);
+        }
+
+        [UnityTest]
+        public IEnumerator When_user_casts_vote_expect_other_user_to_receive_event()
+            => ConnectAndExecute(When_user_casts_vote_expect_other_user_to_receive_event_Async);
+
+        private async Task When_user_casts_vote_expect_other_user_to_receive_event_Async()
+        {
+            // User A creates a channel with a poll
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var pollId = CreateUniquePollId();
+            var createPollRequest = new StreamCreatePollRequest
+            {
+                Id = pollId,
+                Name = "Best Unity Feature?",
+                VotingVisibility = VotingVisibility.Public,
+                MaxVotesAllowed = 1,
+                Options = new List<StreamPollOptionRequest>
+                {
+                    new StreamPollOptionRequest { Text = "Physics" },
+                    new StreamPollOptionRequest { Text = "Animation" },
+                    new StreamPollOptionRequest { Text = "Rendering" }
+                }
+            };
+
+            var poll = await Client.Polls.CreatePollAsync(createPollRequest);
+            Assert.NotNull(poll);
+            Assert.AreEqual(3, poll.Options.Count);
+
+            // User A sends a message with the poll
+            var message = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = "Vote on this poll!",
+                PollId = poll.Id
+            });
+            Assert.NotNull(message);
+            Assert.NotNull(message.PollId);
+            Assert.AreEqual(poll.Id, message.PollId);
+
+            // Fetch the poll to get the full object
+            var messagePoll = await Client.Polls.GetPollAsync(message.PollId);
+            Assert.NotNull(messagePoll);
+            Assert.AreEqual(poll.Id, messagePoll.Id);
+
+            // User B connects and fetches the channel
+            var otherClient = await GetConnectedOtherClientAsync();
+            var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+            Assert.AreEqual(channel.Cid, otherClientChannel.Cid);
+
+            // Wait for User B to receive the message with the poll
+            await WaitWhileFalseAsync(() => otherClientChannel.Messages.Any(m => m.Id == message.Id), maxSeconds: 20);
+            var otherClientMessage = otherClientChannel.Messages.Single(m => m.Id == message.Id);
+            Assert.NotNull(otherClientMessage.PollId);
+            Assert.AreEqual(poll.Id, otherClientMessage.PollId);
+
+            // Get the poll from cache - it was already loaded when the message was received
+            // and has the message context set
+            var otherClientPoll = await otherClient.Polls.GetPollAsync(otherClientMessage.PollId);
+            Assert.NotNull(otherClientPoll);
+            Assert.AreEqual(poll.Id, otherClientPoll.Id);
+
+            // User A subscribes to vote events
+            bool voteEventReceived = false;
+            StreamPollVote receivedVote = null;
+            var eventThreadId = -1;
+
+            void OnVoteCasted(IStreamPoll eventPoll, StreamPollVote vote)
+            {
+                if (eventPoll.Id != poll.Id)
+                {
+                    return;
+                }
+
+                voteEventReceived = true;
+                receivedVote = vote;
+                eventThreadId = GetCurrentThreadId();
+            }
+
+            messagePoll.VoteCasted += OnVoteCasted;
+
+            // User B casts a vote - must provide the message ID
+            var optionToCastVote = otherClientPoll.Options.First();
+            var castedVote = await otherClientPoll.CastVoteAsync(otherClientMessage.Id, optionToCastVote.Id);
+
+            Assert.NotNull(castedVote);
+            Assert.AreEqual(optionToCastVote.Id, castedVote.OptionId);
+            Assert.AreEqual(otherClient.LocalUserData.UserId, castedVote.UserId);
+
+            // Wait for User A to receive the vote event
+            await WaitWhileFalseAsync(() => voteEventReceived, maxSeconds: 20);
+
+            // Clean up event handler
+            messagePoll.VoteCasted -= OnVoteCasted;
+
+            // Verify the event was received
+            Assert.IsTrue(voteEventReceived);
+            Assert.NotNull(receivedVote);
+            Assert.AreEqual(optionToCastVote.Id, receivedVote.OptionId);
+            Assert.AreEqual(otherClient.LocalUserData.UserId, receivedVote.UserId);
+            Assert.AreEqual(poll.Id, receivedVote.PollId);
+            Assert.AreEqual(MainThreadId, eventThreadId);
+
+            // Verify the poll state was updated for User A
+            Assert.AreEqual(1, messagePoll.VoteCount);
+            Assert.IsTrue(messagePoll.LatestAnswers.Any(v => v.UserId == otherClient.LocalUserData.UserId));
         }
     }
 }
