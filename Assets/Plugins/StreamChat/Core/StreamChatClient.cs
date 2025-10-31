@@ -1395,7 +1395,6 @@ namespace StreamChat.Core
             {
                 streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
                 streamPoll.InternalSetChannel(streamChannel);
-                streamPoll.InternalSetMessageId(eventDto.MessageId);
             }
 
             streamPoll.HandlePollClosedEvent(eventDto);
@@ -1426,7 +1425,6 @@ namespace StreamChat.Core
             {
                 streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
                 streamPoll.InternalSetChannel(streamChannel);
-                streamPoll.InternalSetMessageId(eventDto.MessageId);
             }
 
             streamPoll.HandlePollUpdatedEvent(eventDto);
@@ -1443,7 +1441,6 @@ namespace StreamChat.Core
             {
                 streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
                 streamPoll.InternalSetChannel(streamChannel);
-                streamPoll.InternalSetMessageId(eventDto.MessageId);
             }
 
             streamPoll.HandlePollVoteCastedEvent(eventDto);
@@ -1460,7 +1457,6 @@ namespace StreamChat.Core
             {
                 streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
                 streamPoll.InternalSetChannel(streamChannel);
-                streamPoll.InternalSetMessageId(eventDto.MessageId);
             }
 
             streamPoll.HandlePollVoteChangedEvent(eventDto);
@@ -1477,7 +1473,6 @@ namespace StreamChat.Core
             {
                 streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
                 streamPoll.InternalSetChannel(streamChannel);
-                streamPoll.InternalSetMessageId(eventDto.MessageId);
             }
 
             streamPoll.HandlePollVoteRemovedEvent(eventDto);

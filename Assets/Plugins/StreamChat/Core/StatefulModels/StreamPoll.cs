@@ -84,10 +84,9 @@ namespace StreamChat.Core.StatefulModels
 
         public IStreamChannel Channel => _channel;
 
-        public string MessageId { get; private set; }
-
-        public async Task<StreamPollVote> CastVoteAsync(string optionId)
+        public async Task<StreamPollVote> CastVoteAsync(string messageId, string optionId)
         {
+            StreamAsserts.AssertNotNullOrEmpty(messageId, nameof(messageId));
             StreamAsserts.AssertNotNullOrEmpty(optionId, nameof(optionId));
 
             var request = new CastPollVoteRequestInternalDTO
@@ -98,15 +97,16 @@ namespace StreamChat.Core.StatefulModels
                 }
             };
 
-            var response = await LowLevelClient.InternalPollsApi.CastVoteAsync(MessageId, Id, request);
+            var response = await LowLevelClient.InternalPollsApi.CastVoteAsync(messageId, Id, request);
             return new StreamPollVote().TryLoadFromDto<PollVoteResponseDataInternalDTO, StreamPollVote>(response.Vote, Cache);
         }
 
-        public async Task RemoveVoteAsync(string voteId)
+        public async Task RemoveVoteAsync(string messageId, string voteId)
         {
+            StreamAsserts.AssertNotNullOrEmpty(messageId, nameof(messageId));
             StreamAsserts.AssertNotNullOrEmpty(voteId, nameof(voteId));
 
-            await LowLevelClient.InternalPollsApi.RemoveVoteAsync(MessageId, Id, voteId);
+            await LowLevelClient.InternalPollsApi.RemoveVoteAsync(messageId, Id, voteId);
         }
 
         public async Task UpdateAsync(StreamUpdatePollRequest updateRequest)
@@ -295,8 +295,6 @@ namespace StreamChat.Core.StatefulModels
         }
 
         internal void InternalSetChannel(IStreamChannel channel) => _channel = channel;
-
-        internal void InternalSetMessageId(string messageId) => MessageId = messageId;
 
         protected override string InternalUniqueId
         {

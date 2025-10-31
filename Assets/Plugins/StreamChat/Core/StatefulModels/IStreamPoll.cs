@@ -153,21 +153,18 @@ namespace StreamChat.Core.StatefulModels
         IStreamChannel Channel { get; }
 
         /// <summary>
-        /// ID of the message containing this poll
-        /// </summary>
-        string MessageId { get; }
-
-        /// <summary>
         /// Cast a vote on this poll
         /// </summary>
+        /// <param name="messageId">The ID of the message containing this poll</param>
         /// <param name="optionId">The ID of the option to vote for</param>
-        Task<StreamPollVote> CastVoteAsync(string optionId);
+        Task<StreamPollVote> CastVoteAsync(string messageId, string optionId);
 
         /// <summary>
         /// Remove a vote from this poll
         /// </summary>
+        /// <param name="messageId">The ID of the message containing this poll</param>
         /// <param name="voteId">The ID of the vote to remove</param>
-        Task RemoveVoteAsync(string voteId);
+        Task RemoveVoteAsync(string messageId, string voteId);
 
         /// <summary>
         /// Update this poll
