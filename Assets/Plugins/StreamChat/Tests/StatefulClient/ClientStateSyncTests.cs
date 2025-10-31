@@ -186,7 +186,7 @@ namespace StreamChat.Tests.StatefulClient
             var otherClientMessageAfterReconnect2 = await otherClientChannel.SendNewMessageAsync("AFTER #2");
 
             // Wait for sync request to complete
-            await WaitWhileTrueAsync(() => otherClientChannel.Messages.All(m => m.Id != message2.Id));
+            await WaitWhileFalseAsync(() => otherClientChannel.Messages.Count == 5);
 
             // Assert correct number of messages
             Assert.AreEqual(5, otherClientChannel.Messages.Count);
