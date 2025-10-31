@@ -101,6 +101,13 @@ namespace StreamChat.Core.LowLevelClient
         public event Action<EventNotificationInviteAccepted> NotificationInviteAccepted;
         public event Action<EventNotificationInviteRejected> NotificationInviteRejected;
 
+        public event Action<EventPollClosed> PollClosed;
+        public event Action<EventPollDeleted> PollDeleted;
+        public event Action<EventPollUpdated> PollUpdated;
+        public event Action<EventPollVoteCasted> PollVoteCasted;
+        public event Action<EventPollVoteChanged> PollVoteChanged;
+        public event Action<EventPollVoteRemoved> PollVoteRemoved;
+
         #region Internal Events
 
         internal event Action<HealthCheckEventInternalDTO> InternalConnected;
@@ -152,6 +159,13 @@ namespace StreamChat.Core.LowLevelClient
         internal event Action<NotificationInviteAcceptedEventInternalDTO> InternalNotificationInviteAccepted;
         internal event Action<NotificationInviteRejectedEventInternalDTO> InternalNotificationInviteRejected;
 
+        internal event Action<PollClosedEventInternalDTO> InternalPollClosed;
+        internal event Action<PollDeletedEventInternalDTO> InternalPollDeleted;
+        internal event Action<PollUpdatedEventInternalDTO> InternalPollUpdated;
+        internal event Action<PollVoteCastedEventInternalDTO> InternalPollVoteCasted;
+        internal event Action<PollVoteChangedEventInternalDTO> InternalPollVoteChanged;
+        internal event Action<PollVoteRemovedEventInternalDTO> InternalPollVoteRemoved;
+
         #endregion
 
         public IChannelApi ChannelApi { get; }
@@ -159,6 +173,7 @@ namespace StreamChat.Core.LowLevelClient
         public IModerationApi ModerationApi { get; }
         public IUserApi UserApi { get; }
         public IDeviceApi DeviceApi { get; }
+        public IPollsApi PollsApi { get; }
 
         [Obsolete(
             "This property presents only initial state of the LocalUser when connection is made and is not ever updated. " +
@@ -203,7 +218,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// SDK Version number
         /// </summary>
-        public static readonly Version SDKVersion = new Version(5, 1, 1);
+        public static readonly Version SDKVersion = new Version(5, 2, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
@@ -216,7 +231,7 @@ namespace StreamChat.Core.LowLevelClient
             {
                 config = StreamClientConfig.Default;
             }
-            
+
             var logs = StreamDependenciesFactory.CreateLogger(config.LogLevel.ToLogLevel());
             var applicationInfo = StreamDependenciesFactory.CreateApplicationInfo();
             var websocketClient
@@ -298,12 +313,15 @@ namespace StreamChat.Core.LowLevelClient
                 = new InternalUserApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
             InternalDeviceApi
                 = new InternalDeviceApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
+            InternalPollsApi
+                = new InternalPollsApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
 
             ChannelApi = new ChannelApi(InternalChannelApi);
             MessageApi = new MessageApi(InternalMessageApi);
             ModerationApi = new ModerationApi(InternalModerationApi);
             UserApi = new UserApi(InternalUserApi);
             DeviceApi = new DeviceApi(InternalDeviceApi);
+            PollsApi = new PollsApi(InternalPollsApi);
 
             _reconnectScheduler = new ReconnectScheduler(_timeService, this, _networkMonitor, _logs);
             _reconnectScheduler.ReconnectionScheduled += OnReconnectionScheduled;
@@ -339,7 +357,7 @@ namespace StreamChat.Core.LowLevelClient
 
             _websocketClient.ConnectAsync(connectionUri).LogIfFailed(_logs);
         }
-        
+
         public void SeAuthorizationCredentials(AuthCredentials authCredentials)
         {
             if (authCredentials.IsAnyEmpty())
@@ -397,7 +415,8 @@ namespace StreamChat.Core.LowLevelClient
         public void SetReconnectStrategySettings(ReconnectStrategy reconnectStrategy, float? exponentialMinInterval,
             float? exponentialMaxInterval, float? constantInterval)
         {
-            _reconnectScheduler.SetReconnectStrategySettings(reconnectStrategy, exponentialMinInterval, exponentialMaxInterval, constantInterval);
+            _reconnectScheduler.SetReconnectStrategySettings(reconnectStrategy, exponentialMinInterval,
+                exponentialMaxInterval, constantInterval);
         }
 
         public async Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids)
@@ -427,12 +446,12 @@ namespace StreamChat.Core.LowLevelClient
                 Watch = true,
             });
 
-            if(response.Events.Count == 0)
+            if (response.Events.Count == 0)
             {
                 return;
             }
 
-            foreach(var e in response.Events)
+            foreach (var e in response.Events)
             {
                 // StreamTodo: check if we can not serialized this again. Investigate adding a custom EventsJsonConverter that would populate the list as serialized strings
                 var serializedMsg = _serializer.Serialize(e);
@@ -445,7 +464,7 @@ namespace StreamChat.Core.LowLevelClient
         public void Dispose()
         {
             ConnectionState = ConnectionState.Closing;
-            
+
             _reconnectScheduler.Dispose();
 
             TryCancelWaitingForUserConnection();
@@ -453,7 +472,7 @@ namespace StreamChat.Core.LowLevelClient
             _websocketClient.ConnectionFailed -= OnWebsocketsConnectionFailed;
             _websocketClient.Disconnected -= OnWebsocketDisconnected;
             _websocketClient.Dispose();
-            
+
             _updateMonitorCts.Cancel();
         }
 
@@ -469,6 +488,7 @@ namespace StreamChat.Core.LowLevelClient
         internal IInternalModerationApi InternalModerationApi { get; }
         internal InternalUserApi InternalUserApi { get; }
         internal IInternalDeviceApi InternalDeviceApi { get; }
+        internal IInternalPollsApi InternalPollsApi { get; }
 
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
@@ -656,7 +676,7 @@ namespace StreamChat.Core.LowLevelClient
             LocalUser = healthCheckEvent.Me;
 #pragma warning restore 0618
             _lastHealthCheckReceivedTime = _timeService.Time;
-            
+
             ConnectionState = ConnectionState.Connected;
 
             _connectUserTaskSource?.SetResult(eventHealthCheckInternalDto.Me);
@@ -763,41 +783,65 @@ namespace StreamChat.Core.LowLevelClient
 
             RegisterEventType<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>(
                 WSEventType.NotificationMarkRead,
-                (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                (e, dto) => NotificationMarkRead?.Invoke(e), dto => InternalNotificationMarkRead?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationNewMessageEventInternalDTO, EventNotificationMessageNew>(
                 WSEventType.NotificationMessageNew,
                 (e, dto) => NotificationMessageReceived?.Invoke(e),
-                dto => InternalNotificationMessageReceived?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                dto => InternalNotificationMessageReceived?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationChannelDeletedEventInternalDTO, EventNotificationChannelDeleted>(
                 WSEventType.NotificationChannelDeleted,
                 (e, dto) => NotificationChannelDeleted?.Invoke(e),
-                dto => InternalNotificationChannelDeleted?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                dto => InternalNotificationChannelDeleted?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationChannelTruncatedEventInternalDTO, EventNotificationChannelTruncated>(
                 WSEventType.NotificationChannelTruncated,
                 (e, dto) => NotificationChannelTruncated?.Invoke(e),
-                dto => InternalNotificationChannelTruncated?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                dto => InternalNotificationChannelTruncated?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationAddedToChannelEventInternalDTO, EventNotificationAddedToChannel>(
                 WSEventType.NotificationAddedToChannel,
                 (e, dto) => NotificationAddedToChannel?.Invoke(e),
-                dto => InternalNotificationAddedToChannel?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                dto => InternalNotificationAddedToChannel?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationRemovedFromChannelEventInternalDTO, EventNotificationRemovedFromChannel>(
                 WSEventType.NotificationRemovedFromChannel,
                 (e, dto) => NotificationRemovedFromChannel?.Invoke(e),
-                dto => InternalNotificationRemovedFromChannel?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                dto => InternalNotificationRemovedFromChannel?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
 
             RegisterEventType<NotificationInvitedEventInternalDTO, EventNotificationInvited>(
                 WSEventType.NotificationInvited,
-                (e, dto) => NotificationInvited?.Invoke(e), dto => InternalNotificationInvited?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                (e, dto) => NotificationInvited?.Invoke(e), dto => InternalNotificationInvited?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationInviteAcceptedEventInternalDTO, EventNotificationInviteAccepted>(
                 WSEventType.NotificationInviteAccepted,
                 (e, dto) => NotificationInviteAccepted?.Invoke(e),
-                dto => InternalNotificationInviteAccepted?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                dto => InternalNotificationInviteAccepted?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
             RegisterEventType<NotificationInviteRejectedEventInternalDTO, EventNotificationInviteRejected>(
                 WSEventType.NotificationInviteRejected,
                 (e, dto) => NotificationInviteRejected?.Invoke(e),
-                dto => InternalNotificationInviteRejected?.Invoke(dto), InternalNotificationsHelper.FixMissingChannelTypeAndId);
+                dto => InternalNotificationInviteRejected?.Invoke(dto),
+                InternalNotificationsHelper.FixMissingChannelTypeAndId);
+
+            // Polls
+
+            RegisterEventType<PollClosedEventInternalDTO, EventPollClosed>(WSEventType.PollClosed,
+                (e, dto) => PollClosed?.Invoke(e), dto => InternalPollClosed?.Invoke(dto));
+            RegisterEventType<PollDeletedEventInternalDTO, EventPollDeleted>(WSEventType.PollDeleted,
+                (e, dto) => PollDeleted?.Invoke(e), dto => InternalPollDeleted?.Invoke(dto));
+            RegisterEventType<PollUpdatedEventInternalDTO, EventPollUpdated>(WSEventType.PollUpdated,
+                (e, dto) => PollUpdated?.Invoke(e), dto => InternalPollUpdated?.Invoke(dto));
+            RegisterEventType<PollVoteCastedEventInternalDTO, EventPollVoteCasted>(WSEventType.PollVoteCasted,
+                (e, dto) => PollVoteCasted?.Invoke(e), dto => InternalPollVoteCasted?.Invoke(dto));
+            RegisterEventType<PollVoteChangedEventInternalDTO, EventPollVoteChanged>(WSEventType.PollVoteChanged,
+                (e, dto) => PollVoteChanged?.Invoke(e), dto => InternalPollVoteChanged?.Invoke(dto));
+            RegisterEventType<PollVoteRemovedEventInternalDTO, EventPollVoteRemoved>(WSEventType.PollVoteRemoved,
+                (e, dto) => PollVoteRemoved?.Invoke(e), dto => InternalPollVoteRemoved?.Invoke(dto));
         }
 
         private void RegisterEventType<TDto, TEvent>(string key,
@@ -816,6 +860,13 @@ namespace StreamChat.Core.LowLevelClient
             {
                 try
                 {
+#if STREAM_DEBUG_ENABLED
+                    var ignoreKeys = new[] { WSEventType.HealthCheck };
+                    if (!ignoreKeys.Contains(key))
+                    {
+                        _logs.Warning("WS event received KEY: " + key + " CONTENT: " + serializedContent);
+                    }
+#endif
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
                     postprocess?.Invoke(dto);
                     _lastEventReceivedAt = eventObj.CreatedAt;
@@ -953,7 +1004,7 @@ namespace StreamChat.Core.LowLevelClient
         private void LogErrorIfUpdateIsNotBeingCalled()
         {
             _updateMonitorCts = new CancellationTokenSource();
-            
+
             //StreamTodo: temporarily disable update monitor when tests are enabled -> investigate why some tests trigger this error
 #if !STREAM_TESTS_ENABLED
             const int timeout = 2;
@@ -1004,7 +1055,7 @@ namespace StreamChat.Core.LowLevelClient
 
             return sb.ToString();
         }
-        
+
         private void OnReconnectionScheduled()
         {
             ConnectionState = ConnectionState.WaitToReconnect;

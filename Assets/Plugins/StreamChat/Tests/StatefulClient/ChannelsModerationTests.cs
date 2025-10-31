@@ -37,7 +37,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(channel.Messages.Contains(normalMessage));
             
             // Wait for other client to receive the message
-            await WaitWhileFalseAsync(() => otherClientChannel.Messages.Any(m => m.Id == normalMessage.Id));
+            await WaitWhileFalseAsync(() => otherClientChannel.Messages.Any(m => m.Id == normalMessage.Id), maxSeconds: 20);
             
             Assert.IsNotNull(otherClientChannel.Messages.Single(m => m.Id == normalMessage.Id));
             
@@ -54,7 +54,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(channel.Messages.Contains(offensiveMessage));
 
             // Wait for other client to receive the offensive message
-            await WaitWhileFalseAsync(() => messagesReceivedOnOtherClient.Any(m => m.Message.Id == offensiveMessage.Id));
+            await WaitWhileFalseAsync(() => messagesReceivedOnOtherClient.Any(m => m.Message.Id == offensiveMessage.Id), maxSeconds: 20);
             
             // Other client should have the offensive message shadowed
             Assert.IsFalse(otherClientChannel.Messages.Any(m => m.Id == offensiveMessage.Id));

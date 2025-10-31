@@ -42,5 +42,13 @@
         public const string NotificationMutesUpdated = "notification.mutes_updated";
         public const string NotificationChannelMutesUpdated = "notification.channel_mutes_updated";
         //StreamTodo: implement NOTIFICATION.MARK_UNREAD
+        
+        // Poll events
+        public const string PollClosed = "poll.closed";
+        public const string PollDeleted = "poll.deleted";
+        public const string PollUpdated = "poll.updated";
+        public const string PollVoteCasted = "poll.vote_casted";
+        public const string PollVoteChanged = "poll.vote_changed";
+        public const string PollVoteRemoved = "poll.vote_removed";
     }
 }

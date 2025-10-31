@@ -840,34 +840,34 @@ namespace StreamChat.Core.StatefulModels
         private bool InternalAppendOrUpdateMessage(MessageInternalDTO dto, out StreamMessage streamMessage)
         {
             streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
-            if (wasCreated)
+            var isNewMessage = wasCreated && !_messages.ContainsNoAlloc(streamMessage);
+            if (!isNewMessage)
             {
-                if (!_messages.ContainsNoAlloc(streamMessage))
-                {
-                    var lastMessage = _messages.LastOrDefault();
+                return true;
+            }
+            
+            var lastMessage = _messages.LastOrDefault();
 
-                    try
-                    {
-                        _messages.Add(streamMessage);
-                    }
-                    catch
-                    {
-                        streamMessage = null;
-                        return false;
-                    }
-
-                    // If local user sends message during the sync operation.
-                    // It is possible that the locally sent message will be added before the /sync endpoint returns past message events
-                    if (lastMessage != null && streamMessage.CreatedAt < lastMessage.CreatedAt)
-                    {
-                        //StreamTodo: test this more. One way is to toggle Ethernet on PC and send messages from Android client
-                        _messages.Sort(_messageCreateAtComparer);
-                    }
-
-                    MessageReceived?.Invoke(this, streamMessage);
-                }
+            try
+            {
+                // Adding message can fail. For example, shadowed messages are ignored
+                _messages.Add(streamMessage);
+            }
+            catch
+            {
+                streamMessage = null;
+                return false;
             }
 
+            // If local user sends message during the sync operation.
+            // It is possible that the locally sent message will be added before the /sync endpoint returns past message events
+            if (lastMessage != null && streamMessage.CreatedAt < lastMessage.CreatedAt)
+            {
+                //StreamTodo: test this more. One way is to toggle Ethernet on PC and send messages from Android client
+                _messages.Sort(_messageCreateAtComparer);
+            }
+
+            MessageReceived?.Invoke(this, streamMessage);
             return true;
         }
 

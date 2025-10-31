@@ -10,7 +10,7 @@ namespace StreamChat.Core.QueryBuilders.Sort
     public abstract class QuerySort<TSortType, TFieldType> where TSortType : QuerySort<TSortType, TFieldType>
     {
         /// <summary>
-        /// Order by field in an ascending order
+        /// Order by field in ascending order
         /// </summary>
         /// <param name="fieldName"></param>
         /// <returns></returns>

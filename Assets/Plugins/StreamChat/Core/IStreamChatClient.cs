@@ -109,6 +109,11 @@ namespace StreamChat.Core
         IStreamChatLowLevelClient LowLevelClient { get; }
 
         /// <summary>
+        /// Polls API for creating, retrieving, and querying polls
+        /// </summary>
+        IStreamPollsApi Polls { get; }
+
+        /// <summary>
         /// Connect user to Stream Chat server.
         /// User authentication credentials:
         /// ApiKey - Your application API KEY. You can get it from https://dashboard.getstream.io/

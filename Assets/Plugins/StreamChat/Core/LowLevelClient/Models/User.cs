@@ -5,6 +5,7 @@ using StreamChat.Core.InternalDTO.Responses;
 
 namespace StreamChat.Core.LowLevelClient.Models
 {
+    //StreamTODO: Check if this object is needed. Ideally we'd only have IStreamUser object representing a user and remove this one
     public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>,
         ILoadableFrom<UserResponseInternalDTO, User>, ILoadableFrom<UserEventPayloadInternalDTO, User>,
         ILoadableFrom<FullUserResponseInternalDTO, User>,

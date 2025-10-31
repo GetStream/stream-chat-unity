@@ -1,3 +1,7 @@
+v5.2.0:
+Features:
+* Handle message shadowing. The IStreamChannel.Messages and IStreamChannel.PinnedMessages will have shadowed message removed. A moderation policy can apply shadowing. Such a message will be visible to the author but invisible to other users.
+
 v5.1.1:
 Fixes:
 * Fix failing channel response deserialization for channels with dynamic partition enabled, caused by the PartitionTtl field in ChannelConfigInternalDTO and ChannelConfigWithInfoInternalDTO not being a string.
