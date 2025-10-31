@@ -56,6 +56,19 @@ namespace StreamChat.Core
             return result;
         }
 
+        public async Task DeletePollAsync(string pollId)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(pollId, nameof(pollId));
+
+            await _lowLevelClient.InternalPollsApi.DeletePollAsync(pollId);
+
+            // Remove from cache if present
+            if (_cache.Polls.TryGet(pollId, out var poll))
+            {
+                _cache.Polls.Remove(poll);
+            }
+        }
+
         internal StreamPollsApi(StreamChatLowLevelClient lowLevelClient, ICache cache)
         {
             _lowLevelClient = lowLevelClient ?? throw new ArgumentNullException(nameof(lowLevelClient));

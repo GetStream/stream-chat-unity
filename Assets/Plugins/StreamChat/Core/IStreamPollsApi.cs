@@ -30,6 +30,12 @@ namespace StreamChat.Core
         /// <param name="queryRequest">Request with query filters and parameters</param>
         /// <returns>List of polls matching the query</returns>
         Task<IEnumerable<IStreamPoll>> QueryPollsAsync(StreamQueryPollsRequest queryRequest);
+
+        /// <summary>
+        /// Delete a poll by ID
+        /// </summary>
+        /// <param name="pollId">The poll ID to delete</param>
+        Task DeletePollAsync(string pollId);
     }
 }
 
