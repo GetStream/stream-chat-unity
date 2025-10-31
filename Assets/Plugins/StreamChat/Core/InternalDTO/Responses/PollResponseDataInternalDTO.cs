@@ -16,9 +16,6 @@ namespace StreamChat.Core.InternalDTO.Responses
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class PollResponseDataInternalDTO
     {
-        [Newtonsoft.Json.JsonProperty("Custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, object> Custom { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
-
         [Newtonsoft.Json.JsonProperty("allow_answers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AllowAnswers { get; set; }
 
@@ -37,6 +34,9 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("created_by_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CreatedById { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, object> Custom { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+
         [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Description { get; set; }
 
@@ -48,6 +48,9 @@ namespace StreamChat.Core.InternalDTO.Responses
 
         [Newtonsoft.Json.JsonProperty("is_closed", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? IsClosed { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("latest_answers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<PollVoteResponseDataInternalDTO> LatestAnswers { get; set; } = new System.Collections.Generic.List<PollVoteResponseDataInternalDTO>();
 
         [Newtonsoft.Json.JsonProperty("latest_votes_by_option", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<PollVoteResponseDataInternalDTO>> LatestVotesByOption { get; set; } = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<PollVoteResponseDataInternalDTO>>();

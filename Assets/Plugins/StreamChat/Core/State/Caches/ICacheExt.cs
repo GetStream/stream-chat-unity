@@ -76,5 +76,8 @@ namespace StreamChat.Core.State.Caches
         
         public static StreamUser TryCreateOrUpdate(this ICache cache, UserEventPayloadInternalDTO dto)
             => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserEventPayloadInternalDTO>(dto, out _);
+        
+        public static StreamPoll TryCreateOrUpdate(this ICache cache, PollResponseDataInternalDTO dto)
+            => dto == null ? null : cache.Polls.CreateOrUpdate<StreamPoll, PollResponseDataInternalDTO>(dto, out _);
     }
 }

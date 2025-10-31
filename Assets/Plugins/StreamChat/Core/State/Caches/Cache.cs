@@ -17,6 +17,7 @@ namespace StreamChat.Core.State.Caches
             Users = new CacheRepository<StreamUser>(trackedObjectsFactory.CreateStreamUser, cache: this);
             LocalUser = new CacheRepository<StreamLocalUserData>(trackedObjectsFactory.CreateStreamLocalUser, cache: this);
             ChannelMembers = new CacheRepository<StreamChannelMember>(trackedObjectsFactory.CreateStreamChannelMember, cache: this);
+            Polls = new CacheRepository<StreamPoll>(trackedObjectsFactory.CreateStreamPoll, cache: this);
 
             Channels.RegisterDtoIdMapping<StreamChannel, ChannelStateResponseInternalDTO>(dto => dto.Channel.Cid);
             Channels.RegisterDtoIdMapping<StreamChannel, ChannelResponseInternalDTO>(dto => dto.Cid);
@@ -44,6 +45,8 @@ namespace StreamChat.Core.State.Caches
 
             Messages.RegisterDtoIdMapping<StreamMessage, MessageInternalDTO>(dto => dto.Id);
             Messages.RegisterDtoIdMapping<StreamMessage, MessageResponseInternalDTO>(dto => dto.Id);
+
+            Polls.RegisterDtoIdMapping<StreamPoll, PollResponseDataInternalDTO>(dto => dto.Id);
         }
 
         public ICacheRepository<StreamChannel> Channels { get; }
@@ -55,5 +58,7 @@ namespace StreamChat.Core.State.Caches
         public ICacheRepository<StreamLocalUserData> LocalUser { get; }
 
         public ICacheRepository<StreamChannelMember> ChannelMembers { get; }
+
+        public ICacheRepository<StreamPoll> Polls { get; }
     }
 }

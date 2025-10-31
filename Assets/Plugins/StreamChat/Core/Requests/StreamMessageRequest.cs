@@ -51,6 +51,11 @@ namespace StreamChat.Core.Requests
         [Obsolete("Has no effect and will be removed in a future release")]
         public IStreamUser PinnedBy { get; set; } //StreamTodo: mark as obsolete, this is most probably server-side only
 
+        /// <summary>
+        /// ID of the poll attached to this message
+        /// </summary>
+        public string PollId { get; set; }
+
         public IStreamMessage QuotedMessage { get; set; }
 
         /// <summary>
@@ -86,6 +91,7 @@ namespace StreamChat.Core.Requests
                 PinExpires = PinExpires,
                 Pinned = Pinned,
                 PinnedAt = PinnedAt,
+                PollId = PollId,
                 QuotedMessageId = QuotedMessage?.Id,
                 ShowInChannel = ShowInChannel,
                 Silent = Silent,

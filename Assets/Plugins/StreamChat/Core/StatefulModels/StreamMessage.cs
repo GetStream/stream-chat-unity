@@ -60,6 +60,8 @@ namespace StreamChat.Core.StatefulModels
 
         public IStreamUser PinnedBy { get; private set; }
 
+        public string PollId { get; private set; }
+
         public IStreamMessage QuotedMessage { get; private set; }
 
         public string QuotedMessageId { get; private set; }
@@ -215,6 +217,7 @@ namespace StreamChat.Core.StatefulModels
             Pinned = GetOrDefault(dto.Pinned, Pinned);
             PinnedAt = GetOrDefault(dto.PinnedAt, PinnedAt);
             PinnedBy = cache.TryCreateOrUpdate(dto.PinnedBy);
+            PollId = GetOrDefault(dto.PollId, PollId);
             QuotedMessage = cache.TryCreateOrUpdate(dto.QuotedMessage);
             QuotedMessageId = GetOrDefault(dto.QuotedMessageId, QuotedMessageId);
             _reactionCounts.TryReplaceValuesFromDto(dto.ReactionCounts); //StreamTodo: is this append only?
@@ -254,6 +257,7 @@ namespace StreamChat.Core.StatefulModels
             Pinned = GetOrDefault(dto.Pinned, Pinned);
             PinnedAt = GetOrDefault(dto.PinnedAt, PinnedAt);
             PinnedBy = cache.TryCreateOrUpdate(dto.PinnedBy);
+            PollId = GetOrDefault(dto.PollId, PollId);
             QuotedMessage = cache.TryCreateOrUpdate(dto.QuotedMessage);
             QuotedMessageId = GetOrDefault(dto.QuotedMessageId, QuotedMessageId);
             _reactionCounts.TryReplaceValuesFromDto(dto.ReactionCounts); //StreamTodo: is this append only?

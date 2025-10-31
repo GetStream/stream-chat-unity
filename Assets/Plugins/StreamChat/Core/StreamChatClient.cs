@@ -104,6 +104,8 @@ namespace StreamChat.Core
 
         public IStreamChatLowLevelClient LowLevelClient => InternalLowLevelClient;
 
+        public IStreamPollsApi Polls => _pollsApi;
+
         /// <inheritdoc cref="StreamChatLowLevelClient.SDKVersion"/>
         public static Version SDKVersion => StreamChatLowLevelClient.SDKVersion;
 
@@ -668,6 +670,7 @@ namespace StreamChat.Core
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
+        private readonly StreamPollsApi _pollsApi;
 
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -704,6 +707,7 @@ namespace StreamChat.Core
                 serializer, _timeService, networkMonitor, applicationInfo, logs, config);
 
             _cache = new Cache(this, serializer, _logs);
+            _pollsApi = new StreamPollsApi(InternalLowLevelClient, _cache);
 
             SubscribeTo(InternalLowLevelClient);
         }
@@ -1310,6 +1314,13 @@ namespace StreamChat.Core
             lowLevelClient.InternalNotificationInvited += OnInvitedNotification;
             lowLevelClient.InternalNotificationInviteAccepted += OnInviteAcceptedNotification;
             lowLevelClient.InternalNotificationInviteRejected += OnInviteRejectedNotification;
+
+            lowLevelClient.InternalPollClosed += OnPollClosed;
+            lowLevelClient.InternalPollDeleted += OnPollDeleted;
+            lowLevelClient.InternalPollUpdated += OnPollUpdated;
+            lowLevelClient.InternalPollVoteCasted += OnPollVoteCasted;
+            lowLevelClient.InternalPollVoteChanged += OnPollVoteChanged;
+            lowLevelClient.InternalPollVoteRemoved += OnPollVoteRemoved;
         }
 
         private void UnsubscribeFrom(StreamChatLowLevelClient lowLevelClient)
@@ -1364,6 +1375,110 @@ namespace StreamChat.Core
             lowLevelClient.InternalNotificationInvited -= OnInvitedNotification;
             lowLevelClient.InternalNotificationInviteAccepted -= OnInviteAcceptedNotification;
             lowLevelClient.InternalNotificationInviteRejected -= OnInviteRejectedNotification;
+
+            lowLevelClient.InternalPollClosed -= OnPollClosed;
+            lowLevelClient.InternalPollDeleted -= OnPollDeleted;
+            lowLevelClient.InternalPollUpdated -= OnPollUpdated;
+            lowLevelClient.InternalPollVoteCasted -= OnPollVoteCasted;
+            lowLevelClient.InternalPollVoteChanged -= OnPollVoteChanged;
+            lowLevelClient.InternalPollVoteRemoved -= OnPollVoteRemoved;
+        }
+
+        private void OnPollClosed(PollClosedEventInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollClosed)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
+                return;
+            }
+
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
+
+            streamPoll.HandlePollClosedEvent(eventDto);
+        }
+
+        private void OnPollDeleted(PollDeletedEventInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollDeleted)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
+                return;
+            }
+
+            if (_cache.Polls.TryGet(eventDto.Poll.Id, out var streamPoll))
+            {
+                // Remove poll from cache when deleted
+                _cache.Polls.Remove(streamPoll);
+            }
+        }
+
+        private void OnPollUpdated(PollUpdatedEventInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollUpdated)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
+                return;
+            }
+
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
+
+            streamPoll.HandlePollUpdatedEvent(eventDto);
+        }
+
+        private void OnPollVoteCasted(PollVoteCastedEventInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollVoteCasted)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
+                return;
+            }
+
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
+
+            streamPoll.HandlePollVoteCastedEvent(eventDto);
+        }
+
+        private void OnPollVoteChanged(PollVoteChangedEventInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollVoteChanged)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
+                return;
+            }
+
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
+
+            streamPoll.HandlePollVoteChangedEvent(eventDto);
+        }
+
+        private void OnPollVoteRemoved(PollVoteRemovedEventInternalDTO eventDto)
+        {
+            if (!_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+#if STREAM_DEBUG_ENABLED
+                _logs.Warning($"[{nameof(OnPollVoteRemoved)}] Poll WS event received but ignored because channel with ID {eventDto.Cid} was not found in cache");
+#endif
+                return;
+            }
+
+            var streamPoll = _cache.TryCreateOrUpdate(eventDto.Poll);
+            streamPoll.InternalSetChannel(streamChannel);
+
+            streamPoll.HandlePollVoteRemovedEvent(eventDto);
         }
 
         #endregion

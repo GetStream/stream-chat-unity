@@ -9,5 +9,6 @@ namespace StreamChat.Core.State.Caches
         ICacheRepository<StreamUser> Users { get; }
         ICacheRepository<StreamLocalUserData> LocalUser { get; }
         ICacheRepository<StreamChannelMember> ChannelMembers { get; }
+        ICacheRepository<StreamPoll> Polls { get; }
     }
 }
