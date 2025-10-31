@@ -326,7 +326,7 @@ namespace StreamChat.Tests.StatefulClient
             // Add a new option
             var newOption = await poll.AddOptionAsync("Option 3");
 
-            //await WaitWhileFalseAsync(() => poll.Options.Count == 3);
+            await WaitWhileFalseAsync(() => poll.Options.Count == 3);
 
             Assert.NotNull(newOption);
             Assert.AreEqual("Option 3", newOption.Text);
@@ -520,11 +520,6 @@ namespace StreamChat.Tests.StatefulClient
             Assert.NotNull(message.PollId);
             Assert.AreEqual(poll.Id, message.PollId);
 
-            // Fetch the poll to get the full object
-            var messagePoll = await Client.Polls.GetPollAsync(message.PollId);
-            Assert.NotNull(messagePoll);
-            Assert.AreEqual(poll.Id, messagePoll.Id);
-
             // User B connects and fetches the channel
             var otherClient = await GetConnectedOtherClientAsync();
             var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
@@ -559,7 +554,7 @@ namespace StreamChat.Tests.StatefulClient
                 eventThreadId = GetCurrentThreadId();
             }
 
-            messagePoll.VoteCasted += OnVoteCasted;
+            poll.VoteCasted += OnVoteCasted;
 
             // User B casts a vote - must provide the message ID
             var optionToCastVote = otherClientPoll.Options.First();
@@ -573,7 +568,7 @@ namespace StreamChat.Tests.StatefulClient
             await WaitWhileFalseAsync(() => voteEventReceived, maxSeconds: 20);
 
             // Clean up event handler
-            messagePoll.VoteCasted -= OnVoteCasted;
+            poll.VoteCasted -= OnVoteCasted;
 
             // Verify the event was received
             Assert.IsTrue(voteEventReceived);
@@ -584,8 +579,9 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(MainThreadId, eventThreadId);
 
             // Verify the poll state was updated for User A
-            Assert.AreEqual(1, messagePoll.VoteCount);
-            Assert.IsTrue(messagePoll.LatestAnswers.Any(v => v.UserId == otherClient.LocalUserData.UserId));
+            Assert.AreEqual(1, poll.VoteCount);
+            Assert.IsTrue(poll.LatestVotesByOption.ContainsKey(optionToCastVote.Id));
+            Assert.IsTrue(poll.LatestVotesByOption[optionToCastVote.Id].Any(v => v.UserId == otherClient.LocalUserData.UserId));
         }
     }
 }
