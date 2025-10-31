@@ -5,11 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using StreamChat.Core;
 using StreamChat.Core.LowLevelClient.Models;
-using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Core.Requests;
-using StreamChat.Core.StatefulModels;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
@@ -27,7 +24,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             var pollId = "poll-" + Guid.NewGuid();
 
-            var createPollRequest = new CreatePollRequest
+            var createPollRequest = new StreamCreatePollRequest
             {
                 Id = pollId,
                 Name = "What is your favorite programming language?",
@@ -37,32 +34,31 @@ namespace StreamChat.Tests.StatefulClient
                 AllowUserSuggestedOptions = false,
                 MaxVotesAllowed = 1,
                 VotingVisibility = VotingVisibility.Public,
-                Options = new List<PollOptionInput>
+                Options = new List<StreamPollOptionRequest>
                 {
-                    new PollOptionInput { Text = "C#" },
-                    new PollOptionInput { Text = "JavaScript" },
-                    new PollOptionInput { Text = "Python" },
-                    new PollOptionInput { Text = "Go" }
+                    new StreamPollOptionRequest { Text = "C#" },
+                    new StreamPollOptionRequest { Text = "JavaScript" },
+                    new StreamPollOptionRequest { Text = "Python" },
+                    new StreamPollOptionRequest { Text = "Go" }
                 }
             };
 
-            var response = await Client.InternalLowLevelClient.PollsApi.CreatePollAsync(createPollRequest);
+            var poll = await Client.Polls.CreatePollAsync(createPollRequest);
 
-            Assert.NotNull(response);
-            Assert.NotNull(response.Poll);
-            Assert.AreEqual(pollId, response.Poll.Id);
-            Assert.AreEqual("What is your favorite programming language?", response.Poll.Name);
-            Assert.AreEqual("Let us know which language you prefer", response.Poll.Description);
-            Assert.AreEqual(true, response.Poll.EnforceUniqueVote);
-            Assert.AreEqual(false, response.Poll.AllowAnswers);
-            Assert.AreEqual(false, response.Poll.AllowUserSuggestedOptions);
-            Assert.AreEqual(1, response.Poll.MaxVotesAllowed);
-            Assert.AreEqual(VotingVisibility.Public, response.Poll.VotingVisibility);
+            Assert.NotNull(poll);
+            Assert.AreEqual(pollId, poll.Id);
+            Assert.AreEqual("What is your favorite programming language?", poll.Name);
+            Assert.AreEqual("Let us know which language you prefer", poll.Description);
+            Assert.AreEqual(true, poll.EnforceUniqueVote);
+            Assert.AreEqual(false, poll.AllowAnswers);
+            Assert.AreEqual(false, poll.AllowUserSuggestedOptions);
+            Assert.AreEqual(1, poll.MaxVotesAllowed);
+            Assert.AreEqual(VotingVisibility.Public, poll.VotingVisibility);
             
-            Assert.NotNull(response.Poll.Options);
-            Assert.AreEqual(4, response.Poll.Options.Count);
+            Assert.NotNull(poll.Options);
+            Assert.AreEqual(4, poll.Options.Count);
             
-            var optionTexts = response.Poll.Options.Select(o => o.Text).ToList();
+            var optionTexts = poll.Options.Select(o => o.Text).ToList();
             Assert.Contains("C#", optionTexts);
             Assert.Contains("JavaScript", optionTexts);
             Assert.Contains("Python", optionTexts);
@@ -79,33 +75,31 @@ namespace StreamChat.Tests.StatefulClient
             var pollName = "Best IDE for Unity development?";
 
             // First, create a poll
-            var createPollRequest = new CreatePollRequest
+            var createPollRequest = new StreamCreatePollRequest
             {
                 Id = pollId,
                 Name = pollName,
                 Description = "Help us understand your preferences",
-                Options = new List<PollOptionInput>
+                Options = new List<StreamPollOptionRequest>
                 {
-                    new PollOptionInput { Text = "Visual Studio" },
-                    new PollOptionInput { Text = "Rider" },
-                    new PollOptionInput { Text = "VS Code" }
+                    new StreamPollOptionRequest { Text = "Visual Studio" },
+                    new StreamPollOptionRequest { Text = "Rider" },
+                    new StreamPollOptionRequest { Text = "VS Code" }
                 }
             };
 
-            var createResponse = await Client.InternalLowLevelClient.PollsApi.CreatePollAsync(createPollRequest);
-            Assert.NotNull(createResponse);
-            Assert.NotNull(createResponse.Poll);
+            var createdPoll = await Client.Polls.CreatePollAsync(createPollRequest);
+            Assert.NotNull(createdPoll);
 
             // Now fetch the poll
-            var fetchResponse = await Client.InternalLowLevelClient.PollsApi.GetPollAsync(pollId);
+            var fetchedPoll = await Client.Polls.GetPollAsync(pollId);
 
-            Assert.NotNull(fetchResponse);
-            Assert.NotNull(fetchResponse.Poll);
-            Assert.AreEqual(pollId, fetchResponse.Poll.Id);
-            Assert.AreEqual(pollName, fetchResponse.Poll.Name);
-            Assert.AreEqual(3, fetchResponse.Poll.Options.Count);
+            Assert.NotNull(fetchedPoll);
+            Assert.AreEqual(pollId, fetchedPoll.Id);
+            Assert.AreEqual(pollName, fetchedPoll.Name);
+            Assert.AreEqual(3, fetchedPoll.Options.Count);
             
-            var optionTexts = fetchResponse.Poll.Options.Select(o => o.Text).ToList();
+            var optionTexts = fetchedPoll.Options.Select(o => o.Text).ToList();
             Assert.Contains("Visual Studio", optionTexts);
             Assert.Contains("Rider", optionTexts);
             Assert.Contains("VS Code", optionTexts);
@@ -121,23 +115,22 @@ namespace StreamChat.Tests.StatefulClient
             var pollId = "poll-" + Guid.NewGuid();
 
             // Create a poll
-            var createPollRequest = new CreatePollRequest
+            var createPollRequest = new StreamCreatePollRequest
             {
                 Id = pollId,
                 Name = "Which feature should we prioritize?",
                 Description = "Vote for the most important feature",
-                Options = new List<PollOptionInput>
+                Options = new List<StreamPollOptionRequest>
                 {
-                    new PollOptionInput { Text = "Performance improvements" },
-                    new PollOptionInput { Text = "New UI components" },
-                    new PollOptionInput { Text = "Better documentation" },
-                    new PollOptionInput { Text = "More examples" }
+                    new StreamPollOptionRequest { Text = "Performance improvements" },
+                    new StreamPollOptionRequest { Text = "New UI components" },
+                    new StreamPollOptionRequest { Text = "Better documentation" },
+                    new StreamPollOptionRequest { Text = "More examples" }
                 }
             };
 
-            var pollResponse = await Client.InternalLowLevelClient.PollsApi.CreatePollAsync(createPollRequest);
-            Assert.NotNull(pollResponse);
-            Assert.NotNull(pollResponse.Poll);
+            var poll = await Client.Polls.CreatePollAsync(createPollRequest);
+            Assert.NotNull(poll);
 
             // Send a message with the poll
             var messageRequest = new StreamSendMessageRequest
@@ -153,11 +146,10 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(pollId, message.PollId);
 
             // Verify the poll can be fetched using the poll ID from the message
-            var fetchedPoll = await Client.InternalLowLevelClient.PollsApi.GetPollAsync(message.PollId);
+            var fetchedPoll = await Client.Polls.GetPollAsync(message.PollId);
             Assert.NotNull(fetchedPoll);
-            Assert.NotNull(fetchedPoll.Poll);
-            Assert.AreEqual(pollId, fetchedPoll.Poll.Id);
-            Assert.AreEqual("Which feature should we prioritize?", fetchedPoll.Poll.Name);
+            Assert.AreEqual(pollId, fetchedPoll.Id);
+            Assert.AreEqual("Which feature should we prioritize?", fetchedPoll.Name);
         }
 
         [UnityTest]
@@ -168,14 +160,14 @@ namespace StreamChat.Tests.StatefulClient
         {
             var pollId = "poll-" + Guid.NewGuid();
 
-            var createPollRequest = new CreatePollRequest
+            var createPollRequest = new StreamCreatePollRequest
             {
                 Id = pollId,
                 Name = "Test Poll",
-                Options = new List<PollOptionInput>
+                Options = new List<StreamPollOptionRequest>
                 {
-                    new PollOptionInput { Text = "Option 1" },
-                    new PollOptionInput { Text = "Option 2" }
+                    new StreamPollOptionRequest { Text = "Option 1" },
+                    new StreamPollOptionRequest { Text = "Option 2" }
                 },
                 Custom = new Dictionary<string, object>
                 {
@@ -185,14 +177,13 @@ namespace StreamChat.Tests.StatefulClient
                 }
             };
 
-            var response = await Client.InternalLowLevelClient.PollsApi.CreatePollAsync(createPollRequest);
+            var poll = await Client.Polls.CreatePollAsync(createPollRequest);
 
-            Assert.NotNull(response);
-            Assert.NotNull(response.Poll);
-            Assert.NotNull(response.Poll.Custom);
-            Assert.IsTrue(response.Poll.Custom.ContainsKey("category"));
-            Assert.AreEqual("testing", response.Poll.Custom["category"]);
-            Assert.IsTrue(response.Poll.Custom.ContainsKey("priority"));
+            Assert.NotNull(poll);
+            Assert.NotNull(poll.CustomData);
+            Assert.IsTrue(poll.CustomData.ContainsKey("category"));
+            Assert.AreEqual("testing", poll.CustomData.Get<string>("category"));
+            Assert.IsTrue(poll.CustomData.ContainsKey("priority"));
         }
 
         [UnityTest]
@@ -204,34 +195,32 @@ namespace StreamChat.Tests.StatefulClient
             var pollId = "poll-" + Guid.NewGuid();
 
             // Create a poll
-            var createPollRequest = new CreatePollRequest
+            var createPollRequest = new StreamCreatePollRequest
             {
                 Id = pollId,
                 Name = "Original Name",
                 Description = "Original Description",
-                Options = new List<PollOptionInput>
+                Options = new List<StreamPollOptionRequest>
                 {
-                    new PollOptionInput { Text = "Option 1" }
+                    new StreamPollOptionRequest { Text = "Option 1" }
                 }
             };
 
-            var createResponse = await Client.InternalLowLevelClient.PollsApi.CreatePollAsync(createPollRequest);
-            Assert.NotNull(createResponse);
+            var poll = await Client.Polls.CreatePollAsync(createPollRequest);
+            Assert.NotNull(poll);
 
             // Update the poll
-            var updatePollRequest = new UpdatePollRequest
+            var updatePollRequest = new StreamUpdatePollRequest
             {
                 Name = "Updated Name",
                 Description = "Updated Description"
             };
 
-            var updateResponse = await Client.InternalLowLevelClient.PollsApi.UpdatePollAsync(pollId, updatePollRequest);
+            await poll.UpdateAsync(updatePollRequest);
 
-            Assert.NotNull(updateResponse);
-            Assert.NotNull(updateResponse.Poll);
-            Assert.AreEqual(pollId, updateResponse.Poll.Id);
-            Assert.AreEqual("Updated Name", updateResponse.Poll.Name);
-            Assert.AreEqual("Updated Description", updateResponse.Poll.Description);
+            Assert.AreEqual(pollId, poll.Id);
+            Assert.AreEqual("Updated Name", poll.Name);
+            Assert.AreEqual("Updated Description", poll.Description);
         }
 
         [UnityTest]
@@ -243,35 +232,27 @@ namespace StreamChat.Tests.StatefulClient
             var pollId = "poll-" + Guid.NewGuid();
 
             // Create a poll
-            var createPollRequest = new CreatePollRequest
+            var createPollRequest = new StreamCreatePollRequest
             {
                 Id = pollId,
                 Name = "Test Poll",
                 IsClosed = false,
-                Options = new List<PollOptionInput>
+                Options = new List<StreamPollOptionRequest>
                 {
-                    new PollOptionInput { Text = "Option 1" }
+                    new StreamPollOptionRequest { Text = "Option 1" }
                 }
             };
 
-            var createResponse = await Client.InternalLowLevelClient.PollsApi.CreatePollAsync(createPollRequest);
-            Assert.NotNull(createResponse);
-            Assert.AreEqual(false, createResponse.Poll.IsClosed);
+            var poll = await Client.Polls.CreatePollAsync(createPollRequest);
+            Assert.NotNull(poll);
+            Assert.AreEqual(false, poll.IsClosed);
 
-            // Close the poll using partial update
-            var updatePartialRequest = new UpdatePollPartialRequest
-            {
-                Set = new Dictionary<string, object>
-                {
-                    { "is_closed", true }
-                }
-            };
+            // Close the poll
+            await poll.CloseAsync();
 
-            var updateResponse = await Client.InternalLowLevelClient.PollsApi.UpdatePollPartialAsync(pollId, updatePartialRequest);
+            await WaitWhileFalseAsync(() => poll.IsClosed);
 
-            Assert.NotNull(updateResponse);
-            Assert.NotNull(updateResponse.Poll);
-            Assert.AreEqual(true, updateResponse.Poll.IsClosed);
+            Assert.AreEqual(true, poll.IsClosed);
         }
 
         [UnityTest]
@@ -283,37 +264,32 @@ namespace StreamChat.Tests.StatefulClient
             var pollId = "poll-" + Guid.NewGuid();
 
             // Create a poll with initial options
-            var createPollRequest = new CreatePollRequest
+            var createPollRequest = new StreamCreatePollRequest
             {
                 Id = pollId,
                 Name = "Test Poll",
                 AllowUserSuggestedOptions = true,
-                Options = new List<PollOptionInput>
+                Options = new List<StreamPollOptionRequest>
                 {
-                    new PollOptionInput { Text = "Option 1" },
-                    new PollOptionInput { Text = "Option 2" }
+                    new StreamPollOptionRequest { Text = "Option 1" },
+                    new StreamPollOptionRequest { Text = "Option 2" }
                 }
             };
 
-            var createResponse = await Client.InternalLowLevelClient.PollsApi.CreatePollAsync(createPollRequest);
-            Assert.NotNull(createResponse);
-            Assert.AreEqual(2, createResponse.Poll.Options.Count);
+            var poll = await Client.Polls.CreatePollAsync(createPollRequest);
+            Assert.NotNull(poll);
+            Assert.AreEqual(2, poll.Options.Count);
 
             // Add a new option
-            var createOptionRequest = new CreatePollOptionRequest
-            {
-                Text = "Option 3"
-            };
+            var newOption = await poll.AddOptionAsync("Option 3");
 
-            var optionResponse = await Client.InternalLowLevelClient.PollsApi.CreatePollOptionAsync(pollId, createOptionRequest);
+            //await WaitWhileFalseAsync(() => poll.Options.Count == 3);
 
-            Assert.NotNull(optionResponse);
-            Assert.NotNull(optionResponse.PollOption);
-            Assert.AreEqual("Option 3", optionResponse.PollOption.Text);
+            Assert.NotNull(newOption);
+            Assert.AreEqual("Option 3", newOption.Text);
 
-            // Verify the poll now has 3 options
-            var fetchResponse = await Client.InternalLowLevelClient.PollsApi.GetPollAsync(pollId);
-            Assert.AreEqual(3, fetchResponse.Poll.Options.Count);
+            // Verify the poll now has 3 options (state should be auto-updated)
+            Assert.AreEqual(3, poll.Options.Count);
         }
     }
 }
