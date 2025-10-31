@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.Models;
+using StreamChat.Core.Requests;
 using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 
@@ -107,44 +109,13 @@ namespace StreamChat.Core.StatefulModels
             await LowLevelClient.InternalPollsApi.RemoveVoteAsync(MessageId, Id, voteId);
         }
 
-        public async Task UpdateAsync(string name = null, string description = null, bool? allowAnswers = null,
-            bool? allowUserSuggestedOptions = null, int? maxVotesAllowed = null,
-            VotingVisibility? votingVisibility = null)
+        public async Task UpdateAsync(StreamUpdatePollRequest updateRequest)
         {
-            var request = new UpdatePollRequestInternalDTO();
+            StreamAsserts.AssertNotNull(updateRequest, nameof(updateRequest));
 
-            if (name != null)
-            {
-                request.Name = name;
-            }
+            var requestDto = updateRequest.TrySaveToDto();
 
-            if (description != null)
-            {
-                request.Description = description;
-            }
-
-            if (allowAnswers.HasValue)
-            {
-                request.AllowAnswers = allowAnswers;
-            }
-
-            if (allowUserSuggestedOptions.HasValue)
-            {
-                request.AllowUserSuggestedOptions = allowUserSuggestedOptions;
-            }
-
-            if (maxVotesAllowed.HasValue)
-            {
-                request.MaxVotesAllowed = maxVotesAllowed;
-            }
-
-            if (votingVisibility.HasValue)
-            {
-                // Map public enum to internal DTO enum
-                //request.VotingVisibility = (UpdatePollRequestVotingVisibilityInternalDTO)(int)votingVisibility.Value;
-            }
-
-            var response = await LowLevelClient.InternalPollsApi.UpdatePollAsync(Id, request);
+            var response = await LowLevelClient.InternalPollsApi.UpdatePollAsync(Id, requestDto);
 
             // Update from response
             this.TryUpdateFromDto<PollResponseDataInternalDTO, StreamPoll>(response.Poll, Cache);

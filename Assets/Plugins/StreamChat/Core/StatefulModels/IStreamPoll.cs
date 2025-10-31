@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.Models;
+using StreamChat.Core.Requests;
 
 namespace StreamChat.Core.StatefulModels
 {
@@ -171,15 +172,8 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Update this poll
         /// </summary>
-        /// <param name="name">New name for the poll</param>
-        /// <param name="description">New description for the poll</param>
-        /// <param name="allowAnswers">Whether to allow answers</param>
-        /// <param name="allowUserSuggestedOptions">Whether to allow user suggested options</param>
-        /// <param name="maxVotesAllowed">Maximum votes allowed per user</param>
-        /// <param name="votingVisibility">Voting visibility setting</param>
-        Task UpdateAsync(string name = null, string description = null, bool? allowAnswers = null,
-            bool? allowUserSuggestedOptions = null, int? maxVotesAllowed = null,
-            VotingVisibility? votingVisibility = null);
+        /// <param name="updateRequest">Update request with poll fields to change</param>
+        Task UpdateAsync(StreamUpdatePollRequest updateRequest);
 
         /// <summary>
         /// Close this poll

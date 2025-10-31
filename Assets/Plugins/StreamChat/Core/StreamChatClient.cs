@@ -104,6 +104,8 @@ namespace StreamChat.Core
 
         public IStreamChatLowLevelClient LowLevelClient => InternalLowLevelClient;
 
+        public IStreamPollsApi Polls => _pollsApi;
+
         /// <inheritdoc cref="StreamChatLowLevelClient.SDKVersion"/>
         public static Version SDKVersion => StreamChatLowLevelClient.SDKVersion;
 
@@ -668,6 +670,7 @@ namespace StreamChat.Core
         private readonly ILogs _logs;
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
+        private readonly StreamPollsApi _pollsApi;
 
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -704,6 +707,7 @@ namespace StreamChat.Core
                 serializer, _timeService, networkMonitor, applicationInfo, logs, config);
 
             _cache = new Cache(this, serializer, _logs);
+            _pollsApi = new StreamPollsApi(InternalLowLevelClient, _cache);
 
             SubscribeTo(InternalLowLevelClient);
         }
