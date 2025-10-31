@@ -480,6 +480,40 @@ namespace StreamChat.Tests.StatefulClient
             // Should get the 2 most recently created polls (from our set)
             Assert.AreEqual(poll4Id, result4[0].Id);
             Assert.AreEqual(poll3Id, result4[1].Id);
+
+            // Test 5: Query with MaxVotesAllowed filter - filter by our poll IDs
+            var queryRequest5 = new StreamQueryPollsRequest
+            {
+                Filter = new IFieldFilterRule[]
+                {
+                    PollFilter.Id.In(poll1Id, poll2Id, poll3Id, poll4Id),
+                    PollFilter.MaxVotesAllowed.GreaterThanOrEquals(2)
+                },
+                Limit = 10
+            };
+
+            var result5 = (await Client.Polls.QueryPollsAsync(queryRequest5)).ToList();
+
+            Assert.NotNull(result5);
+            Assert.AreEqual(2, result5.Count);
+            Assert.IsTrue(result5.Any(p => p.Id == poll2Id)); // MaxVotesAllowed = 2
+            Assert.IsTrue(result5.Any(p => p.Id == poll4Id)); // MaxVotesAllowed = 3
+
+            // Test 6: Query by CreatedById (current user)
+            var queryRequest6 = new StreamQueryPollsRequest
+            {
+                Filter = new IFieldFilterRule[]
+                {
+                    PollFilter.Id.In(poll1Id, poll2Id, poll3Id, poll4Id),
+                    PollFilter.CreatedById.EqualsTo(Client.LocalUserData.UserId)
+                },
+                Limit = 10
+            };
+
+            var result6 = (await Client.Polls.QueryPollsAsync(queryRequest6)).ToList();
+
+            Assert.NotNull(result6);
+            Assert.AreEqual(4, result6.Count); // All polls created by current user
         }
 
         [UnityTest]
