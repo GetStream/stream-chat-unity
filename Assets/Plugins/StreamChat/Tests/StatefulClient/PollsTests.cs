@@ -6,6 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Polls;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using UnityEngine.TestTools;
 
@@ -290,6 +293,152 @@ namespace StreamChat.Tests.StatefulClient
 
             // Verify the poll now has 3 options (state should be auto-updated)
             Assert.AreEqual(3, poll.Options.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator When_querying_polls_with_filters_expect_filtered_results()
+            => ConnectAndExecute(When_querying_polls_with_filters_expect_filtered_results_Async);
+
+        private async Task When_querying_polls_with_filters_expect_filtered_results_Async()
+        {
+            // Create multiple polls with different properties
+            var poll1Id = "poll-query-test-" + Guid.NewGuid();
+            var poll2Id = "poll-query-test-" + Guid.NewGuid();
+            var poll3Id = "poll-query-test-" + Guid.NewGuid();
+            var poll4Id = "poll-query-test-" + Guid.NewGuid();
+
+            var poll1 = await Client.Polls.CreatePollAsync(new StreamCreatePollRequest
+            {
+                Id = poll1Id,
+                Name = "Programming Languages Poll",
+                Description = "Vote for your favorite",
+                VotingVisibility = VotingVisibility.Public,
+                MaxVotesAllowed = 1,
+                Options = new List<StreamPollOptionRequest>
+                {
+                    new StreamPollOptionRequest { Text = "C#" },
+                    new StreamPollOptionRequest { Text = "JavaScript" }
+                }
+            });
+
+            var poll2 = await Client.Polls.CreatePollAsync(new StreamCreatePollRequest
+            {
+                Id = poll2Id,
+                Name = "IDE Preferences",
+                Description = "Which IDE do you use?",
+                VotingVisibility = VotingVisibility.Anonymous,
+                MaxVotesAllowed = 2,
+                Options = new List<StreamPollOptionRequest>
+                {
+                    new StreamPollOptionRequest { Text = "Visual Studio" },
+                    new StreamPollOptionRequest { Text = "Rider" }
+                }
+            });
+
+            var poll3 = await Client.Polls.CreatePollAsync(new StreamCreatePollRequest
+            {
+                Id = poll3Id,
+                Name = "Framework Poll",
+                Description = "Best framework?",
+                VotingVisibility = VotingVisibility.Public,
+                MaxVotesAllowed = 1,
+                IsClosed = true,
+                Options = new List<StreamPollOptionRequest>
+                {
+                    new StreamPollOptionRequest { Text = "Unity" },
+                    new StreamPollOptionRequest { Text = "Unreal" }
+                }
+            });
+
+            var poll4 = await Client.Polls.CreatePollAsync(new StreamCreatePollRequest
+            {
+                Id = poll4Id,
+                Name = "Testing Poll",
+                Description = "Just a test",
+                VotingVisibility = VotingVisibility.Public,
+                MaxVotesAllowed = 3,
+                Options = new List<StreamPollOptionRequest>
+                {
+                    new StreamPollOptionRequest { Text = "Option 1" }
+                }
+            });
+
+            // Test 1: Query specific polls by ID
+            var queryRequest1 = new StreamQueryPollsRequest
+            {
+                Filter = new IFieldFilterRule[]
+                {
+                    PollFilter.Id.In(poll1Id, poll2Id, poll3Id)
+                },
+                Sort = PollSort.OrderByDescending(PollSortFieldName.CreatedAt),
+                Limit = 10
+            };
+
+            var result1 = (await Client.Polls.QueryPollsAsync(queryRequest1)).ToList();
+
+            Assert.NotNull(result1);
+            Assert.AreEqual(3, result1.Count);
+            Assert.IsTrue(result1.Any(p => p.Id == poll1Id));
+            Assert.IsTrue(result1.Any(p => p.Id == poll2Id));
+            Assert.IsTrue(result1.Any(p => p.Id == poll3Id));
+            Assert.IsFalse(result1.Any(p => p.Id == poll4Id));
+
+            // Test 2: Query polls with name filter
+            var queryRequest2 = new StreamQueryPollsRequest
+            {
+                Filter = new IFieldFilterRule[]
+                {
+                    PollFilter.Name.EqualsTo("Programming Languages Poll")
+                },
+                Limit = 10
+            };
+
+            var result2 = (await Client.Polls.QueryPollsAsync(queryRequest2)).ToList();
+
+            Assert.NotNull(result2);
+            Assert.AreEqual(1, result2.Count);
+            Assert.AreEqual(poll1Id, result2[0].Id);
+            Assert.AreEqual("Programming Languages Poll", result2[0].Name);
+
+            // Test 3: Query only open polls (not closed)
+            var queryRequest3 = new StreamQueryPollsRequest
+            {
+                Filter = new IFieldFilterRule[]
+                {
+                    PollFilter.Id.In(poll1Id, poll2Id, poll3Id, poll4Id),
+                    PollFilter.IsClosed.EqualsTo(false)
+                },
+                Sort = PollSort.OrderByAscending(PollSortFieldName.Name),
+                Limit = 10
+            };
+
+            var result3 = (await Client.Polls.QueryPollsAsync(queryRequest3)).ToList();
+
+            Assert.NotNull(result3);
+            Assert.AreEqual(3, result3.Count);
+            Assert.IsTrue(result3.Any(p => p.Id == poll1Id));
+            Assert.IsTrue(result3.Any(p => p.Id == poll2Id));
+            Assert.IsTrue(result3.Any(p => p.Id == poll4Id));
+            Assert.IsFalse(result3.Any(p => p.Id == poll3Id)); // poll3 is closed
+
+            // Test 4: Query with pagination
+            var queryRequest4 = new StreamQueryPollsRequest
+            {
+                Filter = new IFieldFilterRule[]
+                {
+                    PollFilter.Id.In(poll1Id, poll2Id, poll3Id, poll4Id)
+                },
+                Sort = PollSort.OrderByDescending(PollSortFieldName.CreatedAt),
+                Limit = 2
+            };
+
+            var result4 = (await Client.Polls.QueryPollsAsync(queryRequest4)).ToList();
+
+            Assert.NotNull(result4);
+            Assert.AreEqual(2, result4.Count);
+            // Should get the 2 most recently created polls
+            Assert.AreEqual(poll4Id, result4[0].Id);
+            Assert.AreEqual(poll3Id, result4[1].Id);
         }
     }
 }
