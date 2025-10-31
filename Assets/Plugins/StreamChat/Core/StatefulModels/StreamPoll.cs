@@ -43,7 +43,7 @@ namespace StreamChat.Core.StatefulModels
 
         public string Id { get; private set; }
 
-        public bool? IsClosed
+        public bool IsClosed
         {
             get => _isClosed;
             private set
@@ -117,8 +117,7 @@ namespace StreamChat.Core.StatefulModels
 
             var response = await LowLevelClient.InternalPollsApi.UpdatePollAsync(Id, requestDto);
 
-            // Update from response
-            this.TryUpdateFromDto<PollResponseDataInternalDTO, StreamPoll>(response.Poll, Cache);
+            this.TryUpdateFromDto(response.Poll, Cache);
         }
 
         public async Task CloseAsync()
@@ -133,8 +132,7 @@ namespace StreamChat.Core.StatefulModels
 
             var response = await LowLevelClient.InternalPollsApi.UpdatePollPartialAsync(Id, request);
 
-            // Update from response
-            this.TryUpdateFromDto<PollResponseDataInternalDTO, StreamPoll>(response.Poll, Cache);
+            this.TryUpdateFromDto(response.Poll, Cache);
         }
 
         public async Task<StreamPollOption> AddOptionAsync(string text)
@@ -148,8 +146,6 @@ namespace StreamChat.Core.StatefulModels
 
             var response = await LowLevelClient.InternalPollsApi.CreatePollOptionAsync(Id, request);
             
-            
-            // Return the option as public model
             return new StreamPollOption().TryLoadFromDto<PollOptionResponseDataInternalDTO, StreamPollOption>(response.PollOption, Cache);
         }
 
@@ -193,7 +189,11 @@ namespace StreamChat.Core.StatefulModels
             Description = dto.Description;
             EnforceUniqueVote = dto.EnforceUniqueVote;
             Id = dto.Id;
-            IsClosed = dto.IsClosed;
+
+            if (dto.IsClosed.HasValue)
+            {
+                IsClosed = dto.IsClosed.Value;
+            }
 
             if (dto.LatestAnswers != null)
             {
@@ -239,25 +239,24 @@ namespace StreamChat.Core.StatefulModels
 
             VotingVisibility = dto.VotingVisibility;
 
-            LoadAdditionalProperties(dto.AdditionalProperties);
+            LoadAdditionalProperties(dto.Custom);
 
-            // Notify subscribers that poll was updated
             Updated?.Invoke(this);
         }
 
         internal void HandlePollClosedEvent(PollClosedEventInternalDTO dto)
         {
-            this.TryUpdateFromDto<PollResponseDataInternalDTO, StreamPoll>(dto.Poll, Cache);
+            this.TryUpdateFromDto(dto.Poll, Cache);
         }
 
         internal void HandlePollUpdatedEvent(PollUpdatedEventInternalDTO dto)
         {
-            this.TryUpdateFromDto<PollResponseDataInternalDTO, StreamPoll>(dto.Poll, Cache);
+            this.TryUpdateFromDto(dto.Poll, Cache);
         }
 
         internal void HandlePollVoteCastedEvent(PollVoteCastedEventInternalDTO dto)
         {
-            this.TryUpdateFromDto<PollResponseDataInternalDTO, StreamPoll>(dto.Poll, Cache);
+            this.TryUpdateFromDto(dto.Poll, Cache);
 
             if (dto.PollVote != null)
             {
@@ -268,7 +267,7 @@ namespace StreamChat.Core.StatefulModels
 
         internal void HandlePollVoteChangedEvent(PollVoteChangedEventInternalDTO dto)
         {
-            this.TryUpdateFromDto<PollResponseDataInternalDTO, StreamPoll>(dto.Poll, Cache);
+            this.TryUpdateFromDto(dto.Poll, Cache);
 
             if (dto.PollVote != null)
             {
@@ -279,7 +278,7 @@ namespace StreamChat.Core.StatefulModels
 
         internal void HandlePollVoteRemovedEvent(PollVoteRemovedEventInternalDTO dto)
         {
-            this.TryUpdateFromDto<PollResponseDataInternalDTO, StreamPoll>(dto.Poll, Cache);
+            this.TryUpdateFromDto(dto.Poll, Cache);
 
             if (dto.PollVote != null)
             {
@@ -306,7 +305,7 @@ namespace StreamChat.Core.StatefulModels
         {
         }
 
-        private bool? _isClosed;
+        private bool _isClosed;
         private IStreamChannel _channel;
         private readonly List<StreamPollVote> _latestAnswers = new List<StreamPollVote>();
         private readonly Dictionary<string, IReadOnlyList<StreamPollVote>> _latestVotesByOption = new Dictionary<string, IReadOnlyList<StreamPollVote>>();

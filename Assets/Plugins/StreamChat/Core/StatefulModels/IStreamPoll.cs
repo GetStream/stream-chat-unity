@@ -95,7 +95,7 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Whether the poll is closed
         /// </summary>
-        bool? IsClosed { get; }
+        bool IsClosed { get; }
 
         /// <summary>
         /// Latest answers to the poll
