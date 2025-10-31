@@ -23,7 +23,7 @@ namespace StreamChat.Tests.StatefulClient
     {
         private readonly List<string> _tempPollIds = new List<string>();
 
-        [TearDown]
+        [OneTimeTearDown]
         public async void TearDown()
         {
             await DeleteTempPollsAsync();
@@ -36,8 +36,10 @@ namespace StreamChat.Tests.StatefulClient
                 return;
             }
 
-            foreach (var pollId in _tempPollIds)
+            // Iterate in reverse to avoid collection modification issues
+            for (int i = _tempPollIds.Count - 1; i >= 0; i--)
             {
+                var pollId = _tempPollIds[i];
                 try
                 {
                     await Client.Polls.DeletePollAsync(pollId);
