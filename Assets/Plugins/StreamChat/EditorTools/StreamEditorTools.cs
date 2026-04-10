@@ -56,7 +56,7 @@ namespace StreamChat.EditorTools
             sb.AppendLine(
                 $"{nameof(AndroidExternalToolsSettings.ndkRootPath)}: {AndroidExternalToolsSettings.ndkRootPath}");
             sb.AppendLine(
-                $"{nameof(AndroidExternalToolsSettings.gradlePath)}: {AndroidExternalToolsSettings.gradlePath}");
+                $"{nameof(AndroidExternalToolsSettings.Gradle.path)}: {AndroidExternalToolsSettings.Gradle.path}");
             Debug.Log(sb.ToString());
             Application.Quit(0);
 #endif
@@ -100,8 +100,8 @@ namespace StreamChat.EditorTools
                 if (!string.IsNullOrEmpty(androidExternalToolsSettings.GradlePath))
                 {
                     sb.AppendLine(
-                        $"Setting {nameof(AndroidExternalToolsSettings.gradlePath)} to: {androidExternalToolsSettings.GradlePath}");
-                    AndroidExternalToolsSettings.gradlePath = androidExternalToolsSettings.GradlePath;
+                        $"Setting {nameof(AndroidExternalToolsSettings.Gradle.path)} to: {androidExternalToolsSettings.GradlePath}");
+                    AndroidExternalToolsSettings.Gradle.path = androidExternalToolsSettings.GradlePath;
                 }
 
                 Debug.Log(sb.ToString());
