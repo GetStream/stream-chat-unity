@@ -17,6 +17,12 @@ namespace StreamChat.Core.State
         TDomain LoadFromDto(TDto dto, ICache cache);
     }
 
+    internal interface IStateLoadableFrom2<in TDto, out TDomain>
+        where TDomain : IStateLoadableFrom2<TDto, TDomain>
+    {
+        TDomain LoadFromDto(TDto dto, ICache cache);
+    }
+
     /// <summary>
     /// Extensions for <see cref="ILoadableFrom{TDto,TDomain}"/>
     /// </summary>
@@ -32,9 +38,36 @@ namespace StreamChat.Core.State
 
             return new TDomain().LoadFromDto(dto, cache);
         }
-        
+
+        public static TDomain TryLoadFromDto<TDto, TDomain>(this IStateLoadableFrom2<TDto, TDomain> loadable, TDto dto, ICache cache)
+            where TDomain : class, IStateLoadableFrom2<TDto, TDomain>, new()
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            return new TDomain().LoadFromDto(dto, cache);
+        }
+
         public static TDomain LoadFromDto<TDto, TDomain>(this IStateLoadableFrom<TDto, TDomain> loadable, TDto dto, ICache cache)
             where TDomain : class, IStateLoadableFrom<TDto, TDomain>, new()
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            if (loadable == null)
+            {
+                throw new ArgumentException(nameof(loadable));
+            }
+
+            return loadable.LoadFromDto(dto, cache);
+        }
+
+        public static TDomain LoadFromDto<TDto, TDomain>(this IStateLoadableFrom2<TDto, TDomain> loadable, TDto dto, ICache cache)
+            where TDomain : class, IStateLoadableFrom2<TDto, TDomain>, new()
         {
             if (dto == null)
             {
@@ -68,12 +101,59 @@ namespace StreamChat.Core.State
             return items;
         }
 
+        [Pure]
+        public static List<TSource> TryLoadFromDtoCollection2<TDto, TSource>(this List<TSource> _, List<TDto> dtos, ICache cache)
+            where TSource : IStateLoadableFrom2<TDto, TSource>, new()
+        {
+            if (dtos == null)
+            {
+                return null;
+            }
+
+            var items = new List<TSource>(dtos.Count);
+
+            foreach (var dto in dtos)
+            {
+                items.Add(new TSource().LoadFromDto(dto, cache));
+            }
+
+            return items;
+        }
 
         /// <summary>
         /// Regular = non tracked objects
         /// </summary>
         public static void TryReplaceRegularObjectsFromDto<TDto, TSource>(this List<TSource> target, List<TDto> dtos, ICache cache)
             where TSource : IStateLoadableFrom<TDto, TSource>, new()
+        {
+            if (typeof(TSource) is IStreamStatefulModel)
+            {
+                throw new InvalidOperationException("This method should not be used for tracked objects");
+            }
+
+            if (dtos == null)
+            {
+                return;
+            }
+
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target));
+            }
+
+            target.Clear();
+
+            foreach (var dto in dtos)
+            {
+                target.Add(new TSource().LoadFromDto(dto, cache));
+            }
+        }
+
+        /// <summary>
+        /// Regular = non tracked objects
+        /// </summary>
+        public static void TryReplaceRegularObjectsFromDto2<TDto, TSource>(this List<TSource> target, List<TDto> dtos, ICache cache)
+            where TSource : IStateLoadableFrom2<TDto, TSource>, new()
         {
             if (typeof(TSource) is IStreamStatefulModel)
             {

@@ -226,7 +226,7 @@ namespace StreamChat.Core
             var dto = await InternalLowLevelClient.InternalChannelApi.GetUnreadCountsAsync();
             var response = dto.ToDomain<WrappedUnreadCountsResponseInternalDTO, StreamCurrentUnreadCounts>();
 
-            _localUserData.TryUpdateFromDto<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>(dto, _cache);
+            ((IUpdateableFrom2<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>)_localUserData).TryUpdateFromDto(dto, _cache);
 
             return response;
         }

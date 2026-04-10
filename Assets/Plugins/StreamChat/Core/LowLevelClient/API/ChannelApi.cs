@@ -27,7 +27,7 @@ namespace StreamChat.Core.LowLevelClient.API
             ChannelGetOrCreateRequest getOrCreateRequest)
         {
             var dto = await _internalChannelApi.GetOrCreateChannelAsync(channelType, getOrCreateRequest.TrySaveToDto());
-            return dto.ToDomain<ChannelStateResponseInternalDTO, ChannelState>();
+            return dto.ToDomain2<ChannelStateResponseInternalDTO, ChannelState>();
         }
 
         public async Task<ChannelState> GetOrCreateChannelAsync(string channelType, string channelId,
@@ -35,7 +35,7 @@ namespace StreamChat.Core.LowLevelClient.API
         {
             var dto = await _internalChannelApi.GetOrCreateChannelAsync(channelType, channelId,
                 getOrCreateRequest.TrySaveToDto());
-            return dto.ToDomain<ChannelStateResponseInternalDTO, ChannelState>();
+            return dto.ToDomain2<ChannelStateResponseInternalDTO, ChannelState>();
         }
 
         public async Task<UpdateChannelResponse> UpdateChannelAsync(string channelType, string channelId,

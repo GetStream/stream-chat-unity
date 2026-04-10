@@ -20,15 +20,15 @@ namespace StreamChat.Core.State.Caches
             Polls = new CacheRepository<StreamPoll>(trackedObjectsFactory.CreateStreamPoll, cache: this);
 
             Channels.RegisterDtoIdMapping<StreamChannel, ChannelStateResponseInternalDTO>(dto => dto.Channel.Cid);
-            Channels.RegisterDtoIdMapping<StreamChannel, ChannelResponseInternalDTO>(dto => dto.Cid);
-            Channels.RegisterDtoIdMapping<StreamChannel, ChannelStateResponseFieldsInternalDTO>(dto => dto.Channel.Cid);
-            Channels.RegisterDtoIdMapping<StreamChannel, UpdateChannelResponseInternalDTO>(dto => dto.Channel.Cid);
+            Channels.RegisterDtoIdMapping2<StreamChannel, ChannelResponseInternalDTO>(dto => dto.Cid);
+            Channels.RegisterDtoIdMapping3<StreamChannel, ChannelStateResponseFieldsInternalDTO>(dto => dto.Channel.Cid);
+            Channels.RegisterDtoIdMapping4<StreamChannel, UpdateChannelResponseInternalDTO>(dto => dto.Channel.Cid);
 
             Users.RegisterDtoIdMapping<StreamUser, UserObjectInternalDTO>(dto => dto.Id);
-            Users.RegisterDtoIdMapping<StreamUser, UserResponseInternalDTO>(dto => dto.Id);
-            Users.RegisterDtoIdMapping<StreamUser, OwnUserInternalDTO>(dto => dto.Id);
-            Users.RegisterDtoIdMapping<StreamUser, FullUserResponseInternalDTO>(dto => dto.Id);
-            Users.RegisterDtoIdMapping<StreamUser, UserEventPayloadInternalDTO>(dto => dto.Id);
+            Users.RegisterDtoIdMapping2<StreamUser, UserResponseInternalDTO>(dto => dto.Id);
+            Users.RegisterDtoIdMapping3<StreamUser, OwnUserInternalDTO>(dto => dto.Id);
+            Users.RegisterDtoIdMapping4<StreamUser, FullUserResponseInternalDTO>(dto => dto.Id);
+            Users.RegisterDtoIdMapping5<StreamUser, UserEventPayloadInternalDTO>(dto => dto.Id);
 
             LocalUser.RegisterDtoIdMapping<StreamLocalUserData, OwnUserInternalDTO>(dto => dto.Id);
 
@@ -44,7 +44,7 @@ namespace StreamChat.Core.State.Caches
             });
 
             Messages.RegisterDtoIdMapping<StreamMessage, MessageInternalDTO>(dto => dto.Id);
-            Messages.RegisterDtoIdMapping<StreamMessage, MessageResponseInternalDTO>(dto => dto.Id);
+            Messages.RegisterDtoIdMapping2<StreamMessage, MessageResponseInternalDTO>(dto => dto.Id);
 
             Polls.RegisterDtoIdMapping<StreamPoll, PollResponseDataInternalDTO>(dto => dto.Id);
         }

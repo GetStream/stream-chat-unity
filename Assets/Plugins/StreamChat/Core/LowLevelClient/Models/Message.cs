@@ -7,8 +7,8 @@ using StreamChat.Core.InternalDTO.Responses;
 namespace StreamChat.Core.LowLevelClient.Models
 {
     public class Message : ModelBase, ILoadableFrom<MessageInternalDTO, Message>, 
-        ILoadableFrom<SearchResultMessageInternalDTO, Message>, 
-        ILoadableFrom<MessageResponseInternalDTO, Message>
+        ILoadableFrom2<SearchResultMessageInternalDTO, Message>, 
+        ILoadableFrom3<MessageResponseInternalDTO, Message>
     {
         /// <summary>
         /// Array of message attachments
@@ -213,7 +213,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        Message ILoadableFrom<SearchResultMessageInternalDTO, Message>.LoadFromDto(SearchResultMessageInternalDTO dto)
+        Message ILoadableFrom2<SearchResultMessageInternalDTO, Message>.LoadFromDto(SearchResultMessageInternalDTO dto)
         {
             Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);
             BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
@@ -253,7 +253,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
         
-        Message ILoadableFrom<MessageResponseInternalDTO, Message>.LoadFromDto(MessageResponseInternalDTO dto)
+        Message ILoadableFrom3<MessageResponseInternalDTO, Message>.LoadFromDto(MessageResponseInternalDTO dto)
         {
             Attachments = Attachments.TryLoadFromDtoCollection(dto.Attachments);
             BeforeMessageSendFailed = dto.BeforeMessageSendFailed;
@@ -266,10 +266,10 @@ namespace StreamChat.Core.LowLevelClient.Models
             I18n = dto.I18n;
             Id = dto.Id;
             ImageLabels = dto.ImageLabels;
-            LatestReactions = LatestReactions.TryLoadFromDtoCollection(dto.LatestReactions);
-            MentionedUsers = MentionedUsers.TryLoadFromDtoCollection(dto.MentionedUsers);
+            LatestReactions = LatestReactions.TryLoadFromDtoCollection2(dto.LatestReactions);
+            MentionedUsers = MentionedUsers.TryLoadFromDtoCollection2(dto.MentionedUsers);
             Mml = dto.Mml;
-            OwnReactions = OwnReactions.TryLoadFromDtoCollection(dto.OwnReactions);
+            OwnReactions = OwnReactions.TryLoadFromDtoCollection2(dto.OwnReactions);
             ParentId = dto.ParentId;
             PinExpires = dto.PinExpires;
             Pinned = dto.Pinned;
@@ -284,7 +284,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             ShowInChannel = dto.ShowInChannel;
             Silent = dto.Silent;
             Text = dto.Text;
-            ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
+            ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection2(dto.ThreadParticipants);
             Type = Type.TryLoadFromDto(dto.Type);
             UpdatedAt = dto.UpdatedAt;
             User = User.TryLoadFromDto<UserResponseInternalDTO, User>(dto.User);

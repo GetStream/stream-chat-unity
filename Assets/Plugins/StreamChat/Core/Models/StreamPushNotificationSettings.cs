@@ -7,7 +7,7 @@ namespace StreamChat.Core.Models
 {
     public class StreamPushNotificationSettings :
         IStateLoadableFrom<PushNotificationSettingsInternalDTO, StreamPushNotificationSettings>,
-        IStateLoadableFrom<PushNotificationSettingsResponseInternalDTO, StreamPushNotificationSettings>
+        IStateLoadableFrom2<PushNotificationSettingsResponseInternalDTO, StreamPushNotificationSettings>
     {
         public bool Disabled { get; private set; }
 
@@ -24,7 +24,7 @@ namespace StreamChat.Core.Models
         }
 
         StreamPushNotificationSettings
-            IStateLoadableFrom<PushNotificationSettingsResponseInternalDTO, StreamPushNotificationSettings>.LoadFromDto(
+            IStateLoadableFrom2<PushNotificationSettingsResponseInternalDTO, StreamPushNotificationSettings>.LoadFromDto(
                 PushNotificationSettingsResponseInternalDTO dto, ICache cache)
         {
             Disabled = dto.Disabled.GetValueOrDefault();

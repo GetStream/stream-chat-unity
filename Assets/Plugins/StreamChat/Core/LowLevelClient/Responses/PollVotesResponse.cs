@@ -18,7 +18,7 @@ namespace StreamChat.Core.LowLevelClient.Responses
 
         PollVotesResponse ILoadableFrom<PollVotesResponseInternalDTO, PollVotesResponse>.LoadFromDto(PollVotesResponseInternalDTO dto)
         {
-            Votes = Votes.TryLoadFromDtoCollection(dto.Votes);
+            Votes = Votes.TryLoadFromDtoCollection2(dto.Votes);
             Next = dto.Next;
             Prev = dto.Prev;
             AdditionalProperties = dto.AdditionalProperties;

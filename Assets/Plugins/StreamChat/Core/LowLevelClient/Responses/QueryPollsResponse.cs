@@ -18,7 +18,7 @@ namespace StreamChat.Core.LowLevelClient.Responses
 
         QueryPollsResponse ILoadableFrom<QueryPollsResponseInternalDTO, QueryPollsResponse>.LoadFromDto(QueryPollsResponseInternalDTO dto)
         {
-            Polls = Polls.TryLoadFromDtoCollection(dto.Polls);
+            Polls = Polls.TryLoadFromDtoCollection2(dto.Polls);
             Next = dto.Next;
             Prev = dto.Prev;
             AdditionalProperties = dto.AdditionalProperties;

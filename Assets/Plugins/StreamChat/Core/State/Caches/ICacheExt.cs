@@ -10,7 +10,7 @@ namespace StreamChat.Core.State.Caches
             => dto == null ? null : cache.Messages.CreateOrUpdate<StreamMessage, MessageInternalDTO>(dto, out _);
         
         public static StreamMessage TryCreateOrUpdate(this ICache cache, MessageResponseInternalDTO dto)
-            => dto == null ? null : cache.Messages.CreateOrUpdate<StreamMessage, MessageResponseInternalDTO>(dto, out _);
+            => dto == null ? null : cache.Messages.CreateOrUpdate2<StreamMessage, MessageResponseInternalDTO>(dto, out _);
 
         public static StreamMessage TryCreateOrUpdate(this ICache cache, MessageInternalDTO dto, out bool wasCreated)
         {
@@ -23,20 +23,20 @@ namespace StreamChat.Core.State.Caches
         public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelResponseInternalDTO dto)
             => dto == null
                 ? null
-                : cache.Channels.CreateOrUpdate<StreamChannel, ChannelResponseInternalDTO>(dto, out _);
+                : cache.Channels.CreateOrUpdate2<StreamChannel, ChannelResponseInternalDTO>(dto, out _);
         
         public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelResponseInternalDTO dto, out bool wasCreated)
         {
             wasCreated = false;
             return dto == null
                 ? null
-                : cache.Channels.CreateOrUpdate<StreamChannel, ChannelResponseInternalDTO>(dto, out wasCreated);
+                : cache.Channels.CreateOrUpdate2<StreamChannel, ChannelResponseInternalDTO>(dto, out wasCreated);
         }
 
         public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelStateResponseFieldsInternalDTO dto)
             => dto == null
                 ? null
-                : cache.Channels.CreateOrUpdate<StreamChannel, ChannelStateResponseFieldsInternalDTO>(dto, out _);
+                : cache.Channels.CreateOrUpdate3<StreamChannel, ChannelStateResponseFieldsInternalDTO>(dto, out _);
 
         public static StreamChannel TryCreateOrUpdate(this ICache cache, ChannelStateResponseInternalDTO dto)
             => dto == null
@@ -46,7 +46,7 @@ namespace StreamChat.Core.State.Caches
         public static StreamChannel TryCreateOrUpdate(this ICache cache, UpdateChannelResponseInternalDTO dto)
             => dto == null
                 ? null
-                : cache.Channels.CreateOrUpdate<StreamChannel, UpdateChannelResponseInternalDTO>(dto, out _);
+                : cache.Channels.CreateOrUpdate4<StreamChannel, UpdateChannelResponseInternalDTO>(dto, out _);
 
         public static StreamChannelMember TryCreateOrUpdate(this ICache cache, ChannelMemberInternalDTO dto)
             => dto == null
@@ -54,7 +54,7 @@ namespace StreamChat.Core.State.Caches
                 : cache.ChannelMembers.CreateOrUpdate<StreamChannelMember, ChannelMemberInternalDTO>(dto, out _);
 
         public static StreamUser TryCreateOrUpdate(this ICache cache, UserResponseInternalDTO dto)
-            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserResponseInternalDTO>(dto, out _);
+            => dto == null ? null : cache.Users.CreateOrUpdate2<StreamUser, UserResponseInternalDTO>(dto, out _);
         
         public static StreamUser TryCreateOrUpdate(this ICache cache, UserObjectInternalDTO dto)
             => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserObjectInternalDTO>(dto, out _);
@@ -72,10 +72,10 @@ namespace StreamChat.Core.State.Caches
             => dto == null ? null : cache.LocalUser.CreateOrUpdate<StreamLocalUserData, OwnUserInternalDTO>(dto, out _);
         
         public static StreamUser TryCreateOrUpdate(this ICache cache, FullUserResponseInternalDTO dto)
-            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, FullUserResponseInternalDTO>(dto, out _);
+            => dto == null ? null : cache.Users.CreateOrUpdate4<StreamUser, FullUserResponseInternalDTO>(dto, out _);
         
         public static StreamUser TryCreateOrUpdate(this ICache cache, UserEventPayloadInternalDTO dto)
-            => dto == null ? null : cache.Users.CreateOrUpdate<StreamUser, UserEventPayloadInternalDTO>(dto, out _);
+            => dto == null ? null : cache.Users.CreateOrUpdate5<StreamUser, UserEventPayloadInternalDTO>(dto, out _);
         
         public static StreamPoll TryCreateOrUpdate(this ICache cache, PollResponseDataInternalDTO dto)
             => dto == null ? null : cache.Polls.CreateOrUpdate<StreamPoll, PollResponseDataInternalDTO>(dto, out _);

@@ -7,9 +7,9 @@ namespace StreamChat.Core.LowLevelClient.Models
     
     public class PushNotificationSettings : ModelBase,
         ILoadableFrom<PushNotificationSettingsInternalDTO, PushNotificationSettings>,
-        ILoadableFrom<PushNotificationSettingsRequestInternalDTO, PushNotificationSettings>,
-        ILoadableFrom<PushNotificationSettingsResponseInternalDTO, PushNotificationSettings>,
-        ISavableTo<PushNotificationSettingsInternalDTO>, ISavableTo<PushNotificationSettingsRequestInternalDTO>
+        ILoadableFrom2<PushNotificationSettingsRequestInternalDTO, PushNotificationSettings>,
+        ILoadableFrom3<PushNotificationSettingsResponseInternalDTO, PushNotificationSettings>,
+        ISavableTo<PushNotificationSettingsInternalDTO>, ISavableTo2<PushNotificationSettingsRequestInternalDTO>
     {
         public bool? Disabled { get; set; }
 
@@ -25,7 +25,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
         
-        PushNotificationSettings ILoadableFrom<PushNotificationSettingsRequestInternalDTO, PushNotificationSettings>.
+        PushNotificationSettings ILoadableFrom2<PushNotificationSettingsRequestInternalDTO, PushNotificationSettings>.
             LoadFromDto(PushNotificationSettingsRequestInternalDTO dto)
         {
             Disabled = dto.Disabled;
@@ -35,7 +35,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
         
-        PushNotificationSettings ILoadableFrom<PushNotificationSettingsResponseInternalDTO, PushNotificationSettings>.
+        PushNotificationSettings ILoadableFrom3<PushNotificationSettingsResponseInternalDTO, PushNotificationSettings>.
             LoadFromDto(PushNotificationSettingsResponseInternalDTO dto)
         {
             Disabled = dto.Disabled;
@@ -53,7 +53,7 @@ namespace StreamChat.Core.LowLevelClient.Models
                 AdditionalProperties = AdditionalProperties,
             };
         
-        PushNotificationSettingsRequestInternalDTO ISavableTo<PushNotificationSettingsRequestInternalDTO>.SaveToDto()
+        PushNotificationSettingsRequestInternalDTO ISavableTo2<PushNotificationSettingsRequestInternalDTO>.SaveToDto()
             => new PushNotificationSettingsRequestInternalDTO
             {
                 Disabled = Disabled,

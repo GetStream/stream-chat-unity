@@ -10,7 +10,7 @@ namespace StreamChat.Core.Models
     /// Represents an option in a poll
     /// </summary>
     public class StreamPollOption : IStateLoadableFrom<PollOptionInternalDTO, StreamPollOption>,
-        IStateLoadableFrom<PollOptionResponseDataInternalDTO, StreamPollOption>
+        IStateLoadableFrom2<PollOptionResponseDataInternalDTO, StreamPollOption>
     {
         /// <summary>
         /// Custom data associated with this option
@@ -42,7 +42,7 @@ namespace StreamChat.Core.Models
             return this;
         }
 
-        StreamPollOption IStateLoadableFrom<PollOptionResponseDataInternalDTO, StreamPollOption>.LoadFromDto(PollOptionResponseDataInternalDTO dto, ICache cache)
+        StreamPollOption IStateLoadableFrom2<PollOptionResponseDataInternalDTO, StreamPollOption>.LoadFromDto(PollOptionResponseDataInternalDTO dto, ICache cache)
         {
             Custom = dto.Custom;
             Id = dto.Id;
