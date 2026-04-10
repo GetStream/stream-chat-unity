@@ -9,7 +9,7 @@ using StreamChat.Core.Models;
 namespace StreamChat.Core.StatefulModels
 {
     internal sealed class StreamLocalUserData : StreamStatefulModelBase<StreamLocalUserData>,
-        IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>, IUpdateableFrom<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>, IStreamLocalUserData
+        IUpdateableFrom<OwnUserInternalDTO, StreamLocalUserData>, IUpdateableFrom2<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>, IStreamLocalUserData
     {
         #region OwnUser
         
@@ -46,7 +46,7 @@ namespace StreamChat.Core.StatefulModels
 
             #endregion
 
-            User = cache.Users.CreateOrUpdate<StreamUser, OwnUserInternalDTO>(dto, out _);
+            User = cache.Users.CreateOrUpdate3<StreamUser, OwnUserInternalDTO>(dto, out _);
 
             LoadAdditionalProperties(dto.AdditionalProperties);
             
@@ -55,7 +55,7 @@ namespace StreamChat.Core.StatefulModels
 #endif
         }
         
-        void IUpdateableFrom<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>.UpdateFromDto(WrappedUnreadCountsResponseInternalDTO dto,
+        void IUpdateableFrom2<WrappedUnreadCountsResponseInternalDTO, StreamLocalUserData>.UpdateFromDto(WrappedUnreadCountsResponseInternalDTO dto,
             ICache cache)
         {
             TotalUnreadCount = GetOrDefault(dto.TotalUnreadCount, TotalUnreadCount);

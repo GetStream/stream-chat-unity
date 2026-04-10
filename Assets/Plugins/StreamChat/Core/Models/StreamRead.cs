@@ -9,7 +9,7 @@ namespace StreamChat.Core.Models
 {
     //StreamTodo: this could contain the last read StreamMessage
     public class StreamRead : IStateLoadableFrom<ReadInternalDTO, StreamRead>,
-        IStateLoadableFrom<ReadStateResponseInternalDTO, StreamRead>
+        IStateLoadableFrom2<ReadStateResponseInternalDTO, StreamRead>
     {
         public DateTimeOffset LastRead { get; private set; }
 
@@ -27,7 +27,7 @@ namespace StreamChat.Core.Models
             return this;
         }
         
-        StreamRead IStateLoadableFrom<ReadStateResponseInternalDTO, StreamRead>.LoadFromDto(ReadStateResponseInternalDTO dto, ICache cache)
+        StreamRead IStateLoadableFrom2<ReadStateResponseInternalDTO, StreamRead>.LoadFromDto(ReadStateResponseInternalDTO dto, ICache cache)
         {
             //Is this always set? What if a user marks empty channel as read? 
             LastRead = dto.LastRead; //StreamTodo: GetValueOrThrow? 

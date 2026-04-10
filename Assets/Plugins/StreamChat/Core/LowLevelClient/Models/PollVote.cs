@@ -9,7 +9,7 @@ namespace StreamChat.Core.LowLevelClient.Models
     /// <summary>
     /// Represents a poll vote
     /// </summary>
-    public partial class PollVote : ILoadableFrom<PollVoteInternalDTO, PollVote>, ILoadableFrom<PollVoteResponseDataInternalDTO, PollVote>
+    public partial class PollVote : ILoadableFrom<PollVoteInternalDTO, PollVote>, ILoadableFrom2<PollVoteResponseDataInternalDTO, PollVote>
     {
         public string AnswerText { get; set; }
 
@@ -47,7 +47,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        PollVote ILoadableFrom<PollVoteResponseDataInternalDTO, PollVote>.LoadFromDto(PollVoteResponseDataInternalDTO dto)
+        PollVote ILoadableFrom2<PollVoteResponseDataInternalDTO, PollVote>.LoadFromDto(PollVoteResponseDataInternalDTO dto)
         {
             AnswerText = dto.AnswerText;
             CreatedAt = dto.CreatedAt;

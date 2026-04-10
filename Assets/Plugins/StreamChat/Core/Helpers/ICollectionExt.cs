@@ -69,8 +69,88 @@ namespace StreamChat.Core.Helpers
         }
 
         [Pure]
+        public static List<TDto> TrySaveToDtoCollection2<TSource, TDto>(this List<TSource> source)
+            where TSource : ISavableTo2<TDto>
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
+            var dtos = new List<TDto>(source.Count);
+
+            foreach (var item in source)
+            {
+                if (item == null)
+                {
+                    continue;
+                }
+                dtos.Add(item.SaveToDto());
+            }
+
+            return dtos;
+        }
+
+        [Pure]
         public static List<TSource> TryLoadFromDtoCollection<TDto, TSource>(this List<TSource> _, List<TDto> dtos)
             where TSource : ILoadableFrom<TDto, TSource>, new()
+        {
+            if (dtos == null)
+            {
+                return null;
+            }
+
+            var items = new List<TSource>(dtos.Count);
+
+            foreach (var dto in dtos)
+            {
+                items.Add(new TSource().LoadFromDto(dto));
+            }
+
+            return items;
+        }
+
+        [Pure]
+        public static List<TSource> TryLoadFromDtoCollection2<TDto, TSource>(this List<TSource> _, List<TDto> dtos)
+            where TSource : ILoadableFrom2<TDto, TSource>, new()
+        {
+            if (dtos == null)
+            {
+                return null;
+            }
+
+            var items = new List<TSource>(dtos.Count);
+
+            foreach (var dto in dtos)
+            {
+                items.Add(new TSource().LoadFromDto(dto));
+            }
+
+            return items;
+        }
+
+        [Pure]
+        public static List<TSource> TryLoadFromDtoCollection3<TDto, TSource>(this List<TSource> _, List<TDto> dtos)
+            where TSource : ILoadableFrom3<TDto, TSource>, new()
+        {
+            if (dtos == null)
+            {
+                return null;
+            }
+
+            var items = new List<TSource>(dtos.Count);
+
+            foreach (var dto in dtos)
+            {
+                items.Add(new TSource().LoadFromDto(dto));
+            }
+
+            return items;
+        }
+
+        [Pure]
+        public static List<TSource> TryLoadFromDtoCollection4<TDto, TSource>(this List<TSource> _, List<TDto> dtos)
+            where TSource : ILoadableFrom4<TDto, TSource>, new()
         {
             if (dtos == null)
             {
