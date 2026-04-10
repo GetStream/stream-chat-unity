@@ -8,7 +8,7 @@ using StreamChat.Core.InternalDTO.Responses;
 namespace StreamChat.Core.LowLevelClient.Models
 {
     public class ChannelState : ModelBase, ILoadableFrom<ChannelStateResponseFieldsInternalDTO, ChannelState>,
-        ILoadableFrom<ChannelStateResponseInternalDTO, ChannelState>
+        ILoadableFrom2<ChannelStateResponseInternalDTO, ChannelState>
     {
         [Obsolete("This event is deprecated and will be removed in a future major release.")]
         public event Action<ChannelState, Message> NewMessageAdded;
@@ -81,30 +81,30 @@ namespace StreamChat.Core.LowLevelClient.Models
             HideMessagesBefore = dto.HideMessagesBefore;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
             Membership = Membership.TryLoadFromDto<ChannelMemberInternalDTO, ChannelMember>(dto.Membership);
-            Messages = Messages.TryLoadFromDtoCollection(dto.Messages);
+            Messages = Messages.TryLoadFromDtoCollection3(dto.Messages);
             PendingMessages = PendingMessages.TryLoadFromDtoCollection(dto.PendingMessages);
-            PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);
+            PinnedMessages = PinnedMessages.TryLoadFromDtoCollection3(dto.PinnedMessages);
             Read = Read.TryLoadFromDtoCollection(dto.Read);
             WatcherCount = dto.WatcherCount;
-            Watchers = Watchers.TryLoadFromDtoCollection(dto.Watchers);
+            Watchers = Watchers.TryLoadFromDtoCollection2(dto.Watchers);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
         }
 
-        ChannelState ILoadableFrom<ChannelStateResponseInternalDTO, ChannelState>.LoadFromDto(ChannelStateResponseInternalDTO dto)
+        ChannelState ILoadableFrom2<ChannelStateResponseInternalDTO, ChannelState>.LoadFromDto(ChannelStateResponseInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             Hidden = dto.Hidden;
             HideMessagesBefore = dto.HideMessagesBefore;
             Members = Members.TryLoadFromDtoCollection(dto.Members);
             Membership = Membership.TryLoadFromDto<ChannelMemberInternalDTO, ChannelMember>(dto.Membership);
-            Messages = Messages.TryLoadFromDtoCollection(dto.Messages);
+            Messages = Messages.TryLoadFromDtoCollection3(dto.Messages);
             PendingMessages = PendingMessages.TryLoadFromDtoCollection(dto.PendingMessages);
-            PinnedMessages = PinnedMessages.TryLoadFromDtoCollection(dto.PinnedMessages);
+            PinnedMessages = PinnedMessages.TryLoadFromDtoCollection3(dto.PinnedMessages);
             Read = Read.TryLoadFromDtoCollection(dto.Read);
             WatcherCount = dto.WatcherCount;
-            Watchers = Watchers.TryLoadFromDtoCollection(dto.Watchers);
+            Watchers = Watchers.TryLoadFromDtoCollection2(dto.Watchers);
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;

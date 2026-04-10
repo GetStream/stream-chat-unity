@@ -80,6 +80,73 @@ namespace StreamChat.Core.State
             }
         }
 
+        public static void TryReplaceTrackedObjects2<TTracked, TDto>(this IList<TTracked> target, IEnumerable<TDto> dtos,
+            ICacheRepository<TTracked> repository)
+            where TTracked : class, IStreamStatefulModel, IUpdateableFrom2<TDto, TTracked>
+        {
+            if (target == null)
+            {
+                throw new ArgumentException(nameof(target));
+            }
+
+            if (dtos == null)
+            {
+                return;
+            }
+
+            target.Clear();
+
+            foreach (var dto in dtos)
+            {
+                var trackedItem = repository.CreateOrUpdate2<TTracked, TDto>(dto, out _);
+                try
+                {
+                    target.Add(trackedItem);
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        public static void TryAppendUniqueTrackedObjects2<TTracked, TDto>(this IList<TTracked> target,
+            IEnumerable<TDto> dtos, ICacheRepository<TTracked> repository)
+            where TTracked : class, IStreamStatefulModel, IUpdateableFrom2<TDto, TTracked>
+        {
+            if (target == null)
+            {
+                throw new ArgumentException(nameof(target));
+            }
+
+            if (dtos == null)
+            {
+                return;
+            }
+
+            _uniqueElements.Clear();
+
+            foreach (var t in target)
+            {
+                _uniqueElements.Add(t);
+            }
+
+            foreach (var dto in dtos)
+            {
+                var trackedItem = repository.CreateOrUpdate2<TTracked, TDto>(dto, out _);
+
+                if (_uniqueElements.Add(trackedItem))
+                {
+                    try
+                    {
+                        target.Add(trackedItem);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+        }
+
         private static readonly HashSet<object> _uniqueElements = new HashSet<object>();
     }
 }

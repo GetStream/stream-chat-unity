@@ -12,7 +12,7 @@ namespace StreamChat.Core.Models
     /// Represents a vote cast on a poll
     /// </summary>
     public class StreamPollVote : IStateLoadableFrom<PollVoteInternalDTO, StreamPollVote>, 
-        IStateLoadableFrom<PollVoteResponseDataInternalDTO, StreamPollVote>
+        IStateLoadableFrom2<PollVoteResponseDataInternalDTO, StreamPollVote>
     {
         /// <summary>
         /// Text answer for the vote (if poll allows answers)
@@ -80,7 +80,7 @@ namespace StreamChat.Core.Models
             return this;
         }
 
-        StreamPollVote IStateLoadableFrom<PollVoteResponseDataInternalDTO, StreamPollVote>.LoadFromDto(PollVoteResponseDataInternalDTO dto, ICache cache)
+        StreamPollVote IStateLoadableFrom2<PollVoteResponseDataInternalDTO, StreamPollVote>.LoadFromDto(PollVoteResponseDataInternalDTO dto, ICache cache)
         {
             AnswerText = dto.AnswerText;
             CreatedAt = dto.CreatedAt;

@@ -9,5 +9,11 @@ namespace StreamChat.Core.Helpers
     {
         public static TDto TrySaveToDto<TDto>(this ISavableTo<TDto> source)
             => source != default ? source.SaveToDto() : default;
+
+        public static TDto TrySaveToDto<TDto>(this ISavableTo2<TDto> source)
+            => source != default ? source.SaveToDto() : default;
+
+        public static TDto TrySaveToDto<TDto>(this ISavableTo3<TDto> source)
+            => source != default ? source.SaveToDto() : default;
     }
 }

@@ -9,7 +9,7 @@ namespace StreamChat.Core.Models
     /// <summary>
     /// Represents user reaction to a message
     /// </summary>
-    public class StreamReaction : IStateLoadableFrom<ReactionInternalDTO, StreamReaction>, IStateLoadableFrom<ReactionResponseInternalDTO, StreamReaction>
+    public class StreamReaction : IStateLoadableFrom<ReactionInternalDTO, StreamReaction>, IStateLoadableFrom2<ReactionResponseInternalDTO, StreamReaction>
     {
         /// <summary>
         /// Date/time of creation
@@ -59,7 +59,7 @@ namespace StreamChat.Core.Models
             return this;
         }
         
-        StreamReaction IStateLoadableFrom<ReactionResponseInternalDTO, StreamReaction>.LoadFromDto(ReactionResponseInternalDTO dto, ICache cache)
+        StreamReaction IStateLoadableFrom2<ReactionResponseInternalDTO, StreamReaction>.LoadFromDto(ReactionResponseInternalDTO dto, ICache cache)
         {
             CreatedAt = dto.CreatedAt;
             MessageId = dto.MessageId;

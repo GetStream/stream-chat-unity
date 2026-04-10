@@ -35,37 +35,74 @@ namespace StreamChat.Core.State.Caches
             where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
             where TDto : class
         {
-            var key = typeof(TDto);
+            RegisterDtoIdMappingInternal(idGetter);
+        }
 
-            if (_dtoIdGetters.ContainsKey(key))
-            {
-                throw new InvalidOperationException("Key is already registered: " + key);
-            }
+        public void RegisterDtoIdMapping2<TType, TDto>(Func<TDto, string> idGetter)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom2<TDto, TType>
+            where TDto : class
+        {
+            RegisterDtoIdMappingInternal(idGetter);
+        }
 
-            string Wrapper(object obj) => idGetter(obj as TDto);
+        public void RegisterDtoIdMapping3<TType, TDto>(Func<TDto, string> idGetter)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom3<TDto, TType>
+            where TDto : class
+        {
+            RegisterDtoIdMappingInternal(idGetter);
+        }
 
-            _dtoIdGetters.Add(key, Wrapper);
+        public void RegisterDtoIdMapping4<TType, TDto>(Func<TDto, string> idGetter)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom4<TDto, TType>
+            where TDto : class
+        {
+            RegisterDtoIdMappingInternal(idGetter);
+        }
+
+        public void RegisterDtoIdMapping5<TType, TDto>(Func<TDto, string> idGetter)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom5<TDto, TType>
+            where TDto : class
+        {
+            RegisterDtoIdMappingInternal(idGetter);
         }
 
         public TType CreateOrUpdate<TType, TDto>(TDto dto, out bool wasCreated)
             where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom<TDto, TType>
         {
-            wasCreated = false;
-            var trackingId = GetDtoMappingId(dto);
-            if (!TryGet(trackingId, out var trackedObject))
-            {
-                trackedObject = _constructor(trackingId);
-                wasCreated = true;
-            }
-
-            var typedStatefulModel = trackedObject as TType;
-            if (typedStatefulModel == null)
-            {
-                throw new InvalidOperationException($"Failed to cast {typeof(TStatefulModel)} to {typeof(TType)}");
-            }
-
+            var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
             typedStatefulModel.UpdateFromDto(dto, _cache);
+            return typedStatefulModel;
+        }
 
+        public TType CreateOrUpdate2<TType, TDto>(TDto dto, out bool wasCreated)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom2<TDto, TType>
+        {
+            var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
+            typedStatefulModel.UpdateFromDto(dto, _cache);
+            return typedStatefulModel;
+        }
+
+        public TType CreateOrUpdate3<TType, TDto>(TDto dto, out bool wasCreated)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom3<TDto, TType>
+        {
+            var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
+            typedStatefulModel.UpdateFromDto(dto, _cache);
+            return typedStatefulModel;
+        }
+
+        public TType CreateOrUpdate4<TType, TDto>(TDto dto, out bool wasCreated)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom4<TDto, TType>
+        {
+            var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
+            typedStatefulModel.UpdateFromDto(dto, _cache);
+            return typedStatefulModel;
+        }
+
+        public TType CreateOrUpdate5<TType, TDto>(TDto dto, out bool wasCreated)
+            where TType : class, TStatefulModel, IStreamStatefulModel, IUpdateableFrom5<TDto, TType>
+        {
+            var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
+            typedStatefulModel.UpdateFromDto(dto, _cache);
             return typedStatefulModel;
         }
 
@@ -108,6 +145,40 @@ namespace StreamChat.Core.State.Caches
         {
             _constructor = constructor ?? throw new ArgumentNullException(nameof(constructor));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        }
+
+        private void RegisterDtoIdMappingInternal<TDto>(Func<TDto, string> idGetter) where TDto : class
+        {
+            var key = typeof(TDto);
+
+            if (_dtoIdGetters.ContainsKey(key))
+            {
+                throw new InvalidOperationException("Key is already registered: " + key);
+            }
+
+            string Wrapper(object obj) => idGetter(obj as TDto);
+
+            _dtoIdGetters.Add(key, Wrapper);
+        }
+
+        private TType GetOrCreateStatefulModel<TType, TDto>(TDto dto, out bool wasCreated)
+            where TType : class, TStatefulModel, IStreamStatefulModel
+        {
+            wasCreated = false;
+            var trackingId = GetDtoMappingId(dto);
+            if (!TryGet(trackingId, out var trackedObject))
+            {
+                trackedObject = _constructor(trackingId);
+                wasCreated = true;
+            }
+
+            var typedStatefulModel = trackedObject as TType;
+            if (typedStatefulModel == null)
+            {
+                throw new InvalidOperationException($"Failed to cast {typeof(TStatefulModel)} to {typeof(TType)}");
+            }
+
+            return typedStatefulModel;
         }
 
         private readonly List<TStatefulModel> _statefulModels = new List<TStatefulModel>();

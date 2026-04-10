@@ -8,7 +8,7 @@ namespace StreamChat.Core.Requests
     /// <summary>
     /// Request to create a poll option
     /// </summary>
-    public class StreamPollOptionRequest : ISavableTo<PollOptionRequestInternalDTO>, ISavableTo<PollOptionInputInternalDTO>
+    public class StreamPollOptionRequest : ISavableTo<PollOptionInputInternalDTO>, ISavableTo2<PollOptionRequestInternalDTO>
     {
         /// <summary>
         /// Custom data for the option
@@ -20,7 +20,7 @@ namespace StreamChat.Core.Requests
         /// </summary>
         public string Text { get; set; }
 
-        PollOptionRequestInternalDTO ISavableTo<PollOptionRequestInternalDTO>.SaveToDto()
+        PollOptionRequestInternalDTO ISavableTo2<PollOptionRequestInternalDTO>.SaveToDto()
         {
             return new PollOptionRequestInternalDTO
             {

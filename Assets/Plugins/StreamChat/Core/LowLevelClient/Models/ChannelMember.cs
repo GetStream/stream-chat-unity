@@ -6,7 +6,7 @@ using StreamChat.Core.InternalDTO.Responses;
 namespace StreamChat.Core.LowLevelClient.Models
 {
     public class ChannelMember : ModelBase, ILoadableFrom<ChannelMemberInternalDTO, ChannelMember>,
-        ILoadableFrom<ChannelMemberResponseInternalDTO, ChannelMember>, ISavableTo<ChannelMemberInternalDTO>
+        ILoadableFrom2<ChannelMemberResponseInternalDTO, ChannelMember>, ISavableTo<ChannelMemberInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -91,7 +91,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        ChannelMember ILoadableFrom<ChannelMemberResponseInternalDTO, ChannelMember>.LoadFromDto(
+        ChannelMember ILoadableFrom2<ChannelMemberResponseInternalDTO, ChannelMember>.LoadFromDto(
             ChannelMemberResponseInternalDTO dto)
         {
             BanExpires = dto.BanExpires;

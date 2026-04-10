@@ -9,7 +9,7 @@ namespace StreamChat.Core.LowLevelClient.Models
     /// <summary>
     /// Represents a poll
     /// </summary>
-    public partial class Poll : ModelBase, ILoadableFrom<PollInternalDTO, Poll>, ILoadableFrom<PollResponseDataInternalDTO, Poll>
+    public partial class Poll : ModelBase, ILoadableFrom<PollInternalDTO, Poll>, ILoadableFrom2<PollResponseDataInternalDTO, Poll>
     {
         public bool AllowAnswers { get; set; }
 
@@ -81,7 +81,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        Poll ILoadableFrom<PollResponseDataInternalDTO, Poll>.LoadFromDto(PollResponseDataInternalDTO dto)
+        Poll ILoadableFrom2<PollResponseDataInternalDTO, Poll>.LoadFromDto(PollResponseDataInternalDTO dto)
         {
             AllowAnswers = dto.AllowAnswers;
             AllowUserSuggestedOptions = dto.AllowUserSuggestedOptions;
@@ -94,12 +94,12 @@ namespace StreamChat.Core.LowLevelClient.Models
             EnforceUniqueVote = dto.EnforceUniqueVote;
             Id = dto.Id;
             IsClosed = dto.IsClosed;
-            LatestAnswers = LatestAnswers.TryLoadFromDtoCollection(dto.LatestAnswers);
+            LatestAnswers = LatestAnswers.TryLoadFromDtoCollection2(dto.LatestAnswers);
             LatestVotesByOption = LoadVotesByOption(dto.LatestVotesByOption);
             MaxVotesAllowed = dto.MaxVotesAllowed;
             Name = dto.Name;
-            Options = Options.TryLoadFromDtoCollection(dto.Options);
-            OwnVotes = OwnVotes.TryLoadFromDtoCollection(dto.OwnVotes);
+            Options = Options.TryLoadFromDtoCollection2(dto.Options);
+            OwnVotes = OwnVotes.TryLoadFromDtoCollection2(dto.OwnVotes);
             UpdatedAt = dto.UpdatedAt;
             VoteCount = dto.VoteCount;
             VoteCountsByOption = dto.VoteCountsByOption;
@@ -119,7 +119,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             var result = new Dictionary<string, List<PollVote>>();
             foreach (var kvp in dto)
             {
-                result[kvp.Key] = new List<PollVote>().TryLoadFromDtoCollection(kvp.Value);
+                result[kvp.Key] = new List<PollVote>().TryLoadFromDtoCollection2(kvp.Value);
             }
             return result;
         }
