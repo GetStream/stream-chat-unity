@@ -34,7 +34,8 @@ using System.Runtime.CompilerServices;
 #endif
 
 #if STREAM_TESTS_ENABLED
-[assembly: InternalsVisibleTo("StreamChat.Tests")] //StreamTodo: verify which Unity version introduced this
+[assembly: InternalsVisibleTo("StreamChat.Tests")]
+[assembly: InternalsVisibleTo("StreamChat.Tests.Runtime")]
 #endif
 
 namespace StreamChat.Core.LowLevelClient

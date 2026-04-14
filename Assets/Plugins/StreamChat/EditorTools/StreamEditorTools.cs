@@ -117,6 +117,23 @@ namespace StreamChat.EditorTools
         public static void EnableStreamTestsEnabledCompilerFlag()
             => SetStreamTestsEnabledCompilerFlag(StreamTestsEnabledCompilerFlag, true);
 
+        /// <summary>
+        /// Configure the project for running runtime tests in a standalone IL2CPP player.
+        /// Call via: -executeMethod StreamChat.EditorTools.StreamEditorTools.PrepareStandaloneIL2CPPTests
+        /// </summary>
+        public static void PrepareStandaloneIL2CPPTests()
+        {
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
+
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+
+            SetStreamTestsEnabledCompilerFlag(StreamTestsEnabledCompilerFlag, true);
+
+            Debug.Log("Configured for standalone IL2CPP runtime tests: " +
+                      $"Backend={PlayerSettings.GetScriptingBackend(BuildTargetGroup.Standalone)}, " +
+                      $"Target={EditorUserBuildSettings.activeBuildTarget}");
+        }
+
         private static void ToggleCompilerFlag(string flagKeyword)
         {
             var unityDefineSymbols = new UnityDefineSymbolsFactory().CreateDefault();

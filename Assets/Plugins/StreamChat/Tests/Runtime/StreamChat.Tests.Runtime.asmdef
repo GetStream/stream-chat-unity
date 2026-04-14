@@ -1,0 +1,23 @@
+{
+    "name": "StreamChat.Tests.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:951cd3c1c34e0ed48a6a41e9e5866355",
+        "GUID:45f99e6948181224abd5a0b0ca925d1b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Newtonsoft.Json.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "STREAM_TESTS_ENABLED"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
