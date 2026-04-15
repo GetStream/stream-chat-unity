@@ -133,6 +133,8 @@ $exitCode = Invoke-Unity @(
 )
 
 # --- Report ------------------------------------------------------------------
+$resultsUri = "file:///$($resultsFullPath -replace '\\','/')"
+
 Write-Host ""
 if (Test-Path -LiteralPath $resultsFullPath) {
     [xml]$xml = Get-Content $resultsFullPath
@@ -149,7 +151,9 @@ if ($exitCode -eq 0) {
     Write-Host "ALL TESTS PASSED" -ForegroundColor Green
 } else {
     Write-Host "TESTS FAILED (exit code $exitCode)" -ForegroundColor Red
-    Write-Host "Logs: $testLog"
+    Write-Host ""
+    Write-Host "For details on which tests failed and why, see the results file:"
+    Write-Host $resultsUri
 }
 
 exit $exitCode
