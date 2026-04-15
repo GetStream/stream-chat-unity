@@ -119,13 +119,21 @@ namespace StreamChat.EditorTools
 
         /// <summary>
         /// Configure the project for running runtime tests in a standalone IL2CPP player.
+        /// Auto-detects the correct standalone target based on the host OS.
         /// Call via: -executeMethod StreamChat.EditorTools.StreamEditorTools.PrepareStandaloneIL2CPPTests
         /// </summary>
         public static void PrepareStandaloneIL2CPPTests()
         {
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
 
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+#if UNITY_EDITOR_LINUX
+            var target = BuildTarget.StandaloneLinux64;
+#elif UNITY_EDITOR_OSX
+            var target = BuildTarget.StandaloneOSX;
+#else
+            var target = BuildTarget.StandaloneWindows64;
+#endif
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, target);
 
             SetStreamTestsEnabledCompilerFlag(StreamTestsEnabledCompilerFlag, true);
 

@@ -10,6 +10,69 @@ on:
     - cron: "0 0 * * *"  # run daily at midnight (UTC)
 
 jobs:
+  runtime-tests:
+    name: Runtime Tests (IL2CPP)
+    runs-on: ubuntu-latest
+    # TODO: verify the exact image tag exists on Docker Hub (https://hub.docker.com/r/unityci/editor/tags)
+    # Search for: 6000.0.63f1-linux-il2cpp
+    # If 6000.0.63f1 is unavailable, use the closest available 6000.0.x version
+    env:
+      RUNTIME_TEST_IMAGE: 'unityci/editor:ubuntu-6000.0.63f1-linux-il2cpp-3.1.0'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Git
+        run: git config --global --add safe.directory /github/workspace
+
+      - name: Free Disk space
+        uses: jlumbroso/free-disk-space@v1.2.0
+        with:
+          dotnet: false
+
+      - name: Prepare project for IL2CPP runtime tests
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          buildMethod: StreamChat.EditorTools.StreamEditorTools.PrepareStandaloneIL2CPPTests
+          customImage: ${{ env.RUNTIME_TEST_IMAGE }}
+          allowDirtyBuild: true
+
+      - name: Run runtime tests in IL2CPP player
+        uses: game-ci/unity-test-runner@v4
+        id: runtime_tests
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          testMode: playmode
+          customImage: ${{ env.RUNTIME_TEST_IMAGE }}
+          customParameters: -testPlatform StandaloneLinux64
+          allowDirtyBuild: true
+        timeout-minutes: 90
+
+      - name: Upload Runtime Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Runtime_Test_Results_IL2CPP
+          path: artifacts
+
+      - name: Notify Slack if failed
+        uses: voxmedia/github-action-slack-notify-build@v1
+        if: always() && failure()
+        with:
+          channel_id: C07KW7ZCJ6T
+          color: danger
+          status: "RUNTIME TESTS FAILED (IL2CPP)"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+
   build:
     runs-on: ubuntu-latest
     strategy:
