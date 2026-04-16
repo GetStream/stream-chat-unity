@@ -28,6 +28,9 @@ jobs:
         with:
           dotnet: false
 
+      - name: Remove SampleProject
+        run: rm -rf Assets/Plugins/StreamChat/SampleProject Assets/Plugins/StreamChat/Samples
+
       - name: Prepare project for IL2CPP runtime tests
         uses: game-ci/unity-builder@v4
         env:
