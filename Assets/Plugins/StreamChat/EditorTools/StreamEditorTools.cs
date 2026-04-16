@@ -135,7 +135,7 @@ namespace StreamChat.EditorTools
 #endif
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, target);
 
-            SetStreamTestsEnabledCompilerFlag(StreamTestsEnabledCompilerFlag, true);
+            SetStreamTestsEnabledCompilerFlag(StreamRuntimeTestsEnabledCompilerFlag, true);
 
             Debug.Log("Configured for standalone IL2CPP runtime tests: " +
                       $"Backend={PlayerSettings.GetScriptingBackend(BuildTargetGroup.Standalone)}, " +
@@ -186,6 +186,7 @@ namespace StreamChat.EditorTools
         private const string MenuPrefix = "Tools/" + StreamChatLowLevelClient.MenuPrefix;
 
         private const string StreamTestsEnabledCompilerFlag = "STREAM_TESTS_ENABLED";
+        private const string StreamRuntimeTestsEnabledCompilerFlag = "STREAM_RUNTIME_TESTS_ENABLED";
         private const string StreamDebugModeEnabledCompilerFlag = "STREAM_DEBUG_ENABLED";
     }
 }

@@ -13,7 +13,7 @@
     "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [
-        "STREAM_TESTS_ENABLED"
+        "STREAM_RUNTIME_TESTS_ENABLED"
     ],
     "versionDefines": [],
     "noEngineReferences": false
