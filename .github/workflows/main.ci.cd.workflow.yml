@@ -56,6 +56,46 @@ jobs:
           rm -rf Assets/Plugins/StreamChat/Tests/UnityTestRunnerCallbacks.cs
           rm -rf Assets/Plugins/StreamChat/Tests/UnityTestUtils.cs
 
+      - name: Debug - inspect NUnit and test framework state
+        run: |
+          echo "=== Runtime test asmdef ==="
+          cat Assets/Plugins/StreamChat/Tests/Runtime/StreamChat.Tests.Runtime.asmdef
+
+          echo ""
+          echo "=== Packages/manifest.json (test-framework entry) ==="
+          grep -i "test-framework" Packages/manifest.json || echo "NOT FOUND in manifest"
+
+          echo ""
+          echo "=== Packages/packages-lock.json (test-framework entry) ==="
+          grep -A5 "test-framework" Packages/packages-lock.json 2>/dev/null || echo "No packages-lock.json"
+
+          echo ""
+          echo "=== Find nunit.framework.dll anywhere in project ==="
+          find . -name "nunit.framework.dll" -type f 2>/dev/null || echo "NOT FOUND"
+
+          echo ""
+          echo "=== Find nunit.framework.dll in Unity install ==="
+          find /opt/unity -name "nunit.framework.dll" -type f 2>/dev/null || echo "NOT FOUND in /opt/unity"
+
+          echo ""
+          echo "=== Find nunit.framework.dll in package cache ==="
+          find Library/PackageCache -name "nunit.framework.dll" -type f 2>/dev/null || echo "NOT FOUND in PackageCache"
+
+          echo ""
+          echo "=== nunit.framework.dll.meta (if found) ==="
+          for f in $(find . Library/PackageCache /opt/unity -name "nunit.framework.dll.meta" -type f 2>/dev/null); do
+            echo "--- $f ---"
+            cat "$f"
+          done
+
+          echo ""
+          echo "=== ProjectSettings scripting defines ==="
+          grep -A2 "scriptingDefineSymbols" ProjectSettings/ProjectSettings.asset || echo "NOT FOUND"
+
+          echo ""
+          echo "=== Remaining test assembly files ==="
+          find Assets/Plugins/StreamChat/Tests -type f -name "*.cs" -o -name "*.asmdef" | sort
+
       - name: Run runtime tests in IL2CPP player
         uses: game-ci/unity-test-runner@v4
         id: runtime_tests
