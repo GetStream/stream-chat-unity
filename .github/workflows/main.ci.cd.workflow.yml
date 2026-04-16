@@ -28,8 +28,10 @@ jobs:
         with:
           dotnet: false
 
-      - name: Remove SampleProject
-        run: rm -rf Assets/Plugins/StreamChat/SampleProject Assets/Plugins/StreamChat/Samples
+      - name: Remove assemblies incompatible with linux-il2cpp image
+        run: |
+          rm -rf Assets/Plugins/StreamChat/SampleProject
+          rm -rf Assets/Plugins/StreamChat/Samples
 
       - name: Prepare project for IL2CPP runtime tests
         uses: game-ci/unity-builder@v4
@@ -41,6 +43,18 @@ jobs:
           buildMethod: StreamChat.EditorTools.StreamEditorTools.PrepareStandaloneIL2CPPTests
           customImage: ${{ env.RUNTIME_TEST_IMAGE }}
           allowDirtyBuild: true
+
+      - name: Remove editor-only test assemblies before player build
+        run: |
+          rm -rf Assets/Plugins/StreamChat/EditorTools
+          rm -rf Assets/Plugins/StreamChat/Tests/StreamChat.Tests.asmdef
+          rm -rf Assets/Plugins/StreamChat/Tests/LowLevelClient
+          rm -rf Assets/Plugins/StreamChat/Tests/StatefulClient
+          rm -rf Assets/Plugins/StreamChat/Tests/StreamTestClients.cs
+          rm -rf Assets/Plugins/StreamChat/Tests/TestUtils.cs
+          rm -rf Assets/Plugins/StreamChat/Tests/ToolsTests.cs
+          rm -rf Assets/Plugins/StreamChat/Tests/UnityTestRunnerCallbacks.cs
+          rm -rf Assets/Plugins/StreamChat/Tests/UnityTestUtils.cs
 
       - name: Run runtime tests in IL2CPP player
         uses: game-ci/unity-test-runner@v4
