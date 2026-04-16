@@ -13,11 +13,8 @@ jobs:
   runtime-tests:
     name: Runtime Tests (IL2CPP)
     runs-on: ubuntu-latest
-    # TODO: verify the exact image tag exists on Docker Hub (https://hub.docker.com/r/unityci/editor/tags)
-    # Search for: 6000.0.63f1-linux-il2cpp
-    # If 6000.0.63f1 is unavailable, use the closest available 6000.0.x version
     env:
-      RUNTIME_TEST_IMAGE: 'unityci/editor:ubuntu-6000.0.63f1-linux-il2cpp-3.1.0'
+      RUNTIME_TEST_IMAGE: 'unityci/editor:ubuntu-6000.0.63f1-linux-il2cpp-3.2.2'
 
     steps:
       - name: Checkout repository
