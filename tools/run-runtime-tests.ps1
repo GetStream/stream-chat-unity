@@ -25,9 +25,9 @@
     Skip step 1 (useful when re-running after a previous prepare).
 
 .EXAMPLE
-    .\run-runtime-tests.ps1
-    .\run-runtime-tests.ps1 -ScriptingBackend Mono
-    .\run-runtime-tests.ps1 -UnityPath "C:\Program Files\Unity\Hub\Editor\6000.0.63f1\Editor\Unity.exe"
+    .\tools\run-runtime-tests.ps1
+    .\tools\run-runtime-tests.ps1 -ScriptingBackend Mono
+    .\tools\run-runtime-tests.ps1 -UnityPath "C:\Program Files\Unity\Hub\Editor\6000.0.63f1\Editor\Unity.exe"
 #>
 param(
     [string]$UnityPath = "",
@@ -38,7 +38,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$projectPath = $PSScriptRoot
+$projectPath = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 
 # --- Locate Unity -----------------------------------------------------------
 if (-not $UnityPath) {
