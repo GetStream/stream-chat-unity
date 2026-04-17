@@ -33,6 +33,16 @@ jobs:
           rm -rf Assets/Plugins/StreamChat/SampleProject
           rm -rf Assets/Plugins/StreamChat/Samples
 
+      # The repo intentionally does not track Packages/manifest.json so the
+      # legacy Unity 2020/2021 build job can fall back to its image's default
+      # manifest. The IL2CPP runtime test job runs on Unity 6000.0 and must
+      # pin its own packages (notably com.unity.test-framework for NUnit).
+      - name: Install runtime-tests Packages/manifest.json
+        run: |
+          mkdir -p Packages
+          cp .github/workflows/manifests/runtime-tests.manifest.json Packages/manifest.json
+          rm -f Packages/packages-lock.json
+
       - name: Prepare project for IL2CPP runtime tests
         uses: game-ci/unity-builder@v4
         env:
