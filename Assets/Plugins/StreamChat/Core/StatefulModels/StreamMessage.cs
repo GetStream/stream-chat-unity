@@ -15,7 +15,7 @@ using StreamChat.Core.Requests;
 namespace StreamChat.Core.StatefulModels
 {
     internal sealed class StreamMessage : StreamStatefulModelBase<StreamMessage>,
-        IStreamMessage, IUpdateableFrom<MessageInternalDTO, StreamMessage>, IUpdateableFrom<MessageResponseInternalDTO, StreamMessage>
+        IStreamMessage, IUpdateableFrom<MessageInternalDTO, StreamMessage>, IUpdateableFrom2<MessageResponseInternalDTO, StreamMessage>
     {
         public event StreamMessageReactionHandler ReactionAdded;
         public event StreamMessageReactionHandler ReactionRemoved;
@@ -236,7 +236,7 @@ namespace StreamChat.Core.StatefulModels
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
         
-        void IUpdateableFrom<MessageResponseInternalDTO, StreamMessage>.UpdateFromDto(MessageResponseInternalDTO dto, ICache cache)
+        void IUpdateableFrom2<MessageResponseInternalDTO, StreamMessage>.UpdateFromDto(MessageResponseInternalDTO dto, ICache cache)
         {
             _attachments.TryReplaceRegularObjectsFromDto(dto.Attachments, cache);
             //BeforeMessageSendFailed = GetOrDefault(dto.BeforeMessageSendFailed, BeforeMessageSendFailed);
@@ -248,10 +248,10 @@ namespace StreamChat.Core.StatefulModels
             _iI18n.TryReplaceValuesFromDto(dto.I18n);
             Id = GetOrDefault(dto.Id, Id);
             //_imageLabels.TryReplaceValuesFromDto(dto.ImageLabels); //StreamTodo: NOT IMPLEMENTED
-            _latestReactions.TryReplaceRegularObjectsFromDto(dto.LatestReactions, cache);
-            _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
+            _latestReactions.TryReplaceRegularObjectsFromDto2(dto.LatestReactions, cache);
+            _mentionedUsers.TryReplaceTrackedObjects2(dto.MentionedUsers, cache.Users);
             //dto.Mml ignored because its only server-side
-            _ownReactions.TryReplaceRegularObjectsFromDto(dto.OwnReactions, cache);
+            _ownReactions.TryReplaceRegularObjectsFromDto2(dto.OwnReactions, cache);
             ParentId = GetOrDefault(dto.ParentId, ParentId);
             PinExpires = GetOrDefault(dto.PinExpires, PinExpires);
             Pinned = GetOrDefault(dto.Pinned, Pinned);
@@ -267,8 +267,8 @@ namespace StreamChat.Core.StatefulModels
             ShowInChannel = GetOrDefault(dto.ShowInChannel, ShowInChannel);
             Silent = GetOrDefault(dto.Silent, Silent);
             Text = GetOrDefault(dto.Text, Text);
-            _mentionedUsers.TryReplaceTrackedObjects(dto.MentionedUsers, cache.Users);
-            _threadParticipants.TryReplaceTrackedObjects(dto.ThreadParticipants, cache.Users);
+            _mentionedUsers.TryReplaceTrackedObjects2(dto.MentionedUsers, cache.Users);
+            _threadParticipants.TryReplaceTrackedObjects2(dto.ThreadParticipants, cache.Users);
             Type = Type.TryLoadFromDto(dto.Type);
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
             User = cache.TryCreateOrUpdate(dto.User);

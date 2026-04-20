@@ -54,7 +54,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 CreatedBy = CreatedBy.TrySaveToDto<UserObjectRequestInternalDTO>(),
                 Disabled = Disabled,
                 Frozen = Frozen,
-                Members = Members.TrySaveToDtoCollection<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
+                Members = Members.TrySaveToDtoCollection2<ChannelMemberRequest, ChannelMemberRequestInternalDTO>(),
                 OwnCapabilities = OwnCapabilities,
                 Team = Team,
                 TruncatedAt = TruncatedAt,

@@ -37,9 +37,9 @@ namespace StreamChat.Core.StatefulModels
 
     internal sealed class StreamChannel : StreamStatefulModelBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
-        IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>,
-        IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>,
-        IUpdateableFrom<UpdateChannelResponseInternalDTO, StreamChannel>,
+        IUpdateableFrom2<ChannelResponseInternalDTO, StreamChannel>,
+        IUpdateableFrom3<ChannelStateResponseFieldsInternalDTO, StreamChannel>,
+        IUpdateableFrom4<UpdateChannelResponseInternalDTO, StreamChannel>,
         IStreamChannel
     {
         public event StreamChannelMessageHandler MessageReceived;
@@ -631,12 +631,12 @@ namespace StreamChat.Core.StatefulModels
             //This is needed because Channel.Members can be null while this is filled
             _members.TryAppendUniqueTrackedObjects(dto.Members, cache.ChannelMembers);
             Membership = cache.TryCreateOrUpdate(dto.Membership);
-            _messages.TryAppendUniqueTrackedObjects(dto.Messages, cache.Messages);
+            _messages.TryAppendUniqueTrackedObjects2(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
-            _pinnedMessages.TryReplaceTrackedObjects(dto.PinnedMessages, cache.Messages);
-            _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
+            _pinnedMessages.TryReplaceTrackedObjects2(dto.PinnedMessages, cache.Messages);
+            _read.TryReplaceRegularObjectsFromDto2(dto.Read, cache);
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
-            _watchers.TryAppendUniqueTrackedObjects(dto.Watchers, cache.Users);
+            _watchers.TryAppendUniqueTrackedObjects2(dto.Watchers, cache.Users);
 
             #endregion
 
@@ -645,7 +645,7 @@ namespace StreamChat.Core.StatefulModels
             //StreamTodo should every UpdateFromDto trigger Updated event?
         }
 
-        void IUpdateableFrom<ChannelStateResponseFieldsInternalDTO, StreamChannel>.UpdateFromDto(
+        void IUpdateableFrom3<ChannelStateResponseFieldsInternalDTO, StreamChannel>.UpdateFromDto(
             ChannelStateResponseFieldsInternalDTO dto, ICache cache)
         {
             UpdateChannelFieldsFromDto(dto.Channel, cache);
@@ -656,23 +656,23 @@ namespace StreamChat.Core.StatefulModels
             //HideMessagesBefore = dto.HideMessagesBefore; Updated from Channel
             _members.TryReplaceTrackedObjects(dto.Members, cache.ChannelMembers);
             Membership = cache.TryCreateOrUpdate(dto.Membership);
-            _messages.TryAppendUniqueTrackedObjects(dto.Messages, cache.Messages);
+            _messages.TryAppendUniqueTrackedObjects2(dto.Messages, cache.Messages);
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
-            _pinnedMessages.TryReplaceTrackedObjects(dto.PinnedMessages, cache.Messages);
-            _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
+            _pinnedMessages.TryReplaceTrackedObjects2(dto.PinnedMessages, cache.Messages);
+            _read.TryReplaceRegularObjectsFromDto2(dto.Read, cache);
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
-            _watchers.TryAppendUniqueTrackedObjects(dto.Watchers, cache.Users);
+            _watchers.TryAppendUniqueTrackedObjects2(dto.Watchers, cache.Users);
 
             SortMessagesByCreatedAt();
 
             #endregion
         }
 
-        void IUpdateableFrom<ChannelResponseInternalDTO, StreamChannel>.UpdateFromDto(ChannelResponseInternalDTO dto,
+        void IUpdateableFrom2<ChannelResponseInternalDTO, StreamChannel>.UpdateFromDto(ChannelResponseInternalDTO dto,
             ICache cache)
             => UpdateChannelFieldsFromDto(dto, cache);
 
-        void IUpdateableFrom<UpdateChannelResponseInternalDTO, StreamChannel>.UpdateFromDto(
+        void IUpdateableFrom4<UpdateChannelResponseInternalDTO, StreamChannel>.UpdateFromDto(
             UpdateChannelResponseInternalDTO dto, ICache cache)
         {
             UpdateChannelFieldsFromDto(dto.Channel, cache);

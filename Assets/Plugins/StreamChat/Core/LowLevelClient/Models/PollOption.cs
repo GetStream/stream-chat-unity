@@ -9,7 +9,7 @@ namespace StreamChat.Core.LowLevelClient.Models
     /// <summary>
     /// Represents a poll option
     /// </summary>
-    public partial class PollOption : ILoadableFrom<PollOptionInternalDTO, PollOption>, ILoadableFrom<PollOptionResponseDataInternalDTO, PollOption>
+    public partial class PollOption : ILoadableFrom<PollOptionInternalDTO, PollOption>, ILoadableFrom2<PollOptionResponseDataInternalDTO, PollOption>
     {
         public Dictionary<string, object> Custom { get; set; }
 
@@ -29,7 +29,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        PollOption ILoadableFrom<PollOptionResponseDataInternalDTO, PollOption>.LoadFromDto(PollOptionResponseDataInternalDTO dto)
+        PollOption ILoadableFrom2<PollOptionResponseDataInternalDTO, PollOption>.LoadFromDto(PollOptionResponseDataInternalDTO dto)
         {
             Custom = dto.Custom;
             Id = dto.Id;

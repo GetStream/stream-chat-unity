@@ -63,7 +63,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 Limit = Limit,
                 Offset = Offset,
                 Presence = Presence,
-                Sort = Sort.TrySaveToDtoCollection<SortParamRequest, SortParamInternalDTO>(),
+                Sort = Sort.TrySaveToDtoCollection2<SortParamRequest, SortParamInternalDTO>(),
                 AdditionalProperties = AdditionalProperties,
             };
         }

@@ -7,8 +7,8 @@ namespace StreamChat.Core.LowLevelClient.Models
 {
     //StreamTODO: Check if this object is needed. Ideally we'd only have IStreamUser object representing a user and remove this one
     public class User : ModelBase, ILoadableFrom<UserObjectInternalDTO, User>,
-        ILoadableFrom<UserResponseInternalDTO, User>, ILoadableFrom<UserEventPayloadInternalDTO, User>,
-        ILoadableFrom<FullUserResponseInternalDTO, User>,
+        ILoadableFrom2<UserResponseInternalDTO, User>, ILoadableFrom3<UserEventPayloadInternalDTO, User>,
+        ILoadableFrom4<FullUserResponseInternalDTO, User>,
         ISavableTo<UserObjectInternalDTO>
     {
         /// <summary>
@@ -113,7 +113,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        User ILoadableFrom<UserResponseInternalDTO, User>.LoadFromDto(UserResponseInternalDTO dto)
+        User ILoadableFrom2<UserResponseInternalDTO, User>.LoadFromDto(UserResponseInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;
@@ -141,7 +141,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             return this;
         }
 
-        User ILoadableFrom<UserEventPayloadInternalDTO, User>.LoadFromDto(UserEventPayloadInternalDTO dto)
+        User ILoadableFrom3<UserEventPayloadInternalDTO, User>.LoadFromDto(UserEventPayloadInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;
@@ -193,7 +193,7 @@ namespace StreamChat.Core.LowLevelClient.Models
                 Image = Image,
             };
 
-        User ILoadableFrom<FullUserResponseInternalDTO, User>.LoadFromDto(FullUserResponseInternalDTO dto)
+        User ILoadableFrom4<FullUserResponseInternalDTO, User>.LoadFromDto(FullUserResponseInternalDTO dto)
         {
             AdditionalProperties = dto.AdditionalProperties;
             BanExpires = dto.BanExpires;

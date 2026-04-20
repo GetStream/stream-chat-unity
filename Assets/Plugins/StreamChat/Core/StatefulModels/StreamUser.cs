@@ -17,7 +17,7 @@ namespace StreamChat.Core.StatefulModels
     /// <inheritdoc cref="IStreamUser"/>
     internal sealed class StreamUser : StreamStatefulModelBase<StreamUser>,
         IUpdateableFrom<UserObjectInternalDTO, StreamUser>,
-        IUpdateableFrom<UserResponseInternalDTO, StreamUser>, IUpdateableFrom<OwnUserInternalDTO, StreamUser>, IUpdateableFrom<FullUserResponseInternalDTO, StreamUser>, IUpdateableFrom<UserEventPayloadInternalDTO, StreamUser>,
+        IUpdateableFrom2<UserResponseInternalDTO, StreamUser>, IUpdateableFrom3<OwnUserInternalDTO, StreamUser>, IUpdateableFrom4<FullUserResponseInternalDTO, StreamUser>, IUpdateableFrom5<UserEventPayloadInternalDTO, StreamUser>,
         IStreamUser
     {
         public event StreamUserPresenceHandler PresenceChanged;
@@ -166,7 +166,7 @@ namespace StreamChat.Core.StatefulModels
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
-        void IUpdateableFrom<UserResponseInternalDTO, StreamUser>.UpdateFromDto(UserResponseInternalDTO dto,
+        void IUpdateableFrom2<UserResponseInternalDTO, StreamUser>.UpdateFromDto(UserResponseInternalDTO dto,
             ICache cache)
         {
             BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
@@ -193,7 +193,7 @@ namespace StreamChat.Core.StatefulModels
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
 
-        void IUpdateableFrom<OwnUserInternalDTO, StreamUser>.UpdateFromDto(OwnUserInternalDTO dto, ICache cache)
+        void IUpdateableFrom3<OwnUserInternalDTO, StreamUser>.UpdateFromDto(OwnUserInternalDTO dto, ICache cache)
         {
             #region OwnUser
 
@@ -231,7 +231,7 @@ namespace StreamChat.Core.StatefulModels
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
         
-        void IUpdateableFrom<FullUserResponseInternalDTO, StreamUser>.UpdateFromDto(FullUserResponseInternalDTO dto,
+        void IUpdateableFrom4<FullUserResponseInternalDTO, StreamUser>.UpdateFromDto(FullUserResponseInternalDTO dto,
             ICache cache)
         {
             BanExpires = GetOrDefault(dto.BanExpires, BanExpires);
@@ -258,7 +258,7 @@ namespace StreamChat.Core.StatefulModels
             LoadAdditionalProperties(dto.AdditionalProperties);
         }
         
-        void IUpdateableFrom<UserEventPayloadInternalDTO, StreamUser>.UpdateFromDto(UserEventPayloadInternalDTO dto,
+        void IUpdateableFrom5<UserEventPayloadInternalDTO, StreamUser>.UpdateFromDto(UserEventPayloadInternalDTO dto,
             ICache cache)
         {
             BanExpires = GetOrDefault(dto.BanExpires, BanExpires);

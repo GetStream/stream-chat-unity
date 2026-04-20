@@ -4,7 +4,7 @@ using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
-    public class PushNotificationSettingsRequest : RequestObjectBase, ISavableTo<PushNotificationSettingsRequestInternalDTO>, ISavableTo<PushNotificationSettingsInternalDTO>
+    public class PushNotificationSettingsRequest : RequestObjectBase, ISavableTo<PushNotificationSettingsRequestInternalDTO>, ISavableTo2<PushNotificationSettingsInternalDTO>
     {
         public bool Disabled { get; set; }
 
@@ -18,7 +18,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 AdditionalProperties = AdditionalProperties
             };
         
-        PushNotificationSettingsInternalDTO ISavableTo<PushNotificationSettingsInternalDTO>.SaveToDto() =>
+        PushNotificationSettingsInternalDTO ISavableTo2<PushNotificationSettingsInternalDTO>.SaveToDto() =>
             new PushNotificationSettingsInternalDTO
             {
                 Disabled = Disabled,

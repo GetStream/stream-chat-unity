@@ -10,7 +10,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
     /// Represents chat user
     /// </summary>
     public class UserObjectRequest : RequestObjectBase, ISavableTo<UserObjectRequestInternalDTO>,
-        ISavableTo<UserRequestInternalDTO>, ISavableTo<UserObjectInternalDTO>
+        ISavableTo2<UserRequestInternalDTO>, ISavableTo3<UserObjectInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -66,7 +66,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 AdditionalProperties = AdditionalProperties
             };
 
-        UserRequestInternalDTO ISavableTo<UserRequestInternalDTO>.SaveToDto()
+        UserRequestInternalDTO ISavableTo2<UserRequestInternalDTO>.SaveToDto()
             => new UserRequestInternalDTO
             {
                 BanExpires = BanExpires,
@@ -81,7 +81,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
                 AdditionalProperties = AdditionalProperties
             };
 
-        UserObjectInternalDTO ISavableTo<UserObjectInternalDTO>.SaveToDto()
+        UserObjectInternalDTO ISavableTo3<UserObjectInternalDTO>.SaveToDto()
             => new UserObjectInternalDTO
             {
                 BanExpires = BanExpires,

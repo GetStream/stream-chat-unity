@@ -54,5 +54,29 @@ namespace StreamChat.Core.Helpers
 
             return dict;
         }
+
+        public static Dictionary<TKey, TSource> TryLoadFromDtoDictionary4<TDto, TSource, TKey>(
+            this Dictionary<TKey, TSource> _, Dictionary<TKey, TDto> dtos)
+            where TSource : ILoadableFrom4<TDto, TSource>, new()
+        {
+            if (dtos == null)
+            {
+                return null;
+            }
+
+            var dict = new Dictionary<TKey, TSource>();
+
+            foreach (var sourceKeyValue in dtos)
+            {
+                if (sourceKeyValue.Value == null)
+                {
+                    continue;
+                }
+
+                dict.Add(sourceKeyValue.Key, new TSource().LoadFromDto(sourceKeyValue.Value));
+            }
+
+            return dict;
+        }
     }
 }

@@ -10,4 +10,22 @@
     {
         TDomain LoadFromDto(TDto dto);
     }
+
+    internal interface ILoadableFrom2<in TDto, out TDomain>
+        where TDomain : ILoadableFrom2<TDto, TDomain>
+    {
+        TDomain LoadFromDto(TDto dto);
+    }
+
+    internal interface ILoadableFrom3<in TDto, out TDomain>
+        where TDomain : ILoadableFrom3<TDto, TDomain>
+    {
+        TDomain LoadFromDto(TDto dto);
+    }
+
+    internal interface ILoadableFrom4<in TDto, out TDomain>
+        where TDomain : ILoadableFrom4<TDto, TDomain>
+    {
+        TDomain LoadFromDto(TDto dto);
+    }
 }

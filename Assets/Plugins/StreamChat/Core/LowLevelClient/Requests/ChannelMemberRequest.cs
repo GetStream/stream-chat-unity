@@ -5,7 +5,7 @@ using StreamChat.Core.InternalDTO.Requests;
 
 namespace StreamChat.Core.LowLevelClient.Requests
 {
-    public partial class ChannelMemberRequest : RequestObjectBase, ISavableTo<ChannelMemberRequestInternalDTO>, ISavableTo<ChannelMemberInternalDTO>
+    public partial class ChannelMemberRequest : RequestObjectBase, ISavableTo<ChannelMemberInternalDTO>, ISavableTo2<ChannelMemberRequestInternalDTO>
     {
         /// <summary>
         /// Expiration date of the ban
@@ -69,7 +69,7 @@ namespace StreamChat.Core.LowLevelClient.Requests
 
         public string UserId { get; set; }
 
-        ChannelMemberRequestInternalDTO ISavableTo<ChannelMemberRequestInternalDTO>.SaveToDto() =>
+        ChannelMemberRequestInternalDTO ISavableTo2<ChannelMemberRequestInternalDTO>.SaveToDto() =>
             new ChannelMemberRequestInternalDTO
             {
                 BanExpires = BanExpires,
