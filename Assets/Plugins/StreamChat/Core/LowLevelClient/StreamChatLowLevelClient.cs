@@ -29,12 +29,15 @@ using StreamChat.Core.LowLevelClient.Requests;
 using System.Linq;
 using StreamChat.Core.Helpers;
 
-#if STREAM_TESTS_ENABLED
+#if STREAM_TESTS_ENABLED || STREAM_RUNTIME_TESTS_ENABLED
 using System.Runtime.CompilerServices;
 #endif
 
 #if STREAM_TESTS_ENABLED
-[assembly: InternalsVisibleTo("StreamChat.Tests")] //StreamTodo: verify which Unity version introduced this
+[assembly: InternalsVisibleTo("StreamChat.Tests")]
+#endif
+#if STREAM_TESTS_ENABLED || STREAM_RUNTIME_TESTS_ENABLED
+[assembly: InternalsVisibleTo("StreamChat.Tests.Runtime")]
 #endif
 
 namespace StreamChat.Core.LowLevelClient

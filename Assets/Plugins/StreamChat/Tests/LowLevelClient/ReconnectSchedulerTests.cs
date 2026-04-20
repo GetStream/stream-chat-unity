@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if STREAM_TESTS_ENABLED
+using System;
 using NSubstitute;
 using NUnit.Framework;
 using StreamChat.Core;
@@ -6,8 +7,6 @@ using StreamChat.Core.LowLevelClient;
 using StreamChat.Libs.Logs;
 using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Time;
-
-#if STREAM_TESTS_ENABLED
 namespace StreamChat.Tests.LowLevelClient
 {
     internal class ReconnectSchedulerTests
