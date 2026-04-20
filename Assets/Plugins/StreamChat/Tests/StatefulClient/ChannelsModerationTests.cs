@@ -1,12 +1,11 @@
-﻿using System.Collections;
+﻿#if STREAM_TESTS_ENABLED
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core.LowLevelClient.Events;
 using UnityEngine.TestTools;
-
-#if STREAM_TESTS_ENABLED
 namespace StreamChat.Tests.StatefulClient
 {
     internal class ChannelsModerationTests : BaseStateIntegrationTests
