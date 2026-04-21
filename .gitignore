@@ -87,10 +87,8 @@ crashlytics-build.properties
 [Bb]in/
 [Oo]bj/
 _UpgradeReport_Files/
-# Track Packages/manifest.json (committed, minimal & cross-Unity-version) but ignore everything
-# else under Packages/ (packages-lock.json is auto-regenerated per Unity version).
-[Pp]ackages/*
-![Pp]ackages/manifest.json
+# Packages/ is auto-generated per Unity version (manifest.json, packages-lock.json, etc.)
+[Pp]ackages/
 
 Thumbs.db
 Desktop.ini

@@ -15,14 +15,12 @@ namespace StreamChat.EditorTools
     /// Ensures TextMesh Pro is available in the project across every supported Unity version
     /// (Unity 2019 → Unity 6.x).
     ///
-    /// The committed <c>Packages/manifest.json</c> pins <c>com.unity.ugui@1.0.0</c> (the eternal
-    /// built-in alias) so the manifest is identical on every Unity version. TMP is then added
-    /// on demand via the standalone <c>com.unity.textmeshpro</c> registry package, which has
-    /// versions compatible with every supported editor (1.x for Unity 2018, 2.x for 2019.2+,
-    /// 3.x for 2020+, still 3.x for Unity 6). UPM picks the right one when no version is
-    /// specified.
+    /// <c>Packages/manifest.json</c> is NOT committed (it is Unity-version-specific). Each Unity
+    /// version generates its own manifest on first open. If the TMP package is missing, this
+    /// script prompts the user to install <c>com.unity.textmeshpro</c> via UPM (unpinned — UPM
+    /// picks the right version for the current editor).
     ///
-    /// Once the TMP package is present, this script also prompts the user to import the
+    /// Once the TMP package is present, the script also prompts the user to import the
     /// "TMP Essential Resources" (shaders, default fonts, settings) which are likewise
     /// Unity-version-specific and must not be committed to version control.
     ///
