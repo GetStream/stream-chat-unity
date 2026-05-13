@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Active Participant Count
         /// </summary>
         [Newtonsoft.Json.JsonProperty("active_participant_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? ActiveParticipantCount { get; set; }
+        public int ActiveParticipantCount { get; set; }
 
         /// <summary>
         /// Channel
@@ -64,6 +64,9 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeletedAt { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("draft", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public DraftResponseInternalDTO Draft { get; set; }
+
         /// <summary>
         /// Last Message At
         /// </summary>
@@ -71,13 +74,13 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.DateTimeOffset? LastMessageAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("latest_replies", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<MessageInternalDTO> LatestReplies { get; set; } = new System.Collections.Generic.List<MessageInternalDTO>();
+        public System.Collections.Generic.List<MessageResponseInternalDTO> LatestReplies { get; set; } = new System.Collections.Generic.List<MessageResponseInternalDTO>();
 
         /// <summary>
         /// Parent Message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageInternalDTO ParentMessage { get; set; }
+        public MessageResponseInternalDTO ParentMessage { get; set; }
 
         /// <summary>
         /// Parent Message ID
@@ -89,10 +92,10 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Participant Count
         /// </summary>
         [Newtonsoft.Json.JsonProperty("participant_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? ParticipantCount { get; set; }
+        public int ParticipantCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("read", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ReadInternalDTO> Read { get; set; }
+        public System.Collections.Generic.List<ReadStateResponseInternalDTO> Read { get; set; }
 
         /// <summary>
         /// Reply Count

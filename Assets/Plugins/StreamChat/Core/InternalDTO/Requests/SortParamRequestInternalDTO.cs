@@ -17,7 +17,7 @@ namespace StreamChat.Core.InternalDTO.Requests
     internal partial class SortParamRequestInternalDTO
     {
         /// <summary>
-        /// Direction of sorting, 1 for Ascending, -1 for Descending, default is 1
+        /// Direction of sorting, 1 for Ascending, -1 for Descending, default is 1. One of: -1, 1
         /// </summary>
         [Newtonsoft.Json.JsonProperty("direction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Direction { get; set; }
@@ -27,6 +27,12 @@ namespace StreamChat.Core.InternalDTO.Requests
         /// </summary>
         [Newtonsoft.Json.JsonProperty("field", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Field { get; set; }
+
+        /// <summary>
+        /// Type of field to sort by. Empty string or omitted means string type (default). One of: number, boolean
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Type { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

@@ -16,6 +16,71 @@ namespace StreamChat.Core.InternalDTO.Models
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class MessagePaginationParamsInternalDTO
     {
+        /// <summary>
+        /// The timestamp to get messages with a created_at timestamp greater than
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("created_at_after", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? CreatedAtAfter { get; set; }
+
+        /// <summary>
+        /// The timestamp to get messages with a created_at timestamp greater than or equal to
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("created_at_after_or_equal", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? CreatedAtAfterOrEqual { get; set; }
+
+        /// <summary>
+        /// The result will be a set of messages, that are both older and newer than the created_at timestamp provided, distributed evenly around the timestamp
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("created_at_around", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? CreatedAtAround { get; set; }
+
+        /// <summary>
+        /// The timestamp to get messages with a created_at timestamp smaller than
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("created_at_before", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? CreatedAtBefore { get; set; }
+
+        /// <summary>
+        /// The timestamp to get messages with a created_at timestamp smaller than or equal to
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("created_at_before_or_equal", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? CreatedAtBeforeOrEqual { get; set; }
+
+        /// <summary>
+        /// The result will be a set of messages, that are both older and newer than the message with the provided ID, and the message with the ID provided will be in the middle of the set
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("id_around", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string IdAround { get; set; }
+
+        /// <summary>
+        /// The ID of the message to get messages with a timestamp greater than
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("id_gt", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string IdGt { get; set; }
+
+        /// <summary>
+        /// The ID of the message to get messages with a timestamp greater than or equal to
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("id_gte", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string IdGte { get; set; }
+
+        /// <summary>
+        /// The ID of the message to get messages with a timestamp smaller than
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("id_lt", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string IdLt { get; set; }
+
+        /// <summary>
+        /// The ID of the message to get messages with a timestamp smaller than or equal to
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("id_lte", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string IdLte { get; set; }
+
+        /// <summary>
+        /// The maximum number of messages to return (max limit 
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("limit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Limit { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

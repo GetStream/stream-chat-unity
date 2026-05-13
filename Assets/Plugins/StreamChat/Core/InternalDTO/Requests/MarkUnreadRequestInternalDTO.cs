@@ -23,7 +23,13 @@ namespace StreamChat.Core.InternalDTO.Requests
         public string MessageId { get; set; }
 
         /// <summary>
-        /// Mark a thread unread, specify both the thread and message id
+        /// Timestamp of the message from where the channel is marked unread
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("message_timestamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? MessageTimestamp { get; set; }
+
+        /// <summary>
+        /// Mark a thread unread, specify one of the thread, message timestamp, or message id
         /// </summary>
         [Newtonsoft.Json.JsonProperty("thread_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ThreadId { get; set; }

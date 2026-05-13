@@ -20,7 +20,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Active Participant Count
         /// </summary>
         [Newtonsoft.Json.JsonProperty("active_participant_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? ActiveParticipantCount { get; set; }
+        public int ActiveParticipantCount { get; set; }
 
         /// <summary>
         /// Channel
@@ -44,7 +44,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Created By User
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_by", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO CreatedBy { get; set; }
+        public UserResponseInternalDTO CreatedBy { get; set; }
 
         /// <summary>
         /// Created By User ID
@@ -74,7 +74,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Parent Message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageInternalDTO ParentMessage { get; set; }
+        public MessageResponseInternalDTO ParentMessage { get; set; }
 
         /// <summary>
         /// Parent Message ID
@@ -86,7 +86,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Participant Count
         /// </summary>
         [Newtonsoft.Json.JsonProperty("participant_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? ParticipantCount { get; set; }
+        public int ParticipantCount { get; set; }
 
         /// <summary>
         /// Reply Count
