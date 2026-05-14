@@ -95,15 +95,7 @@ namespace StreamChat.Core.StatefulModels
                 }
             }
 
-            // Prepend (oldest-first) into the cached list
-            for (int i = loaded.Count - 1; i >= 0; i--)
-            {
-                var message = (StreamMessage)loaded[i];
-                if (!_latestReplies.Contains(message))
-                {
-                    _latestReplies.Insert(0, message);
-                }
-            }
+            MergeIntoLatestReplies(loaded);
 
             return loaded;
         }
@@ -188,6 +180,7 @@ namespace StreamChat.Core.StatefulModels
             if (dto.LatestReplies != null)
             {
                 _latestReplies.TryReplaceTrackedObjects2(dto.LatestReplies, cache.Messages);
+                SortLatestRepliesByCreatedAt();
             }
 
             if (dto.ParentMessage != null)
@@ -258,8 +251,6 @@ namespace StreamChat.Core.StatefulModels
             Updated?.Invoke(this);
         }
 
-        internal List<StreamMessage> LatestRepliesInternal => _latestReplies;
-
         internal void HandleNewReply(IStreamMessage reply)
         {
             if (reply == null)
@@ -267,9 +258,18 @@ namespace StreamChat.Core.StatefulModels
                 return;
             }
 
-            if (!_latestReplies.Contains((StreamMessage)reply))
+            var streamReply = (StreamMessage)reply;
+            if (!_latestReplies.Contains(streamReply))
             {
-                _latestReplies.Add((StreamMessage)reply);
+                var lastReply = _latestReplies.Count > 0 ? _latestReplies[_latestReplies.Count - 1] : null;
+                _latestReplies.Add(streamReply);
+
+                // Local sends or out-of-order WS arrivals can land a reply with an older CreatedAt
+                // than the current tail; restore ascending order in those cases.
+                if (lastReply != null && streamReply.CreatedAt < lastReply.CreatedAt)
+                {
+                    SortLatestRepliesByCreatedAt();
+                }
             }
 
             if (ReplyCount.HasValue)
@@ -285,6 +285,32 @@ namespace StreamChat.Core.StatefulModels
 
             ReplyReceived?.Invoke(this, reply);
         }
+
+        internal void MergeIntoLatestReplies(IReadOnlyList<IStreamMessage> messages)
+        {
+            if (messages == null || messages.Count == 0)
+            {
+                return;
+            }
+
+            var inserted = false;
+            foreach (var msg in messages)
+            {
+                var streamMessage = (StreamMessage)msg;
+                if (!_latestReplies.Contains(streamMessage))
+                {
+                    _latestReplies.Add(streamMessage);
+                    inserted = true;
+                }
+            }
+
+            if (inserted)
+            {
+                SortLatestRepliesByCreatedAt();
+            }
+        }
+
+        internal void SortLatestRepliesByCreatedAt() => _latestReplies.Sort(MessageCreatedAtComparer.Instance);
 
         internal void HandleNotifyReadStateChanged()
         {

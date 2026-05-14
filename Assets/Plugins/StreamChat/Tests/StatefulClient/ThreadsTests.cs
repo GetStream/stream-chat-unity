@@ -121,12 +121,37 @@ namespace StreamChat.Tests.StatefulClient
             var firstPage = await parent.LoadRepliesAsync(limit: 2);
             Assert.AreEqual(2, firstPage.Count);
 
+            AssertOrderedAscendingByCreatedAt(firstPage);
+
             var olderPage = await parent.LoadRepliesAsync(limit: 2, idLessThan: firstPage[0].Id);
             Assert.GreaterOrEqual(olderPage.Count, 1);
             // Older page items must not contain ids from first page
             foreach (var older in olderPage)
             {
                 Assert.IsFalse(firstPage.Any(m => m.Id == older.Id));
+            }
+
+            AssertOrderedAscendingByCreatedAt(olderPage);
+
+            // Older messages should be ordered before the first page in the cached thread list
+            var thread = await Client.Threads.GetThreadAsync(parent.Id);
+            AssertOrderedAscendingByCreatedAt(thread.LatestReplies);
+            foreach (var older in olderPage)
+            {
+                foreach (var newer in firstPage)
+                {
+                    Assert.Less(older.CreatedAt, newer.CreatedAt,
+                        "Older page replies must have CreatedAt before first page replies");
+                }
+            }
+        }
+
+        private static void AssertOrderedAscendingByCreatedAt(System.Collections.Generic.IReadOnlyList<IStreamMessage> messages)
+        {
+            for (var i = 1; i < messages.Count; i++)
+            {
+                Assert.LessOrEqual(messages[i - 1].CreatedAt, messages[i].CreatedAt,
+                    $"Messages must be ordered oldest-first by CreatedAt (index {i - 1} -> {i})");
             }
         }
 

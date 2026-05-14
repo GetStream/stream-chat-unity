@@ -839,20 +839,9 @@ namespace StreamChat.Core.StatefulModels
         private readonly List<StreamRead> _read = new List<StreamRead>();
         private readonly List<string> _ownCapabilities = new List<string>();
         private readonly List<StreamPendingMessage> _pendingMessages = new List<StreamPendingMessage>();
-        
-        private readonly MessageCreateAtComparer _messageCreateAtComparer = new MessageCreateAtComparer();
 
         private bool _muted;
         private bool _hidden;
-        
-        //StreamTodo: move outside and change to internal
-        private class MessageCreateAtComparer : IComparer<IStreamMessage>
-        {
-            public int Compare(IStreamMessage x, IStreamMessage y)
-            {
-                return x.CreatedAt.CompareTo(y.CreatedAt);
-            }
-        }
 
         private static bool MessageFilter(IStreamMessage message) => !message.Shadowed.HasValue || !message.Shadowed.Value;
 
@@ -891,7 +880,7 @@ namespace StreamChat.Core.StatefulModels
             if (lastMessage != null && streamMessage.CreatedAt < lastMessage.CreatedAt)
             {
                 //StreamTodo: test this more. One way is to toggle Ethernet on PC and send messages from Android client
-                _messages.Sort(_messageCreateAtComparer);
+                _messages.Sort(MessageCreatedAtComparer.Instance);
             }
 
             MessageReceived?.Invoke(this, streamMessage);
@@ -1138,7 +1127,7 @@ namespace StreamChat.Core.StatefulModels
             });
         }
 
-        private void SortMessagesByCreatedAt() => _messages.Sort(_messageCreateAtComparer);
+        private void SortMessagesByCreatedAt() => _messages.Sort(MessageCreatedAtComparer.Instance);
 
         private UpdateChannelRequestInternalDTO GetUpdateRequestWithCurrentData()
             => new UpdateChannelRequestInternalDTO

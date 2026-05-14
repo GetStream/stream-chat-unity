@@ -222,17 +222,12 @@ namespace StreamChat.Core.StatefulModels
                 }
             }
 
-            // If a thread is tracked for this parent, append unique replies to its LatestReplies
+            // If a thread is tracked for this parent, merge the loaded replies into its LatestReplies.
+            // The merge sorts by CreatedAt so order is preserved regardless of pagination direction
+            // or interleaved websocket events.
             if (Cache.Threads.TryGet(Id, out var thread))
             {
-                foreach (var msg in loaded)
-                {
-                    var streamMessage = (StreamMessage)msg;
-                    if (!thread.LatestRepliesInternal.Contains(streamMessage))
-                    {
-                        thread.LatestRepliesInternal.Insert(0, streamMessage);
-                    }
-                }
+                thread.MergeIntoLatestReplies(loaded);
             }
 
             return loaded;
