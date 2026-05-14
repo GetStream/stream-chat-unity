@@ -244,5 +244,36 @@ namespace StreamChat.Core.StatefulModels
         /// This feature allows to track to which messages users have read in the channel
         /// </summary>
         Task MarkMessageAsLastReadAsync();
+
+        /// <summary>
+        /// Get the thread for which this message is the parent. The returned <see cref="IStreamThread"/>
+        /// is cached and gets updated by real-time events.
+        /// </summary>
+        /// <param name="replyLimit">[Optional] Number of replies to fetch</param>
+        /// <param name="participantLimit">[Optional] Number of participants to fetch</param>
+        Task<IStreamThread> GetThreadAsync(int? replyLimit = null, int? participantLimit = null);
+
+        /// <summary>
+        /// Load replies of this message (a parent message of a thread). Returned messages are oldest-first
+        /// and are cached, so they show up in <see cref="IStreamThread.LatestReplies"/> if a thread is tracked.
+        /// </summary>
+        /// <param name="limit">[Optional] Maximum number of replies to load. Defaults to 25</param>
+        /// <param name="idLessThan">[Optional] Pagination - return replies older than this message id</param>
+        Task<IReadOnlyList<IStreamMessage>> LoadRepliesAsync(int limit = 25, string idLessThan = null);
+
+        /// <summary>
+        /// Mark the thread (this message must be the thread parent) as read for the local user
+        /// </summary>
+        Task MarkThreadAsReadAsync();
+
+        /// <summary>
+        /// Mark the thread (this message must be the thread parent) as unread for the local user
+        /// </summary>
+        Task MarkThreadAsUnreadAsync();
+
+        /// <summary>
+        /// Mark the channel containing this message as unread starting from this message for the local user
+        /// </summary>
+        Task MarkAsUnreadAsync();
     }
 }

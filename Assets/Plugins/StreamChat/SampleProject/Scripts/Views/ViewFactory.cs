@@ -48,7 +48,14 @@ namespace StreamChat.SampleProject.Views
 
             var options = new List<MenuOptionEntry>
             {
-                //new MenuOptionEntry("Reply", () => throw new NotImplementedException("Reply")),
+                new MenuOptionEntry("Reply in thread", () => state.ActiveChannel
+                    .SendNewMessageAsync(new Core.Requests.StreamSendMessageRequest
+                    {
+                        ParentId = message.Id,
+                        ShowInChannel = false,
+                        Text = "(reply)",
+                    }).LogExceptionsOnFailed()),
+                new MenuOptionEntry("Mark thread read", () => message.MarkThreadAsReadAsync().LogExceptionsOnFailed()),
                 new MenuOptionEntry("Pin", () => message.PinAsync().LogExceptionsOnFailed()),
             };
 

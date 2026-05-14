@@ -242,7 +242,25 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task ThreadPagination()
         {
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
+
+            // Send a parent message and a few replies
+            var parentMessage = await channel.SendNewMessageAsync("Let's start a thread!");
+            for (int i = 0; i < 5; i++)
+            {
+                await channel.SendNewMessageAsync(new StreamSendMessageRequest
+                {
+                    ParentId = parentMessage.Id,
+                    Text = $"Reply #{i}",
+                });
+            }
+
+            // Load the most recent page of replies (oldest-first)
+            var firstPage = await parentMessage.LoadRepliesAsync(limit: 2);
+
+            // Paginate older replies using the id of the oldest message we have
+            var oldest = firstPage[0];
+            var olderPage = await parentMessage.LoadRepliesAsync(limit: 2, idLessThan: oldest.Id);
         }
 
         /// <summary>

@@ -378,6 +378,33 @@ namespace StreamChat.Core.StatefulModels
         public Task MarkChannelReadAsync()
             => LowLevelClient.InternalChannelApi.MarkReadAsync(Type, Id, new MarkReadRequestInternalDTO());
 
+        public Task MarkThreadAsReadAsync(string threadId)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(threadId, nameof(threadId));
+            return LowLevelClient.InternalChannelApi.MarkReadAsync(Type, Id, new MarkReadRequestInternalDTO
+            {
+                ThreadId = threadId,
+            });
+        }
+
+        public Task MarkThreadAsUnreadAsync(string threadId)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(threadId, nameof(threadId));
+            return LowLevelClient.InternalChannelApi.MarkUnreadAsync(Type, Id, new MarkUnreadRequestInternalDTO
+            {
+                ThreadId = threadId,
+            });
+        }
+
+        public Task MarkChannelAsUnreadAsync(string messageId)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(messageId, nameof(messageId));
+            return LowLevelClient.InternalChannelApi.MarkUnreadAsync(Type, Id, new MarkUnreadRequestInternalDTO
+            {
+                MessageId = messageId,
+            });
+        }
+
         //StreamTodo: remove empty request object
         public Task ShowAsync()
             => LowLevelClient.InternalChannelApi.ShowChannelAsync(Type, Id, new ShowChannelRequestInternalDTO());
@@ -991,6 +1018,12 @@ namespace StreamChat.Core.StatefulModels
             AssertCid(eventDto.Cid);
             HandleMessageRead(eventDto.User, eventDto.CreatedAt);
             //StreamTodo: update eventDto.Channel as well?
+        }
+
+        internal void InternalHandleMarkUnreadNotification(NotificationMarkUnreadEventInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            // Server resets the local user's read state on this channel; we don't track per-user read state here.
         }
 
         internal void InternalHandleUserWatchingStartEvent(UserWatchingStartEventInternalDTO eventDto)

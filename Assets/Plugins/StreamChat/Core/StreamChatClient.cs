@@ -106,6 +106,8 @@ namespace StreamChat.Core
 
         public IStreamPollsApi Polls => _pollsApi;
 
+        public IStreamThreadsApi Threads => _threadsApi;
+
         /// <inheritdoc cref="StreamChatLowLevelClient.SDKVersion"/>
         public static Version SDKVersion => StreamChatLowLevelClient.SDKVersion;
 
@@ -671,6 +673,7 @@ namespace StreamChat.Core
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
         private readonly StreamPollsApi _pollsApi;
+        private readonly StreamThreadsApi _threadsApi;
 
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -708,6 +711,7 @@ namespace StreamChat.Core
 
             _cache = new Cache(this, serializer, _logs);
             _pollsApi = new StreamPollsApi(InternalLowLevelClient, _cache);
+            _threadsApi = new StreamThreadsApi(InternalLowLevelClient, _cache);
 
             SubscribeTo(InternalLowLevelClient);
         }
@@ -847,6 +851,16 @@ namespace StreamChat.Core
             {
                 streamChannel.HandleMessageNewEvent(eventDto);
             }
+
+            // If this message is a thread reply and we track the thread, update it
+            var parentId = eventDto.Message?.ParentId;
+            if (!string.IsNullOrEmpty(parentId) && _cache.Threads.TryGet(parentId, out var thread))
+            {
+                if (_cache.Messages.TryGet(eventDto.Message.Id, out var reply))
+                {
+                    thread.HandleNewReply(reply);
+                }
+            }
         }
 
         private void OnChannelTruncated(ChannelTruncatedEventInternalDTO eventDto)
@@ -959,6 +973,12 @@ namespace StreamChat.Core
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleMessageReadEvent(eventDto);
+            }
+
+            if (eventDto.Thread != null)
+            {
+                var thread = _cache.TryCreateOrUpdate(eventDto.Thread);
+                thread?.HandleNotifyReadStateChanged();
             }
         }
 
@@ -1321,6 +1341,10 @@ namespace StreamChat.Core
             lowLevelClient.InternalPollVoteCasted += OnPollVoteCasted;
             lowLevelClient.InternalPollVoteChanged += OnPollVoteChanged;
             lowLevelClient.InternalPollVoteRemoved += OnPollVoteRemoved;
+
+            lowLevelClient.InternalThreadUpdated += OnThreadUpdated;
+            lowLevelClient.InternalNotificationThreadMessageNew += OnNotificationThreadMessageNew;
+            lowLevelClient.InternalNotificationMarkUnread += OnNotificationMarkUnread;
         }
 
         private void UnsubscribeFrom(StreamChatLowLevelClient lowLevelClient)
@@ -1382,6 +1406,10 @@ namespace StreamChat.Core
             lowLevelClient.InternalPollVoteCasted -= OnPollVoteCasted;
             lowLevelClient.InternalPollVoteChanged -= OnPollVoteChanged;
             lowLevelClient.InternalPollVoteRemoved -= OnPollVoteRemoved;
+
+            lowLevelClient.InternalThreadUpdated -= OnThreadUpdated;
+            lowLevelClient.InternalNotificationThreadMessageNew -= OnNotificationThreadMessageNew;
+            lowLevelClient.InternalNotificationMarkUnread -= OnNotificationMarkUnread;
         }
 
         private void OnPollClosed(PollClosedEventInternalDTO eventDto)
@@ -1479,6 +1507,54 @@ namespace StreamChat.Core
             streamPoll.InternalSetChannel(streamChannel);
 
             streamPoll.HandlePollVoteRemovedEvent(eventDto);
+        }
+
+        private void OnThreadUpdated(ThreadUpdatedEventInternalDTO eventDto)
+        {
+            if (eventDto.Thread == null)
+            {
+                return;
+            }
+
+            _cache.TryCreateOrUpdate(eventDto.Thread);
+        }
+
+        private void OnNotificationThreadMessageNew(NotificationThreadMessageNewEventInternalDTO eventDto)
+        {
+            if (eventDto.Message == null)
+            {
+                return;
+            }
+
+            var reply = _cache.TryCreateOrUpdate(eventDto.Message);
+
+            // Update parent's reply count if we know it
+            if (!string.IsNullOrEmpty(reply?.ParentId) && _cache.Messages.TryGet(reply.ParentId, out var parent))
+            {
+                parent.InternalIncrementReplyCount();
+            }
+
+            // If we track this thread, update it with the new reply
+            var threadId = eventDto.ThreadId ?? reply?.ParentId;
+            if (!string.IsNullOrEmpty(threadId) && _cache.Threads.TryGet(threadId, out var thread))
+            {
+                thread.HandleNewReply(reply);
+            }
+
+            if (eventDto.UnreadThreads.HasValue || eventDto.UnreadThreadMessages.HasValue)
+            {
+                _localUserData?.InternalHandleThreadMessageNewNotification(eventDto);
+            }
+        }
+
+        private void OnNotificationMarkUnread(NotificationMarkUnreadEventInternalDTO eventDto)
+        {
+            _localUserData?.InternalHandleMarkUnreadNotification(eventDto);
+
+            if (_cache.Channels.TryGet(eventDto.Cid, out var channel))
+            {
+                channel.InternalHandleMarkUnreadNotification(eventDto);
+            }
         }
 
         #endregion

@@ -38,6 +38,9 @@ namespace StreamChat.Core.State
         public StreamPoll CreateStreamPoll(string uniqueId)
             => new StreamPoll(uniqueId, _cache.Polls, _context);
 
+        public StreamThread CreateStreamThread(string uniqueId)
+            => new StreamThread(uniqueId, _cache.Threads, _context);
+
         private readonly ILogs _logs;
         private readonly StreamChatClient _streamChatClient;
         private readonly IStatefulModelContext _context;

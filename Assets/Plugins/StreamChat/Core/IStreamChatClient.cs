@@ -114,6 +114,11 @@ namespace StreamChat.Core
         IStreamPollsApi Polls { get; }
 
         /// <summary>
+        /// Threads API for retrieving and querying threads
+        /// </summary>
+        IStreamThreadsApi Threads { get; }
+
+        /// <summary>
         /// Connect user to Stream Chat server.
         /// User authentication credentials:
         /// ApiKey - Your application API KEY. You can get it from https://dashboard.getstream.io/
