@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
+using StreamChat.Core.LowLevelClient.Models;
 
 namespace StreamChat.Core.LowLevelClient.Events
 {
@@ -17,6 +19,11 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public Dictionary<string, object> Custom { get; set; }
 
+        /// <summary>
+        /// The updated thread payload.
+        /// </summary>
+        public Thread Thread { get; set; }
+
         public string Type { get; set; }
 
         EventThreadUpdated ILoadableFrom<ThreadUpdatedEventInternalDTO, EventThreadUpdated>.LoadFromDto(
@@ -27,6 +34,7 @@ namespace StreamChat.Core.LowLevelClient.Events
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Custom = dto.Custom;
+            Thread = Thread.TryLoadFromDto(dto.Thread);
             Type = dto.Type;
             AdditionalProperties = dto.AdditionalProperties;
             return this;
