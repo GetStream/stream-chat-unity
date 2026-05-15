@@ -193,10 +193,32 @@ namespace StreamChat.Core.StatefulModels
 
             var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id,
                 sendMessageRequest.TrySaveToDto());
-            
+
+            // Snapshot whether the WS echo for this reply has already raced ahead of the REST
+            // response and inserted the reply into the cache. The WS handlers gate their parent
+            // bump on cache-insertion to keep duplicate event delivery safe; pairing the same
+            // gate here keeps SendNewMessageAsync's optimistic bump symmetric so the local
+            // sender's parent.ReplyCount increments exactly once across REST+WS.
+            var responseMessageId = response.Message?.Id;
+            var replyAlreadyInCache = !string.IsNullOrEmpty(responseMessageId)
+                                      && Cache.Messages.TryGet(responseMessageId, out _);
+
             //StreamTodo: we update internal cache message without server confirmation that message got accepted. e.g. message could be rejected
             //It's ok to update the cache "in good faith" to not introduce update delay but we should handle if message got rejected
             InternalAppendOrUpdateMessage(response.Message, out var streamMessage);
+
+            // Optimistic parent.ReplyCount bump for thread replies on the local sender. Without
+            // this, after InternalAppendOrUpdateMessage the reply is in cache and any subsequent
+            // WS echo (message.new / notification.thread_message_new) sees isInsert=false and
+            // skips the bump - leaving the local sender's parent.ReplyCount stale.
+            var parentId = response.Message?.ParentId;
+            if (!replyAlreadyInCache
+                && !string.IsNullOrEmpty(parentId)
+                && Cache.Messages.TryGet(parentId, out var parent))
+            {
+                parent.InternalIncrementReplyCount();
+            }
+
             return streamMessage;
         }
 
@@ -377,6 +399,33 @@ namespace StreamChat.Core.StatefulModels
         //StreamTodo: remove empty request object
         public Task MarkChannelReadAsync()
             => LowLevelClient.InternalChannelApi.MarkReadAsync(Type, Id, new MarkReadRequestInternalDTO());
+
+        public Task MarkThreadAsReadAsync(string threadId)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(threadId, nameof(threadId));
+            return LowLevelClient.InternalChannelApi.MarkReadAsync(Type, Id, new MarkReadRequestInternalDTO
+            {
+                ThreadId = threadId,
+            });
+        }
+
+        public Task MarkThreadAsUnreadAsync(string threadId)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(threadId, nameof(threadId));
+            return LowLevelClient.InternalChannelApi.MarkUnreadAsync(Type, Id, new MarkUnreadRequestInternalDTO
+            {
+                ThreadId = threadId,
+            });
+        }
+
+        public Task MarkChannelAsUnreadAsync(string messageId)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(messageId, nameof(messageId));
+            return LowLevelClient.InternalChannelApi.MarkUnreadAsync(Type, Id, new MarkUnreadRequestInternalDTO
+            {
+                MessageId = messageId,
+            });
+        }
 
         //StreamTodo: remove empty request object
         public Task ShowAsync()
@@ -635,6 +684,7 @@ namespace StreamChat.Core.StatefulModels
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
             _pinnedMessages.TryReplaceTrackedObjects2(dto.PinnedMessages, cache.Messages);
             _read.TryReplaceRegularObjectsFromDto2(dto.Read, cache);
+            SeedThreadsFromDto(dto.Threads, cache);
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
             _watchers.TryAppendUniqueTrackedObjects2(dto.Watchers, cache.Users);
 
@@ -660,6 +710,7 @@ namespace StreamChat.Core.StatefulModels
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
             _pinnedMessages.TryReplaceTrackedObjects2(dto.PinnedMessages, cache.Messages);
             _read.TryReplaceRegularObjectsFromDto2(dto.Read, cache);
+            SeedThreadsFromDto(dto.Threads, cache);
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
             _watchers.TryAppendUniqueTrackedObjects2(dto.Watchers, cache.Users);
 
@@ -812,20 +863,9 @@ namespace StreamChat.Core.StatefulModels
         private readonly List<StreamRead> _read = new List<StreamRead>();
         private readonly List<string> _ownCapabilities = new List<string>();
         private readonly List<StreamPendingMessage> _pendingMessages = new List<StreamPendingMessage>();
-        
-        private readonly MessageCreateAtComparer _messageCreateAtComparer = new MessageCreateAtComparer();
 
         private bool _muted;
         private bool _hidden;
-        
-        //StreamTodo: move outside and change to internal
-        private class MessageCreateAtComparer : IComparer<IStreamMessage>
-        {
-            public int Compare(IStreamMessage x, IStreamMessage y)
-            {
-                return x.CreatedAt.CompareTo(y.CreatedAt);
-            }
-        }
 
         private static bool MessageFilter(IStreamMessage message) => !message.Shadowed.HasValue || !message.Shadowed.Value;
 
@@ -840,6 +880,18 @@ namespace StreamChat.Core.StatefulModels
         private bool InternalAppendOrUpdateMessage(MessageInternalDTO dto, out StreamMessage streamMessage)
         {
             streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
+
+            // A message belongs in the channel timeline iff it's a top-level message,
+            // or a thread reply explicitly opted into "also show in channel".
+            // Thread-only replies stay in the cache and are routed to their thread by
+            // StreamChatClient.OnMessageReceived / OnNotificationThreadMessageNew.
+            // Mirrors Android's ChannelLogic which filters parentId != null && !showInChannel.
+            var isThreadOnlyReply = !string.IsNullOrEmpty(dto.ParentId) && dto.ShowInChannel != true;
+            if (isThreadOnlyReply)
+            {
+                return false;
+            }
+
             var isNewMessage = wasCreated && !_messages.ContainsNoAlloc(streamMessage);
             if (!isNewMessage)
             {
@@ -864,7 +916,7 @@ namespace StreamChat.Core.StatefulModels
             if (lastMessage != null && streamMessage.CreatedAt < lastMessage.CreatedAt)
             {
                 //StreamTodo: test this more. One way is to toggle Ethernet on PC and send messages from Android client
-                _messages.Sort(_messageCreateAtComparer);
+                _messages.Sort(MessageCreatedAtComparer.Instance);
             }
 
             MessageReceived?.Invoke(this, streamMessage);
@@ -993,6 +1045,12 @@ namespace StreamChat.Core.StatefulModels
             //StreamTodo: update eventDto.Channel as well?
         }
 
+        internal void InternalHandleMarkUnreadNotification(NotificationMarkUnreadEventInternalDTO eventDto)
+        {
+            AssertCid(eventDto.Cid);
+            // Server resets the local user's read state on this channel; we don't track per-user read state here.
+        }
+
         internal void InternalHandleUserWatchingStartEvent(UserWatchingStartEventInternalDTO eventDto)
         {
             AssertCid(eventDto.Cid);
@@ -1105,7 +1163,26 @@ namespace StreamChat.Core.StatefulModels
             });
         }
 
-        private void SortMessagesByCreatedAt() => _messages.Sort(_messageCreateAtComparer);
+        private void SortMessagesByCreatedAt() => _messages.Sort(MessageCreatedAtComparer.Instance);
+
+        // Seed the global Cache.Threads from the channel-state threads carried by the watch
+        // response. Without this the WS thread handlers (thread.updated, notification.thread_message_new,
+        // mark read/unread) would early-return on an unknown thread id and silently drop every
+        // mutation on threads the watcher has not explicitly fetched.
+        // Each first-time insertion fans out as IStreamChatClient.ThreadTracked through the
+        // CacheRepository.Tracked subscription wired up in StreamChatClient.
+        private static void SeedThreadsFromDto(List<ThreadStateInternalDTO> dtos, ICache cache)
+        {
+            if (dtos == null)
+            {
+                return;
+            }
+
+            foreach (var threadDto in dtos)
+            {
+                cache.TryCreateOrUpdate(threadDto);
+            }
+        }
 
         private UpdateChannelRequestInternalDTO GetUpdateRequestWithCurrentData()
             => new UpdateChannelRequestInternalDTO

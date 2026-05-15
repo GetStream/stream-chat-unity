@@ -23,6 +23,16 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Team { get; set; }
 
+        /// <summary>
+        /// Thread payload, set when this event marks a thread as read.
+        /// </summary>
+        public Thread Thread { get; set; }
+
+        /// <summary>
+        /// Id of the thread that was marked as read. Set when this is a thread mark read.
+        /// </summary>
+        public string ThreadId { get; set; }
+
         public int? TotalUnreadCount { get; set; }
 
         public string Type { get; set; }
@@ -31,6 +41,16 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         [Obsolete("Please use the TotalUnreadCount. This property will be removed in the future.")]
         public int? UnreadCount { get; set; }
+
+        /// <summary>
+        /// Total number of unread messages across all threads for the local user.
+        /// </summary>
+        public int? UnreadThreadMessages { get; set; }
+
+        /// <summary>
+        /// Total number of threads with unread replies for the local user.
+        /// </summary>
+        public int? UnreadThreads { get; set; }
 
         public User User { get; set; }
 
@@ -43,12 +63,16 @@ namespace StreamChat.Core.LowLevelClient.Events
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
             Team = dto.Team;
+            Thread = Thread.TryLoadFromDto(dto.Thread);
+            ThreadId = dto.ThreadId;
             TotalUnreadCount = dto.TotalUnreadCount;
             Type = dto.Type;
             UnreadChannels = dto.UnreadChannels;
 #pragma warning disable 0618
             UnreadCount = dto.TotalUnreadCount;
 #pragma warning restore 0618
+            UnreadThreadMessages = dto.UnreadThreadMessages;
+            UnreadThreads = dto.UnreadThreads;
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
 

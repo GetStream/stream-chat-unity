@@ -41,8 +41,12 @@
         public const string NotificationRemovedFromChannel = "notification.removed_from_channel";
         public const string NotificationMutesUpdated = "notification.mutes_updated";
         public const string NotificationChannelMutesUpdated = "notification.channel_mutes_updated";
-        //StreamTodo: implement NOTIFICATION.MARK_UNREAD
-        
+        public const string NotificationMarkUnread = "notification.mark_unread";
+        public const string NotificationThreadMessageNew = "notification.thread_message_new";
+
+        // Thread events
+        public const string ThreadUpdated = "thread.updated";
+
         // Poll events
         public const string PollClosed = "poll.closed";
         public const string PollDeleted = "poll.deleted";

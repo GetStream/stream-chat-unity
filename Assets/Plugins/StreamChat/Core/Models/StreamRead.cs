@@ -38,5 +38,11 @@ namespace StreamChat.Core.Models
         }
 
         internal void Update(DateTimeOffset lastRead) => LastRead = lastRead;
+
+        internal void Update(DateTimeOffset lastRead, int unreadMessages)
+        {
+            LastRead = lastRead;
+            UnreadMessages = unreadMessages;
+        }
     }
 }

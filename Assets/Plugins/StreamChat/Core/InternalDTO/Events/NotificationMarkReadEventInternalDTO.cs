@@ -13,45 +13,126 @@ namespace StreamChat.Core.InternalDTO.Events
 {
     using System = global::System;
 
+    /// <summary>
+    /// Emitted when a channel/thread is marked as read.
+    /// </summary>
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class NotificationMarkReadEventInternalDTO
     {
+        /// <summary>
+        /// The channel object which was marked as read
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("channel", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ChannelResponseInternalDTO Channel { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("channel_custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, object> ChannelCustom { get; set; }
+
+        /// <summary>
+        /// The ID of the channel which was marked as read
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ChannelId { get; set; }
 
+        /// <summary>
+        /// The number of members in the channel
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_member_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int ChannelMemberCount { get; set; }
+        public int? ChannelMemberCount { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("channel_message_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long? ChannelMessageCount { get; set; }
+
+        /// <summary>
+        /// The type of the channel which was marked as read
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("channel_type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ChannelType { get; set; }
 
+        /// <summary>
+        /// The CID of the channel which was marked as read
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("cid", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Cid { get; set; }
 
+        /// <summary>
+        /// Date/time of creation
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset CreatedAt { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("custom", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, object> Custom { get; set; } = new System.Collections.Generic.Dictionary<string, object>();
+
+        [Newtonsoft.Json.JsonProperty("grouped_unread_channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.Dictionary<string, int> GroupedUnreadChannels { get; set; }
+
+        /// <summary>
+        /// The ID of the last read message
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("last_read_message_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string LastReadMessageId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("received_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? ReceivedAt { get; set; }
+
+        /// <summary>
+        /// The team ID
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("team", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Team { get; set; }
 
+        /// <summary>
+        /// The thread object which was marked as read
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("thread", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ThreadResponseInternalDTO Thread { get; set; }
+
+        /// <summary>
+        /// The ID of the thread which was marked as read
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("thread_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ThreadId { get; set; }
+
+        /// <summary>
+        /// The total number of unread messages
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("total_unread_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TotalUnreadCount { get; set; }
 
+        /// <summary>
+        /// The type of event: "notification.mark_read" in this case
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; } = "notification.mark_read";
 
+        /// <summary>
+        /// The number of channels with unread messages
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("unread_channels", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int UnreadChannels { get; set; }
 
+        /// <summary>
+        /// The total number of unread messages
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("unread_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int UnreadCount { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("unread_threads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int UnreadThreads { get; set; }
+        /// <summary>
+        /// The total number of unread messages in the threads
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("unread_thread_messages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? UnreadThreadMessages { get; set; }
 
+        /// <summary>
+        /// The number of unread threads
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("unread_threads", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? UnreadThreads { get; set; }
+
+        /// <summary>
+        /// The user who marked the channel as read
+        /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public UserObjectInternalDTO User { get; set; }
 

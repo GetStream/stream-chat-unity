@@ -24,7 +24,9 @@ namespace StreamChat.Core.StatefulModels
         public int? TotalUnreadCount { get; private set; }
 
         public int? UnreadChannels { get; private set; }
-        
+
+        public int? UnreadThreads { get; private set; }
+
         #endregion
         
         public IStreamUser User { get; private set; }
@@ -42,6 +44,7 @@ namespace StreamChat.Core.StatefulModels
 
             TotalUnreadCount = GetOrDefault(dto.TotalUnreadCount, TotalUnreadCount);
             UnreadChannels = GetOrDefault(dto.UnreadChannels, UnreadChannels);
+            UnreadThreads = GetOrDefault(dto.UnreadThreads, UnreadThreads);
             //UnreadCount = dto.UnreadCount; Deprecated
 
             #endregion
@@ -60,6 +63,7 @@ namespace StreamChat.Core.StatefulModels
         {
             TotalUnreadCount = GetOrDefault(dto.TotalUnreadCount, TotalUnreadCount);
             UnreadChannels = dto.Channels?.Count ?? 0;
+            UnreadThreads = GetOrDefault(dto.TotalUnreadThreadsCount, UnreadThreads);
         }
         
         internal StreamLocalUserData(string uniqueId, ICacheRepository<StreamLocalUserData> repository,
@@ -72,7 +76,23 @@ namespace StreamChat.Core.StatefulModels
         {
             TotalUnreadCount = GetOrDefault(eventDto.TotalUnreadCount, TotalUnreadCount);
             UnreadChannels = GetOrDefault(eventDto.UnreadChannels, UnreadChannels);
+            UnreadThreads = GetOrDefault(eventDto.UnreadThreads, UnreadThreads);
             //UnreadCount = dto.UnreadCount; Deprecated
+        }
+
+        internal void InternalHandleMarkUnreadNotification(NotificationMarkUnreadEventInternalDTO eventDto)
+        {
+            TotalUnreadCount = GetOrDefault(eventDto.TotalUnreadCount, TotalUnreadCount);
+            UnreadChannels = GetOrDefault(eventDto.UnreadChannels, UnreadChannels);
+            UnreadThreads = GetOrDefault(eventDto.UnreadThreads, UnreadThreads);
+        }
+
+        internal void InternalHandleThreadMessageNewNotification(NotificationThreadMessageNewEventInternalDTO eventDto)
+        {
+            if (eventDto.UnreadThreads.HasValue)
+            {
+                UnreadThreads = eventDto.UnreadThreads.Value;
+            }
         }
         
         protected override string InternalUniqueId { get; set; }

@@ -17,7 +17,11 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class ThreadStateResponseInternalDTO
     {
         /// <summary>
-        /// Active Participant Count
+        /// Active Participant Count.
+        /// Hand-edited to int? to match ThreadStateInternalDTO and Android's DownstreamThreadDto,
+        /// so that payloads which omit this field (some thread.updated / notification.mark_read
+        /// events per Android observations) do not silently deserialize to 0 and overwrite a
+        /// valid local count via StreamThread.UpdateFromDto.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("active_participant_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? ActiveParticipantCount { get; set; }
@@ -35,10 +39,15 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string ChannelCid { get; set; }
 
         /// <summary>
-        /// Date/time of creation
+        /// Date/time of creation.
+        /// Hand-edited to DateTimeOffset? so omitted payloads (thread.updated,
+        /// notification.mark_read/mark_unread, UpdatePartialAsync response) do not
+        /// silently deserialize to DateTimeOffset.MinValue and regress a valid local
+        /// value via StreamThread.UpdateFromDto. GetOrDefault then preserves the
+        /// existing field when the server omits it.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset CreatedAt { get; set; }
+        public System.DateTimeOffset? CreatedAt { get; set; }
 
         /// <summary>
         /// Created By User
@@ -64,6 +73,9 @@ namespace StreamChat.Core.InternalDTO.Responses
         [Newtonsoft.Json.JsonProperty("deleted_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? DeletedAt { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("draft", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public DraftResponseInternalDTO Draft { get; set; }
+
         /// <summary>
         /// Last Message At
         /// </summary>
@@ -71,13 +83,13 @@ namespace StreamChat.Core.InternalDTO.Responses
         public System.DateTimeOffset? LastMessageAt { get; set; }
 
         [Newtonsoft.Json.JsonProperty("latest_replies", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<MessageInternalDTO> LatestReplies { get; set; } = new System.Collections.Generic.List<MessageInternalDTO>();
+        public System.Collections.Generic.List<MessageResponseInternalDTO> LatestReplies { get; set; } = new System.Collections.Generic.List<MessageResponseInternalDTO>();
 
         /// <summary>
         /// Parent Message
         /// </summary>
         [Newtonsoft.Json.JsonProperty("parent_message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public MessageInternalDTO ParentMessage { get; set; }
+        public MessageResponseInternalDTO ParentMessage { get; set; }
 
         /// <summary>
         /// Parent Message ID
@@ -86,13 +98,14 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string ParentMessageId { get; set; }
 
         /// <summary>
-        /// Participant Count
+        /// Participant Count.
+        /// Hand-edited to int? - see ActiveParticipantCount above for rationale.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("participant_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? ParticipantCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("read", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.List<ReadInternalDTO> Read { get; set; }
+        public System.Collections.Generic.List<ReadStateResponseInternalDTO> Read { get; set; }
 
         /// <summary>
         /// Reply Count
@@ -113,10 +126,11 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string Title { get; set; }
 
         /// <summary>
-        /// Date/time of the last update
+        /// Date/time of the last update.
+        /// Hand-edited to DateTimeOffset? - see CreatedAt above for rationale.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset UpdatedAt { get; set; }
+        public System.DateTimeOffset? UpdatedAt { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 
