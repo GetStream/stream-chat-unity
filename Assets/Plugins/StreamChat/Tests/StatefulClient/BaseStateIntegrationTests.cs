@@ -3,7 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -96,55 +98,30 @@ namespace StreamChat.Tests.StatefulClient
 
         //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible
         /// <summary>
-        /// Use this if state update depends on receiving WS event that might come after the REST call was completed
+        /// Use this if state update depends on receiving WS event that might come after the REST call was completed.
         /// </summary>
-        protected static async Task WaitWhileTrueAsync(Func<bool> condition, int maxSeconds = 1000)
-        {
-            var sw = new Stopwatch();
-            sw.Start();
-            
-            for (int i = 0; i < int.MaxValue; i++)
-            {
-                if (!condition())
-                {
-                    return;
-                }
+        /// <param name="condition">Returns true while we should keep waiting. Returns false to break the wait.</param>
+        /// <param name="description">
+        /// Optional human description of what we are waiting for. Surfaces in periodic "still waiting" logs
+        /// and timeout messages, so a hanging test can be diagnosed from logs alone without grepping line numbers.
+        /// </param>
+        protected static Task WaitWhileTrueAsync(Func<bool> condition,
+            int maxSeconds = 1000,
+            string description = null,
+            [CallerMemberName] string callerMember = null,
+            [CallerFilePath] string callerFile = null,
+            [CallerLineNumber] int callerLine = 0)
+            => WaitForConditionAsync(condition, waitWhileTrue: true, maxSeconds, description, callerMember,
+                callerFile, callerLine);
 
-                if (sw.Elapsed.TotalSeconds > maxSeconds)
-                {
-                    throw new TimeoutException("Timeout while waiting for condition");
-                }
-
-                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
-                await Task.Delay(delay);
-            }
-
-            throw new TimeoutException("Timeout while waiting for condition");
-        }
-
-        protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxSeconds = 1000)
-        {
-            var sw = new Stopwatch();
-            sw.Start();
-            
-            for (int i = 0; i < int.MaxValue; i++)
-            {
-                if (condition())
-                {
-                    return;
-                }
-                
-                if (sw.Elapsed.TotalSeconds > maxSeconds)
-                {
-                    throw new TimeoutException("Timeout while waiting for condition");
-                }
-
-                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
-                await Task.Delay(delay);
-            }
-            
-            throw new TimeoutException("Timeout while waiting for condition");
-        }
+        protected static Task WaitWhileFalseAsync(Func<bool> condition,
+            int maxSeconds = 1000,
+            string description = null,
+            [CallerMemberName] string callerMember = null,
+            [CallerFilePath] string callerFile = null,
+            [CallerLineNumber] int callerLine = 0)
+            => WaitForConditionAsync(condition, waitWhileTrue: false, maxSeconds, description, callerMember,
+                callerFile, callerLine);
 
         protected static async Task WaitWithTimeoutAsync(Task task, string exceptionMsg, int maxSeconds = 300)
         {
@@ -158,10 +135,16 @@ namespace StreamChat.Tests.StatefulClient
         /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxSeconds"/>
         /// </summary>
         protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition,
-            int maxSeconds = 1000)
+            int maxSeconds = 1000,
+            string description = null,
+            [CallerMemberName] string callerMember = null,
+            [CallerFilePath] string callerFile = null,
+            [CallerLineNumber] int callerLine = 0)
         {
             var sw = new Stopwatch();
             sw.Start();
+            var label = BuildWaitLabel(description, callerMember, callerFile, callerLine);
+            var progress = new WaitProgressLogger(label);
 
             for (int i = 0; i < int.MaxValue; i++)
             {
@@ -171,17 +154,108 @@ namespace StreamChat.Tests.StatefulClient
                 {
                     return response;
                 }
-                
+
                 if (sw.Elapsed.TotalSeconds > maxSeconds)
                 {
-                    throw new TimeoutException("Timeout while waiting for condition");
+                    throw new TimeoutException($"Timeout while waiting for {label}");
                 }
+
+                progress.MaybeLog(sw.Elapsed);
 
                 var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
                 await Task.Delay(delay);
             }
 
-            throw new TimeoutException("Timeout while waiting for condition");
+            throw new TimeoutException($"Timeout while waiting for {label}");
+        }
+
+        private static async Task WaitForConditionAsync(Func<bool> condition, bool waitWhileTrue, int maxSeconds,
+            string description, string callerMember, string callerFile, int callerLine)
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            var label = BuildWaitLabel(description, callerMember, callerFile, callerLine);
+            var progress = new WaitProgressLogger(label);
+
+            for (int i = 0; i < int.MaxValue; i++)
+            {
+                var value = condition();
+                var shouldStop = waitWhileTrue ? !value : value;
+                if (shouldStop)
+                {
+                    return;
+                }
+
+                if (sw.Elapsed.TotalSeconds > maxSeconds)
+                {
+                    throw new TimeoutException($"Timeout while waiting for {label}");
+                }
+
+                progress.MaybeLog(sw.Elapsed);
+
+                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
+                await Task.Delay(delay);
+            }
+
+            throw new TimeoutException($"Timeout while waiting for {label}");
+        }
+
+        private static string BuildWaitLabel(string description, string callerMember, string callerFile, int callerLine)
+        {
+            var fileName = string.IsNullOrEmpty(callerFile) ? "<unknown>" : Path.GetFileName(callerFile);
+            if (!string.IsNullOrEmpty(description))
+            {
+                return $"\"{description}\" ({callerMember} @ {fileName}:{callerLine})";
+            }
+
+            return $"condition at {callerMember} @ {fileName}:{callerLine}";
+        }
+
+        // Emits one log line per crossed elapsed-time threshold (2m, 5m, 10m, 20m, 30m) so a hanging
+        // wait is visible in the test output without needing per-test instrumentation. Single instance
+        // per Wait* call, so each threshold fires at most once for that wait.
+        private sealed class WaitProgressLogger
+        {
+            private static readonly TimeSpan[] Thresholds =
+            {
+                TimeSpan.FromMinutes(2),
+                TimeSpan.FromMinutes(5),
+                TimeSpan.FromMinutes(10),
+                TimeSpan.FromMinutes(20),
+                TimeSpan.FromMinutes(30),
+            };
+
+            private readonly string _label;
+            private int _nextIndex;
+
+            public WaitProgressLogger(string label)
+            {
+                _label = label;
+                _nextIndex = 0;
+            }
+
+            public void MaybeLog(TimeSpan elapsed)
+            {
+                while (_nextIndex < Thresholds.Length && elapsed >= Thresholds[_nextIndex])
+                {
+                    var threshold = Thresholds[_nextIndex];
+                    Debug.Log(
+                        $"[StreamChatTests] still waiting for {_label} after {FormatDuration(threshold)} (elapsed: {FormatDuration(elapsed)})");
+                    _nextIndex++;
+                }
+            }
+
+            private static string FormatDuration(TimeSpan ts)
+            {
+                if (ts.TotalMinutes >= 1)
+                {
+                    return ts.Seconds == 0
+                        ? $"{(int)ts.TotalMinutes}m"
+                        : $"{(int)ts.TotalMinutes}m{ts.Seconds:D2}s";
+                }
+
+                return $"{(int)ts.TotalSeconds}s";
+            }
         }
 
         private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
