@@ -975,10 +975,14 @@ namespace StreamChat.Core
                 streamChannel.InternalHandleMessageReadEvent(eventDto);
             }
 
-            if (eventDto.Thread != null)
+            // Thread read propagation: only mutate a thread we're already tracking.
+            // Matches Android's QueryThreadsLogic.markThreadAsReadByUser which early-returns for unknown threads.
+            if (eventDto.Thread != null
+                && _cache.Threads.TryGet(eventDto.Thread.ParentMessageId, out var thread))
             {
-                var thread = _cache.TryCreateOrUpdate(eventDto.Thread);
-                thread?.HandleNotifyReadStateChanged();
+                ((IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>)thread)
+                    .UpdateFromDto(eventDto.Thread, _cache);
+                thread.HandleNotifyReadStateChanged();
             }
         }
 
@@ -1525,12 +1529,17 @@ namespace StreamChat.Core
 
         private void OnThreadUpdated(ThreadUpdatedEventInternalDTO eventDto)
         {
-            if (eventDto.Thread == null)
+            // Thread update propagation: only mutate a thread we're already tracking.
+            // Matches Android's QueryThreadsStateLogic.updateThreadFromEvent which early-returns for unknown threads.
+            if (eventDto.Thread == null
+                || !_cache.Threads.TryGet(eventDto.Thread.ParentMessageId, out var thread))
             {
                 return;
             }
 
-            _cache.TryCreateOrUpdate(eventDto.Thread);
+            // UpdateFromDto raises the public Updated event at the end; no need to invoke it again here.
+            ((IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>)thread)
+                .UpdateFromDto(eventDto.Thread, _cache);
         }
 
         private void OnNotificationThreadMessageNew(NotificationThreadMessageNewEventInternalDTO eventDto)
