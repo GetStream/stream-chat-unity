@@ -86,6 +86,9 @@ namespace StreamChat.Core
         public event ChannelMemberAddedHandler AddedToChannelAsMember;
         public event ChannelMemberRemovedHandler RemovedFromChannelAsMember;
 
+        public event StreamThreadChangeHandler ThreadTracked;
+        public event StreamThreadChangeHandler ThreadUntracked;
+
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
 
@@ -454,6 +457,51 @@ namespace StreamChat.Core
             return result;
         }
 
+        public async Task<IStreamThread> GetThreadAsync(string parentMessageId,
+            int? replyLimit = null,
+            int? participantLimit = null,
+            int? memberLimit = null,
+            bool watch = true)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(parentMessageId, nameof(parentMessageId));
+
+            var response = await InternalLowLevelClient.InternalThreadsApi.GetThreadAsync(parentMessageId,
+                replyLimit: replyLimit,
+                participantLimit: participantLimit,
+                memberLimit: memberLimit,
+                watch: watch);
+
+            return _cache.TryCreateOrUpdate(response.Thread);
+        }
+
+        public async Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request)
+        {
+            StreamAsserts.AssertNotNull(request, nameof(request));
+
+            var requestDto = request.TrySaveToDto();
+            var response = await InternalLowLevelClient.InternalThreadsApi.QueryThreadsAsync(requestDto);
+
+            var threads = new List<IStreamThread>();
+            if (response.Threads != null)
+            {
+                foreach (var threadDto in response.Threads)
+                {
+                    var thread = _cache.TryCreateOrUpdate(threadDto);
+                    if (thread != null)
+                    {
+                        threads.Add(thread);
+                    }
+                }
+            }
+
+            return new StreamQueryThreadsResponse
+            {
+                Threads = threads,
+                Next = response.Next,
+                Prev = response.Prev,
+            };
+        }
+
         public Task<IEnumerable<IStreamUser>> UpsertUsersAsync(IEnumerable<StreamUserUpsertRequest> userRequests)
             => UpsertUsers(userRequests);
 
@@ -572,6 +620,12 @@ namespace StreamChat.Core
             {
                 UnsubscribeFrom(InternalLowLevelClient);
                 InternalLowLevelClient.Dispose();
+            }
+
+            if (_cache?.Threads != null)
+            {
+                _cache.Threads.Tracked -= OnThreadEnteredCache;
+                _cache.Threads.Untracked -= OnThreadLeftCache;
             }
 
             _isDisposed = true;
@@ -709,8 +763,15 @@ namespace StreamChat.Core
             _cache = new Cache(this, serializer, _logs);
             _pollsApi = new StreamPollsApi(InternalLowLevelClient, _cache);
 
+            _cache.Threads.Tracked += OnThreadEnteredCache;
+            _cache.Threads.Untracked += OnThreadLeftCache;
+
             SubscribeTo(InternalLowLevelClient);
         }
+
+        private void OnThreadEnteredCache(StreamThread thread) => ThreadTracked?.Invoke(thread);
+
+        private void OnThreadLeftCache(StreamThread thread) => ThreadUntracked?.Invoke(thread);
 
         private void InternalDeleteChannel(StreamChannel channel)
         {
@@ -831,6 +892,31 @@ namespace StreamChat.Core
             {
                 streamChannel.HandleMessageDeletedEvent(eventMessageDeleted);
             }
+
+            var deletedMessage = eventMessageDeleted.Message;
+            if (deletedMessage == null)
+            {
+                return;
+            }
+
+            var isHardDelete = eventMessageDeleted.HardDelete;
+
+            // Reply: drop it from its thread's LatestReplies. Mirrors Android's
+            // QueryThreadsStateLogic.deleteMessageFromThread.
+            if (!string.IsNullOrEmpty(deletedMessage.ParentId)
+                && _cache.Threads.TryGet(deletedMessage.ParentId, out var thread))
+            {
+                thread.HandleReplyDeleted(deletedMessage.Id, isHardDelete);
+            }
+
+            // Parent: hard-deleting the parent destroys the thread. Soft-delete leaves
+            // the thread in place with the parent message marked as deleted.
+            if (string.IsNullOrEmpty(deletedMessage.ParentId)
+                && isHardDelete
+                && _cache.Threads.TryGet(deletedMessage.Id, out var deletedThread))
+            {
+                _cache.Threads.Remove(deletedThread);
+            }
         }
 
         private void OnMessageUpdated(MessageUpdatedEventInternalDTO eventMessageUpdated)
@@ -843,9 +929,39 @@ namespace StreamChat.Core
 
         private void OnMessageReceived(MessageNewEventInternalDTO eventDto)
         {
+            var messageDto = eventDto.Message;
+            var messageId = messageDto?.Id;
+
+            // Snapshot insert state BEFORE HandleMessageNewEvent populates the cache, so the
+            // first delivery of a given reply (whether via this event or notification.thread_message_new)
+            // bumps parent.ReplyCount exactly once. Mirrors Android's updateParentOrReply, which gates
+            // the parent counter on a true insert so duplicate or overlapping deliveries are safe.
+            var isInsert = !string.IsNullOrEmpty(messageId) && !_cache.Messages.TryGet(messageId, out _);
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.HandleMessageNewEvent(eventDto);
+            }
+
+            var parentId = messageDto?.ParentId;
+            if (string.IsNullOrEmpty(parentId))
+            {
+                return;
+            }
+
+            // Watching clients receive message.new but not notification.thread_message_new, so without
+            // this bump parent.ReplyCount drifts below the true value until the next REST refresh.
+            // Done unconditionally on the parent (independent of thread tracking) to match the
+            // notification.thread_message_new path.
+            if (isInsert && _cache.Messages.TryGet(parentId, out var parent))
+            {
+                parent.InternalIncrementReplyCount();
+            }
+
+            if (_cache.Threads.TryGet(parentId, out var thread)
+                && _cache.Messages.TryGet(messageId, out var reply))
+            {
+                thread.HandleNewReply(reply);
             }
         }
 
@@ -960,6 +1076,16 @@ namespace StreamChat.Core
             {
                 streamChannel.InternalHandleMessageReadEvent(eventDto);
             }
+
+            // Thread read propagation: only mutate a thread we're already tracking.
+            // Matches Android's QueryThreadsLogic.markThreadAsReadByUser which early-returns for unknown threads.
+            if (eventDto.Thread != null
+                && _cache.Threads.TryGet(eventDto.Thread.ParentMessageId, out var thread))
+            {
+                ((IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>)thread)
+                    .UpdateFromDto(eventDto.Thread, _cache);
+                thread.HandleMarkReadByUser(eventDto.User?.Id, eventDto.CreatedAt);
+            }
         }
 
         private void OnMarkReadNotification(NotificationMarkReadEventInternalDTO eventDto)
@@ -970,6 +1096,20 @@ namespace StreamChat.Core
             }
 
             _localUserData.InternalHandleMarkReadNotification(eventDto);
+
+            // Thread mark-read propagation: only mutate a thread we're already tracking.
+            // Matches Android's QueryThreadsLogic.markThreadAsReadByUser which early-returns for unknown threads.
+            var threadId = eventDto.Thread?.ParentMessageId ?? eventDto.ThreadId;
+            if (!string.IsNullOrEmpty(threadId) && _cache.Threads.TryGet(threadId, out var thread))
+            {
+                if (eventDto.Thread != null)
+                {
+                    ((IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>)thread)
+                        .UpdateFromDto(eventDto.Thread, _cache);
+                }
+
+                thread.HandleMarkReadByUser(eventDto.User?.Id, eventDto.CreatedAt);
+            }
         }
 
         private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO eventDto)
@@ -1321,6 +1461,10 @@ namespace StreamChat.Core
             lowLevelClient.InternalPollVoteCasted += OnPollVoteCasted;
             lowLevelClient.InternalPollVoteChanged += OnPollVoteChanged;
             lowLevelClient.InternalPollVoteRemoved += OnPollVoteRemoved;
+
+            lowLevelClient.InternalThreadUpdated += OnThreadUpdated;
+            lowLevelClient.InternalNotificationThreadMessageNew += OnNotificationThreadMessageNew;
+            lowLevelClient.InternalNotificationMarkUnread += OnNotificationMarkUnread;
         }
 
         private void UnsubscribeFrom(StreamChatLowLevelClient lowLevelClient)
@@ -1382,6 +1526,10 @@ namespace StreamChat.Core
             lowLevelClient.InternalPollVoteCasted -= OnPollVoteCasted;
             lowLevelClient.InternalPollVoteChanged -= OnPollVoteChanged;
             lowLevelClient.InternalPollVoteRemoved -= OnPollVoteRemoved;
+
+            lowLevelClient.InternalThreadUpdated -= OnThreadUpdated;
+            lowLevelClient.InternalNotificationThreadMessageNew -= OnNotificationThreadMessageNew;
+            lowLevelClient.InternalNotificationMarkUnread -= OnNotificationMarkUnread;
         }
 
         private void OnPollClosed(PollClosedEventInternalDTO eventDto)
@@ -1479,6 +1627,76 @@ namespace StreamChat.Core
             streamPoll.InternalSetChannel(streamChannel);
 
             streamPoll.HandlePollVoteRemovedEvent(eventDto);
+        }
+
+        private void OnThreadUpdated(ThreadUpdatedEventInternalDTO eventDto)
+        {
+            // Thread update propagation: only mutate a thread we're already tracking.
+            // Matches Android's QueryThreadsStateLogic.updateThreadFromEvent which early-returns for unknown threads.
+            if (eventDto.Thread == null
+                || !_cache.Threads.TryGet(eventDto.Thread.ParentMessageId, out var thread))
+            {
+                return;
+            }
+
+            // UpdateFromDto raises the public Updated event at the end; no need to invoke it again here.
+            ((IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>)thread)
+                .UpdateFromDto(eventDto.Thread, _cache);
+        }
+
+        private void OnNotificationThreadMessageNew(NotificationThreadMessageNewEventInternalDTO eventDto)
+        {
+            var messageDto = eventDto.Message;
+            if (messageDto == null)
+            {
+                return;
+            }
+
+            // Snapshot insert state before TryCreateOrUpdate creates the cache entry. Pairs with
+            // the same gate in OnMessageReceived so a reply delivered via both event paths bumps
+            // parent.ReplyCount exactly once.
+            var isInsert = !string.IsNullOrEmpty(messageDto.Id) && !_cache.Messages.TryGet(messageDto.Id, out _);
+
+            var reply = _cache.TryCreateOrUpdate(messageDto);
+
+            // Update parent's reply count if we know it
+            if (isInsert && !string.IsNullOrEmpty(reply?.ParentId)
+                && _cache.Messages.TryGet(reply.ParentId, out var parent))
+            {
+                parent.InternalIncrementReplyCount();
+            }
+
+            // If we track this thread, update it with the new reply
+            var threadId = eventDto.ThreadId ?? reply?.ParentId;
+            if (!string.IsNullOrEmpty(threadId) && _cache.Threads.TryGet(threadId, out var thread))
+            {
+                thread.HandleNewReply(reply);
+            }
+
+            if (eventDto.UnreadThreads.HasValue || eventDto.UnreadThreadMessages.HasValue)
+            {
+                _localUserData?.InternalHandleThreadMessageNewNotification(eventDto);
+            }
+        }
+
+        private void OnNotificationMarkUnread(NotificationMarkUnreadEventInternalDTO eventDto)
+        {
+            _localUserData?.InternalHandleMarkUnreadNotification(eventDto);
+
+            if (_cache.Channels.TryGet(eventDto.Cid, out var channel))
+            {
+                channel.InternalHandleMarkUnreadNotification(eventDto);
+            }
+
+            // Thread mark-unread propagation: only mutate a thread we're already tracking.
+            // Matches Android's QueryThreadsLogic.markThreadAsUnreadByUser which early-returns
+            // for unknown threads. The event payload omits the read array, so HandleMarkUnreadByUser
+            // mutates the acting user's StreamRead in place before raising ReadStateChanged.
+            if (!string.IsNullOrEmpty(eventDto.ThreadId)
+                && _cache.Threads.TryGet(eventDto.ThreadId, out var thread))
+            {
+                thread.HandleMarkUnreadByUser(eventDto.User?.Id, eventDto.LastReadAt);
+            }
         }
 
         #endregion

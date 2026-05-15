@@ -194,6 +194,95 @@ namespace StreamChat.Core.StatefulModels
                 });
         }
 
+        public Task<IStreamThread> GetThreadAsync(int? replyLimit = null, int? participantLimit = null)
+            => Client.GetThreadAsync(Id, replyLimit: replyLimit, participantLimit: participantLimit);
+
+        public async Task<IReadOnlyList<IStreamMessage>> LoadRepliesAsync(int limit = 25, string idLessThan = null,
+            string idGreaterThan = null)
+        {
+            StreamAsserts.AssertGreaterThanZero(limit, nameof(limit));
+
+            if (!string.IsNullOrEmpty(idLessThan) && !string.IsNullOrEmpty(idGreaterThan))
+            {
+                throw new ArgumentException(
+                    $"{nameof(idLessThan)} and {nameof(idGreaterThan)} are mutually exclusive. Pass only one.");
+            }
+
+            var pagination = new MessagePaginationParamsRequestInternalDTO
+            {
+                Limit = limit,
+                IdLt = idLessThan,
+                IdGt = idGreaterThan,
+            };
+
+            var response = await LowLevelClient.InternalThreadsApi.GetRepliesAsync(Id, pagination);
+
+            var loaded = new List<IStreamMessage>();
+            if (response.Messages != null)
+            {
+                foreach (var dto in response.Messages)
+                {
+                    var message = Cache.TryCreateOrUpdate(dto);
+                    if (message != null)
+                    {
+                        loaded.Add(message);
+                    }
+                }
+            }
+
+            // If a thread is tracked for this parent, merge the loaded replies into its LatestReplies.
+            // The merge sorts by CreatedAt so order is preserved regardless of pagination direction
+            // or interleaved websocket events.
+            if (Cache.Threads.TryGet(Id, out var thread))
+            {
+                thread.MergeIntoLatestReplies(loaded);
+            }
+
+            return loaded;
+        }
+
+        public Task MarkThreadAsReadAsync()
+        {
+            if (!Cache.Channels.TryGet(Cid, out var streamChannel))
+            {
+                throw new Exception($"Failed to get channel with id {Cid} from cache. Please report this issue");
+            }
+
+            return LowLevelClient.InternalChannelApi.MarkReadAsync(streamChannel.Type, streamChannel.Id,
+                new MarkReadRequestInternalDTO
+                {
+                    ThreadId = Id,
+                });
+        }
+
+        public Task MarkThreadAsUnreadAsync()
+        {
+            if (!Cache.Channels.TryGet(Cid, out var streamChannel))
+            {
+                throw new Exception($"Failed to get channel with id {Cid} from cache. Please report this issue");
+            }
+
+            return LowLevelClient.InternalChannelApi.MarkUnreadAsync(streamChannel.Type, streamChannel.Id,
+                new MarkUnreadRequestInternalDTO
+                {
+                    ThreadId = Id,
+                });
+        }
+
+        public Task MarkAsUnreadAsync()
+        {
+            if (!Cache.Channels.TryGet(Cid, out var streamChannel))
+            {
+                throw new Exception($"Failed to get channel with id {Cid} from cache. Please report this issue");
+            }
+
+            return LowLevelClient.InternalChannelApi.MarkUnreadAsync(streamChannel.Type, streamChannel.Id,
+                new MarkUnreadRequestInternalDTO
+                {
+                    MessageId = Id,
+                });
+        }
+
         public override string ToString() => $"{nameof(IStreamMessage)}: {Text}, From: {User}";
 
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
@@ -284,6 +373,11 @@ namespace StreamChat.Core.StatefulModels
         internal void InternalHandleSoftDelete()
         {
             Text = string.Empty;
+        }
+
+        internal void InternalIncrementReplyCount()
+        {
+            ReplyCount = (ReplyCount ?? 0) + 1;
         }
 
         internal void HandleReactionNewEvent(ReactionNewEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)

@@ -122,6 +122,11 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         public Task<MarkReadResponseInternalDTO> MarkManyReadAsync(MarkChannelsReadRequestInternalDTO markChannelsReadRequest)
             => Post<MarkChannelsReadRequestInternalDTO, MarkReadResponseInternalDTO>($"/channels/read", markChannelsReadRequest);
 
+        public Task<ResponseInternalDTO> MarkUnreadAsync(string channelType, string channelId,
+            MarkUnreadRequestInternalDTO markUnreadRequest)
+            => Post<MarkUnreadRequestInternalDTO, ResponseInternalDTO>(
+                $"/channels/{channelType}/{channelId}/unread", markUnreadRequest);
+
         public Task SendTypingStartEventAsync(string channelType, string channelId)
             => PostEventAsync(channelType, channelId, new TypingStartEventInternalDTO
             {

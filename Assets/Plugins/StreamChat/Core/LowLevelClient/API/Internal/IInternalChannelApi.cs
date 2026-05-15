@@ -49,6 +49,9 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
         Task<MarkReadResponseInternalDTO> MarkManyReadAsync(MarkChannelsReadRequestInternalDTO markChannelsReadRequest);
 
+        Task<ResponseInternalDTO> MarkUnreadAsync(string channelType, string channelId,
+            MarkUnreadRequestInternalDTO markUnreadRequest);
+
         Task SendTypingStartEventAsync(string channelType, string channelId);
 
         Task SendTypingStopEventAsync(string channelType, string channelId);

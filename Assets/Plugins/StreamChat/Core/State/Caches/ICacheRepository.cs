@@ -10,6 +10,18 @@ namespace StreamChat.Core.State.Caches
     internal interface ICacheRepository<TTrackedObject>
         where TTrackedObject : class, IStreamStatefulModel
     {
+        /// <summary>
+        /// Raised after a tracked object is first hydrated by a CreateOrUpdate call (the first
+        /// time a given DTO id is observed). Fires after the initial UpdateFromDto completes,
+        /// so subscribers always observe a populated object - never a blank instance.
+        /// </summary>
+        event Action<TTrackedObject> Tracked;
+
+        /// <summary>
+        /// Raised after a tracked object is removed from the repository.
+        /// </summary>
+        event Action<TTrackedObject> Untracked;
+
         IReadOnlyList<TTrackedObject> AllItems { get; }
 
         bool TryGet(string uniqueId, out TTrackedObject trackedObject);

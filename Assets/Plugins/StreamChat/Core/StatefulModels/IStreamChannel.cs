@@ -407,6 +407,24 @@ namespace StreamChat.Core.StatefulModels
         Task MarkChannelReadAsync();
 
         /// <summary>
+        /// Mark a thread (identified by its parent message id) in this channel as read for the local user
+        /// </summary>
+        /// <param name="threadId">The id of the parent message of the thread</param>
+        Task MarkThreadAsReadAsync(string threadId);
+
+        /// <summary>
+        /// Mark a thread (identified by its parent message id) in this channel as unread for the local user
+        /// </summary>
+        /// <param name="threadId">The id of the parent message of the thread</param>
+        Task MarkThreadAsUnreadAsync(string threadId);
+
+        /// <summary>
+        /// Mark this channel as unread starting from a specific message for the local user
+        /// </summary>
+        /// <param name="messageId">The id of the message from where the channel is marked unread</param>
+        Task MarkChannelAsUnreadAsync(string messageId);
+
+        /// <summary>
         /// <para>Shows a previously hidden channel.</para>
         /// Use <see cref="IStreamChannel.HideAsync"/> to hide a channel.
         /// </summary>

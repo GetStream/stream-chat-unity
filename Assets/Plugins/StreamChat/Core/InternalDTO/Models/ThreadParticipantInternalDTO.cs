@@ -56,7 +56,7 @@ namespace StreamChat.Core.InternalDTO.Models
         /// User is the user object
         /// </summary>
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public UserObjectInternalDTO User { get; set; }
+        public UserResponseInternalDTO User { get; set; }
 
         /// <summary>
         /// User ID is unique string identifier of the user

@@ -26,10 +26,10 @@ namespace StreamChat.Core.InternalDTO.Models
         public string Cid { get; set; }
 
         [Newtonsoft.Json.JsonProperty("config", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ChannelConfigInternalDTO Config { get; set; }
+        public ChannelConfigWithInfoInternalDTO Config { get; set; }
 
         [Newtonsoft.Json.JsonProperty("config_overrides", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ChannelConfigInternalDTO ConfigOverrides { get; set; }
+        public ChannelConfigWithInfoInternalDTO ConfigOverrides { get; set; }
 
         [Newtonsoft.Json.JsonProperty("cooldown", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Cooldown { get; set; }
