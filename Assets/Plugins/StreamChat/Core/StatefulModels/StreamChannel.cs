@@ -684,6 +684,7 @@ namespace StreamChat.Core.StatefulModels
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
             _pinnedMessages.TryReplaceTrackedObjects2(dto.PinnedMessages, cache.Messages);
             _read.TryReplaceRegularObjectsFromDto2(dto.Read, cache);
+            SeedThreadsFromDto(dto.Threads, cache);
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
             _watchers.TryAppendUniqueTrackedObjects2(dto.Watchers, cache.Users);
 
@@ -709,6 +710,7 @@ namespace StreamChat.Core.StatefulModels
             _pendingMessages.TryReplaceRegularObjectsFromDto(dto.PendingMessages, cache);
             _pinnedMessages.TryReplaceTrackedObjects2(dto.PinnedMessages, cache.Messages);
             _read.TryReplaceRegularObjectsFromDto2(dto.Read, cache);
+            SeedThreadsFromDto(dto.Threads, cache);
             WatcherCount = GetOrDefault(dto.WatcherCount, WatcherCount);
             _watchers.TryAppendUniqueTrackedObjects2(dto.Watchers, cache.Users);
 
@@ -1150,6 +1152,25 @@ namespace StreamChat.Core.StatefulModels
         }
 
         private void SortMessagesByCreatedAt() => _messages.Sort(MessageCreatedAtComparer.Instance);
+
+        // Seed the global Cache.Threads from the channel-state threads carried by the watch
+        // response. Without this the WS thread handlers (thread.updated, notification.thread_message_new,
+        // mark read/unread) would early-return on an unknown thread id and silently drop every
+        // mutation on threads the watcher has not explicitly fetched.
+        // Each first-time insertion fans out as IStreamChatClient.ThreadTracked through the
+        // CacheRepository.Tracked subscription wired up in StreamChatClient.
+        private static void SeedThreadsFromDto(List<ThreadStateInternalDTO> dtos, ICache cache)
+        {
+            if (dtos == null)
+            {
+                return;
+            }
+
+            foreach (var threadDto in dtos)
+            {
+                cache.TryCreateOrUpdate(threadDto);
+            }
+        }
 
         private UpdateChannelRequestInternalDTO GetUpdateRequestWithCurrentData()
             => new UpdateChannelRequestInternalDTO

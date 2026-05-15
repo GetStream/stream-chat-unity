@@ -86,6 +86,9 @@ namespace StreamChat.Core
         public event ChannelMemberAddedHandler AddedToChannelAsMember;
         public event ChannelMemberRemovedHandler RemovedFromChannelAsMember;
 
+        public event StreamThreadChangeHandler ThreadTracked;
+        public event StreamThreadChangeHandler ThreadUntracked;
+
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
 
@@ -619,6 +622,12 @@ namespace StreamChat.Core
                 InternalLowLevelClient.Dispose();
             }
 
+            if (_cache?.Threads != null)
+            {
+                _cache.Threads.Tracked -= OnThreadEnteredCache;
+                _cache.Threads.Untracked -= OnThreadLeftCache;
+            }
+
             _isDisposed = true;
             Disposed?.Invoke();
         }
@@ -754,8 +763,15 @@ namespace StreamChat.Core
             _cache = new Cache(this, serializer, _logs);
             _pollsApi = new StreamPollsApi(InternalLowLevelClient, _cache);
 
+            _cache.Threads.Tracked += OnThreadEnteredCache;
+            _cache.Threads.Untracked += OnThreadLeftCache;
+
             SubscribeTo(InternalLowLevelClient);
         }
+
+        private void OnThreadEnteredCache(StreamThread thread) => ThreadTracked?.Invoke(thread);
+
+        private void OnThreadLeftCache(StreamThread thread) => ThreadUntracked?.Invoke(thread);
 
         private void InternalDeleteChannel(StreamChannel channel)
         {

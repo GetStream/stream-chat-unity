@@ -85,5 +85,8 @@ namespace StreamChat.Core.State.Caches
 
         public static StreamThread TryCreateOrUpdate(this ICache cache, ThreadResponseInternalDTO dto)
             => dto == null ? null : cache.Threads.CreateOrUpdate2<StreamThread, ThreadResponseInternalDTO>(dto, out _);
+
+        public static StreamThread TryCreateOrUpdate(this ICache cache, ThreadStateInternalDTO dto)
+            => dto == null ? null : cache.Threads.CreateOrUpdate3<StreamThread, ThreadStateInternalDTO>(dto, out _);
     }
 }

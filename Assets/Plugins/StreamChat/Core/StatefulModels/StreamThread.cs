@@ -16,6 +16,7 @@ namespace StreamChat.Core.StatefulModels
     internal sealed class StreamThread : StreamStatefulModelBase<StreamThread>,
         IUpdateableFrom<ThreadStateResponseInternalDTO, StreamThread>,
         IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>,
+        IUpdateableFrom3<ThreadStateInternalDTO, StreamThread>,
         IStreamThread
     {
         public event StreamThreadChangeHandler Updated;
@@ -208,6 +209,66 @@ namespace StreamChat.Core.StatefulModels
             ReplyCount = dto.ReplyCount;
 
             _read.TryReplaceRegularObjectsFromDto2(dto.Read, cache);
+
+            if (dto.ThreadParticipants != null)
+            {
+                _threadParticipants.TryReplaceRegularObjectsFromDto(dto.ThreadParticipants, cache);
+            }
+
+            Title = GetOrDefault(dto.Title, Title);
+            UpdatedAt = dto.UpdatedAt;
+
+            LoadAdditionalCustom(dto.Custom);
+
+            Updated?.Invoke(this);
+        }
+
+        // ChannelStateResponse[Fields]InternalDTO carries threads as ThreadStateInternalDTO
+        // (the embedded variant). It differs from ThreadStateResponseInternalDTO mainly in:
+        //   - Channel is the lightweight ChannelInternalDTO (no nested config / messages / read).
+        //     Resolve via cache by CID instead of constructing a partial channel from this payload.
+        //   - Read is List<ReadInternalDTO> (no last_read_message_id), uses the v1 IStateLoadableFrom path.
+        // Replies / parent / participants / custom are otherwise applied with the same semantics
+        // as the response variant so that thread events that arrive after a channel watch can
+        // mutate the now-cached thread instead of being silently dropped.
+        void IUpdateableFrom3<ThreadStateInternalDTO, StreamThread>.UpdateFromDto(
+            ThreadStateInternalDTO dto, ICache cache)
+        {
+            ActiveParticipantCount = GetOrDefault(dto.ActiveParticipantCount, ActiveParticipantCount);
+
+            var cid = dto.Channel?.Cid ?? dto.ChannelCid;
+            if (!string.IsNullOrEmpty(cid) && cache.Channels.TryGet(cid, out var existingChannel))
+            {
+                Channel = existingChannel;
+            }
+
+            ChannelCid = GetOrDefault(cid, ChannelCid);
+            CreatedAt = dto.CreatedAt;
+
+            if (dto.CreatedBy != null)
+            {
+                CreatedBy = cache.TryCreateOrUpdate(dto.CreatedBy);
+            }
+
+            DeletedAt = dto.DeletedAt;
+            LastMessageAt = dto.LastMessageAt;
+
+            if (dto.LatestReplies != null)
+            {
+                _latestReplies.TryReplaceTrackedObjects(dto.LatestReplies, cache.Messages);
+                SortLatestRepliesByCreatedAt();
+            }
+
+            if (dto.ParentMessage != null)
+            {
+                ParentMessage = cache.TryCreateOrUpdate(dto.ParentMessage);
+            }
+
+            ParentMessageId = GetOrDefault(dto.ParentMessageId, ParentMessageId);
+            ParticipantCount = GetOrDefault(dto.ParticipantCount, ParticipantCount);
+            ReplyCount = dto.ReplyCount;
+
+            _read.TryReplaceRegularObjectsFromDto(dto.Read, cache);
 
             if (dto.ThreadParticipants != null)
             {

@@ -791,6 +791,269 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         /// <summary>
+        /// Regression for ChannelStateResponse.Threads being silently dropped.
+        ///
+        /// The channel watch response (ChannelStateResponseInternalDTO / ChannelStateResponseFieldsInternalDTO)
+        /// carries the channel's threads, but both StreamChannel.UpdateFromDto overloads used to ignore the
+        /// field. Two consequences:
+        ///   1. IStreamChatClient.ThreadTracked never fired for those threads on the watcher, so customers
+        ///      had no signal that threads were now reachable.
+        ///   2. WS thread handlers (thread.updated, mark read/unread, notification.thread_message_new)
+        ///      early-return on a Cache.Threads miss, so every subsequent thread mutation was silently
+        ///      dropped on the floor for a watcher that never called QueryThreadsAsync explicitly.
+        ///
+        /// This test exercises both: clientB watches a channel that already has a thread without ever
+        /// calling GetThread/QueryThreads, asserts ThreadTracked fires for the carried thread, then has
+        /// clientA edit the thread title over the wire and verifies the same cached IStreamThread on
+        /// clientB picks the change up through the thread.updated WS path.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_watching_channel_with_existing_thread_expect_thread_tracked_and_ws_updates_propagate()
+            => ConnectAndExecute(When_watching_channel_with_existing_thread_expect_thread_tracked_and_ws_updates_propagate_Async);
+
+        private async Task When_watching_channel_with_existing_thread_expect_thread_tracked_and_ws_updates_propagate_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+
+            var channel = await CreateUniqueTempChannelAsync();
+            await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
+
+            var parent = await channel.SendNewMessageAsync("thread parent for ThreadTracked test");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply (creates the thread)",
+            });
+
+            // Wait for the thread to materialize server-side before clientB watches it,
+            // otherwise the watch response may legitimately arrive without it.
+            await TryAsync(
+                () => Client.QueryThreadsAsync(new StreamQueryThreadsRequest
+                {
+                    Limit = 5,
+                    Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
+                }),
+                r => r != null && r.Threads != null && r.Threads.Any(t => t.ParentMessageId == parent.Id));
+
+            // Subscribe BEFORE the watch so we capture the Tracked emission for the thread carried
+            // in the watch response - a customer would do the same in their session-init code path.
+            IStreamThread tracked = null;
+            void OnTracked(IStreamThread t)
+            {
+                if (t.ParentMessageId == parent.Id)
+                {
+                    tracked = t;
+                }
+            }
+            otherClient.ThreadTracked += OnTracked;
+
+            try
+            {
+                var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+
+                await WaitWhileTrueAsync(() => tracked == null);
+
+                Assert.NotNull(tracked,
+                    "ThreadTracked must fire for a thread carried by the channel watch response " +
+                    "(without any explicit GetThread/QueryThreads call on the watcher).");
+                Assert.AreEqual(channel.Cid, tracked.ChannelCid);
+
+                // Drive a real thread.updated WS event from clientA. The cached IStreamThread on
+                // clientB is the same singleton in Cache.Threads, so OnThreadUpdated mutates it
+                // instead of early-returning on an unknown id.
+                var newTitle = "ThreadTracked test " + Guid.NewGuid();
+                var updatedFired = false;
+                StreamThreadChangeHandler updateHandler = _ => updatedFired = true;
+                tracked.Updated += updateHandler;
+
+                try
+                {
+                    var clientAThread = await Client.GetThreadAsync(parent.Id);
+                    await clientAThread.UpdatePartialAsync(setFields: new Dictionary<string, object>
+                    {
+                        { "title", newTitle },
+                    });
+
+                    await WaitWhileTrueAsync(() => tracked.Title != newTitle);
+                }
+                finally
+                {
+                    tracked.Updated -= updateHandler;
+                }
+
+                Assert.AreEqual(newTitle, tracked.Title,
+                    "Cached thread on the watcher must reflect the title from the WS thread.updated event " +
+                    "(proves the thread entered Cache.Threads at watch time).");
+                Assert.IsTrue(updatedFired,
+                    "IStreamThread.Updated must fire on the watcher's cached thread when the WS event arrives.");
+            }
+            finally
+            {
+                otherClient.ThreadTracked -= OnTracked;
+            }
+        }
+
+        /// <summary>
+        /// Verifies the wasCreated semantics of <see cref="IStreamChatClient.ThreadTracked"/>:
+        ///   1. Fires exactly once per thread, on the first cache insertion.
+        ///   2. Does NOT re-fire when the same thread is fetched again (the second QueryThreadsAsync
+        ///      call observes a cache hit and only updates the existing instance).
+        ///   3. Supplies a fully-hydrated thread - the event fires AFTER the first UpdateFromDto
+        ///      completes, never with a blank instance. This is the deferred-firing contract
+        ///      documented on ICacheRepository.Tracked.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state()
+            => ConnectAndExecute(When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state_Async);
+
+        private async Task When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for ThreadTracked-once test");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply (creates the thread server-side)",
+            });
+
+            var emissionCount = 0;
+            IStreamThread firstEmission = null;
+            string firstEmissionParentMessageIdAtRaise = null;
+            string firstEmissionChannelCidAtRaise = null;
+
+            void OnTracked(IStreamThread t)
+            {
+                if (t.ParentMessageId != parent.Id)
+                {
+                    return;
+                }
+
+                emissionCount++;
+                if (firstEmission == null)
+                {
+                    firstEmission = t;
+                    // Snapshot the state AT the moment of the event to validate the deferred-firing
+                    // contract (Tracked must fire after UpdateFromDto, never with a blank object).
+                    firstEmissionParentMessageIdAtRaise = t.ParentMessageId;
+                    firstEmissionChannelCidAtRaise = t.ChannelCid;
+                }
+            }
+            Client.ThreadTracked += OnTracked;
+
+            try
+            {
+                var firstQuery = await TryAsync(
+                    () => Client.QueryThreadsAsync(new StreamQueryThreadsRequest
+                    {
+                        Limit = 5,
+                        Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
+                    }),
+                    r => r != null && r.Threads != null && r.Threads.Any(t => t.ParentMessageId == parent.Id));
+
+                await WaitWhileTrueAsync(() => emissionCount == 0);
+
+                Assert.AreEqual(1, emissionCount,
+                    "ThreadTracked must fire exactly once when the thread enters the cache for the first time.");
+                Assert.NotNull(firstEmission, "Captured emission must not be null.");
+                Assert.AreEqual(parent.Id, firstEmissionParentMessageIdAtRaise,
+                    "ThreadTracked must fire AFTER UpdateFromDto so ParentMessageId is already populated " +
+                    "(deferred-firing contract on CacheRepository.Tracked).");
+                Assert.AreEqual(channel.Cid, firstEmissionChannelCidAtRaise,
+                    "ThreadTracked must fire with a hydrated thread, not a blank instance.");
+
+                var queryResultThread = firstQuery.Threads.First(t => t.ParentMessageId == parent.Id);
+                Assert.AreSame(queryResultThread, firstEmission,
+                    "The thread instance from QueryThreadsAsync must be the same singleton emitted by ThreadTracked.");
+
+                // Re-query: cache hit, must NOT fire Tracked again.
+                var secondQuery = await Client.QueryThreadsAsync(new StreamQueryThreadsRequest
+                {
+                    Limit = 5,
+                    Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
+                });
+
+                Assert.AreEqual(1, emissionCount,
+                    "ThreadTracked must NOT re-fire when the same thread is fetched again (cache hit).");
+
+                var secondQueryThread = secondQuery.Threads.First(t => t.ParentMessageId == parent.Id);
+                Assert.AreSame(firstEmission, secondQueryThread,
+                    "Subsequent queries must return the same cached thread instance.");
+            }
+            finally
+            {
+                Client.ThreadTracked -= OnTracked;
+            }
+        }
+
+        /// <summary>
+        /// Verifies the parent-hard-delete teardown path emits <see cref="IStreamChatClient.ThreadUntracked"/>:
+        /// hard-deleting the parent message of a thread destroys the thread server-side, the SDK removes
+        /// it from Cache.Threads in OnMessageDeleted, and that removal must surface to customers.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_parent_message_hard_deleted_expect_thread_untracked_fires()
+            => ConnectAndExecute(When_parent_message_hard_deleted_expect_thread_untracked_fires_Async);
+
+        private async Task When_parent_message_hard_deleted_expect_thread_untracked_fires_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for ThreadUntracked test");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply (so the thread exists)",
+            });
+
+            // Pull the thread into local cache so OnMessageDeleted can find it and Remove() can fire.
+            await TryAsync(
+                () => Client.QueryThreadsAsync(new StreamQueryThreadsRequest
+                {
+                    Limit = 5,
+                    Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
+                }),
+                r => r != null && r.Threads != null && r.Threads.Any(t => t.ParentMessageId == parent.Id));
+
+            IStreamThread untracked = null;
+            void OnUntracked(IStreamThread t)
+            {
+                if (t.ParentMessageId == parent.Id)
+                {
+                    untracked = t;
+                }
+            }
+            Client.ThreadUntracked += OnUntracked;
+
+            try
+            {
+                await parent.HardDeleteAsync();
+
+                await WaitWhileTrueAsync(() => untracked == null);
+
+                Assert.NotNull(untracked,
+                    "ThreadUntracked must fire when the thread's parent message is hard-deleted.");
+                Assert.AreEqual(parent.Id, untracked.ParentMessageId,
+                    "The emitted thread reference must match the parent message id of the destroyed thread.");
+
+                // The thread should no longer be reachable from a fresh QueryThreadsAsync result.
+                var afterDelete = await Client.QueryThreadsAsync(new StreamQueryThreadsRequest
+                {
+                    Limit = 20,
+                    Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
+                });
+                Assert.IsFalse(
+                    afterDelete.Threads.Any(t => t.ParentMessageId == parent.Id),
+                    "After parent hard-delete, the thread must no longer be returned by the server.");
+            }
+            finally
+            {
+                Client.ThreadUntracked -= OnUntracked;
+            }
+        }
+
+        /// <summary>
         /// End-to-end backstop for the notification.added_to_channel path that previously
         /// silently swallowed the threads[].channel.config.commands deserialization failure
         /// in StreamChatClient.OnAddedToChannelNotification's InternalGetOrCreateChannelAsync
