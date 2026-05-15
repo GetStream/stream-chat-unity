@@ -989,45 +989,49 @@ namespace StreamChat.Tests.StatefulClient
             var otherClient = await GetConnectedOtherClientAsync();
 
             var channel = await CreateUniqueTempChannelAsync();
-            await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
 
-            var parent = await channel.SendNewMessageAsync("thread parent for ThreadTracked test");
-            await channel.SendNewMessageAsync(new StreamSendMessageRequest
-            {
-                ParentId = parent.Id,
-                ShowInChannel = false,
-                Text = "reply (creates the thread)",
-            });
-
-            // Wait for the thread to materialize server-side before clientB watches it,
-            // otherwise the watch response may legitimately arrive without it.
-            await TryAsync(
-                () => Client.QueryThreadsAsync(new StreamQueryThreadsRequest
-                {
-                    Limit = 5,
-                    Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
-                }),
-                r => r != null && r.Threads != null && r.Threads.Any(t => t.ParentMessageId == parent.Id),
-                description: "QueryThreadsAsync to return the freshly-created thread (ThreadTracked-on-watch setup)");
-
-            // Subscribe BEFORE the watch so we capture the Tracked emission for the thread carried
-            // in the watch response - a customer would do the same in their session-init code path.
-            IStreamThread tracked = null;
-            void OnTracked(IStreamThread t)
-            {
-                if (t.ParentMessageId == parent.Id)
-                {
-                    tracked = t;
-                }
-            }
+            // Subscribe to ThreadTracked BEFORE AddMembersAsync. The server's
+            // notification.added_to_channel for otherClient fans out into an implicit
+            // fire-and-forget GetOrCreateChannelAsync watch inside OnAddedToChannelNotification.
+            // If that implicit watch's response arrives AFTER the thread has materialized
+            // server-side, SeedThreadsFromDto inserts the thread into otherClient's cache and
+            // raises ThreadTracked - before any subscription wired up later in the test could
+            // observe it. The subsequent explicit GetOrCreateChannelWithIdAsync would then
+            // hit the cache (wasCreated=false), never re-fire Tracked, and the wait below
+            // would hang. Capturing every emission from the start removes the race.
+            var trackedThreads = new List<IStreamThread>();
+            void OnTracked(IStreamThread t) => trackedThreads.Add(t);
             otherClient.ThreadTracked += OnTracked;
 
             try
             {
+                await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
+
+                var parent = await channel.SendNewMessageAsync("thread parent for ThreadTracked test");
+                await channel.SendNewMessageAsync(new StreamSendMessageRequest
+                {
+                    ParentId = parent.Id,
+                    ShowInChannel = false,
+                    Text = "reply (creates the thread)",
+                });
+
+                // Wait for the thread to materialize server-side before clientB watches it,
+                // otherwise the watch response may legitimately arrive without it.
+                await TryAsync(
+                    () => Client.QueryThreadsAsync(new StreamQueryThreadsRequest
+                    {
+                        Limit = 5,
+                        Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
+                    }),
+                    r => r != null && r.Threads != null && r.Threads.Any(t => t.ParentMessageId == parent.Id),
+                    description: "QueryThreadsAsync to return the freshly-created thread (ThreadTracked-on-watch setup)");
+
                 var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
 
-                await WaitWhileTrueAsync(() => tracked == null,
+                await WaitWhileTrueAsync(() => trackedThreads.All(t => t.ParentMessageId != parent.Id),
                     description: "otherClient.ThreadTracked to fire for the thread carried by the channel watch response");
+
+                var tracked = trackedThreads.First(t => t.ParentMessageId == parent.Id);
 
                 Assert.NotNull(tracked,
                     "ThreadTracked must fire for a thread carried by the channel watch response " +
