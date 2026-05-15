@@ -3,7 +3,7 @@ Fixes:
 
 * Fix IL2CPP build crash on Unity 6000.0.x caused by types implementing multiple closed versions of the same generic interface, which triggered a KeyNotFoundException in IL2CPP's vtable builder (VTableBuilderComponent.OverrideInterfaceMethods). An example exception looked like this:
 System.Collections.Generic.KeyNotFoundException: The given key 'TDto StreamChat.Core.LowLevelClient.ISavableTo1<StreamChat.Core.InternalDTO.Models.PushNotificationSettingsInternalDTO>::SaveToDto()' was not present in the dictionary.
-* Add support for thread-related endpoints
+* Add support for thread-related endpoints. Added: `client.GetThreadAsync`, `client.QueryThreadsAsync`, `client.ThreadTracked`, `client.ThreadUntracked`, `message.LoadRepliesAsync`
 
 v5.3.0:
 Features:
