@@ -105,7 +105,7 @@ namespace StreamChat.Core.StatefulModels
         {
             if (setFields == null && unsetFields == null)
             {
-                throw new ArgumentNullException($"{nameof(setFields)} and {nameof(unsetFields)} cannot be both null");
+                throw new ArgumentException($"{nameof(setFields)} and {nameof(unsetFields)} cannot be both null");
             }
 
             var request = new UpdateThreadPartialRequestInternalDTO
