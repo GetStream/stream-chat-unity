@@ -444,12 +444,12 @@ namespace StreamChat.Tests.StatefulClient
 
             var channel = await CreateUniqueTempChannelAsync();
 
-            // Pre-watch from otherClient BEFORE adding it as a member. The notification.added_to_channel
-            // handler fetches channel state with threads[] when the channel is not yet cached, and the
-            // current ChannelConfigInternalDTO has Commands as List<string>, but the server sends an
-            // array of command objects under threads[].channel.config.commands - the fetch crashes
-            // and otherClient never receives the channel via the added-to-channel path. Pre-watching
-            // populates the cache so the handler's wasCreated check skips the buggy fetch.
+            // Pre-watch the channel from otherClient so we hold a stateful IStreamChannel reference
+            // we can post replies on below. (Historical note: this also worked around a bug where
+            // the notification.added_to_channel handler crashed deserializing threads[].channel.config.commands
+            // because the nested ChannelInternalDTO.Config pointed at ChannelConfigInternalDTO whose
+            // Commands was List<string>. That has since been fixed by retyping the nested fields to
+            // ChannelConfigWithInfoInternalDTO; the pre-watch is now kept only for test ergonomics.)
             var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
 
             await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
@@ -558,8 +558,10 @@ namespace StreamChat.Tests.StatefulClient
 
             var channel = await CreateUniqueTempChannelAsync();
 
-            // Pre-watch from otherClient before AddMembers for the same reason as the mark-read
-            // test: the added-to-channel handler can crash on threads[].channel.config.commands.
+            // Pre-watch from otherClient before AddMembers so we hold a stateful reference for
+            // posting replies. (Same historical note as the mark-read test: this also used to
+            // dodge the threads[].channel.config.commands deserialization crash, which has been
+            // fixed by retyping the nested config fields to ChannelConfigWithInfoInternalDTO.)
             var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
 
             await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
@@ -642,6 +644,120 @@ namespace StreamChat.Tests.StatefulClient
             var top = thread.ThreadParticipants[0];
             Assert.AreEqual(otherUserId, top.User?.Id ?? top.UserId,
                 "Most recent replier must be sorted to index 0 of ThreadParticipants");
+        }
+
+        /// <summary>
+        /// Regression test for the nested-channel commands deserialization bug.
+        ///
+        /// ChannelInternalDTO is the response-side, nested channel DTO used by
+        /// ThreadStateInternalDTO.Channel (and ThreadInternalDTO.Channel, PendingMessageInternalDTO.Channel,
+        /// BanInternalDTO.Channel). Its Config field used to point at ChannelConfigInternalDTO whose
+        /// Commands was List&lt;string&gt;, while the server consistently returns commands as command
+        /// objects (e.g. {"name":"giphy","description":...}). The top-level
+        /// ChannelResponseInternalDTO.Config already uses ChannelConfigWithInfoInternalDTO (correct),
+        /// so simple channel queries on channels without threads worked. The bug only surfaced
+        /// when the channel-state query response included threads[], because the nested
+        /// threads[i].channel.config.commands traversal hit the wrong type.
+        ///
+        /// This test reproduces that exact path: a channel with at least one thread, then a
+        /// second client fetching the same channel via query-channel (POST /channels/{type}/{id}/query).
+        /// Before the fix it failed with:
+        ///   StreamDeserializationException: Failed to deserialize string to type: `ChannelStateResponseInternalDTO`
+        ///       ---> Newtonsoft.Json.JsonReaderException: Unexpected character encountered while parsing value: {.
+        ///            Path 'threads[0].channel.config.commands', ...
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_querying_channel_with_existing_thread_expect_no_deserialization_error()
+            => ConnectAndExecute(When_querying_channel_with_existing_thread_expect_no_deserialization_error_Async);
+
+        private async Task When_querying_channel_with_existing_thread_expect_no_deserialization_error_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("parent");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply",
+            });
+
+            var otherClient = await GetConnectedOtherClientAsync();
+
+            // Direct await rather than Assert.DoesNotThrowAsync: the latter is a synchronous
+            // NUnit helper that blocks the awaiting thread, which deadlocks against the Unity
+            // synchronization context our continuations need to resume on. If
+            // GetOrCreateChannelWithIdAsync throws (which is exactly the bug we are guarding
+            // against), the unhandled exception will fail the test on its own.
+            var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+
+            Assert.NotNull(otherClientChannel,
+                "GetOrCreateChannelWithIdAsync should return the channel after fix " +
+                "(regression for threads[0].channel.config.commands deserialization).");
+            Assert.AreEqual(channel.Cid, otherClientChannel.Cid);
+        }
+
+        /// <summary>
+        /// End-to-end backstop for the notification.added_to_channel path that previously
+        /// silently swallowed the threads[].channel.config.commands deserialization failure
+        /// in StreamChatClient.OnAddedToChannelNotification's InternalGetOrCreateChannelAsync
+        /// ContinueWith and never added the channel to WatchedChannels on the other client.
+        ///
+        /// Flow:
+        ///   1. clientA creates a channel and a thread on it.
+        ///   2. clientB is connected fresh - no cache entry for this channel.
+        ///   3. clientA adds clientB as a member.
+        ///   4. clientB's notification.added_to_channel handler runs InternalGetOrCreateChannelAsync,
+        ///      which previously crashed on the nested threads[].channel.config.commands.
+        ///   5. After the fix, the watch succeeds and clientB raises AddedToChannelAsMember and
+        ///      the channel appears in clientB.WatchedChannels.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_added_to_channel_with_existing_thread_expect_channel_watched_on_other_client()
+            => ConnectAndExecute(When_added_to_channel_with_existing_thread_expect_channel_watched_on_other_client_Async);
+
+        private async Task When_added_to_channel_with_existing_thread_expect_channel_watched_on_other_client_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for added-to-channel watch");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply (creates the thread)",
+            });
+
+            // No pre-watch here - we want the notification.added_to_channel handler to take
+            // the wasCreated == true branch and exercise the previously-crashing fetch.
+            IStreamChannel addedChannel = null;
+            void OnAddedToChannelAsMember(IStreamChannel ch, IStreamChannelMember _)
+            {
+                if (ch.Cid == channel.Cid)
+                {
+                    addedChannel = ch;
+                }
+            }
+            otherClient.AddedToChannelAsMember += OnAddedToChannelAsMember;
+
+            try
+            {
+                await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
+
+                await WaitWhileTrueAsync(() => addedChannel == null, maxSeconds: 30);
+            }
+            finally
+            {
+                otherClient.AddedToChannelAsMember -= OnAddedToChannelAsMember;
+            }
+
+            Assert.NotNull(addedChannel,
+                "AddedToChannelAsMember should fire on the other client even though the channel " +
+                "already has a thread (regression for the nested config.commands deserialization).");
+            Assert.IsTrue(
+                otherClient.WatchedChannels.Any(c => c.Cid == channel.Cid),
+                "The newly-added channel must appear in the other client's WatchedChannels - " +
+                "previously the buggy fetch faulted inside ContinueWith and silently dropped it.");
         }
     }
 }
