@@ -32,6 +32,11 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Team { get; set; }
 
+        /// <summary>
+        /// Id of the thread that was marked as unread. Set when this is a thread mark unread.
+        /// </summary>
+        public string ThreadId { get; set; }
+
         public int? TotalUnreadCount { get; set; }
 
         public string Type { get; set; }
@@ -41,6 +46,11 @@ namespace StreamChat.Core.LowLevelClient.Events
         public int? UnreadCount { get; set; }
 
         public int? UnreadMessages { get; set; }
+
+        /// <summary>
+        /// Total number of unread messages across all threads for the local user.
+        /// </summary>
+        public int? UnreadThreadMessages { get; set; }
 
         public int? UnreadThreads { get; set; }
 
@@ -58,11 +68,13 @@ namespace StreamChat.Core.LowLevelClient.Events
             LastReadAt = dto.LastReadAt;
             LastReadMessageId = dto.LastReadMessageId;
             Team = dto.Team;
+            ThreadId = dto.ThreadId;
             TotalUnreadCount = dto.TotalUnreadCount;
             Type = dto.Type;
             UnreadChannels = dto.UnreadChannels;
             UnreadCount = dto.UnreadCount;
             UnreadMessages = dto.UnreadMessages;
+            UnreadThreadMessages = dto.UnreadThreadMessages;
             UnreadThreads = dto.UnreadThreads;
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;

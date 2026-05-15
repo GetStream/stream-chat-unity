@@ -990,6 +990,20 @@ namespace StreamChat.Core
             }
 
             _localUserData.InternalHandleMarkReadNotification(eventDto);
+
+            // Thread mark-read propagation: only mutate a thread we're already tracking.
+            // Matches Android's QueryThreadsLogic.markThreadAsReadByUser which early-returns for unknown threads.
+            var threadId = eventDto.Thread?.ParentMessageId ?? eventDto.ThreadId;
+            if (!string.IsNullOrEmpty(threadId) && _cache.Threads.TryGet(threadId, out var thread))
+            {
+                if (eventDto.Thread != null)
+                {
+                    ((IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>)thread)
+                        .UpdateFromDto(eventDto.Thread, _cache);
+                }
+
+                thread.HandleNotifyReadStateChanged();
+            }
         }
 
         private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO eventDto)
@@ -1554,6 +1568,14 @@ namespace StreamChat.Core
             if (_cache.Channels.TryGet(eventDto.Cid, out var channel))
             {
                 channel.InternalHandleMarkUnreadNotification(eventDto);
+            }
+
+            // Thread mark-unread propagation: only fire for a thread we're already tracking.
+            // Matches Android's QueryThreadsLogic.markThreadAsUnreadByUser which early-returns for unknown threads.
+            if (!string.IsNullOrEmpty(eventDto.ThreadId)
+                && _cache.Threads.TryGet(eventDto.ThreadId, out var thread))
+            {
+                thread.HandleNotifyReadStateChanged();
             }
         }
 
