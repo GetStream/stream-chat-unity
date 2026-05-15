@@ -124,6 +124,31 @@ namespace StreamChat.EditorTools
         public static void EnableStreamTestsEnabledCompilerFlag()
             => SetStreamTestsEnabledCompilerFlag(StreamTestsEnabledCompilerFlag, true);
 
+        /// <summary>
+        /// Configure the project for running runtime tests in a standalone IL2CPP player.
+        /// Auto-detects the correct standalone target based on the host OS.
+        /// Call via: -executeMethod StreamChat.EditorTools.StreamEditorTools.PrepareStandaloneIL2CPPTests
+        /// </summary>
+        public static void PrepareStandaloneIL2CPPTests()
+        {
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
+
+#if UNITY_EDITOR_LINUX
+            var target = BuildTarget.StandaloneLinux64;
+#elif UNITY_EDITOR_OSX
+            var target = BuildTarget.StandaloneOSX;
+#else
+            var target = BuildTarget.StandaloneWindows64;
+#endif
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, target);
+
+            SetStreamTestsEnabledCompilerFlag(StreamRuntimeTestsEnabledCompilerFlag, true);
+
+            Debug.Log("Configured for standalone IL2CPP runtime tests: " +
+                      $"Backend={PlayerSettings.GetScriptingBackend(BuildTargetGroup.Standalone)}, " +
+                      $"Target={EditorUserBuildSettings.activeBuildTarget}");
+        }
+
         private static void ToggleCompilerFlag(string flagKeyword)
         {
             var unityDefineSymbols = new UnityDefineSymbolsFactory().CreateDefault();
@@ -168,6 +193,7 @@ namespace StreamChat.EditorTools
         private const string MenuPrefix = "Tools/" + StreamChatLowLevelClient.MenuPrefix;
 
         private const string StreamTestsEnabledCompilerFlag = "STREAM_TESTS_ENABLED";
+        private const string StreamRuntimeTestsEnabledCompilerFlag = "STREAM_RUNTIME_TESTS_ENABLED";
         private const string StreamDebugModeEnabledCompilerFlag = "STREAM_DEBUG_ENABLED";
     }
 }

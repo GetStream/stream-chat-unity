@@ -11,6 +11,9 @@ namespace StreamChat.Core.State.Caches
     internal sealed class CacheRepository<TStatefulModel> : ICacheRepository<TStatefulModel>
         where TStatefulModel : class, IStreamStatefulModel
     {
+        public event Action<TStatefulModel> Tracked;
+        public event Action<TStatefulModel> Untracked;
+
         public IReadOnlyList<TStatefulModel> AllItems => _statefulModels;
 
         public bool TryGet(string uniqueId, out TStatefulModel trackedObject)
@@ -71,6 +74,7 @@ namespace StreamChat.Core.State.Caches
         {
             var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
             typedStatefulModel.UpdateFromDto(dto, _cache);
+            RaiseTrackedIfCreated(typedStatefulModel, wasCreated);
             return typedStatefulModel;
         }
 
@@ -79,6 +83,7 @@ namespace StreamChat.Core.State.Caches
         {
             var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
             typedStatefulModel.UpdateFromDto(dto, _cache);
+            RaiseTrackedIfCreated(typedStatefulModel, wasCreated);
             return typedStatefulModel;
         }
 
@@ -87,6 +92,7 @@ namespace StreamChat.Core.State.Caches
         {
             var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
             typedStatefulModel.UpdateFromDto(dto, _cache);
+            RaiseTrackedIfCreated(typedStatefulModel, wasCreated);
             return typedStatefulModel;
         }
 
@@ -95,6 +101,7 @@ namespace StreamChat.Core.State.Caches
         {
             var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
             typedStatefulModel.UpdateFromDto(dto, _cache);
+            RaiseTrackedIfCreated(typedStatefulModel, wasCreated);
             return typedStatefulModel;
         }
 
@@ -103,7 +110,19 @@ namespace StreamChat.Core.State.Caches
         {
             var typedStatefulModel = GetOrCreateStatefulModel<TType, TDto>(dto, out wasCreated);
             typedStatefulModel.UpdateFromDto(dto, _cache);
+            RaiseTrackedIfCreated(typedStatefulModel, wasCreated);
             return typedStatefulModel;
+        }
+
+        // Defer Tracked emission until AFTER the first UpdateFromDto so subscribers always observe
+        // a fully-hydrated object. Track() itself runs from the StreamStatefulModelBase constructor,
+        // before any DTO is applied, so emitting from there would surface a blank instance.
+        private void RaiseTrackedIfCreated(TStatefulModel trackedObject, bool wasCreated)
+        {
+            if (wasCreated)
+            {
+                Tracked?.Invoke(trackedObject);
+            }
         }
 
         /// <summary>
@@ -137,6 +156,8 @@ namespace StreamChat.Core.State.Caches
 
             _statefulModels.Remove(trackedObject);
             _statefulModelById.Remove(trackedObject.UniqueId);
+
+            Untracked?.Invoke(trackedObject);
         }
 
         internal delegate TStatefulModel ConstructorHandler(string uniqueId);

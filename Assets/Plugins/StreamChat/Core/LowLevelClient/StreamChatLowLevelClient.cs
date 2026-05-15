@@ -29,12 +29,15 @@ using StreamChat.Core.LowLevelClient.Requests;
 using System.Linq;
 using StreamChat.Core.Helpers;
 
-#if STREAM_TESTS_ENABLED
+#if STREAM_TESTS_ENABLED || STREAM_RUNTIME_TESTS_ENABLED
 using System.Runtime.CompilerServices;
 #endif
 
 #if STREAM_TESTS_ENABLED
-[assembly: InternalsVisibleTo("StreamChat.Tests")] //StreamTodo: verify which Unity version introduced this
+[assembly: InternalsVisibleTo("StreamChat.Tests")]
+#endif
+#if STREAM_TESTS_ENABLED || STREAM_RUNTIME_TESTS_ENABLED
+[assembly: InternalsVisibleTo("StreamChat.Tests.Runtime")]
 #endif
 
 namespace StreamChat.Core.LowLevelClient
@@ -108,6 +111,10 @@ namespace StreamChat.Core.LowLevelClient
         public event Action<EventPollVoteChanged> PollVoteChanged;
         public event Action<EventPollVoteRemoved> PollVoteRemoved;
 
+        public event Action<EventThreadUpdated> ThreadUpdated;
+        public event Action<EventNotificationThreadMessageNew> NotificationThreadMessageNew;
+        public event Action<EventNotificationMarkUnread> NotificationMarkUnread;
+
         #region Internal Events
 
         internal event Action<HealthCheckEventInternalDTO> InternalConnected;
@@ -165,6 +172,10 @@ namespace StreamChat.Core.LowLevelClient
         internal event Action<PollVoteCastedEventInternalDTO> InternalPollVoteCasted;
         internal event Action<PollVoteChangedEventInternalDTO> InternalPollVoteChanged;
         internal event Action<PollVoteRemovedEventInternalDTO> InternalPollVoteRemoved;
+
+        internal event Action<ThreadUpdatedEventInternalDTO> InternalThreadUpdated;
+        internal event Action<NotificationThreadMessageNewEventInternalDTO> InternalNotificationThreadMessageNew;
+        internal event Action<NotificationMarkUnreadEventInternalDTO> InternalNotificationMarkUnread;
 
         #endregion
 
@@ -315,6 +326,8 @@ namespace StreamChat.Core.LowLevelClient
                 = new InternalDeviceApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
             InternalPollsApi
                 = new InternalPollsApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
+            InternalThreadsApi
+                = new InternalThreadsApi(httpClient, serializer, logs, _requestUriFactory, lowLevelClient: this);
 
             ChannelApi = new ChannelApi(InternalChannelApi);
             MessageApi = new MessageApi(InternalMessageApi);
@@ -489,6 +502,8 @@ namespace StreamChat.Core.LowLevelClient
         internal InternalUserApi InternalUserApi { get; }
         internal IInternalDeviceApi InternalDeviceApi { get; }
         internal IInternalPollsApi InternalPollsApi { get; }
+
+        internal IInternalThreadsApi InternalThreadsApi { get; }
 
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
@@ -842,6 +857,19 @@ namespace StreamChat.Core.LowLevelClient
                 (e, dto) => PollVoteChanged?.Invoke(e), dto => InternalPollVoteChanged?.Invoke(dto));
             RegisterEventType<PollVoteRemovedEventInternalDTO, EventPollVoteRemoved>(WSEventType.PollVoteRemoved,
                 (e, dto) => PollVoteRemoved?.Invoke(e), dto => InternalPollVoteRemoved?.Invoke(dto));
+
+            // Threads
+
+            RegisterEventType<ThreadUpdatedEventInternalDTO, EventThreadUpdated>(WSEventType.ThreadUpdated,
+                (e, dto) => ThreadUpdated?.Invoke(e), dto => InternalThreadUpdated?.Invoke(dto));
+            RegisterEventType<NotificationThreadMessageNewEventInternalDTO, EventNotificationThreadMessageNew>(
+                WSEventType.NotificationThreadMessageNew,
+                (e, dto) => NotificationThreadMessageNew?.Invoke(e),
+                dto => InternalNotificationThreadMessageNew?.Invoke(dto));
+            RegisterEventType<NotificationMarkUnreadEventInternalDTO, EventNotificationMarkUnread>(
+                WSEventType.NotificationMarkUnread,
+                (e, dto) => NotificationMarkUnread?.Invoke(e),
+                dto => InternalNotificationMarkUnread?.Invoke(dto));
         }
 
         private void RegisterEventType<TDto, TEvent>(string key,

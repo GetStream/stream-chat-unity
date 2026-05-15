@@ -24,6 +24,12 @@ namespace StreamChat.Core.StatefulModels
 
         int? TotalUnreadCount { get; }
         int? UnreadChannels { get; }
+
+        /// <summary>
+        /// Total number of threads with unread replies for the local user
+        /// </summary>
+        int? UnreadThreads { get; }
+
         IStreamUser User { get; }
         string UserId { get; }
     }

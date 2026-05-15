@@ -90,3 +90,6 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 /test_auth_data_xSpgxW.txt
+
+# Local output of tools/run-runtime-tests.ps1 (NUnit XML, prepare/test logs)
+/[Tt]est[Rr]esults/

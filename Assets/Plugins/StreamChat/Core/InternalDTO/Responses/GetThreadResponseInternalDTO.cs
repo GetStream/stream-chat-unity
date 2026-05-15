@@ -23,7 +23,7 @@ namespace StreamChat.Core.InternalDTO.Responses
         /// Enriched thread state
         /// </summary>
         [Newtonsoft.Json.JsonProperty("thread", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ThreadStateResponseInternalDTO Thread { get; set; } = new ThreadStateResponseInternalDTO();
+        public ThreadStateResponseInternalDTO Thread { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 

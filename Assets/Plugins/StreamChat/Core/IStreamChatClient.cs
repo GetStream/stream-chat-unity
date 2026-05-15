@@ -71,6 +71,32 @@ namespace StreamChat.Core
         event ChannelMemberRemovedHandler RemovedFromChannelAsMember;
 
         /// <summary>
+        /// Raised when an <see cref="IStreamThread"/> becomes available locally. Use this to bind
+        /// per-thread UI and to subscribe to the thread's own events such as
+        /// <see cref="IStreamThread.Updated"/>, <see cref="IStreamThread.ReplyReceived"/> and
+        /// <see cref="IStreamThread.ReadStateChanged"/>.
+        ///
+        /// Fires when:
+        ///   - A channel watch (<see cref="GetOrCreateChannelWithIdAsync"/>, <see cref="QueryChannelsAsync"/>)
+        ///     returns a channel that contains threads.
+        ///   - You call <see cref="GetThreadAsync"/> or <see cref="QueryThreadsAsync"/>.
+        ///
+        /// A thread started by another user in a channel you are watching but where you are NOT a
+        /// thread participant will not raise this event - the server delivers only the reply, with
+        /// no thread payload. To learn about such threads call <see cref="QueryThreadsAsync"/>.
+        /// </summary>
+        event StreamThreadChangeHandler ThreadTracked;
+
+        /// <summary>
+        /// Raised when an <see cref="IStreamThread"/> is no longer available locally. Use this to
+        /// tear down per-thread UI.
+        ///
+        /// Fires when the thread's parent message is hard-deleted - the thread is destroyed and
+        /// will no longer appear in <see cref="QueryThreadsAsync"/> results.
+        /// </summary>
+        event StreamThreadChangeHandler ThreadUntracked;
+
+        /// <summary>
         /// Current connection state
         /// </summary>
         ConnectionState ConnectionState { get; }
@@ -221,6 +247,28 @@ namespace StreamChat.Core
         /// <param name="streamQueryBannedUsersRequest">Request parameters object</param>
         Task<IEnumerable<StreamUserBanInfo>> QueryBannedUsersAsync(
             StreamQueryBannedUsersRequest streamQueryBannedUsersRequest);
+
+        /// <summary>
+        /// Get a thread by its parent message id.
+        /// A thread groups replies to a parent <see cref="IStreamMessage"/> in a <see cref="IStreamChannel"/>.
+        /// </summary>
+        /// <param name="parentMessageId">The id of the parent message of the thread</param>
+        /// <param name="replyLimit">[Optional] Number of replies to fetch</param>
+        /// <param name="participantLimit">[Optional] Number of participants to fetch</param>
+        /// <param name="memberLimit">[Optional] Number of channel members to include</param>
+        /// <param name="watch">[Optional] Whether to start watching the channel this thread belongs to. Defaults to true.</param>
+        /// <returns>The requested thread</returns>
+        Task<IStreamThread> GetThreadAsync(string parentMessageId,
+            int? replyLimit = null,
+            int? participantLimit = null,
+            int? memberLimit = null,
+            bool watch = true);
+
+        /// <summary>
+        /// Query threads with optional filters and sorting
+        /// </summary>
+        /// <param name="request">Query request</param>
+        Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request);
 
         /// <summary>
         /// Upsert users. Upsert means update this user or create if not found

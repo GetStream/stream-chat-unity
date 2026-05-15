@@ -10,6 +10,133 @@ on:
     - cron: "0 0 * * *"  # run daily at midnight (UTC)
 
 jobs:
+  runtime-tests:
+    name: Runtime Tests (IL2CPP)
+    runs-on: ubuntu-latest
+    env:
+      RUNTIME_TEST_IMAGE: 'unityci/editor:ubuntu-6000.0.63f1-linux-il2cpp-3.2.2'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Git
+        run: git config --global --add safe.directory /github/workspace
+
+      - name: Free Disk space
+        uses: jlumbroso/free-disk-space@v1.2.0
+        with:
+          dotnet: false
+
+      - name: Remove assemblies incompatible with linux-il2cpp image
+        run: |
+          rm -rf Assets/Plugins/StreamChat/SampleProject
+          rm -rf Assets/Plugins/StreamChat/Samples
+
+      # The repo intentionally does not track Packages/manifest.json so the
+      # legacy Unity 2020/2021 build job can fall back to its image's default
+      # manifest. The IL2CPP runtime test job runs on Unity 6000.0 and must
+      # pin its own packages (notably com.unity.test-framework for NUnit).
+      - name: Install runtime-tests Packages/manifest.json
+        run: |
+          mkdir -p Packages
+          cp .github/workflows/manifests/runtime-tests.manifest.json Packages/manifest.json
+          rm -f Packages/packages-lock.json
+
+      - name: Prepare project for IL2CPP runtime tests
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          buildMethod: StreamChat.EditorTools.StreamEditorTools.PrepareStandaloneIL2CPPTests
+          customImage: ${{ env.RUNTIME_TEST_IMAGE }}
+          allowDirtyBuild: true
+
+      - name: Remove editor-only test assemblies before player build
+        run: |
+          rm -rf Assets/Plugins/StreamChat/EditorTools
+          rm -rf Assets/Plugins/StreamChat/Tests/StreamChat.Tests.asmdef
+          rm -rf Assets/Plugins/StreamChat/Tests/LowLevelClient
+          rm -rf Assets/Plugins/StreamChat/Tests/StatefulClient
+          rm -rf Assets/Plugins/StreamChat/Tests/StreamTestClients.cs
+          rm -rf Assets/Plugins/StreamChat/Tests/TestUtils.cs
+          rm -rf Assets/Plugins/StreamChat/Tests/ToolsTests.cs
+          rm -rf Assets/Plugins/StreamChat/Tests/UnityTestRunnerCallbacks.cs
+          rm -rf Assets/Plugins/StreamChat/Tests/UnityTestUtils.cs
+
+      - name: Debug - inspect NUnit and test framework state
+        run: |
+          echo "=== Runtime test asmdef ==="
+          cat Assets/Plugins/StreamChat/Tests/Runtime/StreamChat.Tests.Runtime.asmdef
+
+          echo ""
+          echo "=== Packages/manifest.json (test-framework entry) ==="
+          grep -i "test-framework" Packages/manifest.json || echo "NOT FOUND in manifest"
+
+          echo ""
+          echo "=== Packages/packages-lock.json (test-framework entry) ==="
+          grep -A5 "test-framework" Packages/packages-lock.json 2>/dev/null || echo "No packages-lock.json"
+
+          echo ""
+          echo "=== Find nunit.framework.dll anywhere in project ==="
+          find . -name "nunit.framework.dll" -type f 2>/dev/null || echo "NOT FOUND"
+
+          echo ""
+          echo "=== Find nunit.framework.dll in Unity install ==="
+          find /opt/unity -name "nunit.framework.dll" -type f 2>/dev/null || echo "NOT FOUND in /opt/unity"
+
+          echo ""
+          echo "=== Find nunit.framework.dll in package cache ==="
+          find Library/PackageCache -name "nunit.framework.dll" -type f 2>/dev/null || echo "NOT FOUND in PackageCache"
+
+          echo ""
+          echo "=== nunit.framework.dll.meta (if found) ==="
+          for f in $(find . Library/PackageCache /opt/unity -name "nunit.framework.dll.meta" -type f 2>/dev/null); do
+            echo "--- $f ---"
+            cat "$f"
+          done
+
+          echo ""
+          echo "=== ProjectSettings scripting defines ==="
+          grep -A2 "scriptingDefineSymbols" ProjectSettings/ProjectSettings.asset || echo "NOT FOUND"
+
+          echo ""
+          echo "=== Remaining test assembly files ==="
+          find Assets/Plugins/StreamChat/Tests -type f -name "*.cs" -o -name "*.asmdef" | sort
+
+      - name: Run runtime tests in IL2CPP player
+        uses: game-ci/unity-test-runner@v4
+        id: runtime_tests
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          testMode: playmode
+          customImage: ${{ env.RUNTIME_TEST_IMAGE }}
+          customParameters: -testPlatform StandaloneLinux64
+          allowDirtyBuild: true
+        timeout-minutes: 90
+
+      - name: Upload Runtime Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Runtime_Test_Results_IL2CPP
+          path: artifacts
+
+      - name: Notify Slack if failed
+        uses: voxmedia/github-action-slack-notify-build@v1
+        if: always() && failure()
+        with:
+          channel_id: C07KW7ZCJ6T
+          color: danger
+          status: "RUNTIME TESTS FAILED (IL2CPP)"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+
   build:
     runs-on: ubuntu-latest
     strategy:

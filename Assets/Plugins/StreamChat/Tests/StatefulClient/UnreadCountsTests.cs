@@ -1,10 +1,9 @@
-﻿using System.Collections;
+﻿#if STREAM_TESTS_ENABLED
+using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine.TestTools;
-
-#if STREAM_TESTS_ENABLED
 namespace StreamChat.Tests.StatefulClient
 {
     internal class UnreadCountsTests : BaseStateIntegrationTests

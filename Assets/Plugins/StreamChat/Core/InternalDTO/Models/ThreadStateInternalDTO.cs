@@ -35,10 +35,15 @@ namespace StreamChat.Core.InternalDTO.Models
         public string ChannelCid { get; set; }
 
         /// <summary>
-        /// Date/time of creation
+        /// Date/time of creation.
+        /// Hand-edited to DateTimeOffset? so omitted payloads (thread.updated,
+        /// notification.mark_read/mark_unread, embedded threads on channel watch)
+        /// do not silently deserialize to DateTimeOffset.MinValue and regress a
+        /// valid local value via StreamThread.UpdateFromDto. GetOrDefault then
+        /// preserves the existing field when the server omits it.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset CreatedAt { get; set; }
+        public System.DateTimeOffset? CreatedAt { get; set; }
 
         /// <summary>
         /// Created By is the user who created the thread
@@ -104,10 +109,11 @@ namespace StreamChat.Core.InternalDTO.Models
         public string Title { get; set; }
 
         /// <summary>
-        /// Date/time of the last update
+        /// Date/time of the last update.
+        /// Hand-edited to DateTimeOffset? - see CreatedAt above for rationale.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("updated_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset UpdatedAt { get; set; }
+        public System.DateTimeOffset? UpdatedAt { get; set; }
 
         private System.Collections.Generic.Dictionary<string, object> _additionalProperties;
 
