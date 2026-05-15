@@ -123,36 +123,26 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        public async Task MarkReadAsync()
+        public Task MarkReadAsync()
         {
-            if (string.IsNullOrEmpty(ChannelCid))
+            if (Channel == null)
             {
-                throw new InvalidOperationException("ChannelCid is not set on this thread.");
+                throw new InvalidOperationException(
+                    $"Cannot mark thread {ParentMessageId} as read because its parent channel is not loaded.");
             }
 
-            var (channelType, channelId) = SplitCid(ChannelCid);
-
-            await LowLevelClient.InternalChannelApi.MarkReadAsync(channelType, channelId,
-                new MarkReadRequestInternalDTO
-                {
-                    ThreadId = ParentMessageId,
-                });
+            return Channel.MarkThreadAsReadAsync(ParentMessageId);
         }
 
-        public async Task MarkUnreadAsync()
+        public Task MarkUnreadAsync()
         {
-            if (string.IsNullOrEmpty(ChannelCid))
+            if (Channel == null)
             {
-                throw new InvalidOperationException("ChannelCid is not set on this thread.");
+                throw new InvalidOperationException(
+                    $"Cannot mark thread {ParentMessageId} as unread because its parent channel is not loaded.");
             }
 
-            var (channelType, channelId) = SplitCid(ChannelCid);
-
-            await LowLevelClient.InternalChannelApi.MarkUnreadAsync(channelType, channelId,
-                new MarkUnreadRequestInternalDTO
-                {
-                    ThreadId = ParentMessageId,
-                });
+            return Channel.MarkThreadAsUnreadAsync(ParentMessageId);
         }
 
         void IUpdateableFrom<ThreadStateResponseInternalDTO, StreamThread>.UpdateFromDto(
@@ -343,17 +333,6 @@ namespace StreamChat.Core.StatefulModels
             {
                 _custom[keyValuePair.Key] = keyValuePair.Value;
             }
-        }
-
-        private static (string type, string id) SplitCid(string cid)
-        {
-            var idx = cid.IndexOf(':');
-            if (idx < 0)
-            {
-                throw new ArgumentException($"Invalid channel CID format: '{cid}'. Expected '<type>:<id>'.");
-            }
-
-            return (cid.Substring(0, idx), cid.Substring(idx + 1));
         }
 
         private readonly Dictionary<string, object> _custom = new Dictionary<string, object>();
