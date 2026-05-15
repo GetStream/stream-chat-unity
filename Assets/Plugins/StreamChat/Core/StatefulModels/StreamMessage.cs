@@ -197,14 +197,22 @@ namespace StreamChat.Core.StatefulModels
         public Task<IStreamThread> GetThreadAsync(int? replyLimit = null, int? participantLimit = null)
             => Client.GetThreadAsync(Id, replyLimit: replyLimit, participantLimit: participantLimit);
 
-        public async Task<IReadOnlyList<IStreamMessage>> LoadRepliesAsync(int limit = 25, string idLessThan = null)
+        public async Task<IReadOnlyList<IStreamMessage>> LoadRepliesAsync(int limit = 25, string idLessThan = null,
+            string idGreaterThan = null)
         {
             StreamAsserts.AssertGreaterThanZero(limit, nameof(limit));
+
+            if (!string.IsNullOrEmpty(idLessThan) && !string.IsNullOrEmpty(idGreaterThan))
+            {
+                throw new ArgumentException(
+                    $"{nameof(idLessThan)} and {nameof(idGreaterThan)} are mutually exclusive. Pass only one.");
+            }
 
             var pagination = new MessagePaginationParamsRequestInternalDTO
             {
                 Limit = limit,
                 IdLt = idLessThan,
+                IdGt = idGreaterThan,
             };
 
             var response = await LowLevelClient.InternalThreadsApi.GetRepliesAsync(Id, pagination);

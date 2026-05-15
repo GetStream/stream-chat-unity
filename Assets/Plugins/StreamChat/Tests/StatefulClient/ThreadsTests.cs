@@ -148,6 +148,53 @@ namespace StreamChat.Tests.StatefulClient
             }
         }
 
+        [UnityTest]
+        public IEnumerator When_load_replies_paginated_three_pages_expect_all_replies_unique_and_ordered()
+            => ConnectAndExecute(When_load_replies_paginated_three_pages_expect_all_replies_unique_and_ordered_Async);
+
+        private async Task When_load_replies_paginated_three_pages_expect_all_replies_unique_and_ordered_Async()
+        {
+            const int totalReplies = 6;
+            const int pageSize = 2;
+
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for paginated replies");
+
+            var sentIds = new List<string>();
+            for (var i = 0; i < totalReplies; i++)
+            {
+                var reply = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+                {
+                    ParentId = parent.Id,
+                    ShowInChannel = false,
+                    Text = $"reply {i}",
+                });
+                sentIds.Add(reply.Id);
+            }
+
+            var page1 = await parent.LoadRepliesAsync(limit: pageSize);
+            Assert.AreEqual(pageSize, page1.Count, "Page 1 should be full");
+            AssertOrderedAscendingByCreatedAt(page1);
+
+            var page2 = await parent.LoadRepliesAsync(limit: pageSize, idLessThan: page1[0].Id);
+            Assert.AreEqual(pageSize, page2.Count, "Page 2 should be full");
+            AssertOrderedAscendingByCreatedAt(page2);
+
+            var page3 = await parent.LoadRepliesAsync(limit: pageSize, idLessThan: page2[0].Id);
+            Assert.AreEqual(pageSize, page3.Count, "Page 3 should be full");
+            AssertOrderedAscendingByCreatedAt(page3);
+
+            var visited = page1.Concat(page2).Concat(page3).Select(m => m.Id).ToList();
+            Assert.AreEqual(totalReplies, visited.Count, "Three pages should cover all sent replies");
+            Assert.AreEqual(totalReplies, visited.Distinct().Count(), "Pages must not overlap");
+            CollectionAssert.AreEquivalent(sentIds, visited, "Paginated ids must match the sent ids");
+
+            Assert.Less(page3[page3.Count - 1].CreatedAt, page2[0].CreatedAt,
+                "Page 3 (oldest) must come before page 2");
+            Assert.Less(page2[page2.Count - 1].CreatedAt, page1[0].CreatedAt,
+                "Page 2 must come before page 1 (newest)");
+        }
+
         private static void AssertOrderedAscendingByCreatedAt(System.Collections.Generic.IReadOnlyList<IStreamMessage> messages)
         {
             for (var i = 1; i < messages.Count; i++)

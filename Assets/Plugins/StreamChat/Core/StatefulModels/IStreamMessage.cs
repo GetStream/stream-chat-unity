@@ -256,10 +256,15 @@ namespace StreamChat.Core.StatefulModels
         /// <summary>
         /// Load replies of this message (a parent message of a thread). Returned messages are oldest-first
         /// and are cached, so they show up in <see cref="IStreamThread.LatestReplies"/> if a thread is tracked.
+        ///
+        /// <paramref name="idLessThan"/> and <paramref name="idGreaterThan"/> are mutually exclusive.
+        /// Pass neither to load the latest <paramref name="limit"/> replies.
         /// </summary>
         /// <param name="limit">[Optional] Maximum number of replies to load. Defaults to 25</param>
         /// <param name="idLessThan">[Optional] Pagination - return replies older than this message id</param>
-        Task<IReadOnlyList<IStreamMessage>> LoadRepliesAsync(int limit = 25, string idLessThan = null);
+        /// <param name="idGreaterThan">[Optional] Pagination - return replies newer than this message id</param>
+        Task<IReadOnlyList<IStreamMessage>> LoadRepliesAsync(int limit = 25, string idLessThan = null,
+            string idGreaterThan = null);
 
         /// <summary>
         /// Mark the thread (this message must be the thread parent) as read for the local user
