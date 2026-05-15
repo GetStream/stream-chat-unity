@@ -319,6 +319,115 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         /// <summary>
+        /// Verifies that CreatedAt / UpdatedAt / DeletedAt / LastMessageAt are not corrupted
+        /// when a sparse thread payload arrives (thread.updated WS event echoed back from a
+        /// partial-update).
+        ///
+        /// Why this matters: the thread DTOs declare CreatedAt/UpdatedAt as non-nullable
+        /// DateTimeOffset, so any payload that omits them deserializes to DateTimeOffset.MinValue;
+        /// DeletedAt/LastMessageAt are nullable so an omitted field arrives as null. The previous
+        /// raw assignment in StreamThread.UpdateFromDto then overwrote valid local timestamps
+        /// with these sentinel values. The DTO fields are now hand-edited to nullable and
+        /// UpdateFromDto preserves the existing value via GetOrDefault.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_thread_updated_event_received_expect_timestamps_preserved()
+            => ConnectAndExecute(When_thread_updated_event_received_expect_timestamps_preserved_Async);
+
+        private async Task When_thread_updated_event_received_expect_timestamps_preserved_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for timestamp preservation");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply",
+            });
+
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+
+            await WaitWhileTrueAsync(() => thread.CreatedAt == default || (thread.LastMessageAt ?? default) == default);
+
+            var createdAtBefore = thread.CreatedAt;
+            var updatedAtBefore = thread.UpdatedAt;
+            var lastMessageAtBefore = thread.LastMessageAt;
+            var deletedAtBefore = thread.DeletedAt;
+
+            Assert.AreNotEqual(default(DateTimeOffset), createdAtBefore,
+                "Precondition: GetThreadAsync should populate CreatedAt");
+            Assert.AreNotEqual(default(DateTimeOffset), updatedAtBefore,
+                "Precondition: GetThreadAsync should populate UpdatedAt");
+            Assert.IsTrue(lastMessageAtBefore.HasValue && lastMessageAtBefore.Value != default,
+                "Precondition: GetThreadAsync should populate LastMessageAt after a reply");
+            Assert.IsNull(deletedAtBefore,
+                "Precondition: a freshly created thread must have DeletedAt == null");
+
+            var observations =
+                new List<(DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, DateTimeOffset? LastMessageAt,
+                    DateTimeOffset? DeletedAt)>();
+            var newTitle = "renamed-ts-" + Guid.NewGuid().ToString("N").Substring(0, 6);
+            var sawTitleUpdate = false;
+            StreamThreadChangeHandler handler = t =>
+            {
+                observations.Add((t.CreatedAt, t.UpdatedAt, t.LastMessageAt, t.DeletedAt));
+                if (t.Title == newTitle)
+                {
+                    sawTitleUpdate = true;
+                }
+            };
+            thread.Updated += handler;
+
+            try
+            {
+                await thread.UpdatePartialAsync(setFields: new Dictionary<string, object>
+                {
+                    { "title", newTitle },
+                });
+
+                await WaitWhileTrueAsync(() => !sawTitleUpdate || observations.Count < 2);
+            }
+            finally
+            {
+                thread.Updated -= handler;
+            }
+
+            for (var i = 0; i < observations.Count; i++)
+            {
+                var (createdAt, updatedAt, lastMessageAt, deletedAt) = observations[i];
+
+                Assert.AreEqual(createdAtBefore, createdAt,
+                    $"CreatedAt regressed on Updated invocation #{i} (got {createdAt:o}, expected {createdAtBefore:o}). " +
+                    "This indicates UpdateFromDto wrote DateTimeOffset.MinValue over a valid local value " +
+                    "because the incoming payload omitted created_at.");
+
+                Assert.AreNotEqual(default(DateTimeOffset), updatedAt,
+                    $"UpdatedAt regressed to DateTimeOffset.MinValue on Updated invocation #{i}. " +
+                    "Server-driven advancement is legitimate, but the sentinel value indicates omitted-field corruption.");
+                Assert.GreaterOrEqual(updatedAt, updatedAtBefore,
+                    $"UpdatedAt must not move backwards on Updated invocation #{i} (got {updatedAt:o}, prev {updatedAtBefore:o}).");
+
+                Assert.AreEqual(lastMessageAtBefore, lastMessageAt,
+                    $"LastMessageAt regressed on Updated invocation #{i} (got {lastMessageAt?.ToString("o") ?? "null"}, " +
+                    $"expected {lastMessageAtBefore?.ToString("o") ?? "null"}). A title-only partial update " +
+                    "must not clear LastMessageAt.");
+
+                Assert.AreEqual(deletedAtBefore, deletedAt,
+                    $"DeletedAt regressed on Updated invocation #{i} (got {deletedAt?.ToString("o") ?? "null"}, " +
+                    $"expected {deletedAtBefore?.ToString("o") ?? "null"}).");
+            }
+
+            Assert.AreEqual(createdAtBefore, thread.CreatedAt,
+                "Final CreatedAt must not be zeroed by event propagation");
+            Assert.AreNotEqual(default(DateTimeOffset), thread.UpdatedAt,
+                "Final UpdatedAt must not be DateTimeOffset.MinValue");
+            Assert.AreEqual(lastMessageAtBefore, thread.LastMessageAt,
+                "Final LastMessageAt must not be cleared by event propagation");
+            Assert.AreEqual(deletedAtBefore, thread.DeletedAt,
+                "Final DeletedAt must remain null after a title-only update");
+        }
+
+        /// <summary>
         /// Same shape as the thread.updated test, but exercises the notification.mark_read code path
         /// (StreamChatClient.OnMarkReadNotification → UpdateFromDto on a ThreadResponseInternalDTO).
         ///

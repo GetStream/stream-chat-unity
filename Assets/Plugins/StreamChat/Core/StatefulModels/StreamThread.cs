@@ -182,7 +182,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             ChannelCid = GetOrDefault(dto.ChannelCid, ChannelCid);
-            CreatedAt = dto.CreatedAt;
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
 
             if (dto.CreatedBy != null)
             {
@@ -190,8 +190,8 @@ namespace StreamChat.Core.StatefulModels
             }
 
             CreatedByUserId = GetOrDefault(dto.CreatedByUserId, CreatedByUserId);
-            DeletedAt = dto.DeletedAt;
-            LastMessageAt = dto.LastMessageAt;
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            LastMessageAt = GetOrDefault(dto.LastMessageAt, LastMessageAt);
 
             if (dto.LatestReplies != null)
             {
@@ -216,7 +216,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             Title = GetOrDefault(dto.Title, Title);
-            UpdatedAt = dto.UpdatedAt;
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
             LoadAdditionalCustom(dto.Custom);
 
@@ -243,15 +243,15 @@ namespace StreamChat.Core.StatefulModels
             }
 
             ChannelCid = GetOrDefault(cid, ChannelCid);
-            CreatedAt = dto.CreatedAt;
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
 
             if (dto.CreatedBy != null)
             {
                 CreatedBy = cache.TryCreateOrUpdate(dto.CreatedBy);
             }
 
-            DeletedAt = dto.DeletedAt;
-            LastMessageAt = dto.LastMessageAt;
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            LastMessageAt = GetOrDefault(dto.LastMessageAt, LastMessageAt);
 
             if (dto.LatestReplies != null)
             {
@@ -276,7 +276,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             Title = GetOrDefault(dto.Title, Title);
-            UpdatedAt = dto.UpdatedAt;
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
             LoadAdditionalCustom(dto.Custom);
 
@@ -294,7 +294,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             ChannelCid = GetOrDefault(dto.ChannelCid, ChannelCid);
-            CreatedAt = dto.CreatedAt;
+            CreatedAt = GetOrDefault(dto.CreatedAt, CreatedAt);
 
             if (dto.CreatedBy != null)
             {
@@ -302,8 +302,8 @@ namespace StreamChat.Core.StatefulModels
             }
 
             CreatedByUserId = GetOrDefault(dto.CreatedByUserId, CreatedByUserId);
-            DeletedAt = dto.DeletedAt;
-            LastMessageAt = dto.LastMessageAt;
+            DeletedAt = GetOrDefault(dto.DeletedAt, DeletedAt);
+            LastMessageAt = GetOrDefault(dto.LastMessageAt, LastMessageAt);
 
             if (dto.ParentMessage != null)
             {
@@ -320,7 +320,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             Title = GetOrDefault(dto.Title, Title);
-            UpdatedAt = dto.UpdatedAt;
+            UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
             LoadAdditionalCustom(dto.Custom);
 

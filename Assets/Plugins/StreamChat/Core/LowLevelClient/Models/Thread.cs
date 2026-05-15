@@ -96,7 +96,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             ActiveParticipantCount = dto.ActiveParticipantCount ?? 0;
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelCid = dto.ChannelCid;
-            CreatedAt = dto.CreatedAt;
+            CreatedAt = dto.CreatedAt ?? default;
             CreatedBy = CreatedBy.TryLoadFromDto<UserResponseInternalDTO, User>(dto.CreatedBy);
             CreatedByUserId = dto.CreatedByUserId;
             Custom = dto.Custom;
@@ -108,7 +108,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             ReplyCount = dto.ReplyCount;
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Title = dto.Title;
-            UpdatedAt = dto.UpdatedAt;
+            UpdatedAt = dto.UpdatedAt ?? default;
             AdditionalProperties = dto.AdditionalProperties;
 
             return this;
