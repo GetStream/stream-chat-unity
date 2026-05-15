@@ -148,7 +148,7 @@ namespace StreamChat.Core.StatefulModels
         void IUpdateableFrom<ThreadStateResponseInternalDTO, StreamThread>.UpdateFromDto(
             ThreadStateResponseInternalDTO dto, ICache cache)
         {
-            ActiveParticipantCount = dto.ActiveParticipantCount;
+            ActiveParticipantCount = GetOrDefault(dto.ActiveParticipantCount, ActiveParticipantCount);
 
             if (dto.Channel != null)
             {
@@ -179,7 +179,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             ParentMessageId = GetOrDefault(dto.ParentMessageId, ParentMessageId);
-            ParticipantCount = dto.ParticipantCount;
+            ParticipantCount = GetOrDefault(dto.ParticipantCount, ParticipantCount);
             ReplyCount = dto.ReplyCount;
 
             _read.TryReplaceRegularObjectsFromDto2(dto.Read, cache);
@@ -200,7 +200,7 @@ namespace StreamChat.Core.StatefulModels
         void IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>.UpdateFromDto(
             ThreadResponseInternalDTO dto, ICache cache)
         {
-            ActiveParticipantCount = dto.ActiveParticipantCount;
+            ActiveParticipantCount = GetOrDefault(dto.ActiveParticipantCount, ActiveParticipantCount);
 
             if (dto.Channel != null)
             {
@@ -225,7 +225,7 @@ namespace StreamChat.Core.StatefulModels
             }
 
             ParentMessageId = GetOrDefault(dto.ParentMessageId, ParentMessageId);
-            ParticipantCount = dto.ParticipantCount;
+            ParticipantCount = GetOrDefault(dto.ParticipantCount, ParticipantCount);
             ReplyCount = dto.ReplyCount;
 
             if (dto.ThreadParticipants != null)

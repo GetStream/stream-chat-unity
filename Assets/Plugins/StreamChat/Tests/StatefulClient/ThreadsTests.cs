@@ -1,5 +1,7 @@
 #if STREAM_TESTS_ENABLED
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -218,6 +220,205 @@ namespace StreamChat.Tests.StatefulClient
             var thread = await parent.GetThreadAsync(replyLimit: 5);
             Assert.NotNull(thread);
             Assert.AreEqual(parent.Id, thread.ParentMessageId);
+        }
+
+        /// <summary>
+        /// Verifies that ParticipantCount / ActiveParticipantCount are not silently zeroed
+        /// out when a thread is updated via partial-update.
+        ///
+        /// Why this matters: ThreadResponseInternalDTO declares these as non-nullable int,
+        /// so any payload that omits them deserializes to 0; StreamThread.UpdateFromDto
+        /// then writes 0 over a valid local value. The Android SDK already declared the
+        /// equivalents Int? after observing that thread.updated payloads omit the fields.
+        ///
+        /// The single-client design is deliberate. UpdatePartialAsync triggers two
+        /// UpdateFromDto invocations: one synchronously from the REST response, and one
+        /// asynchronously from the thread.updated WS event echoed back to this client.
+        /// We record participant counts on every Updated invocation. If any invocation
+        /// reports a value different from what we set up (specifically smaller than the
+        /// pre-update snapshot), the bug reproduces.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_thread_updated_event_received_expect_participant_counts_preserved()
+            => ConnectAndExecute(When_thread_updated_event_received_expect_participant_counts_preserved_Async);
+
+        private async Task When_thread_updated_event_received_expect_participant_counts_preserved_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for event count preservation");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply",
+            });
+
+            var thread = await Client.Threads.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+
+            await WaitWhileTrueAsync(() => (thread.ParticipantCount ?? 0) == 0);
+
+            var participantsBefore = thread.ParticipantCount;
+            var activeParticipantsBefore = thread.ActiveParticipantCount;
+
+            Assert.Greater(participantsBefore ?? 0, 0,
+                "Precondition: GetThreadAsync should return a non-zero participant_count");
+
+            // Capture counts on every Updated invocation. We expect at least two:
+            //   1) UpdatePartialAsync applies the REST response synchronously.
+            //   2) The WS thread.updated event echoes back and applies again.
+            // If the bug exists, the WS-driven invocation surfaces counts == 0.
+            var observations = new List<(int? Participants, int? Active)>();
+            var newTitle = "renamed-" + Guid.NewGuid().ToString("N").Substring(0, 6);
+            var sawTitleUpdate = false;
+            StreamThreadChangeHandler handler = t =>
+            {
+                observations.Add((t.ParticipantCount, t.ActiveParticipantCount));
+                if (t.Title == newTitle)
+                {
+                    sawTitleUpdate = true;
+                }
+            };
+            thread.Updated += handler;
+
+            try
+            {
+                await thread.UpdatePartialAsync(setFields: new Dictionary<string, object>
+                {
+                    { "title", newTitle },
+                });
+
+                // Wait until we have seen the title-bearing invocation AND at least 2 Updated
+                // callbacks (REST apply + WS echo). Title check guarantees the WS round-trip
+                // happened (the REST response also carries the new title, but the WS event is
+                // what gives the bug an opportunity to overwrite).
+                await WaitWhileTrueAsync(() => !sawTitleUpdate || observations.Count < 2);
+            }
+            finally
+            {
+                thread.Updated -= handler;
+            }
+
+            // Every recorded snapshot must preserve at least the pre-update participant_count.
+            // active_participant_count is 0 in this minimal one-author setup, so it cannot
+            // discriminate, but participant_count is >= 1 and so any zeroing reveals the bug.
+            for (var i = 0; i < observations.Count; i++)
+            {
+                var (participants, active) = observations[i];
+                Assert.AreEqual(participantsBefore, participants,
+                    $"participant_count regressed on Updated invocation #{i} (got {participants}, expected {participantsBefore}). " +
+                    "This indicates UpdateFromDto applied a payload whose participant_count was missing/0.");
+                Assert.AreEqual(activeParticipantsBefore, active,
+                    $"active_participant_count regressed on Updated invocation #{i} (got {active}, expected {activeParticipantsBefore}).");
+            }
+
+            // Also assert the final committed state, since downstream consumers read it directly.
+            Assert.AreEqual(participantsBefore, thread.ParticipantCount,
+                "Final ParticipantCount on the thread must not be zeroed by event propagation");
+            Assert.AreEqual(activeParticipantsBefore, thread.ActiveParticipantCount,
+                "Final ActiveParticipantCount on the thread must not be zeroed by event propagation");
+        }
+
+        /// <summary>
+        /// Same shape as the thread.updated test, but exercises the notification.mark_read code path
+        /// (StreamChatClient.OnMarkReadNotification → UpdateFromDto on a ThreadResponseInternalDTO).
+        ///
+        /// The Android team explicitly named notification.mark_read as one of the two events whose
+        /// embedded thread payload omits participant_count / active_participant_count. We force the
+        /// event to fire by first marking the thread as unread (no-op for the bug since
+        /// OnNotificationMarkUnread does not call UpdateFromDto) and then marking it as read.
+        /// ReadStateChanged is used as the arrival signal since it is raised unconditionally in
+        /// OnMarkReadNotification, even if the embedded Thread is null.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_notification_mark_read_event_received_expect_participant_counts_preserved()
+            => ConnectAndExecute(When_notification_mark_read_event_received_expect_participant_counts_preserved_Async);
+
+        private async Task When_notification_mark_read_event_received_expect_participant_counts_preserved_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for mark-read count preservation");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply",
+            });
+
+            var thread = await Client.Threads.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+
+            await WaitWhileTrueAsync(() => (thread.ParticipantCount ?? 0) == 0);
+
+            var participantsBefore = thread.ParticipantCount;
+            var activeParticipantsBefore = thread.ActiveParticipantCount;
+
+            Assert.Greater(participantsBefore ?? 0, 0,
+                "Precondition: GetThreadAsync should return a non-zero participant_count");
+
+            // Put the thread into an unread state so the subsequent MarkReadAsync produces a
+            // meaningful notification.mark_read event. The REST call is awaited, but we do NOT
+            // wait for the corresponding notification.mark_unread WS event: empirically the
+            // server does not echo notification.mark_* events back to the caller (the caller
+            // already knows what they did). Waiting indefinitely here hangs the test.
+            await thread.MarkUnreadAsync();
+
+            // Capture counts on every Updated invocation. Updated only fires inside
+            // OnMarkReadNotification when eventDto.Thread != null - which is precisely the code
+            // path that would zero out the counts if the bug were present.
+            var observations = new List<(int? Participants, int? Active)>();
+            StreamThreadChangeHandler updatedHandler = t =>
+            {
+                observations.Add((t.ParticipantCount, t.ActiveParticipantCount));
+            };
+
+            var readSeen = false;
+            StreamThreadReadHandler readHandler = _ => readSeen = true;
+
+            thread.Updated += updatedHandler;
+            thread.ReadStateChanged += readHandler;
+
+            try
+            {
+                await thread.MarkReadAsync();
+
+                // Best-effort wait for the notification.mark_read WS event echo. If the server
+                // does not echo to the marking user (as appears to be the case for at least
+                // notification.mark_unread), nothing arrives and the buggy code path is never
+                // reached - in which case observations stay empty and the test vacuously passes.
+                try
+                {
+                    await WaitWhileTrueAsync(() => !readSeen, maxSeconds: 5);
+                }
+                catch (TimeoutException)
+                {
+                    // Intentionally swallowed - see comment above.
+                }
+            }
+            finally
+            {
+                thread.Updated -= updatedHandler;
+                thread.ReadStateChanged -= readHandler;
+            }
+
+            // If the server omits the thread payload from notification.mark_read entirely,
+            // observations will be empty - in that case the bug code path is simply not reached
+            // and there is nothing to assert. Otherwise we require every recorded snapshot to
+            // preserve the pre-event participant counts.
+            for (var i = 0; i < observations.Count; i++)
+            {
+                var (participants, active) = observations[i];
+                Assert.AreEqual(participantsBefore, participants,
+                    $"participant_count regressed on Updated invocation #{i} after notification.mark_read " +
+                    $"(got {participants}, expected {participantsBefore}). " +
+                    "This indicates UpdateFromDto applied a payload whose participant_count was missing/0.");
+                Assert.AreEqual(activeParticipantsBefore, active,
+                    $"active_participant_count regressed on Updated invocation #{i} after notification.mark_read " +
+                    $"(got {active}, expected {activeParticipantsBefore}).");
+            }
+
+            Assert.AreEqual(participantsBefore, thread.ParticipantCount,
+                "Final ParticipantCount must not be zeroed by notification.mark_read propagation");
+            Assert.AreEqual(activeParticipantsBefore, thread.ActiveParticipantCount,
+                "Final ActiveParticipantCount must not be zeroed by notification.mark_read propagation");
         }
     }
 }

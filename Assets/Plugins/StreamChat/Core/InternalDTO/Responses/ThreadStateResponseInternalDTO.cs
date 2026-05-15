@@ -17,10 +17,14 @@ namespace StreamChat.Core.InternalDTO.Responses
     internal partial class ThreadStateResponseInternalDTO
     {
         /// <summary>
-        /// Active Participant Count
+        /// Active Participant Count.
+        /// Hand-edited to int? to match ThreadStateInternalDTO and Android's DownstreamThreadDto,
+        /// so that payloads which omit this field (some thread.updated / notification.mark_read
+        /// events per Android observations) do not silently deserialize to 0 and overwrite a
+        /// valid local count via StreamThread.UpdateFromDto.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("active_participant_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int ActiveParticipantCount { get; set; }
+        public int? ActiveParticipantCount { get; set; }
 
         /// <summary>
         /// Channel
@@ -89,10 +93,11 @@ namespace StreamChat.Core.InternalDTO.Responses
         public string ParentMessageId { get; set; }
 
         /// <summary>
-        /// Participant Count
+        /// Participant Count.
+        /// Hand-edited to int? - see ActiveParticipantCount above for rationale.
         /// </summary>
         [Newtonsoft.Json.JsonProperty("participant_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int ParticipantCount { get; set; }
+        public int? ParticipantCount { get; set; }
 
         [Newtonsoft.Json.JsonProperty("read", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<ReadStateResponseInternalDTO> Read { get; set; }

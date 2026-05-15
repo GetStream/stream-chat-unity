@@ -93,7 +93,7 @@ namespace StreamChat.Core.LowLevelClient.Models
 
         Thread ILoadableFrom<ThreadResponseInternalDTO, Thread>.LoadFromDto(ThreadResponseInternalDTO dto)
         {
-            ActiveParticipantCount = dto.ActiveParticipantCount;
+            ActiveParticipantCount = dto.ActiveParticipantCount ?? 0;
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelCid = dto.ChannelCid;
             CreatedAt = dto.CreatedAt;
@@ -104,7 +104,7 @@ namespace StreamChat.Core.LowLevelClient.Models
             LastMessageAt = dto.LastMessageAt;
             ParentMessage = ParentMessage.TryLoadFromDto<MessageResponseInternalDTO, Message>(dto.ParentMessage);
             ParentMessageId = dto.ParentMessageId;
-            ParticipantCount = dto.ParticipantCount;
+            ParticipantCount = dto.ParticipantCount ?? 0;
             ReplyCount = dto.ReplyCount;
             ThreadParticipants = ThreadParticipants.TryLoadFromDtoCollection(dto.ThreadParticipants);
             Title = dto.Title;
