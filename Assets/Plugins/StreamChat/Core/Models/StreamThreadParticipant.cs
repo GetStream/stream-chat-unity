@@ -57,6 +57,34 @@ namespace StreamChat.Core.Models
         /// </summary>
         public string UserId { get; private set; }
 
+        public StreamThreadParticipant()
+        {
+        }
+
+        internal StreamThreadParticipant(IStreamUser user, string threadId, string channelCid,
+            DateTimeOffset? lastThreadMessageAt)
+        {
+            User = user;
+            UserId = user?.Id;
+            ThreadId = threadId;
+            ChannelCid = channelCid;
+            LastThreadMessageAt = lastThreadMessageAt;
+        }
+
+        // Mirrors Android's local upsert in Thread.upsertReply: when a tracked participant
+        // posts again, only their recency marker (and the freshest user snapshot) are touched;
+        // ThreadId/ChannelCid/CreatedAt/LeftThreadAt remain authoritative from the server.
+        internal void UpdateForNewReply(IStreamUser user, DateTimeOffset? lastThreadMessageAt)
+        {
+            if (user != null)
+            {
+                User = user;
+                UserId = user.Id;
+            }
+
+            LastThreadMessageAt = lastThreadMessageAt;
+        }
+
         StreamThreadParticipant IStateLoadableFrom<ThreadParticipantInternalDTO, StreamThreadParticipant>.LoadFromDto(
             ThreadParticipantInternalDTO dto, ICache cache)
         {

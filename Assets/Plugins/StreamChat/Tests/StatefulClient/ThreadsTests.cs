@@ -532,6 +532,117 @@ namespace StreamChat.Tests.StatefulClient
             Assert.GreaterOrEqual(afterRead.LastRead, beforeLastRead,
                 "After notification.mark_read fires, the local user's LastRead must advance");
         }
+
+        /// <summary>
+        /// New replies arriving via message.new / notification.thread_message_new must update the
+        /// thread's local state beyond just LatestReplies and ReplyCount: every other StreamRead's
+        /// UnreadMessages must grow by 1 and the sender's recency in ThreadParticipants must be
+        /// re-bumped. Mirrors Android's Thread.upsertReply.
+        ///
+        /// Setup mirrors the mark-read test's timing exactly: the other client must post their
+        /// first reply BEFORE the local user fetches the thread, otherwise the server response
+        /// omits the `read` array entirely and the local Read entry never materializes on refresh.
+        /// That seed reply also makes the other user a thread participant from the local cache's
+        /// initial perspective, so this integration test covers the existing-participant branch
+        /// (count unchanged, recency bumped) and the unread-increment branch via a second reply.
+        /// The brand-new-participant branch is covered by code review only - exercising it via
+        /// integration would require a third client and the server timing is fragile.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_other_client_replies_in_thread_expect_participants_and_unread_updated()
+            => ConnectAndExecute(When_other_client_replies_in_thread_expect_participants_and_unread_updated_Async);
+
+        private async Task When_other_client_replies_in_thread_expect_participants_and_unread_updated_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+
+            var channel = await CreateUniqueTempChannelAsync();
+
+            // Pre-watch from otherClient before AddMembers for the same reason as the mark-read
+            // test: the added-to-channel handler can crash on threads[].channel.config.commands.
+            var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+
+            await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
+
+            var parent = await channel.SendNewMessageAsync("thread parent for upsert reply");
+
+            // Local must post the first reply so they become a thread participant.
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "local reply (becomes thread participant)",
+            });
+
+            var otherClientParent = await TryAsync(
+                () => Task.FromResult(otherClientChannel.Messages.SingleOrDefault(m => m.Id == parent.Id)),
+                m => m != null);
+
+            // Seed reply from other client BEFORE local fetches the thread. Without this, the
+            // server's subsequent GET /threads/{id} responses omit the `read` array and the
+            // local Read entry never materializes on refresh - the WS event would still fire
+            // and our HandleNewReply would still run, but the test cannot observe its effect
+            // on read state.
+            await otherClientChannel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = otherClientParent.Id,
+                ShowInChannel = false,
+                Text = "other-client seed reply",
+            });
+
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 10, participantLimit: 10);
+
+            var localUserId = Client.LocalUserData.UserId;
+            var otherUserId = otherClient.LocalUserData.UserId;
+
+            // Refresh until the server has propagated the seed reply through the read aggregation.
+            var localReadBefore = await TryAsync(
+                async () =>
+                {
+                    await thread.RefreshAsync();
+                    return thread.Read.FirstOrDefault(r => r.User != null && r.User.Id == localUserId);
+                },
+                r => r != null && r.UnreadMessages > 0);
+
+            Assert.IsTrue(
+                thread.ThreadParticipants.Any(p => (p.User?.Id ?? p.UserId) == otherUserId),
+                "Precondition: other user must already be a thread participant from the seed reply");
+
+            var unreadBefore = localReadBefore.UnreadMessages;
+            var participantCountBefore = thread.ParticipantCount;
+
+            // Drive the upsertReply code path via a second non-local reply over the wire.
+            var replyReceived = false;
+            StreamThreadReplyHandler replyHandler = (_, __) => replyReceived = true;
+            thread.ReplyReceived += replyHandler;
+
+            try
+            {
+                await otherClientChannel.SendNewMessageAsync(new StreamSendMessageRequest
+                {
+                    ParentId = otherClientParent.Id,
+                    ShowInChannel = false,
+                    Text = "other-client reply driving upsertReply",
+                });
+
+                await WaitWhileTrueAsync(() => !replyReceived);
+            }
+            finally
+            {
+                thread.ReplyReceived -= replyHandler;
+            }
+
+            Assert.AreEqual(participantCountBefore, thread.ParticipantCount,
+                "ParticipantCount must NOT change when an existing participant replies again");
+
+            var localReadAfter = thread.Read.First(r => r.User != null && r.User.Id == localUserId);
+            Assert.AreEqual(unreadBefore + 1, localReadAfter.UnreadMessages,
+                "Local user's UnreadMessages must increment by exactly 1 for the new non-local reply");
+
+            var top = thread.ThreadParticipants[0];
+            Assert.AreEqual(otherUserId, top.User?.Id ?? top.UserId,
+                "Most recent replier must be sorted to index 0 of ThreadParticipants");
+        }
     }
 }
 #endif
