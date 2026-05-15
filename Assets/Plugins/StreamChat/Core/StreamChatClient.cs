@@ -876,6 +876,31 @@ namespace StreamChat.Core
             {
                 streamChannel.HandleMessageDeletedEvent(eventMessageDeleted);
             }
+
+            var deletedMessage = eventMessageDeleted.Message;
+            if (deletedMessage == null)
+            {
+                return;
+            }
+
+            var isHardDelete = eventMessageDeleted.HardDelete;
+
+            // Reply: drop it from its thread's LatestReplies. Mirrors Android's
+            // QueryThreadsStateLogic.deleteMessageFromThread.
+            if (!string.IsNullOrEmpty(deletedMessage.ParentId)
+                && _cache.Threads.TryGet(deletedMessage.ParentId, out var thread))
+            {
+                thread.HandleReplyDeleted(deletedMessage.Id, isHardDelete);
+            }
+
+            // Parent: hard-deleting the parent destroys the thread. Soft-delete leaves
+            // the thread in place with the parent message marked as deleted.
+            if (string.IsNullOrEmpty(deletedMessage.ParentId)
+                && isHardDelete
+                && _cache.Threads.TryGet(deletedMessage.Id, out var deletedThread))
+            {
+                _cache.Threads.Remove(deletedThread);
+            }
         }
 
         private void OnMessageUpdated(MessageUpdatedEventInternalDTO eventMessageUpdated)

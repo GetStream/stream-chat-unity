@@ -647,6 +647,46 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         /// <summary>
+        /// Verifies that hard-deleting a thread reply removes it from the parent
+        /// thread's <see cref="IStreamThread.LatestReplies"/> and decrements the
+        /// reply count tracked by the local thread state.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_thread_reply_hard_deleted_expect_reply_removed_from_latest_replies()
+            => ConnectAndExecute(When_thread_reply_hard_deleted_expect_reply_removed_from_latest_replies_Async);
+
+        private async Task When_thread_reply_hard_deleted_expect_reply_removed_from_latest_replies_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for hard-delete cleanup");
+
+            var reply = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply that will be hard-deleted",
+            });
+
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 10);
+
+            await WaitWhileTrueAsync(() => thread.LatestReplies.All(m => m.Id != reply.Id));
+            Assert.IsTrue(thread.LatestReplies.Any(m => m.Id == reply.Id),
+                "Precondition: thread must contain the reply before delete");
+
+            var latestRepliesCountBefore = thread.LatestReplies.Count;
+
+            await reply.HardDeleteAsync();
+
+            await WaitWhileTrueAsync(() => !reply.DeletedAt.HasValue);
+
+            Assert.IsFalse(thread.LatestReplies.Any(m => m.Id == reply.Id),
+                "Hard-deleted reply must be removed from Thread.LatestReplies");
+
+            Assert.AreEqual(latestRepliesCountBefore - 1, thread.LatestReplies.Count,
+                "LatestReplies.Count must shrink by exactly 1 after a hard delete");
+        }
+
+        /// <summary>
         /// Regression test for the nested-channel commands deserialization bug.
         ///
         /// ChannelInternalDTO is the response-side, nested channel DTO used by

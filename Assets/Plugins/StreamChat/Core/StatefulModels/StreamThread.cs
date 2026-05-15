@@ -343,6 +343,31 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
+        internal void HandleReplyDeleted(string messageId, bool isHardDelete)
+        {
+            if (string.IsNullOrEmpty(messageId) || !isHardDelete)
+            {
+                return;
+            }
+
+            for (var i = 0; i < _latestReplies.Count; i++)
+            {
+                if (_latestReplies[i].Id != messageId)
+                {
+                    continue;
+                }
+
+                _latestReplies.RemoveAt(i);
+
+                if (ReplyCount.HasValue && ReplyCount.Value > 0)
+                {
+                    ReplyCount = ReplyCount.Value - 1;
+                }
+
+                return;
+            }
+        }
+
         internal void MergeIntoLatestReplies(IReadOnlyList<IStreamMessage> messages)
         {
             if (messages == null || messages.Count == 0)
