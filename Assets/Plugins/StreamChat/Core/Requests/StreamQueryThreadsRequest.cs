@@ -53,9 +53,11 @@ namespace StreamChat.Core.Requests
         public string Prev { get; set; }
 
         /// <summary>
-        /// Whether to start watching the channels each returned thread belongs to
+        /// Whether to start watching the channels each returned thread belongs to.
+        /// Defaults to <c>true</c> so that realtime WebSocket events (e.g. <c>thread.updated</c>,
+        /// <c>notification.thread_message_new</c>) are delivered for the returned threads.
         /// </summary>
-        public bool? Watch { get; set; }
+        public bool Watch { get; set; } = true;
 
         QueryThreadsRequestInternalDTO ISavableTo<QueryThreadsRequestInternalDTO>.SaveToDto()
         {
