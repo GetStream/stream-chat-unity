@@ -125,24 +125,49 @@ namespace StreamChat.Core.StatefulModels
 
         public Task MarkReadAsync()
         {
-            if (Channel == null)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot mark thread {ParentMessageId} as read because its parent channel is not loaded.");
-            }
-
-            return Channel.MarkThreadAsReadAsync(ParentMessageId);
+            ResolveChannelTypeAndId(out var channelType, out var channelId);
+            return LowLevelClient.InternalChannelApi.MarkReadAsync(channelType, channelId,
+                new MarkReadRequestInternalDTO
+                {
+                    ThreadId = ParentMessageId,
+                });
         }
 
         public Task MarkUnreadAsync()
         {
-            if (Channel == null)
+            ResolveChannelTypeAndId(out var channelType, out var channelId);
+            return LowLevelClient.InternalChannelApi.MarkUnreadAsync(channelType, channelId,
+                new MarkUnreadRequestInternalDTO
+                {
+                    ThreadId = ParentMessageId,
+                });
+        }
+
+        // Thread events (thread.updated, notification.thread_message_new, notification.mark_read/unread)
+        // can deliver a ThreadResponse without the embedded Channel object while still carrying a valid
+        // ChannelCid. Fall back to parsing the cid so customers can mark such threads as read/unread.
+        private void ResolveChannelTypeAndId(out string channelType, out string channelId)
+        {
+            if (Channel != null)
             {
-                throw new InvalidOperationException(
-                    $"Cannot mark thread {ParentMessageId} as unread because its parent channel is not loaded.");
+                channelType = Channel.Type;
+                channelId = Channel.Id;
+                return;
             }
 
-            return Channel.MarkThreadAsUnreadAsync(ParentMessageId);
+            if (!string.IsNullOrEmpty(ChannelCid))
+            {
+                var separatorIndex = ChannelCid.IndexOf(':');
+                if (separatorIndex > 0 && separatorIndex < ChannelCid.Length - 1)
+                {
+                    channelType = ChannelCid.Substring(0, separatorIndex);
+                    channelId = ChannelCid.Substring(separatorIndex + 1);
+                    return;
+                }
+            }
+
+            throw new InvalidOperationException(
+                $"Cannot resolve the parent channel of thread {ParentMessageId}. Both Channel and ChannelCid are missing or malformed.");
         }
 
         void IUpdateableFrom<ThreadStateResponseInternalDTO, StreamThread>.UpdateFromDto(
