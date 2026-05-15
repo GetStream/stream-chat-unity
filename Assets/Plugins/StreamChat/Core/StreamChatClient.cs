@@ -982,7 +982,7 @@ namespace StreamChat.Core
             {
                 ((IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>)thread)
                     .UpdateFromDto(eventDto.Thread, _cache);
-                thread.HandleNotifyReadStateChanged();
+                thread.HandleMarkReadByUser(eventDto.User?.Id, eventDto.CreatedAt);
             }
         }
 
@@ -1006,7 +1006,7 @@ namespace StreamChat.Core
                         .UpdateFromDto(eventDto.Thread, _cache);
                 }
 
-                thread.HandleNotifyReadStateChanged();
+                thread.HandleMarkReadByUser(eventDto.User?.Id, eventDto.CreatedAt);
             }
         }
 

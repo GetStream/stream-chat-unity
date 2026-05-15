@@ -420,6 +420,118 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(activeParticipantsBefore, thread.ActiveParticipantCount,
                 "Final ActiveParticipantCount must not be zeroed by notification.mark_read propagation");
         }
+
+        /// <summary>
+        /// notification.mark_read carries a narrowed ThreadResponse payload that omits the read
+        /// array, so applying it via UpdateFromDto leaves the local user's StreamRead untouched.
+        /// Customers listening to ReadStateChanged would observe a stale UnreadMessages > 0 even
+        /// though the server has just marked the thread as read. Mirror Android's
+        /// Thread.markAsReadByUser by zeroing UnreadMessages and bumping LastRead on the local
+        /// user's entry before raising the event.
+        ///
+        /// Two-client setup is required: the server only emits a per-user read entry for the
+        /// thread when somebody other than the local user posts a reply. A single-author thread
+        /// returns an empty read array regardless of MarkUnread, so we use otherClient to send
+        /// the reply that creates the unread state we are about to clear.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_notification_mark_read_event_received_expect_local_user_unread_count_cleared()
+            => ConnectAndExecute(When_notification_mark_read_event_received_expect_local_user_unread_count_cleared_Async);
+
+        private async Task When_notification_mark_read_event_received_expect_local_user_unread_count_cleared_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+
+            var channel = await CreateUniqueTempChannelAsync();
+
+            // Pre-watch from otherClient BEFORE adding it as a member. The notification.added_to_channel
+            // handler fetches channel state with threads[] when the channel is not yet cached, and the
+            // current ChannelConfigInternalDTO has Commands as List<string>, but the server sends an
+            // array of command objects under threads[].channel.config.commands - the fetch crashes
+            // and otherClient never receives the channel via the added-to-channel path. Pre-watching
+            // populates the cache so the handler's wasCreated check skips the buggy fetch.
+            var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+
+            await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
+
+            var parent = await channel.SendNewMessageAsync("thread parent for unread clear");
+
+            // Local must post the first reply so they become a thread participant. A Stream thread
+            // is owned by the first replier, not the parent's author; without this the server
+            // returns thread.read = [] for the local user and we can't observe unread state.
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "local reply (makes local user a thread participant)",
+            });
+
+            var otherClientParent = await TryAsync(
+                () => Task.FromResult(otherClientChannel.Messages.SingleOrDefault(m => m.Id == parent.Id)),
+                m => m != null);
+
+            await otherClientChannel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = otherClientParent.Id,
+                ShowInChannel = false,
+                Text = "reply from other client",
+            });
+
+            var thread = await Client.Threads.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+
+            var localUserId = Client.LocalUserData.UserId;
+
+            // The local Read entry materializes only once the server has propagated the other
+            // client's reply through the thread's read aggregation. Refresh on a backoff matches
+            // what a customer would do if they wanted up-to-date thread state.
+            var localRead = await TryAsync(
+                async () =>
+                {
+                    await thread.RefreshAsync();
+                    return thread.Read.FirstOrDefault(r => r.User != null && r.User.Id == localUserId);
+                },
+                r => r != null && r.UnreadMessages > 0);
+
+            Assert.Greater(localRead.UnreadMessages, 0,
+                "Precondition: local user's unread count must be >0 after the other client posts a reply");
+
+            var beforeLastRead = localRead.LastRead;
+
+            var readSeen = false;
+            StreamThreadReadHandler readHandler = _ => readSeen = true;
+            thread.ReadStateChanged += readHandler;
+
+            try
+            {
+                await thread.MarkReadAsync();
+
+                // notification.mark_read may not be echoed back to the caller; if no event arrives
+                // the buggy code path is never exercised and there is nothing to assert.
+                try
+                {
+                    await WaitWhileTrueAsync(() => !readSeen, maxSeconds: 5);
+                }
+                catch (TimeoutException)
+                {
+                }
+            }
+            finally
+            {
+                thread.ReadStateChanged -= readHandler;
+            }
+
+            if (!readSeen)
+            {
+                return;
+            }
+
+            var afterRead = thread.Read.FirstOrDefault(r => r.User != null && r.User.Id == localUserId);
+            Assert.NotNull(afterRead, "Local user's Read entry must still exist after mark-read");
+            Assert.AreEqual(0, afterRead.UnreadMessages,
+                "After notification.mark_read fires, the local user's UnreadMessages must be reset to 0");
+            Assert.GreaterOrEqual(afterRead.LastRead, beforeLastRead,
+                "After notification.mark_read fires, the local user's LastRead must advance");
+        }
     }
 }
 #endif

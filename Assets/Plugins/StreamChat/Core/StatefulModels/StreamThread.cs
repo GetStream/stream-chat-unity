@@ -307,6 +307,27 @@ namespace StreamChat.Core.StatefulModels
             ReadStateChanged?.Invoke(this);
         }
 
+        // Mirrors Android's Thread.markAsReadByUser: ThreadResponseInternalDTO (the payload
+        // carried by message.read / notification.mark_read) does not include the read array,
+        // so we must mutate the local user's StreamRead in place before raising the event.
+        internal void HandleMarkReadByUser(string userId, DateTimeOffset createdAt)
+        {
+            if (!string.IsNullOrEmpty(userId))
+            {
+                for (var i = 0; i < _read.Count; i++)
+                {
+                    var read = _read[i];
+                    if (read.User != null && read.User.Id == userId)
+                    {
+                        read.Update(createdAt, unreadMessages: 0);
+                        break;
+                    }
+                }
+            }
+
+            ReadStateChanged?.Invoke(this);
+        }
+
         protected override string InternalUniqueId
         {
             get => ParentMessageId;
