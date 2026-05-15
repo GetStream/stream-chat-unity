@@ -1116,6 +1116,100 @@ namespace StreamChat.Tests.StatefulClient
                 "The newly-added channel must appear in the other client's WatchedChannels - " +
                 "previously the buggy fetch faulted inside ContinueWith and silently dropped it.");
         }
+
+        /// <summary>
+        /// A thread reply with <c>ShowInChannel = false</c> (or unset) must live only in
+        /// <see cref="IStreamThread.LatestReplies"/>. It must not pollute the channel timeline
+        /// or fire <see cref="IStreamChannel.MessageReceived"/>. Mirrors Android's
+        /// ChannelLogic filter `parentId != null AND !showInChannel`.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_thread_only_reply_received_expect_not_added_to_channel_messages()
+            => ConnectAndExecute(When_thread_only_reply_received_expect_not_added_to_channel_messages_Async);
+
+        private async Task When_thread_only_reply_received_expect_not_added_to_channel_messages_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent");
+
+            // Server creates the thread only after the first reply, so seed one before GetThreadAsync.
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "first reply (creates thread)",
+            });
+
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+
+            IStreamMessage receivedInChannel = null;
+            void OnMessageReceived(IStreamChannel ch, IStreamMessage msg) => receivedInChannel = msg;
+            channel.MessageReceived += OnMessageReceived;
+
+            try
+            {
+                var reply = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+                {
+                    ParentId = parent.Id,
+                    ShowInChannel = false,
+                    Text = "thread-only reply",
+                });
+
+                await WaitWhileTrueAsync(() => !thread.LatestReplies.Any(r => r.Id == reply.Id), maxSeconds: 15);
+
+                Assert.IsTrue(thread.LatestReplies.Any(r => r.Id == reply.Id),
+                    "Thread-only reply must be added to thread.LatestReplies.");
+                Assert.IsFalse(channel.Messages.Any(m => m.Id == reply.Id),
+                    "Thread-only reply must NOT be added to channel.Messages.");
+                Assert.IsNull(receivedInChannel,
+                    "channel.MessageReceived must NOT fire for thread-only replies.");
+            }
+            finally
+            {
+                channel.MessageReceived -= OnMessageReceived;
+            }
+        }
+
+        /// <summary>
+        /// A thread reply with <c>ShowInChannel = true</c> must live in both
+        /// <see cref="IStreamThread.LatestReplies"/> and the channel timeline.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_thread_reply_with_show_in_channel_received_expect_added_to_channel_messages()
+            => ConnectAndExecute(When_thread_reply_with_show_in_channel_received_expect_added_to_channel_messages_Async);
+
+        private async Task When_thread_reply_with_show_in_channel_received_expect_added_to_channel_messages_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent");
+
+            // Server creates the thread only after the first reply, so seed one before GetThreadAsync.
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "first reply (creates thread)",
+            });
+
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+
+            var reply = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = true,
+                Text = "thread reply also in channel",
+            });
+
+            await WaitWhileTrueAsync(
+                () => !thread.LatestReplies.Any(r => r.Id == reply.Id)
+                      || !channel.Messages.Any(m => m.Id == reply.Id),
+                maxSeconds: 15);
+
+            Assert.IsTrue(thread.LatestReplies.Any(r => r.Id == reply.Id),
+                "Reply with ShowInChannel=true must appear in thread.LatestReplies.");
+            Assert.IsTrue(channel.Messages.Any(m => m.Id == reply.Id),
+                "Reply with ShowInChannel=true must also appear in channel.Messages.");
+        }
     }
 }
 #endif

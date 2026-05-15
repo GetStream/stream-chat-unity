@@ -880,6 +880,18 @@ namespace StreamChat.Core.StatefulModels
         private bool InternalAppendOrUpdateMessage(MessageInternalDTO dto, out StreamMessage streamMessage)
         {
             streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
+
+            // A message belongs in the channel timeline iff it's a top-level message,
+            // or a thread reply explicitly opted into "also show in channel".
+            // Thread-only replies stay in the cache and are routed to their thread by
+            // StreamChatClient.OnMessageReceived / OnNotificationThreadMessageNew.
+            // Mirrors Android's ChannelLogic which filters parentId != null && !showInChannel.
+            var isThreadOnlyReply = !string.IsNullOrEmpty(dto.ParentId) && dto.ShowInChannel != true;
+            if (isThreadOnlyReply)
+            {
+                return false;
+            }
+
             var isNewMessage = wasCreated && !_messages.ContainsNoAlloc(streamMessage);
             if (!isNewMessage)
             {
