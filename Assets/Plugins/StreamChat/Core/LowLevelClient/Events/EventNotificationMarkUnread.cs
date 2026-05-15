@@ -26,23 +26,23 @@ namespace StreamChat.Core.LowLevelClient.Events
         /// </summary>
         public string FirstUnreadMessageId { get; set; }
 
-        public DateTimeOffset LastReadAt { get; set; }
+        public DateTimeOffset? LastReadAt { get; set; }
 
         public string LastReadMessageId { get; set; }
 
         public string Team { get; set; }
 
-        public int TotalUnreadCount { get; set; }
+        public int? TotalUnreadCount { get; set; }
 
         public string Type { get; set; }
 
-        public int UnreadChannels { get; set; }
+        public int? UnreadChannels { get; set; }
 
-        public int UnreadCount { get; set; }
+        public int? UnreadCount { get; set; }
 
-        public int UnreadMessages { get; set; }
+        public int? UnreadMessages { get; set; }
 
-        public int UnreadThreads { get; set; }
+        public int? UnreadThreads { get; set; }
 
         public User User { get; set; }
 
