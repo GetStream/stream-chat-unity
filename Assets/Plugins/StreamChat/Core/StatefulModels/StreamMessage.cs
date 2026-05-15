@@ -285,11 +285,6 @@ namespace StreamChat.Core.StatefulModels
 
         public override string ToString() => $"{nameof(IStreamMessage)}: {Text}, From: {User}";
 
-        internal void InternalIncrementReplyCount()
-        {
-            ReplyCount = (ReplyCount ?? 0) + 1;
-        }
-
         void IUpdateableFrom<MessageInternalDTO, StreamMessage>.UpdateFromDto(MessageInternalDTO dto, ICache cache)
         {
             _attachments.TryReplaceRegularObjectsFromDto(dto.Attachments, cache);
@@ -378,6 +373,11 @@ namespace StreamChat.Core.StatefulModels
         internal void InternalHandleSoftDelete()
         {
             Text = string.Empty;
+        }
+
+        internal void InternalIncrementReplyCount()
+        {
+            ReplyCount = (ReplyCount ?? 0) + 1;
         }
 
         internal void HandleReactionNewEvent(ReactionNewEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)

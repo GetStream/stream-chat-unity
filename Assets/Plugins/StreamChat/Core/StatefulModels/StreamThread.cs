@@ -144,33 +144,6 @@ namespace StreamChat.Core.StatefulModels
                 });
         }
 
-        // Thread events (thread.updated, notification.thread_message_new, notification.mark_read/unread)
-        // can deliver a ThreadResponse without the embedded Channel object while still carrying a valid
-        // ChannelCid. Fall back to parsing the cid so customers can mark such threads as read/unread.
-        private void ResolveChannelTypeAndId(out string channelType, out string channelId)
-        {
-            if (Channel != null)
-            {
-                channelType = Channel.Type;
-                channelId = Channel.Id;
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(ChannelCid))
-            {
-                var separatorIndex = ChannelCid.IndexOf(':');
-                if (separatorIndex > 0 && separatorIndex < ChannelCid.Length - 1)
-                {
-                    channelType = ChannelCid.Substring(0, separatorIndex);
-                    channelId = ChannelCid.Substring(separatorIndex + 1);
-                    return;
-                }
-            }
-
-            throw new InvalidOperationException(
-                $"Cannot resolve the parent channel of thread {ParentMessageId}. Both Channel and ChannelCid are missing or malformed.");
-        }
-
         void IUpdateableFrom<ThreadStateResponseInternalDTO, StreamThread>.UpdateFromDto(
             ThreadStateResponseInternalDTO dto, ICache cache)
         {
@@ -327,6 +300,12 @@ namespace StreamChat.Core.StatefulModels
             Updated?.Invoke(this);
         }
 
+        internal StreamThread(string uniqueId, ICacheRepository<StreamThread> repository,
+            IStatefulModelContext context)
+            : base(uniqueId, repository, context)
+        {
+        }
+
         internal void HandleNewReply(IStreamMessage reply)
         {
             if (reply == null)
@@ -367,66 +346,6 @@ namespace StreamChat.Core.StatefulModels
             IncrementUnreadForOtherReaders(streamReply);
 
             ReplyReceived?.Invoke(this, reply);
-        }
-
-        private void UpsertReplySenderAsParticipant(StreamMessage reply)
-        {
-            var sender = reply.User;
-            var senderId = sender?.Id;
-            if (string.IsNullOrEmpty(senderId))
-            {
-                return;
-            }
-
-            var existingIndex = -1;
-            for (var i = 0; i < _threadParticipants.Count; i++)
-            {
-                var participant = _threadParticipants[i];
-                var pid = participant.User?.Id ?? participant.UserId;
-                if (pid == senderId)
-                {
-                    existingIndex = i;
-                    break;
-                }
-            }
-
-            if (existingIndex >= 0)
-            {
-                _threadParticipants[existingIndex].UpdateForNewReply(sender, reply.CreatedAt);
-            }
-            else
-            {
-                _threadParticipants.Add(new StreamThreadParticipant(sender, ParentMessageId, ChannelCid,
-                    reply.CreatedAt));
-                ParticipantCount = _threadParticipants.Count;
-            }
-
-            _threadParticipants.Sort(ThreadParticipantByLastReplyComparer.Instance);
-        }
-
-        private void IncrementUnreadForOtherReaders(StreamMessage reply)
-        {
-            var senderId = reply.User?.Id;
-            if (string.IsNullOrEmpty(senderId))
-            {
-                return;
-            }
-
-            var anyChanged = false;
-            for (var i = 0; i < _read.Count; i++)
-            {
-                var read = _read[i];
-                if (read.User != null && read.User.Id != senderId)
-                {
-                    read.Update(read.LastRead, read.UnreadMessages + 1);
-                    anyChanged = true;
-                }
-            }
-
-            if (anyChanged)
-            {
-                ReadStateChanged?.Invoke(this);
-            }
         }
 
         internal void HandleReplyDeleted(string messageId, bool isHardDelete)
@@ -534,10 +453,96 @@ namespace StreamChat.Core.StatefulModels
 
         protected override StreamThread Self => this;
 
-        internal StreamThread(string uniqueId, ICacheRepository<StreamThread> repository,
-            IStatefulModelContext context)
-            : base(uniqueId, repository, context)
+        private readonly Dictionary<string, object> _custom = new Dictionary<string, object>();
+        private readonly List<StreamMessage> _latestReplies = new List<StreamMessage>();
+        private readonly List<StreamRead> _read = new List<StreamRead>();
+        private readonly List<StreamThreadParticipant> _threadParticipants = new List<StreamThreadParticipant>();
+
+        private void UpsertReplySenderAsParticipant(StreamMessage reply)
         {
+            var sender = reply.User;
+            var senderId = sender?.Id;
+            if (string.IsNullOrEmpty(senderId))
+            {
+                return;
+            }
+
+            var existingIndex = -1;
+            for (var i = 0; i < _threadParticipants.Count; i++)
+            {
+                var participant = _threadParticipants[i];
+                var pid = participant.User?.Id ?? participant.UserId;
+                if (pid == senderId)
+                {
+                    existingIndex = i;
+                    break;
+                }
+            }
+
+            if (existingIndex >= 0)
+            {
+                _threadParticipants[existingIndex].UpdateForNewReply(sender, reply.CreatedAt);
+            }
+            else
+            {
+                _threadParticipants.Add(new StreamThreadParticipant(sender, ParentMessageId, ChannelCid,
+                    reply.CreatedAt));
+                ParticipantCount = _threadParticipants.Count;
+            }
+
+            _threadParticipants.Sort(ThreadParticipantByLastReplyComparer.Instance);
+        }
+
+        private void IncrementUnreadForOtherReaders(StreamMessage reply)
+        {
+            var senderId = reply.User?.Id;
+            if (string.IsNullOrEmpty(senderId))
+            {
+                return;
+            }
+
+            var anyChanged = false;
+            for (var i = 0; i < _read.Count; i++)
+            {
+                var read = _read[i];
+                if (read.User != null && read.User.Id != senderId)
+                {
+                    read.Update(read.LastRead, read.UnreadMessages + 1);
+                    anyChanged = true;
+                }
+            }
+
+            if (anyChanged)
+            {
+                ReadStateChanged?.Invoke(this);
+            }
+        }
+
+        // Thread events (thread.updated, notification.thread_message_new, notification.mark_read/unread)
+        // can deliver a ThreadResponse without the embedded Channel object while still carrying a valid
+        // ChannelCid. Fall back to parsing the cid so customers can mark such threads as read/unread.
+        private void ResolveChannelTypeAndId(out string channelType, out string channelId)
+        {
+            if (Channel != null)
+            {
+                channelType = Channel.Type;
+                channelId = Channel.Id;
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(ChannelCid))
+            {
+                var separatorIndex = ChannelCid.IndexOf(':');
+                if (separatorIndex > 0 && separatorIndex < ChannelCid.Length - 1)
+                {
+                    channelType = ChannelCid.Substring(0, separatorIndex);
+                    channelId = ChannelCid.Substring(separatorIndex + 1);
+                    return;
+                }
+            }
+
+            throw new InvalidOperationException(
+                $"Cannot resolve the parent channel of thread {ParentMessageId}. Both Channel and ChannelCid are missing or malformed.");
         }
 
         private void LoadAdditionalCustom(Dictionary<string, object> custom)
@@ -553,11 +558,6 @@ namespace StreamChat.Core.StatefulModels
                 _custom[keyValuePair.Key] = keyValuePair.Value;
             }
         }
-
-        private readonly Dictionary<string, object> _custom = new Dictionary<string, object>();
-        private readonly List<StreamMessage> _latestReplies = new List<StreamMessage>();
-        private readonly List<StreamRead> _read = new List<StreamRead>();
-        private readonly List<StreamThreadParticipant> _threadParticipants = new List<StreamThreadParticipant>();
 
         // Most-recent-replier first; participants without a LastThreadMessageAt
         // (e.g. mentioned-only, never replied) go last. Mirrors Android's PARTICIPANT_BY_LAST_REPLY.
