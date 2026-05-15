@@ -369,11 +369,6 @@ namespace StreamChat.Core.StatefulModels
 
         internal void SortLatestRepliesByCreatedAt() => _latestReplies.Sort(MessageCreatedAtComparer.Instance);
 
-        internal void HandleNotifyReadStateChanged()
-        {
-            ReadStateChanged?.Invoke(this);
-        }
-
         // Mirrors Android's Thread.markAsReadByUser: ThreadResponseInternalDTO (the payload
         // carried by message.read / notification.mark_read) does not include the read array,
         // so we must mutate the local user's StreamRead in place before raising the event.
@@ -387,6 +382,31 @@ namespace StreamChat.Core.StatefulModels
                     if (read.User != null && read.User.Id == userId)
                     {
                         read.Update(createdAt, unreadMessages: 0);
+                        break;
+                    }
+                }
+            }
+
+            ReadStateChanged?.Invoke(this);
+        }
+
+        // Mirrors Android's Thread.markAsUnreadByUser. notification.mark_unread carries no
+        // read array, so we must mutate the acting user's StreamRead in place before raising
+        // the event. Bump UnreadMessages by 1 (clamped to >= 1 so a stale 0 still surfaces as
+        // unread) and advance LastRead to the event's last_read_at when present. The server
+        // normalizes the final count on the next read aggregation.
+        internal void HandleMarkUnreadByUser(string userId, DateTimeOffset? lastReadAt)
+        {
+            if (!string.IsNullOrEmpty(userId))
+            {
+                for (var i = 0; i < _read.Count; i++)
+                {
+                    var read = _read[i];
+                    if (read.User != null && read.User.Id == userId)
+                    {
+                        var newUnread = Math.Max(1, read.UnreadMessages + 1);
+                        var newLastRead = lastReadAt ?? read.LastRead;
+                        read.Update(newLastRead, newUnread);
                         break;
                     }
                 }

@@ -1620,12 +1620,14 @@ namespace StreamChat.Core
                 channel.InternalHandleMarkUnreadNotification(eventDto);
             }
 
-            // Thread mark-unread propagation: only fire for a thread we're already tracking.
-            // Matches Android's QueryThreadsLogic.markThreadAsUnreadByUser which early-returns for unknown threads.
+            // Thread mark-unread propagation: only mutate a thread we're already tracking.
+            // Matches Android's QueryThreadsLogic.markThreadAsUnreadByUser which early-returns
+            // for unknown threads. The event payload omits the read array, so HandleMarkUnreadByUser
+            // mutates the acting user's StreamRead in place before raising ReadStateChanged.
             if (!string.IsNullOrEmpty(eventDto.ThreadId)
                 && _cache.Threads.TryGet(eventDto.ThreadId, out var thread))
             {
-                thread.HandleNotifyReadStateChanged();
+                thread.HandleMarkUnreadByUser(eventDto.User?.Id, eventDto.LastReadAt);
             }
         }
 
