@@ -106,8 +106,6 @@ namespace StreamChat.Core
 
         public IStreamPollsApi Polls => _pollsApi;
 
-        public IStreamThreadsApi Threads => _threadsApi;
-
         /// <inheritdoc cref="StreamChatLowLevelClient.SDKVersion"/>
         public static Version SDKVersion => StreamChatLowLevelClient.SDKVersion;
 
@@ -456,6 +454,51 @@ namespace StreamChat.Core
             return result;
         }
 
+        public async Task<IStreamThread> GetThreadAsync(string parentMessageId,
+            int? replyLimit = null,
+            int? participantLimit = null,
+            int? memberLimit = null,
+            bool watch = true)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(parentMessageId, nameof(parentMessageId));
+
+            var response = await InternalLowLevelClient.InternalThreadsApi.GetThreadAsync(parentMessageId,
+                replyLimit: replyLimit,
+                participantLimit: participantLimit,
+                memberLimit: memberLimit,
+                watch: watch);
+
+            return _cache.TryCreateOrUpdate(response.Thread);
+        }
+
+        public async Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request)
+        {
+            StreamAsserts.AssertNotNull(request, nameof(request));
+
+            var requestDto = request.TrySaveToDto();
+            var response = await InternalLowLevelClient.InternalThreadsApi.QueryThreadsAsync(requestDto);
+
+            var threads = new List<IStreamThread>();
+            if (response.Threads != null)
+            {
+                foreach (var threadDto in response.Threads)
+                {
+                    var thread = _cache.TryCreateOrUpdate(threadDto);
+                    if (thread != null)
+                    {
+                        threads.Add(thread);
+                    }
+                }
+            }
+
+            return new StreamQueryThreadsResponse
+            {
+                Threads = threads,
+                Next = response.Next,
+                Prev = response.Prev,
+            };
+        }
+
         public Task<IEnumerable<IStreamUser>> UpsertUsersAsync(IEnumerable<StreamUserUpsertRequest> userRequests)
             => UpsertUsers(userRequests);
 
@@ -673,7 +716,6 @@ namespace StreamChat.Core
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
         private readonly StreamPollsApi _pollsApi;
-        private readonly StreamThreadsApi _threadsApi;
 
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -711,7 +753,6 @@ namespace StreamChat.Core
 
             _cache = new Cache(this, serializer, _logs);
             _pollsApi = new StreamPollsApi(InternalLowLevelClient, _cache);
-            _threadsApi = new StreamThreadsApi(InternalLowLevelClient, _cache);
 
             SubscribeTo(InternalLowLevelClient);
         }

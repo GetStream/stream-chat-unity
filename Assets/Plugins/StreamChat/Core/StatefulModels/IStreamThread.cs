@@ -22,7 +22,7 @@ namespace StreamChat.Core.StatefulModels
 
     /// <summary>
     /// Stateful thread model. A thread groups replies to a parent <see cref="IStreamMessage"/> in a <see cref="IStreamChannel"/>.
-    /// You can obtain instances using <see cref="IStreamThreadsApi.QueryThreadsAsync"/>, <see cref="IStreamThreadsApi.GetThreadAsync"/>
+    /// You can obtain instances using <see cref="IStreamChatClient.QueryThreadsAsync"/>, <see cref="IStreamChatClient.GetThreadAsync"/>
     /// or by calling <see cref="IStreamMessage.GetThreadAsync"/>.
     /// </summary>
     public interface IStreamThread : IStreamStatefulModel

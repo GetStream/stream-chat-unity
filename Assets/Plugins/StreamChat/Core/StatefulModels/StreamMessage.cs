@@ -195,7 +195,7 @@ namespace StreamChat.Core.StatefulModels
         }
 
         public Task<IStreamThread> GetThreadAsync(int? replyLimit = null, int? participantLimit = null)
-            => Client.Threads.GetThreadAsync(Id, replyLimit: replyLimit, participantLimit: participantLimit);
+            => Client.GetThreadAsync(Id, replyLimit: replyLimit, participantLimit: participantLimit);
 
         public async Task<IReadOnlyList<IStreamMessage>> LoadRepliesAsync(int limit = 25, string idLessThan = null)
         {

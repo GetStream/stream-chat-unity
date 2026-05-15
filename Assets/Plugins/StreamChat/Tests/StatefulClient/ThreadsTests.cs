@@ -57,7 +57,7 @@ namespace StreamChat.Tests.StatefulClient
                 Text = "reply",
             });
 
-            var thread = await Client.Threads.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
 
             Assert.NotNull(thread);
             Assert.AreEqual(parent.Id, thread.ParentMessageId);
@@ -81,7 +81,7 @@ namespace StreamChat.Tests.StatefulClient
                 Text = "reply",
             });
 
-            var response = await Client.Threads.QueryThreadsAsync(new StreamQueryThreadsRequest
+            var response = await Client.QueryThreadsAsync(new StreamQueryThreadsRequest
             {
                 Limit = 20,
                 ReplyLimit = 5,
@@ -136,7 +136,7 @@ namespace StreamChat.Tests.StatefulClient
             AssertOrderedAscendingByCreatedAt(olderPage);
 
             // Older messages should be ordered before the first page in the cached thread list
-            var thread = await Client.Threads.GetThreadAsync(parent.Id);
+            var thread = await Client.GetThreadAsync(parent.Id);
             AssertOrderedAscendingByCreatedAt(thread.LatestReplies);
             foreach (var older in olderPage)
             {
@@ -172,7 +172,7 @@ namespace StreamChat.Tests.StatefulClient
                 Text = "reply",
             });
 
-            var thread = await Client.Threads.GetThreadAsync(parent.Id);
+            var thread = await Client.GetThreadAsync(parent.Id);
 
             await thread.UpdatePartialAsync(setFields: new System.Collections.Generic.Dictionary<string, object>
             {
@@ -253,7 +253,7 @@ namespace StreamChat.Tests.StatefulClient
                 Text = "reply",
             });
 
-            var thread = await Client.Threads.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
 
             await WaitWhileTrueAsync(() => (thread.ParticipantCount ?? 0) == 0);
 
@@ -344,7 +344,7 @@ namespace StreamChat.Tests.StatefulClient
                 Text = "reply",
             });
 
-            var thread = await Client.Threads.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
 
             await WaitWhileTrueAsync(() => (thread.ParticipantCount ?? 0) == 0);
 
@@ -477,7 +477,7 @@ namespace StreamChat.Tests.StatefulClient
                 Text = "reply from other client",
             });
 
-            var thread = await Client.Threads.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
+            var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
 
             var localUserId = Client.LocalUserData.UserId;
 

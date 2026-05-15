@@ -4,7 +4,7 @@ using StreamChat.Core.StatefulModels;
 namespace StreamChat.Core.Responses
 {
     /// <summary>
-    /// Response from <see cref="IStreamThreadsApi.QueryThreadsAsync"/>
+    /// Response from <see cref="IStreamChatClient.QueryThreadsAsync"/>
     /// </summary>
     public class StreamQueryThreadsResponse
     {

@@ -8,7 +8,7 @@ using StreamChat.Core.QueryBuilders.Sort;
 namespace StreamChat.Core.Requests
 {
     /// <summary>
-    /// Request to query threads using <see cref="IStreamThreadsApi.QueryThreadsAsync"/>
+    /// Request to query threads using <see cref="IStreamChatClient.QueryThreadsAsync"/>
     /// </summary>
     public class StreamQueryThreadsRequest : ISavableTo<QueryThreadsRequestInternalDTO>
     {

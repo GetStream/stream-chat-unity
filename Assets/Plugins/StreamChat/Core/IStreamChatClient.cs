@@ -114,11 +114,6 @@ namespace StreamChat.Core
         IStreamPollsApi Polls { get; }
 
         /// <summary>
-        /// Threads API for retrieving and querying threads
-        /// </summary>
-        IStreamThreadsApi Threads { get; }
-
-        /// <summary>
         /// Connect user to Stream Chat server.
         /// User authentication credentials:
         /// ApiKey - Your application API KEY. You can get it from https://dashboard.getstream.io/
@@ -226,6 +221,28 @@ namespace StreamChat.Core
         /// <param name="streamQueryBannedUsersRequest">Request parameters object</param>
         Task<IEnumerable<StreamUserBanInfo>> QueryBannedUsersAsync(
             StreamQueryBannedUsersRequest streamQueryBannedUsersRequest);
+
+        /// <summary>
+        /// Get a thread by its parent message id.
+        /// A thread groups replies to a parent <see cref="IStreamMessage"/> in a <see cref="IStreamChannel"/>.
+        /// </summary>
+        /// <param name="parentMessageId">The id of the parent message of the thread</param>
+        /// <param name="replyLimit">[Optional] Number of replies to fetch</param>
+        /// <param name="participantLimit">[Optional] Number of participants to fetch</param>
+        /// <param name="memberLimit">[Optional] Number of channel members to include</param>
+        /// <param name="watch">[Optional] Whether to start watching the channel this thread belongs to. Defaults to true.</param>
+        /// <returns>The requested thread</returns>
+        Task<IStreamThread> GetThreadAsync(string parentMessageId,
+            int? replyLimit = null,
+            int? participantLimit = null,
+            int? memberLimit = null,
+            bool watch = true);
+
+        /// <summary>
+        /// Query threads with optional filters and sorting
+        /// </summary>
+        /// <param name="request">Query request</param>
+        Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request);
 
         /// <summary>
         /// Upsert users. Upsert means update this user or create if not found

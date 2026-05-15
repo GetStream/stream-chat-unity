@@ -54,7 +54,7 @@ namespace StreamChat.Samples
         public async Task GetThread()
         {
             // Fetch a thread by its parent message id
-            var thread = await Client.Threads.GetThreadAsync("parent-message-id", replyLimit: 25, participantLimit: 25);
+            var thread = await Client.GetThreadAsync("parent-message-id", replyLimit: 25, participantLimit: 25);
 
             var participants = thread.ThreadParticipants;
             var replies = thread.LatestReplies;
@@ -84,7 +84,7 @@ namespace StreamChat.Samples
                 Sort = ThreadSort.OrderByDescending(ThreadSortFieldName.LastMessageAt),
             };
 
-            var response = await Client.Threads.QueryThreadsAsync(request);
+            var response = await Client.QueryThreadsAsync(request);
 
             foreach (var thread in response.Threads)
             {
@@ -97,7 +97,7 @@ namespace StreamChat.Samples
             if (!string.IsNullOrEmpty(response.Next))
             {
                 request.Next = response.Next;
-                var nextPage = await Client.Threads.QueryThreadsAsync(request);
+                var nextPage = await Client.QueryThreadsAsync(request);
             }
         }
 
@@ -106,7 +106,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task UpdateThread()
         {
-            var thread = await Client.Threads.GetThreadAsync("parent-message-id");
+            var thread = await Client.GetThreadAsync("parent-message-id");
 
             await thread.UpdatePartialAsync(
                 setFields: new Dictionary<string, object>
@@ -122,7 +122,7 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task MarkThreadReadAndUnread()
         {
-            var thread = await Client.Threads.GetThreadAsync("parent-message-id");
+            var thread = await Client.GetThreadAsync("parent-message-id");
 
             // Mark this thread as read
             await thread.MarkReadAsync();
