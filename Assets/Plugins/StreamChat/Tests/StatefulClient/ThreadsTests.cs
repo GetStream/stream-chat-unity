@@ -647,6 +647,60 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         /// <summary>
+        /// Regression for the message.new (channel watch) path: a watching client that is NOT a
+        /// thread participant must still see the parent message's ReplyCount increment when another
+        /// user posts a reply. Previously only OnNotificationThreadMessageNew bumped
+        /// parent.ReplyCount, so watchers who never joined the thread would see a stale value
+        /// until the next REST refresh. Mirrors Android's updateParentOrReply.
+        ///
+        /// Setup: otherClient authors the parent and the first reply (so otherClient is the only
+        /// thread participant). The local client watches the channel via GetOrCreateChannelWithIdAsync
+        /// without ever fetching the thread, so the local cache holds no IStreamThread for this
+        /// parent and notification.thread_message_new will not be delivered. The only WS path that
+        /// can update parent.ReplyCount on the local client is message.new.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_watcher_receives_message_new_for_thread_reply_expect_parent_reply_count_increments()
+            => ConnectAndExecute(When_watcher_receives_message_new_for_thread_reply_expect_parent_reply_count_increments_Async);
+
+        private async Task When_watcher_receives_message_new_for_thread_reply_expect_parent_reply_count_increments_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+
+            var channel = await CreateUniqueTempChannelAsync();
+            await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
+
+            // otherClient owns the thread end-to-end so the local user never becomes a participant
+            // and therefore never receives notification.thread_message_new. The local user is
+            // already watching `channel` from CreateUniqueTempChannelAsync, so every WS message.new
+            // reaches OnMessageReceived - exactly the regression path under test.
+            var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+            var otherParent = await otherClientChannel.SendNewMessageAsync("thread parent for watcher reply count");
+
+            // Wait until the parent itself is visible in the local watcher's channel.Messages
+            // before posting any reply, so we can capture a deterministic baseline against the
+            // exact StreamMessage instance that OnMessageReceived will mutate.
+            var localParent = await TryAsync(
+                () => Task.FromResult(channel.Messages.SingleOrDefault(m => m.Id == otherParent.Id)),
+                m => m != null);
+
+            var replyCountBefore = localParent.ReplyCount ?? 0;
+
+            await otherClientChannel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = otherParent.Id,
+                ShowInChannel = false,
+                Text = "thread reply driving message.new on the non-participant watcher",
+            });
+
+            await WaitWhileTrueAsync(() => (localParent.ReplyCount ?? 0) <= replyCountBefore);
+
+            Assert.AreEqual(replyCountBefore + 1, localParent.ReplyCount ?? 0,
+                "Watcher's parent.ReplyCount must increment by exactly 1 when message.new arrives " +
+                "for a thread reply, even though the watcher is not a thread participant.");
+        }
+
+        /// <summary>
         /// Verifies that hard-deleting a thread reply removes it from the parent
         /// thread's <see cref="IStreamThread.LatestReplies"/> and decrements the
         /// reply count tracked by the local thread state.

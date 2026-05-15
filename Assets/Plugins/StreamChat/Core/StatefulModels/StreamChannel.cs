@@ -193,10 +193,32 @@ namespace StreamChat.Core.StatefulModels
 
             var response = await LowLevelClient.InternalMessageApi.SendNewMessageAsync(Type, Id,
                 sendMessageRequest.TrySaveToDto());
-            
+
+            // Snapshot whether the WS echo for this reply has already raced ahead of the REST
+            // response and inserted the reply into the cache. The WS handlers gate their parent
+            // bump on cache-insertion to keep duplicate event delivery safe; pairing the same
+            // gate here keeps SendNewMessageAsync's optimistic bump symmetric so the local
+            // sender's parent.ReplyCount increments exactly once across REST+WS.
+            var responseMessageId = response.Message?.Id;
+            var replyAlreadyInCache = !string.IsNullOrEmpty(responseMessageId)
+                                      && Cache.Messages.TryGet(responseMessageId, out _);
+
             //StreamTodo: we update internal cache message without server confirmation that message got accepted. e.g. message could be rejected
             //It's ok to update the cache "in good faith" to not introduce update delay but we should handle if message got rejected
             InternalAppendOrUpdateMessage(response.Message, out var streamMessage);
+
+            // Optimistic parent.ReplyCount bump for thread replies on the local sender. Without
+            // this, after InternalAppendOrUpdateMessage the reply is in cache and any subsequent
+            // WS echo (message.new / notification.thread_message_new) sees isInsert=false and
+            // skips the bump - leaving the local sender's parent.ReplyCount stale.
+            var parentId = response.Message?.ParentId;
+            if (!replyAlreadyInCache
+                && !string.IsNullOrEmpty(parentId)
+                && Cache.Messages.TryGet(parentId, out var parent))
+            {
+                parent.InternalIncrementReplyCount();
+            }
+
             return streamMessage;
         }
 

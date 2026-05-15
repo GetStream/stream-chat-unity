@@ -913,19 +913,39 @@ namespace StreamChat.Core
 
         private void OnMessageReceived(MessageNewEventInternalDTO eventDto)
         {
+            var messageDto = eventDto.Message;
+            var messageId = messageDto?.Id;
+
+            // Snapshot insert state BEFORE HandleMessageNewEvent populates the cache, so the
+            // first delivery of a given reply (whether via this event or notification.thread_message_new)
+            // bumps parent.ReplyCount exactly once. Mirrors Android's updateParentOrReply, which gates
+            // the parent counter on a true insert so duplicate or overlapping deliveries are safe.
+            var isInsert = !string.IsNullOrEmpty(messageId) && !_cache.Messages.TryGet(messageId, out _);
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.HandleMessageNewEvent(eventDto);
             }
 
-            // If this message is a thread reply and we track the thread, update it
-            var parentId = eventDto.Message?.ParentId;
-            if (!string.IsNullOrEmpty(parentId) && _cache.Threads.TryGet(parentId, out var thread))
+            var parentId = messageDto?.ParentId;
+            if (string.IsNullOrEmpty(parentId))
             {
-                if (_cache.Messages.TryGet(eventDto.Message.Id, out var reply))
-                {
-                    thread.HandleNewReply(reply);
-                }
+                return;
+            }
+
+            // Watching clients receive message.new but not notification.thread_message_new, so without
+            // this bump parent.ReplyCount drifts below the true value until the next REST refresh.
+            // Done unconditionally on the parent (independent of thread tracking) to match the
+            // notification.thread_message_new path.
+            if (isInsert && _cache.Messages.TryGet(parentId, out var parent))
+            {
+                parent.InternalIncrementReplyCount();
+            }
+
+            if (_cache.Threads.TryGet(parentId, out var thread)
+                && _cache.Messages.TryGet(messageId, out var reply))
+            {
+                thread.HandleNewReply(reply);
             }
         }
 
@@ -1610,15 +1630,22 @@ namespace StreamChat.Core
 
         private void OnNotificationThreadMessageNew(NotificationThreadMessageNewEventInternalDTO eventDto)
         {
-            if (eventDto.Message == null)
+            var messageDto = eventDto.Message;
+            if (messageDto == null)
             {
                 return;
             }
 
-            var reply = _cache.TryCreateOrUpdate(eventDto.Message);
+            // Snapshot insert state before TryCreateOrUpdate creates the cache entry. Pairs with
+            // the same gate in OnMessageReceived so a reply delivered via both event paths bumps
+            // parent.ReplyCount exactly once.
+            var isInsert = !string.IsNullOrEmpty(messageDto.Id) && !_cache.Messages.TryGet(messageDto.Id, out _);
+
+            var reply = _cache.TryCreateOrUpdate(messageDto);
 
             // Update parent's reply count if we know it
-            if (!string.IsNullOrEmpty(reply?.ParentId) && _cache.Messages.TryGet(reply.ParentId, out var parent))
+            if (isInsert && !string.IsNullOrEmpty(reply?.ParentId)
+                && _cache.Messages.TryGet(reply.ParentId, out var parent))
             {
                 parent.InternalIncrementReplyCount();
             }
