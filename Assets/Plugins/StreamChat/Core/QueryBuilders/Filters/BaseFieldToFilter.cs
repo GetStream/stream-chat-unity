@@ -87,5 +87,8 @@ namespace StreamChat.Core.QueryBuilders.Filters
         
         protected FieldFilterRule InternalContains(string value)
             => new FieldFilterRule(FieldName, QueryOperatorType.Contains, value);
+
+        protected FieldFilterRule InternalExists(bool exists)
+            => new FieldFilterRule(FieldName, QueryOperatorType.Exists, exists);
     }
 }

@@ -271,6 +271,31 @@ namespace StreamChat.Core
         Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request);
 
         /// <summary>
+        /// Search messages across the channels the local user can access.
+        ///
+        /// Unlike the low-level <c>Client.LowLevelClient.MessageApi.SearchMessagesAsync</c>, results
+        /// are returned as cached, stateful <see cref="IStreamMessage"/> (and accompanying
+        /// <see cref="IStreamChannel"/>) instances - the same objects already in the cache are
+        /// reused, and they continue to react to realtime WebSocket events.
+        ///
+        /// <para>
+        /// The <paramref name="request"/> requires a channel-level filter (e.g.
+        /// <c>ChannelFilter.Members.In(localUser)</c>). Additional message-level filters can be
+        /// expressed with <c>MessageFilter.*</c> builders, and a free-text phrase can be supplied
+        /// via <see cref="StreamSearchMessagesRequest.Query"/>. See <see cref="StreamSearchMessagesRequest"/>
+        /// for pagination and sorting options.
+        /// </para>
+        /// </summary>
+        /// <param name="request">Search parameters - channel filter, message filter, query phrase,
+        /// sort, and pagination.</param>
+        /// <param name="cancellationToken">[Optional] Cancellation token for the request.</param>
+        /// <returns>Stateful results plus pagination cursors.</returns>
+        /// <remarks>https://getstream.io/chat/docs/unity/search/?language=unity</remarks>
+        Task<StreamSearchMessagesResponse> SearchMessagesAsync(
+            StreamSearchMessagesRequest request,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Upsert users. Upsert means update this user or create if not found
         /// </summary>
         /// <param name="userRequests">Collection of user upsert requests</param>

@@ -502,6 +502,190 @@ namespace StreamChat.Core
             };
         }
 
+        public async Task<StreamSearchMessagesResponse> SearchMessagesAsync(
+            StreamSearchMessagesRequest request,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ValidateSearchMessagesRequest(request);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var requestDto = request.TrySaveToDto();
+            var responseDto =
+                await InternalLowLevelClient.InternalMessageApi.SearchMessagesAsync(requestDto);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var results = new List<StreamSearchMessageResult>();
+            var distinctChannels = new Dictionary<string, IStreamChannel>();
+
+            if (responseDto?.Results != null)
+            {
+                foreach (var resultDto in responseDto.Results)
+                {
+                    var searchMsgDto = resultDto?.Message;
+                    if (searchMsgDto == null)
+                    {
+                        continue;
+                    }
+
+                    IStreamChannel channel = null;
+                    if (searchMsgDto.Channel != null)
+                    {
+                        channel = _cache.TryCreateOrUpdate(searchMsgDto.Channel);
+                        if (channel != null && !distinctChannels.ContainsKey(channel.Cid))
+                        {
+                            distinctChannels.Add(channel.Cid, channel);
+                        }
+                    }
+
+                    var messageDto = ProjectSearchResultToMessageDto(searchMsgDto);
+                    var message = _cache.TryCreateOrUpdate(messageDto);
+
+                    results.Add(new StreamSearchMessageResult
+                    {
+                        Message = message,
+                        Channel = channel,
+                    });
+                }
+            }
+
+            if (request.WatchResultChannels && distinctChannels.Count > 0)
+            {
+                foreach (var channel in distinctChannels.Values)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    //StreamTodo: parallelise once cancellation is plumbed; serial keeps load predictable for now.
+                    await InternalGetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+                }
+            }
+
+            return new StreamSearchMessagesResponse
+            {
+                Results = results,
+                Next = responseDto?.Next,
+                Previous = responseDto?.Previous,
+                Duration = responseDto?.Duration,
+                ResultsWarning = BuildSearchWarning(responseDto?.ResultsWarning),
+            };
+        }
+
+        private static void ValidateSearchMessagesRequest(StreamSearchMessagesRequest request)
+        {
+            StreamAsserts.AssertNotNull(request, nameof(request));
+
+            var hasChannelFilter = request.ChannelFilter != null && request.ChannelFilter.Any();
+            if (!hasChannelFilter)
+            {
+                throw new ArgumentException(
+                    "ChannelFilter is required for SearchMessagesAsync. Add at least one rule, " +
+                    "e.g. ChannelFilter.Members.In(Client.LocalUserData.User).",
+                    nameof(request));
+            }
+
+            if (request.Offset.HasValue && !string.IsNullOrEmpty(request.Next))
+            {
+                throw new ArgumentException(
+                    "Offset and Next pagination are mutually exclusive on SearchMessagesAsync.",
+                    nameof(request));
+            }
+
+            if (request.Sort != null && request.Offset.HasValue && request.Offset.Value > 0)
+            {
+                throw new ArgumentException(
+                    "Sort cannot be combined with a non-zero Offset on SearchMessagesAsync. " +
+                    "Use the Next cursor for sorted pagination.",
+                    nameof(request));
+            }
+
+            if (request.Limit.HasValue && request.Limit.Value < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(request),
+                    "Limit must be greater than or equal to 1.");
+            }
+
+            if (!string.IsNullOrEmpty(request.Query) && request.MessageFilter != null)
+            {
+                foreach (var rule in request.MessageFilter)
+                {
+                    if (rule != null && rule.Field == "text")
+                    {
+                        throw new ArgumentException(
+                            "Query and a MessageFilter rule on the 'text' field cannot be combined. " +
+                            "Pick one - either pass a free-text Query, or filter by MessageFilter.Text.",
+                            nameof(request));
+                    }
+                }
+            }
+        }
+
+        private static MessageInternalDTO ProjectSearchResultToMessageDto(SearchResultMessageInternalDTO source)
+        {
+            // Project the search-specific payload onto the canonical message DTO so that the cache
+            // can reuse the existing StreamMessage create/update path. Every field on
+            // SearchResultMessageInternalDTO has a one-to-one counterpart on MessageInternalDTO
+            // except for the embedded Channel, which is cached separately.
+            return new MessageInternalDTO
+            {
+                Attachments = source.Attachments,
+                BeforeMessageSendFailed = source.BeforeMessageSendFailed,
+                Cid = source.Cid,
+                Command = source.Command,
+                CreatedAt = source.CreatedAt,
+                Custom = source.Custom,
+                DeletedAt = source.DeletedAt,
+                DeletedReplyCount = source.DeletedReplyCount,
+                Html = source.Html,
+                I18n = source.I18n,
+                Id = source.Id,
+                ImageLabels = source.ImageLabels,
+                LatestReactions = source.LatestReactions,
+                MentionedUsers = source.MentionedUsers,
+                MessageTextUpdatedAt = source.MessageTextUpdatedAt,
+                Mml = source.Mml,
+                OwnReactions = source.OwnReactions,
+                ParentId = source.ParentId,
+                PinExpires = source.PinExpires,
+                Pinned = source.Pinned,
+                PinnedAt = source.PinnedAt,
+                PinnedBy = source.PinnedBy,
+                Poll = source.Poll,
+                PollId = source.PollId,
+                QuotedMessage = source.QuotedMessage,
+                QuotedMessageId = source.QuotedMessageId,
+                ReactionCounts = source.ReactionCounts,
+                ReactionGroups = source.ReactionGroups,
+                ReactionScores = source.ReactionScores,
+                ReplyCount = source.ReplyCount,
+                Shadowed = source.Shadowed,
+                ShowInChannel = source.ShowInChannel,
+                Silent = source.Silent,
+                Text = source.Text,
+                ThreadParticipants = source.ThreadParticipants,
+                Type = source.Type,
+                UpdatedAt = source.UpdatedAt,
+                User = source.User,
+                AdditionalProperties = source.AdditionalProperties,
+            };
+        }
+
+        private static StreamSearchWarning BuildSearchWarning(SearchWarningInternalDTO dto)
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            return new StreamSearchWarning
+            {
+                Code = dto.WarningCode,
+                Description = dto.WarningDescription,
+                ChannelSearchCount = dto.ChannelSearchCount,
+                ChannelIds = dto.ChannelSearchCids,
+            };
+        }
+
         public Task<IEnumerable<IStreamUser>> UpsertUsersAsync(IEnumerable<StreamUserUpsertRequest> userRequests)
             => UpsertUsers(userRequests);
 
