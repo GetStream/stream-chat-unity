@@ -273,6 +273,30 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
+        public IEnumerator When_search_with_query_and_non_text_message_filter_expect_throws()
+            => ConnectAndExecute(When_search_with_query_and_non_text_message_filter_expect_throws_Async);
+
+        private async Task When_search_with_query_and_non_text_message_filter_expect_throws_Async()
+        {
+            // Server rejects ANY combination of `query` + `message_filter_conditions`, not just on
+            // the `text` field. The client must surface that as ArgumentException up-front so callers
+            // don't get a confusing 400 from the server.
+            await AssertThrowsAsync<ArgumentException>(
+                () => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+                {
+                    ChannelFilter = new IFieldFilterRule[]
+                    {
+                        ChannelFilter.Members.In(Client.LocalUserData.User),
+                    },
+                    Query = "hello",
+                    MessageFilter = new IFieldFilterRule[]
+                    {
+                        MessageFilter.ParentId.Exists(false),
+                    },
+                }));
+        }
+
+        [UnityTest]
         public IEnumerator When_search_with_limit_below_one_expect_throws()
             => ConnectAndExecute(When_search_with_limit_below_one_expect_throws_Async);
 
@@ -497,6 +521,8 @@ namespace StreamChat.Tests.StatefulClient
                 ParentId = parent.Id,
             });
 
+            // Note: cannot combine Query with MessageFilter (server rejects it). The unique
+            // channel scope is sufficient to isolate this test's messages.
             var response = await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
             {
                 ChannelFilter = new IFieldFilterRule[]
@@ -507,7 +533,6 @@ namespace StreamChat.Tests.StatefulClient
                 {
                     MessageFilter.ParentId.Exists(true),
                 },
-                Query = token,
             }), r => r != null && r.Results != null && r.Results.Any(x => x.Message != null && x.Message.Id == reply.Id));
 
             Assert.IsTrue(response.Results.Any(r => r.Message.Id == reply.Id));
@@ -533,6 +558,8 @@ namespace StreamChat.Tests.StatefulClient
                 ParentId = parent.Id,
             });
 
+            // Note: cannot combine Query with MessageFilter (server rejects it). The unique
+            // channel scope is sufficient to isolate this test's messages.
             var response = await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
             {
                 ChannelFilter = new IFieldFilterRule[]
@@ -543,7 +570,6 @@ namespace StreamChat.Tests.StatefulClient
                 {
                     MessageFilter.ParentId.Exists(false),
                 },
-                Query = token,
             }), r => r != null && r.Results != null && r.Results.Any(x => x.Message != null && x.Message.Id == parent.Id));
 
             Assert.IsTrue(response.Results.Any(r => r.Message.Id == parent.Id));
@@ -563,6 +589,8 @@ namespace StreamChat.Tests.StatefulClient
             var lowerBound = DateTimeOffset.UtcNow.AddMinutes(-2);
             var msg = await channel.SendNewMessageAsync("In window: " + token);
 
+            // Note: cannot combine Query with MessageFilter (server rejects it). The unique
+            // channel scope is sufficient to isolate this test's messages.
             var response = await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
             {
                 ChannelFilter = new IFieldFilterRule[]
@@ -573,7 +601,6 @@ namespace StreamChat.Tests.StatefulClient
                 {
                     MessageFilter.CreatedAt.GreaterThanOrEquals(lowerBound),
                 },
-                Query = token,
             }), r => r != null && r.Results != null && r.Results.Any(x => x.Message != null && x.Message.Id == msg.Id));
 
             Assert.IsTrue(response.Results.Any(r => r.Message.Id == msg.Id));

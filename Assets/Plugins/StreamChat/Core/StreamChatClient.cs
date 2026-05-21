@@ -605,18 +605,15 @@ namespace StreamChat.Core
                     "Limit must be greater than or equal to 1.");
             }
 
-            if (!string.IsNullOrEmpty(request.Query) && request.MessageFilter != null)
+            if (!string.IsNullOrEmpty(request.Query) && request.MessageFilter != null &&
+                request.MessageFilter.Any(r => r != null))
             {
-                foreach (var rule in request.MessageFilter)
-                {
-                    if (rule != null && rule.Field == "text")
-                    {
-                        throw new ArgumentException(
-                            "Query and a MessageFilter rule on the 'text' field cannot be combined. " +
-                            "Pick one - either pass a free-text Query, or filter by MessageFilter.Text.",
-                            nameof(request));
-                    }
-                }
+                throw new ArgumentException(
+                    "Query and MessageFilter cannot be combined on SearchMessagesAsync. " +
+                    "The server rejects requests that specify both a free-text query and " +
+                    "message_filter_conditions. Pick one - either pass a free-text Query, or " +
+                    "express the same constraint via MessageFilter (e.g. MessageFilter.Text.Contains(...)).",
+                    nameof(request));
             }
         }
 
