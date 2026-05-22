@@ -692,7 +692,24 @@ namespace StreamChat.Tests.StatefulClient
                 sentIds.Add(m.Id);
             }
 
-            var page1 = await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            // Stream's search index is eventually consistent. Wait until ALL three messages
+            // are searchable BEFORE testing cursor pagination - otherwise the server happily
+            // returns a single result without a `next` cursor (because, from its point of view,
+            // there are no more pages yet) and the cursor predicate below would race against
+            // indexing for a long time.
+            await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = new IFieldFilterRule[]
+                {
+                    ChannelFilter.Cid.EqualsTo(channel.Cid),
+                },
+                Query = token,
+                Limit = 30,
+            }), r => r != null && r.Results != null &&
+                     sentIds.All(id => r.Results.Any(x => x.Message != null && x.Message.Id == id)),
+                description: "all 3 messages to be indexed for cursor pagination test");
+
+            var page1 = await Client.SearchMessagesAsync(new StreamSearchMessagesRequest
             {
                 ChannelFilter = new IFieldFilterRule[]
                 {
@@ -701,8 +718,10 @@ namespace StreamChat.Tests.StatefulClient
                 Query = token,
                 Limit = 1,
                 Sort = MessagesSort.OrderByAscending(MessageSortFieldName.CreatedAt),
-            }), r => r != null && r.Results != null && r.Results.Count == 1 && !string.IsNullOrEmpty(r.Next));
+            });
 
+            Assert.IsNotNull(page1);
+            Assert.AreEqual(1, page1.Results.Count, "Page 1 must contain exactly Limit=1 result.");
             Assert.IsFalse(string.IsNullOrEmpty(page1.Next), "Page 1 must return a Next cursor.");
 
             var page2 = await Client.SearchMessagesAsync(new StreamSearchMessagesRequest
