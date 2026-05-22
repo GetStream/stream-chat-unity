@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core.QueryBuilders.Filters
 {
@@ -36,14 +36,14 @@ namespace StreamChat.Core.QueryBuilders.Filters
         {
             Field = field;
             OperatorType = operatorType;
-            Value = ToRfc3339String(value);
+            Value = value.ToStreamDateString();
         }
 
         public FieldFilterRule(string field, QueryOperatorType operatorType, DateTimeOffset value)
         {
             Field = field;
             OperatorType = operatorType;
-            Value = ToRfc3339String(value);
+            Value = value.ToStreamDateString();
         }
 
         public FieldFilterRule(string field, QueryOperatorType operatorType, IEnumerable<string> value)
@@ -57,14 +57,14 @@ namespace StreamChat.Core.QueryBuilders.Filters
         {
             Field = field;
             OperatorType = operatorType;
-            Value = value.ToArray();
+            Value = value.Select(StreamDateFormatter.ToStreamDateString).ToArray();
         }
         
         public FieldFilterRule(string field, QueryOperatorType operatorType, IEnumerable<DateTimeOffset> value)
         {
             Field = field;
             OperatorType = operatorType;
-            Value = value.ToArray();
+            Value = value.Select(StreamDateFormatter.ToStreamDateString).ToArray();
         }
 
         //StreamTodo: research how to reduce allocation here
@@ -79,10 +79,5 @@ namespace StreamChat.Core.QueryBuilders.Filters
                 }
             );
         
-        private static string ToRfc3339String(DateTime dateTime)
-            => dateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
-        
-        private static string ToRfc3339String(DateTimeOffset dateTimeOffset)
-            => dateTimeOffset.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);
     }
 }
