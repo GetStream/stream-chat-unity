@@ -28,12 +28,28 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [OneTimeTearDown]
-        public async Task OneTimeTearDown()
+        public void OneTimeTearDown()
         {
             Debug.Log("------------ TearDown");
 
-            await DeleteTempChannelsAsync();
-            await StreamTestClients.Instance.RemoveLockAsync(this);
+            // NUnit drives an `async Task` OneTimeTearDown by blocking the main thread on the
+            // returned task (effectively `task.GetAwaiter().GetResult()`). Any `await` inside
+            // captures Unity's UnitySynchronizationContext and posts its continuation back to
+            // the main thread, which is the very thread NUnit is blocking - classic async-over-
+            // sync deadlock. Symptom: `Debug.Log("------------ TearDown")` is the last log line
+            // in Editor.log and Unity hangs with no further output (the kicked-off DELETE
+            // /channels HTTP call completes, but its continuation never gets to resume).
+            //
+            // We can't go back to `async void` (NUnit rejects it with `ArgumentException:
+            // 'async void' methods are not supported`). Hopping the cleanup onto the thread
+            // pool detaches it from the Unity SynchronizationContext, so the awaited
+            // continuations resume on thread-pool threads and the main thread is only
+            // blocked waiting for a task that no longer needs it.
+            Task.Run(async () =>
+            {
+                await DeleteTempChannelsAsync();
+                await StreamTestClients.Instance.RemoveLockAsync(this);
+            }).GetAwaiter().GetResult();
         }
 
         protected static StreamChatClient Client => StreamTestClients.Instance.StateClient;
