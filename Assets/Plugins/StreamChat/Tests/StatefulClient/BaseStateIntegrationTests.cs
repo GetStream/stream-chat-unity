@@ -28,7 +28,7 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [OneTimeTearDown]
-        public async void OneTimeTearDown()
+        public async Task OneTimeTearDown()
         {
             Debug.Log("------------ TearDown");
 
