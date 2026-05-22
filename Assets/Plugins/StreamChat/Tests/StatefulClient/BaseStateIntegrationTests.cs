@@ -234,6 +234,8 @@ namespace StreamChat.Tests.StatefulClient
         {
             private static readonly TimeSpan[] Thresholds =
             {
+                TimeSpan.FromMinutes(0.5),
+                TimeSpan.FromMinutes(1),
                 TimeSpan.FromMinutes(2),
                 TimeSpan.FromMinutes(5),
                 TimeSpan.FromMinutes(10),

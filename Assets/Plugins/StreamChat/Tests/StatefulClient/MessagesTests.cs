@@ -139,13 +139,95 @@ namespace StreamChat.Tests.StatefulClient
             var messageInChannel = channel.Messages.FirstOrDefault(_ => _.Id == sentMessage.Id);
             Assert.NotNull(messageInChannel);
 
+            // SoftDeleteAsync applies the REST response to the cache before returning,
+            // so DeletedAt and the cleared text are visible immediately on the same
+            // instance the customer is holding. No need to wait for the WS event here -
+            // see When_other_client_soft_deletes_message_expect_message_deleted_event_observed
+            // for the watcher-side WS verification.
             await messageInChannel.SoftDeleteAsync();
-
-            await WaitWhileTrueAsync(() => !messageInChannel.DeletedAt.HasValue);
 
             Assert.NotNull(messageInChannel);
             Assert.IsNotNull(messageInChannel.DeletedAt);
             Assert.IsEmpty(messageInChannel.Text);
+            Assert.IsTrue(messageInChannel.IsDeleted);
+        }
+
+        /// <summary>
+        /// Companion to <see cref="When_message_soft_delete_message_expect_text_cleared"/>:
+        /// the deleter applies the REST response to its own cache synchronously, so the
+        /// only path we still need WS coverage for is *another* watching client. This
+        /// test asserts that a watcher sees the soft-delete via the `message.deleted`
+        /// WS event - both as a `MessageDeleted` channel event and as state on the
+        /// cached <see cref="IStreamMessage"/>.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_other_client_soft_deletes_message_expect_message_deleted_event_observed()
+            => ConnectAndExecute(When_other_client_soft_deletes_message_expect_message_deleted_event_observed_Async);
+
+        private async Task When_other_client_soft_deletes_message_expect_message_deleted_event_observed_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+
+            var channel = await CreateUniqueTempChannelAsync();
+
+            // Watch the same channel from `otherClient` so it receives WS events for it.
+            var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+            Assert.AreEqual(channel.Cid, otherClientChannel.Cid);
+
+            const string MessageText = "to-be-soft-deleted";
+            var sentMessage = await channel.SendNewMessageAsync(MessageText);
+
+            // Wait until the watcher has observed the new message via WS so we have
+            // a stateful instance to assert on once it's deleted. Without this, a
+            // very fast soft-delete could race the `message.new` delivery and we'd
+            // miss the message entirely on `otherClient`.
+            await WaitWhileFalseAsync(
+                () => otherClientChannel.Messages.Any(m => m.Id == sentMessage.Id),
+                description: "watcher to receive message.new for the message about to be deleted");
+
+            var observedOnOther = otherClientChannel.Messages.Single(m => m.Id == sentMessage.Id);
+
+            var deletedEventCount = 0;
+            IStreamMessage eventMessage = null;
+            bool? eventIsHardDelete = null;
+
+            void OnDeleted(IStreamChannel ch, IStreamMessage msg, bool isHardDelete)
+            {
+                if (msg.Id != sentMessage.Id)
+                {
+                    return;
+                }
+
+                deletedEventCount++;
+                eventMessage = msg;
+                eventIsHardDelete = isHardDelete;
+            }
+
+            otherClientChannel.MessageDeleted += OnDeleted;
+            try
+            {
+                await sentMessage.SoftDeleteAsync();
+
+                await WaitWhileFalseAsync(
+                    () => deletedEventCount > 0,
+                    description: "watcher to receive message.deleted WS event after soft-delete");
+
+                Assert.AreEqual(1, deletedEventCount, "MessageDeleted should fire exactly once on the watcher.");
+                Assert.IsFalse(eventIsHardDelete.GetValueOrDefault(true),
+                    "WS event must report this as a soft-delete (isHardDelete=false).");
+                Assert.AreSame(observedOnOther, eventMessage,
+                    "Event must surface the same cached message instance the watcher already holds.");
+                Assert.IsTrue(observedOnOther.IsDeleted,
+                    "Watcher's cached message should be flagged as deleted after WS event.");
+                Assert.IsTrue(observedOnOther.DeletedAt.HasValue,
+                    "Watcher's cached message should have DeletedAt populated after WS event.");
+                Assert.IsEmpty(observedOnOther.Text,
+                    "Watcher's cached message text should be cleared after soft-delete WS event.");
+            }
+            finally
+            {
+                otherClientChannel.MessageDeleted -= OnDeleted;
+            }
         }
 
         [UnityTest]

@@ -766,13 +766,15 @@ namespace StreamChat.Tests.StatefulClient
 
             var hit = response.Results.First(r => r.Message.Id == sent.Id);
 
-            // Soft-delete via the channel API; cache identity means the search hit gets the update.
+            // Search results share cache identity with messages obtained through any other
+            // surface (here: the freshly-sent `sent`). SoftDeleteAsync applies the REST
+            // response to the cache before returning, so the search hit reflects the
+            // deletion on the same instance with no WS round-trip needed.
             await sent.SoftDeleteAsync();
-            await WaitWhileTrueAsync(() => !hit.Message.DeletedAt.HasValue,
-                description: "search hit Message.DeletedAt to be populated after soft-delete");
 
             Assert.IsTrue(hit.Message.IsDeleted, "Hit message IsDeleted should be true after soft-delete.");
             Assert.IsTrue(hit.Message.DeletedAt.HasValue);
+            Assert.AreSame(sent, hit.Message, "Search hit and sent message must be the same cached instance.");
         }
 
         [UnityTest]
