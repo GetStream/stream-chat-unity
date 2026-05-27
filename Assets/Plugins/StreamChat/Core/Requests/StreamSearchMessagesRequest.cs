@@ -5,6 +5,7 @@ using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.StatefulModels;
+using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core.Requests
 {
@@ -174,13 +175,18 @@ namespace StreamChat.Core.Requests
 
         SearchRequestInternalDTO ISavableTo<SearchRequestInternalDTO>.SaveToDto()
         {
+            // POST /search rejects the "+00:00" offset form on date values inside
+            // message_filter_conditions / filter_conditions with
+            // "field \"created_at\" expects type date" (HTTP 400, code 4). It only accepts
+            // the canonical "Z" UTC form, so opt into StreamDateFormat.Utc here. This is the
+            // opposite of every other endpoint, which crashes (HTTP 500) on the "Z" form.
             return new SearchRequestInternalDTO
             {
                 FilterConditions = ChannelFilter?
-                    .Select(_ => _.GenerateFilterEntry())
+                    .Select(_ => _.GenerateFilterEntry(StreamDateFormat.Utc))
                     .ToDictionary(x => x.Key, x => x.Value),
                 MessageFilterConditions = MessageFilter?
-                    .Select(_ => _.GenerateFilterEntry())
+                    .Select(_ => _.GenerateFilterEntry(StreamDateFormat.Utc))
                     .ToDictionary(x => x.Key, x => x.Value),
                 Query = Query,
                 Limit = Limit,
