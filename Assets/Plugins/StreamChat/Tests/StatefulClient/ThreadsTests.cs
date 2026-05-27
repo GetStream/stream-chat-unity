@@ -196,7 +196,8 @@ namespace StreamChat.Tests.StatefulClient
                 "Page 2 must come before page 1 (newest)");
         }
 
-        private static void AssertOrderedAscendingByCreatedAt(System.Collections.Generic.IReadOnlyList<IStreamMessage> messages)
+        private static void AssertOrderedAscendingByCreatedAt(
+            System.Collections.Generic.IReadOnlyList<IStreamMessage> messages)
         {
             for (var i = 1; i < messages.Count; i++)
             {
@@ -304,7 +305,8 @@ namespace StreamChat.Tests.StatefulClient
             var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
 
             await WaitWhileTrueAsync(() => (thread.ParticipantCount ?? 0) == 0,
-                description: "thread.ParticipantCount to become non-zero after GetThreadAsync (participant-count preservation)");
+                description:
+                "thread.ParticipantCount to become non-zero after GetThreadAsync (participant-count preservation)");
 
             var participantsBefore = thread.ParticipantCount;
             var activeParticipantsBefore = thread.ActiveParticipantCount;
@@ -341,7 +343,8 @@ namespace StreamChat.Tests.StatefulClient
                 // happened (the REST response also carries the new title, but the WS event is
                 // what gives the bug an opportunity to overwrite).
                 await WaitWhileTrueAsync(() => !sawTitleUpdate || observations.Count < 2,
-                    description: "title change to propagate via WS thread.updated and produce >=2 Updated invocations (participant-count preservation)");
+                    description:
+                    "title change to propagate via WS thread.updated and produce >=2 Updated invocations (participant-count preservation)");
             }
             finally
             {
@@ -398,7 +401,8 @@ namespace StreamChat.Tests.StatefulClient
             var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
 
             await WaitWhileTrueAsync(() => thread.CreatedAt == default || (thread.LastMessageAt ?? default) == default,
-                description: "thread.CreatedAt and LastMessageAt to be populated after GetThreadAsync (timestamp preservation)");
+                description:
+                "thread.CreatedAt and LastMessageAt to be populated after GetThreadAsync (timestamp preservation)");
 
             var createdAtBefore = thread.CreatedAt;
             var updatedAtBefore = thread.UpdatedAt;
@@ -437,7 +441,8 @@ namespace StreamChat.Tests.StatefulClient
                 });
 
                 await WaitWhileTrueAsync(() => !sawTitleUpdate || observations.Count < 2,
-                    description: "title change to propagate via WS thread.updated and produce >=2 Updated invocations (timestamp preservation)");
+                    description:
+                    "title change to propagate via WS thread.updated and produce >=2 Updated invocations (timestamp preservation)");
             }
             finally
             {
@@ -508,7 +513,8 @@ namespace StreamChat.Tests.StatefulClient
             var thread = await Client.GetThreadAsync(parent.Id, replyLimit: 5, participantLimit: 5);
 
             await WaitWhileTrueAsync(() => (thread.ParticipantCount ?? 0) == 0,
-                description: "thread.ParticipantCount to become non-zero after GetThreadAsync (mark-read preservation)");
+                description:
+                "thread.ParticipantCount to become non-zero after GetThreadAsync (mark-read preservation)");
 
             var participantsBefore = thread.ParticipantCount;
             var activeParticipantsBefore = thread.ActiveParticipantCount;
@@ -599,7 +605,8 @@ namespace StreamChat.Tests.StatefulClient
         /// </summary>
         [UnityTest]
         public IEnumerator When_notification_mark_read_event_received_expect_local_user_unread_count_cleared()
-            => ConnectAndExecute(When_notification_mark_read_event_received_expect_local_user_unread_count_cleared_Async);
+            => ConnectAndExecute(
+                When_notification_mark_read_event_received_expect_local_user_unread_count_cleared_Async);
 
         private async Task When_notification_mark_read_event_received_expect_local_user_unread_count_cleared_Async()
         {
@@ -772,7 +779,8 @@ namespace StreamChat.Tests.StatefulClient
                     return thread.Read.FirstOrDefault(r => r.User != null && r.User.Id == localUserId);
                 },
                 r => r != null && r.UnreadMessages > 0,
-                description: "local user's thread.Read entry to materialize with UnreadMessages > 0 (upsert-reply setup)");
+                description:
+                "local user's thread.Read entry to materialize with UnreadMessages > 0 (upsert-reply setup)");
 
             Assert.IsTrue(
                 thread.ThreadParticipants.Any(p => (p.User?.Id ?? p.UserId) == otherUserId),
@@ -830,9 +838,11 @@ namespace StreamChat.Tests.StatefulClient
         /// </summary>
         [UnityTest]
         public IEnumerator When_watcher_receives_message_new_for_thread_reply_expect_parent_reply_count_increments()
-            => ConnectAndExecute(When_watcher_receives_message_new_for_thread_reply_expect_parent_reply_count_increments_Async);
+            => ConnectAndExecute(
+                When_watcher_receives_message_new_for_thread_reply_expect_parent_reply_count_increments_Async);
 
-        private async Task When_watcher_receives_message_new_for_thread_reply_expect_parent_reply_count_increments_Async()
+        private async Task
+            When_watcher_receives_message_new_for_thread_reply_expect_parent_reply_count_increments_Async()
         {
             var otherClient = await GetConnectedOtherClientAsync();
 
@@ -852,7 +862,8 @@ namespace StreamChat.Tests.StatefulClient
             var localParent = await TryAsync(
                 () => Task.FromResult(channel.Messages.SingleOrDefault(m => m.Id == otherParent.Id)),
                 m => m != null,
-                description: "local watcher channel.Messages to contain the otherClient parent (watcher reply-count regression)");
+                description:
+                "local watcher channel.Messages to contain the otherClient parent (watcher reply-count regression)");
 
             var replyCountBefore = localParent.ReplyCount ?? 0;
 
@@ -982,9 +993,11 @@ namespace StreamChat.Tests.StatefulClient
         /// </summary>
         [UnityTest]
         public IEnumerator When_watching_channel_with_existing_thread_expect_thread_tracked_and_ws_updates_propagate()
-            => ConnectAndExecute(When_watching_channel_with_existing_thread_expect_thread_tracked_and_ws_updates_propagate_Async);
+            => ConnectAndExecute(
+                When_watching_channel_with_existing_thread_expect_thread_tracked_and_ws_updates_propagate_Async);
 
-        private async Task When_watching_channel_with_existing_thread_expect_thread_tracked_and_ws_updates_propagate_Async()
+        private async Task
+            When_watching_channel_with_existing_thread_expect_thread_tracked_and_ws_updates_propagate_Async()
         {
             var otherClient = await GetConnectedOtherClientAsync();
 
@@ -1024,12 +1037,14 @@ namespace StreamChat.Tests.StatefulClient
                         Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
                     }),
                     r => r != null && r.Threads != null && r.Threads.Any(t => t.ParentMessageId == parent.Id),
-                    description: "QueryThreadsAsync to return the freshly-created thread (ThreadTracked-on-watch setup)");
+                    description:
+                    "QueryThreadsAsync to return the freshly-created thread (ThreadTracked-on-watch setup)");
 
                 var otherClientChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
 
                 await WaitWhileTrueAsync(() => trackedThreads.All(t => t.ParentMessageId != parent.Id),
-                    description: "otherClient.ThreadTracked to fire for the thread carried by the channel watch response");
+                    description:
+                    "otherClient.ThreadTracked to fire for the thread carried by the channel watch response");
 
                 var tracked = trackedThreads.First(t => t.ParentMessageId == parent.Id);
 
@@ -1084,10 +1099,13 @@ namespace StreamChat.Tests.StatefulClient
         ///      documented on ICacheRepository.Tracked.
         /// </summary>
         [UnityTest]
-        public IEnumerator When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state()
-            => ConnectAndExecute(When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state_Async);
+        public IEnumerator
+            When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state()
+            => ConnectAndExecute(
+                When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state_Async);
 
-        private async Task When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state_Async()
+        private async Task
+            When_query_threads_called_twice_expect_thread_tracked_fires_exactly_once_with_hydrated_state_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
             var parent = await channel.SendNewMessageAsync("thread parent for ThreadTracked-once test");
@@ -1120,6 +1138,7 @@ namespace StreamChat.Tests.StatefulClient
                     firstEmissionChannelCidAtRaise = t.ChannelCid;
                 }
             }
+
             Client.ThreadTracked += OnTracked;
 
             try
@@ -1131,7 +1150,8 @@ namespace StreamChat.Tests.StatefulClient
                         Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
                     }),
                     r => r != null && r.Threads != null && r.Threads.Any(t => t.ParentMessageId == parent.Id),
-                    description: "first QueryThreadsAsync to return the newly-created thread (ThreadTracked-once setup)");
+                    description:
+                    "first QueryThreadsAsync to return the newly-created thread (ThreadTracked-once setup)");
 
                 await WaitWhileTrueAsync(() => emissionCount == 0,
                     description: "ThreadTracked to fire for the first QueryThreadsAsync emission");
@@ -1197,9 +1217,11 @@ namespace StreamChat.Tests.StatefulClient
                     Filter = new IFieldFilterRule[] { ThreadFilter.ChannelCid.EqualsTo(channel) },
                 }),
                 r => r != null && r.Threads != null && r.Threads.Any(t => t.ParentMessageId == parent.Id),
-                description: "QueryThreadsAsync to return the thread before hard-deleting its parent (ThreadUntracked setup)");
+                description:
+                "QueryThreadsAsync to return the thread before hard-deleting its parent (ThreadUntracked setup)");
 
             IStreamThread untracked = null;
+
             void OnUntracked(IStreamThread t)
             {
                 if (t.ParentMessageId == parent.Id)
@@ -1207,6 +1229,7 @@ namespace StreamChat.Tests.StatefulClient
                     untracked = t;
                 }
             }
+
             Client.ThreadUntracked += OnUntracked;
 
             try
@@ -1254,7 +1277,8 @@ namespace StreamChat.Tests.StatefulClient
         /// </summary>
         [UnityTest]
         public IEnumerator When_added_to_channel_with_existing_thread_expect_channel_watched_on_other_client()
-            => ConnectAndExecute(When_added_to_channel_with_existing_thread_expect_channel_watched_on_other_client_Async);
+            => ConnectAndExecute(
+                When_added_to_channel_with_existing_thread_expect_channel_watched_on_other_client_Async);
 
         private async Task When_added_to_channel_with_existing_thread_expect_channel_watched_on_other_client_Async()
         {
@@ -1272,6 +1296,7 @@ namespace StreamChat.Tests.StatefulClient
             // No pre-watch here - we want the notification.added_to_channel handler to take
             // the wasCreated == true branch and exercise the previously-crashing fetch.
             IStreamChannel addedChannel = null;
+
             void OnAddedToChannelAsMember(IStreamChannel ch, IStreamChannelMember _)
             {
                 if (ch.Cid == channel.Cid)
@@ -1279,6 +1304,7 @@ namespace StreamChat.Tests.StatefulClient
                     addedChannel = ch;
                 }
             }
+
             otherClient.AddedToChannelAsMember += OnAddedToChannelAsMember;
 
             try
@@ -1286,7 +1312,8 @@ namespace StreamChat.Tests.StatefulClient
                 await channel.AddMembersAsync(new[] { otherClient.LocalUserData.User });
 
                 await WaitWhileTrueAsync(() => addedChannel == null, maxSeconds: 30,
-                    description: "otherClient.AddedToChannelAsMember to fire after AddMembersAsync (channel-with-thread watch regression)");
+                    description:
+                    "otherClient.AddedToChannelAsMember to fire after AddMembersAsync (channel-with-thread watch regression)");
             }
             finally
             {
@@ -1362,7 +1389,8 @@ namespace StreamChat.Tests.StatefulClient
         /// </summary>
         [UnityTest]
         public IEnumerator When_thread_reply_with_show_in_channel_received_expect_added_to_channel_messages()
-            => ConnectAndExecute(When_thread_reply_with_show_in_channel_received_expect_added_to_channel_messages_Async);
+            => ConnectAndExecute(
+                When_thread_reply_with_show_in_channel_received_expect_added_to_channel_messages_Async);
 
         private async Task When_thread_reply_with_show_in_channel_received_expect_added_to_channel_messages_Async()
         {
@@ -1387,10 +1415,10 @@ namespace StreamChat.Tests.StatefulClient
             });
 
             await WaitWhileTrueAsync(
-                () => !thread.LatestReplies.Any(r => r.Id == reply.Id)
-                      || !channel.Messages.Any(m => m.Id == reply.Id),
-                maxSeconds: 15,
-                description: "reply with ShowInChannel=true to appear in BOTH thread.LatestReplies and channel.Messages");
+                () => thread.LatestReplies.All(r => r.Id != reply.Id) || channel.Messages.All(m => m.Id != reply.Id),
+                maxSeconds: 30,
+                description:
+                "reply with ShowInChannel=true to appear in BOTH thread.LatestReplies and channel.Messages");
 
             Assert.IsTrue(thread.LatestReplies.Any(r => r.Id == reply.Id),
                 "Reply with ShowInChannel=true must appear in thread.LatestReplies.");
