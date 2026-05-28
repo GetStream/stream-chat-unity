@@ -879,7 +879,7 @@ namespace StreamChat.Core.StatefulModels
 
         private bool InternalAppendOrUpdateMessage(MessageInternalDTO dto, out StreamMessage streamMessage)
         {
-            streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
+            streamMessage = Cache.TryCreateOrUpdate(dto, out _);
 
             // A message belongs in the channel timeline iff it's a top-level message,
             // or a thread reply explicitly opted into "also show in channel".
@@ -892,8 +892,9 @@ namespace StreamChat.Core.StatefulModels
                 return false;
             }
 
-            var isNewMessage = wasCreated && !_messages.ContainsNoAlloc(streamMessage);
-            if (!isNewMessage)
+            // Idempotent: REST, message.new, and notification.thread_message_new can each
+            // populate the cache first, so the only safe insert gate is "not already here".
+            if (_messages.ContainsNoAlloc(streamMessage))
             {
                 return true;
             }
