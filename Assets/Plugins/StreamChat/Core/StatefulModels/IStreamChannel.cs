@@ -273,6 +273,27 @@ namespace StreamChat.Core.StatefulModels
         bool IsDirectMessage { get; }
 
         /// <summary>
+        /// Whether this channel is currently watched and receiving realtime events
+        /// (new messages, reactions, threads, member changes, etc.).
+        ///
+        /// <para>
+        /// Channels returned by <see cref="IStreamChatClient.QueryChannelsAsync"/> and
+        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/> are automatically
+        /// watched. <see cref="IStreamChatClient.SearchMessagesAsync"/> lets you opt in
+        /// per call via <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/>;
+        /// <see cref="IStreamChatClient.QueryThreadsAsync"/> exposes a similar
+        /// <see cref="Requests.StreamQueryThreadsRequest.Watch"/> flag. Use
+        /// <see cref="StopWatchingAsync"/> to stop watching a channel.
+        /// </para>
+        ///
+        /// <para>
+        /// When this is <c>false</c> the channel will NOT fire events like
+        /// <see cref="MessageReceived"/> until it is watched again.
+        /// </para>
+        /// </summary>
+        bool IsWatched { get; }
+
+        /// <summary>
         /// Basic send message method. If you want to set additional parameters use the <see cref="SendNewMessageAsync(StreamSendMessageRequest)"/> overload
         /// </summary>
         Task<IStreamMessage> SendNewMessageAsync(string message);

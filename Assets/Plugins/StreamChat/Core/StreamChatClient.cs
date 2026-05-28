@@ -101,7 +101,7 @@ namespace StreamChat.Core
 
         private StreamLocalUserData _localUserData;
 
-        public IReadOnlyList<IStreamChannel> WatchedChannels => _cache.Channels.AllItems;
+        public IReadOnlyList<IStreamChannel> WatchedChannels => _watchedChannels;
 
         public double? NextReconnectTime => InternalLowLevelClient.NextReconnectTime;
 
@@ -274,7 +274,9 @@ namespace StreamChat.Core
 
             var channelResponseDto =
                 await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
-            return _cache.TryCreateOrUpdate(channelResponseDto);
+            var channel = _cache.TryCreateOrUpdate(channelResponseDto);
+            MarkChannelWatched(channel);
+            return channel;
         }
 
         public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IEnumerable<IFieldFilterRule> filters = null,
@@ -313,7 +315,9 @@ namespace StreamChat.Core
             var result = new List<IStreamChannel>();
             foreach (var channelDto in channelsResponseDto.Channels)
             {
-                result.Add(_cache.TryCreateOrUpdate(channelDto));
+                var channel = _cache.TryCreateOrUpdate(channelDto);
+                MarkChannelWatched(channel);
+                result.Add(channel);
             }
 
             return result;
@@ -357,7 +361,9 @@ namespace StreamChat.Core
             var result = new List<IStreamChannel>();
             foreach (var channelDto in channelsResponseDto.Channels)
             {
-                result.Add(_cache.TryCreateOrUpdate(channelDto));
+                var channel = _cache.TryCreateOrUpdate(channelDto);
+                MarkChannelWatched(channel);
+                result.Add(channel);
             }
 
             return result;
@@ -471,7 +477,16 @@ namespace StreamChat.Core
                 memberLimit: memberLimit,
                 watch: watch);
 
-            return _cache.TryCreateOrUpdate(response.Thread);
+            var thread = _cache.TryCreateOrUpdate(response.Thread);
+
+            // The /threads response always embeds the parent channel; only flip IsWatched
+            // when the caller actually requested watch (preserve any prior IsWatched=true).
+            if (watch)
+            {
+                MarkChannelWatched(thread?.Channel as StreamChannel);
+            }
+
+            return thread;
         }
 
         public async Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request)
@@ -489,6 +504,11 @@ namespace StreamChat.Core
                     var thread = _cache.TryCreateOrUpdate(threadDto);
                     if (thread != null)
                     {
+                        // Same as GetThreadAsync: only mark watched when Watch=true was requested.
+                        if (request.Watch)
+                        {
+                            MarkChannelWatched(thread.Channel as StreamChannel);
+                        }
                         threads.Add(thread);
                     }
                 }
@@ -532,6 +552,9 @@ namespace StreamChat.Core
                     IStreamChannel channel = null;
                     if (searchMsgDto.Channel != null)
                     {
+                        // Cache for identity reuse only - /search does NOT start a server-side
+                        // watch. Newly-cached channels stay IsWatched=false; already-watched
+                        // ones keep their flag. WatchResultChannels=true upgrades below.
                         channel = _cache.TryCreateOrUpdate(searchMsgDto.Channel);
                         if (channel != null && !distinctChannels.ContainsKey(channel.Cid))
                         {
@@ -809,6 +832,11 @@ namespace StreamChat.Core
                 _cache.Threads.Untracked -= OnThreadLeftCache;
             }
 
+            if (_cache?.Channels != null)
+            {
+                _cache.Channels.Untracked -= OnChannelLeftCache;
+            }
+
             _isDisposed = true;
             Disposed?.Invoke();
         }
@@ -860,7 +888,12 @@ namespace StreamChat.Core
             var channelResponseDto = await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(
                 channelType,
                 channelId, requestBodyDto);
-            return _cache.TryCreateOrUpdate(channelResponseDto);
+            var channel = _cache.TryCreateOrUpdate(channelResponseDto);
+            if (watch)
+            {
+                MarkChannelWatched(channel);
+            }
+            return channel;
         }
 
         internal IStreamLocalUserData UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
@@ -906,6 +939,7 @@ namespace StreamChat.Core
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
         private readonly StreamPollsApi _pollsApi;
+        private readonly List<IStreamChannel> _watchedChannels = new List<IStreamChannel>();
 
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -946,6 +980,7 @@ namespace StreamChat.Core
 
             _cache.Threads.Tracked += OnThreadEnteredCache;
             _cache.Threads.Untracked += OnThreadLeftCache;
+            _cache.Channels.Untracked += OnChannelLeftCache;
 
             SubscribeTo(InternalLowLevelClient);
         }
@@ -960,6 +995,36 @@ namespace StreamChat.Core
             _cache.Channels.Remove(channel);
             ChannelDeleted?.Invoke(channel.Cid, channel.Id, channel.Type);
         }
+
+        // Flip IsWatched=true and add to _watchedChannels. Call from every path that issued
+        // Watch=true to the server. Channels that land in the cache via non-watching paths
+        // (search hits, threads with Watch=false, ban-info / mute payloads) stay IsWatched=false.
+        // Idempotent: a no-op when the channel is already watched.
+        private void MarkChannelWatched(StreamChannel channel)
+        {
+            if (channel == null || channel.IsWatched)
+            {
+                return;
+            }
+
+            channel.IsWatched = true;
+            _watchedChannels.Add(channel);
+        }
+
+        // Counterpart to MarkChannelWatched. Called from StreamChannel.StopWatchingAsync
+        // after the server confirms the unwatch. Idempotent.
+        internal void InternalMarkChannelUnwatched(StreamChannel channel)
+        {
+            if (channel == null || !channel.IsWatched)
+            {
+                return;
+            }
+
+            channel.IsWatched = false;
+            _watchedChannels.Remove(channel);
+        }
+
+        private void OnChannelLeftCache(StreamChannel channel) => _watchedChannels.Remove(channel);
 
         private void TryCancelWaitingForUserConnection()
         {

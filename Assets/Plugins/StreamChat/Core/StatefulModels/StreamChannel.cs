@@ -181,6 +181,8 @@ namespace StreamChat.Core.StatefulModels
 
         public bool IsDirectMessage => Members.Count == 2 && Members.Any(m => m.User == Client.LocalUserData.User);
 
+        public bool IsWatched { get; internal set; }
+
         public Task<IStreamMessage> SendNewMessageAsync(string message)
             => SendNewMessageAsync(new StreamSendMessageRequest
             {
@@ -618,10 +620,16 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(response.Channel);
         }
 
-        //StreamTodo: write test and check Client.WatchedChannels
-        public Task StopWatchingAsync()
-            => LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
+        public async Task StopWatchingAsync()
+        {
+            await LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
                 new ChannelStopWatchingRequestInternalDTO());
+
+            // Bookkeeping lives on the client (it owns the WatchedChannels list).
+            // The instance stays in cache so existing references remain valid; it
+            // just stops surfacing events.
+            Client.InternalMarkChannelUnwatched(this);
+        }
 
         public async Task FreezeAsync()
         {

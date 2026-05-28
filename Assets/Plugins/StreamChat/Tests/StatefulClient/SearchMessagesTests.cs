@@ -849,6 +849,128 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(response.Results.Any(r => r.Message.Id == msg.Id));
             Assert.IsTrue(Client.WatchedChannels.Any(c => c.Cid == channel.Cid),
                 "With WatchResultChannels=true the hit channel must appear in WatchedChannels.");
+            Assert.IsTrue(response.Results.First(r => r.Message.Id == msg.Id).Channel.IsWatched,
+                "With WatchResultChannels=true the result Channel.IsWatched must be true.");
+        }
+
+        /// <summary>
+        /// Verifies the core fix: a search hit's channel that is NOT already watched
+        /// must NOT pollute <see cref="IStreamChatClient.WatchedChannels"/> when
+        /// <see cref="StreamSearchMessagesRequest.WatchResultChannels"/> = false.
+        ///
+        /// <para>
+        /// We use a second client to create the channel so the searching client has no
+        /// prior cache entry for it; otherwise the channel would already be watched on
+        /// the searching client and the test would be trivially true.
+        /// </para>
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_search_with_watch_result_channels_false_expect_channel_not_in_watched_channels()
+            => ConnectAndExecute(When_search_with_watch_result_channels_false_expect_channel_not_in_watched_channels_Async);
+
+        private async Task When_search_with_watch_result_channels_false_expect_channel_not_in_watched_channels_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+
+            var channel = await CreateUniqueTempChannelAsync(overrideClient: otherClient);
+            var token = "watchfalse-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            var msg = await channel.SendNewMessageAsync(token);
+
+            // Searching client has never interacted with this channel, so it must not
+            // already be watched.
+            Assert.IsFalse(Client.WatchedChannels.Any(c => c.Cid == channel.Cid),
+                "Test precondition: searching client must not be watching the channel.");
+
+            var response = await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = new IFieldFilterRule[]
+                {
+                    ChannelFilter.Cid.EqualsTo(channel.Cid),
+                },
+                Query = token,
+                WatchResultChannels = false,
+            }), r => r != null && r.Results != null && r.Results.Any(x => x.Message != null && x.Message.Id == msg.Id));
+
+            var hit = response.Results.First(r => r.Message.Id == msg.Id);
+
+            Assert.IsNotNull(hit.Channel, "Hit Channel should still be returned even when not watched.");
+            Assert.IsFalse(hit.Channel.IsWatched,
+                "WatchResultChannels=false: hit Channel.IsWatched must be false.");
+            Assert.IsFalse(Client.WatchedChannels.Any(c => c.Cid == channel.Cid),
+                "WatchResultChannels=false: hit channel must NOT appear in WatchedChannels.");
+        }
+
+        /// <summary>
+        /// If the channel is already watched (e.g. previously surfaced via QueryChannelsAsync
+        /// or GetOrCreateChannelWithIdAsync), running a search with WatchResultChannels=false
+        /// must NOT downgrade it to unwatched. The channel keeps receiving WS events.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_search_with_watch_result_channels_false_for_already_watched_channel_expect_still_watched()
+            => ConnectAndExecute(
+                When_search_with_watch_result_channels_false_for_already_watched_channel_expect_still_watched_Async);
+
+        private async Task When_search_with_watch_result_channels_false_for_already_watched_channel_expect_still_watched_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var token = "alreadywatched-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            var msg = await channel.SendNewMessageAsync(token);
+
+            Assert.IsTrue(channel.IsWatched, "Test precondition: channel created with watch=true should be watched.");
+
+            var response = await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = new IFieldFilterRule[]
+                {
+                    ChannelFilter.Cid.EqualsTo(channel.Cid),
+                },
+                Query = token,
+                WatchResultChannels = false,
+            }), r => r != null && r.Results != null && r.Results.Any(x => x.Message != null && x.Message.Id == msg.Id));
+
+            var hit = response.Results.First(r => r.Message.Id == msg.Id);
+            Assert.IsTrue(hit.Channel.IsWatched,
+                "Search must not downgrade an already-watched channel.");
+            Assert.IsTrue(Client.WatchedChannels.Any(c => c.Cid == channel.Cid));
+        }
+
+        /// <summary>
+        /// After SearchMessagesAsync(WatchResultChannels=false), a follow-up
+        /// GetOrCreateChannelWithIdAsync on the same CID must promote the cached instance
+        /// to watched (cache identity preserved across the transition).
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_search_unwatched_channel_then_get_or_create_expect_same_instance_now_watched()
+            => ConnectAndExecute(
+                When_search_unwatched_channel_then_get_or_create_expect_same_instance_now_watched_Async);
+
+        private async Task When_search_unwatched_channel_then_get_or_create_expect_same_instance_now_watched_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+            var channel = await CreateUniqueTempChannelAsync(overrideClient: otherClient);
+            var token = "promote-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            var msg = await channel.SendNewMessageAsync(token);
+
+            var response = await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = new IFieldFilterRule[]
+                {
+                    ChannelFilter.Cid.EqualsTo(channel.Cid),
+                },
+                Query = token,
+                WatchResultChannels = false,
+            }), r => r != null && r.Results != null && r.Results.Any(x => x.Message != null && x.Message.Id == msg.Id));
+
+            var unwatched = response.Results.First(r => r.Message.Id == msg.Id).Channel;
+            Assert.IsFalse(unwatched.IsWatched);
+
+            var watched = await Client.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+
+            Assert.AreSame(unwatched, watched,
+                "GetOrCreateChannelWithIdAsync should promote the existing search-cached instance, not create a new one.");
+            Assert.IsTrue(watched.IsWatched, "After GetOrCreateChannelWithIdAsync the instance should be watched.");
+            Assert.IsTrue(Client.WatchedChannels.Any(c => c.Cid == channel.Cid),
+                "Promoted channel must now appear in WatchedChannels.");
         }
 
         // ---------------------------------------------------------------------

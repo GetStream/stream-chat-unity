@@ -119,8 +119,15 @@ namespace StreamChat.Core
         IStreamLocalUserData LocalUserData { get; }
 
         /// <summary>
-        /// Watched channels receive updates on all users activity like new messages, reactions, etc.
-        /// Use <see cref="GetOrCreateChannelWithIdAsync"/> and <see cref="QueryChannelsAsync"/> to watch channels
+        /// Channels currently watched by the SDK. Watched channels receive realtime updates
+        /// (new messages, reactions, member changes, etc.).
+        ///
+        /// <para>
+        /// Start watching with <see cref="GetOrCreateChannelWithIdAsync"/> or
+        /// <see cref="QueryChannelsAsync"/>; stop with <see cref="IStreamChannel.StopWatchingAsync"/>.
+        /// Channels returned by other endpoints may not be watched - check
+        /// <see cref="IStreamChannel.IsWatched"/> on a specific instance to know its state.
+        /// </para>
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
 
