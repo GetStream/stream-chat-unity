@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Channels;
@@ -13,6 +14,7 @@ using StreamChat.Core.QueryBuilders.Filters.Messages;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
+using StreamChat.Libs.Serialization;
 using UnityEngine.TestTools;
 
 namespace StreamChat.Tests.StatefulClient
@@ -169,6 +171,29 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual("hello", dto.Query);
             Assert.AreEqual(30, dto.Limit);
             Assert.AreEqual(0, dto.Offset);
+        }
+
+        [TestCase(0, TestName = "empty array")]
+        [TestCase(1, TestName = "array of null rules")]
+        public void When_request_with_query_and_no_effective_message_filter_then_wire_payload_omits_message_filter_conditions(
+            int nullRuleCount)
+        {
+            var request = new StreamSearchMessagesRequest
+            {
+                ChannelFilter = new IFieldFilterRule[]
+                {
+                    ChannelFilter.Cid.EqualsTo("messaging:abc"),
+                },
+                MessageFilter = new IFieldFilterRule[nullRuleCount],
+                Query = "hello",
+            };
+
+            var dto = ((ISavableTo<SearchRequestInternalDTO>)request).SaveToDto();
+            Assert.IsNull(dto.MessageFilterConditions);
+
+            var json = new NewtonsoftJsonSerializer().Serialize(dto);
+            Assert.IsFalse(json.Contains("message_filter_conditions"),
+                "Got payload: " + json);
         }
 
         // ---------------------------------------------------------------------
@@ -375,6 +400,30 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsInstanceOf<IStreamMessage>(hit.Message);
             Assert.IsInstanceOf<IStreamChannel>(hit.Channel);
             Assert.AreEqual(channel.Cid, hit.Channel.Cid);
+        }
+
+        [UnityTest]
+        public IEnumerator When_search_with_query_and_empty_message_filter_expect_success()
+            => ConnectAndExecute(When_search_with_query_and_empty_message_filter_expect_success_Async);
+
+        private async Task When_search_with_query_and_empty_message_filter_expect_success_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var token = "emptyfilter-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+
+            var sent = await channel.SendNewMessageAsync(token);
+
+            var response = await TryAsync(() => Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = new IFieldFilterRule[]
+                {
+                    ChannelFilter.Cid.EqualsTo(channel.Cid),
+                },
+                MessageFilter = new IFieldFilterRule[0],
+                Query = token,
+            }), r => r != null && r.Results != null && r.Results.Any(x => x.Message != null && x.Message.Id == sent.Id));
+
+            Assert.IsTrue(response.Results.Any(r => r.Message.Id == sent.Id));
         }
 
         [UnityTest]

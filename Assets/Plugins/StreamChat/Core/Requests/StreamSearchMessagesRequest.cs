@@ -185,15 +185,24 @@ namespace StreamChat.Core.Requests
                 FilterConditions = ChannelFilter?
                     .Select(_ => _.GenerateFilterEntry(StreamDateFormat.Utc))
                     .ToDictionary(x => x.Key, x => x.Value),
-                MessageFilterConditions = MessageFilter?
-                    .Select(_ => _.GenerateFilterEntry(StreamDateFormat.Utc))
-                    .ToDictionary(x => x.Key, x => x.Value),
+                MessageFilterConditions = ToMessageFilterConditionsOrNullIfEmpty(MessageFilter),
                 Query = Query,
                 Limit = Limit,
                 Offset = Offset,
                 Next = Next,
                 Sort = Sort?.ToSortParamRequestList(),
             };
+        }
+
+        private static Dictionary<string, object> ToMessageFilterConditionsOrNullIfEmpty(
+            IEnumerable<IFieldFilterRule> rules)
+        {
+            var conditions = rules?
+                .Where(_ => _ != null)
+                .Select(_ => _.GenerateFilterEntry(StreamDateFormat.Utc))
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            return conditions != null && conditions.Count > 0 ? conditions : null;
         }
     }
 }
