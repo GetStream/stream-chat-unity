@@ -279,16 +279,19 @@ namespace StreamChat.Core.StatefulModels
         /// <para>
         /// Channels returned by <see cref="IStreamChatClient.QueryChannelsAsync"/> and
         /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/> are automatically
-        /// watched. <see cref="IStreamChatClient.SearchMessagesAsync"/> lets you opt in
-        /// per call via <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/>;
-        /// <see cref="IStreamChatClient.QueryThreadsAsync"/> exposes a similar
-        /// <see cref="Requests.StreamQueryThreadsRequest.Watch"/> flag. Use
-        /// <see cref="StopWatchingAsync"/> to stop watching a channel.
+        /// watched. <see cref="IStreamChatClient.SearchMessagesAsync"/> watches result
+        /// channels by default; pass
+        /// <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/> = <c>false</c>
+        /// to opt out. <see cref="IStreamChatClient.QueryThreadsAsync"/> exposes a similar
+        /// <see cref="Requests.StreamQueryThreadsRequest.Watch"/> flag (default <c>false</c>).
+        /// Use <see cref="WatchAsync"/> to start watching and <see cref="StopWatchingAsync"/>
+        /// to stop.
         /// </para>
         ///
         /// <para>
         /// When this is <c>false</c> the channel will NOT fire events like
-        /// <see cref="MessageReceived"/> until it is watched again.
+        /// <see cref="MessageReceived"/> until it is watched again, and
+        /// <see cref="IStreamMessage.IsWatched"/> will be <c>false</c> for every message in it.
         /// </para>
         /// </summary>
         bool IsWatched { get; }
@@ -533,6 +536,25 @@ namespace StreamChat.Core.StatefulModels
         /// <param name="isHardDelete">if truncation should delete messages instead of hiding</param>
         Task TruncateAsync(DateTimeOffset? truncatedAt = default, string systemMessage = "",
             bool skipPushNotifications = false, bool isHardDelete = false);
+
+        /// <summary>
+        /// Start watching this channel so that the local state stays in sync with the server through realtime
+        /// WebSocket events (new messages, reactions, member changes, typing, etc.). Once watched, the channel
+        /// appears in <see cref="IStreamChatClient.WatchedChannels"/> and <see cref="IsWatched"/> becomes <c>true</c>.
+        ///
+        /// <para>
+        /// Useful when this channel was obtained through a non-watching path - e.g. as a hit on
+        /// <see cref="IStreamChatClient.SearchMessagesAsync"/> with
+        /// <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/> set to <c>false</c>, or as the
+        /// parent channel of a thread loaded with <see cref="Requests.StreamQueryThreadsRequest.Watch"/> set to
+        /// <c>false</c>. Cache identity is preserved across the upgrade - the same instance becomes reactive.
+        /// </para>
+        ///
+        /// Idempotent: a no-op if the channel is already watched.
+        ///
+        /// Counterpart to <see cref="StopWatchingAsync"/>.
+        /// </summary>
+        Task WatchAsync();
 
         /// <summary>
         /// Stop watching this channel meaning you will no longer receive any updates and it will be removed from <see cref="IStreamChatClient.WatchedChannels"/>

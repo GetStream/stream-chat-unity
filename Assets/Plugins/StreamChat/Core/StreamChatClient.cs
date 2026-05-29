@@ -575,13 +575,30 @@ namespace StreamChat.Core
 
             if (request.WatchResultChannels && distinctChannels.Count > 0)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // Watch all distinct result channels in parallel. Default-true means this fires
+                // on every search; serial would multiply latency by the number of distinct
+                // channels in the result set (typically 1-10 for a 30-result page).
+                // Skip channels that are already watched - WatchAsync is idempotent but the
+                // extra round-trip is wasteful when there's nothing to upgrade.
+                var watchTasks = new List<Task>(distinctChannels.Count);
                 foreach (var channel in distinctChannels.Values)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    if (channel.IsWatched)
+                    {
+                        continue;
+                    }
 
-                    //StreamTodo: parallelise once cancellation is plumbed; serial keeps load predictable for now.
-                    await InternalGetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+                    watchTasks.Add(InternalGetOrCreateChannelWithIdAsync(channel.Type, channel.Id));
                 }
+
+                if (watchTasks.Count > 0)
+                {
+                    await Task.WhenAll(watchTasks);
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
             }
 
             return new StreamSearchMessagesResponse

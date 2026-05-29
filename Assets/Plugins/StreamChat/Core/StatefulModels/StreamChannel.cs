@@ -620,6 +620,20 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(response.Channel);
         }
 
+        public async Task WatchAsync()
+        {
+            if (IsWatched)
+            {
+                return;
+            }
+
+            // Delegate to the client so the watched-channel bookkeeping and the cache update
+            // go through exactly the same path as GetOrCreateChannelWithIdAsync. Cache identity
+            // is preserved - the client looks up by (type, id), the cache returns this same
+            // instance, and MarkChannelWatched flips IsWatched on it.
+            await Client.InternalGetOrCreateChannelWithIdAsync(Type, Id);
+        }
+
         public async Task StopWatchingAsync()
         {
             await LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,

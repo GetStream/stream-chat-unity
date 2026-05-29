@@ -164,14 +164,32 @@ namespace StreamChat.Core.Requests
         /// that the returned <see cref="IStreamMessage"/> instances and their parent
         /// <see cref="IStreamChannel"/> receive realtime WebSocket updates.
         ///
-        /// Default: <c>false</c>. Recommended for a search-results UI - watch the channel only when
-        /// the user opens one of the hits to avoid mass-watching channels behind the customer's back.
-        /// When <c>false</c>, hit messages are still cached as <see cref="IStreamMessage"/>, but their
-        /// parent <see cref="IStreamChannel"/> only receives realtime events once explicitly watched
-        /// (e.g. via <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/> or
-        /// <see cref="IStreamChatClient.QueryChannelsAsync"/>).
+        /// <para>
+        /// Default: <c>true</c>. This keeps the SDK's "stateful = reactive" contract intact - every
+        /// <see cref="IStreamMessage"/> / <see cref="IStreamChannel"/> returned here behaves the same
+        /// as one obtained through <see cref="IStreamChatClient.QueryChannelsAsync"/> or
+        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/>: it fires events, stays in
+        /// sync with the server, and shows up in <see cref="IStreamChatClient.WatchedChannels"/>.
+        /// Mirrors the behaviour of <c>MessageSearchSource</c> in the JavaScript SDK.
+        /// </para>
+        ///
+        /// <para>
+        /// Set to <c>false</c> when a search UI shouldn't subscribe to every result channel up front -
+        /// e.g. a "search bar" where the user opens one hit at a time. In that mode the result
+        /// <see cref="IStreamMessage"/> and its parent <see cref="IStreamChannel"/> will not receive
+        /// realtime updates until the channel is explicitly watched. Call
+        /// <see cref="IStreamChannel.WatchAsync"/> on the result's <see cref="IStreamChannel"/>
+        /// when the user opens a hit to start receiving updates on that same instance. Use
+        /// <see cref="IStreamChannel.IsWatched"/> / <see cref="IStreamMessage.IsWatched"/> to check
+        /// whether a given instance is currently receiving updates.
+        /// </para>
+        ///
+        /// <para>
+        /// Cost when <c>true</c>: one channel watch round-trip per distinct CID in the result set
+        /// (parallelised internally).
+        /// </para>
         /// </summary>
-        public bool WatchResultChannels { get; set; }
+        public bool WatchResultChannels { get; set; } = true;
 
         SearchRequestInternalDTO ISavableTo<SearchRequestInternalDTO>.SaveToDto()
         {

@@ -92,6 +92,11 @@ namespace StreamChat.Core.StatefulModels
         
         public bool IsDeleted => Type == MessageType.Deleted;
 
+        public bool IsWatched
+            => !string.IsNullOrEmpty(Cid)
+               && Cache.Channels.TryGet(Cid, out var channel)
+               && channel.IsWatched;
+
         // Apply the REST response to the cache so callers don't have to wait for the
         // `message.deleted` WS event before observing `DeletedAt` / `IsDeleted` / cleared
         // text on this very instance. The WS event still fires on watchers (including this

@@ -183,6 +183,31 @@ namespace StreamChat.Core.StatefulModels
         bool IsDeleted { get; }
 
         /// <summary>
+        /// Whether this message will receive realtime updates (reactions, edits, deletions, etc.)
+        /// from the server. Reactivity is per-channel: a message is "watched" if and only if
+        /// its parent <see cref="IStreamChannel"/> is currently watched
+        /// (<see cref="IStreamChannel.IsWatched"/>).
+        ///
+        /// <para>
+        /// Messages obtained through standard paths (<see cref="IStreamChatClient.QueryChannelsAsync"/>,
+        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/>, the channel's own
+        /// <see cref="IStreamChannel.Messages"/>, etc.) are always watched. Messages can be
+        /// non-watched when surfaced through <see cref="IStreamChatClient.SearchMessagesAsync"/>
+        /// with <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/> set to
+        /// <c>false</c>, or through threads loaded with
+        /// <see cref="Requests.StreamQueryThreadsRequest.Watch"/> set to <c>false</c>.
+        /// </para>
+        ///
+        /// <para>
+        /// When this is <c>false</c>, events like <see cref="ReactionAdded"/> will not fire on
+        /// this instance until the parent channel is watched. Promote the channel via
+        /// <see cref="IStreamChannel.WatchAsync"/> to start receiving updates - cache identity
+        /// is preserved, so this very <see cref="IStreamMessage"/> instance becomes reactive.
+        /// </para>
+        /// </summary>
+        bool IsWatched { get; }
+
+        /// <summary>
         /// Clears the message text but leaves the rest of the message data like: reactions, replies, attachments unchanged
         /// If you want to remove the message and all its components completely use the <see cref="IStreamMessage.HardDeleteAsync"/>
         /// </summary>
