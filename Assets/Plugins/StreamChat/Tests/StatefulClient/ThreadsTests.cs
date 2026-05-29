@@ -232,6 +232,112 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
+        public IEnumerator When_set_thread_custom_data_expect_data_on_thread_object()
+            => ConnectAndExecute(When_set_thread_custom_data_expect_data_on_thread_object_Async);
+
+        private async Task When_set_thread_custom_data_expect_data_on_thread_object_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for custom data");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply",
+            });
+
+            var thread = await Client.GetThreadAsync(parent.Id);
+
+            var setClanInfo = new ClanData
+            {
+                MaxMembers = 50,
+                Name = "Wild Boards",
+                Tags = new List<string>
+                {
+                    "Competitive",
+                    "Legends",
+                }
+            };
+
+            await thread.UpdatePartialAsync(setFields: new Dictionary<string, object>
+            {
+                { "owned_dogs", 5 },
+                {
+                    "breakfast", new string[]
+                    {
+                        "donuts"
+                    }
+                },
+                {
+                    "clan_info", setClanInfo
+                }
+            });
+
+            await WaitWhileFalseAsync(
+                () => new[] { "owned_dogs", "breakfast", "clan_info" }.All(thread.CustomData.ContainsKey));
+
+            Assert.AreEqual(5, thread.CustomData.Get<int>("owned_dogs"));
+
+            var breakfast = thread.CustomData.Get<List<string>>("breakfast");
+            Assert.Contains("donuts", breakfast);
+
+            var clanInfo = thread.CustomData.Get<ClanData>("clan_info");
+            Assert.AreEqual(50, clanInfo.MaxMembers);
+            Assert.AreEqual("Wild Boards", clanInfo.Name);
+            Assert.Contains("Competitive", clanInfo.Tags);
+        }
+
+        [UnityTest]
+        public IEnumerator When_unset_thread_custom_data_expect_no_data_on_thread_object()
+            => ConnectAndExecute(When_unset_thread_custom_data_expect_no_data_on_thread_object_Async);
+
+        private async Task When_unset_thread_custom_data_expect_no_data_on_thread_object_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parent = await channel.SendNewMessageAsync("thread parent for unset custom data");
+            await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                ParentId = parent.Id,
+                ShowInChannel = false,
+                Text = "reply",
+            });
+
+            var thread = await Client.GetThreadAsync(parent.Id);
+
+            await thread.UpdatePartialAsync(setFields: new Dictionary<string, object>
+            {
+                { "owned_dogs", 5 },
+                {
+                    "breakfast", new string[]
+                    {
+                        "donuts"
+                    }
+                }
+            });
+
+            await WaitWhileFalseAsync(
+                () => new[] { "owned_dogs", "breakfast" }.All(thread.CustomData.ContainsKey));
+
+            Assert.AreEqual(5, thread.CustomData.Get<int>("owned_dogs"));
+            Assert.Contains("donuts", thread.CustomData.Get<List<string>>("breakfast"));
+
+            await thread.UpdatePartialAsync(unsetFields: new[] { "owned_dogs", "breakfast" });
+
+            await WaitWhileTrueAsync(
+                () => new[] { "owned_dogs", "breakfast" }.All(thread.CustomData.ContainsKey));
+
+            Assert.IsFalse(thread.CustomData.ContainsKey("owned_dogs"));
+            Assert.IsFalse(thread.CustomData.ContainsKey("breakfast"));
+        }
+
+        private class ClanData
+        {
+            public int MaxMembers;
+            public string Name;
+            public List<string> Tags;
+        }
+
+        [UnityTest]
         public IEnumerator When_marking_thread_read_expect_no_exception()
             => ConnectAndExecute(When_marking_thread_read_expect_no_exception_Async);
 
