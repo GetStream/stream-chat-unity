@@ -119,14 +119,15 @@ namespace StreamChat.Core
         IStreamLocalUserData LocalUserData { get; }
 
         /// <summary>
-        /// Channels currently watched by the SDK. Watched channels receive realtime updates
+        /// Channels you are currently watching. Watched channels receive realtime updates
         /// (new messages, reactions, member changes, etc.).
         ///
         /// <para>
-        /// Start watching with <see cref="GetOrCreateChannelWithIdAsync"/> or
-        /// <see cref="QueryChannelsAsync"/>; stop with <see cref="IStreamChannel.StopWatchingAsync"/>.
-        /// Channels returned by other endpoints may not be watched - check
-        /// <see cref="IStreamChannel.IsWatched"/> on a specific instance to know its state.
+        /// Start watching with <see cref="GetOrCreateChannelWithIdAsync"/>,
+        /// <see cref="QueryChannelsAsync"/> or <see cref="IStreamChannel.WatchAsync"/>;
+        /// stop with <see cref="IStreamChannel.StopWatchingAsync"/>. Channels returned by other
+        /// methods may not be watched - check <see cref="IStreamChannel.IsWatched"/> on a specific
+        /// channel to know its state.
         /// </para>
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
@@ -278,12 +279,12 @@ namespace StreamChat.Core
         Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request);
 
         /// <summary>
-        /// Search messages across the channels the local user can access.
-        ///
-        /// Unlike the low-level <c>Client.LowLevelClient.MessageApi.SearchMessagesAsync</c>, results
-        /// are returned as cached, stateful <see cref="IStreamMessage"/> (and accompanying
-        /// <see cref="IStreamChannel"/>) instances - the same objects already in the cache are
-        /// reused, and they continue to react to realtime WebSocket events.
+        /// Search messages across the channels the local user can access. Returns the matching
+        /// <see cref="IStreamMessage"/> results together with their <see cref="IStreamChannel"/>.
+        /// By default the result channels are watched so the returned messages and channels keep
+        /// receiving realtime updates; set
+        /// <see cref="StreamSearchMessagesRequest.WatchResultChannels"/> to <c>false</c> for one-off
+        /// results that don't need to stay up to date.
         ///
         /// <para>
         /// The <paramref name="request"/> requires a channel-level filter (e.g.
@@ -296,7 +297,7 @@ namespace StreamChat.Core
         /// <param name="request">Search parameters - channel filter, message filter, query phrase,
         /// sort, and pagination.</param>
         /// <param name="cancellationToken">[Optional] Cancellation token for the request.</param>
-        /// <returns>Stateful results plus pagination cursors.</returns>
+        /// <returns>The matching messages and channels plus pagination cursors.</returns>
         /// <remarks>https://getstream.io/chat/docs/unity/search/?language=unity</remarks>
         Task<StreamSearchMessagesResponse> SearchMessagesAsync(
             StreamSearchMessagesRequest request,

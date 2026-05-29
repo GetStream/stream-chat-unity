@@ -160,26 +160,25 @@ namespace StreamChat.Core.Requests
         public MessagesSortObject Sort { get; set; }
 
         /// <summary>
-        /// Whether the result <see cref="IStreamMessage"/> instances and their parent
-        /// <see cref="IStreamChannel"/> should receive realtime updates (new reactions, edits,
-        /// deletions, etc.) after the search completes.
+        /// Whether the result messages and their parent <see cref="IStreamChannel"/> should
+        /// receive realtime updates (new reactions, edits, deletions, etc.) after the search
+        /// completes.
         ///
         /// <para>
         /// Default: <c>true</c>. The results behave the same as channels and messages obtained
         /// through <see cref="IStreamChatClient.QueryChannelsAsync"/> or
         /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/>: they stay in sync with
-        /// the server and the channels show up in <see cref="IStreamChatClient.WatchedChannels"/>.
+        /// the server and the channels appear in <see cref="IStreamChatClient.WatchedChannels"/>.
         /// </para>
         ///
         /// <para>
-        /// Set to <c>false</c> when you only need a one-off snapshot and don't want to start
-        /// watching every channel in the result set - for example a "search bar" where the user
-        /// opens one hit at a time. The result <see cref="IStreamMessage"/> and its parent
-        /// <see cref="IStreamChannel"/> then won't receive realtime updates until you call
-        /// <see cref="IStreamChannel.WatchAsync"/> on the result's <see cref="IStreamChannel"/>
-        /// (e.g. when the user opens a hit). Use <see cref="IStreamChannel.IsWatched"/> /
-        /// <see cref="IStreamMessage.IsWatched"/> to check whether a given instance is receiving
-        /// updates.
+        /// Set to <c>false</c> when you only need one-off results and don't want to start watching
+        /// every channel in the result set - for example a search bar where the user opens one
+        /// result at a time. The result messages and their channels then won't receive realtime
+        /// updates until you call <see cref="IStreamChannel.WatchAsync"/> on the result's
+        /// <see cref="IStreamChannel"/> (e.g. when the user opens a result). Use
+        /// <see cref="IStreamChannel.IsWatched"/> / <see cref="IStreamMessage.IsWatched"/> to check
+        /// whether a given result is receiving updates.
         /// </para>
         /// </summary>
         public bool WatchResultChannels { get; set; } = true;

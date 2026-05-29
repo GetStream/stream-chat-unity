@@ -184,24 +184,23 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Whether this message receives realtime updates (new reactions, edits, deletions, etc.).
-        /// A message receives updates only while its parent <see cref="IStreamChannel"/> is being
-        /// watched, so this returns the same value as <see cref="IStreamChannel.IsWatched"/> of the
-        /// channel this message belongs to.
+        /// A message is watched while its parent <see cref="IStreamChannel"/> is watched, so this
+        /// always matches <see cref="IStreamChannel.IsWatched"/> of the channel it belongs to.
         ///
         /// <para>
-        /// Messages obtained through <see cref="IStreamChatClient.QueryChannelsAsync"/>,
+        /// Messages from <see cref="IStreamChatClient.QueryChannelsAsync"/>,
         /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/> or a channel's
-        /// <see cref="IStreamChannel.Messages"/> always receive updates. A message may not receive
-        /// updates when it comes from <see cref="IStreamChatClient.SearchMessagesAsync"/> with
+        /// <see cref="IStreamChannel.Messages"/> are watched. A message may not be watched when it
+        /// comes from <see cref="IStreamChatClient.SearchMessagesAsync"/> with
         /// <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/> set to <c>false</c>,
         /// or from <see cref="IStreamChatClient.QueryThreadsAsync"/> with
         /// <see cref="Requests.StreamQueryThreadsRequest.Watch"/> set to <c>false</c>.
         /// </para>
         ///
         /// <para>
-        /// When this is <c>false</c>, events like <see cref="ReactionAdded"/> won't fire. Call
+        /// While this is <c>false</c>, events like <see cref="ReactionAdded"/> do not fire. Call
         /// <see cref="IStreamChannel.WatchAsync"/> on the parent channel to start receiving updates
-        /// on this same message instance.
+        /// for this message.
         /// </para>
         /// </summary>
         bool IsWatched { get; }
@@ -271,7 +270,7 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Get the thread for which this message is the parent. The returned <see cref="IStreamThread"/>
-        /// is cached and gets updated by real-time events.
+        /// stays updated by realtime events.
         /// </summary>
         /// <param name="replyLimit">[Optional] Number of replies to fetch</param>
         /// <param name="participantLimit">[Optional] Number of participants to fetch</param>
@@ -279,7 +278,7 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Load replies of this message (a parent message of a thread). Returned messages are oldest-first
-        /// and are cached, so they show up in <see cref="IStreamThread.LatestReplies"/> if a thread is tracked.
+        /// and show up in <see cref="IStreamThread.LatestReplies"/> if a thread is tracked.
         ///
         /// <paramref name="idLessThan"/> and <paramref name="idGreaterThan"/> are mutually exclusive.
         /// Pass neither to load the latest <paramref name="limit"/> replies.

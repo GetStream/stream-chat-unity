@@ -8,7 +8,7 @@ namespace StreamChat.Core.Responses
     public sealed class StreamSearchMessagesResponse
     {
         /// <summary>
-        /// Stateful, cached message hits in server-defined order.
+        /// The matching messages.
         /// </summary>
         public IReadOnlyList<StreamSearchMessageResult> Results { get; internal set; }
 
