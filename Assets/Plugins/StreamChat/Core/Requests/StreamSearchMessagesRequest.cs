@@ -160,33 +160,26 @@ namespace StreamChat.Core.Requests
         public MessagesSortObject Sort { get; set; }
 
         /// <summary>
-        /// Whether the SDK should start watching the channels that appear in the result set so
-        /// that the returned <see cref="IStreamMessage"/> instances and their parent
-        /// <see cref="IStreamChannel"/> receive realtime WebSocket updates.
+        /// Whether the result <see cref="IStreamMessage"/> instances and their parent
+        /// <see cref="IStreamChannel"/> should receive realtime updates (new reactions, edits,
+        /// deletions, etc.) after the search completes.
         ///
         /// <para>
-        /// Default: <c>true</c>. This keeps the SDK's "stateful = reactive" contract intact - every
-        /// <see cref="IStreamMessage"/> / <see cref="IStreamChannel"/> returned here behaves the same
-        /// as one obtained through <see cref="IStreamChatClient.QueryChannelsAsync"/> or
-        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/>: it fires events, stays in
-        /// sync with the server, and shows up in <see cref="IStreamChatClient.WatchedChannels"/>.
-        /// Mirrors the behaviour of <c>MessageSearchSource</c> in the JavaScript SDK.
+        /// Default: <c>true</c>. The results behave the same as channels and messages obtained
+        /// through <see cref="IStreamChatClient.QueryChannelsAsync"/> or
+        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/>: they stay in sync with
+        /// the server and the channels show up in <see cref="IStreamChatClient.WatchedChannels"/>.
         /// </para>
         ///
         /// <para>
-        /// Set to <c>false</c> when a search UI shouldn't subscribe to every result channel up front -
-        /// e.g. a "search bar" where the user opens one hit at a time. In that mode the result
-        /// <see cref="IStreamMessage"/> and its parent <see cref="IStreamChannel"/> will not receive
-        /// realtime updates until the channel is explicitly watched. Call
+        /// Set to <c>false</c> when you only need a one-off snapshot and don't want to start
+        /// watching every channel in the result set - for example a "search bar" where the user
+        /// opens one hit at a time. The result <see cref="IStreamMessage"/> and its parent
+        /// <see cref="IStreamChannel"/> then won't receive realtime updates until you call
         /// <see cref="IStreamChannel.WatchAsync"/> on the result's <see cref="IStreamChannel"/>
-        /// when the user opens a hit to start receiving updates on that same instance. Use
-        /// <see cref="IStreamChannel.IsWatched"/> / <see cref="IStreamMessage.IsWatched"/> to check
-        /// whether a given instance is currently receiving updates.
-        /// </para>
-        ///
-        /// <para>
-        /// Cost when <c>true</c>: one channel watch round-trip per distinct CID in the result set
-        /// (parallelised internally).
+        /// (e.g. when the user opens a hit). Use <see cref="IStreamChannel.IsWatched"/> /
+        /// <see cref="IStreamMessage.IsWatched"/> to check whether a given instance is receiving
+        /// updates.
         /// </para>
         /// </summary>
         public bool WatchResultChannels { get; set; } = true;

@@ -575,30 +575,7 @@ namespace StreamChat.Core
 
             if (request.WatchResultChannels && distinctChannels.Count > 0)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                // Watch all distinct result channels in parallel. Default-true means this fires
-                // on every search; serial would multiply latency by the number of distinct
-                // channels in the result set (typically 1-10 for a 30-result page).
-                // Skip channels that are already watched - WatchAsync is idempotent but the
-                // extra round-trip is wasteful when there's nothing to upgrade.
-                var watchTasks = new List<Task>(distinctChannels.Count);
-                foreach (var channel in distinctChannels.Values)
-                {
-                    if (channel.IsWatched)
-                    {
-                        continue;
-                    }
-
-                    watchTasks.Add(InternalGetOrCreateChannelWithIdAsync(channel.Type, channel.Id));
-                }
-
-                if (watchTasks.Count > 0)
-                {
-                    await Task.WhenAll(watchTasks);
-                }
-
-                cancellationToken.ThrowIfCancellationRequested();
+                await WatchResultChannelsAsync(distinctChannels.Values, cancellationToken);
             }
 
             return new StreamSearchMessagesResponse
@@ -705,6 +682,35 @@ namespace StreamChat.Core
                 User = source.User,
                 AdditionalProperties = source.AdditionalProperties,
             };
+        }
+
+        // The /search endpoint returns channel data but does not start watching those channels,
+        // so search hits don't receive realtime updates on their own. We watch them with as few
+        // requests as possible: a single QueryChannels with a `cid IN (...)` filter, batched in
+        // groups of 30 (the server's page limit) to stay clear of per-request limits. Channels
+        // that are already watched are skipped.
+        private async Task WatchResultChannelsAsync(IEnumerable<IStreamChannel> channels,
+            CancellationToken cancellationToken)
+        {
+            var cidsToWatch = channels.Where(c => !c.IsWatched).Select(c => c.Cid).ToList();
+            if (cidsToWatch.Count == 0)
+            {
+                return;
+            }
+
+            const int maxChannelsPerQuery = 30;
+            for (var i = 0; i < cidsToWatch.Count; i += maxChannelsPerQuery)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var chunk = cidsToWatch.Skip(i).Take(maxChannelsPerQuery).ToList();
+                var filters = new IFieldFilterRule[]
+                {
+                    Channels.ChannelFilter.Cid.In(chunk),
+                };
+
+                await QueryChannelsAsync(filters, limit: chunk.Count);
+            }
         }
 
         private static StreamSearchWarning BuildSearchWarning(SearchWarningInternalDTO dto)

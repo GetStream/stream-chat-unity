@@ -183,26 +183,25 @@ namespace StreamChat.Core.StatefulModels
         bool IsDeleted { get; }
 
         /// <summary>
-        /// Whether this message will receive realtime updates (reactions, edits, deletions, etc.)
-        /// from the server. Reactivity is per-channel: a message is "watched" if and only if
-        /// its parent <see cref="IStreamChannel"/> is currently watched
-        /// (<see cref="IStreamChannel.IsWatched"/>).
+        /// Whether this message receives realtime updates (new reactions, edits, deletions, etc.).
+        /// A message receives updates only while its parent <see cref="IStreamChannel"/> is being
+        /// watched, so this returns the same value as <see cref="IStreamChannel.IsWatched"/> of the
+        /// channel this message belongs to.
         ///
         /// <para>
-        /// Messages obtained through standard paths (<see cref="IStreamChatClient.QueryChannelsAsync"/>,
-        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/>, the channel's own
-        /// <see cref="IStreamChannel.Messages"/>, etc.) are always watched. Messages can be
-        /// non-watched when surfaced through <see cref="IStreamChatClient.SearchMessagesAsync"/>
-        /// with <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/> set to
-        /// <c>false</c>, or through threads loaded with
+        /// Messages obtained through <see cref="IStreamChatClient.QueryChannelsAsync"/>,
+        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/> or a channel's
+        /// <see cref="IStreamChannel.Messages"/> always receive updates. A message may not receive
+        /// updates when it comes from <see cref="IStreamChatClient.SearchMessagesAsync"/> with
+        /// <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/> set to <c>false</c>,
+        /// or from <see cref="IStreamChatClient.QueryThreadsAsync"/> with
         /// <see cref="Requests.StreamQueryThreadsRequest.Watch"/> set to <c>false</c>.
         /// </para>
         ///
         /// <para>
-        /// When this is <c>false</c>, events like <see cref="ReactionAdded"/> will not fire on
-        /// this instance until the parent channel is watched. Promote the channel via
-        /// <see cref="IStreamChannel.WatchAsync"/> to start receiving updates - cache identity
-        /// is preserved, so this very <see cref="IStreamMessage"/> instance becomes reactive.
+        /// When this is <c>false</c>, events like <see cref="ReactionAdded"/> won't fire. Call
+        /// <see cref="IStreamChannel.WatchAsync"/> on the parent channel to start receiving updates
+        /// on this same message instance.
         /// </para>
         /// </summary>
         bool IsWatched { get; }
