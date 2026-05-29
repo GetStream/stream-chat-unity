@@ -15,6 +15,7 @@ using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
 using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
@@ -706,7 +707,7 @@ namespace StreamChat.Core
                 var chunk = cidsToWatch.Skip(i).Take(maxChannelsPerQuery).ToList();
                 var filters = new IFieldFilterRule[]
                 {
-                    Channels.ChannelFilter.Cid.In(chunk),
+                    ChannelFilter.Cid.In(chunk),
                 };
 
                 await QueryChannelsAsync(filters, limit: chunk.Count);
