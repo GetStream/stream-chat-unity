@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using StreamChat.Core;
-using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
+using StreamChat.Core.QueryBuilders.Filters.Messages;
+using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine;
@@ -311,32 +314,43 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task Search()
         {
-// Access to low-level client is left for backward compatibility. Soon simplified syntax for searching will be implemented
-            var searchResponse = await Client.LowLevelClient.MessageApi.SearchMessagesAsync(new SearchRequest
+            // Search for messages containing text
+            var results = await Client.SearchMessagesAsync(new StreamSearchMessagesRequest
             {
-                //Filter is required for search
-                FilterConditions = new Dictionary<string, object>
+                // Channel filter is required - here, channels the local user is a member of
+                ChannelFilter = new IFieldFilterRule[]
                 {
-                    {
-                        //Get channels that local user is a member of
-                        "members", new Dictionary<string, object>
-                        {
-                            { "$in", new[] { "John" } }
-                        }
-                    }
+                    ChannelFilter.Members.In("john"),
                 },
-
-                //search phrase
-                Query = "supercalifragilisticexpialidocious"
+                Query = "supercalifragilisticexpialidocious",
+                Limit = 10,
             });
 
-            foreach (var searchResult in searchResponse.Results)
+            foreach (var hit in results.Results)
             {
-                Debug.Log(searchResult.Message.Id); //Message ID
-                Debug.Log(searchResult.Message.Text); //Message text
-                Debug.Log(searchResult.Message.User); //Message author info
-                Debug.Log(searchResult.Message.Channel); //Channel info
+                Debug.Log(hit.Message.Id); // Stateful IStreamMessage
+                Debug.Log(hit.Message.Text);
+                Debug.Log(hit.Message.User);
+                Debug.Log(hit.Channel.Cid); // Stateful IStreamChannel (auto-watched by default)
             }
+
+            // Search with message filters - mutually exclusive with Query
+            var filtered = await Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = new IFieldFilterRule[]
+                {
+                    ChannelFilter.Members.In("john"),
+                },
+                MessageFilter = new IFieldFilterRule[]
+                {
+                    MessageFilter.Text.Autocomplete("super"),
+                    MessageFilter.AttachmentType.In("image", "video"),
+                },
+                Limit = 10,
+                // Set to false for one-off search bars where you don't want every result
+                // channel to start receiving realtime updates.
+                WatchResultChannels = true,
+            });
         }
 
         /// <summary>
@@ -344,7 +358,43 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task SearchPagination()
         {
-            await Task.CompletedTask;
+            var channelFilters = new IFieldFilterRule[]
+            {
+                ChannelFilter.Cid.EqualsTo("messaging:my-channel"),
+            };
+            var messageFilters = new IFieldFilterRule[]
+            {
+                MessageFilter.Text.Autocomplete("supercali"),
+            };
+
+            // First page with custom sorting
+            var page1 = await Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = channelFilters,
+                MessageFilter = messageFilters,
+                Sort = MessagesSort
+                    .OrderByDescending(MessageSortFieldName.Relevance)
+                    .ThenByAscending(MessageSortFieldName.UpdatedAt),
+                Limit = 10,
+            });
+
+            // Next page using the cursor returned by the previous response
+            var page2 = await Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = channelFilters,
+                MessageFilter = messageFilters,
+                Limit = 10,
+                Next = page1.Next,
+            });
+
+            // Previous page
+            var page1Again = await Client.SearchMessagesAsync(new StreamSearchMessagesRequest
+            {
+                ChannelFilter = channelFilters,
+                MessageFilter = messageFilters,
+                Limit = 10,
+                Next = page2.Previous,
+            });
         }
 
         /// <summary>
