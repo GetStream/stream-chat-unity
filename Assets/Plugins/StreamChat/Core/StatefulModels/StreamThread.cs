@@ -35,8 +35,6 @@ namespace StreamChat.Core.StatefulModels
 
         public string CreatedByUserId { get; private set; }
 
-        public IReadOnlyDictionary<string, object> CustomData => _custom;
-
         public DateTimeOffset? DeletedAt { get; private set; }
 
         public DateTimeOffset? LastMessageAt { get; private set; }
@@ -191,7 +189,11 @@ namespace StreamChat.Core.StatefulModels
             Title = GetOrDefault(dto.Title, Title);
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
-            LoadAdditionalCustom(dto.Custom);
+            // Thread custom data is returned as top-level fields (API v1), captured by the DTO's
+            // [JsonExtensionData] AdditionalProperties bag - not under a "custom" key (which stays
+            // empty until API v2). Mirrors stream-chat-swift (ThreadPayload subtracts known keys)
+            // and stream-chat-js (constructCustomDataObject collects non-reserved top-level fields).
+            LoadAdditionalProperties(dto.AdditionalProperties);
 
             Updated?.Invoke(this);
         }
@@ -251,7 +253,11 @@ namespace StreamChat.Core.StatefulModels
             Title = GetOrDefault(dto.Title, Title);
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
-            LoadAdditionalCustom(dto.Custom);
+            // Thread custom data is returned as top-level fields (API v1), captured by the DTO's
+            // [JsonExtensionData] AdditionalProperties bag - not under a "custom" key (which stays
+            // empty until API v2). Mirrors stream-chat-swift (ThreadPayload subtracts known keys)
+            // and stream-chat-js (constructCustomDataObject collects non-reserved top-level fields).
+            LoadAdditionalProperties(dto.AdditionalProperties);
 
             Updated?.Invoke(this);
         }
@@ -295,7 +301,11 @@ namespace StreamChat.Core.StatefulModels
             Title = GetOrDefault(dto.Title, Title);
             UpdatedAt = GetOrDefault(dto.UpdatedAt, UpdatedAt);
 
-            LoadAdditionalCustom(dto.Custom);
+            // Thread custom data is returned as top-level fields (API v1), captured by the DTO's
+            // [JsonExtensionData] AdditionalProperties bag - not under a "custom" key (which stays
+            // empty until API v2). Mirrors stream-chat-swift (ThreadPayload subtracts known keys)
+            // and stream-chat-js (constructCustomDataObject collects non-reserved top-level fields).
+            LoadAdditionalProperties(dto.AdditionalProperties);
 
             Updated?.Invoke(this);
         }
@@ -453,7 +463,6 @@ namespace StreamChat.Core.StatefulModels
 
         protected override StreamThread Self => this;
 
-        private readonly Dictionary<string, object> _custom = new Dictionary<string, object>();
         private readonly List<StreamMessage> _latestReplies = new List<StreamMessage>();
         private readonly List<StreamRead> _read = new List<StreamRead>();
         private readonly List<StreamThreadParticipant> _threadParticipants = new List<StreamThreadParticipant>();
@@ -543,20 +552,6 @@ namespace StreamChat.Core.StatefulModels
 
             throw new InvalidOperationException(
                 $"Cannot resolve the parent channel of thread {ParentMessageId}. Both Channel and ChannelCid are missing or malformed.");
-        }
-
-        private void LoadAdditionalCustom(Dictionary<string, object> custom)
-        {
-            _custom.Clear();
-            if (custom == null)
-            {
-                return;
-            }
-
-            foreach (var keyValuePair in custom)
-            {
-                _custom[keyValuePair.Key] = keyValuePair.Value;
-            }
         }
 
         // Most-recent-replier first; participants without a LastThreadMessageAt

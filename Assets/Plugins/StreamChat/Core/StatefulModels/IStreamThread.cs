@@ -73,11 +73,6 @@ namespace StreamChat.Core.StatefulModels
         string CreatedByUserId { get; }
 
         /// <summary>
-        /// Custom data attached to this thread
-        /// </summary>
-        IReadOnlyDictionary<string, object> CustomData { get; }
-
-        /// <summary>
         /// Date/time of when this thread was deleted
         /// </summary>
         DateTimeOffset? DeletedAt { get; }

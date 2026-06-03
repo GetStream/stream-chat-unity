@@ -15,6 +15,7 @@ using StreamChat.Core.State;
 using StreamChat.Core.State.Caches;
 using StreamChat.Core.Models;
 using StreamChat.Core.QueryBuilders.Filters;
+using StreamChat.Core.QueryBuilders.Filters.Channels;
 using StreamChat.Core.QueryBuilders.Sort;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
@@ -101,7 +102,7 @@ namespace StreamChat.Core
 
         private StreamLocalUserData _localUserData;
 
-        public IReadOnlyList<IStreamChannel> WatchedChannels => _cache.Channels.AllItems;
+        public IReadOnlyList<IStreamChannel> WatchedChannels => _watchedChannels;
 
         public double? NextReconnectTime => InternalLowLevelClient.NextReconnectTime;
 
@@ -274,7 +275,9 @@ namespace StreamChat.Core
 
             var channelResponseDto =
                 await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(channelType, requestBodyDto);
-            return _cache.TryCreateOrUpdate(channelResponseDto);
+            var channel = _cache.TryCreateOrUpdate(channelResponseDto);
+            MarkChannelWatched(channel);
+            return channel;
         }
 
         public async Task<IEnumerable<IStreamChannel>> QueryChannelsAsync(IEnumerable<IFieldFilterRule> filters = null,
@@ -313,7 +316,9 @@ namespace StreamChat.Core
             var result = new List<IStreamChannel>();
             foreach (var channelDto in channelsResponseDto.Channels)
             {
-                result.Add(_cache.TryCreateOrUpdate(channelDto));
+                var channel = _cache.TryCreateOrUpdate(channelDto);
+                MarkChannelWatched(channel);
+                result.Add(channel);
             }
 
             return result;
@@ -357,7 +362,9 @@ namespace StreamChat.Core
             var result = new List<IStreamChannel>();
             foreach (var channelDto in channelsResponseDto.Channels)
             {
-                result.Add(_cache.TryCreateOrUpdate(channelDto));
+                var channel = _cache.TryCreateOrUpdate(channelDto);
+                MarkChannelWatched(channel);
+                result.Add(channel);
             }
 
             return result;
@@ -471,7 +478,16 @@ namespace StreamChat.Core
                 memberLimit: memberLimit,
                 watch: watch);
 
-            return _cache.TryCreateOrUpdate(response.Thread);
+            var thread = _cache.TryCreateOrUpdate(response.Thread);
+
+            // The /threads response always embeds the parent channel; only flip IsWatched
+            // when the caller actually requested watch (preserve any prior IsWatched=true).
+            if (watch)
+            {
+                MarkChannelWatched(thread?.Channel as StreamChannel);
+            }
+
+            return thread;
         }
 
         public async Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request)
@@ -489,6 +505,11 @@ namespace StreamChat.Core
                     var thread = _cache.TryCreateOrUpdate(threadDto);
                     if (thread != null)
                     {
+                        // Same as GetThreadAsync: only mark watched when Watch=true was requested.
+                        if (request.Watch)
+                        {
+                            MarkChannelWatched(thread.Channel as StreamChannel);
+                        }
                         threads.Add(thread);
                     }
                 }
@@ -499,6 +520,213 @@ namespace StreamChat.Core
                 Threads = threads,
                 Next = response.Next,
                 Prev = response.Prev,
+            };
+        }
+
+        public async Task<StreamSearchMessagesResponse> SearchMessagesAsync(
+            StreamSearchMessagesRequest request,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            ValidateSearchMessagesRequest(request);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var requestDto = request.TrySaveToDto();
+            var responseDto =
+                await InternalLowLevelClient.InternalMessageApi.SearchMessagesAsync(requestDto);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var results = new List<StreamSearchMessageResult>();
+            var distinctChannels = new Dictionary<string, IStreamChannel>();
+
+            if (responseDto?.Results != null)
+            {
+                foreach (var resultDto in responseDto.Results)
+                {
+                    var searchMsgDto = resultDto?.Message;
+                    if (searchMsgDto == null)
+                    {
+                        continue;
+                    }
+
+                    IStreamChannel channel = null;
+                    if (searchMsgDto.Channel != null)
+                    {
+                        // Cache for identity reuse only - /search does NOT start a server-side
+                        // watch. Newly-cached channels stay IsWatched=false; already-watched
+                        // ones keep their flag. WatchResultChannels=true upgrades below.
+                        channel = _cache.TryCreateOrUpdate(searchMsgDto.Channel);
+                        if (channel != null && !distinctChannels.ContainsKey(channel.Cid))
+                        {
+                            distinctChannels.Add(channel.Cid, channel);
+                        }
+                    }
+
+                    var messageDto = ProjectSearchResultToMessageDto(searchMsgDto);
+                    var message = _cache.TryCreateOrUpdate(messageDto);
+
+                    results.Add(new StreamSearchMessageResult
+                    {
+                        Message = message,
+                        Channel = channel,
+                    });
+                }
+            }
+
+            if (request.WatchResultChannels && distinctChannels.Count > 0)
+            {
+                await WatchResultChannelsAsync(distinctChannels.Values, cancellationToken);
+            }
+
+            return new StreamSearchMessagesResponse
+            {
+                Results = results,
+                Next = responseDto?.Next,
+                Previous = responseDto?.Previous,
+                Duration = responseDto?.Duration,
+                ResultsWarning = BuildSearchWarning(responseDto?.ResultsWarning),
+            };
+        }
+
+        private static void ValidateSearchMessagesRequest(StreamSearchMessagesRequest request)
+        {
+            StreamAsserts.AssertNotNull(request, nameof(request));
+
+            var hasChannelFilter = request.ChannelFilter != null && request.ChannelFilter.Any();
+            if (!hasChannelFilter)
+            {
+                throw new ArgumentException(
+                    "ChannelFilter is required for SearchMessagesAsync. Add at least one rule, " +
+                    "e.g. ChannelFilter.Members.In(Client.LocalUserData.User).",
+                    nameof(request));
+            }
+
+            if (request.Offset.HasValue && !string.IsNullOrEmpty(request.Next))
+            {
+                throw new ArgumentException(
+                    "Offset and Next pagination are mutually exclusive on SearchMessagesAsync.",
+                    nameof(request));
+            }
+
+            if (request.Sort != null && request.Offset.HasValue && request.Offset.Value > 0)
+            {
+                throw new ArgumentException(
+                    "Sort cannot be combined with a non-zero Offset on SearchMessagesAsync. " +
+                    "Use the Next cursor for sorted pagination.",
+                    nameof(request));
+            }
+
+            if (request.Limit.HasValue && request.Limit.Value < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(request),
+                    "Limit must be greater than or equal to 1.");
+            }
+
+            if (!string.IsNullOrEmpty(request.Query) && request.MessageFilter != null &&
+                request.MessageFilter.Any(r => r != null))
+            {
+                throw new ArgumentException(
+                    "Query and MessageFilter cannot be combined on SearchMessagesAsync. " +
+                    "The server rejects requests that specify both a free-text query and " +
+                    "message_filter_conditions. Pick one - either pass a free-text Query, or " +
+                    "express the same constraint via MessageFilter (e.g. MessageFilter.Text.Contains(...)).",
+                    nameof(request));
+            }
+        }
+
+        private static MessageInternalDTO ProjectSearchResultToMessageDto(SearchResultMessageInternalDTO source)
+        {
+            // Project the search-specific payload onto the canonical message DTO so that the cache
+            // can reuse the existing StreamMessage create/update path. Every field on
+            // SearchResultMessageInternalDTO has a one-to-one counterpart on MessageInternalDTO
+            // except for the embedded Channel, which is cached separately.
+            return new MessageInternalDTO
+            {
+                Attachments = source.Attachments,
+                BeforeMessageSendFailed = source.BeforeMessageSendFailed,
+                Cid = source.Cid,
+                Command = source.Command,
+                CreatedAt = source.CreatedAt,
+                Custom = source.Custom,
+                DeletedAt = source.DeletedAt,
+                DeletedReplyCount = source.DeletedReplyCount,
+                Html = source.Html,
+                I18n = source.I18n,
+                Id = source.Id,
+                ImageLabels = source.ImageLabels,
+                LatestReactions = source.LatestReactions,
+                MentionedUsers = source.MentionedUsers,
+                MessageTextUpdatedAt = source.MessageTextUpdatedAt,
+                Mml = source.Mml,
+                OwnReactions = source.OwnReactions,
+                ParentId = source.ParentId,
+                PinExpires = source.PinExpires,
+                Pinned = source.Pinned,
+                PinnedAt = source.PinnedAt,
+                PinnedBy = source.PinnedBy,
+                Poll = source.Poll,
+                PollId = source.PollId,
+                QuotedMessage = source.QuotedMessage,
+                QuotedMessageId = source.QuotedMessageId,
+                ReactionCounts = source.ReactionCounts,
+                ReactionGroups = source.ReactionGroups,
+                ReactionScores = source.ReactionScores,
+                ReplyCount = source.ReplyCount,
+                Shadowed = source.Shadowed,
+                ShowInChannel = source.ShowInChannel,
+                Silent = source.Silent,
+                Text = source.Text,
+                ThreadParticipants = source.ThreadParticipants,
+                Type = source.Type,
+                UpdatedAt = source.UpdatedAt,
+                User = source.User,
+                AdditionalProperties = source.AdditionalProperties,
+            };
+        }
+
+        // The /search endpoint returns channel data but does not start watching those channels,
+        // so search hits don't receive realtime updates on their own. We watch them with as few
+        // requests as possible: a single QueryChannels with a `cid IN (...)` filter, batched in
+        // groups of 30 (the server's page limit) to stay clear of per-request limits. Channels
+        // that are already watched are skipped.
+        private async Task WatchResultChannelsAsync(IEnumerable<IStreamChannel> channels,
+            CancellationToken cancellationToken)
+        {
+            var cidsToWatch = channels.Where(c => !c.IsWatched).Select(c => c.Cid).ToList();
+            if (cidsToWatch.Count == 0)
+            {
+                return;
+            }
+
+            const int maxChannelsPerQuery = 30;
+            for (var i = 0; i < cidsToWatch.Count; i += maxChannelsPerQuery)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var chunk = cidsToWatch.Skip(i).Take(maxChannelsPerQuery).ToList();
+                var filters = new IFieldFilterRule[]
+                {
+                    ChannelFilter.Cid.In(chunk),
+                };
+
+                await QueryChannelsAsync(filters, limit: chunk.Count);
+            }
+        }
+
+        private static StreamSearchWarning BuildSearchWarning(SearchWarningInternalDTO dto)
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+
+            return new StreamSearchWarning
+            {
+                Code = dto.WarningCode,
+                Description = dto.WarningDescription,
+                ChannelSearchCount = dto.ChannelSearchCount,
+                ChannelIds = dto.ChannelSearchCids,
             };
         }
 
@@ -628,6 +856,11 @@ namespace StreamChat.Core
                 _cache.Threads.Untracked -= OnThreadLeftCache;
             }
 
+            if (_cache?.Channels != null)
+            {
+                _cache.Channels.Untracked -= OnChannelLeftCache;
+            }
+
             _isDisposed = true;
             Disposed?.Invoke();
         }
@@ -679,7 +912,12 @@ namespace StreamChat.Core
             var channelResponseDto = await InternalLowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(
                 channelType,
                 channelId, requestBodyDto);
-            return _cache.TryCreateOrUpdate(channelResponseDto);
+            var channel = _cache.TryCreateOrUpdate(channelResponseDto);
+            if (watch)
+            {
+                MarkChannelWatched(channel);
+            }
+            return channel;
         }
 
         internal IStreamLocalUserData UpdateLocalUser(OwnUserInternalDTO ownUserInternalDto)
@@ -725,6 +963,7 @@ namespace StreamChat.Core
         private readonly ITimeService _timeService;
         private readonly ICache _cache;
         private readonly StreamPollsApi _pollsApi;
+        private readonly List<IStreamChannel> _watchedChannels = new List<IStreamChannel>();
 
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -765,6 +1004,7 @@ namespace StreamChat.Core
 
             _cache.Threads.Tracked += OnThreadEnteredCache;
             _cache.Threads.Untracked += OnThreadLeftCache;
+            _cache.Channels.Untracked += OnChannelLeftCache;
 
             SubscribeTo(InternalLowLevelClient);
         }
@@ -779,6 +1019,36 @@ namespace StreamChat.Core
             _cache.Channels.Remove(channel);
             ChannelDeleted?.Invoke(channel.Cid, channel.Id, channel.Type);
         }
+
+        // Flip IsWatched=true and add to _watchedChannels. Call from every path that issued
+        // Watch=true to the server. Channels that land in the cache via non-watching paths
+        // (search hits, threads with Watch=false, ban-info / mute payloads) stay IsWatched=false.
+        // Idempotent: a no-op when the channel is already watched.
+        private void MarkChannelWatched(StreamChannel channel)
+        {
+            if (channel == null || channel.IsWatched)
+            {
+                return;
+            }
+
+            channel.IsWatched = true;
+            _watchedChannels.Add(channel);
+        }
+
+        // Counterpart to MarkChannelWatched. Called from StreamChannel.StopWatchingAsync
+        // after the server confirms the unwatch. Idempotent.
+        internal void InternalMarkChannelUnwatched(StreamChannel channel)
+        {
+            if (channel == null || !channel.IsWatched)
+            {
+                return;
+            }
+
+            channel.IsWatched = false;
+            _watchedChannels.Remove(channel);
+        }
+
+        private void OnChannelLeftCache(StreamChannel channel) => _watchedChannels.Remove(channel);
 
         private void TryCancelWaitingForUserConnection()
         {

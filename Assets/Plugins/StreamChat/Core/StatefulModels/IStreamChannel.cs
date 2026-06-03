@@ -273,6 +273,28 @@ namespace StreamChat.Core.StatefulModels
         bool IsDirectMessage { get; }
 
         /// <summary>
+        /// Whether this channel is currently watched and receiving realtime updates
+        /// (new messages, reactions, member changes, typing, etc.).
+        ///
+        /// <para>
+        /// Channels returned by <see cref="IStreamChatClient.QueryChannelsAsync"/> and
+        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/> are watched.
+        /// <see cref="IStreamChatClient.SearchMessagesAsync"/> watches result channels by default;
+        /// pass <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/> = <c>false</c>
+        /// to opt out. <see cref="IStreamChatClient.QueryThreadsAsync"/> exposes a similar
+        /// <see cref="Requests.StreamQueryThreadsRequest.Watch"/> flag (default <c>false</c>).
+        /// Use <see cref="WatchAsync"/> to start watching and <see cref="StopWatchingAsync"/> to stop.
+        /// </para>
+        ///
+        /// <para>
+        /// While this is <c>false</c> the channel does not fire events like
+        /// <see cref="MessageReceived"/>, and <see cref="IStreamMessage.IsWatched"/> is
+        /// <c>false</c> for every message in it.
+        /// </para>
+        /// </summary>
+        bool IsWatched { get; }
+
+        /// <summary>
         /// Basic send message method. If you want to set additional parameters use the <see cref="SendNewMessageAsync(StreamSendMessageRequest)"/> overload
         /// </summary>
         Task<IStreamMessage> SendNewMessageAsync(string message);
@@ -514,7 +536,25 @@ namespace StreamChat.Core.StatefulModels
             bool skipPushNotifications = false, bool isHardDelete = false);
 
         /// <summary>
-        /// Stop watching this channel meaning you will no longer receive any updates and it will be removed from <see cref="IStreamChatClient.WatchedChannels"/>
+        /// Start watching this channel so it receives realtime updates (new messages, reactions,
+        /// member changes, typing, etc.). Once watched, the channel appears in
+        /// <see cref="IStreamChatClient.WatchedChannels"/> and <see cref="IsWatched"/> becomes <c>true</c>.
+        ///
+        /// <para>
+        /// Useful for a channel that is not yet watched - for example one returned by
+        /// <see cref="IStreamChatClient.SearchMessagesAsync"/> with
+        /// <see cref="Requests.StreamSearchMessagesRequest.WatchResultChannels"/> set to <c>false</c>,
+        /// or the parent channel of a thread loaded with
+        /// <see cref="Requests.StreamQueryThreadsRequest.Watch"/> set to <c>false</c>.
+        /// </para>
+        ///
+        /// Does nothing if the channel is already watched. Counterpart to <see cref="StopWatchingAsync"/>.
+        /// </summary>
+        Task WatchAsync();
+
+        /// <summary>
+        /// Stop watching this channel. It will no longer receive realtime updates and will be removed from <see cref="IStreamChatClient.WatchedChannels"/>.
+        /// Use <see cref="WatchAsync"/> to start watching again.
         /// </summary>
         Task StopWatchingAsync();
 

@@ -686,6 +686,97 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual("24h", channel.Config.PartitionTtl);
 
         }
+
+        // ---------------------------------------------------------------------
+        // IsWatched / WatchedChannels semantics
+        // ---------------------------------------------------------------------
+
+        /// <summary>
+        /// Channels obtained via <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/>
+        /// (which always uses watch=true) must report <c>IsWatched == true</c> and appear
+        /// in <see cref="IStreamChatClient.WatchedChannels"/>.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_get_or_create_channel_expect_is_watched_and_in_watched_channels()
+            => ConnectAndExecute(When_get_or_create_channel_expect_is_watched_and_in_watched_channels_Async);
+
+        private async Task When_get_or_create_channel_expect_is_watched_and_in_watched_channels_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            Assert.IsTrue(channel.IsWatched, "GetOrCreateChannelWithIdAsync must produce a watched channel.");
+            Assert.IsTrue(Client.WatchedChannels.Any(c => c.Cid == channel.Cid),
+                "Watched channel must appear in WatchedChannels.");
+        }
+
+        /// <summary>
+        /// Channels surfaced by <see cref="IStreamChatClient.QueryChannelsAsync"/> must be
+        /// <c>IsWatched == true</c> (the SDK always sets <c>watch=true</c> in the request body).
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_query_channels_expect_results_are_watched()
+            => ConnectAndExecute(When_query_channels_expect_results_are_watched_Async);
+
+        private async Task When_query_channels_expect_results_are_watched_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var results = await Client.QueryChannelsAsync(new IFieldFilterRule[]
+            {
+                ChannelFilter.Cid.EqualsTo(channel.Cid),
+            });
+
+            var fromQuery = results.FirstOrDefault(c => c.Cid == channel.Cid);
+            Assert.IsNotNull(fromQuery, "Channel should be returned by QueryChannelsAsync.");
+            Assert.IsTrue(fromQuery.IsWatched, "QueryChannelsAsync results must be watched.");
+            Assert.AreSame(channel, fromQuery, "Cache identity preserved across QueryChannelsAsync.");
+        }
+
+        /// <summary>
+        /// <see cref="IStreamChannel.StopWatchingAsync"/> must flip
+        /// <see cref="IStreamChannel.IsWatched"/> to false and remove the channel from
+        /// <see cref="IStreamChatClient.WatchedChannels"/>.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_stop_watching_expect_is_watched_false_and_removed_from_watched_channels()
+            => ConnectAndExecute(When_stop_watching_expect_is_watched_false_and_removed_from_watched_channels_Async);
+
+        private async Task When_stop_watching_expect_is_watched_false_and_removed_from_watched_channels_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            Assert.IsTrue(channel.IsWatched, "Test precondition: channel must be watched after creation.");
+            Assert.IsTrue(Client.WatchedChannels.Any(c => c.Cid == channel.Cid));
+
+            await channel.StopWatchingAsync();
+
+            Assert.IsFalse(channel.IsWatched,
+                "After StopWatchingAsync the channel.IsWatched must be false.");
+            Assert.IsFalse(Client.WatchedChannels.Any(c => c.Cid == channel.Cid),
+                "After StopWatchingAsync the channel must NOT appear in WatchedChannels.");
+        }
+
+        /// <summary>
+        /// After <see cref="IStreamChannel.StopWatchingAsync"/> a follow-up
+        /// <see cref="IStreamChatClient.GetOrCreateChannelWithIdAsync"/> must promote the
+        /// SAME instance back to watched.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_stop_watching_then_get_or_create_expect_same_instance_watched_again()
+            => ConnectAndExecute(When_stop_watching_then_get_or_create_expect_same_instance_watched_again_Async);
+
+        private async Task When_stop_watching_then_get_or_create_expect_same_instance_watched_again_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            await channel.StopWatchingAsync();
+            Assert.IsFalse(channel.IsWatched);
+
+            var rewatched = await Client.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+
+            Assert.AreSame(channel, rewatched, "Cache identity must survive watch/unwatch transitions.");
+            Assert.IsTrue(rewatched.IsWatched);
+            Assert.IsTrue(Client.WatchedChannels.Any(c => c.Cid == channel.Cid));
+        }
     }
 }
 
