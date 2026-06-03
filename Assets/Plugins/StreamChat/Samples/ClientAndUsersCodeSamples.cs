@@ -39,7 +39,7 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unreal#connecting-the-user
+        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unity#connecting-the-user
         /// </summary>
         public async Task ConnectUser()
         {
@@ -51,7 +51,7 @@ namespace StreamChat.Samples
         }
         
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unreal#connecting-the-user
+        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unity#connecting-the-user
         /// </summary>
         public async Task ConnectUser2()
         {

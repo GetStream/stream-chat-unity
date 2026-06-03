@@ -28,7 +28,7 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/creating_channels/?language=unreal#2.-creating-a-channel-for-a-list-of-members
+        /// https://getstream.io/chat/docs/unity/creating_channels/?language=unity#2.-creating-a-channel-for-a-list-of-members
         /// </summary>
         public async Task CreateChannelForListOfMembers()
         {
