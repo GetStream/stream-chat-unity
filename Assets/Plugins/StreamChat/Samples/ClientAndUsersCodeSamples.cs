@@ -99,15 +99,6 @@ namespace StreamChat.Samples
             //StreamTODO: Implement user delete
         }
 
-        /// <summary>
-        /// https://getstream.io/chat/docs/unity/logout/?language=unity
-        /// </summary>
-        public async Task LogoutUser()
-        {
-            await Client.DisconnectUserAsync();
-        }
-
-
         #region Managing Users
 
         /// <summary>
