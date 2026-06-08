@@ -14,7 +14,7 @@ namespace StreamChat.Samples
     internal sealed class ClientAndUsersCodeSamples
     {
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/tokens_and_authentication/?language=unity#developer-tokens
+        /// https://getstream.io/chat/docs/unity/tokens-and-authentication/?language=unity#developer-tokens
         /// </summary>
         public async Task DeveloperTokens()
         {
@@ -27,11 +27,11 @@ namespace StreamChat.Samples
             var client = StreamChatClient.CreateDefaultClient();
 
 // Connect user
-            var localUserData = await client.ConnectUserAsync("API_KEY", userId, userToken);
+            var localUserData = await client.ConnectUserAsync(credentials);
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unity
+        /// https://getstream.io/chat/docs/unity/init-and-users/?language=unity
         /// </summary>
         public void InitClient()
         {
@@ -39,36 +39,49 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unity#connecting-the-user
+        /// https://getstream.io/chat/docs/unity/init-and-users/?language=unity#connecting-users
         /// </summary>
         public async Task ConnectUser()
         {
             var client = StreamChatClient.CreateDefaultClient();
 
+// 1. Connect with a static JWT token. Suitable for prototyping and automated
+//    tests only: in production, tokens must be issued by your backend for
+//    security reasons.
             var localUserData = await client.ConnectUserAsync("api_key", "chat_user", "chat_user_token");
 // After await is complete the user is connected
 
-        }
-        
-        /// <summary>
-        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unity#connecting-the-user
-        /// </summary>
-        public async Task ConnectUser2()
-        {
-            var client = StreamChatClient.CreateDefaultClient();
-
-            await client.ConnectUserAsync("api_key", "chat_user", "chat_user_token");
-// After await is complete the user is connected
-
-// Alternatively, you subscribe to the IStreamChatClient.Connected event
-            client.Connected += localUserData =>
+// Alternatively, subscribe to the IStreamChatClient.Connected event
+            client.Connected += connectedUser =>
             {
                 // User is connected
             };
+
+// 2. Production setup: implement ITokenProvider to fetch a fresh JWT from
+//    your backend. The SDK calls GetTokenAsync whenever a token is needed
+//    (initial connection, reconnect, after expiration), so a correctly
+//    implemented provider keeps the WebSocket connected across token
+//    refreshes without any extra work on your side.
+            var tokenProvider = new YourTokenProvider();
+            await client.ConnectUserAsync("api_key", "chat_user", tokenProvider);
+        }
+
+// Sample ITokenProvider implementation. Your backend must verify the caller's
+// identity BEFORE issuing a Stream token - never expose a public endpoint
+// keyed only by userId, since any client could then obtain a token for any user.
+        public class YourTokenProvider : ITokenProvider
+        {
+            public async Task<string> GetTokenAsync(string userId)
+            {
+                // Call your own backend's token endpoint here, performing whatever
+                // authorization your app already uses so the backend can verify the
+                // caller is entitled to a Stream token for this userId.
+                return await Task.FromResult("token-fetched-from-your-backend");
+            }
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/init_and_users/?language=unity#websocket-connections
+        /// https://getstream.io/chat/docs/unity/init-and-users/?language=unity#disconnecting-users
         /// </summary>
         public async Task DisconnectUser()
         {
