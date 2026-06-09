@@ -666,25 +666,48 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#muting-channels
+        /// https://getstream.io/chat/docs/unity/muting-channels/?language=unity#mute-a-channel
         /// </summary>
         public async Task MuteChannel()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+// Mute a channel for the current user
             await channel.MuteChannelAsync();
+
+// Mute a channel for 2 weeks (duration in milliseconds)
+            await channel.MuteChannelAsync(milliseconds: 14 * 24 * 60 * 60 * 1000);
+
+// Mute a channel for 10 seconds
+            await channel.MuteChannelAsync(milliseconds: 10000);
+
+// The list of channel mutes (with expiration times) is available after connect
+            var channelMutes = Client.LocalUserData.ChannelMutes;
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#query-muted-channels
+        /// https://getstream.io/chat/docs/unity/muting-channels/?language=unity#query-muted-channels
         /// </summary>
         public async Task QueryMutedChannels()
         {
-            //StreamTodo: IMPLEMENT query muted channels
-            await Task.CompletedTask;
+// Retrieve all channels excluding muted ones
+            var notMutedFilters = new IFieldFilterRule[]
+            {
+                ChannelFilter.Members.In(Client.LocalUserData.UserId),
+                ChannelFilter.Muted.EqualsTo(false),
+            };
+            var notMutedChannels = await Client.QueryChannelsAsync(notMutedFilters);
+
+// Retrieve all muted channels
+            var mutedFilters = new IFieldFilterRule[]
+            {
+                ChannelFilter.Muted.EqualsTo(true),
+            };
+            var mutedChannels = await Client.QueryChannelsAsync(mutedFilters);
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#remove-a-channel-mute
+        /// https://getstream.io/chat/docs/unity/muting-channels/?language=unity#remove-a-channel-mute
         /// </summary>
         public async Task RemoveChannelMute()
         {
@@ -693,7 +716,7 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#hiding-a-channel
+        /// https://getstream.io/chat/docs/unity/hiding-channels/?language=unity#hide-a-channel
         /// </summary>
         public async Task HideAndShowChannel()
         {
