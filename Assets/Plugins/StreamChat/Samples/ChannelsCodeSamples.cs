@@ -562,7 +562,11 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/channel_capabilities/?language=unity
+        /// Code-only reference: there is no Unity tab on
+        /// https://getstream.io/chat/docs/unity/chat-permission-policies/?language=unity
+        /// (or any other live docs page) that demonstrates reading
+        /// <see cref="IStreamChannel.OwnCapabilities"/>. The capability strings
+        /// are listed on https://getstream.io/chat/docs/unity/permissions-reference/?language=unity.
         /// </summary>
         public async Task ChannelCapabilities()
         {
@@ -572,8 +576,6 @@ namespace StreamChat.Samples
             {
                 // User can update own message
             }
-
-            // Check action keys here https://getstream.io/chat/docs/unity/permissions_reference/?language=unity
         }
 
         /// <summary>
