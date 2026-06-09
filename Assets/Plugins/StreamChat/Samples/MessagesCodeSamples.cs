@@ -287,10 +287,90 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/reminders/?language=unity
+        /// https://getstream.io/chat/docs/unity/unread-reminders/?language=unity#enabling-unread-reminders
         /// </summary>
-        public async Task Reminders()
+        public async Task EnableUnreadReminders()
         {
+            // Enable in Dashboard: Open your application -> Channel Types -> Pick Channel Type -> Enable "Message Reminders"
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/message-reminders/?language=unity#enabling-reminders
+        /// </summary>
+        public async Task EnableMessageReminders()
+        {
+            // This is a server-side feature, choose any of our server-side SDKs (or the Stream Dashboard) to enable it
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/message-reminders/?language=unity#creating-a-message-reminder
+        /// </summary>
+        public async Task CreateMessageReminder()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/message-reminders/?language=unity#updating-a-message-reminder
+        /// </summary>
+        public async Task UpdateMessageReminder()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/message-reminders/?language=unity#deleting-a-message-reminder
+        /// </summary>
+        public async Task DeleteMessageReminder()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/message-reminders/?language=unity#querying-message-reminders
+        /// </summary>
+        public async Task QueryMessageReminders()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/message-reminders/?language=unity#filtering-reminders
+        /// </summary>
+        public async Task FilterMessageReminders()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/message-reminders/?language=unity#pagination
+        /// </summary>
+        public async Task PaginateMessageReminders()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/message-reminders/?language=unity#events
+        /// </summary>
+        public async Task MessageReminderEvents()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
             await Task.CompletedTask;
         }
 

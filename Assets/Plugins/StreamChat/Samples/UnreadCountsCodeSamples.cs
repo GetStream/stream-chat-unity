@@ -139,7 +139,8 @@ namespace StreamChat.Samples
         /// </summary>
         public Task UnreadMentionsPerChannel()
         {
-            // Will be implemented soon, raise a GitHub issue if you need this feature https://github.com/GetStream/stream-chat-unity/issues/
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
             return Task.CompletedTask;
         }
 

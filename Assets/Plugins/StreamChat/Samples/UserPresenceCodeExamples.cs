@@ -51,7 +51,8 @@ namespace StreamChat.Samples
         {
             //StreamTodo: implement https://getstream.io/chat/docs/unity/presence_format/?language=csharp#invisible (second example)
             
-            // Will be implemented soon, please send a support ticket if you need this feature
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
         }
 
         public async void ListeningForPresenceEvents()

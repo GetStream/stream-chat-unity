@@ -158,12 +158,10 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task WatchingMultipleChannels2()
         {
-            var localUser = Client.LocalUserData.User;
-
             var filters = new IFieldFilterRule[]
             {
                 // Get channels where local user is a member
-                ChannelFilter.Members.In(localUser.Id)
+                ChannelFilter.Members.In(Client.LocalUserData.UserId)
             };
 
             // You can also sort by various fields
@@ -176,12 +174,10 @@ namespace StreamChat.Samples
         /// </summary>
         public async Task WatchingMultipleChannels3()
         {
-            var localUser = Client.LocalUserData.User;
-
             var filters = new IFieldFilterRule[]
             {
                 // Get channels where local user is a member
-                ChannelFilter.Members.In(localUser.Id)
+                ChannelFilter.Members.In(Client.LocalUserData.UserId)
             };
 
             // You can sort by multiple fields and chain as many ThenByDescending as you need
