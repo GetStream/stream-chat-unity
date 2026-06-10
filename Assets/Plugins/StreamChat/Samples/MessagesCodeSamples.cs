@@ -153,25 +153,35 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/file_uploads/?language=unity#how-to-upload-a-file-or-image
+        /// https://getstream.io/chat/docs/unity/file-uploads/?language=unity#uploading-files-to-a-channel
         /// </summary>
         public async Task UploadFileOrImage()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
 
-// Get file byte array however you want e.g. Addressables.LoadAsset, Resources.Load, etc.
-            var sampleFile = File.ReadAllBytes("path/to/file");
-            var fileUploadResponse = await channel.UploadFileAsync(sampleFile, "my-file-name");
-            var fileWebUrl = fileUploadResponse.FileUrl;
+            var imageBytes = File.ReadAllBytes("path/to/image.jpg");
+            var imageUploadResponse = await channel.UploadImageAsync(imageBytes, "image.jpg");
+            var imageUrl = imageUploadResponse.FileUrl;
 
-// Get image byte array however you want e.g. Addressables.LoadAsset, Resources.Load, etc.
-            var sampleImage = File.ReadAllBytes("path/to/file");
-            var imageUploadResponse = await channel.UploadImageAsync(sampleFile, "my-image-name");
-            var imageWebUrl = imageUploadResponse.FileUrl;
+            var fileBytes = File.ReadAllBytes("path/to/document.pdf");
+            var fileUploadResponse = await channel.UploadFileAsync(fileBytes, "document.pdf");
+            var fileUrl = fileUploadResponse.FileUrl;
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/file_uploads/?language=unity#deleting-files-and-images
+        /// https://getstream.io/chat/docs/unity/file-uploads/?language=unity#uploading-standalone-files
+        /// </summary>
+        public Task UploadStandaloneFiles()
+        {
+            // Uploading standalone files via a client-level endpoint is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            // As a workaround, upload via channel.UploadImageAsync / channel.UploadFileAsync
+            // and reuse the returned URL when upserting a user with Client.UpsertUsersAsync.
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/file-uploads/?language=unity#deleting-files
         /// </summary>
         public async Task DeleteFileOrImage()
         {
@@ -180,13 +190,13 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/file_uploads/?language=unity#using-your-own-cdn
+        /// https://getstream.io/chat/docs/unity/file-uploads/?language=unity#using-your-own-cdn
         /// </summary>
         public async Task UsingYourOwnCdn()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
 
-//Implement your own CDN upload and obtain the file URL
+            // Upload to your CDN and obtain the file URL
             var fileUrl = "file-url-to-your-cdn";
 
             await channel.SendNewMessageAsync(new StreamSendMessageRequest
@@ -200,8 +210,6 @@ namespace StreamChat.Samples
                     }
                 }
             });
-
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -550,60 +558,85 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/pinned_messages/?language=unity#pin-and-unpin-a-message
+        /// https://getstream.io/chat/docs/unity/pinned-messages/?language=unity#pinning-and-unpinning-messages
         /// </summary>
         public async Task PinAndUnpinMessage()
         {
-            IStreamMessage message = null;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+            var message = await channel.SendNewMessageAsync("Important announcement");
 
-// Pin until unpinned
+            // Pin until unpinned
             await message.PinAsync();
 
-// Pin for 7 days
-            await message.PinAsync(new DateTime().AddDays(7));
+            // Pin for 7 days
+            await message.PinAsync(DateTime.UtcNow.AddDays(7));
 
-// Unpin previously pinned message
+            // Unpin previously pinned message
             await message.UnpinAsync();
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/pinned_messages/?language=unity#retrieve-pinned-messages
+        /// https://getstream.io/chat/docs/unity/pinned-messages/?language=unity#retrieving-pinned-messages
         /// </summary>
         public async Task RetrievePinnedMessages()
         {
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            // channel.PinnedMessages exposes the 10 most recent pinned messages loaded with the channel state.
+            foreach (var pinnedMessage in channel.PinnedMessages)
+            {
+                Debug.Log($"{pinnedMessage.Id}: {pinnedMessage.Text}");
+            }
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/pinned_messages/?language=unity#paginate-over-all-pinned-messages
+        /// https://getstream.io/chat/docs/unity/pinned-messages/?language=unity#paginating-pinned-messages
         /// </summary>
         public async Task PaginatePinnedMessages()
         {
+            // Paginating pinned messages via the dedicated pinned-messages endpoint is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            // The channel.PinnedMessages snapshot loaded with the channel state (max 10) is the available alternative.
             await Task.CompletedTask;
         }
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/translation/?language=unity#message-translation-endpoint
+        /// On-demand message translation is not yet exposed by the Unity SDK; the docs
+        /// surface the canonical "raise an issue" placeholder. Tracked in B5 of the docs
+        /// update plan.
         /// </summary>
-        public async Task MessageTranslation()
+        public Task MessageTranslation()
         {
-            await Task.CompletedTask;
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/translation/?language=unity#enabling-automatic-translation
+        /// Enabling automatic translation (per-channel or per-app) is server-side / not
+        /// yet exposed by the Unity stateful client; the docs surface the canonical
+        /// "raise an issue" placeholder. Tracked in B5 of the docs update plan.
         /// </summary>
-        public async Task EnableAutomaticTranslation()
+        public Task EnableAutomaticTranslation()
         {
-            await Task.CompletedTask;
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// https://getstream.io/chat/docs/unity/translation/?language=unity#set-user-language
+        /// Setting the user language at connect time is not yet exposed by the Unity
+        /// stateful client; the docs surface the canonical "raise an issue" placeholder.
+        /// Tracked in B5 of the docs update plan.
         /// </summary>
-        public async Task SetUserLanguage()
+        public Task SetUserLanguage()
         {
-            await Task.CompletedTask;
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            return Task.CompletedTask;
         }
 
         private IStreamChatClient Client { get; } = StreamChatClient.CreateDefaultClient();

@@ -531,7 +531,7 @@ namespace StreamChat.Samples
         #region Channel Pagination
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
+        /// https://getstream.io/chat/docs/unity/channel-pagination/?language=unity#message-pagination
         /// </summary>
         public async Task ChannelPaginateMessages()
         {
@@ -542,27 +542,34 @@ namespace StreamChat.Samples
             await channel.LoadOlderMessagesAsync();
         }
 
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/channel-pagination/?language=unity#member-and-watcher-pagination
+        /// </summary>
+        public async Task ChannelPaginateMembersAndWatchers()
+        {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+// channel.Members exposes the loaded members snapshot (max 100 by default)
+            foreach (var member in channel.Members)
+            {
+                // ...
+            }
+
+// channel.Watchers exposes the loaded watchers snapshot (max 100 by default)
+            foreach (var watcher in channel.Watchers)
+            {
+                // ...
+            }
+
+// Use QueryMembersAsync to page beyond the loaded snapshot
+            var filters = new Dictionary<string, object>();
+            var nextMembers = await channel.QueryMembersAsync(filters, limit: 20, offset: 0);
+
+// Paginating watchers beyond the loaded list is not yet available in the Unity SDK.
+// Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+        }
+
         #endregion
-
-        /// <summary>
-        /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
-        /// </summary>
-        public async Task ChannelPaginateMembers()
-        {
-            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-
-            // StreamTodo: IMPLEMENT channel members pagination
-        }
-
-        /// <summary>
-        /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
-        /// </summary>
-        public async Task ChannelPaginateWatchers()
-        {
-            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-
-            // StreamTodo: IMPLEMENT channel watchers pagination
-        }
 
         /// <summary>
         /// Code-only reference: there is no Unity tab on
