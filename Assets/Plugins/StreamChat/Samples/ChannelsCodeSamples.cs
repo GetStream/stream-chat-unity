@@ -804,11 +804,22 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/slow_mode/?language=unity
+        /// https://getstream.io/chat/docs/unity/slow-mode/?language=unity#channel-slow-mode
         /// </summary>
-        public async Task ThrottleAndSlowMode()
+        public async Task EnableDisableSlowMode()
         {
-            //StreamTodo: IMPLEMENT Throttle and slow mode
+// This feature is not yet available in the Unity SDK.
+// Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/slow-mode/?language=unity#channel-slow-mode
+        /// </summary>
+        public async Task ReadChannelCooldown()
+        {
+// This feature is not yet available in the Unity SDK.
+// Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
             await Task.CompletedTask;
         }
 

@@ -16,33 +16,73 @@ namespace StreamChat.Samples
     internal sealed class MessagesCodeSamples
     {
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_message/?language=unity
+        /// https://getstream.io/chat/docs/unity/send-message/?language=unity#sending-a-message
         /// </summary>
         public async Task Overview()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-            var message = await channel.SendNewMessageAsync("Hello world!");
+            var message = await channel.SendNewMessageAsync("Hello, world!");
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_message/?language=unity#complex-example
+        /// https://getstream.io/chat/docs/unity/send-message/?language=unity#sending-messages-with-attachments
         /// </summary>
+        public async Task SendingMessagesWithAttachments()
+        {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+            IStreamUser josh = null;
+
+            var message = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = "@Josh Check out this image!",
+
+                // All fields below are optional
+                Attachments = new List<StreamAttachmentRequest>
+                {
+                    new StreamAttachmentRequest
+                    {
+                        Type = "image",
+                        AssetUrl = "https://bit.ly/2K74TaG",
+                        ThumbUrl = "https://bit.ly/2Uumxti",
+                    }
+                },
+                MentionedUsers = new List<IStreamUser> { josh },
+                Pinned = true,
+                PinExpires = new DateTimeOffset(DateTime.Now).AddDays(7),
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "priority", "high" }
+                }
+            });
+        }
+
+        // Code-only reference (kitchen-sink demo of every send-message option the
+        // stateful Unity SDK exposes — threading, quoting, pinning, mentions,
+        // and custom data in a single call). The published docs do not host an
+        // equivalent "complex example" group on /send-message/ since the page
+        // restructure on 2025-12-11 (commit 3ccdc786e), so per the orphan rule
+        // there is no `///` URL to point at — the page now splits these
+        // features across /threads/ (parent_id, show_in_channel),
+        // /pinned-messages/ (pinned, pin_expires) and the section-specific
+        // tabs above. Kept as a single grep-friendly reference for Unity
+        // readers who want to see every option in one spot.
         public async Task ComplexExample()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
 
             IStreamUser someUser = null;
 
-// Send simple message with text only
+            // Send a quoted message
             var message3 = await channel.SendNewMessageAsync("Hello");
 
-// Send simple message with text only
+            // Send a parent message we can reply to in a thread
             var message2 = await channel.SendNewMessageAsync("Let's start a thread!");
 
             var message = await channel.SendNewMessageAsync(new StreamSendMessageRequest
             {
                 MentionedUsers = new List<IStreamUser> { someUser }, // Mention a user
-                ParentId = message2.Id, // Write in thread
+                ParentId = message2.Id, // Write in a thread
                 PinExpires = new DateTimeOffset(DateTime.Now).AddDays(7), // Pin for 7 days
                 Pinned = true,
                 QuotedMessage = message3,
@@ -64,20 +104,19 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_message/?language=unity#update-a-message
+        /// https://getstream.io/chat/docs/unity/send-message/?language=unity#updating-a-message
         /// </summary>
         public async Task UpdateAMessage()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-            var message = await channel.SendNewMessageAsync("Hello world!");
+            var message = await channel.SendNewMessageAsync("Hello, world!");
 
-// Edit message text and some custom data
             await message.UpdateAsync(new StreamUpdateMessageRequest
             {
-                Text = "Hi everyone!",
+                Text = "Updated message text",
                 CustomData = new StreamCustomDataRequest
                 {
-                    { "tags", new[] { "Funny", "Unique" } }
+                    { "tags", new[] { "edited" } }
                 }
             });
         }
@@ -91,17 +130,17 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_message/?language=unity#delete-a-message
+        /// https://getstream.io/chat/docs/unity/send-message/?language=unity#deleting-a-message
         /// </summary>
         public async Task DeleteAMessage()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-            var message = await channel.SendNewMessageAsync("Hello world!");
+            var message = await channel.SendNewMessageAsync("Hello, world!");
 
-// Soft delete
+            // Soft delete
             await message.SoftDeleteAsync();
 
-// Hard delete
+            // Hard delete
             await message.HardDeleteAsync();
         }
 
