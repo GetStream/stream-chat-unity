@@ -205,28 +205,25 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_reaction/?language=unity
+        /// https://getstream.io/chat/docs/unity/send-reaction/?language=unity#sending-a-reaction
         /// </summary>
         public async Task ReactionOverview()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             var message = await channel.SendNewMessageAsync("Hello world!");
 
-// Send simple reaction with a score of 1
+            // Send a reaction with default score of 1
             await message.SendReactionAsync("like");
 
-// Send reaction with a custom score value
+            // Send a reaction with custom score
             await message.SendReactionAsync("clap", 10);
 
-// Send reaction with a custom score value
-            await message.SendReactionAsync("clap", 10);
-
-// Send reaction and replace all previous reactions (if any) from this user
+            // Replace all previous reactions from this user
             await message.SendReactionAsync("love", enforceUnique: true);
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_reaction/?language=unity#removing-a-reaction
+        /// https://getstream.io/chat/docs/unity/send-reaction/?language=unity#removing-a-reaction
         /// </summary>
         public async Task RemoveReaction()
         {
@@ -237,25 +234,61 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_reaction/?language=unity#paginating-reactions
+        /// https://getstream.io/chat/docs/unity/send-reaction/?language=unity#paginating-reactions
         /// </summary>
         public async Task PaginateReactions()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             var message = await channel.SendNewMessageAsync("Hello world!");
 
-            //StreamTodo: IMPLEMENT reactions paginating
+            // Paginating reactions via API is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            // Each message exposes a snapshot of the reaction summary instead:
+
+            // The 10 most recent reactions on the message
+            foreach (var reaction in message.LatestReactions)
+            {
+                Debug.Log($"{reaction.Type} from {reaction.User?.Id}");
+            }
+
+            // The 10 most recent reactions left by the local user
+            foreach (var reaction in message.OwnReactions)
+            {
+                Debug.Log($"My reaction: {reaction.Type}");
+            }
+
+            // Number of reactions per type, e.g. {"love": 3, "fire": 2}
+            foreach (var entry in message.ReactionCounts)
+            {
+                Debug.Log($"{entry.Key}: {entry.Value} reactions");
+            }
+
+            // Sum of reaction scores per type (matches counts unless cumulative reactions are used)
+            foreach (var entry in message.ReactionScores)
+            {
+                Debug.Log($"{entry.Key}: total score {entry.Value}");
+            }
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_reaction/?language=unity#cumulative-(clap)-reactions
+        /// https://getstream.io/chat/docs/unity/send-reaction/?language=unity#querying-reactions
+        /// </summary>
+        public async Task QueryReactions()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/send-reaction/?language=unity#cumulative-reactions
         /// </summary>
         public async Task CumulativeReactions()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             var message = await channel.SendNewMessageAsync("Hello world!");
 
-            await message.SendReactionAsync("clap", score: 3);
+            await message.SendReactionAsync("clap", score: 5);
         }
 
         /// <summary>
