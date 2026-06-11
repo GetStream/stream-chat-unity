@@ -45,39 +45,25 @@ namespace StreamChat.Samples
         {
             var client = StreamChatClient.CreateDefaultClient();
 
-// 1. Connect with a static JWT token. Suitable for prototyping and automated
-//    tests only: in production, tokens must be issued by your backend for
-//    security reasons.
+// 1. Static JWT token - prototyping/tests only. In production, issue tokens
+//    from your backend.
             var localUserData = await client.ConnectUserAsync("api_key", "chat_user", "chat_user_token");
-// After await is complete the user is connected
+// Await returns once connected; you can also subscribe to client.Connected.
+            client.Connected += connectedUser => { /* User is connected */ };
 
-// Alternatively, subscribe to the IStreamChatClient.Connected event
-            client.Connected += connectedUser =>
-            {
-                // User is connected
-            };
-
-// 2. Production setup: implement ITokenProvider to fetch a fresh JWT from
-//    your backend. The SDK calls GetTokenAsync whenever a token is needed
-//    (initial connection, reconnect, after expiration), so a correctly
-//    implemented provider keeps the WebSocket connected across token
-//    refreshes without any extra work on your side.
+// 2. Production: implement ITokenProvider. The SDK calls GetTokenAsync on
+//    initial connect, reconnect, and expiration, so the WebSocket stays
+//    connected across token refreshes automatically.
             var tokenProvider = new YourTokenProvider();
             await client.ConnectUserAsync("api_key", "chat_user", tokenProvider);
         }
 
-// Sample ITokenProvider implementation. Your backend must verify the caller's
-// identity BEFORE issuing a Stream token - never expose a public endpoint
-// keyed only by userId, since any client could then obtain a token for any user.
+// Your backend MUST authenticate the caller before issuing a Stream token -
+// never expose an endpoint that returns a token for any userId.
         public class YourTokenProvider : ITokenProvider
         {
-            public async Task<string> GetTokenAsync(string userId)
-            {
-                // Call your own backend's token endpoint here, performing whatever
-                // authorization your app already uses so the backend can verify the
-                // caller is entitled to a Stream token for this userId.
-                return await Task.FromResult("token-fetched-from-your-backend");
-            }
+            public Task<string> GetTokenAsync(string userId)
+                => Task.FromResult("token-fetched-from-your-backend");
         }
 
         /// <summary>
