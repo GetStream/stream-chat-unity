@@ -399,7 +399,7 @@ namespace StreamChat.Core.StatefulModels
         /// <param name="reason">[Optional] reason description why user got banned</param>
         /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
         /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
-        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unreal#shadow-ban</remarks>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks>
         Task ShadowBanUserAsync(IStreamUser user, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false);
 
@@ -411,7 +411,7 @@ namespace StreamChat.Core.StatefulModels
         /// <param name="reason">[Optional] reason description why user got banned</param>
         /// <param name="timeoutMinutes">[Optional] timeout in minutes after which ban is automatically expired</param>
         /// <param name="isIpBan">[Optional] Should ban apply to user's IP address</param>
-        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unreal#shadow-ban</remarks>
+        /// <remarks>https://getstream.io/chat/docs/unity/moderation/?language=unity#shadow-ban</remarks>
         Task ShadowBanMemberAsync(IStreamChannelMember member, string reason = "",
             int? timeoutMinutes = default, bool isIpBan = false);
 

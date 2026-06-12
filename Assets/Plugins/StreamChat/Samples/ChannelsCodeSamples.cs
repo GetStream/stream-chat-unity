@@ -28,7 +28,7 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/creating_channels/?language=unreal#2.-creating-a-channel-for-a-list-of-members
+        /// https://getstream.io/chat/docs/unity/creating_channels/?language=unity#2.-creating-a-channel-for-a-list-of-members
         /// </summary>
         public async Task CreateChannelForListOfMembers()
         {
@@ -52,7 +52,7 @@ namespace StreamChat.Samples
         #region Watch a channel
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#to-start-watching-a-channel
+        /// https://getstream.io/chat/docs/unity/creating-channels/?language=unity#watching-channels
         /// </summary>
         public async Task StartWatchingChannel()
         {
@@ -60,9 +60,9 @@ namespace StreamChat.Samples
             {
                 UserFilter.Id.EqualsTo("other-user-id")
             };
-// find user you want to start chat with
-            var users = await Client.QueryUsersAsync(filters);
 
+// Find user you want to start chat with
+            var users = await Client.QueryUsersAsync(filters);
             var otherUser = users.First();
             var localUser = Client.LocalUserData.User;
 
@@ -70,15 +70,12 @@ namespace StreamChat.Samples
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
 
 // Get channel with users combination
-            var channelWithUsers
-                = await Client.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging,
-                    new[] { localUser, otherUser });
+            var channelWithUsers = await Client.GetOrCreateChannelWithMembersAsync(ChannelType.Messaging,
+                new[] { localUser, otherUser });
 
 // Access properties
             Debug.Log(channel.Name);
             Debug.Log(channel.Members);
-            Debug.Log(channel.Name);
-            Debug.Log(channel.Name);
 
 // Subscribe to events so you can react to updates
             channel.MessageReceived += OnMessageReceived;
@@ -120,68 +117,61 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#watching-multiple-channels
+        /// https://getstream.io/chat/docs/unity/query-channels/?language=unity#channel-creation-and-watching
         /// </summary>
         public async Task WatchingMultipleChannels()
         {
-            var localUser = Client.LocalUserData.User;
-
             var filters = new IFieldFilterRule[]
             {
                 // Get channels where local user is a member
-                ChannelFilter.Members.In(localUser.Id)
+                ChannelFilter.Members.In(Client.LocalUserData.UserId)
             };
 
+// Get channel state or create one if it doesn't exist
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "general");
+
+// Or get multiple channels matching a filter
             var channels = await Client.QueryChannelsAsync(filters);
 
-            // After query is done - loop channels and subscribe to events 
-            foreach (var channel in channels)
+            // Subscribe to per-channel events as needed
+            foreach (var c in channels)
             {
-                // Access properties
-                Debug.Log(channel.Name);
-                Debug.Log(channel.Members);
-                Debug.Log(channel.Name);
-                Debug.Log(channel.Name);
-
-                // Subscribe to events so you can react to updates
-                channel.MessageReceived += OnMessageReceived;
-                channel.MessageUpdated += OnMessageUpdated;
-                channel.MessageDeleted += OnMessageDeleted;
-                channel.ReactionAdded += OnReactionAdded;
-                channel.ReactionUpdated += OnReactionUpdated;
-                channel.ReactionRemoved += OnReactionRemoved;
+                c.MessageReceived += OnMessageReceived;
+                c.MessageUpdated += OnMessageUpdated;
+                c.MessageDeleted += OnMessageDeleted;
+                c.ReactionAdded += OnReactionAdded;
+                c.ReactionUpdated += OnReactionUpdated;
+                c.ReactionRemoved += OnReactionRemoved;
             }
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#watching-multiple-channels
+        /// https://getstream.io/chat/docs/unity/query-channels/?language=unity#sort-best-practices
         /// </summary>
         public async Task WatchingMultipleChannels2()
         {
-            var localUser = Client.LocalUserData.User;
-
             var filters = new IFieldFilterRule[]
             {
                 // Get channels where local user is a member
-                ChannelFilter.Members.In(localUser.Id)
+                ChannelFilter.Members.In(Client.LocalUserData.UserId)
             };
 
-            // You can also sort by various fields
             var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
             var channels = await Client.QueryChannelsAsync(filters, sort);
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#watching-multiple-channels
+        /// Code-only reference: no live Unity docs page demonstrates chained
+        /// channel sort (<c>ThenByDescending</c>) for any SDK, so this snippet
+        /// has no published home. Kept as a code-only example of how to chain
+        /// multiple sort fields against <see cref="IStreamChatClient.QueryChannelsAsync"/>.
         /// </summary>
         public async Task WatchingMultipleChannels3()
         {
-            var localUser = Client.LocalUserData.User;
-
             var filters = new IFieldFilterRule[]
             {
                 // Get channels where local user is a member
-                ChannelFilter.Members.In(localUser.Id)
+                ChannelFilter.Members.In(Client.LocalUserData.UserId)
             };
 
             // You can sort by multiple fields and chain as many ThenByDescending as you need
@@ -192,7 +182,11 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#stop-watching-a-channel
+        /// Code-only reference: <c>creating-channels/?language=unity</c> and
+        /// <c>query-channels/?language=unity</c> (the live targets of the old
+        /// <c>watch_channel/</c> redirect) do not expose a "Stop watching a
+        /// channel" section for any SDK, so this snippet has no published home.
+        /// Kept as a code-only example of <see cref="IStreamChannel.StopWatchingAsync"/>.
         /// </summary>
         public async Task StopWatchingChannel()
         {
@@ -202,7 +196,11 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#watcher-count
+        /// Code-only reference: <c>creating-channels/?language=unity</c> and
+        /// <c>query-channels/?language=unity</c> (the live targets of the old
+        /// <c>watch_channel/</c> redirect) do not surface a "Watcher count"
+        /// section for any SDK. Kept as a code-only example of how to read
+        /// <see cref="IStreamChannel.WatcherCount"/>.
         /// </summary>
         public async Task WatcherCount()
         {
@@ -212,16 +210,12 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#paginating-channel-watchers-with-channel.query
-        /// </summary>
-        public async Task PaginateChannelWatchers()
-        {
-            //StreamTodo: IMPLEMENT watchers pagination
-            await Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// https://getstream.io/chat/docs/unity/watch_channel/?language=unity#listening-to-changes-in-watchers
+        /// Code-only reference: the old <c>watch_channel/</c> page exposed
+        /// "Listening to changes in watchers" but the live targets of its
+        /// redirect (<c>creating-channels/</c>, <c>query-channels/</c>) do not
+        /// host a watcher-events section for any SDK. Kept as a code-only
+        /// example of <see cref="IStreamChannel.WatcherAdded"/> /
+        /// <see cref="IStreamChannel.WatcherRemoved"/>.
         /// </summary>
         public async Task ListenToChangesInWatchers()
         {
@@ -419,7 +413,7 @@ namespace StreamChat.Samples
         #region Querying Channels
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity
+        /// https://getstream.io/chat/docs/unity/query-channels/?language=unity
         /// </summary>
         public async Task QueryChannels()
         {
@@ -435,7 +429,12 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity
+        /// Code-only reference: <c>query-channels/?language=unity</c> only
+        /// surfaces the single-filter <c>Members.In(...)</c> example (covered
+        /// by <see cref="QueryChannels"/>); the extended
+        /// <c>Members + Muted + MembersCount</c> filter set is not published
+        /// for any SDK. Kept as a code-only example of combining multiple
+        /// <see cref="ChannelFilter"/> rules in a single query.
         /// </summary>
         public async Task QueryChannelsExtended()
         {
@@ -451,23 +450,25 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity#messaging-and-team
+        /// https://getstream.io/chat/docs/unity/query-channels/?language=unity#messaging-and-team-channels
         /// </summary>
         public async Task MessagingAndTeam()
         {
             var filters = new List<IFieldFilterRule>
             {
-                // Return only channels where local user is a member
+                ChannelFilter.Type.EqualsTo(ChannelType.Messaging),
                 ChannelFilter.Members.In(Client.LocalUserData.UserId),
-
-                // You can define multiple filters that will all have to be satisfied
             };
 
             var channels = await Client.QueryChannelsAsync(filters);
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity#support
+        /// Code-only reference: <c>query-channels/?language=unity</c> does
+        /// not host a "Support" / customer-service filter example for any
+        /// SDK (the <c>#support</c> anchor on the old <c>query_channels/</c>
+        /// page no longer exists). Kept as a code-only example of querying
+        /// channels by custom fields via <see cref="ChannelFilter.Custom(string)"/>.
         /// </summary>
         public async Task Support()
         {
@@ -482,7 +483,7 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/query_channels/?language=unity#pagination
+        /// https://getstream.io/chat/docs/unity/query-channels/?language=unity#pagination
         /// </summary>
         public async Task QueryChannelsPagination()
         {
@@ -490,13 +491,11 @@ namespace StreamChat.Samples
             {
                 // Return only channels where local user is a member
                 ChannelFilter.Members.In(Client.LocalUserData.UserId),
-
-                // You can define multiple filters that will all have to be satisfied
             };
 
-// Pass limit and offset to control the page or results returned
-// Limit - how many records per page
-// Offset - how many records to skip
+// Pass limit and offset to control pagination
+// Limit - records per page
+// Offset - records to skip
             var channels = await Client.QueryChannelsAsync(filters, limit: 30, offset: 60);
         }
 
@@ -532,7 +531,7 @@ namespace StreamChat.Samples
         #region Channel Pagination
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
+        /// https://getstream.io/chat/docs/unity/channel-pagination/?language=unity#message-pagination
         /// </summary>
         public async Task ChannelPaginateMessages()
         {
@@ -543,30 +542,41 @@ namespace StreamChat.Samples
             await channel.LoadOlderMessagesAsync();
         }
 
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/channel-pagination/?language=unity#member-and-watcher-pagination
+        /// </summary>
+        public async Task ChannelPaginateMembersAndWatchers()
+        {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+// channel.Members exposes the loaded members snapshot (max 100 by default)
+            foreach (var member in channel.Members)
+            {
+                // ...
+            }
+
+// channel.Watchers exposes the loaded watchers snapshot (max 100 by default)
+            foreach (var watcher in channel.Watchers)
+            {
+                // ...
+            }
+
+// Use QueryMembersAsync to page beyond the loaded snapshot
+            var filters = new Dictionary<string, object>();
+            var nextMembers = await channel.QueryMembersAsync(filters, limit: 20, offset: 0);
+
+// Paginating watchers beyond the loaded list is not yet available in the Unity SDK.
+// Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+        }
+
         #endregion
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
-        /// </summary>
-        public async Task ChannelPaginateMembers()
-        {
-            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-
-            // StreamTodo: IMPLEMENT channel members pagination
-        }
-
-        /// <summary>
-        /// https://getstream.io/chat/docs/unity/channel_pagination/?language=unity
-        /// </summary>
-        public async Task ChannelPaginateWatchers()
-        {
-            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
-
-            // StreamTodo: IMPLEMENT channel watchers pagination
-        }
-
-        /// <summary>
-        /// https://getstream.io/chat/docs/unity/channel_capabilities/?language=unity
+        /// Code-only reference: there is no Unity tab on
+        /// https://getstream.io/chat/docs/unity/chat-permission-policies/?language=unity
+        /// (or any other live docs page) that demonstrates reading
+        /// <see cref="IStreamChannel.OwnCapabilities"/>. The capability strings
+        /// are listed on https://getstream.io/chat/docs/unity/permissions-reference/?language=unity.
         /// </summary>
         public async Task ChannelCapabilities()
         {
@@ -576,8 +586,6 @@ namespace StreamChat.Samples
             {
                 // User can update own message
             }
-
-            // Check action keys here https://getstream.io/chat/docs/unity/permissions_reference/?language=unity
         }
 
         /// <summary>
@@ -668,25 +676,48 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#muting-channels
+        /// https://getstream.io/chat/docs/unity/muting-channels/?language=unity#mute-a-channel
         /// </summary>
         public async Task MuteChannel()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
+
+// Mute a channel for the current user
             await channel.MuteChannelAsync();
+
+// Mute a channel for 2 weeks (duration in milliseconds)
+            await channel.MuteChannelAsync(milliseconds: 14 * 24 * 60 * 60 * 1000);
+
+// Mute a channel for 10 seconds
+            await channel.MuteChannelAsync(milliseconds: 10000);
+
+// The list of channel mutes (with expiration times) is available after connect
+            var channelMutes = Client.LocalUserData.ChannelMutes;
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#query-muted-channels
+        /// https://getstream.io/chat/docs/unity/muting-channels/?language=unity#query-muted-channels
         /// </summary>
         public async Task QueryMutedChannels()
         {
-            //StreamTodo: IMPLEMENT query muted channels
-            await Task.CompletedTask;
+// Retrieve all channels excluding muted ones
+            var notMutedFilters = new IFieldFilterRule[]
+            {
+                ChannelFilter.Members.In(Client.LocalUserData.UserId),
+                ChannelFilter.Muted.EqualsTo(false),
+            };
+            var notMutedChannels = await Client.QueryChannelsAsync(notMutedFilters);
+
+// Retrieve all muted channels
+            var mutedFilters = new IFieldFilterRule[]
+            {
+                ChannelFilter.Muted.EqualsTo(true),
+            };
+            var mutedChannels = await Client.QueryChannelsAsync(mutedFilters);
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#remove-a-channel-mute
+        /// https://getstream.io/chat/docs/unity/muting-channels/?language=unity#remove-a-channel-mute
         /// </summary>
         public async Task RemoveChannelMute()
         {
@@ -695,7 +726,7 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/muting_channels/?language=unity#hiding-a-channel
+        /// https://getstream.io/chat/docs/unity/hiding-channels/?language=unity#hide-a-channel
         /// </summary>
         public async Task HideAndShowChannel()
         {
@@ -780,11 +811,22 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/slow_mode/?language=unity
+        /// https://getstream.io/chat/docs/unity/slow-mode/?language=unity#channel-slow-mode
         /// </summary>
-        public async Task ThrottleAndSlowMode()
+        public async Task EnableDisableSlowMode()
         {
-            //StreamTodo: IMPLEMENT Throttle and slow mode
+// This feature is not yet available in the Unity SDK.
+// Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/slow-mode/?language=unity#channel-slow-mode
+        /// </summary>
+        public async Task ReadChannelCooldown()
+        {
+// This feature is not yet available in the Unity SDK.
+// Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
             await Task.CompletedTask;
         }
 

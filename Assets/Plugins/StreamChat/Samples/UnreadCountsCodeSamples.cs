@@ -9,68 +9,29 @@ namespace StreamChat.Samples
     internal sealed class UnreadCountsCodeSamples
     {
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/unread/?language=unity
+        /// https://getstream.io/chat/docs/unity/unread/?language=unity#reading-unread-counts
         /// </summary>
-        /// <returns></returns>
-        public async Task GetUnreadCounts()
+        public async Task ReadingUnreadCounts()
         {
-            // Once user is connected you can access unread counts via IStreamLocalUserData
-            var localUserData = Client.LocalUserData;
+            // Step 1: Get initial unread counts when connecting
+            var localUserData = await Client.ConnectUserAsync("api_key", "user_id", "user_token");
 
             Debug.Log(localUserData.UnreadChannels);
             Debug.Log(localUserData.TotalUnreadCount);
 
-            // It's also returned by the ConnectUserAsync method
-            var localUserData2 = await Client.ConnectUserAsync("api_key", "user_id", "user_token");
-
-            // And also returned by the Connected event
-            Client.Connected += ClientOnConnected;
-
-            // All above examples returned the same IStreamLocalUserData object which represents the local user connected to the Stream Chat server
-        }
-
-        private void ClientOnConnected(IStreamLocalUserData localUserData)
-        {
-        }
-
-        public async Task MarkRead()
-        {
-            IStreamMessage message = null;
-
-            await message.MarkMessageAsLastReadAsync();
-        }
-
-        public async Task ObserveReadState()
-        {
-            await Task.CompletedTask;
-        }
-
-        public void ChannelsReadState()
-        {
-            IStreamChannel channel = null;
-
-            // Every channel maintains a full list of read state for each channel member
-            foreach (var read in channel.Read)
+            // You can also access unread counts via Client.LocalUserData after connection
+            // Or subscribe to the Connected event for real-time updates
+            Client.Connected += (IStreamLocalUserData userData) =>
             {
-                Debug.Log(read.User); // User
-                Debug.Log(read.UnreadMessages); // How many unread messages
-                Debug.Log(read.LastRead); // Last read date
-            }
+                Debug.Log(userData.UnreadChannels);
+                Debug.Log(userData.TotalUnreadCount);
+            };
         }
 
-        public async Task MarkRead2()
-        {
-            IStreamChannel channel = null;
-            IStreamMessage message = null;
-
-            // Mark this message as last read
-            await message.MarkMessageAsLastReadAsync();
-
-            // Mark whole channel as read
-            await channel.MarkChannelReadAsync();
-        }
-
-        public async Task GetCurrentUnreadCounts()
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/unread/?language=unity#unread-counts---server-side
+        /// </summary>
+        public async Task GetLatestUnreadCounts()
         {
             var current = await Client.GetLatestUnreadCountsAsync();
 
@@ -99,7 +60,94 @@ namespace StreamChat.Samples
                 Debug.Log(unreadThread.LastRead); // Datetime of the last read message
             }
         }
-        
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/unread/?language=unity#mark-read
+        /// </summary>
+        public async Task MarkRead()
+        {
+            IStreamMessage message = null;
+
+            await message.MarkMessageAsLastReadAsync();
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/unread/?language=unity#mark-read
+        /// </summary>
+        public async Task MarkAlreadyReadMessageAsUnread()
+        {
+            IStreamMessage message = null;
+            IStreamChannel channel = null;
+            var messageId = "message-id";
+
+            // Mark the channel containing this message as unread starting from this message
+            await message.MarkAsUnreadAsync();
+
+            // Or mark a channel as unread starting from a specific message id
+            await channel.MarkChannelAsUnreadAsync(messageId);
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/unread/?language=unity#mark-all-as-read
+        /// </summary>
+        public async Task MarkAllAsRead()
+        {
+            IStreamMessage message = null;
+            IStreamChannel channel = null;
+
+            // Mark this message as last read
+            await message.MarkMessageAsLastReadAsync();
+
+            // Mark whole channel as read
+            await channel.MarkChannelReadAsync();
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/unread/?language=unity#read-state---showing-how-far-other-users-have-read
+        /// </summary>
+        public void ReadState()
+        {
+            IStreamChannel channel = null;
+
+            // Every channel maintains a full list of read state for each channel member
+            foreach (var read in channel.Read)
+            {
+                Debug.Log(read.User); // User
+                Debug.Log(read.UnreadMessages); // How many unread messages
+                Debug.Log(read.LastRead); // Last read date
+            }
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/unread/?language=unity#unread-messages-per-channel
+        /// </summary>
+        public void UnreadMessagesPerChannel()
+        {
+            IStreamChannel channel = null;
+
+            // Every channel maintains a full list of read state for each channel member
+            foreach (var read in channel.Read)
+            {
+                Debug.Log(read.User); // User
+                Debug.Log(read.UnreadMessages); // How many unread messages
+                Debug.Log(read.LastRead); // Last read date
+            }
+        }
+
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/unread/?language=unity#unread-mentions-per-channel
+        /// </summary>
+        public Task UnreadMentionsPerChannel()
+        {
+            // This feature is not yet available in the Unity SDK.
+            // Please let us know if you'd like this feature implemented: https://github.com/GetStream/stream-chat-unity/issues
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Retrieve unread counts without first calling <see cref="IStreamChatClient.ConnectUserAsync"/>.
+        /// This is useful for surfacing an unread badge in the background without a persistent connection.
+        /// </summary>
         public async Task GetLatestUnreadCountsInOfflineMode()
         {
             // Set authorization credentials
