@@ -119,8 +119,16 @@ namespace StreamChat.Core
         IStreamLocalUserData LocalUserData { get; }
 
         /// <summary>
-        /// Watched channels receive updates on all users activity like new messages, reactions, etc.
-        /// Use <see cref="GetOrCreateChannelWithIdAsync"/> and <see cref="QueryChannelsAsync"/> to watch channels
+        /// Channels you are currently watching. Watched channels receive realtime updates
+        /// (new messages, reactions, member changes, etc.).
+        ///
+        /// <para>
+        /// Start watching with <see cref="GetOrCreateChannelWithIdAsync"/>,
+        /// <see cref="QueryChannelsAsync"/> or <see cref="IStreamChannel.WatchAsync"/>;
+        /// stop with <see cref="IStreamChannel.StopWatchingAsync"/>. Channels returned by other
+        /// methods may not be watched - check <see cref="IStreamChannel.IsWatched"/> on a specific
+        /// channel to know its state.
+        /// </para>
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
 
@@ -269,6 +277,31 @@ namespace StreamChat.Core
         /// </summary>
         /// <param name="request">Query request</param>
         Task<StreamQueryThreadsResponse> QueryThreadsAsync(StreamQueryThreadsRequest request);
+
+        /// <summary>
+        /// Search messages across the channels the local user can access. Returns the matching
+        /// <see cref="IStreamMessage"/> results together with their <see cref="IStreamChannel"/>.
+        /// By default the result channels are watched so the returned messages and channels keep
+        /// receiving realtime updates; set
+        /// <see cref="StreamSearchMessagesRequest.WatchResultChannels"/> to <c>false</c> for one-off
+        /// results that don't need to stay up to date.
+        ///
+        /// <para>
+        /// The <paramref name="request"/> requires a channel-level filter (e.g.
+        /// <c>ChannelFilter.Members.In(localUser)</c>). Additional message-level filters can be
+        /// expressed with <c>MessageFilter.*</c> builders, and a free-text phrase can be supplied
+        /// via <see cref="StreamSearchMessagesRequest.Query"/>. See <see cref="StreamSearchMessagesRequest"/>
+        /// for pagination and sorting options.
+        /// </para>
+        /// </summary>
+        /// <param name="request">Search parameters - channel filter, message filter, query phrase,
+        /// sort, and pagination.</param>
+        /// <param name="cancellationToken">[Optional] Cancellation token for the request.</param>
+        /// <returns>The matching messages and channels plus pagination cursors.</returns>
+        /// <remarks>https://getstream.io/chat/docs/unity/search/?language=unity</remarks>
+        Task<StreamSearchMessagesResponse> SearchMessagesAsync(
+            StreamSearchMessagesRequest request,
+            CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Upsert users. Upsert means update this user or create if not found

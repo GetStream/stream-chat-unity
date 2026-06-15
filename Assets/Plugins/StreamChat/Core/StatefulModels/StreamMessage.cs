@@ -92,8 +92,26 @@ namespace StreamChat.Core.StatefulModels
         
         public bool IsDeleted => Type == MessageType.Deleted;
 
-        //Do not update message from response, the WS event might have been processed and we would overwrite it with an old state
-        public Task SoftDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: false);
+        public bool IsWatched
+            => !string.IsNullOrEmpty(Cid)
+               && Cache.Channels.TryGet(Cid, out var channel)
+               && channel.IsWatched;
+
+        // Apply the REST response to the cache so callers don't have to wait for the
+        // `message.deleted` WS event before observing `DeletedAt` / `IsDeleted` / cleared
+        // text on this very instance. The WS event still fires on watchers (including this
+        // client) and goes through StreamChannel.HandleMessageDeletedEvent; that path is
+        // idempotent against the state we set here, so a late-arriving event won't regress
+        // the message back to a non-deleted state.
+        public async Task SoftDeleteAsync()
+        {
+            var response = await LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: false);
+            if (response?.Message != null)
+            {
+                Cache.TryCreateOrUpdate(response.Message);
+            }
+            InternalHandleSoftDelete();
+        }
 
         //Do not update message from response, the WS event might have been processed and we would overwrite it with an old state
         public Task HardDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: true);

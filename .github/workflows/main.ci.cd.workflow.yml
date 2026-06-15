@@ -170,6 +170,11 @@ jobs:
       - name: Install Git
         run: git config --global --add safe.directory /github/workspace
 
+      - name: Free Disk space
+        uses: jlumbroso/free-disk-space@v1.2.0
+        with:
+          dotnet: false
+
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update

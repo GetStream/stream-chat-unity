@@ -181,6 +181,8 @@ namespace StreamChat.Core.StatefulModels
 
         public bool IsDirectMessage => Members.Count == 2 && Members.Any(m => m.User == Client.LocalUserData.User);
 
+        public bool IsWatched { get; internal set; }
+
         public Task<IStreamMessage> SendNewMessageAsync(string message)
             => SendNewMessageAsync(new StreamSendMessageRequest
             {
@@ -618,10 +620,26 @@ namespace StreamChat.Core.StatefulModels
             Cache.TryCreateOrUpdate(response.Channel);
         }
 
-        //StreamTodo: write test and check Client.WatchedChannels
-        public Task StopWatchingAsync()
-            => LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
+        public async Task WatchAsync()
+        {
+            if (IsWatched)
+            {
+                return;
+            }
+
+            await Client.InternalGetOrCreateChannelWithIdAsync(Type, Id);
+        }
+
+        public async Task StopWatchingAsync()
+        {
+            await LowLevelClient.InternalChannelApi.StopWatchingChannelAsync(Type, Id,
                 new ChannelStopWatchingRequestInternalDTO());
+
+            // Bookkeeping lives on the client (it owns the WatchedChannels list).
+            // The instance stays in cache so existing references remain valid; it
+            // just stops surfacing events.
+            Client.InternalMarkChannelUnwatched(this);
+        }
 
         public async Task FreezeAsync()
         {
@@ -879,7 +897,7 @@ namespace StreamChat.Core.StatefulModels
 
         private bool InternalAppendOrUpdateMessage(MessageInternalDTO dto, out StreamMessage streamMessage)
         {
-            streamMessage = Cache.TryCreateOrUpdate(dto, out var wasCreated);
+            streamMessage = Cache.TryCreateOrUpdate(dto, out _);
 
             // A message belongs in the channel timeline iff it's a top-level message,
             // or a thread reply explicitly opted into "also show in channel".
@@ -892,8 +910,9 @@ namespace StreamChat.Core.StatefulModels
                 return false;
             }
 
-            var isNewMessage = wasCreated && !_messages.ContainsNoAlloc(streamMessage);
-            if (!isNewMessage)
+            // Idempotent: REST, message.new, and notification.thread_message_new can each
+            // populate the cache first, so the only safe insert gate is "not already here".
+            if (_messages.ContainsNoAlloc(streamMessage))
             {
                 return true;
             }
