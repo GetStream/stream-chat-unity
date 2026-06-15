@@ -1,3 +1,20 @@
+v5.5.0:
+Features:
+
+* Add IStreamChatClient.SearchMessagesAsync for searching messages across the channels the local user can access. Returns IStreamMessage results together with their IStreamChannel. Supports free-text Query, message- and channel-level filters, sorting, and offset/cursor pagination. By default the result channels are watched so the returned messages and channels keep receiving realtime updates; set StreamSearchMessagesRequest.WatchResultChannels = false for one-off results that don't need to stay up to date (e.g. a search bar where the user opens one result at a time).
+* Add MessageFilter and MessagesSort strongly-typed query builders for SearchMessagesAsync, consistent with the existing channel/user/thread filter and sort builders.
+* Add IStreamChannel.WatchAsync(), the counterpart to the existing StopWatchingAsync(). Starts watching a channel so it receives realtime updates. Use it to start watching a channel obtained from SearchMessagesAsync(WatchResultChannels=false) or QueryThreadsAsync(Watch=false).
+* Add IStreamChannel.IsWatched to check whether a channel is currently watched and receiving realtime updates.
+* Add IStreamMessage.IsWatched to check whether a message is receiving realtime updates. A message is watched while its parent channel is watched.
+
+Fixes:
+
+* Fix IStreamChatClient.WatchedChannels listing channels that are not actually being watched — e.g. a thread's parent channel loaded via QueryThreadsAsync/GetThreadAsync with Watch=false, a channel returned from SearchMessagesAsync with WatchResultChannels=false, or a channel for which StopWatchingAsync had already been called. Such channels no longer appear in the list, so you no longer subscribe to events that never fire.
+* Fix IStreamChannel.StopWatchingAsync not updating local watch state after the server confirms the stop. The channel is now removed from IStreamChatClient.WatchedChannels and IsWatched becomes false.
+* Fix IStreamThread.CustomData always being empty (since v5.4.0). It is now populated correctly. Note: the type of IStreamThread.CustomData changed from IReadOnlyDictionary<string, object> to IStreamCustomData, matching IStreamChannel/IStreamMessage/IStreamUser.
+* Fix IStreamMessage.SoftDeleteAsync() not updating the local message until the corresponding realtime event arrived. IsDeleted, DeletedAt, and the cleared Text are now updated as soon as the call returns.
+* Fix a message occasionally missing from IStreamChannel.Messages (e.g. a thread reply with ShowInChannel = true), introduced in v5.4.0.
+
 v5.4.0:
 Fixes:
 
