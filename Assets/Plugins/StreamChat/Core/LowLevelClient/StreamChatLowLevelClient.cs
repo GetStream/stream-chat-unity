@@ -505,6 +505,8 @@ namespace StreamChat.Core.LowLevelClient
 
         internal IInternalThreadsApi InternalThreadsApi { get; }
 
+        internal IStreamClientConfig Config => _config;
+
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
         {
