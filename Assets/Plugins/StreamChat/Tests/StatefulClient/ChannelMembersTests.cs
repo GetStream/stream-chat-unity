@@ -652,7 +652,7 @@ namespace StreamChat.Tests.StatefulClient
 
             // notification.added_to_channel auto-watches newly cached channels, but this test
             // replays notification.removed_from_channel for the unwatched delivery path.
-            var cachedChannel = Client.Channels.FirstOrDefault(c => c.Cid == otherClientChannel.Cid);
+            var cachedChannel = Client.WatchedChannels.FirstOrDefault(c => c.Cid == otherClientChannel.Cid);
             Assert.IsNotNull(cachedChannel,
                 "Precondition: notification.added_to_channel must leave the channel in the local cache");
             Assert.IsTrue(cachedChannel.IsWatched,
