@@ -638,6 +638,8 @@ namespace StreamChat.Tests.StatefulClient
             await WaitWhileFalseAsync(() => memberRemovedFired,
                 description: "channel.MemberRemoved after other client removes local user from watched channel");
 
+            await Task.Delay(5000);
+
             Client.RemovedFromChannelAsMember -= OnRemovedFromChannelAsMember;
             channel.MemberRemoved -= OnMemberRemoved;
 
