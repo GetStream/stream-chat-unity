@@ -1208,12 +1208,19 @@ namespace StreamChat.Core
             // the parent counter on a true insert so duplicate or overlapping deliveries are safe.
             var isInsert = !string.IsNullOrEmpty(messageId) && !_cache.Messages.TryGet(messageId, out _);
 
+            var parentId = messageDto?.ParentId;
+            int? parentReplyCountBefore = null;
+            if (isInsert && !string.IsNullOrEmpty(parentId)
+                && _cache.Messages.TryGet(parentId, out var parentSnapshot))
+            {
+                parentReplyCountBefore = parentSnapshot.ReplyCount ?? 0;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.HandleMessageNewEvent(eventDto);
             }
 
-            var parentId = messageDto?.ParentId;
             if (string.IsNullOrEmpty(parentId))
             {
                 return;
@@ -1221,11 +1228,15 @@ namespace StreamChat.Core
 
             // Watching clients receive message.new but not notification.thread_message_new, so without
             // this bump parent.ReplyCount drifts below the true value until the next REST refresh.
-            // Done unconditionally on the parent (independent of thread tracking) to match the
-            // notification.thread_message_new path.
+            // Skip the optimistic bump when message.updated (or another concurrent delivery) has
+            // already advanced the cached parent counter for this reply.
             if (isInsert && _cache.Messages.TryGet(parentId, out var parent))
             {
-                parent.InternalIncrementReplyCount();
+                var currentReplyCount = parent.ReplyCount ?? 0;
+                if (!parentReplyCountBefore.HasValue || currentReplyCount <= parentReplyCountBefore)
+                {
+                    parent.InternalIncrementReplyCount();
+                }
             }
 
             if (_cache.Threads.TryGet(parentId, out var thread)

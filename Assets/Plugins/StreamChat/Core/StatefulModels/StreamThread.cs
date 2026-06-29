@@ -122,14 +122,18 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
-        public Task MarkReadAsync()
+        public async Task MarkReadAsync()
         {
             ResolveChannelTypeAndId(out var channelType, out var channelId);
-            return LowLevelClient.InternalChannelApi.MarkReadAsync(channelType, channelId,
+            await LowLevelClient.InternalChannelApi.MarkReadAsync(channelType, channelId,
                 new MarkReadRequestInternalDTO
                 {
                     ThreadId = ParentMessageId,
                 });
+
+            // REST success must clear local unread even when notification.mark_read is not echoed
+            // back to the caller. HandleMarkReadByUser is idempotent when the WS echo arrives later.
+            HandleMarkReadByUser(Client.LocalUserData.UserId, DateTimeOffset.UtcNow);
         }
 
         public Task MarkUnreadAsync()

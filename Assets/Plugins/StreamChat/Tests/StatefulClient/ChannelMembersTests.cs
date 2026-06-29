@@ -650,6 +650,20 @@ namespace StreamChat.Tests.StatefulClient
 
             Client.RemovedFromChannelAsMember += OnRemovedFromChannelAsMember;
 
+            // notification.added_to_channel auto-watches newly cached channels, but this test
+            // replays notification.removed_from_channel for the unwatched delivery path.
+            var cachedChannel = Client.Channels.FirstOrDefault(c => c.Cid == otherClientChannel.Cid);
+            Assert.IsNotNull(cachedChannel,
+                "Precondition: notification.added_to_channel must leave the channel in the local cache");
+            Assert.IsTrue(cachedChannel.IsWatched,
+                "Precondition: notification.added_to_channel auto-watches newly cached channels");
+            var markUnwatched = typeof(StreamChatClient).GetMethod("InternalMarkChannelUnwatched",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(markUnwatched, "InternalMarkChannelUnwatched must exist");
+            markUnwatched.Invoke(Client, new object[] { cachedChannel });
+            Assert.IsFalse(cachedChannel.IsWatched,
+                "Replay must simulate notification.removed_from_channel on an unwatched channel");
+
             var handler = typeof(StreamChatClient).GetMethod("OnRemovedFromChannelNotification",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(handler, "OnRemovedFromChannelNotification handler must exist");

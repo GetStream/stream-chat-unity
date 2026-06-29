@@ -775,41 +775,16 @@ namespace StreamChat.Tests.StatefulClient
 
             var beforeLastRead = localRead.LastRead;
 
-            var readSeen = false;
-            StreamThreadReadHandler readHandler = _ => readSeen = true;
-            thread.ReadStateChanged += readHandler;
+            await thread.MarkReadAsync();
 
-            try
-            {
-                await thread.MarkReadAsync();
-
-                // notification.mark_read may not be echoed back to the caller; if no event arrives
-                // the buggy code path is never exercised and there is nothing to assert.
-                try
-                {
-                    await WaitWhileTrueAsync(() => !readSeen, maxSeconds: 5,
-                        description: "notification.mark_read WS echo (best-effort, unread-clear)");
-                }
-                catch (TimeoutException)
-                {
-                }
-            }
-            finally
-            {
-                thread.ReadStateChanged -= readHandler;
-            }
-
-            if (!readSeen)
-            {
-                return;
-            }
-
+            // MarkReadAsync clears local unread on REST success. Do not gate the assertion on
+            // ReadStateChanged — that event is also raised by unrelated thread reply deliveries.
             var afterRead = thread.Read.FirstOrDefault(r => r.User != null && r.User.Id == localUserId);
             Assert.NotNull(afterRead, "Local user's Read entry must still exist after mark-read");
             Assert.AreEqual(0, afterRead.UnreadMessages,
-                "After notification.mark_read fires, the local user's UnreadMessages must be reset to 0");
+                "After MarkReadAsync, the local user's UnreadMessages must be reset to 0");
             Assert.GreaterOrEqual(afterRead.LastRead, beforeLastRead,
-                "After notification.mark_read fires, the local user's LastRead must advance");
+                "After MarkReadAsync, the local user's LastRead must advance");
         }
 
         /// <summary>
