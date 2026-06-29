@@ -1441,7 +1441,7 @@ namespace StreamChat.Core
             sb.AppendLine($"{nameof(eventDto.Channel.Cid)}: {eventDto.Channel.Cid}");
             _logs.Info(sb.ToString());
 #endif
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
 
 #if STREAM_TESTS_ENABLED
             sb.Length = 0;
@@ -1452,29 +1452,24 @@ namespace StreamChat.Core
             _logs.Info(sb.ToString());
 #endif
 
-            var member = _cache.TryCreateOrUpdate(eventDto.Member);
-            _cache.TryCreateOrUpdate(eventDto.Member.User);
-
-            if (!wasCreated)
+            _cache.TryCreateOrUpdate(eventDto.User);
+            if (eventDto.Member != null && eventDto.Member.User == null && eventDto.User != null)
             {
-                RemovedFromChannelAsMember?.Invoke(channel, member);
+                eventDto.Member.User = eventDto.User;
+            }
+
+            var member = _cache.TryCreateOrUpdate(eventDto.Member);
+
+            // Watched channels receive member.removed -> IStreamChannel.MemberRemoved instead.
+            // The server may still deliver notification.removed_from_channel to the removed user.
+            if (channel.IsWatched)
+            {
                 return;
             }
 
-            // Watch channel, otherwise WS events won't be received
-            InternalGetOrCreateChannelAsync(channel.Type, channel.Id).ContinueWith(t =>
-            {
-                if (t.IsFaulted)
-                {
-                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
-                                $"before triggering the {nameof(RemovedFromChannelAsMember)} event. Inspect the following exception: " +
-                                t.Exception);
-                    _logs.Exception(t.Exception);
-                    return;
-                }
-
-                RemovedFromChannelAsMember?.Invoke(channel, member);
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            // Unlike notification.added_to_channel, do not watch here — the user was just removed
+            // and no longer has ReadChannel. The notification payload is sufficient to raise the event.
+            RemovedFromChannelAsMember?.Invoke(channel, member);
         }
 
         private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)

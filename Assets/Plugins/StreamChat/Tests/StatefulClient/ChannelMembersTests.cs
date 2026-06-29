@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
+using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.Models;
 using StreamChat.Core.QueryBuilders.Filters;
 using StreamChat.Core.QueryBuilders.Filters.Users;
@@ -559,6 +561,366 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsNotNull(eventChannel);
             Assert.IsNotNull(eventMember);
             Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
+        }
+
+        [UnityTest]
+        public IEnumerator
+            When_user_removed_from_not_watched_channel_expect_removed_member_user_populated_on_stateful_event()
+            => ConnectAndExecute(
+                When_user_removed_from_not_watched_channel_expect_removed_member_user_populated_on_stateful_event_Async);
+
+        /// <summary>
+        /// notification.removed_from_channel is delivered only to the removed user. Customer payloads
+        /// include <c>member.user_id</c> and a top-level <c>user</c>, but omit <c>member.user</c>.
+        /// Our integration environment currently sends a fully populated <c>member.user</c> on the live
+        /// WS event, so after capturing that payload we strip <c>member.user</c> and replay it through
+        /// <see cref="StreamChatClient"/> to reproduce the customer scenario.
+        /// </summary>
+        private async Task
+            When_user_removed_from_not_watched_channel_expect_removed_member_user_populated_on_stateful_event_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+            var otherClientChannel = await CreateUniqueTempChannelAsync(watch: false, overrideClient: otherClient);
+
+            var receivedAddedEvent = false;
+
+            void OnAddedToChannelAsMember(IStreamChannel channel2, IStreamChannelMember member)
+            {
+                if (channel2.Cid != otherClientChannel.Cid)
+                {
+                    return;
+                }
+
+                receivedAddedEvent = true;
+            }
+
+            Client.AddedToChannelAsMember += OnAddedToChannelAsMember;
+
+            await otherClientChannel.AddMembersAsync(hideHistory: default, optionalMessage: default,
+                Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => receivedAddedEvent,
+                description: "Client.AddedToChannelAsMember before notification removal test");
+
+            Client.AddedToChannelAsMember -= OnAddedToChannelAsMember;
+
+            NotificationRemovedFromChannelEventInternalDTO liveEventDto = null;
+
+            void OnInternalRemovedFromChannel(NotificationRemovedFromChannelEventInternalDTO eventDto)
+            {
+                if (eventDto.Cid != otherClientChannel.Cid)
+                {
+                    return;
+                }
+
+                liveEventDto = eventDto;
+            }
+
+            Client.InternalLowLevelClient.InternalNotificationRemovedFromChannel += OnInternalRemovedFromChannel;
+
+            await otherClientChannel.RemoveMembersAsync(Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => liveEventDto != null,
+                description: "low-level notification.removed_from_channel payload");
+
+            Client.InternalLowLevelClient.InternalNotificationRemovedFromChannel -= OnInternalRemovedFromChannel;
+
+            Assert.IsNotNull(liveEventDto.User,
+                "Expected top-level user on notification.removed_from_channel");
+            Assert.AreEqual(Client.LocalUserData.UserId, liveEventDto.User.Id);
+            Assert.IsNotNull(liveEventDto.Member);
+            Assert.AreEqual(Client.LocalUserData.UserId, liveEventDto.Member.UserId);
+            Assert.IsNotNull(liveEventDto.Member.User,
+                "Precondition: integration env currently sends member.user on the live WS payload; " +
+                "stripping it below simulates the customer-reported payload shape");
+
+            liveEventDto.Member.User = null;
+
+            var receivedRemovedEvent = false;
+            IStreamChannelMember statefulMember = null;
+
+            void OnRemovedFromChannelAsMember(IStreamChannel channel3, IStreamChannelMember member2)
+            {
+                if (channel3.Cid != otherClientChannel.Cid)
+                {
+                    return;
+                }
+
+                receivedRemovedEvent = true;
+                statefulMember = member2;
+            }
+
+            Client.RemovedFromChannelAsMember += OnRemovedFromChannelAsMember;
+
+            var handler = typeof(StreamChatClient).GetMethod("OnRemovedFromChannelNotification",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(handler, "OnRemovedFromChannelNotification handler must exist");
+            handler.Invoke(Client, new object[] { liveEventDto });
+
+            Client.RemovedFromChannelAsMember -= OnRemovedFromChannelAsMember;
+
+            Assert.IsTrue(receivedRemovedEvent);
+            Assert.IsNotNull(statefulMember);
+            Assert.IsNotNull(statefulMember.User,
+                "IStreamChannelMember.User must be populated from the event top-level user when member.user is absent");
+            Assert.AreEqual(Client.LocalUserData.UserId, statefulMember.User.Id);
+        }
+
+        [UnityTest]
+        public IEnumerator
+            When_user_removed_from_not_watched_channel_not_in_cache_expect_removed_from_channel_as_member()
+            => ConnectAndExecute(
+                When_user_removed_from_not_watched_channel_not_in_cache_expect_removed_from_channel_as_member_Async);
+
+        /// <summary>
+        /// When the channel is not yet in the local cache, notification.removed_from_channel must still
+        /// raise <see cref="IStreamChatClient.RemovedFromChannelAsMember"/> without attempting to watch
+        /// the channel (the removed user no longer has ReadChannel).
+        /// </summary>
+        private async Task
+            When_user_removed_from_not_watched_channel_not_in_cache_expect_removed_from_channel_as_member_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+            var otherClientChannel = await CreateUniqueTempChannelAsync(watch: false, overrideClient: otherClient);
+
+            var receivedAddedEvent = false;
+
+            void OnAddedToChannelAsMember(IStreamChannel channel2, IStreamChannelMember member)
+            {
+                if (channel2.Cid != otherClientChannel.Cid)
+                {
+                    return;
+                }
+
+                receivedAddedEvent = true;
+            }
+
+            Client.AddedToChannelAsMember += OnAddedToChannelAsMember;
+
+            await otherClientChannel.AddMembersAsync(hideHistory: default, optionalMessage: default,
+                Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => receivedAddedEvent,
+                description: "Client.AddedToChannelAsMember before uncached removal test");
+
+            Client.AddedToChannelAsMember -= OnAddedToChannelAsMember;
+
+            NotificationRemovedFromChannelEventInternalDTO liveEventDto = null;
+
+            void OnInternalRemovedFromChannel(NotificationRemovedFromChannelEventInternalDTO eventDto)
+            {
+                if (eventDto.Cid != otherClientChannel.Cid)
+                {
+                    return;
+                }
+
+                liveEventDto = eventDto;
+            }
+
+            Client.InternalLowLevelClient.InternalNotificationRemovedFromChannel += OnInternalRemovedFromChannel;
+
+            await otherClientChannel.RemoveMembersAsync(Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => liveEventDto != null,
+                description: "low-level notification.removed_from_channel payload");
+
+            Client.InternalLowLevelClient.InternalNotificationRemovedFromChannel -= OnInternalRemovedFromChannel;
+
+            Assert.IsNotNull(liveEventDto);
+            RemoveChannelFromClientCache(Client, liveEventDto.Cid);
+
+            var receivedRemovedEvent = false;
+            IStreamChannel eventChannel = null;
+            IStreamChannelMember eventMember = null;
+
+            void OnRemovedFromChannelAsMember(IStreamChannel channel3, IStreamChannelMember member2)
+            {
+                if (channel3.Cid != otherClientChannel.Cid)
+                {
+                    return;
+                }
+
+                receivedRemovedEvent = true;
+                eventChannel = channel3;
+                eventMember = member2;
+            }
+
+            Client.RemovedFromChannelAsMember += OnRemovedFromChannelAsMember;
+
+            var handler = typeof(StreamChatClient).GetMethod("OnRemovedFromChannelNotification",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(handler, "OnRemovedFromChannelNotification handler must exist");
+            handler.Invoke(Client, new object[] { liveEventDto });
+
+            Client.RemovedFromChannelAsMember -= OnRemovedFromChannelAsMember;
+
+            Assert.IsTrue(receivedRemovedEvent,
+                "RemovedFromChannelAsMember must fire without watching a channel that is not in the local cache");
+            Assert.IsNotNull(eventChannel);
+            Assert.AreEqual(otherClientChannel.Cid, eventChannel.Cid);
+            Assert.IsNotNull(eventMember);
+            Assert.AreEqual(Client.LocalUserData.UserId, eventMember.User?.Id);
+        }
+
+        [UnityTest]
+        public IEnumerator
+            When_local_user_removed_from_unwatched_channel_expect_removed_from_channel_as_member_only()
+            => ConnectAndExecute(
+                When_local_user_removed_from_unwatched_channel_expect_removed_from_channel_as_member_only_Async);
+
+        /// <summary>
+        /// notification.removed_from_channel is delivered to the removed user when they are not
+        /// watching the channel. The stateful client surfaces that as
+        /// <see cref="IStreamChatClient.RemovedFromChannelAsMember"/>, not
+        /// <see cref="IStreamChannel.MemberRemoved"/>.
+        /// </summary>
+        private async Task When_local_user_removed_from_unwatched_channel_expect_removed_from_channel_as_member_only_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync(watch: false);
+
+            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
+            await WaitWhileFalseAsync(
+                () => channel.Members.Any(m => m.User?.Id == Client.LocalUserData.UserId),
+                description: "local user to appear in unwatched channel members after add");
+
+            Assert.IsFalse(channel.IsWatched,
+                "Precondition: channel must not be watched so the server sends notification.removed_from_channel");
+
+            var removedFromChannelAsMemberFired = false;
+            var memberRemovedFired = false;
+            IStreamChannelMember removedMember = null;
+
+            void OnRemovedFromChannelAsMember(IStreamChannel channel2, IStreamChannelMember member)
+            {
+                if (channel2.Cid != channel.Cid)
+                {
+                    return;
+                }
+
+                removedFromChannelAsMemberFired = true;
+                removedMember = member;
+            }
+
+            void OnMemberRemoved(IStreamChannel channel2, IStreamChannelMember member)
+            {
+                if (channel2.Cid != channel.Cid)
+                {
+                    return;
+                }
+
+                memberRemovedFired = true;
+            }
+
+            Client.RemovedFromChannelAsMember += OnRemovedFromChannelAsMember;
+            channel.MemberRemoved += OnMemberRemoved;
+
+            await channel.RemoveMembersAsync(Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => removedFromChannelAsMemberFired,
+                description: "Client.RemovedFromChannelAsMember after removing local user from unwatched channel");
+
+            Client.RemovedFromChannelAsMember -= OnRemovedFromChannelAsMember;
+            channel.MemberRemoved -= OnMemberRemoved;
+
+            Assert.IsTrue(removedFromChannelAsMemberFired);
+            Assert.IsFalse(memberRemovedFired,
+                "IStreamChannel.MemberRemoved must not fire when the local user is removed from an unwatched channel");
+            Assert.IsNotNull(removedMember);
+            Assert.AreEqual(Client.LocalUserData.UserId, removedMember.User?.Id);
+        }
+
+        [UnityTest]
+        public IEnumerator When_local_user_removed_from_watched_channel_expect_member_removed_only()
+            => ConnectAndExecute(When_local_user_removed_from_watched_channel_expect_member_removed_only_Async);
+
+        /// <summary>
+        /// member.removed is delivered to clients watching the channel. When the local user is
+        /// removed while watching, the stateful client surfaces
+        /// <see cref="IStreamChannel.MemberRemoved"/> instead of
+        /// <see cref="IStreamChatClient.RemovedFromChannelAsMember"/>.
+        /// The server may still send notification.removed_from_channel alongside member.removed;
+        /// the SDK suppresses the stateful notification event when the channel is watched locally.
+        /// </summary>
+        private async Task When_local_user_removed_from_watched_channel_expect_member_removed_only_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+            var otherClientChannel = await CreateUniqueTempChannelAsync(watch: true, overrideClient: otherClient);
+
+            await otherClientChannel.AddMembersAsync(hideHistory: default, optionalMessage: default,
+                Client.LocalUserData.User);
+
+            var channel = await Client.GetOrCreateChannelWithIdAsync(otherClientChannel.Type, otherClientChannel.Id);
+
+            await WaitWhileFalseAsync(
+                () => channel.IsWatched && channel.Members.Any(m => m.User?.Id == Client.LocalUserData.UserId),
+                description: "local client to watch channel and have local user membership before removal");
+
+            Assert.IsTrue(channel.IsWatched,
+                "Precondition: channel must be watched so the server sends member.removed");
+
+            var removedFromChannelAsMemberFired = false;
+            var memberRemovedFired = false;
+            IStreamChannelMember removedMember = null;
+
+            void OnRemovedFromChannelAsMember(IStreamChannel channel2, IStreamChannelMember member)
+            {
+                if (channel2.Cid != channel.Cid)
+                {
+                    return;
+                }
+
+                removedFromChannelAsMemberFired = true;
+            }
+
+            void OnMemberRemoved(IStreamChannel channel2, IStreamChannelMember member)
+            {
+                if (channel2.Cid != channel.Cid)
+                {
+                    return;
+                }
+
+                memberRemovedFired = true;
+                removedMember = member;
+            }
+
+            Client.RemovedFromChannelAsMember += OnRemovedFromChannelAsMember;
+            channel.MemberRemoved += OnMemberRemoved;
+
+            await otherClientChannel.RemoveMembersAsync(Client.LocalUserData.User);
+            await WaitWhileFalseAsync(() => memberRemovedFired,
+                description: "channel.MemberRemoved after other client removes local user from watched channel");
+
+            Client.RemovedFromChannelAsMember -= OnRemovedFromChannelAsMember;
+            channel.MemberRemoved -= OnMemberRemoved;
+
+            Assert.IsTrue(memberRemovedFired);
+            Assert.IsFalse(removedFromChannelAsMemberFired,
+                "Client.RemovedFromChannelAsMember must not fire when the local user is removed from a watched channel");
+            Assert.IsNotNull(removedMember);
+            Assert.AreEqual(Client.LocalUserData.UserId, removedMember.User?.Id);
+        }
+
+        private static void RemoveChannelFromClientCache(StreamChatClient client, string cid)
+        {
+            var cacheField = typeof(StreamChatClient).GetField("_cache",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(cacheField, "StreamChatClient._cache field must exist");
+            var cache = cacheField.GetValue(client);
+            Assert.IsNotNull(cache);
+
+            var channelsProperty = cache.GetType().GetProperty("Channels");
+            Assert.IsNotNull(channelsProperty, "ICache.Channels property must exist");
+            var channels = channelsProperty.GetValue(cache);
+            Assert.IsNotNull(channels);
+
+            var tryGet = channels.GetType().GetMethod("TryGet");
+            Assert.IsNotNull(tryGet, "Channels.TryGet method must exist");
+            var args = new object[] { cid, null };
+            Assert.IsTrue((bool)tryGet.Invoke(channels, args),
+                "Precondition: channel must be in cache before eviction");
+
+            var remove = channels.GetType().GetMethod("Remove");
+            Assert.IsNotNull(remove, "Channels.Remove method must exist");
+            remove.Invoke(channels, new[] { args[1] });
+
+            args[1] = null;
+            Assert.IsFalse((bool)tryGet.Invoke(channels, args),
+                "Precondition: channel must not be in cache before replay");
         }
     }
 }
