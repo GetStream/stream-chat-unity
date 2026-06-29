@@ -1,3 +1,8 @@
+Unreleased:
+Features:
+
+* Add IStreamClientConfig.OptimisticMessageInsert (default true). When true (the existing behavior), a message you send is inserted into the local channel state and raised via IStreamChannel.MessageReceived immediately, before the server's message.new echo arrives. Set it to false to skip the optimistic local insert and wait for the server echo instead, so every participant - including the sender - observes messages in the same server-defined order. Useful when consistent cross-client ordering matters more than instant local feedback (e.g. a shared, broadcast-ordered feed).
+
 v5.5.0:
 Features:
 

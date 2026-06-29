@@ -15,5 +15,18 @@ namespace StreamChat.Core.Configs
         /// Disabled - no logs will be emitted. Not recommended in general - this could be only viable if you're capturing all of the thrown exceptions and handling the logging on your own.
         /// </summary>
         StreamLogLevel LogLevel { get; set; }
+
+        /// <summary>
+        /// Whether a message you send is optimistically inserted into the local channel state and
+        /// raised via <see cref="StatefulModels.IStreamChannel.MessageReceived"/> immediately, before
+        /// the server's `message.new` WebSocket echo arrives. Defaults to <c>true</c>.
+        ///
+        /// When <c>true</c> (default), the sender sees their own message right away and the later
+        /// WebSocket echo is de-duplicated. When <c>false</c>, the locally sent message is not added
+        /// to the channel until its server echo arrives, so every participant - including the sender -
+        /// observes messages in the same server-defined order. Disable this when consistent cross-client
+        /// ordering matters more than instant local feedback (e.g. a shared, broadcast-ordered feed).
+        /// </summary>
+        bool OptimisticMessageInsert { get; set; }
     }
 }
