@@ -507,61 +507,6 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
-        public IEnumerator When_user_removed_from_not_watched_channel_expect_user_removed_from_channel_event()
-            => ConnectAndExecute(
-                When_user_removed_from_not_watched_channel_expect_user_removed_from_channel_event_Async);
-
-        private async Task When_user_removed_from_not_watched_channel_expect_user_removed_from_channel_event_Async()
-        {
-            var channel = await CreateUniqueTempChannelAsync(watch: false);
-
-            var receivedAddedEvent = false;
-            var receivedRemovedEvent = false;
-            IStreamChannelMember eventMember = null;
-            IStreamChannel eventChannel = null;
-
-            void OnAddedToChannelAsMember(IStreamChannel channel2, IStreamChannelMember member)
-            {
-                if (channel2.Cid != channel.Cid)
-                {
-                    return;
-                }
-
-                receivedAddedEvent = true;
-            }
-
-            Client.AddedToChannelAsMember += OnAddedToChannelAsMember;
-
-            await channel.AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
-            await WaitWhileFalseAsync(() => receivedAddedEvent);
-
-            void OnRemovedFromChannelAsMember(IStreamChannel channel3, IStreamChannelMember member2)
-            {
-                if (channel3.Cid != channel.Cid)
-                {
-                    return;
-                }
-
-                receivedRemovedEvent = true;
-                eventMember = member2;
-                eventChannel = channel3;
-            }
-
-            Client.RemovedFromChannelAsMember += OnRemovedFromChannelAsMember;
-
-            await channel.RemoveMembersAsync(new IStreamUser[] { Client.LocalUserData.User });
-            await WaitWhileFalseAsync(() => receivedRemovedEvent);
-
-            Client.AddedToChannelAsMember -= OnAddedToChannelAsMember;
-            Client.RemovedFromChannelAsMember -= OnRemovedFromChannelAsMember;
-
-            Assert.IsTrue(receivedRemovedEvent);
-            Assert.IsNotNull(eventChannel);
-            Assert.IsNotNull(eventMember);
-            Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
-        }
-
-        [UnityTest]
         public IEnumerator
             When_local_user_removed_from_unwatched_channel_expect_removed_from_channel_as_member_only()
             => ConnectAndExecute(
@@ -572,6 +517,8 @@ namespace StreamChat.Tests.StatefulClient
         /// watching the channel. The stateful client surfaces that as
         /// <see cref="IStreamChatClient.RemovedFromChannelAsMember"/>, not
         /// <see cref="IStreamChannel.MemberRemoved"/>.
+        /// Exercises the real server response through the public client API; subscribers must be
+        /// able to read <see cref="IStreamChannelMember.User"/> without it being null.
         /// </summary>
         private async Task When_local_user_removed_from_unwatched_channel_expect_removed_from_channel_as_member_only_Async()
         {
@@ -624,7 +571,10 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsFalse(memberRemovedFired,
                 "IStreamChannel.MemberRemoved must not fire when the local user is removed from an unwatched channel");
             Assert.IsNotNull(removedMember);
-            Assert.AreEqual(Client.LocalUserData.UserId, removedMember.User?.Id);
+            Assert.IsNotNull(removedMember.User,
+                "IStreamChannelMember.User must be populated on RemovedFromChannelAsMember");
+            Assert.AreEqual(Client.LocalUserData.UserId, removedMember.User.Id);
+            Assert.AreEqual(Client.LocalUserData.User, removedMember.User);
         }
 
         [UnityTest]
@@ -695,7 +645,10 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsFalse(removedFromChannelAsMemberFired,
                 "Client.RemovedFromChannelAsMember must not fire when the local user is removed from a watched channel");
             Assert.IsNotNull(removedMember);
-            Assert.AreEqual(Client.LocalUserData.UserId, removedMember.User?.Id);
+            Assert.IsNotNull(removedMember.User,
+                "IStreamChannelMember.User must be populated on MemberRemoved");
+            Assert.AreEqual(Client.LocalUserData.UserId, removedMember.User.Id);
+            Assert.AreEqual(Client.LocalUserData.User, removedMember.User);
         }
     }
 }
