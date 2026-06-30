@@ -403,6 +403,14 @@ namespace StreamChat.Libs.Websockets
             {
                 LogExceptionIfDebugMode(exception);
             }
+            else if (exception is TimeoutException)
+            {
+                // A connection-attempt timeout (see the timeout guard in ConnectAsync)
+                // is an expected, transient failure that the reconnect flow recovers
+                // from. Log it as a warning rather than surfacing it as an exception,
+                // so it does not flood crash reporting with handled, non-actionable noise.
+                _logs.Warning(exception.ToString());
+            }
             else
             {
                 _logs.Exception(exception);

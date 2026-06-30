@@ -229,7 +229,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// SDK Version number
         /// </summary>
-        public static readonly Version SDKVersion = new Version(5, 4, 0);
+        public static readonly Version SDKVersion = new Version(5, 5, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
@@ -504,6 +504,8 @@ namespace StreamChat.Core.LowLevelClient
         internal IInternalPollsApi InternalPollsApi { get; }
 
         internal IInternalThreadsApi InternalThreadsApi { get; }
+
+        internal IStreamClientConfig Config => _config;
 
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)

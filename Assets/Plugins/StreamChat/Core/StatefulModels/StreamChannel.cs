@@ -205,9 +205,23 @@ namespace StreamChat.Core.StatefulModels
             var replyAlreadyInCache = !string.IsNullOrEmpty(responseMessageId)
                                       && Cache.Messages.TryGet(responseMessageId, out _);
 
-            //StreamTodo: we update internal cache message without server confirmation that message got accepted. e.g. message could be rejected
-            //It's ok to update the cache "in good faith" to not introduce update delay but we should handle if message got rejected
-            InternalAppendOrUpdateMessage(response.Message, out var streamMessage);
+            StreamMessage streamMessage;
+            if (LowLevelClient.Config.OptimisticMessageInsert)
+            {
+                //StreamTodo: we update internal cache message without server confirmation that message got accepted. e.g. message could be rejected
+                //It's ok to update the cache "in good faith" to not introduce update delay but we should handle if message got rejected
+                InternalAppendOrUpdateMessage(response.Message, out streamMessage);
+            }
+            else
+            {
+                // Optimistic insert disabled (see IStreamClientConfig.OptimisticMessageInsert): don't add
+                // the sent message to the local timeline or raise MessageReceived here. The server's
+                // message.new echo delivers it instead, so every participant - including the sender -
+                // observes messages in the same server-defined order. Still update the cache so the
+                // returned message is tracked and the WS echo resolves to (and dedups against) the same
+                // instance.
+                streamMessage = Cache.TryCreateOrUpdate(response.Message, out _);
+            }
 
             // Optimistic parent.ReplyCount bump for thread replies on the local sender. Without
             // this, after InternalAppendOrUpdateMessage the reply is in cache and any subsequent

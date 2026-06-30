@@ -79,18 +79,46 @@ namespace StreamChat.Core.Exceptions
         public IReadOnlyDictionary<string, string> ExceptionFields => _exceptionFields;
 
         internal StreamApiException(APIErrorInternalDTO apiError)
-            : base(
-                $"{apiError.Message}, Error Code: {apiError.Code}, Http Status Code: {apiError.StatusCode}, More info: {apiError.MoreInfo}, Exception fields: {PrintExceptionFields(apiError)}")
+            : this(apiError.StatusCode, apiError.Code, apiError.Message, apiError.MoreInfo, apiError.Duration,
+                apiError.ExceptionFields)
         {
-            StatusCode = apiError.StatusCode;
-            Code = apiError.Code;
-            Duration = apiError.Duration;
-            ErrorMessage = apiError.Message;
-            MoreInfo = apiError.MoreInfo;
+        }
 
-            if (apiError.ExceptionFields != null && apiError.ExceptionFields.Count > 0)
+        /// <summary>
+        /// Construct an exception representing a specific API error. Intended for integrators who need to
+        /// exercise their own <see cref="StreamApiException"/> handling in unit tests (e.g. simulating a
+        /// 403 / code 70 "no access to channels" response) without depending on the internal
+        /// <see cref="APIErrorInternalDTO"/> type. Every argument maps directly to a public property of this type.
+        /// </summary>
+        public StreamApiException(
+            int statusCode,
+            int code,
+            string errorMessage = null,
+            string moreInfo = null,
+            string duration = null,
+            IReadOnlyDictionary<string, string> exceptionFields = null)
+            : this((int?)statusCode, code, errorMessage, moreInfo, duration, exceptionFields)
+        {
+        }
+
+        private StreamApiException(
+            int? statusCode,
+            int? code,
+            string errorMessage,
+            string moreInfo,
+            string duration,
+            IReadOnlyDictionary<string, string> exceptionFields)
+            : base(BuildMessage(errorMessage, code, statusCode, moreInfo, exceptionFields))
+        {
+            StatusCode = statusCode;
+            Code = code;
+            Duration = duration;
+            ErrorMessage = errorMessage;
+            MoreInfo = moreInfo;
+
+            if (exceptionFields != null && exceptionFields.Count > 0)
             {
-                _exceptionFields = new Dictionary<string, string>(apiError.ExceptionFields);
+                _exceptionFields = new Dictionary<string, string>(exceptionFields);
             }
         }
 
@@ -98,18 +126,23 @@ namespace StreamChat.Core.Exceptions
 
         private readonly Dictionary<string, string> _exceptionFields;
 
-        private static string PrintExceptionFields(APIErrorInternalDTO apiError)
+        // Shared by both constructors so the message format stays identical however the exception is built.
+        private static string BuildMessage(string message, int? code, int? statusCode, string moreInfo,
+            IReadOnlyDictionary<string, string> exceptionFields)
+            => $"{message}, Error Code: {code}, Http Status Code: {statusCode}, More info: {moreInfo}, Exception fields: {PrintExceptionFields(exceptionFields)}";
+
+        private static string PrintExceptionFields(IReadOnlyDictionary<string, string> exceptionFields)
         {
-            if (apiError.ExceptionFields == null)
+            if (exceptionFields == null)
             {
                 return "None";
             }
 
             _sb.Length = 0;
 
-            var count = apiError.ExceptionFields.Count;
+            var count = exceptionFields.Count;
             var index = 0;
-            foreach (var keyValuePair in apiError.ExceptionFields)
+            foreach (var keyValuePair in exceptionFields)
             {
                 _sb.Append(keyValuePair.Key);
                 _sb.Append(": ");
