@@ -66,6 +66,9 @@ crashlytics-build.properties
 # Packed Addressables
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 
+# TMP Essentials are Unity-version-specific; imported on demand by TmpEssentialsAutoImporter
+/[Aa]ssets/[Tt]ext[Mm]esh [Pp]ro/
+
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
@@ -84,6 +87,7 @@ crashlytics-build.properties
 [Bb]in/
 [Oo]bj/
 _UpgradeReport_Files/
+# Packages/ is auto-generated per Unity version (manifest.json, packages-lock.json, etc.)
 [Pp]ackages/
 
 Thumbs.db
