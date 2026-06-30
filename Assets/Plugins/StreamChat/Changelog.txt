@@ -4,6 +4,10 @@ Features:
 * Add a public StreamApiException constructor (statusCode, code, errorMessage, moreInfo, duration, exceptionFields). StreamApiException is a public, catch-and-branch type (via the StreamApiExceptionExtensions.Is* helpers), but until now it could only be constructed inside the SDK from the internal APIErrorInternalDTO, so integrators could not build one to unit-test their own error handling (e.g. simulating a 403 / code 70 "no access to channels" response). The new constructor maps directly to the type's public properties and keeps APIErrorInternalDTO internal.
 * Add IStreamClientConfig.OptimisticMessageInsert (default true). When true (the existing behavior), a message you send is inserted into the local channel state and raised via IStreamChannel.MessageReceived immediately, before the server's message.new echo arrives. Set it to false to skip the optimistic local insert and wait for the server echo instead, so every participant - including the sender - observes messages in the same server-defined order. Useful when consistent cross-client ordering matters more than instant local feedback (e.g. a shared, broadcast-ordered feed).
 
+Fixes:
+
+* TaskUtils.LogIfFailed now logs connectivity/transport failures as warnings instead of errors/exceptions. The SDK fire-and-forgets its connect, reconnect, and state-restore operations through LogIfFailed; when the device is offline these fail with HttpRequestException / WebException / SocketException / IOException / TimeoutException, which the reconnect flow recovers from - so surfacing them at error severity flooded crash/error reporting (Sentry, Bugsnag, etc.) with handled, non-actionable noise. Genuine (non-connectivity) failures still log as exceptions. Complements the connection-attempt-timeout fix from PR #213.
+
 v5.5.0:
 Features:
 
