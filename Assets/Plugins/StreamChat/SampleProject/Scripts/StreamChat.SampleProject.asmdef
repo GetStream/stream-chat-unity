@@ -4,7 +4,8 @@
     "references": [
         "StreamChat.Core",
         "Unity.TextMeshPro",
-        "StreamChat.Libs"
+        "StreamChat.Libs",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -13,12 +14,6 @@
     "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "Select...",
-            "expression": "",
-            "define": ""
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }
