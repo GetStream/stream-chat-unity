@@ -9,6 +9,13 @@ on:
   schedule:
     - cron: "0 0 * * *"  # run daily at midnight (UTC)
 
+# Cancel superseded runs on the same ref (e.g. rapid PR pushes) so queued matrix
+# jobs don't stack up against the org's concurrent-runner limit. Scheduled/nightly
+# runs on a branch won't collide with PR runs because the ref differs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   runtime-tests:
     name: Runtime Tests (IL2CPP)
@@ -138,30 +145,56 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
 
   build:
+    name: build (${{ matrix.unity_version }}, ${{ matrix.target_platform }}, ${{ matrix.dotnet_version }}, ${{ matrix.compiler }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # Instead of a full cross-product (which would explode as versions are added),
+      # we hand-pick one android + one iOS config per Unity version. Across the 16
+      # rows every (platform x dotnet x compiler) combination appears exactly twice,
+      # so each version is fully compiled (incl. EditorTools) and every setting combo
+      # is still exercised - at the same ~16-job budget as before but across 8 Unity
+      # versions (2019.4 -> 6000.2) instead of 2.
+      #
+      # dataset_index MUST stay unique per row and within range of the encoded test
+      # data sets in STREAM_AUTH_TEST_DATA_BASE64 (0-15). Do not duplicate indices.
+      #
+      # Image tags verified against https://hub.docker.com/r/unityci/editor/tags .
+      # Bump patch versions here as newer LTS images are published.
       matrix:
-        target_platform: [android, ios]
-        unity_version: [2020, 2021]
-        dotnet_version: [NET_4_x, STANDARD_2_x]
-        compiler: [mono, il2cpp]
+        include:
+          # 2019.4 LTS
+          - { unity_version: "2019.4", target_platform: android, dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 0,  image: "unityci/editor:ubuntu-2019.4.40f1-android-3.2.2" }
+          - { unity_version: "2019.4", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 1,  image: "unityci/editor:ubuntu-2019.4.40f1-ios-3.2.2" }
+          # 2020.3 LTS
+          - { unity_version: "2020.3", target_platform: android, dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 2,  image: "unityci/editor:ubuntu-2020.3.40f1-android-3.1.0" }
+          - { unity_version: "2020.3", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 3,  image: "unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0" }
+          # 2021.3 LTS
+          - { unity_version: "2021.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 4,  image: "unityci/editor:ubuntu-2021.3.36f1-android-3.1.0" }
+          - { unity_version: "2021.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 5,  image: "unityci/editor:ubuntu-2021.3.36f1-ios-3.1.0" }
+          # 2022.3 LTS
+          - { unity_version: "2022.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 6,  image: "unityci/editor:ubuntu-2022.3.76f1-android-3.2.2" }
+          - { unity_version: "2022.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 7,  image: "unityci/editor:ubuntu-2022.3.76f1-ios-3.2.2" }
+          # 2023.2
+          - { unity_version: "2023.2", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 8,  image: "unityci/editor:ubuntu-2023.2.20f1-android-3.2.2" }
+          - { unity_version: "2023.2", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 9,  image: "unityci/editor:ubuntu-2023.2.20f1-ios-3.2.2" }
+          # Unity 6000.0 LTS
+          - { unity_version: "6000.0", target_platform: android, dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 10, image: "unityci/editor:ubuntu-6000.0.63f1-android-3.2.2" }
+          - { unity_version: "6000.0", target_platform: ios,     dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 11, image: "unityci/editor:ubuntu-6000.0.63f1-ios-3.2.2" }
+          # Unity 6000.1
+          - { unity_version: "6000.1", target_platform: android, dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 12, image: "unityci/editor:ubuntu-6000.1.17f1-android-3.2.2" }
+          - { unity_version: "6000.1", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 13, image: "unityci/editor:ubuntu-6000.1.17f1-ios-3.2.2" }
+          # Unity 6000.2 (Gradle.path API boundary - see PR #219)
+          - { unity_version: "6000.2", target_platform: android, dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 14, image: "unityci/editor:ubuntu-6000.2.12f1-android-3.2.2" }
+          - { unity_version: "6000.2", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 15, image: "unityci/editor:ubuntu-6000.2.12f1-ios-3.2.2" }
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Calculate Sequential Index
-        id: calculate-index
+      - name: Set Test Data Set Index
         run: |
-          target_index=$([[ "${{ matrix.target_platform }}" == 'android' ]] && echo '0' || echo '1')
-          unity_index=$([[ "${{ matrix.unity_version }}" == '2020' ]] && echo '0' || echo '1')
-          dotnet_index=$([[ "${{ matrix.dotnet_version }}" == 'NET_4_x' ]] && echo '0' || echo '1')
-          compiler_index=$([[ "${{ matrix.compiler }}" == 'mono' ]] && echo '0' || echo '1')
-          
-          index=$((target_index * 1 + unity_index * 2 + dotnet_index * 4 + compiler_index * 8))
-          
-          echo "SEQUENTIAL_INDEX=$index" >> $GITHUB_ENV
+          echo "SEQUENTIAL_INDEX=${{ matrix.dataset_index }}" >> $GITHUB_ENV
 
       - name: Print Sequential Index
         run: |
@@ -196,29 +229,7 @@ jobs:
       - name: Determine Docker Image
         id: dockerImageSelector
         run: |
-          if [ "${{ matrix.unity_version }}" == '2020' ]; then
-            if [ "${{ matrix.target_platform }}" == 'android' ]; then
-              TAG='unityci/editor:ubuntu-2020.3.40f1-android-3.1.0'
-            elif [ "${{ matrix.target_platform }}" == 'ios' ]; then
-              TAG='unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0'
-            else
-              echo "Unsupported platform"
-              exit 1
-            fi
-          elif [ "${{ matrix.unity_version }}" == '2021' ]; then
-            if [ "${{ matrix.target_platform }}" == 'android' ]; then
-              TAG='unityci/editor:ubuntu-2021.3.36f1-android-3.1.0'
-            elif [ "${{ matrix.target_platform }}" == 'ios' ]; then
-              TAG='unityci/editor:ubuntu-2021.3.36f1-ios-3.1.0'
-            else
-              echo "Unsupported platform"
-              exit 1
-            fi
-          else
-            echo "Unsupported Unity version"
-            exit 1
-          fi
-          echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+          echo "DOCKER_TAG=${{ matrix.image }}" >> $GITHUB_ENV
 
       - name: Echo Docker Image
         run: |
