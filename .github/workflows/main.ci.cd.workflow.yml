@@ -149,42 +149,28 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # Instead of a full cross-product (which would explode as versions are added),
-      # we hand-pick one android + one iOS config per Unity version. Across the 16
-      # rows every (platform x dotnet x compiler) combination appears exactly twice,
-      # so each version is fully compiled (incl. EditorTools) and every setting combo
-      # is still exercised - at the same ~16-job budget as before but across 8 Unity
-      # versions (2019.4 -> 6000.2) instead of 2.
-      #
-      # dataset_index MUST stay unique per row and within range of the encoded test
-      # data sets in STREAM_AUTH_TEST_DATA_BASE64 (0-15). Do not duplicate indices.
-      #
-      # Image tags verified against https://hub.docker.com/r/unityci/editor/tags .
-      # Bump patch versions here as newer LTS images are published.
+      # Testing every version x platform x dotnet_version x compiler combination
+      # would explode the job count. Instead we pick a representative subset that
+      # keeps similar coverage with far fewer jobs: one android + one iOS config
+      # per Unity version, arranged so every platform/dotnet/compiler value is still
+      # exercised across the matrix.
+      # dataset_index must be unique per row and within 0-15 (test data set count).
       matrix:
         include:
-          # 2019.4 LTS
           - { unity_version: "2019.4", target_platform: android, dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 0,  image: "unityci/editor:ubuntu-2019.4.40f1-android-3.2.2" }
           - { unity_version: "2019.4", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 1,  image: "unityci/editor:ubuntu-2019.4.40f1-ios-3.2.2" }
-          # 2020.3 LTS
           - { unity_version: "2020.3", target_platform: android, dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 2,  image: "unityci/editor:ubuntu-2020.3.40f1-android-3.1.0" }
           - { unity_version: "2020.3", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 3,  image: "unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0" }
-          # 2021.3 LTS
           - { unity_version: "2021.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 4,  image: "unityci/editor:ubuntu-2021.3.36f1-android-3.1.0" }
           - { unity_version: "2021.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 5,  image: "unityci/editor:ubuntu-2021.3.36f1-ios-3.1.0" }
-          # 2022.3 LTS
           - { unity_version: "2022.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 6,  image: "unityci/editor:ubuntu-2022.3.76f1-android-3.2.2" }
           - { unity_version: "2022.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 7,  image: "unityci/editor:ubuntu-2022.3.76f1-ios-3.2.2" }
-          # 2023.2
           - { unity_version: "2023.2", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 8,  image: "unityci/editor:ubuntu-2023.2.20f1-android-3.2.2" }
           - { unity_version: "2023.2", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 9,  image: "unityci/editor:ubuntu-2023.2.20f1-ios-3.2.2" }
-          # Unity 6000.0 LTS
           - { unity_version: "6000.0", target_platform: android, dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 10, image: "unityci/editor:ubuntu-6000.0.63f1-android-3.2.2" }
           - { unity_version: "6000.0", target_platform: ios,     dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 11, image: "unityci/editor:ubuntu-6000.0.63f1-ios-3.2.2" }
-          # Unity 6000.1
           - { unity_version: "6000.1", target_platform: android, dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 12, image: "unityci/editor:ubuntu-6000.1.17f1-android-3.2.2" }
           - { unity_version: "6000.1", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 13, image: "unityci/editor:ubuntu-6000.1.17f1-ios-3.2.2" }
-          # Unity 6000.2 (Gradle.path API boundary - see PR #219)
           - { unity_version: "6000.2", target_platform: android, dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 14, image: "unityci/editor:ubuntu-6000.2.12f1-android-3.2.2" }
           - { unity_version: "6000.2", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 15, image: "unityci/editor:ubuntu-6000.2.12f1-ios-3.2.2" }
 
