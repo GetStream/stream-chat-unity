@@ -55,7 +55,7 @@ namespace StreamChat.EditorTools
                 $"{nameof(AndroidExternalToolsSettings.jdkRootPath)}: {AndroidExternalToolsSettings.jdkRootPath}");
             sb.AppendLine(
                 $"{nameof(AndroidExternalToolsSettings.ndkRootPath)}: {AndroidExternalToolsSettings.ndkRootPath}");
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_2_OR_NEWER
             sb.AppendLine(
                 $"GradlePath: {AndroidExternalToolsSettings.Gradle.path}");
 #else
@@ -104,7 +104,7 @@ namespace StreamChat.EditorTools
 
                 if (!string.IsNullOrEmpty(androidExternalToolsSettings.GradlePath))
                 {
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_2_OR_NEWER
                     sb.AppendLine(
                         $"Setting GradlePath to: {androidExternalToolsSettings.GradlePath}");
                     AndroidExternalToolsSettings.Gradle.path = androidExternalToolsSettings.GradlePath;
