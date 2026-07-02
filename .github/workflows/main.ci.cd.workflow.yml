@@ -154,6 +154,8 @@ jobs:
       # keeps similar coverage with far fewer jobs: one android + one iOS config
       # per Unity version, arranged so every platform/dotnet/compiler value is still
       # exercised across the matrix.
+      # Patch releases must be public LTS builds from the Unity archive, not Extended
+      # LTS (xLTS) patches that require Industry/Enterprise licenses in CI.
       # dataset_index must be unique per row and within 0-15 (test data set count).
       matrix:
         include:
@@ -163,8 +165,8 @@ jobs:
           - { unity_version: "2020.3", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 3,  image: "unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0" }
           - { unity_version: "2021.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 4,  image: "unityci/editor:ubuntu-2021.3.36f1-android-3.1.0" }
           - { unity_version: "2021.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 5,  image: "unityci/editor:ubuntu-2021.3.36f1-ios-3.1.0" }
-          - { unity_version: "2022.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 6,  image: "unityci/editor:ubuntu-2022.3.76f1-android-3.2.2" }
-          - { unity_version: "2022.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 7,  image: "unityci/editor:ubuntu-2022.3.76f1-ios-3.2.2" }
+          - { unity_version: "2022.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 6,  image: "unityci/editor:ubuntu-2022.3.62f2-android-3.2.2" }
+          - { unity_version: "2022.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 7,  image: "unityci/editor:ubuntu-2022.3.62f2-ios-3.2.2" }
           - { unity_version: "2023.2", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 8,  image: "unityci/editor:ubuntu-2023.2.20f1-android-3.2.2" }
           - { unity_version: "2023.2", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 9,  image: "unityci/editor:ubuntu-2023.2.20f1-ios-3.2.2" }
           - { unity_version: "6000.0", target_platform: android, dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 10, image: "unityci/editor:ubuntu-6000.0.63f1-android-3.2.2" }
@@ -236,6 +238,15 @@ jobs:
           
           echo "RUNNER_ID=$RUNNER_ID" >> $GITHUB_ENV
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
+
+      # Without a manifest, Unity 2019.4 resolves com.unity.textmeshpro@3.0.9 (via ugui),
+      # whose editor scripts reference VersionControlSettings — unavailable in 2019.4.
+      - name: Install 2019.4 Packages/manifest.json
+        if: matrix.unity_version == '2019.4'
+        run: |
+          mkdir -p Packages
+          cp .github/workflows/manifests/build-2019.4.manifest.json Packages/manifest.json
+          rm -f Packages/packages-lock.json
       
       - name: Enable Tests
         uses: game-ci/unity-builder@v4
