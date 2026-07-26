@@ -344,6 +344,17 @@ namespace StreamChat.Core
 
         Task DisconnectUserAsync();
 
+        /// <summary>
+        /// Closes the websocket but keeps the user session and the reconnect schedule,
+        /// for when the caller knows the client is about to stop pumping <see cref="Update"/> (an
+        /// app being backgrounded). Stops the background receive timer so no unbounded backlog
+        /// builds up while nothing is draining it. Watched channels are preserved and the
+        /// reconnect fires on the next update tick, re-hydrating missed events. Contrast with
+        /// <see cref="DisconnectUserAsync"/>, which ends the session permanently and cannot be
+        /// resumed without connecting the user again.
+        /// </summary>
+        Task SuspendConnectionAsync();
+
         bool IsLocalUser(IStreamUser messageUser);
 
         /// <summary>

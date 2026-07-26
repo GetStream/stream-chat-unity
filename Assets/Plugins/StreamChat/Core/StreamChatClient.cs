@@ -225,6 +225,11 @@ namespace StreamChat.Core
             return InternalLowLevelClient.DisconnectAsync(permanent: true);
         }
 
+        // permanent: false is the whole point — it leaves the ReconnectScheduler armed
+        // so the connection comes back on its own once Update ticks again.
+        /// <inheritdoc/>
+        public Task SuspendConnectionAsync() => InternalLowLevelClient.DisconnectAsync(permanent: false);
+
         public async Task<StreamCurrentUnreadCounts> GetLatestUnreadCountsAsync()
         {
             var dto = await InternalLowLevelClient.InternalChannelApi.GetUnreadCountsAsync();
