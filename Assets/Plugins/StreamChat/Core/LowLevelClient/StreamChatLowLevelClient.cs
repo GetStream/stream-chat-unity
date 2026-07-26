@@ -426,6 +426,36 @@ namespace StreamChat.Core.LowLevelClient
 
             _websocketClient.Update();
 
+            // Report-only. We deliberately do NOT discard a large backlog: there is no
+            // recovery path that would make that safe. Reconnecting does not re-hydrate channel
+            // state — the only catch-up is /sync (see FetchAndProcessEventsSinceLastReceivedEvent),
+            // which the server rejects past roughly 1000 missed events, so discarding would drop
+            // the events permanently and leave local state silently stale. Draining a large
+            // backlog under the per-frame budget below is slow but correct. The backlog is bounded
+            // in practice anyway: health-check pings only go out from this Update, so a stalled
+            // client stops pinging and the server closes the socket within ~30s.
+            // Counts the reconnect replay queue as well as the socket's. Both are drained by the same
+            // per-frame budget below, so both contribute to how far behind we are — and the replay
+            // queue is the one that actually gets large, since a /sync catch-up can hand back
+            // hundreds of events at once whereas the socket queue is bounded by its ~20/s arrival
+            // rate against a 20/frame drain. Measuring only the socket meant the backlog this warning
+            // exists to surface was the one it could not see.
+            int backlog = _websocketClient.QueuedMessageCount + _pendingReplayEvents.Count;
+            if (backlog > ReceiveBacklogWarningThreshold)
+            {
+                if (!_receiveBacklogWarned)
+                {
+                    _receiveBacklogWarned = true;
+                    _logs.Warning(
+                        $"Websocket receive backlog of {backlog} exceeds {ReceiveBacklogWarningThreshold}; "
+                        + "draining it over multiple frames. Expect degraded frame time until it clears.");
+                }
+            }
+            else
+            {
+                _receiveBacklogWarned = false;
+            }
+
             // Bound the per-frame drain. The websocket receives on a background
             // timer thread (see WebsocketClient) while this pump only runs on Unity's main
             // loop, which stops while the app is backgrounded. Draining the whole backlog in
@@ -597,6 +627,12 @@ namespace StreamChat.Core.LowLevelClient
         // ceiling, so there the cap does spread a burst over frames, which is the intent anyway.
         private const int MaxMessagesHandledPerUpdate = 20;
 
+        // Backlog depth that gets a one-off warning so a stalled pump is visible in the
+        // field. Diagnostic only — nothing is discarded. Sized above any ordinary hitch: at the
+        // socket's 20 messages/second ceiling this is ~25 seconds of saturated traffic with the
+        // main loop stopped.
+        private const int ReceiveBacklogWarningThreshold = 500;
+
         // For WebGL there is a slight delay when sending therefore we send HC event a bit sooner just in case
         private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime - 1;
 
@@ -618,6 +654,9 @@ namespace StreamChat.Core.LowLevelClient
         // Missed events fetched on reconnect, awaiting the per-frame handling budget
         // in Update. Main-thread only, like the direct handling it replaced.
         private readonly Queue<string> _pendingReplayEvents = new Queue<string>();
+
+        // Latches the backlog warning so it logs once per episode, not every frame.
+        private bool _receiveBacklogWarned;
 
         private readonly object _websocketConnectionFailedFlagLock = new object();
 
