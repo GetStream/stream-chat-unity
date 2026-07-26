@@ -217,6 +217,17 @@ namespace StreamChat.Core.LowLevelClient
                 if (value == ConnectionState.Disconnected)
                 {
                     _disconnectionLastEventReceivedAt = _lastEventReceivedAt;
+                    // Drop any replay events this connection never got through. They are
+                    // stale and, worse, self-compounding if kept: _lastEventReceivedAt only advances
+                    // as events are HANDLED, so the sync point captured on the line above excludes
+                    // everything still queued here — the next /sync re-fetches exactly those events
+                    // and enqueues them BEHIND the undrained remainder. Each reconnect flap would
+                    // then add another duplicate copy to an unbounded queue, and the FIFO order would
+                    // replay older events after newer ones had already been handled, dragging
+                    // _lastEventReceivedAt backwards mid-drain so a drop in that window regressed the
+                    // sync point again. Clearing is safe precisely because the sync point does not
+                    // count them: whatever is discarded here is re-fetched on the next catch-up.
+                    _pendingReplayEvents.Clear();
                     Disconnected?.Invoke();
                 }
             }
@@ -421,6 +432,15 @@ namespace StreamChat.Core.LowLevelClient
             // one frame after a long background stalls that frame; spreading it over frames
             // keeps the catch-up interactive.
             int drained = 0;
+
+            // Reconnect-replay events are older than anything still on the socket, so they go
+            // first to keep events in order. They share the per-frame budget below.
+            while (drained < MaxMessagesHandledPerUpdate && _pendingReplayEvents.Count > 0)
+            {
+                HandleNewWebsocketMessage(_pendingReplayEvents.Dequeue());
+                drained++;
+            }
+
             while (drained < MaxMessagesHandledPerUpdate && _websocketClient.TryDequeueMessage(out string msg))
             {
 #if STREAM_DEBUG_ENABLED
@@ -480,8 +500,13 @@ namespace StreamChat.Core.LowLevelClient
                 // StreamTodo: check if we can not serialized this again. Investigate adding a custom EventsJsonConverter that would populate the list as serialized strings
                 var serializedMsg = _serializer.Serialize(e);
 
-                //StreamTodo: try block?
-                HandleNewWebsocketMessage(serializedMsg);
+                // Queue instead of handling inline. This replay fires on every
+                // reconnect — including the reconnect right after an app returns from the
+                // background, when it is at its largest — and handling the whole response in one
+                // loop puts the entire cost in a single frame, the same stall the websocket
+                // drain cap exists to prevent. Update drains this under that shared budget.
+                // Same main-thread assumption as the previous direct call.
+                _pendingReplayEvents.Enqueue(serializedMsg);
             }
         }
 
@@ -589,6 +614,10 @@ namespace StreamChat.Core.LowLevelClient
 
         private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
             new Dictionary<string, Action<string>>();
+
+        // Missed events fetched on reconnect, awaiting the per-frame handling budget
+        // in Update. Main-thread only, like the direct handling it replaced.
+        private readonly Queue<string> _pendingReplayEvents = new Queue<string>();
 
         private readonly object _websocketConnectionFailedFlagLock = new object();
 
