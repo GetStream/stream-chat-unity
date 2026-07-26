@@ -35,6 +35,9 @@ namespace StreamChat.Libs.Websockets
             return message != null;
         }
 
+        /// <inheritdoc/>
+        public int QueuedMessageCount => _messages.Count;
+
         public async Task ConnectAsync(Uri serverUri, int timeout = 5)
         {
             if (_webSocket != null)

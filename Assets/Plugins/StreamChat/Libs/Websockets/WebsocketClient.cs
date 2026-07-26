@@ -38,6 +38,9 @@ namespace StreamChat.Libs.Websockets
 
         public bool TryDequeueMessage(out string message) => _receiveQueue.TryDequeue(out message);
 
+        /// <inheritdoc/>
+        public int QueuedMessageCount => _receiveQueue.Count;
+
         public async Task ConnectAsync(Uri serverUri, int timeout = 3)
         {
             if (IsConnected || IsConnecting)
