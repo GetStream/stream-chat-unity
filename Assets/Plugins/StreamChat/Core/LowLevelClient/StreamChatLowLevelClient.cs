@@ -415,12 +415,19 @@ namespace StreamChat.Core.LowLevelClient
 
             _websocketClient.Update();
 
-            while (_websocketClient.TryDequeueMessage(out var msg))
+            // Bound the per-frame drain. The websocket receives on a background
+            // timer thread (see WebsocketClient) while this pump only runs on Unity's main
+            // loop, which stops while the app is backgrounded. Draining the whole backlog in
+            // one frame after a long background stalls that frame; spreading it over frames
+            // keeps the catch-up interactive.
+            int drained = 0;
+            while (drained < MaxMessagesHandledPerUpdate && _websocketClient.TryDequeueMessage(out string msg))
             {
 #if STREAM_DEBUG_ENABLED
                 _logs.Info(_authCredentials.UserId + " WS message: " + msg);
 #endif
                 HandleNewWebsocketMessage(msg);
+                drained++;
             }
         }
 
@@ -556,6 +563,14 @@ namespace StreamChat.Core.LowLevelClient
 
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
+
+        // Max websocket messages handled per Update (i.e. per frame). Under
+        // WebsocketClient (every platform but WebGL) the reader enqueues at most one message per
+        // UpdatesPerSecond tick — 20/second — so at 30-60fps this drains 30-60x faster than
+        // messages can arrive: the cap never binds in steady state and only meters catch-up after
+        // the main loop was stalled. WebGL's NativeWebSocketWrapper is browser-paced with no such
+        // ceiling, so there the cap does spread a burst over frames, which is the intent anyway.
+        private const int MaxMessagesHandledPerUpdate = 20;
 
         // For WebGL there is a slight delay when sending therefore we send HC event a bit sooner just in case
         private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime - 1;
