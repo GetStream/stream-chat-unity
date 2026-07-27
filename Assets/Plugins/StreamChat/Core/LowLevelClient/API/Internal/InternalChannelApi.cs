@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Requests;
@@ -138,6 +140,22 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             {
                 Type = WSEventType.TypingStop
             });
+
+        public Task SendCustomEventAsync(string channelType, string channelId, string eventType,
+            IDictionary<string, object> customData)
+        {
+            var eventBody = new EventRequestInternalDTO
+            {
+                Type = eventType,
+            };
+
+            if (customData != null && customData.Count > 0)
+            {
+                eventBody.AdditionalProperties = customData.ToDictionary(kv => kv.Key, kv => kv.Value);
+            }
+
+            return PostEventAsync(channelType, channelId, eventBody);
+        }
 
         public Task<SyncResponseInternalDTO> SyncAsync(SyncRequestInternalDTO syncRequest)
             => Post<SyncRequestInternalDTO, SyncResponseInternalDTO>($"/sync", syncRequest);

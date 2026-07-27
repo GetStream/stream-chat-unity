@@ -108,6 +108,12 @@ namespace StreamChat.Core.StatefulModels
         event StreamChannelUserChangeHandler UserStoppedTyping;
 
         /// <summary>
+        /// Fired when a custom event (sent via <see cref="SendCustomEventAsync"/>) is received on this channel.
+        /// Only fires while the channel is watched (<see cref="IsWatched"/>).
+        /// </summary>
+        event StreamChannelCustomEventHandler CustomEventReceived;
+
+        /// <summary>
         /// Event fired when a <see cref="TypingUsers"/> the list of typing users has changed.
         /// If you want to exactly know when a users started or stopped typing subscribe to <see cref="UserStartedTyping"/> and <see cref="UserStoppedTyping"/>
         /// </summary>
@@ -585,6 +591,16 @@ namespace StreamChat.Core.StatefulModels
         /// Send a notification that the local user stopped typing in this channel. You can access currently typing users via <see cref="TypingUsers"/>
         /// </summary>
         Task SendTypingStoppedEventAsync();
+
+        /// <summary>
+        /// Send a custom event to this channel. All members currently watching the channel
+        /// (including the local user) receive it via <see cref="CustomEventReceived"/>.
+        /// Requires the `send-custom-events` capability (see <see cref="OwnCapabilities"/>).
+        /// </summary>
+        /// <param name="eventType">Custom event type identifier, e.g. "friendship-request".</param>
+        /// <param name="customData">Optional custom key/value payload sent with the event.</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity#custom-events</remarks>
+        Task SendCustomEventAsync(string eventType, IDictionary<string, object> customData = null);
 
         /// <summary>
         /// Joins this channel as a a member (<see cref="IStreamChannelMember"/>). Only possible if local user has the `Join Own Channel` permission
