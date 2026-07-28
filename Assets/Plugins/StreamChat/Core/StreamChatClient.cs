@@ -1141,14 +1141,68 @@ namespace StreamChat.Core
             RestoreStateLostDuringDisconnect().LogIfFailed();
         }
 
-        private Task RestoreStateLostDuringDisconnect()
+        private async Task RestoreStateLostDuringDisconnect()
         {
             if (!WatchedChannels.Any())
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            return LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(WatchedChannels.Select(c => c.Cid));
+            try
+            {
+                await LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(
+                    WatchedChannels.Select(c => c.Cid));
+            }
+            catch (StreamApiException e) when (e.IsInputError())
+            {
+                // /sync refused the catch-up because too much accumulated while we were
+                // disconnected (see FetchAndProcessEventsSinceLastReceivedEvent). Without this the
+                // exception only reached the fire-and-forget logger at the call site: the watched
+                // channels silently stayed as they were before the disconnect, missing every
+                // message since, until something else happened to re-fetch them. Re-watch instead —
+                // it is the same full state fetch the initial watch does.
+                _logs.Warning("The /sync catch-up was refused as too large; re-watching " +
+                              $"{WatchedChannels.Count} channel(s) to restore their state instead.");
+                await RewatchChannelsAsync();
+            }
+        }
+
+        // Full state re-fetch of every watched channel, used when /sync cannot bridge the
+        // disconnect gap. Snapshotted because each re-watch writes the cache the list is built from.
+        //
+        // Every channel is attempted independently. This runs AFTER the stale sync point has been
+        // dropped, so it is the only recovery this reconnect gets and there is no later retry: a
+        // single failure escaping the loop would leave every remaining channel silently stale for the
+        // rest of the session. Failures are expected here, not exotic — a channel torn down while we
+        // were offline returns 403 on every read, and a long watched list can trip a 429 part-way.
+        // Log each one and keep going so the channels that CAN be restored are.
+        //
+        // Known limitation: GetOrCreateChannelWithIdAsync is get-OR-CREATE, so re-watching a channel
+        // that was hard-deleted while we were offline recreates it server-side as an empty channel.
+        // Fixing that properly means consulting SyncResponse.InaccessibleCids (already returned by
+        // /sync and currently ignored) to skip channels the server says are gone, rather than
+        // discovering it one 403 at a time.
+        private async Task RewatchChannelsAsync()
+        {
+            int failed = 0;
+            foreach (IStreamChannel channel in WatchedChannels.ToList())
+            {
+                try
+                {
+                    await GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+                }
+                catch (Exception e)
+                {
+                    failed++;
+                    _logs.Warning($"Re-watch failed for channel {channel.Type}:{channel.Id}; " +
+                                  $"its local state stays as it was before the disconnect. {e.Message}");
+                }
+            }
+
+            if (failed > 0)
+            {
+                _logs.Warning($"Re-watch completed with {failed} channel(s) unrestored.");
+            }
         }
 
         private void OnDisconnected() => Disconnected?.Invoke();

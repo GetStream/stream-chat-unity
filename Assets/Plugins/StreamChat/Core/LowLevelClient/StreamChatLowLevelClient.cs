@@ -14,6 +14,7 @@ using StreamChat.Core.LowLevelClient.API;
 using StreamChat.Core.LowLevelClient.API.Internal;
 using StreamChat.Core.LowLevelClient.Events;
 using StreamChat.Core.LowLevelClient.Models;
+using StreamChat.Core.LowLevelClient.Responses;
 using StreamChat.Core.Web;
 using StreamChat.Libs;
 using StreamChat.Libs.AppInfo;
@@ -456,12 +457,27 @@ namespace StreamChat.Core.LowLevelClient
 
             //StreamTodo: according to Android SDK there's an error if there are > 1000 events 
 
-            var response = await ChannelApi.SyncAsync(new SyncRequest
+            SyncResponse response;
+            try
             {
-                ChannelCids = channelCids.ToList(),
-                LastSyncAt = lastEventReceivedAt,
-                Watch = true,
-            });
+                response = await ChannelApi.SyncAsync(new SyncRequest
+                {
+                    ChannelCids = channelCids.ToList(),
+                    LastSyncAt = lastEventReceivedAt,
+                    Watch = true,
+                });
+            }
+            catch (StreamApiException e) when (e.IsInputError())
+            {
+                // The gap is too large for /sync — more than the ~1000 events the server
+                // will replay (the StreamTodo above), which a busy channel reaches long before the
+                // 30-day bound checked above. Drop the sync point so the next reconnect starts from
+                // a fresh one instead of failing the same way forever, and let the caller re-hydrate
+                // the channels: the missed events are gone either way, and only a full state fetch
+                // brings the watched channels back up to date.
+                _disconnectionLastEventReceivedAt = null;
+                throw;
+            }
 
             if (response.Events.Count == 0)
             {
