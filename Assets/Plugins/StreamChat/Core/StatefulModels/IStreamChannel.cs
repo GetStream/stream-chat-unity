@@ -599,10 +599,8 @@ namespace StreamChat.Core.StatefulModels
         /// </summary>
         /// <param name="eventType">Custom event type identifier, e.g. "friendship-request".</param>
         /// <param name="customData">Optional custom key/value payload sent with the event.</param>
-        /// <param name="parentId">Optional parent message id. Set to a message's id to scope the event to that thread.</param>
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity#custom-events</remarks>
-        Task SendCustomEventAsync(string eventType, IDictionary<string, object> customData = null,
-            string parentId = null);
+        Task SendCustomEventAsync(string eventType, IDictionary<string, object> customData = null);
 
         /// <summary>
         /// Joins this channel as a a member (<see cref="IStreamChannelMember"/>). Only possible if local user has the `Join Own Channel` permission

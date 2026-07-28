@@ -13,8 +13,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public string Cid { get; set; }
 
-        public string ParentId { get; set; }
-
         public string Type { get; set; }
 
         public User User { get; set; }
@@ -25,7 +23,6 @@ namespace StreamChat.Core.LowLevelClient.Events
             ChannelType = dto.ChannelType;
             Cid = dto.Cid;
             CreatedAt = dto.CreatedAt;
-            ParentId = dto.ParentId;
             Type = dto.Type;
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;

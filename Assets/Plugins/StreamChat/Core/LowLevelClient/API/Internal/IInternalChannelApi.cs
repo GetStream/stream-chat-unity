@@ -58,7 +58,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         Task SendTypingStopEventAsync(string channelType, string channelId);
 
         Task SendCustomEventAsync(string channelType, string channelId, string eventType,
-            IDictionary<string, object> customData, string parentId = null);
+            IDictionary<string, object> customData);
 
         Task<SyncResponseInternalDTO> SyncAsync(SyncRequestInternalDTO syncRequest);
 

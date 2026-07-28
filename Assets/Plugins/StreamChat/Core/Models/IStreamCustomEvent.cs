@@ -19,9 +19,6 @@ namespace StreamChat.Core.Models
         /// <summary>Server timestamp of the event.</summary>
         DateTimeOffset CreatedAt { get; }
 
-        /// <summary>Optional thread parent id if the event was scoped to a thread.</summary>
-        string ParentId { get; }
-
         /// <summary>Custom payload delivered with the event (top-level custom fields).</summary>
         IStreamCustomData CustomData { get; }
     }

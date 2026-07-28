@@ -142,12 +142,11 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             });
 
         public Task SendCustomEventAsync(string channelType, string channelId, string eventType,
-            IDictionary<string, object> customData, string parentId = null)
+            IDictionary<string, object> customData)
         {
             var eventBody = new EventRequestInternalDTO
             {
                 Type = eventType,
-                ParentId = parentId,
             };
 
             if (customData != null && customData.Count > 0)

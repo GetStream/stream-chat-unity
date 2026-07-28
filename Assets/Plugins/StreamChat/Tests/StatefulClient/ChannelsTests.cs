@@ -827,35 +827,6 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
-        public IEnumerator When_custom_event_sent_with_parent_id_expect_parent_id_on_receive()
-            => ConnectAndExecute(When_custom_event_sent_with_parent_id_expect_parent_id_on_receive_Async);
-
-        private async Task When_custom_event_sent_with_parent_id_expect_parent_id_on_receive_Async()
-        {
-            var channel = await CreateUniqueTempChannelAsync();
-            var parentMessage = await channel.SendNewMessageAsync("parent");
-
-            IStreamCustomEvent received = null;
-            channel.CustomEventReceived += (_, evt) => received = evt;
-
-            await channel.SendCustomEventAsync(
-                "thread-indicator",
-                new Dictionary<string, object> { { "status", "active" } },
-                parentId: parentMessage.Id);
-
-            await WaitWhileFalseAsync(() => received != null,
-                description: "thread-scoped custom event received");
-
-            channel.CustomEventReceived -= (_, evt) => { };
-
-            Assert.IsNotNull(received);
-            Assert.AreEqual(parentMessage.Id, received.ParentId);
-            Assert.IsTrue(received.CustomData.TryGet<string>("status", out var status));
-            Assert.AreEqual("active", status);
-            Assert.IsFalse(received.CustomData.ContainsKey("parent_id"));
-        }
-
-        [UnityTest]
         public IEnumerator When_custom_event_sent_with_empty_payload_expect_receive()
             => ConnectAndExecute(When_custom_event_sent_with_empty_payload_expect_receive_Async);
 

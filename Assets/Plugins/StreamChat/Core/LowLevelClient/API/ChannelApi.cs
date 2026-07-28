@@ -144,8 +144,8 @@ namespace StreamChat.Core.LowLevelClient.API
             => _internalChannelApi.SendTypingStopEventAsync(channelType, channelId);
 
         public Task SendCustomEventAsync(string channelType, string channelId, string eventType,
-            IDictionary<string, object> customData = null, string parentId = null)
-            => _internalChannelApi.SendCustomEventAsync(channelType, channelId, eventType, customData, parentId);
+            IDictionary<string, object> customData = null)
+            => _internalChannelApi.SendCustomEventAsync(channelType, channelId, eventType, customData);
 
         public async Task<SyncResponse> SyncAsync(SyncRequest syncRequest)
         {
