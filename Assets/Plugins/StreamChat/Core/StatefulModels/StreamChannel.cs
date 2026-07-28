@@ -695,10 +695,19 @@ namespace StreamChat.Core.StatefulModels
         public Task SendTypingStoppedEventAsync()
             => LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
-        public Task SendCustomEventAsync(string eventType, IDictionary<string, object> customData = null)
+        public Task SendCustomEventAsync(string eventType, IDictionary<string, object> customData = null,
+            string parentId = null)
         {
             StreamAsserts.AssertNotNullOrEmpty(eventType, nameof(eventType));
-            return LowLevelClient.InternalChannelApi.SendCustomEventAsync(Type, Id, eventType, customData);
+
+            if (customData != null && customData.ContainsKey("parent_id"))
+            {
+                throw new ArgumentException(
+                    "Use the parentId parameter instead of including 'parent_id' in customData.",
+                    nameof(customData));
+            }
+
+            return LowLevelClient.InternalChannelApi.SendCustomEventAsync(Type, Id, eventType, customData, parentId);
         }
 
         public override string ToString() => $"Channel - Id: {Id}, Name: {Name}";

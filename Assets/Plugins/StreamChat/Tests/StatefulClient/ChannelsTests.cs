@@ -818,7 +818,64 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsFalse(received.CustomData.ContainsKey("cid"));
             Assert.IsFalse(received.CustomData.ContainsKey("type"));
             Assert.IsFalse(received.CustomData.ContainsKey("user"));
+            Assert.IsFalse(received.CustomData.ContainsKey("channel_type"));
+            Assert.IsFalse(received.CustomData.ContainsKey("channel_id"));
+            Assert.IsFalse(received.CustomData.ContainsKey("created_at"));
+            Assert.IsFalse(received.CustomData.ContainsKey("parent_id"));
+            Assert.IsTrue(received.CreatedAt > DateTimeOffset.MinValue);
             Assert.AreEqual(MainThreadId, threadId);
+        }
+
+        [UnityTest]
+        public IEnumerator When_custom_event_sent_with_parent_id_expect_parent_id_on_receive()
+            => ConnectAndExecute(When_custom_event_sent_with_parent_id_expect_parent_id_on_receive_Async);
+
+        private async Task When_custom_event_sent_with_parent_id_expect_parent_id_on_receive_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var parentMessage = await channel.SendNewMessageAsync("parent");
+
+            IStreamCustomEvent received = null;
+            channel.CustomEventReceived += (_, evt) => received = evt;
+
+            await channel.SendCustomEventAsync(
+                "thread-indicator",
+                new Dictionary<string, object> { { "status", "active" } },
+                parentId: parentMessage.Id);
+
+            await WaitWhileFalseAsync(() => received != null,
+                description: "thread-scoped custom event received");
+
+            channel.CustomEventReceived -= (_, evt) => { };
+
+            Assert.IsNotNull(received);
+            Assert.AreEqual(parentMessage.Id, received.ParentId);
+            Assert.IsTrue(received.CustomData.TryGet<string>("status", out var status));
+            Assert.AreEqual("active", status);
+            Assert.IsFalse(received.CustomData.ContainsKey("parent_id"));
+        }
+
+        [UnityTest]
+        public IEnumerator When_custom_event_sent_with_empty_payload_expect_receive()
+            => ConnectAndExecute(When_custom_event_sent_with_empty_payload_expect_receive_Async);
+
+        private async Task When_custom_event_sent_with_empty_payload_expect_receive_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            IStreamCustomEvent received = null;
+            channel.CustomEventReceived += (_, evt) => received = evt;
+
+            await channel.SendCustomEventAsync("ping");
+
+            await WaitWhileFalseAsync(() => received != null,
+                description: "empty-payload custom event received");
+
+            channel.CustomEventReceived -= (_, evt) => { };
+
+            Assert.IsNotNull(received);
+            Assert.AreEqual("ping", received.Type);
+            Assert.AreEqual(0, received.CustomData.Count);
         }
 
         [UnityTest]

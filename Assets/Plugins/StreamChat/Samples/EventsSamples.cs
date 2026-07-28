@@ -334,12 +334,24 @@ namespace StreamChat.Samples
                 {
                     // handle
                 }
+
+                if (evt.Type == "thread-indicator" && evt.ParentId != null)
+                {
+                    // thread-scoped custom event
+                }
             };
 
             await channel.SendCustomEventAsync("friendship-request", new Dictionary<string, object>
             {
                 { "text", "Hi, let's be friends!" },
             });
+
+            // Scope a custom event to a thread by passing the parent message id
+            var parentMessage = await channel.SendNewMessageAsync("thread root");
+            await channel.SendCustomEventAsync(
+                "thread-indicator",
+                new Dictionary<string, object> { { "status", "active" } },
+                parentId: parentMessage.Id);
         }
 
         /// <summary>

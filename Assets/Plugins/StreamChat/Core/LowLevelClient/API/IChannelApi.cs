@@ -155,9 +155,10 @@ namespace StreamChat.Core.LowLevelClient.API
         /// <summary>
         /// Send a custom event to a channel. All members currently watching the channel receive it over the websocket.
         /// </summary>
+        /// <param name="parentId">Optional parent message id to scope the event to a thread.</param>
         /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity#custom-events</remarks>
         Task SendCustomEventAsync(string channelType, string channelId, string eventType,
-            IDictionary<string, object> customData = null);
+            IDictionary<string, object> customData = null, string parentId = null);
 
         //StreamTodo: perhaps we can skip this declaration and use the Internal one directly
         Task<SyncResponse> SyncAsync(SyncRequest syncRequest);
