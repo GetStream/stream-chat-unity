@@ -35,6 +35,8 @@ namespace StreamChat.Core.StatefulModels
     public delegate void StreamMessageReactionHandler(IStreamChannel channel, IStreamMessage message,
         StreamReaction reaction);
 
+    public delegate void StreamChannelCustomEventHandler(IStreamChannel channel, IStreamCustomEvent customEvent);
+
     internal sealed class StreamChannel : StreamStatefulModelBase<StreamChannel>,
         IUpdateableFrom<ChannelStateResponseInternalDTO, StreamChannel>,
         IUpdateableFrom2<ChannelResponseInternalDTO, StreamChannel>,
@@ -79,6 +81,8 @@ namespace StreamChat.Core.StatefulModels
         public event StreamChannelUserChangeHandler UserStoppedTyping;
 
         public event StreamChannelChangeHandler TypingUsersChanged;
+
+        public event StreamChannelCustomEventHandler CustomEventReceived;
 
         #region Channel
 
@@ -691,6 +695,12 @@ namespace StreamChat.Core.StatefulModels
         public Task SendTypingStoppedEventAsync()
             => LowLevelClient.InternalChannelApi.SendTypingStopEventAsync(Type, Id);
 
+        public Task SendCustomEventAsync(string eventType, IDictionary<string, object> customData = null)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(eventType, nameof(eventType));
+            return LowLevelClient.InternalChannelApi.SendCustomEventAsync(Type, Id, eventType, customData);
+        }
+
         public override string ToString() => $"Channel - Id: {Id}, Name: {Name}";
 
         internal StreamChannel(string uniqueId, ICacheRepository<StreamChannel> repository,
@@ -1148,6 +1158,30 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
+        internal void InternalHandleCustomEvent(CustomEventInternalDTO dto)
+        {
+            AssertCid(dto.Cid);
+
+            var user = Cache.TryCreateOrUpdate(dto.User);
+
+            var custom = new Dictionary<string, object>();
+            if (dto.AdditionalProperties != null)
+            {
+                foreach (var kv in dto.AdditionalProperties)
+                {
+                    if (!CustomEventEnvelopeKeys.Contains(kv.Key))
+                    {
+                        custom[kv.Key] = kv.Value;
+                    }
+                }
+            }
+
+            var customEvent = new StreamCustomEvent(dto.Type, user, dto.CreatedAt,
+                new StreamCustomData(custom, Serializer));
+
+            CustomEventReceived?.Invoke(this, customEvent);
+        }
+
         internal void InternalNotifyReactionReceived(StreamMessage message, StreamReaction reaction)
             => ReactionAdded?.Invoke(this, message, reaction);
 
@@ -1159,6 +1193,11 @@ namespace StreamChat.Core.StatefulModels
 
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
         private readonly List<IStreamUser> _typingUsers = new List<IStreamUser>();
+
+        private static readonly HashSet<string> CustomEventEnvelopeKeys = new HashSet<string>
+        {
+            "type", "cid", "channel_type", "channel_id", "parent_id", "created_at", "user"
+        };
 
         private void HandleMessageRead(UserObjectInternalDTO userDto, DateTimeOffset createAt)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Responses;
@@ -141,6 +142,10 @@ namespace StreamChat.Core.LowLevelClient.API
 
         public Task SendTypingStopEventAsync(string channelType, string channelId)
             => _internalChannelApi.SendTypingStopEventAsync(channelType, channelId);
+
+        public Task SendCustomEventAsync(string channelType, string channelId, string eventType,
+            IDictionary<string, object> customData = null)
+            => _internalChannelApi.SendCustomEventAsync(channelType, channelId, eventType, customData);
 
         public async Task<SyncResponse> SyncAsync(SyncRequest syncRequest)
         {

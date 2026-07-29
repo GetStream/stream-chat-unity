@@ -777,6 +777,118 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(rewatched.IsWatched);
             Assert.IsTrue(Client.WatchedChannels.Any(c => c.Cid == channel.Cid));
         }
+
+        [UnityTest]
+        public IEnumerator When_custom_event_sent_expect_watchers_receive_it()
+            => ConnectAndExecute(When_custom_event_sent_expect_watchers_receive_it_Async);
+
+        private async Task When_custom_event_sent_expect_watchers_receive_it_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            IStreamCustomEvent received = null;
+            var threadId = -1;
+
+            void OnCustom(IStreamChannel ch, IStreamCustomEvent evt)
+            {
+                received = evt;
+                threadId = GetCurrentThreadId();
+            }
+
+            channel.CustomEventReceived += OnCustom;
+
+            await channel.SendCustomEventAsync("friendship-request", new Dictionary<string, object>
+            {
+                { "text", "hello" },
+                { "score", 42 },
+            });
+
+            await WaitWhileFalseAsync(() => received != null,
+                description: "custom event received on sender channel");
+
+            channel.CustomEventReceived -= OnCustom;
+
+            Assert.IsNotNull(received);
+            Assert.AreEqual("friendship-request", received.Type);
+            Assert.AreEqual(Client.LocalUserData.User.Id, received.User.Id);
+            Assert.IsTrue(received.CustomData.TryGet<string>("text", out var text));
+            Assert.AreEqual("hello", text);
+            Assert.IsTrue(received.CustomData.TryGet<int>("score", out var score));
+            Assert.AreEqual(42, score);
+            Assert.IsFalse(received.CustomData.ContainsKey("cid"));
+            Assert.IsFalse(received.CustomData.ContainsKey("type"));
+            Assert.IsFalse(received.CustomData.ContainsKey("user"));
+            Assert.IsFalse(received.CustomData.ContainsKey("channel_type"));
+            Assert.IsFalse(received.CustomData.ContainsKey("channel_id"));
+            Assert.IsFalse(received.CustomData.ContainsKey("created_at"));
+            Assert.IsFalse(received.CustomData.ContainsKey("parent_id"));
+            Assert.IsTrue(received.CreatedAt > DateTimeOffset.MinValue);
+            Assert.AreEqual(MainThreadId, threadId);
+        }
+
+        [UnityTest]
+        public IEnumerator When_custom_event_sent_with_empty_payload_expect_receive()
+            => ConnectAndExecute(When_custom_event_sent_with_empty_payload_expect_receive_Async);
+
+        private async Task When_custom_event_sent_with_empty_payload_expect_receive_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            IStreamCustomEvent received = null;
+            channel.CustomEventReceived += (_, evt) => received = evt;
+
+            await channel.SendCustomEventAsync("ping");
+
+            await WaitWhileFalseAsync(() => received != null,
+                description: "empty-payload custom event received");
+
+            channel.CustomEventReceived -= (_, evt) => { };
+
+            Assert.IsNotNull(received);
+            Assert.AreEqual("ping", received.Type);
+            Assert.AreEqual(0, received.CustomData.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator When_other_client_sends_custom_event_expect_local_watcher_receives_it()
+            => ConnectAndExecute(When_other_client_sends_custom_event_expect_local_watcher_receives_it_Async);
+
+        private async Task When_other_client_sends_custom_event_expect_local_watcher_receives_it_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var otherClientChannel = await otherClient.InternalGetOrCreateChannelWithIdAsync(
+                channel.Type, channel.Id, watch: true);
+
+            IStreamCustomEvent received = null;
+            var threadId = -1;
+
+            void OnCustom(IStreamChannel ch, IStreamCustomEvent evt)
+            {
+                received = evt;
+                threadId = GetCurrentThreadId();
+            }
+
+            channel.CustomEventReceived += OnCustom;
+
+            await otherClientChannel.SendCustomEventAsync("game-invite", new Dictionary<string, object>
+            {
+                { "level", 3 },
+            });
+
+            await WaitWhileFalseAsync(() => received != null,
+                description: "custom event received from other client");
+
+            channel.CustomEventReceived -= OnCustom;
+
+            Assert.IsNotNull(received);
+            Assert.AreEqual("game-invite", received.Type);
+            Assert.AreEqual(otherClient.LocalUserData.User.Id, received.User.Id);
+            Assert.IsTrue(received.CustomData.TryGet<int>("level", out var level));
+            Assert.AreEqual(3, level);
+            Assert.AreEqual(MainThreadId, threadId);
+        }
     }
 }
 

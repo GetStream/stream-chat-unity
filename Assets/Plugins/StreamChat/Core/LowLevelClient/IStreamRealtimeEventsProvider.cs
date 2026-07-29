@@ -223,6 +223,14 @@ namespace StreamChat.Core.LowLevelClient
         event Action<EventTypingStop> TypingStopped;
 
         /// <summary>
+        /// Event raised when a custom event is received on a channel.
+        ///
+        /// Use <see cref="EventCustom.Cid"/>, <see cref="EventCustom.Type"/>, and <see cref="EventCustom.User"/> to identify the channel, event type, and sender.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity#custom-events</remarks>
+        event Action<EventCustom> CustomEventReceived;
+
+        /// <summary>
         /// Notification Event raised when channel mutes are updated for local user.
         ///
         /// Notifications are sent to all channel members regardless of whether they're actively watching this channel.

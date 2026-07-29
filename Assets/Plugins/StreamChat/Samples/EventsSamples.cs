@@ -65,6 +65,7 @@ namespace StreamChat.Samples
             channel.UserStartedTyping += OnUserStartedTyping;
             channel.UserStoppedTyping += OnUserStoppedTyping;
             channel.TypingUsersChanged += OnTypingUsersChanged;
+            channel.CustomEventReceived += OnCustomEventReceived;
 
             // 4. Per-message events
             // Reaction events fire on the specific IStreamMessage instance.
@@ -227,6 +228,10 @@ namespace StreamChat.Samples
         {
         }
 
+        private void OnCustomEventReceived(IStreamChannel channel, IStreamCustomEvent customEvent)
+        {
+        }
+
         // ---- Thread-level handlers ----
 
         private void OnThreadUpdated(IStreamThread thread)
@@ -319,9 +324,22 @@ namespace StreamChat.Samples
         /// <summary>
         /// https://getstream.io/chat/docs/unity/event-object/?language=unity#to-a-channel
         /// </summary>
-        public void SendCustomEventToChannel()
+        public async Task SendCustomEventToChannel()
         {
-            // Not yet supported in the Unity SDK
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "my-channel-id");
+
+            channel.CustomEventReceived += (ch, evt) =>
+            {
+                if (evt.Type == "friendship-request" && evt.CustomData.TryGet<string>("text", out var text))
+                {
+                    // handle
+                }
+            };
+
+            await channel.SendCustomEventAsync("friendship-request", new Dictionary<string, object>
+            {
+                { "text", "Hi, let's be friends!" },
+            });
         }
 
         /// <summary>

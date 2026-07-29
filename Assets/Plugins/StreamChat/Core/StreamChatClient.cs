@@ -1667,6 +1667,14 @@ namespace StreamChat.Core
             }
         }
 
+        private void OnCustomEventReceived(CustomEventInternalDTO eventDto)
+        {
+            if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
+            {
+                streamChannel.InternalHandleCustomEvent(eventDto);
+            }
+        }
+
         private void SubscribeTo(StreamChatLowLevelClient lowLevelClient)
         {
             lowLevelClient.InternalConnected += OnConnected;
@@ -1703,6 +1711,8 @@ namespace StreamChat.Core
 
             lowLevelClient.InternalTypingStarted += OnTypingStarted;
             lowLevelClient.InternalTypingStopped += OnTypingStopped;
+
+            lowLevelClient.InternalCustomEventReceived += OnCustomEventReceived;
 
             lowLevelClient.InternalNotificationChannelMutesUpdated += OnChannelMutesUpdatedNotification;
 
@@ -1768,6 +1778,8 @@ namespace StreamChat.Core
 
             lowLevelClient.InternalTypingStarted -= OnTypingStarted;
             lowLevelClient.InternalTypingStopped -= OnTypingStopped;
+
+            lowLevelClient.InternalCustomEventReceived -= OnCustomEventReceived;
 
             lowLevelClient.InternalNotificationChannelMutesUpdated -= OnChannelMutesUpdatedNotification;
 

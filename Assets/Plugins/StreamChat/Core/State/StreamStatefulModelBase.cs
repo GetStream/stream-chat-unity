@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.State.Caches;
 using StreamChat.Libs.Logs;
+using StreamChat.Libs.Serialization;
 
 namespace StreamChat.Core.State
 {
@@ -31,6 +32,7 @@ namespace StreamChat.Core.State
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
             _customData = new StreamCustomData(_additionalProperties, context.Serializer);
+            Serializer = context.Serializer;
 
             InternalUniqueId = uniqueId;
             Repository.Track(Self);
@@ -43,6 +45,7 @@ namespace StreamChat.Core.State
 
         protected abstract TStatefulModel Self { get; }
         protected StreamChatClient Client { get; }
+        protected ISerializer Serializer { get; }
         protected StreamChatLowLevelClient LowLevelClient => Client.InternalLowLevelClient;
         protected ILogs Logs { get; }
         protected ICache Cache { get; }
