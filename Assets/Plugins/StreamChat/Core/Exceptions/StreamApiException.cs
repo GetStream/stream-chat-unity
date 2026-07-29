@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using StreamChat.Core.InternalDTO.Models;
 
@@ -118,7 +119,7 @@ namespace StreamChat.Core.Exceptions
 
             if (exceptionFields != null && exceptionFields.Count > 0)
             {
-                _exceptionFields = new Dictionary<string, string>(exceptionFields);
+                _exceptionFields = exceptionFields.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             }
         }
 

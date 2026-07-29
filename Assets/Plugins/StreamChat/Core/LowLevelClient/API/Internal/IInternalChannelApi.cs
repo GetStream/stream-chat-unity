@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.InternalDTO.Responses;
 
@@ -55,6 +56,9 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         Task SendTypingStartEventAsync(string channelType, string channelId);
 
         Task SendTypingStopEventAsync(string channelType, string channelId);
+
+        Task SendCustomEventAsync(string channelType, string channelId, string eventType,
+            IDictionary<string, object> customData);
 
         Task<SyncResponseInternalDTO> SyncAsync(SyncRequestInternalDTO syncRequest);
 

@@ -9,6 +9,11 @@ on:
   schedule:
     - cron: "0 0 * * *"  # run daily at midnight (UTC)
 
+permissions:
+  actions: write
+  contents: read
+  pull-requests: write
+
 jobs:
   runtime-tests:
     name: Runtime Tests (IL2CPP)

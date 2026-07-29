@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using StreamChat.Core.LowLevelClient.Models;
 using StreamChat.Core.LowLevelClient.Requests;
@@ -150,6 +151,13 @@ namespace StreamChat.Core.LowLevelClient.API
         Task SendTypingStartEventAsync(string channelType, string channelId);
 
         Task SendTypingStopEventAsync(string channelType, string channelId);
+
+        /// <summary>
+        /// Send a custom event to a channel. All members currently watching the channel receive it over the websocket.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/event_object/?language=unity#custom-events</remarks>
+        Task SendCustomEventAsync(string channelType, string channelId, string eventType,
+            IDictionary<string, object> customData = null);
 
         //StreamTodo: perhaps we can skip this declaration and use the Internal one directly
         Task<SyncResponse> SyncAsync(SyncRequest syncRequest);

@@ -1,3 +1,16 @@
+v5.6.0:
+Features:
+
+* Add a public StreamApiException constructor so you can create exceptions in your own unit tests when exercising error-handling logic (e.g. simulating a 403 or a specific API error code). StreamApiException was already public and intended to be caught and inspected (via StreamApiExceptionExtensions.Is* helpers), but until now it could only be constructed inside the SDK.
+* Add IStreamClientConfig.OptimisticMessageInsert (default true). Controls when your sent message appears in local channel state. When true (existing behavior), after the send API call succeeds — meaning the server accepted the message — the SDK immediately adds it to IStreamChannel.Messages and raises IStreamChannel.MessageReceived, before the message.new WebSocket echo arrives. You see your own message instantly; the tradeoff is a small chance that another participant sent a message just before yours, which may arrive via WebSocket shortly after and be inserted ahead of it, briefly reordering the list. When false, the SDK skips the local insert and waits for the message.new WebSocket event, so your message appears in the same server-defined order as for every participant — including on your own device. The tradeoff is a short delay between send completing and the message showing up in state. Useful when consistent cross-client ordering matters more than instant local feedback (e.g. a shared, broadcast-ordered feed).
+
+Fixes:
+
+* Fix IStreamChatClient.RemovedFromChannelAsMember failing or logging errors when you are removed from a channel you are not currently watching. The SDK no longer tries to watch the channel after removal (you may no longer have permission to do so); the event is raised from the notification payload instead.
+* Fix the member argument's User property being null on IStreamChatClient.RemovedFromChannelAsMember.
+* Expected connection and network failures (e.g. device offline, connection timeout, socket errors during connect/reconnect) are now logged as warnings instead of exceptions/errors. The SDK already recovers from these automatically; logging them at error severity was flooding crash reporting tools (Sentry, Bugsnag, etc.) with non-actionable noise. Genuine failures unrelated to connectivity still log as exceptions.
+* (Sample Project) Fix the input system dependency to work better across Unity versions from 2019.3 to Unity 6.x. Previously, the user had to manually resolve the input system dependency.
+
 Unreleased:
 Features:
 

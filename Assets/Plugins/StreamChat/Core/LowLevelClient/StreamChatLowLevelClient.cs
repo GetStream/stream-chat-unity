@@ -87,6 +87,8 @@ namespace StreamChat.Core.LowLevelClient
         public event Action<EventTypingStart> TypingStarted;
         public event Action<EventTypingStop> TypingStopped;
 
+        public event Action<EventCustom> CustomEventReceived;
+
         public event Action<EventNotificationChannelMutesUpdated> NotificationChannelMutesUpdated;
         public event Action<EventNotificationMutesUpdated> NotificationMutesUpdated;
 
@@ -149,6 +151,8 @@ namespace StreamChat.Core.LowLevelClient
 
         internal event Action<TypingStartEventInternalDTO> InternalTypingStarted;
         internal event Action<TypingStopEventInternalDTO> InternalTypingStopped;
+
+        internal event Action<CustomEventInternalDTO> InternalCustomEventReceived;
 
         internal event Action<NotificationChannelMutesUpdatedEventInternalDTO> InternalNotificationChannelMutesUpdated;
         internal event Action<NotificationMutesUpdatedEventInternalDTO> InternalNotificationMutesUpdated;
@@ -229,7 +233,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// SDK Version number
         /// </summary>
-        public static readonly Version SDKVersion = new Version(5, 5, 0);
+        public static readonly Version SDKVersion = new Version(5, 6, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
@@ -957,6 +961,11 @@ namespace StreamChat.Core.LowLevelClient
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
+                if (TryHandleCustomChannelEvent(msg))
+                {
+                    return;
+                }
+
                 if (_config.LogLevel.IsDebugEnabled())
                 {
                     _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
@@ -966,6 +975,32 @@ namespace StreamChat.Core.LowLevelClient
             }
 
             handler(msg);
+        }
+
+        private bool TryHandleCustomChannelEvent(string serializedContent)
+        {
+            if (!_serializer.TryPeekValue<string>(serializedContent, "cid", out var cid)
+                || string.IsNullOrEmpty(cid))
+            {
+                return false;
+            }
+
+            try
+            {
+                var dto = _serializer.Deserialize<CustomEventInternalDTO>(serializedContent);
+                _lastEventReceivedAt = dto.CreatedAt;
+
+                var evt = new EventCustom();
+                ((ILoadableFrom<CustomEventInternalDTO, EventCustom>)evt).LoadFromDto(dto);
+                CustomEventReceived?.Invoke(evt);
+                InternalCustomEventReceived?.Invoke(dto);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logs.Exception(e);
+                return false;
+            }
         }
 
         private void UpdateHealthCheck()

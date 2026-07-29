@@ -850,6 +850,19 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return ConnectAndExecute(When_sending_typing_start_stop_events_expect_no_exceptions_Async);
         }
 
+        [UnityTest]
+        public IEnumerator When_sending_custom_channel_event_expect_no_errors()
+            => ConnectAndExecute(When_sending_custom_channel_event_expect_no_errors_Async);
+
+        private async Task When_sending_custom_channel_event_expect_no_errors_Async()
+        {
+            const string channelType = "messaging";
+            var tempChannel = await CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
+
+            await LowLevelClient.ChannelApi.SendCustomEventAsync(channelType, tempChannel.Channel.Id,
+                "friendship-request", new Dictionary<string, object> { { "text", "hi" } });
+        }
+
         private async Task When_sending_typing_start_stop_events_expect_no_exceptions_Async()
         {
             const string channelType = "messaging";
