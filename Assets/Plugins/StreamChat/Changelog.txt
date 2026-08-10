@@ -1,3 +1,12 @@
+v5.7.0:
+Features:
+
+* Add custom channel events. Use IStreamChannel.SendCustomEventAsync to broadcast an arbitrary event to all members currently watching the channel (including the local user), and subscribe to IStreamChannel.CustomEventReceived to receive them as IStreamCustomEvent. Requires the send-custom-events capability.
+
+Fixes:
+
+* Fix a compilation error in the editor tools on Unity 6000.0.x and 6000.1.x.
+
 v5.6.0:
 Features:
 
