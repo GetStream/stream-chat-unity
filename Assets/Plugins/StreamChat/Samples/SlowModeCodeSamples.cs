@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace StreamChat.Samples
 {
-    /// <summary>
-    /// Code examples for the features/advanced/slow-mode/ docs page
-    /// </summary>
     internal sealed class SlowModeCodeSamples
     {
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/slow-mode/?language=unity#channel-slow-mode
+        /// </summary>
         public async Task EnableDisableSlowMode()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "channel-id");
@@ -42,6 +42,9 @@ namespace StreamChat.Samples
             Debug.Log(channel.Cooldown);
         }
 
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/slow-mode/?language=unity#channel-slow-mode
+        /// </summary>
         public async Task GateSendingUiOnRemainingCooldown()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "channel-id");

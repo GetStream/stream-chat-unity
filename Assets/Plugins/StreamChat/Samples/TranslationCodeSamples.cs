@@ -7,11 +7,11 @@ using UnityEngine;
 
 namespace StreamChat.Samples
 {
-    /// <summary>
-    /// Code examples for the features/translation/ docs page
-    /// </summary>
     internal sealed class TranslationCodeSamples
     {
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/translation/?language=unity#i18n-data
+        /// </summary>
         public void ReadMessageTranslations()
         {
             IStreamMessage message = null;
@@ -32,6 +32,9 @@ namespace StreamChat.Samples
             var text = message.I18n.TryGetValue("fr_text", out var french) ? french : message.Text;
         }
 
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/translation/?language=unity#enabling-automatic-translation
+        /// </summary>
         public async Task EnableChannelAutoTranslation()
         {
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "channel-id");
@@ -51,6 +54,9 @@ namespace StreamChat.Samples
 // Use one of our server-side SDKs or the Stream Dashboard for that.
         }
 
+        /// <summary>
+        /// https://getstream.io/chat/docs/unity/translation/?language=unity#set-user-language
+        /// </summary>
         public async Task SetUserLanguage()
         {
 // Set the language used to translate messages for a user
