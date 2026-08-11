@@ -1,18 +1,19 @@
-﻿#if STREAM_TESTS_ENABLED
+#if STREAM_TESTS_ENABLED
 using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using StreamChat.Tests.StatefulClient;
 using UnityEngine.TestTools;
 
-namespace StreamChat.Tests.StatefulClient
+namespace StreamChat.Tests.StateSync.Integration
 {
     /// <summary>
-    /// Tests verifying state recovery after disconnections
+    /// Integration tests for state recovery after disconnect/reconnect.
     /// </summary>
-    internal class ClientStateSyncTests : BaseStateIntegrationTests
+    internal class StateSyncIntegrationTests : BaseStateIntegrationTests
     {
         [UnityTest]
         public IEnumerator When_client_reconnects_expect_receiving_missed_messages()
