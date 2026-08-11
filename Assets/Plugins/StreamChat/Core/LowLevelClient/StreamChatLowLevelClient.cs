@@ -445,10 +445,10 @@ namespace StreamChat.Core.LowLevelClient
 
             var lastEventReceivedAt = _disconnectionLastEventReceivedAt.Value;
 
-            var currentServerTime = DateTimeOffset.UtcNow.ToOffset(lastEventReceivedAt.Offset);
-
-            // Check if less than 30 days
-            var diff = lastEventReceivedAt - _timeService.Now;
+            // Check if less than 30 days. Past that the server rejects LastSyncAt, so this only
+            // skips a request that was certain to fail — it is not a recovery path. The SDK has no
+            // re-hydrate fallback of its own, so bridging a gap this large is the consumer's job.
+            TimeSpan diff = _timeService.Now - lastEventReceivedAt;
             if (diff.TotalDays > 30)
             {
                 return;

@@ -28,6 +28,7 @@ Features:
 
 Fixes:
 
+* Fix the 30-day staleness guard on the reconnect /sync catch-up computing its age backwards (lastEventReceivedAt - now, which is negative for any past timestamp), so the guard never fired and /sync was called even with a LastSyncAt the server rejects. Also removes a dead local that was almost certainly the intended operand.
 * TaskUtils.LogIfFailed now logs connectivity/transport failures as warnings instead of errors/exceptions. The SDK fire-and-forgets its connect, reconnect, and state-restore operations through LogIfFailed; when the device is offline these fail with HttpRequestException / WebException / SocketException / IOException / TimeoutException, which the reconnect flow recovers from - so surfacing them at error severity flooded crash/error reporting (Sentry, Bugsnag, etc.) with handled, non-actionable noise. Genuine (non-connectivity) failures still log as exceptions. Complements the connection-attempt-timeout fix from PR #213.
 
 v5.5.0:
