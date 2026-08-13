@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using StreamChat.Core.Helpers;
 using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core.State.Caches
@@ -158,6 +159,56 @@ namespace StreamChat.Core.State.Caches
             _statefulModelById.Remove(trackedObject.UniqueId);
 
             Untracked?.Invoke(trackedObject);
+        }
+
+        public void RemoveMany(IReadOnlyList<TStatefulModel> trackedObjects)
+        {
+            if (trackedObjects == null)
+            {
+                throw new ArgumentNullException(nameof(trackedObjects));
+            }
+
+            if (trackedObjects.Count == 0)
+            {
+                return;
+            }
+
+            using (new HashSetPoolScope<string>(out var tempRemovedIds))
+            using (new ListPoolScope<TStatefulModel>(out var tempRemoved))
+            {
+                for (var i = 0; i < trackedObjects.Count; i++)
+                {
+                    var trackedObject = trackedObjects[i];
+                    if (trackedObject.UniqueId.IsNullOrEmpty())
+                    {
+                        throw new ArgumentException($"{trackedObject.UniqueId} cannot be empty");
+                    }
+
+                    // Only untrack the exact instance this repository holds. A newer instance for the
+                    // same id must survive, and duplicates in the input must not raise Untracked twice.
+                    if (!_statefulModelById.TryGetValue(trackedObject.UniqueId, out var tracked)
+                        || !ReferenceEquals(tracked, trackedObject))
+                    {
+                        continue;
+                    }
+
+                    _statefulModelById.Remove(trackedObject.UniqueId);
+                    tempRemovedIds.Add(trackedObject.UniqueId);
+                    tempRemoved.Add(trackedObject);
+                }
+
+                if (tempRemoved.Count == 0)
+                {
+                    return;
+                }
+
+                _statefulModels.RemoveAll(_ => tempRemovedIds.Contains(_.UniqueId));
+
+                for (var i = 0; i < tempRemoved.Count; i++)
+                {
+                    Untracked?.Invoke(tempRemoved[i]);
+                }
+            }
         }
 
         internal delegate TStatefulModel ConstructorHandler(string uniqueId);

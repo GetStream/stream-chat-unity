@@ -10,5 +10,7 @@
         public StreamLogLevel LogLevel { get; set; } = StreamLogLevel.FailureOnly;
 
         public bool OptimisticMessageInsert { get; set; } = true;
+
+        public MessageCacheWindow DefaultMessageCacheWindow { get; set; } = null;
     }
 }

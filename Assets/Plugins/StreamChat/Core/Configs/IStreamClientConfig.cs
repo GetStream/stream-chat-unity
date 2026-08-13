@@ -28,5 +28,13 @@ namespace StreamChat.Core.Configs
         /// ordering matters more than instant local feedback (e.g. a shared, broadcast-ordered feed).
         /// </summary>
         bool OptimisticMessageInsert { get; set; }
+
+        /// <summary>
+        /// Default local message cache limit for all channels. <c>null</c> (default) = unlimited.
+        /// Use <see cref="MessageCacheWindow.Recommended"/> for livestream-style channels.
+        /// Per-channel overrides: <see cref="StatefulModels.IStreamChannel.OverrideMessageCacheWindow"/>.
+        /// Does not change server history. See <see cref="StatefulModels.IStreamChannel.MessageCacheWindow"/>.
+        /// </summary>
+        MessageCacheWindow DefaultMessageCacheWindow { get; set; }
     }
 }
