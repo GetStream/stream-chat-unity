@@ -309,11 +309,12 @@ namespace StreamChat.Core.LowLevelClient
 
             _logs.Prefix = "[Stream Chat] ";
 
-            _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
+            var streamClientHeader = BuildStreamClientHeader(applicationInfo);
+            _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer,
+                streamClientHeader);
 
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
-            var header = BuildStreamClientHeader(applicationInfo);
-            _httpClient.AddDefaultCustomHeader("X-Stream-Client", header);
+            _httpClient.AddDefaultCustomHeader("X-Stream-Client", streamClientHeader);
 
             _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
             _websocketClient.Disconnected += OnWebsocketDisconnected;
