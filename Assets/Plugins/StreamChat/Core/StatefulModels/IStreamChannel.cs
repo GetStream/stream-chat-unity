@@ -322,21 +322,24 @@ namespace StreamChat.Core.StatefulModels
         /// Note that loading older messages does NOT trigger the <see cref="MessageReceived"/> event.
         /// <para>Calling this pauses cache trimming (see <see cref="IsMessageCacheTrimmingPaused"/>) so the
         /// loaded page is not removed while the user reads it. If
-        /// <see cref="HasReachedMaxHistoryMessages"/> is <c>true</c> this returns without loading anything -
-        /// stop showing your "load more" affordance and prompt the user to jump back to the newest messages,
-        /// which is where <see cref="ResumeMessageCacheTrimming"/> belongs.</para>
+        /// <see cref="IsMessageCacheHistoryLimitReached"/> is <c>true</c> this returns without loading
+        /// anything - stop showing your "load more" affordance and prompt the user to jump back to the newest
+        /// messages, which is where <see cref="ResumeMessageCacheTrimming"/> belongs.</para>
         /// </summary>
         Task LoadOlderMessagesAsync();
 
         /// <summary>
-        /// <c>true</c> when <see cref="Messages"/> has reached
+        /// <c>true</c> when this client's local cache for this channel has reached
         /// <see cref="Configs.MessageCacheWindow.MaxHistoryMessages"/> and
         /// <see cref="LoadOlderMessagesAsync"/> will therefore load nothing. Always <c>false</c> when
         /// <see cref="MessageCacheWindow"/> is <c>null</c>.
+        /// <para>This says nothing about the server: the channel's history is intact and untouched, this
+        /// device has simply cached as much of it as it is allowed to.
+        /// <see cref="ResumeMessageCacheTrimming"/> clears it.</para>
         /// <para>Check this before offering "load more" so the user is not left waiting on a call that
-        /// cannot return anything. <see cref="ResumeMessageCacheTrimming"/> clears it.</para>
+        /// cannot return anything.</para>
         /// </summary>
-        bool HasReachedMaxHistoryMessages { get; }
+        bool IsMessageCacheHistoryLimitReached { get; }
 
         /// <summary>
         /// Active cache limit for this channel. <c>null</c> = unlimited (default).
@@ -375,7 +378,7 @@ namespace StreamChat.Core.StatefulModels
         /// messages - exactly the history it just paged in.
         /// <para>While <c>true</c>, no message is ever removed. Growth is bounded instead:
         /// <see cref="LoadOlderMessagesAsync"/> stops loading once
-        /// <see cref="HasReachedMaxHistoryMessages"/> is <c>true</c>. Incoming live messages are still
+        /// <see cref="IsMessageCacheHistoryLimitReached"/> is <c>true</c>. Incoming live messages are still
         /// appended, so a channel that is never resumed keeps growing - the SDK logs a warning once when it
         /// crosses that limit.</para>
         /// </summary>
@@ -393,7 +396,7 @@ namespace StreamChat.Core.StatefulModels
         /// Resume trimming against <see cref="Configs.MessageCacheWindow.MaxMessages"/> and remove excess
         /// messages now. Call this when the user returns to the newest messages. This is the only thing that
         /// releases history paged in by <see cref="LoadOlderMessagesAsync"/>, and the only thing that lets it
-        /// load more history again once <see cref="HasReachedMaxHistoryMessages"/> is <c>true</c>.
+        /// load more history again once <see cref="IsMessageCacheHistoryLimitReached"/> is <c>true</c>.
         /// </summary>
         void ResumeMessageCacheTrimming();
 

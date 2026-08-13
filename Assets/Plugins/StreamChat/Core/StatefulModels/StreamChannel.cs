@@ -252,7 +252,7 @@ namespace StreamChat.Core.StatefulModels
             // Refusing to page in more history is the only way to bound a paused channel without
             // deleting data: a trim removes the oldest messages, which is precisely the history that
             // was paged in for the user to read.
-            if (HasReachedMaxHistoryMessages)
+            if (IsMessageCacheHistoryLimitReached)
             {
                 WarnAboutMaxHistoryMessagesOnce(MessageCacheWindow);
                 return;
@@ -300,7 +300,7 @@ namespace StreamChat.Core.StatefulModels
 
         public bool HasMessageCacheWindowOverride => _hasMessageCacheWindowOverride;
 
-        public bool HasReachedMaxHistoryMessages
+        public bool IsMessageCacheHistoryLimitReached
         {
             get
             {
@@ -1159,7 +1159,7 @@ namespace StreamChat.Core.StatefulModels
             _hasWarnedAboutMaxHistoryMessages = true;
 
             Logs.Warning(
-                $"Channel `{Cid}` holds {_messages.Count} messages, reaching "
+                $"Channel `{Cid}` holds {_messages.Count} messages in the local cache, reaching "
                 + $"{nameof(window.MaxHistoryMessages)} ({window.MaxHistoryMessages}). "
                 + $"{nameof(LoadOlderMessagesAsync)} will not load more history until "
                 + $"{nameof(ResumeMessageCacheTrimming)}() is called. Messages are never removed while cache "

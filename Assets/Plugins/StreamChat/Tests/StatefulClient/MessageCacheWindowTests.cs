@@ -309,7 +309,7 @@ namespace StreamChat.Tests.StatefulClient
 
             channel.OverrideMessageCacheWindow(window);
             Assert.AreEqual(window.MaxMessages - window.DiscardBatchSize, channel.Messages.Count);
-            Assert.IsFalse(channel.HasReachedMaxHistoryMessages);
+            Assert.IsFalse(channel.IsMessageCacheHistoryLimitReached);
 
             var removedCount = 0;
             channel.MessagesRemovedFromCache += (_, __) => removedCount++;
@@ -323,7 +323,7 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.IsTrue(channel.IsMessageCacheTrimmingPaused);
             Assert.GreaterOrEqual(channel.Messages.Count, window.MaxHistoryMessages);
-            Assert.IsTrue(channel.HasReachedMaxHistoryMessages,
+            Assert.IsTrue(channel.IsMessageCacheHistoryLimitReached,
                 "the app must be able to see that loading more history is pointless");
             Assert.AreEqual(0, removedCount, "nothing may be removed while trimming is paused");
 
@@ -341,7 +341,7 @@ namespace StreamChat.Tests.StatefulClient
             channel.ResumeMessageCacheTrimming();
 
             Assert.IsFalse(channel.IsMessageCacheTrimmingPaused);
-            Assert.IsFalse(channel.HasReachedMaxHistoryMessages);
+            Assert.IsFalse(channel.IsMessageCacheHistoryLimitReached);
             Assert.AreEqual(window.MaxMessages - window.DiscardBatchSize, channel.Messages.Count);
             Assert.AreEqual(1, removedCount);
         }
