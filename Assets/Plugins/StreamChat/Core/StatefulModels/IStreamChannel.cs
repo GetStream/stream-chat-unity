@@ -319,19 +319,33 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Load next portion of older messages. Older messages will be prepended to the <see cref="Messages"/> list.
-        /// Note that loading older messages does NOT trigger the <see cref="MessageReceived"/> event
+        /// Note that loading older messages does NOT trigger the <see cref="MessageReceived"/> event.
+        /// <para>Calling this pauses cache trimming (see <see cref="IsMessageCacheTrimmingPaused"/>) so the
+        /// loaded page is not removed while the user reads it. If
+        /// <see cref="HasReachedMaxHistoryMessages"/> is <c>true</c> this returns without loading anything -
+        /// stop showing your "load more" affordance and prompt the user to jump back to the newest messages,
+        /// which is where <see cref="ResumeMessageCacheTrimming"/> belongs.</para>
         /// </summary>
         Task LoadOlderMessagesAsync();
 
         /// <summary>
+        /// <c>true</c> when <see cref="Messages"/> has reached
+        /// <see cref="Configs.MessageCacheWindow.MaxHistoryMessages"/> and
+        /// <see cref="LoadOlderMessagesAsync"/> will therefore load nothing. Always <c>false</c> when
+        /// <see cref="MessageCacheWindow"/> is <c>null</c>.
+        /// <para>Check this before offering "load more" so the user is not left waiting on a call that
+        /// cannot return anything. <see cref="ResumeMessageCacheTrimming"/> clears it.</para>
+        /// </summary>
+        bool HasReachedMaxHistoryMessages { get; }
+
+        /// <summary>
         /// Active cache limit for this channel. <c>null</c> = unlimited (default).
-        /// When over <see cref="MessageCacheWindow.MaxMessages"/> (or
-        /// <see cref="Configs.MessageCacheWindow.AbsoluteMaxMessages"/> while
-        /// <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>), oldest messages are removed from
-        /// <see cref="Messages"/> and the cache. Server history is unchanged —
+        /// Once <see cref="Messages"/> exceeds <see cref="Configs.MessageCacheWindow.MaxMessages"/> the oldest
+        /// messages are removed from <see cref="Messages"/> and the cache. Server history is unchanged —
         /// <see cref="LoadOlderMessagesAsync"/> can reload them. Pinned messages and open threads may
         /// stay in the cache. <see cref="MessageReceived"/> always fires before
         /// <see cref="MessagesRemovedFromCache"/> for the same message.
+        /// <para>Nothing is ever removed while <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.</para>
         /// </summary>
         Configs.MessageCacheWindow MessageCacheWindow { get; }
 
@@ -345,35 +359,41 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Set a cache limit for this channel only. Pass <c>null</c> for unlimited on this channel.
-        /// Trims immediately, against <see cref="Configs.MessageCacheWindow.AbsoluteMaxMessages"/> when
-        /// <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.
+        /// Trims immediately unless <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.
         /// </summary>
         void OverrideMessageCacheWindow(Configs.MessageCacheWindow window);
 
         /// <summary>
         /// Remove the per-channel limit and use <see cref="Configs.IStreamClientConfig.DefaultMessageCacheWindow"/> again.
-        /// Trims immediately, against the paused limit when trimming is paused.
+        /// Trims immediately unless <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.
         /// </summary>
         void ClearMessageCacheWindowOverride();
 
         /// <summary>
-        /// Whether the wider, paused cache limit is in effect. <see cref="LoadOlderMessagesAsync"/> pauses
-        /// automatically so paged-in history is not removed while the user reads it. Trimming is not disabled
-        /// while paused - the limit becomes <see cref="Configs.MessageCacheWindow.AbsoluteMaxMessages"/>.
+        /// Whether cache trimming is currently suspended for this channel.
+        /// <see cref="LoadOlderMessagesAsync"/> sets this automatically, because a trim removes the oldest
+        /// messages - exactly the history it just paged in.
+        /// <para>While <c>true</c>, no message is ever removed. Growth is bounded instead:
+        /// <see cref="LoadOlderMessagesAsync"/> stops loading once
+        /// <see cref="HasReachedMaxHistoryMessages"/> is <c>true</c>. Incoming live messages are still
+        /// appended, so a channel that is never resumed keeps growing - the SDK logs a warning once when it
+        /// crosses that limit.</para>
         /// </summary>
         bool IsMessageCacheTrimmingPaused { get; }
 
         /// <summary>
-        /// Widen the cache limit to <see cref="Configs.MessageCacheWindow.AbsoluteMaxMessages"/>
-        /// (e.g. while the user scrolls through loaded history). <see cref="LoadOlderMessagesAsync"/>
-        /// does this for you.
+        /// Suspend cache trimming so no message is removed while the user reads history (e.g. while they
+        /// scroll back). <see cref="LoadOlderMessagesAsync"/> does this for you. Always pair it with
+        /// <see cref="ResumeMessageCacheTrimming"/>; see <see cref="IsMessageCacheTrimmingPaused"/> for what
+        /// bounds memory in the meantime.
         /// </summary>
         void PauseMessageCacheTrimming();
 
         /// <summary>
-        /// Restore the <see cref="Configs.MessageCacheWindow.MaxMessages"/> limit and remove excess messages now.
-        /// Optional - the cache stays bounded either way. Call it when the user returns to the newest messages
-        /// to release the memory held by paged-in history sooner.
+        /// Resume trimming against <see cref="Configs.MessageCacheWindow.MaxMessages"/> and remove excess
+        /// messages now. Call this when the user returns to the newest messages. This is the only thing that
+        /// releases history paged in by <see cref="LoadOlderMessagesAsync"/>, and the only thing that lets it
+        /// load more history again once <see cref="HasReachedMaxHistoryMessages"/> is <c>true</c>.
         /// </summary>
         void ResumeMessageCacheTrimming();
 

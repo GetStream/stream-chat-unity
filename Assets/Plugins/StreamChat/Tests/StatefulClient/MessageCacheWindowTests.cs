@@ -17,8 +17,8 @@ namespace StreamChat.Tests.StatefulClient
     {
         private static readonly MessageCacheWindow SmallWindow = new MessageCacheWindow(6, 3);
 
-        // Absolute limit low enough to be reached by sending a handful of messages while paused.
-        private static readonly MessageCacheWindow SmallWindowWithLowAbsoluteMax = new MessageCacheWindow(4, 2, 8);
+        // History limit low enough to be reached by sending a handful of messages while paused.
+        private static readonly MessageCacheWindow SmallWindowWithLowHistoryLimit = new MessageCacheWindow(4, 2, 8);
 
         [UnityTest]
         public IEnumerator When_no_message_cache_window_configured_expect_no_removal()
@@ -264,43 +264,96 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(0, removedCount);
         }
 
+        /// <summary>
+        /// Trimming removes the OLDEST messages, which while paused is exactly the history the user
+        /// scrolled back to. So pausing must remove nothing at all, even past MaxHistoryMessages -
+        /// growth is bounded by refusing to page in more history, not by deleting what is on screen.
+        /// </summary>
         [UnityTest]
-        public IEnumerator When_trimming_paused_expect_trim_once_absolute_max_exceeded()
-            => ConnectAndExecute(When_trimming_paused_expect_trim_once_absolute_max_exceeded_Async);
+        public IEnumerator When_trimming_paused_expect_no_removal_even_past_max_history_messages()
+            => ConnectAndExecute(When_trimming_paused_expect_no_removal_even_past_max_history_messages_Async);
 
-        private async Task When_trimming_paused_expect_trim_once_absolute_max_exceeded_Async()
+        private async Task When_trimming_paused_expect_no_removal_even_past_max_history_messages_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
-            channel.OverrideMessageCacheWindow(SmallWindowWithLowAbsoluteMax);
+            channel.OverrideMessageCacheWindow(SmallWindowWithLowHistoryLimit);
             channel.PauseMessageCacheTrimming();
 
             var removedCount = 0;
             channel.MessagesRemovedFromCache += (_, __) => removedCount++;
 
-            // Above MaxMessages(4) but still within AbsoluteMaxMessages(8), so pausing holds the messages.
-            await SendMessagesAsync(channel, 8);
+            var sent = await SendMessagesAsync(channel, 10);
 
-            Assert.AreEqual(8, channel.Messages.Count);
+            Assert.Greater(10, SmallWindowWithLowHistoryLimit.MaxHistoryMessages,
+                "the test must actually push the channel past MaxHistoryMessages");
+            Assert.IsTrue(channel.IsMessageCacheTrimmingPaused);
+            Assert.AreEqual(10, channel.Messages.Count);
             Assert.AreEqual(0, removedCount);
+            CollectionAssert.AreEqual(sent.Select(m => m.Id).ToList(),
+                channel.Messages.Select(m => m.Id).ToList());
+        }
 
-            // Crossing AbsoluteMaxMessages trims even though trimming is still paused, down to
-            // AbsoluteMaxMessages - DiscardBatchSize. This is what keeps a never-resumed channel bounded.
-            var sent = await SendMessagesAsync(channel, 1);
+        /// <summary>
+        /// The history limit stops history from being paged in rather than deleting what is already there,
+        /// so the oldest message stays put and the pagination anchor never moves backwards.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator When_max_history_messages_reached_expect_LoadOlderMessagesAsync_loads_nothing()
+            => ConnectAndExecute(When_max_history_messages_reached_expect_LoadOlderMessagesAsync_loads_nothing_Async);
+
+        private async Task When_max_history_messages_reached_expect_LoadOlderMessagesAsync_loads_nothing_Async()
+        {
+            var window = SmallWindowWithLowHistoryLimit;
+            var channel = await CreateUniqueTempChannelAsync();
+            await SendMessagesAsync(channel, 12);
+
+            channel.OverrideMessageCacheWindow(window);
+            Assert.AreEqual(window.MaxMessages - window.DiscardBatchSize, channel.Messages.Count);
+            Assert.IsFalse(channel.HasReachedMaxHistoryMessages);
+
+            var removedCount = 0;
+            channel.MessagesRemovedFromCache += (_, __) => removedCount++;
+
+            // Page back until the paused limit is reached. The channel only holds 12 messages, so this
+            // terminates regardless of the server's page size.
+            for (var i = 0; i < 5 && channel.Messages.Count < window.MaxHistoryMessages; i++)
+            {
+                await channel.LoadOlderMessagesAsync();
+            }
 
             Assert.IsTrue(channel.IsMessageCacheTrimmingPaused);
-            Assert.AreEqual(6, channel.Messages.Count);
+            Assert.GreaterOrEqual(channel.Messages.Count, window.MaxHistoryMessages);
+            Assert.IsTrue(channel.HasReachedMaxHistoryMessages,
+                "the app must be able to see that loading more history is pointless");
+            Assert.AreEqual(0, removedCount, "nothing may be removed while trimming is paused");
+
+            var oldestBefore = channel.Messages.First().Id;
+            var countBefore = channel.Messages.Count;
+
+            await channel.LoadOlderMessagesAsync();
+
+            Assert.AreEqual(countBefore, channel.Messages.Count,
+                "LoadOlderMessagesAsync must not load more history once MaxHistoryMessages is reached");
+            Assert.AreEqual(oldestBefore, channel.Messages.First().Id);
+            Assert.AreEqual(0, removedCount);
+
+            // Resuming is what releases the paged-in history and re-enables loading.
+            channel.ResumeMessageCacheTrimming();
+
+            Assert.IsFalse(channel.IsMessageCacheTrimmingPaused);
+            Assert.IsFalse(channel.HasReachedMaxHistoryMessages);
+            Assert.AreEqual(window.MaxMessages - window.DiscardBatchSize, channel.Messages.Count);
             Assert.AreEqual(1, removedCount);
-            Assert.AreEqual(sent.Single().Id, channel.Messages.Last().Id);
         }
 
         [UnityTest]
-        public IEnumerator When_trimming_paused_and_bounded_expect_resume_restores_max_messages()
-            => ConnectAndExecute(When_trimming_paused_and_bounded_expect_resume_restores_max_messages_Async);
+        public IEnumerator When_trimming_paused_expect_resume_restores_max_messages()
+            => ConnectAndExecute(When_trimming_paused_expect_resume_restores_max_messages_Async);
 
-        private async Task When_trimming_paused_and_bounded_expect_resume_restores_max_messages_Async()
+        private async Task When_trimming_paused_expect_resume_restores_max_messages_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
-            channel.OverrideMessageCacheWindow(SmallWindowWithLowAbsoluteMax);
+            channel.OverrideMessageCacheWindow(SmallWindowWithLowHistoryLimit);
             channel.PauseMessageCacheTrimming();
 
             await SendMessagesAsync(channel, 8);
@@ -473,10 +526,10 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [Test]
-        public void When_absolute_max_not_specified_expect_default_of_four_times_max_messages()
+        public void When_max_history_messages_not_specified_expect_default_of_four_times_max_messages()
         {
-            Assert.AreEqual(40, new MessageCacheWindow(10, 5).AbsoluteMaxMessages);
-            Assert.AreEqual(int.MaxValue, new MessageCacheWindow(int.MaxValue, 1).AbsoluteMaxMessages);
+            Assert.AreEqual(40, new MessageCacheWindow(10, 5).MaxHistoryMessages);
+            Assert.AreEqual(int.MaxValue, new MessageCacheWindow(int.MaxValue, 1).MaxHistoryMessages);
         }
 
         [Test]
@@ -484,7 +537,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             Assert.AreEqual(500, MessageCacheWindow.Recommended.MaxMessages);
             Assert.AreEqual(100, MessageCacheWindow.Recommended.DiscardBatchSize);
-            Assert.AreEqual(2000, MessageCacheWindow.Recommended.AbsoluteMaxMessages);
+            Assert.AreEqual(2000, MessageCacheWindow.Recommended.MaxHistoryMessages);
         }
 
         private static async Task<List<IStreamMessage>> SendMessagesAsync(IStreamChannel channel, int count)

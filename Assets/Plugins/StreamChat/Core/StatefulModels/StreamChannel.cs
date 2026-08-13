@@ -249,6 +249,15 @@ namespace StreamChat.Core.StatefulModels
 
         public async Task LoadOlderMessagesAsync()
         {
+            // Refusing to page in more history is the only way to bound a paused channel without
+            // deleting data: a trim removes the oldest messages, which is precisely the history that
+            // was paged in for the user to read.
+            if (HasReachedMaxHistoryMessages)
+            {
+                WarnAboutMaxHistoryMessagesOnce(MessageCacheWindow);
+                return;
+            }
+
             var wasTrimmingPaused = _isMessageCacheTrimmingPaused;
 
             // Pause before the request so live messages cannot trim the page being loaded.
@@ -291,10 +300,20 @@ namespace StreamChat.Core.StatefulModels
 
         public bool HasMessageCacheWindowOverride => _hasMessageCacheWindowOverride;
 
+        public bool HasReachedMaxHistoryMessages
+        {
+            get
+            {
+                var window = MessageCacheWindow;
+                return window != null && _messages.Count >= window.MaxHistoryMessages;
+            }
+        }
+
         public void OverrideMessageCacheWindow(MessageCacheWindow window)
         {
             _messageCacheWindowOverride = window;
             _hasMessageCacheWindowOverride = true;
+            _hasWarnedAboutMaxHistoryMessages = false;
             TrimMessageCacheIfNeeded();
         }
 
@@ -302,6 +321,7 @@ namespace StreamChat.Core.StatefulModels
         {
             _messageCacheWindowOverride = null;
             _hasMessageCacheWindowOverride = false;
+            _hasWarnedAboutMaxHistoryMessages = false;
             TrimMessageCacheIfNeeded();
         }
 
@@ -312,6 +332,7 @@ namespace StreamChat.Core.StatefulModels
         public void ResumeMessageCacheTrimming()
         {
             _isMessageCacheTrimmingPaused = false;
+            _hasWarnedAboutMaxHistoryMessages = false;
             TrimMessageCacheIfNeeded();
         }
 
@@ -958,6 +979,7 @@ namespace StreamChat.Core.StatefulModels
         private MessageCacheWindow _messageCacheWindowOverride;
         private bool _hasMessageCacheWindowOverride;
         private bool _isMessageCacheTrimmingPaused;
+        private bool _hasWarnedAboutMaxHistoryMessages;
 
         private bool _muted;
         private bool _hidden;
@@ -1064,12 +1086,22 @@ namespace StreamChat.Core.StatefulModels
                 return;
             }
 
-            // Pausing widens the window instead of disabling it, so a channel stays bounded even if
-            // ResumeMessageCacheTrimming is never called after LoadOlderMessagesAsync.
-            var effectiveMaxMessages
-                = _isMessageCacheTrimmingPaused ? window.AbsoluteMaxMessages : window.MaxMessages;
+            // Trimming always removes the oldest messages, which while paused is exactly the history
+            // LoadOlderMessagesAsync paged in for the user to read. Removing it would also move the IdLt
+            // anchor forward, so the next page load would re-fetch what was just removed. Paused therefore
+            // means "remove nothing"; growth is bounded by refusing to page in more history past
+            // MaxHistoryMessages instead.
+            if (_isMessageCacheTrimmingPaused)
+            {
+                if (_messages.Count >= window.MaxHistoryMessages)
+                {
+                    WarnAboutMaxHistoryMessagesOnce(window);
+                }
 
-            if (_messages.Count <= effectiveMaxMessages)
+                return;
+            }
+
+            if (_messages.Count <= window.MaxMessages)
             {
                 return;
             }
@@ -1079,7 +1111,7 @@ namespace StreamChat.Core.StatefulModels
                 SortMessagesByCreatedAt();
             }
 
-            var targetCount = effectiveMaxMessages - window.DiscardBatchSize;
+            var targetCount = window.MaxMessages - window.DiscardBatchSize;
             var removeCount = _messages.Count - targetCount;
 
             var handler = MessagesRemovedFromCache;
@@ -1112,6 +1144,27 @@ namespace StreamChat.Core.StatefulModels
 
             // Raised after the pooled buffers are returned so subscribers can trim or send safely.
             handler?.Invoke(this, removed);
+        }
+
+        // Live messages are still appended while paused, so a channel that is never resumed keeps
+        // growing. Only the app knows whether the user is still reading history, so the SDK reports it
+        // once per pause rather than guessing and discarding the user's scroll position.
+        private void WarnAboutMaxHistoryMessagesOnce(MessageCacheWindow window)
+        {
+            if (_hasWarnedAboutMaxHistoryMessages)
+            {
+                return;
+            }
+
+            _hasWarnedAboutMaxHistoryMessages = true;
+
+            Logs.Warning(
+                $"Channel `{Cid}` holds {_messages.Count} messages, reaching "
+                + $"{nameof(window.MaxHistoryMessages)} ({window.MaxHistoryMessages}). "
+                + $"{nameof(LoadOlderMessagesAsync)} will not load more history until "
+                + $"{nameof(ResumeMessageCacheTrimming)}() is called. Messages are never removed while cache "
+                + "trimming is paused, so incoming messages keep growing this channel until then - resume once "
+                + "the user is back at the newest messages.");
         }
 
         // Keep in cache when pinned or referenced by a tracked thread.
