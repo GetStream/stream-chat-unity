@@ -22,15 +22,20 @@ namespace StreamChat.Core.Helpers
                 throw new ArgumentNullException(nameof(list));
             }
 
+            // Clear() keeps the backing array, so a one-off bulk operation would otherwise retain an
+            // oversized buffer for the rest of the session. Dropping it costs one allocation later.
+            var isOversized = list.Capacity > MaxRetainedCapacity;
+
             list.Clear();
 
-            if (Pool.Count < MaxPoolSize)
+            if (!isOversized && Pool.Count < MaxPoolSize)
             {
                 Pool.Push(list);
             }
         }
 
         private const int MaxPoolSize = 128;
+        private const int MaxRetainedCapacity = 4096;
         private static readonly Stack<List<T>> Pool = new Stack<List<T>>();
     }
 }

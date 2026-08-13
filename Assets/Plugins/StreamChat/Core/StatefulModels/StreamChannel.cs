@@ -249,29 +249,41 @@ namespace StreamChat.Core.StatefulModels
 
         public async Task LoadOlderMessagesAsync()
         {
+            var wasTrimmingPaused = _isMessageCacheTrimmingPaused;
+
             // Pause before the request so live messages cannot trim the page being loaded.
             PauseMessageCacheTrimming();
 
-            var oldestMessage = _messages.OrderBy(_ => _.CreatedAt).FirstOrDefault();
-
-            var request = new ChannelGetOrCreateRequestInternalDTO
+            try
             {
-                //StreamTodo: presence could be optional in config
-                Presence = true,
-                State = true,
-                Watch = true,
-            };
+                var oldestMessage = _messages.OrderBy(_ => _.CreatedAt).FirstOrDefault();
 
-            if (oldestMessage != null)
-            {
-                request.Messages = new MessagePaginationParamsRequestInternalDTO
+                var request = new ChannelGetOrCreateRequestInternalDTO
                 {
-                    IdLt = oldestMessage.Id,
+                    //StreamTodo: presence could be optional in config
+                    Presence = true,
+                    State = true,
+                    Watch = true,
                 };
-            }
 
-            var response = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(Type, Id, request);
-            Cache.TryCreateOrUpdate(response);
+                if (oldestMessage != null)
+                {
+                    request.Messages = new MessagePaginationParamsRequestInternalDTO
+                    {
+                        IdLt = oldestMessage.Id,
+                    };
+                }
+
+                var response = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(Type, Id, request);
+                Cache.TryCreateOrUpdate(response);
+            }
+            catch
+            {
+                // Nothing was paged in, so don't leave trimming suppressed for the rest of the session.
+                _isMessageCacheTrimmingPaused = wasTrimmingPaused;
+                TrimMessageCacheIfNeeded();
+                throw;
+            }
         }
 
         public MessageCacheWindow MessageCacheWindow
@@ -1047,7 +1059,17 @@ namespace StreamChat.Core.StatefulModels
         private void TrimMessageCacheIfNeeded()
         {
             var window = MessageCacheWindow;
-            if (window == null || _isMessageCacheTrimmingPaused || _messages.Count <= window.MaxMessages)
+            if (window == null)
+            {
+                return;
+            }
+
+            // Pausing widens the window instead of disabling it, so a channel stays bounded even if
+            // ResumeMessageCacheTrimming is never called after LoadOlderMessagesAsync.
+            var effectiveMaxMessages
+                = _isMessageCacheTrimmingPaused ? window.AbsoluteMaxMessages : window.MaxMessages;
+
+            if (_messages.Count <= effectiveMaxMessages)
             {
                 return;
             }
@@ -1057,49 +1079,45 @@ namespace StreamChat.Core.StatefulModels
                 SortMessagesByCreatedAt();
             }
 
-            var targetCount = window.MaxMessages - window.DiscardBatchSize;
+            var targetCount = effectiveMaxMessages - window.DiscardBatchSize;
             var removeCount = _messages.Count - targetCount;
 
-            var tempDeleteCandidates = ListPool<StreamMessage>.Rent();
-            try
+            var handler = MessagesRemovedFromCache;
+
+            // Not pooled - this is handed to subscribers, so the SDK does not control its lifetime.
+            var removed = handler == null ? null : new List<IStreamMessage>(removeCount);
+
+            using (new ListPoolScope<StreamMessage>(out var tempUntrackCandidates))
+            using (new HashSetPoolScope<string>(out var tempPinnedMessageIds))
             {
+                for (var i = 0; i < _pinnedMessages.Count; i++)
+                {
+                    tempPinnedMessageIds.Add(_pinnedMessages[i].Id);
+                }
+
                 for (var i = 0; i < removeCount; i++)
                 {
-                    tempDeleteCandidates.Add(_messages[i]);
+                    var message = _messages[i];
+                    removed?.Add(message);
+
+                    if (!IsRetainedByOtherState(message, tempPinnedMessageIds))
+                    {
+                        tempUntrackCandidates.Add(message);
+                    }
                 }
 
                 _messages.RemoveRange(0, removeCount);
-
-                for (var i = 0; i < tempDeleteCandidates.Count; i++)
-                {
-                    var message = tempDeleteCandidates[i];
-                    if (!IsRetainedByOtherState(message))
-                    {
-                        Cache.Messages.Remove(message);
-                    }
-                }
-
-                if (MessagesRemovedFromCache != null)
-                {
-                    var removed = new List<IStreamMessage>(tempDeleteCandidates.Count);
-                    for (var i = 0; i < tempDeleteCandidates.Count; i++)
-                    {
-                        removed.Add(tempDeleteCandidates[i]);
-                    }
-
-                    MessagesRemovedFromCache.Invoke(this, removed);
-                }
+                Cache.Messages.RemoveMany(tempUntrackCandidates);
             }
-            finally
-            {
-                ListPool<StreamMessage>.Release(tempDeleteCandidates);
-            }
+
+            // Raised after the pooled buffers are returned so subscribers can trim or send safely.
+            handler?.Invoke(this, removed);
         }
 
         // Keep in cache when pinned or referenced by a tracked thread.
-        private bool IsRetainedByOtherState(StreamMessage message)
+        private bool IsRetainedByOtherState(StreamMessage message, HashSet<string> pinnedMessageIds)
         {
-            if (_pinnedMessages.ContainsNoAlloc(message))
+            if (pinnedMessageIds.Contains(message.Id))
             {
                 return true;
             }

@@ -17,6 +17,9 @@ namespace StreamChat.Tests.StatefulClient
     {
         private static readonly MessageCacheWindow SmallWindow = new MessageCacheWindow(6, 3);
 
+        // Absolute limit low enough to be reached by sending a handful of messages while paused.
+        private static readonly MessageCacheWindow SmallWindowWithLowAbsoluteMax = new MessageCacheWindow(4, 2, 8);
+
         [UnityTest]
         public IEnumerator When_no_message_cache_window_configured_expect_no_removal()
             => ConnectAndExecute(When_no_message_cache_window_configured_expect_no_removal_Async);
@@ -120,10 +123,13 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.SendNewMessageAsync($"msg-trigger-{Guid.NewGuid()}");
 
+            // 6 sent + 1 trigger = 7 > MaxMessages(6), trimmed down to MaxMessages - DiscardBatchSize = 3,
+            // so the 4 oldest are removed in a single batch, oldest first.
             Assert.AreEqual(1, eventInvocations);
             Assert.NotNull(removedBatch);
             Assert.AreEqual(4, removedBatch.Count);
-            CollectionAssert.AreEqual(sent.Select(m => m.Id).ToList(), removedBatch.Select(m => m.Id).ToList());
+            CollectionAssert.AreEqual(sent.Take(4).Select(m => m.Id).ToList(),
+                removedBatch.Select(m => m.Id).ToList());
         }
 
         [UnityTest]
@@ -259,6 +265,54 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
+        public IEnumerator When_trimming_paused_expect_trim_once_absolute_max_exceeded()
+            => ConnectAndExecute(When_trimming_paused_expect_trim_once_absolute_max_exceeded_Async);
+
+        private async Task When_trimming_paused_expect_trim_once_absolute_max_exceeded_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            channel.OverrideMessageCacheWindow(SmallWindowWithLowAbsoluteMax);
+            channel.PauseMessageCacheTrimming();
+
+            var removedCount = 0;
+            channel.MessagesRemovedFromCache += (_, __) => removedCount++;
+
+            // Above MaxMessages(4) but still within AbsoluteMaxMessages(8), so pausing holds the messages.
+            await SendMessagesAsync(channel, 8);
+
+            Assert.AreEqual(8, channel.Messages.Count);
+            Assert.AreEqual(0, removedCount);
+
+            // Crossing AbsoluteMaxMessages trims even though trimming is still paused, down to
+            // AbsoluteMaxMessages - DiscardBatchSize. This is what keeps a never-resumed channel bounded.
+            var sent = await SendMessagesAsync(channel, 1);
+
+            Assert.IsTrue(channel.IsMessageCacheTrimmingPaused);
+            Assert.AreEqual(6, channel.Messages.Count);
+            Assert.AreEqual(1, removedCount);
+            Assert.AreEqual(sent.Single().Id, channel.Messages.Last().Id);
+        }
+
+        [UnityTest]
+        public IEnumerator When_trimming_paused_and_bounded_expect_resume_restores_max_messages()
+            => ConnectAndExecute(When_trimming_paused_and_bounded_expect_resume_restores_max_messages_Async);
+
+        private async Task When_trimming_paused_and_bounded_expect_resume_restores_max_messages_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            channel.OverrideMessageCacheWindow(SmallWindowWithLowAbsoluteMax);
+            channel.PauseMessageCacheTrimming();
+
+            await SendMessagesAsync(channel, 8);
+            Assert.AreEqual(8, channel.Messages.Count);
+
+            channel.ResumeMessageCacheTrimming();
+
+            Assert.IsFalse(channel.IsMessageCacheTrimmingPaused);
+            Assert.AreEqual(2, channel.Messages.Count);
+        }
+
+        [UnityTest]
         public IEnumerator When_ResumeMessageCacheTrimming_called_expect_immediate_trim()
             => ConnectAndExecute(When_ResumeMessageCacheTrimming_called_expect_immediate_trim_Async);
 
@@ -299,7 +353,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private async Task When_channel_override_is_null_expect_unlimited_despite_client_default_Async()
         {
-            var config = Client.LowLevelClient.Config;
+            var config = Client.InternalLowLevelClient.Config;
             var previousDefault = config.DefaultMessageCacheWindow;
             try
             {
@@ -328,7 +382,7 @@ namespace StreamChat.Tests.StatefulClient
 
         private async Task When_ClearMessageCacheWindowOverride_called_expect_client_default_reapplied_Async()
         {
-            var config = Client.LowLevelClient.Config;
+            var config = Client.InternalLowLevelClient.Config;
             var previousDefault = config.DefaultMessageCacheWindow;
             try
             {
@@ -358,7 +412,7 @@ namespace StreamChat.Tests.StatefulClient
             channel.OverrideMessageCacheWindow(SmallWindow);
 
             var sent = await SendMessagesAsync(channel, 7);
-            var removedIds = sent.Take(4).Select(m => m.Id).ToHashSet();
+            var removedIds = new HashSet<string>(sent.Take(4).Select(m => m.Id));
             var survivingIds = sent.Skip(4).Select(m => m.Id).ToList();
 
             channel.ResumeMessageCacheTrimming();
@@ -414,13 +468,23 @@ namespace StreamChat.Tests.StatefulClient
             Assert.Throws<ArgumentOutOfRangeException>(() => new MessageCacheWindow(10, -1));
             Assert.Throws<ArgumentOutOfRangeException>(() => new MessageCacheWindow(10, 10));
             Assert.Throws<ArgumentOutOfRangeException>(() => new MessageCacheWindow(10, 11));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new MessageCacheWindow(10, 5, 9));
+            Assert.DoesNotThrow(() => new MessageCacheWindow(10, 5, 10));
         }
 
         [Test]
-        public void MessageCacheWindow_Recommended_is_500_100()
+        public void When_absolute_max_not_specified_expect_default_of_four_times_max_messages()
+        {
+            Assert.AreEqual(40, new MessageCacheWindow(10, 5).AbsoluteMaxMessages);
+            Assert.AreEqual(int.MaxValue, new MessageCacheWindow(int.MaxValue, 1).AbsoluteMaxMessages);
+        }
+
+        [Test]
+        public void MessageCacheWindow_Recommended_is_500_100_2000()
         {
             Assert.AreEqual(500, MessageCacheWindow.Recommended.MaxMessages);
             Assert.AreEqual(100, MessageCacheWindow.Recommended.DiscardBatchSize);
+            Assert.AreEqual(2000, MessageCacheWindow.Recommended.AbsoluteMaxMessages);
         }
 
         private static async Task<List<IStreamMessage>> SendMessagesAsync(IStreamChannel channel, int count)

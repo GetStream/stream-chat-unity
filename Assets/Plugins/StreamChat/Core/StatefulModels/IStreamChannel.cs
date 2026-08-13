@@ -325,7 +325,9 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Active cache limit for this channel. <c>null</c> = unlimited (default).
-        /// When over <see cref="MessageCacheWindow.MaxMessages"/>, oldest messages are removed from
+        /// When over <see cref="MessageCacheWindow.MaxMessages"/> (or
+        /// <see cref="Configs.MessageCacheWindow.AbsoluteMaxMessages"/> while
+        /// <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>), oldest messages are removed from
         /// <see cref="Messages"/> and the cache. Server history is unchanged —
         /// <see cref="LoadOlderMessagesAsync"/> can reload them. Pinned messages and open threads may
         /// stay in the cache. <see cref="MessageReceived"/> always fires before
@@ -343,30 +345,35 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Set a cache limit for this channel only. Pass <c>null</c> for unlimited on this channel.
-        /// Trims immediately unless <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.
+        /// Trims immediately, against <see cref="Configs.MessageCacheWindow.AbsoluteMaxMessages"/> when
+        /// <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.
         /// </summary>
         void OverrideMessageCacheWindow(Configs.MessageCacheWindow window);
 
         /// <summary>
         /// Remove the per-channel limit and use <see cref="Configs.IStreamClientConfig.DefaultMessageCacheWindow"/> again.
-        /// Trims immediately unless trimming is paused.
+        /// Trims immediately, against the paused limit when trimming is paused.
         /// </summary>
         void ClearMessageCacheWindowOverride();
 
         /// <summary>
-        /// Whether cache trimming is paused. <see cref="LoadOlderMessagesAsync"/> pauses automatically.
-        /// Memory is unbounded while paused.
+        /// Whether the wider, paused cache limit is in effect. <see cref="LoadOlderMessagesAsync"/> pauses
+        /// automatically so paged-in history is not removed while the user reads it. Trimming is not disabled
+        /// while paused - the limit becomes <see cref="Configs.MessageCacheWindow.AbsoluteMaxMessages"/>.
         /// </summary>
         bool IsMessageCacheTrimmingPaused { get; }
 
         /// <summary>
-        /// Pause cache trimming (e.g. while the user scrolls through loaded history).
-        /// <see cref="LoadOlderMessagesAsync"/> does this for you.
+        /// Widen the cache limit to <see cref="Configs.MessageCacheWindow.AbsoluteMaxMessages"/>
+        /// (e.g. while the user scrolls through loaded history). <see cref="LoadOlderMessagesAsync"/>
+        /// does this for you.
         /// </summary>
         void PauseMessageCacheTrimming();
 
         /// <summary>
-        /// Resume trimming and remove excess messages now. Call when the user returns to the newest messages.
+        /// Restore the <see cref="Configs.MessageCacheWindow.MaxMessages"/> limit and remove excess messages now.
+        /// Optional - the cache stays bounded either way. Call it when the user returns to the newest messages
+        /// to release the memory held by paged-in history sooner.
         /// </summary>
         void ResumeMessageCacheTrimming();
 
