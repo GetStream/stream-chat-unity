@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
+using StreamChat.Core.Configs;
 
 namespace StreamChat.Core.StatefulModels
 {
@@ -28,6 +29,12 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a <see cref="IStreamMessage"/> was deleted from this channel
         /// </summary>
         event StreamMessageDeleteHandler MessageDeleted;
+
+        /// <summary>
+        /// Fired when old messages are removed from the local cache to save memory. This is not a server
+        /// delete — use <see cref="MessageDeleted"/> for that. Remove your UI rows here. Oldest first.
+        /// </summary>
+        event StreamChannelMessagesHandler MessagesRemovedFromCache;
 
         /// <summary>
         /// Event fired when a new <see cref="StreamReaction"/> was added to <see cref="IStreamMessage"/>
@@ -315,6 +322,53 @@ namespace StreamChat.Core.StatefulModels
         /// Note that loading older messages does NOT trigger the <see cref="MessageReceived"/> event
         /// </summary>
         Task LoadOlderMessagesAsync();
+
+        /// <summary>
+        /// Active cache limit for this channel. <c>null</c> = unlimited (default).
+        /// When over <see cref="MessageCacheWindow.MaxMessages"/>, oldest messages are removed from
+        /// <see cref="Messages"/> and the cache. Server history is unchanged —
+        /// <see cref="LoadOlderMessagesAsync"/> can reload them. Pinned messages and open threads may
+        /// stay in the cache. <see cref="MessageReceived"/> always fires before
+        /// <see cref="MessagesRemovedFromCache"/> for the same message.
+        /// </summary>
+        Configs.MessageCacheWindow MessageCacheWindow { get; }
+
+        /// <summary>
+        /// <c>true</c> if this channel has its own limit via <see cref="OverrideMessageCacheWindow"/>.
+        /// When <c>true</c>, <see cref="MessageCacheWindow"/> returns that override — even when it is
+        /// <c>null</c> (unlimited for this channel only). When <c>false</c>, the channel uses
+        /// <see cref="Configs.IStreamClientConfig.DefaultMessageCacheWindow"/>.
+        /// </summary>
+        bool HasMessageCacheWindowOverride { get; }
+
+        /// <summary>
+        /// Set a cache limit for this channel only. Pass <c>null</c> for unlimited on this channel.
+        /// Trims immediately unless <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.
+        /// </summary>
+        void OverrideMessageCacheWindow(Configs.MessageCacheWindow window);
+
+        /// <summary>
+        /// Remove the per-channel limit and use <see cref="Configs.IStreamClientConfig.DefaultMessageCacheWindow"/> again.
+        /// Trims immediately unless trimming is paused.
+        /// </summary>
+        void ClearMessageCacheWindowOverride();
+
+        /// <summary>
+        /// Whether cache trimming is paused. <see cref="LoadOlderMessagesAsync"/> pauses automatically.
+        /// Memory is unbounded while paused.
+        /// </summary>
+        bool IsMessageCacheTrimmingPaused { get; }
+
+        /// <summary>
+        /// Pause cache trimming (e.g. while the user scrolls through loaded history).
+        /// <see cref="LoadOlderMessagesAsync"/> does this for you.
+        /// </summary>
+        void PauseMessageCacheTrimming();
+
+        /// <summary>
+        /// Resume trimming and remove excess messages now. Call when the user returns to the newest messages.
+        /// </summary>
+        void ResumeMessageCacheTrimming();
 
         /// <summary>
         /// Update channel in a complete overwrite mode.

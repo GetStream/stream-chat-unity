@@ -884,6 +884,8 @@ namespace StreamChat.Core
 
         internal StreamChatLowLevelClient InternalLowLevelClient { get; }
 
+        internal ICache InternalCache => _cache;
+
         // We probably don't want to expose the presence, state, watch params to the public API
         internal async Task<IStreamChannel> InternalGetOrCreateChannelWithIdAsync(ChannelType channelType,
             string channelId,

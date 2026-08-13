@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.Configs;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
@@ -20,6 +21,8 @@ namespace StreamChat.Core.StatefulModels
     public delegate void StreamChannelMuteHandler(IStreamChannel channel, bool isMuted);
 
     public delegate void StreamChannelMessageHandler(IStreamChannel channel, IStreamMessage message);
+
+    public delegate void StreamChannelMessagesHandler(IStreamChannel channel, IReadOnlyList<IStreamMessage> messages);
 
     public delegate void StreamMessageDeleteHandler(IStreamChannel channel, IStreamMessage message, bool isHardDelete);
 
@@ -49,6 +52,8 @@ namespace StreamChat.Core.StatefulModels
         public event StreamChannelMessageHandler MessageUpdated;
 
         public event StreamMessageDeleteHandler MessageDeleted;
+
+        public event StreamChannelMessagesHandler MessagesRemovedFromCache;
 
         public event StreamMessageReactionHandler ReactionAdded;
 
@@ -244,6 +249,9 @@ namespace StreamChat.Core.StatefulModels
 
         public async Task LoadOlderMessagesAsync()
         {
+            // Pause before the request so live messages cannot trim the page being loaded.
+            PauseMessageCacheTrimming();
+
             var oldestMessage = _messages.OrderBy(_ => _.CreatedAt).FirstOrDefault();
 
             var request = new ChannelGetOrCreateRequestInternalDTO
@@ -264,6 +272,35 @@ namespace StreamChat.Core.StatefulModels
 
             var response = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(Type, Id, request);
             Cache.TryCreateOrUpdate(response);
+        }
+
+        public MessageCacheWindow MessageCacheWindow
+            => _hasMessageCacheWindowOverride ? _messageCacheWindowOverride : LowLevelClient.Config.DefaultMessageCacheWindow;
+
+        public bool HasMessageCacheWindowOverride => _hasMessageCacheWindowOverride;
+
+        public void OverrideMessageCacheWindow(MessageCacheWindow window)
+        {
+            _messageCacheWindowOverride = window;
+            _hasMessageCacheWindowOverride = true;
+            TrimMessageCacheIfNeeded();
+        }
+
+        public void ClearMessageCacheWindowOverride()
+        {
+            _messageCacheWindowOverride = null;
+            _hasMessageCacheWindowOverride = false;
+            TrimMessageCacheIfNeeded();
+        }
+
+        public bool IsMessageCacheTrimmingPaused => _isMessageCacheTrimmingPaused;
+
+        public void PauseMessageCacheTrimming() => _isMessageCacheTrimmingPaused = true;
+
+        public void ResumeMessageCacheTrimming()
+        {
+            _isMessageCacheTrimmingPaused = false;
+            TrimMessageCacheIfNeeded();
         }
 
         public async Task UpdateOverwriteAsync(StreamUpdateOverwriteChannelRequest updateOverwriteRequest)
@@ -906,6 +943,10 @@ namespace StreamChat.Core.StatefulModels
         private readonly List<string> _ownCapabilities = new List<string>();
         private readonly List<StreamPendingMessage> _pendingMessages = new List<StreamPendingMessage>();
 
+        private MessageCacheWindow _messageCacheWindowOverride;
+        private bool _hasMessageCacheWindowOverride;
+        private bool _isMessageCacheTrimmingPaused;
+
         private bool _muted;
         private bool _hidden;
 
@@ -963,6 +1004,9 @@ namespace StreamChat.Core.StatefulModels
             }
 
             MessageReceived?.Invoke(this, streamMessage);
+
+            // Trim after MessageReceived so a message is never removed from cache before it is received.
+            TrimMessageCacheIfNeeded();
             return true;
         }
 
@@ -998,6 +1042,92 @@ namespace StreamChat.Core.StatefulModels
             }
 
             Truncated?.Invoke(this);
+        }
+
+        private void TrimMessageCacheIfNeeded()
+        {
+            var window = MessageCacheWindow;
+            if (window == null || _isMessageCacheTrimmingPaused || _messages.Count <= window.MaxMessages)
+            {
+                return;
+            }
+
+            if (!AreMessagesSortedByCreatedAt())
+            {
+                SortMessagesByCreatedAt();
+            }
+
+            var targetCount = window.MaxMessages - window.DiscardBatchSize;
+            var removeCount = _messages.Count - targetCount;
+
+            var tempDeleteCandidates = ListPool<StreamMessage>.Rent();
+            try
+            {
+                for (var i = 0; i < removeCount; i++)
+                {
+                    tempDeleteCandidates.Add(_messages[i]);
+                }
+
+                _messages.RemoveRange(0, removeCount);
+
+                for (var i = 0; i < tempDeleteCandidates.Count; i++)
+                {
+                    var message = tempDeleteCandidates[i];
+                    if (!IsRetainedByOtherState(message))
+                    {
+                        Cache.Messages.Remove(message);
+                    }
+                }
+
+                if (MessagesRemovedFromCache != null)
+                {
+                    var removed = new List<IStreamMessage>(tempDeleteCandidates.Count);
+                    for (var i = 0; i < tempDeleteCandidates.Count; i++)
+                    {
+                        removed.Add(tempDeleteCandidates[i]);
+                    }
+
+                    MessagesRemovedFromCache.Invoke(this, removed);
+                }
+            }
+            finally
+            {
+                ListPool<StreamMessage>.Release(tempDeleteCandidates);
+            }
+        }
+
+        // Keep in cache when pinned or referenced by a tracked thread.
+        private bool IsRetainedByOtherState(StreamMessage message)
+        {
+            if (_pinnedMessages.ContainsNoAlloc(message))
+            {
+                return true;
+            }
+
+            if (Cache.Threads.TryGet(message.Id, out _))
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrEmpty(message.ParentId) && Cache.Threads.TryGet(message.ParentId, out _))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool AreMessagesSortedByCreatedAt()
+        {
+            for (var i = 1; i < _messages.Count; i++)
+            {
+                if (_messages[i].CreatedAt < _messages[i - 1].CreatedAt)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private void UpdateChannelFieldsFromDto(ChannelResponseInternalDTO dto, ICache cache)
