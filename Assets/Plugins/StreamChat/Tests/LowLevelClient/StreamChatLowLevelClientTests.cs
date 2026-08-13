@@ -1,6 +1,7 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using NSubstitute;
@@ -155,6 +156,76 @@ namespace StreamChat.Tests.LowLevelClient
                 }
             }
         }
+
+        [Test]
+        public void when_stream_client_created_expect_http_tracking_headers()
+        {
+            var mockHttpClient = Substitute.For<IHttpClient>();
+            var mockApplicationInfo = Substitute.For<IApplicationInfo>();
+            ConfigureApplicationInfo(mockApplicationInfo);
+
+            var client = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, mockHttpClient,
+                _mockSerializer, _mockTimeService, _mockNetworkMonitor, mockApplicationInfo, _mockLogs,
+                _mockStreamClientConfig);
+            _resourcesToDispose.Add(client);
+
+            var expectedHeader = BuildExpectedStreamClientHeader(mockApplicationInfo);
+
+            mockHttpClient.Received().AddDefaultCustomHeader("stream-auth-type", "jwt");
+            mockHttpClient.Received().AddDefaultCustomHeader("X-Stream-Client", expectedHeader);
+        }
+
+        [Test]
+        public void when_stream_client_connects_expect_websocket_connect_url_includes_client_tracking()
+        {
+            var mockWebsocketClient = Substitute.For<IWebsocketClient>();
+            var mockApplicationInfo = Substitute.For<IApplicationInfo>();
+            ConfigureApplicationInfo(mockApplicationInfo);
+
+            _mockSerializer.Serialize(Arg.Any<object>()).Returns("{\"user_id\":\"user123\"}");
+
+            var client = new StreamChatLowLevelClient(_authCredentials, mockWebsocketClient, _mockHttpClient,
+                _mockSerializer, _mockTimeService, _mockNetworkMonitor, mockApplicationInfo, _mockLogs,
+                _mockStreamClientConfig);
+            _resourcesToDispose.Add(client);
+
+            var expectedHeader = BuildExpectedStreamClientHeader(mockApplicationInfo);
+            Uri capturedUri = null;
+            mockWebsocketClient.ConnectAsync(Arg.Do<Uri>(uri => capturedUri = uri)).Returns(Task.CompletedTask);
+
+            client.Connect();
+
+            Assert.NotNull(capturedUri);
+            Assert.That(capturedUri.Query, Does.Contain("X-Stream-Client="));
+
+            var queryParam = capturedUri.Query.TrimStart('?')
+                .Split('&')
+                .First(p => p.StartsWith("X-Stream-Client="));
+            var actualHeader = Uri.UnescapeDataString(queryParam.Substring("X-Stream-Client=".Length));
+
+            Assert.AreEqual(expectedHeader, actualHeader);
+        }
+
+        private static void ConfigureApplicationInfo(IApplicationInfo applicationInfo)
+        {
+            applicationInfo.OperatingSystem.Returns("Windows 10");
+            applicationInfo.Platform.Returns("StandaloneWindows64");
+            applicationInfo.Engine.Returns("Unity");
+            applicationInfo.EngineVersion.Returns("2022.3.0f1");
+            applicationInfo.ScreenSize.Returns("1920x1080");
+            applicationInfo.MemorySize.Returns(8192);
+            applicationInfo.GraphicsMemorySize.Returns(4096);
+        }
+
+        private static string BuildExpectedStreamClientHeader(IApplicationInfo applicationInfo)
+            => $"stream-chat-unity-client-{StreamChatLowLevelClient.SDKVersion}|" +
+               $"os={applicationInfo.OperatingSystem}|" +
+               $"platform={applicationInfo.Platform}|" +
+               $"engine={applicationInfo.Engine}|" +
+               $"engine_version={applicationInfo.EngineVersion}|" +
+               $"screen_size={applicationInfo.ScreenSize}|" +
+               $"memory_size={applicationInfo.MemorySize}|" +
+               $"graphics_memory_size={applicationInfo.GraphicsMemorySize}";
 
         [Test]
         public void when_stream_client_created_expect_disconnected_state()
