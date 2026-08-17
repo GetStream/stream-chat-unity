@@ -79,6 +79,24 @@ namespace StreamChat.Core
         event ChannelsRewatchedHandler ChannelsRewatched;
 
         /// <summary>
+        /// Opt channel types out of the event-by-event /sync replay that follows a reconnect when
+        /// the outage was longer than <paramref name="maxSyncReplayGap"/> (default 60 seconds).
+        /// Channels of these types are restored by a bounded re-watch instead - the same latest-page
+        /// state fetch the initial watch performs, one request per channel - and reported via
+        /// <see cref="ChannelsRewatched"/> so consumers can rebuild any UI showing them.
+        ///
+        /// Use this for channel types whose consumers only ever display a bounded latest window
+        /// (livestream-style or announcement channels): replaying an hour's backlog event by event
+        /// costs one handler pass per event and ends with the same visible state the single
+        /// re-watch request would have produced. Leave types whose consumers need every individual
+        /// event (e.g. anything persisting full history locally) unlisted; they keep the replay.
+        ///
+        /// Replaces the previously configured set. Shorter outages always replay.
+        /// </summary>
+        void SetRewatchOnReconnectChannelTypes(IEnumerable<ChannelType> channelTypes,
+            TimeSpan? maxSyncReplayGap = null);
+
+        /// <summary>
         /// Raised when an <see cref="IStreamThread"/> becomes available locally. Use this to bind
         /// per-thread UI and to subscribe to the thread's own events such as
         /// <see cref="IStreamThread.Updated"/>, <see cref="IStreamThread.ReplyReceived"/> and

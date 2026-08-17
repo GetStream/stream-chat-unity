@@ -619,6 +619,22 @@ namespace StreamChat.Core.LowLevelClient
         /// </summary>
         private DateTimeOffset? _disconnectionLastEventReceivedAt;
 
+        /// <summary>
+        /// Age of the reconnect sync point: how long ago the connection actually went quiet, which
+        /// is the gap the /sync replay would have to bridge. Health check events advance
+        /// <see cref="_lastEventReceivedAt"/> every ~30s while connected, so this measure is immune
+        /// to LATE DETECTION of an outage - a mobile OS suspends the process while the app is
+        /// backgrounded and the dead socket is only noticed on resume, so any stamp taken at the
+        /// Disconnected transition would measure seconds for an hours-long background. Compares a
+        /// server-stamped event time against local Now, the same subtraction the 30-day guard in
+        /// <see cref="FetchAndProcessEventsSinceLastReceivedEvent"/> makes; clock skew only nudges
+        /// borderline gaps between two correct recovery paths.
+        /// </summary>
+        internal TimeSpan? TimeSinceDisconnectSyncPoint
+            => _disconnectionLastEventReceivedAt.HasValue
+                ? _timeService.Now - _disconnectionLastEventReceivedAt.Value
+                : (TimeSpan?)null;
+
         private async Task RefreshAuthTokenFromProvider()
         {
 #if STREAM_DEBUG_ENABLED

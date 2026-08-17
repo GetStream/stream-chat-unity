@@ -972,6 +972,21 @@ namespace StreamChat.Core
         private readonly StreamPollsApi _pollsApi;
         private readonly List<IStreamChannel> _watchedChannels = new List<IStreamChannel>();
 
+        // Channel types that skip the event-by-event /sync replay after a long disconnect and are
+        // restored by a bounded re-watch instead. Empty = replay everything, the original behavior.
+        // See SetRewatchOnReconnectChannelTypes.
+        private readonly HashSet<string> _rewatchOnReconnectChannelTypes = new HashSet<string>();
+
+        // Outage length past which the /sync replay stops being worth it for latest-window channel
+        // types: the replay hands every missed event to the (typically expensive) downstream
+        // handlers one at a time, while a re-watch fetches just the channel's latest page in one
+        // request. Short blips stay on the replay path, which is cheaper and seamless for consumers.
+        // The default comfortably exceeds a transient network blip while sitting far below the
+        // backlogs that degrade a resume (an app backgrounded on a busy channel for minutes to
+        // hours).
+        private static readonly TimeSpan DefaultMaxSyncReplayGap = TimeSpan.FromSeconds(60);
+        private TimeSpan _maxSyncReplayGap = DefaultMaxSyncReplayGap;
+
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
         private CancellationTokenSource _connectUserCancellationTokenSource;
@@ -1155,10 +1170,38 @@ namespace StreamChat.Core
                 return;
             }
 
+            // The outage is the age of the sync point - the last handled event - and not the time
+            // since the Disconnected transition. Detection can lag the real outage by its entire
+            // length: a mobile OS suspends the process while the app is backgrounded, so the dead
+            // socket is only noticed on resume and a stamp taken at the transition would measure
+            // seconds for an hours-long background, never engaging the long-gap path below on
+            // exactly the platform that needs it. Health check events advance the watermark every
+            // ~30s while connected, so it tracks the real quiet period regardless of when the
+            // client noticed.
+            TimeSpan? outage = InternalLowLevelClient.TimeSinceDisconnectSyncPoint;
+
+            // Past a long outage the opted-in channel types skip the replay: it hands every missed
+            // event to the consumer's handlers one at a time, while these channels only ever
+            // display their latest page - which a re-watch fetches in a single request. Types that
+            // are not opted in keep the precise replay. Short outages replay everything: the
+            // backlog is small and the replay keeps consumers seamless.
+            List<IStreamChannel> channelsToRewatch = null;
+            IEnumerable<IStreamChannel> channelsToReplay = WatchedChannels;
+            if (outage > _maxSyncReplayGap && _rewatchOnReconnectChannelTypes.Count > 0)
+            {
+                channelsToRewatch = WatchedChannels
+                    .Where(c => _rewatchOnReconnectChannelTypes.Contains(c.Type)).ToList();
+                channelsToReplay = WatchedChannels
+                    .Where(c => !_rewatchOnReconnectChannelTypes.Contains(c.Type));
+            }
+
             try
             {
-                await LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(
-                    WatchedChannels.Select(c => c.Cid));
+                List<string> replayCids = channelsToReplay.Select(c => c.Cid).ToList();
+                if (replayCids.Count > 0)
+                {
+                    await LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(replayCids);
+                }
             }
             catch (StreamApiException e) when (e.IsInputError())
             {
@@ -1167,18 +1210,63 @@ namespace StreamChat.Core
                 // exception only reached the fire-and-forget logger at the call site: the watched
                 // channels silently stayed as they were before the disconnect, missing every
                 // message since, until something else happened to re-fetch them. Re-watch instead —
-                // it is the same full state fetch the initial watch does.
+                // it is the same full state fetch the initial watch does. The refused replay left
+                // its channels with nothing, so every watched channel re-watches here, not just the
+                // opted-in set.
                 _logs.Warning("The /sync catch-up was refused as too large; re-watching " +
                               $"{WatchedChannels.Count} channel(s) to restore their state instead.");
-                await RewatchChannelsAsync();
+                channelsToRewatch = WatchedChannels.ToList();
+            }
+            catch (Exception e)
+            {
+                // The replay failed transiently (5xx, or the network dropping again mid-reconnect).
+                // The re-watch below does not depend on it, so letting this propagate - to nothing
+                // but the caller's fire-and-forget logger - would skip the re-watch and leave the
+                // opted-in channels with no recovery at all this reconnect. Log and continue; the
+                // replay channels keep their sync point, so the next reconnect retries them.
+                _logs.Warning($"The /sync catch-up failed ({e.Message}); continuing with the " +
+                              "re-watch of the channels that opted out of the replay.");
+            }
+
+            if (channelsToRewatch != null && channelsToRewatch.Count > 0)
+            {
+                await RewatchChannelsAsync(channelsToRewatch);
             }
         }
 
-        // Full state re-fetch of every watched channel, used when /sync cannot bridge the
-        // disconnect gap. Snapshotted because each re-watch writes the cache the list is built from.
+        /// <summary>
+        /// Opt channel types out of the event-by-event /sync replay that follows a reconnect when
+        /// the outage was longer than <paramref name="maxSyncReplayGap"/> (default 60 seconds).
+        /// Channels of these types are restored by a bounded re-watch instead - the same latest-page
+        /// state fetch the initial watch performs, one request per channel - and reported via
+        /// <see cref="ChannelsRewatched"/> so consumers can rebuild any UI showing them.
+        ///
+        /// Use this for channel types whose consumers only ever display a bounded latest window
+        /// (livestream-style or announcement channels): replaying an hour's backlog event by event
+        /// costs one handler pass per event and ends with the same visible state the single
+        /// re-watch request would have produced. Leave types whose consumers need every individual
+        /// event (e.g. anything persisting full history locally) unlisted; they keep the replay.
+        ///
+        /// Replaces the previously configured set. Shorter outages always replay.
+        /// </summary>
+        public void SetRewatchOnReconnectChannelTypes(IEnumerable<ChannelType> channelTypes,
+            TimeSpan? maxSyncReplayGap = null)
+        {
+            _maxSyncReplayGap = maxSyncReplayGap ?? DefaultMaxSyncReplayGap;
+            _rewatchOnReconnectChannelTypes.Clear();
+            foreach (ChannelType channelType in channelTypes)
+            {
+                _rewatchOnReconnectChannelTypes.Add(channelType);
+            }
+        }
+
+        // Full state re-fetch of the given watched channels, used when /sync cannot - or should not
+        // - bridge the disconnect gap. Callers pass a snapshot because each re-watch writes the
+        // cache the WatchedChannels list is built from.
         //
-        // Every channel is attempted independently. This runs AFTER the stale sync point has been
-        // dropped, so it is the only recovery this reconnect gets and there is no later retry: a
+        // Every channel is attempted independently. On the /sync-refused path this runs AFTER the
+        // stale sync point has been dropped, so it is the only recovery this reconnect gets and
+        // there is no later retry: a
         // single failure escaping the loop would leave every remaining channel silently stale for the
         // rest of the session. Failures are expected here, not exotic — a channel torn down while we
         // were offline returns 403 on every read, and a long watched list can trip a 429 part-way.
@@ -1189,9 +1277,8 @@ namespace StreamChat.Core
         // Fixing that properly means consulting SyncResponse.InaccessibleCids (already returned by
         // /sync and currently ignored) to skip channels the server says are gone, rather than
         // discovering it one 403 at a time.
-        private async Task RewatchChannelsAsync()
+        private async Task RewatchChannelsAsync(IReadOnlyList<IStreamChannel> channels)
         {
-            List<IStreamChannel> channels = WatchedChannels.ToList();
             int failed = 0;
             foreach (IStreamChannel channel in channels)
             {
