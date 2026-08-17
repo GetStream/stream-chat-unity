@@ -71,6 +71,14 @@ namespace StreamChat.Core
         event ChannelMemberRemovedHandler RemovedFromChannelAsMember;
 
         /// <summary>
+        /// Channels whose local state was just replaced wholesale by a reconnect re-watch, which
+        /// raises no per-message events for the window it replaced. A consumer rendering one of
+        /// these channels must rebuild from <see cref="IStreamChannel.Messages"/> rather than wait
+        /// for message events, otherwise it keeps showing the rows it had before the disconnect.
+        /// </summary>
+        event ChannelsRewatchedHandler ChannelsRewatched;
+
+        /// <summary>
         /// Raised when an <see cref="IStreamThread"/> becomes available locally. Use this to bind
         /// per-thread UI and to subscribe to the thread's own events such as
         /// <see cref="IStreamThread.Updated"/>, <see cref="IStreamThread.ReplyReceived"/> and

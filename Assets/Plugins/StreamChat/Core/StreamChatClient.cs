@@ -67,6 +67,11 @@ namespace StreamChat.Core
     /// </summary>
     public delegate void ChannelMemberRemovedHandler(IStreamChannel channel, IStreamChannelMember member);
 
+    /// <summary>
+    /// Channels whose local state was replaced wholesale by a reconnect re-watch handler
+    /// </summary>
+    public delegate void ChannelsRewatchedHandler(IReadOnlyList<IStreamChannel> channels);
+
     /// <inheritdoc cref="IStreamChatClient"/>
     public sealed class StreamChatClient : IStreamChatClient
     {
@@ -86,6 +91,8 @@ namespace StreamChat.Core
 
         public event ChannelMemberAddedHandler AddedToChannelAsMember;
         public event ChannelMemberRemovedHandler RemovedFromChannelAsMember;
+
+        public event ChannelsRewatchedHandler ChannelsRewatched;
 
         public event StreamThreadChangeHandler ThreadTracked;
         public event StreamThreadChangeHandler ThreadUntracked;
@@ -1184,8 +1191,9 @@ namespace StreamChat.Core
         // discovering it one 403 at a time.
         private async Task RewatchChannelsAsync()
         {
+            List<IStreamChannel> channels = WatchedChannels.ToList();
             int failed = 0;
-            foreach (IStreamChannel channel in WatchedChannels.ToList())
+            foreach (IStreamChannel channel in channels)
             {
                 try
                 {
@@ -1203,6 +1211,13 @@ namespace StreamChat.Core
             {
                 _logs.Warning($"Re-watch completed with {failed} channel(s) unrestored.");
             }
+
+            // A re-watch replaces the channel's messages wholesale, without raising the per-message
+            // events a consumer would normally rebuild from, so without this signal an open UI keeps
+            // rendering the rows it had before the disconnect. Raised even when some channels failed:
+            // the ones that succeeded did have their state replaced, and a consumer rebuilding from a
+            // failed channel's (unchanged) list is harmless.
+            ChannelsRewatched?.Invoke(channels);
         }
 
         private void OnDisconnected() => Disconnected?.Invoke();
