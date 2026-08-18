@@ -124,7 +124,9 @@ namespace StreamChat.Libs.Websockets
             }
 #endif
 
-            var disconnect = false;
+            var serverClosedConnection = Interlocked.Exchange(ref _serverClosedConnectionFlag, 0) == 1;
+
+            var disconnect = serverClosedConnection;
             while (_threadWebsocketExceptionsLog.TryDequeue(out var webSocketException))
             {
                 LogExceptionIfDebugMode(webSocketException);
@@ -134,7 +136,15 @@ namespace StreamChat.Libs.Websockets
 
             if (disconnect)
             {
-                DisconnectAsync(WebSocketCloseStatus.ProtocolError, "WebSocket thrown an exception")
+                var closeStatus = serverClosedConnection
+                    ? WebSocketCloseStatus.InternalServerError
+                    : WebSocketCloseStatus.ProtocolError;
+
+                var closeMessage = serverClosedConnection
+                    ? "Server closed the connection"
+                    : "WebSocket thrown an exception";
+
+                DisconnectAsync(closeStatus, closeMessage)
                     .ContinueWith(_ => LogExceptionIfDebugMode(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
                 return;
             }
@@ -199,6 +209,10 @@ namespace StreamChat.Libs.Websockets
         private CancellationTokenSource _connectionCts;
 
         private WebSocketState _lastState;
+
+        // Set from the receive thread, consumed by Update. Int rather than bool so it can be read and
+        // reset in a single interlocked operation.
+        private int _serverClosedConnectionFlag;
 
         private async void SendMessagesCallback(object state)
         {
@@ -283,6 +297,9 @@ namespace StreamChat.Libs.Websockets
 
         private async Task TryCloseAndDisposeAsync(WebSocketCloseStatus closeStatus, string closeMessage)
         {
+            // A close frame that arrived while we were tearing down must not disconnect the next connection
+            Interlocked.Exchange(ref _serverClosedConnectionFlag, 0);
+
             try
             {
 #if UNITY_2021_2_OR_NEWER
@@ -419,10 +436,12 @@ namespace StreamChat.Libs.Websockets
             ConnectionFailed?.Invoke();
         }
 
-        // Called from a background thread
-        private void OnReceivedCloseMessage()
-            => DisconnectAsync(WebSocketCloseStatus.InternalServerError, "Server closed the connection")
-                .ContinueWith(t => LogThreadExceptionIfDebugMode(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+        /// <summary>
+        /// Called from a background thread. The disconnect is deferred to <see cref="Update"/> so that the
+        /// <see cref="Disconnected"/> event is always raised from the main thread, like every other path that
+        /// raises it. Subscribers react to it with Unity API calls, which throw off the main thread.
+        /// </summary>
+        private void OnReceivedCloseMessage() => Interlocked.Exchange(ref _serverClosedConnectionFlag, 1);
 
         private async Task<string> TryReceiveSingleMessageAsync()
         {
@@ -475,14 +494,6 @@ namespace StreamChat.Libs.Websockets
             if (_isDebugMode)
             {
                 _logs.Exception(exception);
-            }
-        }
-
-        private void LogThreadExceptionIfDebugMode(Exception exception)
-        {
-            if (_isDebugMode)
-            {
-                _threadExceptionsLog.Enqueue(exception);
             }
         }
 
