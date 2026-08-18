@@ -297,7 +297,7 @@ namespace StreamChat.Core.LowLevelClient
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
             IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
         {
-            _mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            _mainThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
 
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
@@ -668,7 +668,7 @@ namespace StreamChat.Core.LowLevelClient
 
             // Applied inline when we're already on the main thread so that awaiting DisconnectAsync keeps
             // guaranteeing that ConnectionState reads Disconnected once the task completes
-            if (Thread.CurrentThread.ManagedThreadId == _mainThreadId)
+            if (System.Threading.Thread.CurrentThread.ManagedThreadId == _mainThreadId)
             {
                 ConnectionState = ConnectionState.Disconnected;
                 return;
