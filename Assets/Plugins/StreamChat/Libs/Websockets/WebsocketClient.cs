@@ -210,8 +210,7 @@ namespace StreamChat.Libs.Websockets
 
         private WebSocketState _lastState;
 
-        // Set from the receive thread, consumed by Update. Int rather than bool so it can be read and
-        // reset in a single interlocked operation.
+        // Int rather than bool so that Update can read and reset it in a single interlocked operation
         private int _serverClosedConnectionFlag;
 
         private async void SendMessagesCallback(object state)

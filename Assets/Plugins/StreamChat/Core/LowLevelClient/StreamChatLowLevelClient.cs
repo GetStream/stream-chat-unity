@@ -28,6 +28,7 @@ using StreamChat.Libs.Websockets;
 using StreamChat.Core.LowLevelClient.Requests;
 using System.Linq;
 using StreamChat.Core.Helpers;
+using Thread = System.Threading.Thread;
 
 #if STREAM_TESTS_ENABLED || STREAM_RUNTIME_TESTS_ENABLED
 using System.Runtime.CompilerServices;
@@ -297,7 +298,7 @@ namespace StreamChat.Core.LowLevelClient
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
             IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
         {
-            _mainThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            _mainThreadId = Thread.CurrentThread.ManagedThreadId;
 
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
@@ -583,7 +584,7 @@ namespace StreamChat.Core.LowLevelClient
         private readonly object _websocketDisconnectedFlagLock = new object();
 
         /// <summary>
-        /// Thread that constructed this client. Every <see cref="ConnectionState"/> write must happen on it
+        /// Every <see cref="ConnectionState"/> write must happen on this thread
         /// </summary>
         private readonly int _mainThreadId;
 
@@ -666,9 +667,7 @@ namespace StreamChat.Core.LowLevelClient
             _logs.Warning("Websocket Disconnected");
 #endif
 
-            // Applied inline when we're already on the main thread so that awaiting DisconnectAsync keeps
-            // guaranteeing that ConnectionState reads Disconnected once the task completes
-            if (System.Threading.Thread.CurrentThread.ManagedThreadId == _mainThreadId)
+            if (Thread.CurrentThread.ManagedThreadId == _mainThreadId)
             {
                 ConnectionState = ConnectionState.Disconnected;
                 return;
