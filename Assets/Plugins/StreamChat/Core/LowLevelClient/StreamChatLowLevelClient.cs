@@ -28,6 +28,7 @@ using StreamChat.Libs.Websockets;
 using StreamChat.Core.LowLevelClient.Requests;
 using System.Linq;
 using StreamChat.Core.Helpers;
+using Thread = System.Threading.Thread;
 
 #if STREAM_TESTS_ENABLED || STREAM_RUNTIME_TESTS_ENABLED
 using System.Runtime.CompilerServices;
@@ -212,12 +213,12 @@ namespace StreamChat.Core.LowLevelClient
                 _logs.Warning($"Connection state changed from: {previous} to: {value}");
 #endif
 
-                ConnectionStateChanged?.Invoke(previous, _connectionState);
+                RaiseConnectionStateChanged(previous, _connectionState);
 
                 if (value == ConnectionState.Disconnected)
                 {
                     _disconnectionLastEventReceivedAt = _lastEventReceivedAt;
-                    Disconnected?.Invoke();
+                    RaiseDisconnected();
                 }
             }
         }
@@ -297,6 +298,8 @@ namespace StreamChat.Core.LowLevelClient
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
             IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
         {
+            _mainThreadId = Thread.CurrentThread.ManagedThreadId;
+
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -410,6 +413,7 @@ namespace StreamChat.Core.LowLevelClient
 #endif
 
             TryHandleWebsocketsConnectionFailed();
+            TryHandleWebsocketDisconnected();
             TryToReconnect();
 
             UpdateHealthCheck();
@@ -577,6 +581,12 @@ namespace StreamChat.Core.LowLevelClient
             new Dictionary<string, Action<string>>();
 
         private readonly object _websocketConnectionFailedFlagLock = new object();
+        private readonly object _websocketDisconnectedFlagLock = new object();
+
+        /// <summary>
+        /// Every <see cref="ConnectionState"/> write must happen on this thread
+        /// </summary>
+        private readonly int _mainThreadId;
 
         private TaskCompletionSource<OwnUserInternalDTO> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -592,6 +602,7 @@ namespace StreamChat.Core.LowLevelClient
         private bool _updateCallReceived;
 
         private bool _websocketConnectionFailed;
+        private bool _websocketDisconnected;
         private ITokenProvider _tokenProvider;
 
         /// <summary>
@@ -646,12 +657,93 @@ namespace StreamChat.Core.LowLevelClient
             }
         }
 
+        /// <summary>
+        /// This event can be called by a background thread and we must propagate it on the main thread
+        /// Otherwise any call to Unity API would result in Exception. Unity API can only be called from the main thread
+        /// </summary>
         private void OnWebsocketDisconnected()
         {
 #if STREAM_DEBUG_ENABLED
             _logs.Warning("Websocket Disconnected");
 #endif
+
+            if (Thread.CurrentThread.ManagedThreadId == _mainThreadId)
+            {
+                ConnectionState = ConnectionState.Disconnected;
+                return;
+            }
+
+            lock (_websocketDisconnectedFlagLock)
+            {
+                _websocketDisconnected = true;
+            }
+        }
+
+        private void TryHandleWebsocketDisconnected()
+        {
+            lock (_websocketDisconnectedFlagLock)
+            {
+                if (!_websocketDisconnected)
+                {
+                    return;
+                }
+
+                _websocketDisconnected = false;
+            }
+
+            if (ConnectionState == ConnectionState.Closing)
+            {
+                return;
+            }
+
             ConnectionState = ConnectionState.Disconnected;
+        }
+
+        /// <summary>
+        /// Subscribers are invoked one by one so that a throwing handler cannot stop the remaining ones -
+        /// including the internal reconnect scheduling - from observing the transition
+        /// </summary>
+        private void RaiseConnectionStateChanged(ConnectionState previous, ConnectionState current)
+        {
+            var handler = ConnectionStateChanged;
+            if (handler == null)
+            {
+                return;
+            }
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((ConnectionStateChangeHandler)subscriber)(previous, current);
+                }
+                catch (Exception e)
+                {
+                    _logs.Exception(e);
+                }
+            }
+        }
+
+        /// <inheritdoc cref="RaiseConnectionStateChanged"/>
+        private void RaiseDisconnected()
+        {
+            var handler = Disconnected;
+            if (handler == null)
+            {
+                return;
+            }
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((Action)subscriber)();
+                }
+                catch (Exception e)
+                {
+                    _logs.Exception(e);
+                }
+            }
         }
 
         /// <summary>

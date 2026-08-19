@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -292,6 +293,60 @@ namespace StreamChat.Tests.LowLevelClient
             Assert.IsFalse(client.ConnectionState == ConnectionState.Connected);
         }
 
+        [Test]
+        public void when_websocket_disconnected_raised_from_background_thread_expect_it_handled_on_main_thread_in_update()
+        {
+            var client = CreateConnectedClient();
+
+            var disconnectedCount = 0;
+            var disconnectedThreadId = 0;
+            client.Disconnected += () =>
+            {
+                disconnectedCount++;
+                disconnectedThreadId = Thread.CurrentThread.ManagedThreadId;
+            };
+
+            Task.Run(() => _mockWebsocketClient.Disconnected += Raise.Event<Action>()).Wait();
+
+            Assert.AreEqual(0, disconnectedCount,
+                "Disconnected must not be raised from the thread that closed the websocket");
+            Assert.IsTrue(client.ConnectionState == ConnectionState.Connected);
+
+            client.Update(deltaTime: 0.2f);
+
+            Assert.AreEqual(1, disconnectedCount);
+            Assert.AreEqual(Thread.CurrentThread.ManagedThreadId, disconnectedThreadId);
+        }
+
+        [Test]
+        public void when_websocket_disconnected_raised_from_main_thread_expect_it_handled_immediately()
+        {
+            var client = CreateConnectedClient();
+
+            var disconnectedCount = 0;
+            client.Disconnected += () => disconnectedCount++;
+
+            _mockWebsocketClient.Disconnected += Raise.Event<Action>();
+
+            // Awaiting DisconnectAsync must keep guaranteeing that the client is no longer connected
+            Assert.AreEqual(1, disconnectedCount);
+            Assert.IsFalse(client.ConnectionState == ConnectionState.Connected);
+        }
+
+        [Test]
+        public void when_connection_state_changed_subscriber_throws_expect_remaining_subscribers_notified()
+        {
+            var client = CreateConnectedClient(Substitute.For<ILogs>());
+
+            var lastStateSeenByLateSubscriber = ConnectionState.Connected;
+            client.ConnectionStateChanged += (previous, current) => throw new Exception("Subscriber failed");
+            client.ConnectionStateChanged += (previous, current) => lastStateSeenByLateSubscriber = current;
+
+            _mockWebsocketClient.Disconnected += Raise.Event<Action>();
+
+            Assert.AreNotEqual(ConnectionState.Connected, lastStateSeenByLateSubscriber);
+        }
+
         private readonly List<IDisposable> _resourcesToDispose = new List<IDisposable>();
 
         private IStreamChatLowLevelClient _lowLevelClient;
@@ -305,6 +360,29 @@ namespace StreamChat.Tests.LowLevelClient
         private INetworkMonitor _mockNetworkMonitor;
         private IHttpClient _mockHttpClient;
         private IStreamClientConfig _mockStreamClientConfig;
+
+        private StreamChatLowLevelClient CreateConnectedClient(ILogs logs = null)
+        {
+            var client = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient,
+                new NewtonsoftJsonSerializer(), _mockTimeService, _mockNetworkMonitor, _mockApplicationInfo,
+                logs ?? _mockLogs, _mockStreamClientConfig);
+            _resourcesToDispose.Add(client);
+
+            _mockWebsocketClient.ConnectAsync(Arg.Any<Uri>()).Returns(Task.CompletedTask);
+
+            _mockWebsocketClient.TryDequeueMessage(out Arg.Any<string>()).Returns(arg =>
+            {
+                arg[0] = "{\"connection_id\":\"fakeId\", \"type\":\"health.check\"}";
+                return true;
+            }, arg => false);
+
+            client.Connect();
+            client.Update(deltaTime: 0.2f);
+
+            Assert.IsTrue(client.ConnectionState == ConnectionState.Connected);
+
+            return client;
+        }
     }
 }
 #endif
