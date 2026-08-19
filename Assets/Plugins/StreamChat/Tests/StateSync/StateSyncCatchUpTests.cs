@@ -100,6 +100,44 @@ namespace StreamChat.Tests.StateSync.Unit
             AssertSyncNotCalled();
         }
 
+        /// <summary>
+        /// /sync replays historical events through the same handlers as live events. Because the catch-up runs
+        /// asynchronously after reconnect, live events can already have advanced the watermark by the time the
+        /// replay is processed. Rewinding it here would make the next disconnect sync from a stale point.
+        /// </summary>
+        [Test]
+        public void when_sync_replays_events_older_than_watermark_expect_watermark_not_regressed()
+        {
+            var now = new DateTimeOffset(2026, 8, 10, 12, 0, 0, TimeSpan.Zero);
+            _mockTimeService.Now.Returns(now);
+
+            SetLastEventReceivedAt(now);
+            SetDisconnectionLastEventReceivedAt(now.AddHours(-1));
+            StubSyncResponseWithMessageEvent(now.AddHours(-1));
+
+            _lowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(new[] { TestChannelCid }).GetAwaiter()
+                .GetResult();
+
+            Assert.AreEqual(now, GetLastEventReceivedAt());
+        }
+
+        [Test]
+        public void when_sync_replays_events_newer_than_watermark_expect_watermark_advanced()
+        {
+            var now = new DateTimeOffset(2026, 8, 10, 12, 0, 0, TimeSpan.Zero);
+            _mockTimeService.Now.Returns(now);
+
+            var replayedEventCreatedAt = now.AddHours(-1);
+            SetLastEventReceivedAt(now.AddHours(-2));
+            SetDisconnectionLastEventReceivedAt(now.AddHours(-2));
+            StubSyncResponseWithMessageEvent(replayedEventCreatedAt);
+
+            _lowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(new[] { TestChannelCid }).GetAwaiter()
+                .GetResult();
+
+            Assert.AreEqual(replayedEventCreatedAt, GetLastEventReceivedAt());
+        }
+
         private const string TestChannelCid = "messaging:test-channel";
 
         private StreamChatLowLevelClient _lowLevelClient;
@@ -120,12 +158,31 @@ namespace StreamChat.Tests.StateSync.Unit
                 Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith("/sync")),
                 Arg.Any<object>());
 
-        private void SetDisconnectionLastEventReceivedAt(DateTimeOffset value)
+        private void StubSyncResponseWithMessageEvent(DateTimeOffset eventCreatedAt)
         {
-            var field = typeof(StreamChatLowLevelClient).GetField("_disconnectionLastEventReceivedAt",
+            var body =
+                $"{{\"events\":[{{\"type\":\"message.new\",\"cid\":\"{TestChannelCid}\",\"created_at\":\"{eventCreatedAt:O}\"}}]}}";
+
+            _mockHttpClient
+                .SendHttpRequestAsync(Arg.Is(HttpMethodType.Post), Arg.Any<Uri>(), Arg.Any<object>())
+                .Returns(new HttpResponse(true, 200, body, null, null));
+        }
+
+        private void SetDisconnectionLastEventReceivedAt(DateTimeOffset value)
+            => GetPrivateField("_disconnectionLastEventReceivedAt").SetValue(_lowLevelClient, (DateTimeOffset?)value);
+
+        private void SetLastEventReceivedAt(DateTimeOffset value)
+            => GetPrivateField("_lastEventReceivedAt").SetValue(_lowLevelClient, (DateTimeOffset?)value);
+
+        private DateTimeOffset? GetLastEventReceivedAt()
+            => (DateTimeOffset?)GetPrivateField("_lastEventReceivedAt").GetValue(_lowLevelClient);
+
+        private static FieldInfo GetPrivateField(string name)
+        {
+            var field = typeof(StreamChatLowLevelClient).GetField(name,
                 BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.IsNotNull(field, "Expected _disconnectionLastEventReceivedAt field to exist.");
-            field.SetValue(_lowLevelClient, (DateTimeOffset?)value);
+            Assert.IsNotNull(field, $"Expected {name} field to exist.");
+            return field;
         }
     }
 }

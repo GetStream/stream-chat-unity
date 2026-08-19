@@ -996,7 +996,7 @@ namespace StreamChat.Core.LowLevelClient
 #endif
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
                     postprocess?.Invoke(dto);
-                    _lastEventReceivedAt = eventObj.CreatedAt;
+                    TryAdvanceLastEventReceivedAt(eventObj.CreatedAt, key);
                     handler?.Invoke(eventObj, dto);
                     internalHandler?.Invoke(dto);
                 }
@@ -1054,7 +1054,7 @@ namespace StreamChat.Core.LowLevelClient
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
-                if (TryHandleCustomChannelEvent(msg))
+                if (TryHandleCustomChannelEvent(msg, type))
                 {
                     return;
                 }
@@ -1070,7 +1070,7 @@ namespace StreamChat.Core.LowLevelClient
             handler(msg);
         }
 
-        private bool TryHandleCustomChannelEvent(string serializedContent)
+        private bool TryHandleCustomChannelEvent(string serializedContent, string eventType)
         {
             if (!_serializer.TryPeekValue<string>(serializedContent, "cid", out var cid)
                 || string.IsNullOrEmpty(cid))
@@ -1081,7 +1081,7 @@ namespace StreamChat.Core.LowLevelClient
             try
             {
                 var dto = _serializer.Deserialize<CustomEventInternalDTO>(serializedContent);
-                _lastEventReceivedAt = dto.CreatedAt;
+                TryAdvanceLastEventReceivedAt(dto.CreatedAt, eventType);
 
                 var evt = new EventCustom();
                 ((ILoadableFrom<CustomEventInternalDTO, EventCustom>)evt).LoadFromDto(dto);
@@ -1138,6 +1138,25 @@ namespace StreamChat.Core.LowLevelClient
             if (ConnectionState == ConnectionState.Connecting)
             {
                 OnConnectionConfirmed(healthCheckEvent, dto);
+            }
+        }
+
+        private void TryAdvanceLastEventReceivedAt(DateTimeOffset createdAt, string eventType)
+        {
+            if (createdAt == DateTimeOffset.MinValue)
+            {
+                if (_config.LogLevel.IsDebugEnabled())
+                {
+                    _logs.Warning(
+                        $"WebSocket event `{eventType}` has no valid `created_at`; the /sync watermark was not advanced.");
+                }
+
+                return;
+            }
+
+            if (!_lastEventReceivedAt.HasValue || createdAt > _lastEventReceivedAt.Value)
+            {
+                _lastEventReceivedAt = createdAt;
             }
         }
 

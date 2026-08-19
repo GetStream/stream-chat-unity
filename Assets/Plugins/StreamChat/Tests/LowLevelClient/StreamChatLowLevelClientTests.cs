@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
@@ -347,6 +348,27 @@ namespace StreamChat.Tests.LowLevelClient
             Assert.AreNotEqual(ConnectionState.Connected, lastStateSeenByLateSubscriber);
         }
 
+        [Test]
+        public void when_event_without_created_at_expect_last_event_watermark_not_set()
+        {
+            var client = CreateConnectedClient();
+
+            Assert.IsNull(GetLastEventReceivedAt(client));
+        }
+
+        [Test]
+        public void when_event_with_created_at_expect_last_event_watermark_set()
+        {
+            var createdAt = new DateTimeOffset(2026, 8, 18, 13, 58, 59, TimeSpan.Zero);
+            var client = CreateClientWithMessages(logs: null,
+                $"{{\"connection_id\":\"fakeId\", \"type\":\"health.check\", \"created_at\":\"{createdAt:O}\"}}");
+
+            client.Connect();
+            client.Update(deltaTime: 0.2f);
+
+            Assert.AreEqual(createdAt, GetLastEventReceivedAt(client));
+        }
+
         private readonly List<IDisposable> _resourcesToDispose = new List<IDisposable>();
 
         private IStreamChatLowLevelClient _lowLevelClient;
@@ -363,6 +385,17 @@ namespace StreamChat.Tests.LowLevelClient
 
         private StreamChatLowLevelClient CreateConnectedClient(ILogs logs = null)
         {
+            var client = CreateClientWithMessages(logs, "{\"connection_id\":\"fakeId\", \"type\":\"health.check\"}");
+            client.Connect();
+            client.Update(deltaTime: 0.2f);
+
+            Assert.IsTrue(client.ConnectionState == ConnectionState.Connected);
+
+            return client;
+        }
+
+        private StreamChatLowLevelClient CreateClientWithMessages(ILogs logs, params string[] websocketMessages)
+        {
             var client = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient,
                 new NewtonsoftJsonSerializer(), _mockTimeService, _mockNetworkMonitor, _mockApplicationInfo,
                 logs ?? _mockLogs, _mockStreamClientConfig);
@@ -370,18 +403,27 @@ namespace StreamChat.Tests.LowLevelClient
 
             _mockWebsocketClient.ConnectAsync(Arg.Any<Uri>()).Returns(Task.CompletedTask);
 
+            var messages = new Queue<string>(websocketMessages);
             _mockWebsocketClient.TryDequeueMessage(out Arg.Any<string>()).Returns(arg =>
             {
-                arg[0] = "{\"connection_id\":\"fakeId\", \"type\":\"health.check\"}";
+                if (messages.Count == 0)
+                {
+                    return false;
+                }
+
+                arg[0] = messages.Dequeue();
                 return true;
-            }, arg => false);
-
-            client.Connect();
-            client.Update(deltaTime: 0.2f);
-
-            Assert.IsTrue(client.ConnectionState == ConnectionState.Connected);
+            });
 
             return client;
+        }
+
+        private static DateTimeOffset? GetLastEventReceivedAt(StreamChatLowLevelClient client)
+        {
+            var field = typeof(StreamChatLowLevelClient).GetField("_lastEventReceivedAt",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(field, "Expected _lastEventReceivedAt field to exist.");
+            return (DateTimeOffset?)field.GetValue(client);
         }
     }
 }
