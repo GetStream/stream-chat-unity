@@ -409,7 +409,10 @@ namespace StreamChat.Core.StatefulModels
 
             //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
             Cache.TryCreateOrUpdate(eventDto.Message);
-            ReactionAdded?.Invoke(channel, this, reaction);
+            if (!IsSilentHistorySync)
+            {
+                ReactionAdded?.Invoke(channel, this, reaction);
+            }
         }
 
         internal void HandleReactionUpdatedEvent(ReactionUpdatedEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
@@ -422,7 +425,10 @@ namespace StreamChat.Core.StatefulModels
             eventDto.Message.OwnReactions = null;
 
             Cache.TryCreateOrUpdate(eventDto.Message);
-            ReactionUpdated?.Invoke(channel, this, reaction);
+            if (!IsSilentHistorySync)
+            {
+                ReactionUpdated?.Invoke(channel, this, reaction);
+            }
         }
 
         internal void HandleReactionDeletedEvent(ReactionDeletedEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
@@ -435,7 +441,10 @@ namespace StreamChat.Core.StatefulModels
             eventDto.Message.OwnReactions = null;
 
             Cache.TryCreateOrUpdate(eventDto.Message);
-            ReactionRemoved?.Invoke(channel, this, reaction);
+            if (!IsSilentHistorySync)
+            {
+                ReactionRemoved?.Invoke(channel, this, reaction);
+            }
         }
 
         protected override StreamMessage Self => this;

@@ -425,7 +425,7 @@ namespace StreamChat.Core.LowLevelClient
 #if STREAM_DEBUG_ENABLED
                 _logs.Info(_authCredentials.UserId + " WS message: " + msg);
 #endif
-                HandleNewWebsocketMessage(msg);
+                HandleNewWebsocketMessage(msg, isLiveEvent: true);
             }
         }
 
@@ -443,44 +443,172 @@ namespace StreamChat.Core.LowLevelClient
 
         public async Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids)
         {
-            if (!channelCids.Any() || !_disconnectionLastEventReceivedAt.HasValue)
+            var response = await TrySyncHistoryAsync(channelCids);
+            ReplayHistoryEvents(response?.Events);
+        }
+
+        /// <summary>
+        /// The <c>/sync</c> endpoint counts events summed across every requested cid against a
+        /// server-side ceiling of roughly 1000 and refuses the whole request once it is exceeded, so
+        /// asking about fewer channels makes a successful catch-up more likely. Swift and Android both
+        /// cap the request at 100 cids; this matches them.
+        /// </summary>
+        internal const int MaxSyncChannelCids = 100;
+
+        /// <summary>
+        /// Best-effort <c>/sync</c> for up to <see cref="MaxSyncChannelCids"/> channels. Returns
+        /// <c>null</c> when catch-up is skipped, which happens when there is no sync point to catch up
+        /// from or when the sync point is older than the 30 days the server accepts.
+        /// </summary>
+        internal async Task<Responses.SyncResponse> TrySyncHistoryAsync(IEnumerable<string> channelCids)
+        {
+            if (channelCids == null || !_disconnectionLastEventReceivedAt.HasValue)
             {
-                return;
+                return null;
             }
 
             var lastEventReceivedAt = _disconnectionLastEventReceivedAt.Value;
 
-            // Check if less than 30 days. Past that the server rejects LastSyncAt, so this only
-            // skips a request that was certain to fail — it is not a recovery path. The SDK has no
-            // re-hydrate fallback of its own, so bridging a gap this large is the consumer's job.
-            TimeSpan diff = _timeService.Now - lastEventReceivedAt;
-            if (diff.TotalDays > 30)
+            if ((_timeService.Now - lastEventReceivedAt).TotalDays > 30)
+            {
+                return null;
+            }
+
+            // Released only once the request has completed: the request body is serialized from this
+            // list, and an auth retry re-serializes it after the first attempt has already awaited.
+            using (new ListPoolScope<string>(out var cids))
+            {
+                foreach (var cid in channelCids)
+                {
+                    if (cids.Count == MaxSyncChannelCids)
+                    {
+                        break;
+                    }
+
+                    cids.Add(cid);
+                }
+
+                if (cids.Count == 0)
+                {
+                    return null;
+                }
+
+                return await ChannelApi.SyncAsync(new SyncRequest
+                {
+                    ChannelCids = cids,
+                    LastSyncAt = lastEventReceivedAt,
+                    Watch = true,
+
+                    // Lets the caller tell "the server will never return this channel again" apart from
+                    // "the query happened to omit it", so recovery can stop retrying channels that were
+                    // deleted or that the local user lost access to while offline.
+                    WithInaccessibleCids = true,
+                });
+            }
+        }
+
+        /// <summary>
+        /// Replay history events through the live event pipeline, so every per-event public callback
+        /// fires exactly as it would for a real-time event. This is
+        /// <see cref="StateRecoveryStrategy.ReplayEvents"/> and the behaviour of
+        /// <see cref="FetchAndProcessEventsSinceLastReceivedEvent"/>.
+        /// </summary>
+        internal void ReplayHistoryEvents(IEnumerable<object> events)
+        {
+            if (events == null)
             {
                 return;
             }
 
-            //StreamTodo: according to Android SDK there's an error if there are > 1000 events 
-
-            var response = await ChannelApi.SyncAsync(new SyncRequest
+            foreach (var e in events)
             {
-                ChannelCids = channelCids.ToList(),
-                LastSyncAt = lastEventReceivedAt,
-                Watch = true,
-            });
+                // Each event is isolated by the try/catch inside the registered handler, so one
+                // malformed event cannot abandon the rest of the replay.
+                HandleNewWebsocketMessage(SerializeHistoryEvent(e));
+            }
+        }
 
-            if (response.Events.Count == 0)
+        /// <summary>
+        /// Apply history events to local state without raising the per-event public callbacks whose
+        /// effect is observable in model state afterwards. This is
+        /// <see cref="StateRecoveryStrategy.BatchStateUpdate"/>. Mirrors Android's
+        /// <c>isFromHistorySync</c> and Swift's <c>postNotifications: false</c>.
+        /// </summary>
+        internal HistorySyncApplyResult ApplyHistoryEvents(IEnumerable<object> events)
+        {
+            var result = new HistorySyncApplyResult();
+            if (events == null)
+            {
+                return result;
+            }
+
+            _isApplyingHistoryEvents = true;
+            _historyMaxAppliedCreatedAt = null;
+
+            try
+            {
+                foreach (var e in events)
+                {
+                    try
+                    {
+                        HandleNewWebsocketMessage(SerializeHistoryEvent(e));
+                    }
+                    catch (Exception ex)
+                    {
+                        // Only count and log. Abandoning the batch would leave state half-applied,
+                        // and the watermark below only ever advances to the newest event that was
+                        // actually applied, so a partial batch is retried on the next reconnect.
+                        result.FailedEventCount++;
+                        _logs.Exception(ex);
+                    }
+                }
+            }
+            finally
+            {
+                result.MaxAppliedCreatedAt = _historyMaxAppliedCreatedAt;
+                _historyMaxAppliedCreatedAt = null;
+                _isApplyingHistoryEvents = false;
+
+                if (result.MaxAppliedCreatedAt.HasValue)
+                {
+                    TryAdvanceLastEventReceivedAt(result.MaxAppliedCreatedAt.Value, HistorySyncWatermarkSource);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// True while <see cref="ApplyHistoryEvents"/> is running.
+        /// </summary>
+        internal bool IsApplyingHistoryEvents => _isApplyingHistoryEvents;
+
+        private const string HistorySyncWatermarkSource = "history.sync";
+
+        // The batch advances the watermark once, at the end, and only to the newest event it managed
+        // to apply. Advancing per event would let a throwing event in the middle leave a watermark
+        // claiming a catch-up that did not happen.
+        private void RecordHistoryWatermark(DateTimeOffset createdAt)
+        {
+            if (createdAt == DateTimeOffset.MinValue)
             {
                 return;
             }
 
-            foreach (var e in response.Events)
+            if (!_historyMaxAppliedCreatedAt.HasValue || createdAt > _historyMaxAppliedCreatedAt.Value)
             {
-                // StreamTodo: check if we can not serialized this again. Investigate adding a custom EventsJsonConverter that would populate the list as serialized strings
-                var serializedMsg = _serializer.Serialize(e);
-
-                //StreamTodo: try block?
-                HandleNewWebsocketMessage(serializedMsg);
+                _historyMaxAppliedCreatedAt = createdAt;
             }
+        }
+
+        private string SerializeHistoryEvent(object e)
+        {
+            if (e is string serialized)
+            {
+                return serialized;
+            }
+
+            return _serializer.Serialize(e);
         }
 
         public void Dispose()
@@ -614,6 +742,9 @@ namespace StreamChat.Core.LowLevelClient
         /// The last value of <see cref="_lastEventReceivedAt"/> when the client disconnected. Use this value when calling /sync endpoint
         /// </summary>
         private DateTimeOffset? _disconnectionLastEventReceivedAt;
+
+        private bool _isApplyingHistoryEvents;
+        private DateTimeOffset? _historyMaxAppliedCreatedAt;
 
         private async Task RefreshAuthTokenFromProvider()
         {
@@ -996,13 +1127,34 @@ namespace StreamChat.Core.LowLevelClient
 #endif
                     var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
                     postprocess?.Invoke(dto);
-                    TryAdvanceLastEventReceivedAt(eventObj.CreatedAt, key);
-                    handler?.Invoke(eventObj, dto);
+
+                    if (_isApplyingHistoryEvents)
+                    {
+                        RecordHistoryWatermark(eventObj.CreatedAt);
+                    }
+                    else
+                    {
+                        TryAdvanceLastEventReceivedAt(eventObj.CreatedAt, key);
+
+                        // The low-level client is event-only, so it has no state a consumer could read
+                        // after a silent batch. Suppressing its callbacks keeps a low-level subscriber
+                        // consistent with the stateful client's BatchStateUpdate contract.
+                        handler?.Invoke(eventObj, dto);
+                    }
+
+                    // Always applied - this is what mutates local state.
                     internalHandler?.Invoke(dto);
                 }
                 catch (Exception e)
                 {
                     _logs.Exception(e);
+
+                    // A silent batch counts its failures and advances the watermark only to the newest
+                    // event it applied, so it needs to see the throw. Live events stay isolated here.
+                    if (_isApplyingHistoryEvents)
+                    {
+                        throw;
+                    }
                 }
             });
         }
@@ -1025,7 +1177,7 @@ namespace StreamChat.Core.LowLevelClient
             return response;
         }
 
-        private void HandleNewWebsocketMessage(string msg)
+        private void HandleNewWebsocketMessage(string msg, bool isLiveEvent = false)
         {
             const string ErrorKey = "error";
 
@@ -1046,7 +1198,16 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            if (EventReceived != null)
+            // Stamp liveness here rather than from the health check handler: the handler runs after
+            // every consumer callback registered ahead of it, so a slow consumer could push the gap
+            // past HealthCheckMaxWaitingTime and make the client disconnect itself. Only events that
+            // came off the live socket count - a health check replayed from /sync proves nothing.
+            if (isLiveEvent && type == WSEventType.HealthCheck)
+            {
+                _lastHealthCheckReceivedTime = _timeService.Time;
+            }
+
+            if (EventReceived != null && !_isApplyingHistoryEvents)
             {
                 var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
                 EventReceived.Invoke($"{time} - Event received: <b>{type}</b>");
@@ -1081,8 +1242,22 @@ namespace StreamChat.Core.LowLevelClient
             try
             {
                 var dto = _serializer.Deserialize<CustomEventInternalDTO>(serializedContent);
-                TryAdvanceLastEventReceivedAt(dto.CreatedAt, eventType);
 
+                if (_isApplyingHistoryEvents)
+                {
+                    RecordHistoryWatermark(dto.CreatedAt);
+                }
+                else
+                {
+                    TryAdvanceLastEventReceivedAt(dto.CreatedAt, eventType);
+                }
+
+                // Custom events are the one category with no representation in local state, so a
+                // consumer cannot reconstruct them from IStreamChannel after a silent batch. They are
+                // therefore delivered per event even during history sync - dropping them would be
+                // silent data loss, and deferring them into the recovery signal would arrive after
+                // the re-query and out of chronological order. The reference SDKs discard custom
+                // events from /sync entirely; an app porting between SDKs must not rely on this.
                 var evt = new EventCustom();
                 ((ILoadableFrom<CustomEventInternalDTO, EventCustom>)evt).LoadFromDto(dto);
                 CustomEventReceived?.Invoke(evt);
@@ -1133,8 +1308,6 @@ namespace StreamChat.Core.LowLevelClient
 
         private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, HealthCheckEventInternalDTO dto)
         {
-            _lastHealthCheckReceivedTime = _timeService.Time;
-
             if (ConnectionState == ConnectionState.Connecting)
             {
                 OnConnectionConfirmed(healthCheckEvent, dto);

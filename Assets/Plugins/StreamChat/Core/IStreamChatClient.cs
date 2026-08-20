@@ -34,6 +34,27 @@ namespace StreamChat.Core
         event Action Disconnected;
 
         /// <summary>
+        /// Raised once after reconnect recovery finishes, on every path: full success, partial
+        /// success, and a reconnect where there was nothing to recover. Not raised on the initial
+        /// login, and not raised when
+        /// <see cref="Configs.IStreamClientConfig.StateRecoveryStrategy"/> is
+        /// <see cref="Configs.StateRecoveryStrategy.Disabled"/>.
+        ///
+        /// When it fires, the channels in
+        /// <see cref="StreamStateRecoveredEventArgs.Channels"/> have fresh state and live watches
+        /// again. Anything in <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/> is
+        /// still stale and no longer watched.
+        ///
+        /// This is the signal to rebuild from state after an outage. It is required rather than
+        /// merely convenient under
+        /// <see cref="Configs.StateRecoveryStrategy.BatchStateUpdate"/>, where the per-event callbacks
+        /// are suppressed during recovery, and it is worth handling under
+        /// <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/> too, because the re-query that
+        /// follows the event replay merges channel state without raising per-message callbacks.
+        /// </summary>
+        event StateRecoveredHandler StateRecovered;
+
+        /// <summary>
         /// Event fired when connection state with Stream Chat server has changed
         /// </summary>
         event ConnectionChangeHandler ConnectionStateChanged;
@@ -128,6 +149,12 @@ namespace StreamChat.Core
         /// stop with <see cref="IStreamChannel.StopWatchingAsync"/>. Channels returned by other
         /// methods may not be watched - check <see cref="IStreamChannel.IsWatched"/> on a specific
         /// channel to know its state.
+        /// </para>
+        /// <para>
+        /// Emptied when the connection drops, because the server drops every watch with it, and
+        /// repopulated by reconnect recovery. If you enumerate this to decide what to restore
+        /// yourself, read it before the disconnect or use
+        /// <see cref="Configs.StateRecoveryStrategy.Disabled"/>, which leaves it untouched.
         /// </para>
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }

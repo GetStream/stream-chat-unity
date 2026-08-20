@@ -67,6 +67,9 @@ namespace StreamChat.Core
     /// </summary>
     public delegate void ChannelMemberRemovedHandler(IStreamChannel channel, IStreamChannelMember member);
 
+    /// <inheritdoc cref="IStreamChatClient.StateRecovered"/>
+    public delegate void StateRecoveredHandler(StreamStateRecoveredEventArgs eventArgs);
+
     /// <inheritdoc cref="IStreamChatClient"/>
     public sealed class StreamChatClient : IStreamChatClient
     {
@@ -89,6 +92,8 @@ namespace StreamChat.Core
 
         public event StreamThreadChangeHandler ThreadTracked;
         public event StreamThreadChangeHandler ThreadUntracked;
+
+        public event StateRecoveredHandler StateRecovered;
 
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
@@ -222,6 +227,11 @@ namespace StreamChat.Core
         public Task DisconnectUserAsync()
         {
             TryCancelWaitingForUserConnection();
+
+            // Ends the session, so the next Connected transition is a fresh login rather than a
+            // reconnect and must not run recovery or raise StateRecovered.
+            _hasConnectedBefore = false;
+
             return InternalLowLevelClient.DisconnectAsync(permanent: true);
         }
 
@@ -967,6 +977,43 @@ namespace StreamChat.Core
         private readonly StreamPollsApi _pollsApi;
         private readonly List<IStreamChannel> _watchedChannels = new List<IStreamChannel>();
 
+        /// <summary>
+        /// Cids that were being watched when the connection dropped, most recently active first.
+        /// Reconnect recovery restores state and watches from this, not from
+        /// <see cref="_watchedChannels"/>, which is cleared on the disconnect.
+        /// </summary>
+        private readonly List<string> _recoveryChannelCids = new List<string>();
+
+        /// <summary>
+        /// Cids the <c>/sync</c> response reported as inaccessible - deleted, or no longer readable by
+        /// the local user. Never re-queried again for the lifetime of the client.
+        /// </summary>
+        private readonly HashSet<string> _inaccessibleCids = new HashSet<string>();
+
+        private int _recoveryGeneration;
+        private bool _hasConnectedBefore;
+
+        /// <summary>
+        /// Recovering more channels than this would mean an unbounded number of sequential queries on
+        /// every reconnect, which invites rate limiting. Matches the <c>/sync</c> cid cap so both
+        /// halves of recovery cover the same set. JS and Android both cap lower, at 30.
+        /// </summary>
+        internal const int MaxRecoveredChannels = StreamChatLowLevelClient.MaxSyncChannelCids;
+
+        /// <summary>
+        /// <c>QueryChannelsAsync</c> asserts a limit of at most 30, so a longer recovery set has to be
+        /// chunked. Same chunk size as <see cref="WatchResultChannelsAsync"/>.
+        /// </summary>
+        private const int MaxChannelsPerRecoveryQuery = 30;
+
+        // Ties are broken arbitrarily - List.Sort is unstable - which only matters for channels with
+        // an equal LastMessageAt, where there is no meaningful "more recently active" anyway.
+        private static readonly Comparison<IStreamChannel> ByLastMessageAtDescending = (a, b)
+            => (b.LastMessageAt ?? DateTimeOffset.MinValue).CompareTo(a.LastMessageAt ?? DateTimeOffset.MinValue);
+
+        /// <inheritdoc cref="StreamChatLowLevelClient.IsApplyingHistoryEvents"/>
+        internal bool IsApplyingHistorySync => InternalLowLevelClient.IsApplyingHistoryEvents;
+
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
         private CancellationTokenSource _connectUserCancellationTokenSource;
@@ -1041,7 +1088,16 @@ namespace StreamChat.Core
         // after the server confirms the unwatch. Idempotent.
         internal void InternalMarkChannelUnwatched(StreamChannel channel)
         {
-            if (channel == null || !channel.IsWatched)
+            if (channel == null)
+            {
+                return;
+            }
+
+            // Drop it from the recovery snapshot as well, or an unwatch performed while disconnected
+            // would be undone by the next reconnect re-watching it.
+            _recoveryChannelCids.Remove(channel.Cid);
+
+            if (!channel.IsWatched)
             {
                 return;
             }
@@ -1050,7 +1106,11 @@ namespace StreamChat.Core
             _watchedChannels.Remove(channel);
         }
 
-        private void OnChannelLeftCache(StreamChannel channel) => _watchedChannels.Remove(channel);
+        private void OnChannelLeftCache(StreamChannel channel)
+        {
+            _watchedChannels.Remove(channel);
+            _recoveryChannelCids.Remove(channel.Cid);
+        }
 
         private void TryCancelWaitingForUserConnection()
         {
@@ -1143,20 +1203,341 @@ namespace StreamChat.Core
             RestoreStateLostDuringDisconnect().LogIfFailed();
         }
 
-        private Task RestoreStateLostDuringDisconnect()
+        /// <summary>
+        /// Watches are bound to a websocket connection, and a reconnect always gets a new one, so a
+        /// reconnected client is watching nothing until something re-watches for it. Without this the
+        /// channels stay in local state but stop receiving events - the chat looks alive and silently
+        /// never updates again.
+        ///
+        /// This holds no matter how briefly the socket was down. The handshake payload
+        /// (<c>ConnectPayload</c>) carries only the user and token plus
+        /// <c>server_determines_connection_id</c>; there is no session or resume token, so the client
+        /// cannot ask the server to continue a previous connection, and the server mints a fresh
+        /// <c>connection_id</c> that every subsequent request is then tagged with. Do not confuse this
+        /// with the server-side health check grace period: that governs when the server notices a
+        /// silently dropped socket, which affects presence and the cleanup of the stale watcher entry.
+        /// It does not hand the old connection's watches to the new one - if anything a fast reconnect
+        /// is the worse case, because for a while the channel counts you as a watcher twice while the
+        /// connection you are actually reading receives nothing.
+        ///
+        /// Runs after every reconnect, in this order:
+        ///
+        /// 1. <c>/sync</c> catch-up, best effort. This is what makes a short outage recover with no
+        ///    hole in the message list. It has to run first because a replayed <c>channel.truncated</c>
+        ///    wipes the local message list, and doing that after step 2 would discard the page step 2
+        ///    just fetched.
+        /// 2. Re-query and re-watch, unconditionally, whatever step 1 did. One query per 30 cids, with
+        ///    <c>State</c> and <c>Watch</c> set, so a single request both re-hydrates and re-watches.
+        /// 3. Raise <see cref="StateRecovered"/> once.
+        ///
+        /// Steps 1 and 2 are individually fault-tolerant: a failure in one channel or one request must
+        /// not abandon the others, because this is the only recovery this reconnect gets.
+        /// </summary>
+        private async Task RestoreStateLostDuringDisconnect()
         {
-            if (!WatchedChannels.Any())
+            // A fresh login is not a recovery: there is no prior state to restore and no consumer
+            // expects a recovery signal for it. Anything left in the snapshot belongs to the previous
+            // session, and possibly to a different user, so drop it.
+            if (!_hasConnectedBefore)
             {
-                return Task.CompletedTask;
+                _hasConnectedBefore = true;
+                _recoveryChannelCids.Clear();
+                _inaccessibleCids.Clear();
+                return;
             }
 
-            return LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(WatchedChannels.Select(c => c.Cid));
+            if (InternalLowLevelClient.Config.StateRecoveryStrategy == StateRecoveryStrategy.Disabled)
+            {
+                return;
+            }
+
+            var generation = ++_recoveryGeneration;
+
+            // Pooled - never leaves this method and the steps below only read it. The two collections
+            // handed to StateRecovered are not pooled, because subscribers keep them for as long as
+            // they like.
+            using (new ListPoolScope<string>(out var recoverSet))
+            {
+                FillRecoverySet(recoverSet);
+
+                var refreshedChannels = new List<IStreamChannel>();
+
+                try
+                {
+                    if (recoverSet.Count > 0)
+                    {
+                        await TryCatchUpWithHistoryAsync(recoverSet, generation);
+                        if (!IsRecoveryGenerationCurrent(generation))
+                        {
+                            return;
+                        }
+
+                        await RehydrateAndRewatchChannelsAsync(recoverSet, generation, refreshedChannels);
+                        if (!IsRecoveryGenerationCurrent(generation))
+                        {
+                            return;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Defence in depth - every step already handles its own failures. Whatever happened,
+                    // the consumer still gets told that recovery finished and which channels are stale.
+                    _logs.Exception(e);
+                }
+
+                if (!IsRecoveryGenerationCurrent(generation))
+                {
+                    return;
+                }
+
+                var unrecovered = new List<string>();
+
+                using (new HashSetPoolScope<string>(out var recovered))
+                {
+                    for (var i = 0; i < refreshedChannels.Count; i++)
+                    {
+                        recovered.Add(refreshedChannels[i].Cid);
+                    }
+
+                    for (var i = 0; i < recoverSet.Count; i++)
+                    {
+                        if (!recovered.Contains(recoverSet[i]))
+                        {
+                            unrecovered.Add(recoverSet[i]);
+                        }
+                    }
+                }
+
+                if (unrecovered.Count > 0)
+                {
+                    _logs.Warning(
+                        $"Reconnect recovery could not restore {unrecovered.Count} channel(s): {string.Join(", ", unrecovered)}. " +
+                        "Their local state is stale and they are no longer watched. See " +
+                        nameof(StreamStateRecoveredEventArgs) + "." + nameof(StreamStateRecoveredEventArgs.UnrecoveredChannelCids));
+                }
+
+                StateRecovered?.Invoke(new StreamStateRecoveredEventArgs(refreshedChannels, unrecovered));
+            }
+        }
+
+        /// <summary>
+        /// Copy the most recently active <see cref="MaxRecoveredChannels"/> cids from the snapshot
+        /// captured on the disconnect into <paramref name="recoverSet"/>.
+        /// </summary>
+        private void FillRecoverySet(List<string> recoverSet)
+        {
+            if (_recoveryChannelCids.Count > MaxRecoveredChannels)
+            {
+                _logs.Warning(
+                    $"{_recoveryChannelCids.Count} channels were being watched when the connection dropped, but reconnect " +
+                    $"recovery restores at most {MaxRecoveredChannels}. The {MaxRecoveredChannels} most recently active are " +
+                    "recovered; the rest keep stale state and are not re-watched. Watch fewer channels concurrently, or set " +
+                    nameof(IStreamClientConfig) + "." + nameof(IStreamClientConfig.StateRecoveryStrategy) + " to " +
+                    nameof(StateRecoveryStrategy.Disabled) + " and recover them yourself.");
+            }
+
+            var count = Math.Min(_recoveryChannelCids.Count, MaxRecoveredChannels);
+            for (var i = 0; i < count; i++)
+            {
+                recoverSet.Add(_recoveryChannelCids[i]);
+            }
+        }
+
+        private async Task TryCatchUpWithHistoryAsync(IReadOnlyList<string> recoverSet, int generation)
+        {
+            try
+            {
+                var response = await InternalLowLevelClient.TrySyncHistoryAsync(recoverSet);
+
+                // null means the catch-up was skipped: no sync point, or one older than the 30 days
+                // the server accepts. Both used to return before any recovery ran; now step 2 still
+                // runs, which is the whole point of making it unconditional.
+                if (response?.Events == null || response.Events.Count == 0)
+                {
+                    return;
+                }
+
+                if (!IsRecoveryGenerationCurrent(generation))
+                {
+                    return;
+                }
+
+                if (response.InaccessibleCids != null)
+                {
+                    // The server is telling us these will never come back. Recording them keeps the
+                    // re-query from asking about deleted channels and stops us reporting them as a
+                    // recovery failure every reconnect.
+                    foreach (var cid in response.InaccessibleCids)
+                    {
+                        _inaccessibleCids.Add(cid);
+                    }
+                }
+
+                if (InternalLowLevelClient.Config.StateRecoveryStrategy == StateRecoveryStrategy.BatchStateUpdate)
+                {
+                    InternalLowLevelClient.ApplyHistoryEvents(response.Events);
+                }
+                else
+                {
+                    InternalLowLevelClient.ReplayHistoryEvents(response.Events);
+                }
+            }
+            catch (StreamApiException ex) when (ex.IsInputError())
+            {
+                // HTTP 400 / code 4, "too many events to sync". The server counts events summed across
+                // every requested cid against a ceiling of roughly 1000 and refuses the whole request,
+                // so this is the normal outcome of a long outage on busy channels, not an anomaly.
+                // The re-query below is the fallback and recovers the same state minus the events that
+                // did not fit in the latest page.
+                _logs.Warning("The /sync catch-up was refused because too many events accumulated during the outage. " +
+                              "Recovering channel state with a re-query instead. " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logs.Warning("The /sync catch-up failed. Recovering channel state with a re-query instead. " +
+                              ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Re-hydrate and re-watch in one request per <see cref="MaxChannelsPerRecoveryQuery"/> cids.
+        /// </summary>
+        /// <remarks>
+        /// Unlike Android, this does not follow up with a per-channel re-watch for cids the query did
+        /// not return. Android needs that because it recovers through the customer's own channel-list
+        /// queries, which need not cover every active cid; this queries the recovery set by cid, so it
+        /// is exhaustive by construction. A cid the query omits is one the server will not return at
+        /// all - deleted, or no longer readable - and the only per-channel watch primitive available
+        /// is get-or-create, which would recreate a channel that was deleted while we were offline.
+        /// Such cids are reported through
+        /// <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/> instead.
+        /// </remarks>
+        private async Task RehydrateAndRewatchChannelsAsync(IReadOnlyList<string> recoverSet, int generation,
+            List<IStreamChannel> refreshed)
+        {
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
+
+            for (var i = 0; i < recoverSet.Count; i += MaxChannelsPerRecoveryQuery)
+            {
+                if (!IsRecoveryGenerationCurrent(generation))
+                {
+                    return;
+                }
+
+                // Released only once the query has completed: the filter holds this list and the
+                // request body is serialized from it.
+                using (new ListPoolScope<string>(out var chunk))
+                {
+                    var chunkEnd = Math.Min(i + MaxChannelsPerRecoveryQuery, recoverSet.Count);
+                    for (var j = i; j < chunkEnd; j++)
+                    {
+                        if (!_inaccessibleCids.Contains(recoverSet[j]))
+                        {
+                            chunk.Add(recoverSet[j]);
+                        }
+                    }
+
+                    if (chunk.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var filters = new IFieldFilterRule[]
+                    {
+                        ChannelFilter.Cid.In(chunk),
+                    };
+
+                    IEnumerable<IStreamChannel> channels;
+                    try
+                    {
+                        channels = await QueryChannelsAsync(filters, sort, limit: chunk.Count);
+                    }
+                    catch (Exception e)
+                    {
+                        // One failed chunk (a rate limit part-way through a long watch list, a channel
+                        // torn down while offline) must not cost the remaining chunks their recovery -
+                        // there is no later retry this connection.
+                        _logs.Warning($"Recovery query failed for {chunk.Count} channel(s). Continuing with the rest. " +
+                                      e.Message);
+                        continue;
+                    }
+
+                    if (!IsRecoveryGenerationCurrent(generation))
+                    {
+                        return;
+                    }
+
+                    foreach (var channel in channels)
+                    {
+                        // The query merge path goes through UpdateFromDto, which does not trim, so a
+                        // recovery merge can push Messages past MessageCacheWindow.MaxMessages.
+                        ((StreamChannel)channel).InternalTrimMessageCache();
+                        refreshed.Add(channel);
+                    }
+                }
+            }
+        }
+
+        private bool IsRecoveryGenerationCurrent(int generation) => generation == _recoveryGeneration;
+
+        /// <summary>
+        /// Capture what was being watched when the connection dropped, then stop claiming those
+        /// watches: the server has dropped them, so <see cref="IStreamChannel.IsWatched"/> would
+        /// otherwise report watches that no longer exist. Recovery restores both from the snapshot.
+        /// </summary>
+        private void SnapshotRecoverySetAndClearWatches()
+        {
+            // A reconnect attempt that fails transitions Connecting -> Disconnected again, and by then
+            // the watch list is already empty. Overwriting the snapshot at that point would throw away
+            // the only record of what needs recovering, and the reconnect that eventually succeeds
+            // would restore nothing at all - which is exactly the flaky-mobile-network case.
+            if (_watchedChannels.Count == 0)
+            {
+                return;
+            }
+
+            _recoveryChannelCids.Clear();
+
+            using (new ListPoolScope<IStreamChannel>(out var ordered))
+            {
+                ordered.AddRange(_watchedChannels);
+                ordered.Sort(ByLastMessageAtDescending);
+
+                for (var i = 0; i < ordered.Count; i++)
+                {
+                    _recoveryChannelCids.Add(ordered[i].Cid);
+                }
+            }
+
+            for (var i = 0; i < _watchedChannels.Count; i++)
+            {
+                ((StreamChannel)_watchedChannels[i]).IsWatched = false;
+            }
+
+            _watchedChannels.Clear();
         }
 
         private void OnDisconnected() => Disconnected?.Invoke();
 
         private void OnConnectionStateChanged(ConnectionState previous, ConnectionState current)
-            => ConnectionStateChanged?.Invoke(previous, current);
+        {
+            if (current == ConnectionState.Disconnected)
+            {
+                // Supersede any recovery still in flight before its responses can land on top of the
+                // state the next recovery is about to fetch. Some channel fields (read state, members,
+                // pinned messages) are replaced wholesale by a query response rather than merged, so a
+                // late response is not merely redundant, it can overwrite newer state.
+                _recoveryGeneration++;
+
+                if (InternalLowLevelClient.Config.StateRecoveryStrategy != StateRecoveryStrategy.Disabled)
+                {
+                    SnapshotRecoverySetAndClearWatches();
+                }
+            }
+
+            ConnectionStateChanged?.Invoke(previous, current);
+        }
 
         private void OnMessageDeleted(MessageDeletedEventInternalDTO eventMessageDeleted)
         {
@@ -1606,16 +1987,29 @@ namespace StreamChat.Core
             }
         }
 
+        // Who is currently watching is live presence, like typing: replaying it would leave watchers
+        // listed who left during the outage. The recovery query returns the authoritative watcher set.
         private void OnUserWatchingStop(UserWatchingStopEventInternalDTO eventDto)
         {
+            if (IsApplyingHistorySync)
+            {
+                return;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleUserWatchingStop(eventDto);
             }
         }
 
+        /// <inheritdoc cref="OnUserWatchingStop"/>
         private void OnUserWatchingStart(UserWatchingStartEventInternalDTO eventDto)
         {
+            if (IsApplyingHistorySync)
+            {
+                return;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleUserWatchingStartEvent(eventDto);
@@ -1655,14 +2049,28 @@ namespace StreamChat.Core
 
         private void OnTypingStopped(TypingStopEventInternalDTO eventDto)
         {
+            // Typing is live presence with no meaning in a history replay, and applying it is not
+            // merely redundant but wrong: a typing.start whose matching typing.stop fell outside the
+            // synced window would leave a user typing forever. Skipped entirely, state included.
+            if (IsApplyingHistorySync)
+            {
+                return;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleTypingStopped(eventDto);
             }
         }
 
+        /// <inheritdoc cref="OnTypingStopped"/>
         private void OnTypingStarted(TypingStartEventInternalDTO eventDto)
         {
+            if (IsApplyingHistorySync)
+            {
+                return;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleTypingStarted(eventDto);

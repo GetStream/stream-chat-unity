@@ -427,7 +427,10 @@ namespace StreamChat.Core.StatefulModels
                 }
             }
 
-            ReadStateChanged?.Invoke(this);
+            if (!IsSilentHistorySync)
+            {
+                ReadStateChanged?.Invoke(this);
+            }
         }
 
         // Mirrors Android's Thread.markAsUnreadByUser. notification.mark_unread carries no
@@ -452,7 +455,10 @@ namespace StreamChat.Core.StatefulModels
                 }
             }
 
-            ReadStateChanged?.Invoke(this);
+            if (!IsSilentHistorySync)
+            {
+                ReadStateChanged?.Invoke(this);
+            }
         }
 
         protected override string InternalUniqueId
@@ -521,7 +527,7 @@ namespace StreamChat.Core.StatefulModels
                 }
             }
 
-            if (anyChanged)
+            if (anyChanged && !IsSilentHistorySync)
             {
                 ReadStateChanged?.Invoke(this);
             }
