@@ -1311,8 +1311,9 @@ namespace StreamChat.Core
 
                 // null means the catch-up was skipped: no sync point, or one older than the 30 days
                 // the server accepts. Both used to return before any recovery ran; now step 2 still
-                // runs, which is the whole point of making it unconditional.
-                if (response?.Events == null || response.Events.Count == 0)
+                // runs, which is the whole point of making it unconditional. That is not the same as
+                // the server naming inaccessible cids - do not treat a skip as a deletion.
+                if (response == null)
                 {
                     return;
                 }
@@ -1326,11 +1327,17 @@ namespace StreamChat.Core
                 {
                     // The server is telling us these will never come back. Recording them keeps the
                     // re-query from asking about deleted channels and stops us reporting them as a
-                    // recovery failure every reconnect.
+                    // recovery failure every reconnect. Must run even when Events is empty - a
+                    // deleted channel can be the only thing /sync has to say.
                     foreach (var cid in response.InaccessibleCids)
                     {
                         _inaccessibleCids.Add(cid);
                     }
+                }
+
+                if (response.Events == null || response.Events.Count == 0)
+                {
+                    return;
                 }
 
                 if (InternalLowLevelClient.Config.StateRecoveryStrategy == StateRecoveryStrategy.BatchStateUpdate)

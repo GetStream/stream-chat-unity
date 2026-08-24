@@ -255,6 +255,40 @@ namespace StreamChat.Tests.StateSync.Unit
         }
 
         [Test]
+        public void when_sync_returns_empty_events_with_inaccessible_cids_expect_those_cids_not_requeried()
+        {
+            Connect();
+            WatchChannel("messaging:gone");
+            var ok = WatchChannel("messaging:ok");
+
+            var now = new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero);
+            _mockTimeService.Now.Returns(now);
+
+            DropConnection();
+            // Health checks in these tests carry no created_at, so disconnect would otherwise leave
+            // no sync point and skip /sync entirely. Seed one after the drop so the copy on
+            // Disconnected cannot wipe it.
+            SetDisconnectionLastEventReceivedAt(_client.InternalLowLevelClient, now.AddHours(-1));
+
+            RespondWith(SyncEndpoint, "{\"events\":[],\"inaccessible_cids\":[\"messaging:gone\"]}");
+            RespondWith(QueryChannelsEndpoint, QueryChannelsJson("messaging:ok", "ok"));
+
+            Reconnect();
+
+            _mockHttpClient.Received(1).SendHttpRequestAsync(
+                Arg.Is(HttpMethodType.Post),
+                Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith(QueryChannelsEndpoint)),
+                Arg.Is<object>(body => RequestBodyContains(body, "messaging:ok")
+                                       && !RequestBodyContains(body, "messaging:gone")));
+
+            Assert.AreEqual(1, _recoveredEvents.Count);
+            Assert.AreSame(ok, _recoveredEvents[0].Channels.Single());
+            Assert.AreEqual(new[] { "messaging:gone" }, _recoveredEvents[0].UnrecoveredChannelCids.ToArray());
+            Assert.IsFalse(_recoveredEvents[0].IsComplete);
+            Assert.IsTrue(ok.IsWatched);
+        }
+
+        [Test]
         public void when_recovery_query_returns_channel_expect_watch_restored_and_state_recovered()
         {
             Connect();
@@ -453,6 +487,20 @@ namespace StreamChat.Tests.StateSync.Unit
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(field, "Expected _recoveryChannelCids to exist.");
             return ((List<string>)field.GetValue(_client)).ToArray();
+        }
+
+        private static void SetDisconnectionLastEventReceivedAt(StreamChatLowLevelClient client, DateTimeOffset value)
+        {
+            var field = typeof(StreamChatLowLevelClient).GetField("_disconnectionLastEventReceivedAt",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(field, "Expected _disconnectionLastEventReceivedAt to exist.");
+            field.SetValue(client, (DateTimeOffset?)value);
+        }
+
+        private static bool RequestBodyContains(object requestBody, string value)
+        {
+            var json = requestBody as string ?? requestBody?.ToString() ?? string.Empty;
+            return json.IndexOf(value, StringComparison.Ordinal) >= 0;
         }
 
         private const string HealthCheckJson = "{\"connection_id\":\"fakeId\",\"type\":\"health.check\"}";
