@@ -359,8 +359,63 @@ namespace StreamChat.Tests.StateSync.Unit
                 "The stale recovery must not raise StateRecovered after a newer one already did.");
         }
 
+        [Test]
+        public void when_silent_history_batch_trims_expect_messages_removed_from_cache_not_raised()
+        {
+            Connect();
+            var channel = WatchChannel("messaging:a");
+            channel.OverrideMessageCacheWindow(SmallWindow);
+
+            var removedCount = 0;
+            channel.MessagesRemovedFromCache += (_, __) => removedCount++;
+
+            _client.InternalLowLevelClient.ApplyHistoryEvents(MessageNewEvents("messaging:a", count: 7));
+
+            Assert.AreEqual(0, removedCount,
+                "BatchStateUpdate must not fire MessagesRemovedFromCache; the UI rebuilds on StateRecovered.");
+            Assert.AreEqual(SmallWindow.MaxMessages - SmallWindow.DiscardBatchSize, channel.Messages.Count,
+                "Trim must still run during a silent batch so a 1000-event /sync cannot blow past MaxMessages.");
+        }
+
+        [Test]
+        public void when_history_replay_trims_expect_messages_removed_from_cache_raised()
+        {
+            Connect();
+            var channel = WatchChannel("messaging:a");
+            channel.OverrideMessageCacheWindow(SmallWindow);
+
+            var removedCount = 0;
+            channel.MessagesRemovedFromCache += (_, __) => removedCount++;
+
+            _client.InternalLowLevelClient.ReplayHistoryEvents(MessageNewEvents("messaging:a", count: 7));
+
+            Assert.AreEqual(1, removedCount,
+                "ReplayEvents is the default and must keep raising MessagesRemovedFromCache for back-compat.");
+            Assert.AreEqual(SmallWindow.MaxMessages - SmallWindow.DiscardBatchSize, channel.Messages.Count);
+        }
+
         private const string SyncEndpoint = "/sync";
         private const string QueryChannelsEndpoint = "/channels";
+
+        // Same window as MessageCacheWindowTests: 7 messages exceed MaxMessages and trim down to 3.
+        private static readonly MessageCacheWindow SmallWindow = new MessageCacheWindow(6, 3);
+
+        private static IEnumerable<object> MessageNewEvents(string cid, int count)
+        {
+            var start = new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero);
+            var events = new List<object>(count);
+            for (var i = 0; i < count; i++)
+            {
+                events.Add(MessageNewJson(cid, $"msg-{i}", start.AddSeconds(i)));
+            }
+
+            return events;
+        }
+
+        private static string MessageNewJson(string cid, string messageId, DateTimeOffset createdAt)
+            => $"{{\"type\":\"message.new\",\"cid\":\"{cid}\",\"created_at\":\"{createdAt:O}\"," +
+               $"\"message\":{{\"id\":\"{messageId}\",\"text\":\"hi\",\"created_at\":\"{createdAt:O}\"," +
+               $"\"updated_at\":\"{createdAt:O}\",\"user\":{{\"id\":\"user-1\"}}}}}}";
 
         private void RespondWith(string endpointSuffix, string json)
         {

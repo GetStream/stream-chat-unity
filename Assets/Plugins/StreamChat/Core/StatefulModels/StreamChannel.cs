@@ -1146,7 +1146,9 @@ namespace StreamChat.Core.StatefulModels
             var handler = MessagesRemovedFromCache;
 
             // Not pooled - this is handed to subscribers, so the SDK does not control its lifetime.
-            var removed = handler == null ? null : new List<IStreamMessage>(removeCount);
+            // Skip the allocation during a silent history batch: the callback is suppressed and a
+            // 1000-event /sync can trim repeatedly.
+            var removed = (handler == null || IsSilentHistorySync) ? null : new List<IStreamMessage>(removeCount);
 
             using (new ListPoolScope<StreamMessage>(out var tempUntrackCandidates))
             using (new HashSetPoolScope<string>(out var tempPinnedMessageIds))
@@ -1172,7 +1174,12 @@ namespace StreamChat.Core.StatefulModels
             }
 
             // Raised after the pooled buffers are returned so subscribers can trim or send safely.
-            handler?.Invoke(this, removed);
+            // BatchStateUpdate already rebuilt from Messages on StateRecovered. Firing this
+            // during the batch would only destroy old rows that the rebuild is about to replace.
+            if (!IsSilentHistorySync)
+            {
+                handler?.Invoke(this, removed);
+            }
         }
 
         // Live messages are still appended while paused, so a channel that is never resumed keeps
