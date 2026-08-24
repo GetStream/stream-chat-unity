@@ -1334,7 +1334,10 @@ namespace StreamChat.Core.StatefulModels
             {
                 WatcherCount += 1;
                 _watchers.Add(user);
-                WatcherAdded?.Invoke(this, user);
+                if (!IsSilentHistorySync)
+                {
+                    WatcherAdded?.Invoke(this, user);
+                }
             }
         }
 
@@ -1351,7 +1354,11 @@ namespace StreamChat.Core.StatefulModels
                 {
                     var user = Cache.TryCreateOrUpdate(eventDto.User, out var wasCreated);
                     _watchers.RemoveAt(i);
-                    WatcherRemoved?.Invoke(this, user);
+                    if (!IsSilentHistorySync)
+                    {
+                        WatcherRemoved?.Invoke(this, user);
+                    }
+
                     return;
                 }
             }
@@ -1368,8 +1375,12 @@ namespace StreamChat.Core.StatefulModels
                 if (_typingUsers[i].Id == eventDto.User.Id)
                 {
                     _typingUsers.RemoveAt(i);
-                    UserStoppedTyping?.Invoke(this, user);
-                    TypingUsersChanged?.Invoke(this);
+                    if (!IsSilentHistorySync)
+                    {
+                        UserStoppedTyping?.Invoke(this, user);
+                        TypingUsersChanged?.Invoke(this);
+                    }
+
                     return;
                 }
             }
@@ -1384,8 +1395,11 @@ namespace StreamChat.Core.StatefulModels
             if (!_typingUsers.ContainsNoAlloc(user))
             {
                 _typingUsers.Add(user);
-                UserStartedTyping?.Invoke(this, user);
-                TypingUsersChanged?.Invoke(this);
+                if (!IsSilentHistorySync)
+                {
+                    UserStartedTyping?.Invoke(this, user);
+                    TypingUsersChanged?.Invoke(this);
+                }
             }
         }
 

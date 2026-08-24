@@ -10,6 +10,7 @@ using NSubstitute;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Configs;
+using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Responses;
 using StreamChat.Core.LowLevelClient;
 using StreamChat.Core.Responses;
@@ -394,6 +395,130 @@ namespace StreamChat.Tests.StateSync.Unit
             Assert.AreEqual(SmallWindow.MaxMessages - SmallWindow.DiscardBatchSize, channel.Messages.Count);
         }
 
+        [Test]
+        public void when_silent_history_batch_adds_thread_reply_expect_reply_received_not_raised()
+        {
+            Connect();
+            WatchChannel("messaging:a");
+            var thread = TrackThread("messaging:a", "parent-1");
+
+            var replyCount = 0;
+            thread.ReplyReceived += (_, __) => replyCount++;
+
+            _client.InternalLowLevelClient.ApplyHistoryEvents(new[]
+            {
+                ThreadReplyJson("messaging:a", "parent-1", "reply-1"),
+            });
+
+            Assert.AreEqual(0, replyCount,
+                "BatchStateUpdate must not fire ReplyReceived; the UI rebuilds on StateRecovered.");
+            Assert.AreEqual(1, thread.LatestReplies.Count);
+            Assert.AreEqual("reply-1", thread.LatestReplies[0].Id);
+        }
+
+        [Test]
+        public void when_history_replay_adds_thread_reply_expect_reply_received_raised()
+        {
+            Connect();
+            WatchChannel("messaging:a");
+            var thread = TrackThread("messaging:a", "parent-1");
+
+            var replyCount = 0;
+            thread.ReplyReceived += (_, __) => replyCount++;
+
+            _client.InternalLowLevelClient.ReplayHistoryEvents(new[]
+            {
+                ThreadReplyJson("messaging:a", "parent-1", "reply-1"),
+            });
+
+            Assert.AreEqual(1, replyCount,
+                "ReplayEvents is the default and must keep raising ReplyReceived for back-compat.");
+            Assert.AreEqual(1, thread.LatestReplies.Count);
+            Assert.AreEqual("reply-1", thread.LatestReplies[0].Id);
+        }
+
+        [Test]
+        public void when_silent_history_batch_changes_presence_expect_presence_changed_not_raised()
+        {
+            Connect();
+            var user = TrackUser("other-user", online: false);
+
+            var presenceCount = 0;
+            user.PresenceChanged += (_, __, ___) => presenceCount++;
+
+            _client.InternalLowLevelClient.ApplyHistoryEvents(new[]
+            {
+                PresenceChangedJson("other-user", online: true),
+            });
+
+            Assert.AreEqual(0, presenceCount,
+                "BatchStateUpdate must not fire PresenceChanged; the UI rebuilds on StateRecovered.");
+            Assert.IsTrue(user.Online);
+        }
+
+        [Test]
+        public void when_history_replay_changes_presence_expect_presence_changed_raised()
+        {
+            Connect();
+            var user = TrackUser("other-user", online: false);
+
+            var presenceCount = 0;
+            user.PresenceChanged += (_, __, ___) => presenceCount++;
+
+            _client.InternalLowLevelClient.ReplayHistoryEvents(new[]
+            {
+                PresenceChangedJson("other-user", online: true),
+            });
+
+            Assert.AreEqual(1, presenceCount,
+                "ReplayEvents is the default and must keep raising PresenceChanged for back-compat.");
+            Assert.IsTrue(user.Online);
+        }
+
+        [Test]
+        public void when_silent_history_batch_closes_poll_expect_closed_not_raised()
+        {
+            Connect();
+            WatchChannel("messaging:a");
+            var poll = TrackPoll("poll-1");
+
+            var closedCount = 0;
+            var updatedCount = 0;
+            poll.Closed += _ => closedCount++;
+            poll.Updated += _ => updatedCount++;
+
+            _client.InternalLowLevelClient.ApplyHistoryEvents(new[]
+            {
+                PollClosedJson("messaging:a", "poll-1"),
+            });
+
+            Assert.AreEqual(0, closedCount,
+                "BatchStateUpdate must not fire Closed; the UI rebuilds on StateRecovered.");
+            Assert.AreEqual(0, updatedCount,
+                "BatchStateUpdate must not fire Updated during a silent poll DTO apply.");
+            Assert.IsTrue(poll.IsClosed);
+        }
+
+        [Test]
+        public void when_history_replay_closes_poll_expect_closed_raised()
+        {
+            Connect();
+            WatchChannel("messaging:a");
+            var poll = TrackPoll("poll-1");
+
+            var closedCount = 0;
+            poll.Closed += _ => closedCount++;
+
+            _client.InternalLowLevelClient.ReplayHistoryEvents(new[]
+            {
+                PollClosedJson("messaging:a", "poll-1"),
+            });
+
+            Assert.AreEqual(1, closedCount,
+                "ReplayEvents is the default and must keep raising Closed for back-compat.");
+            Assert.IsTrue(poll.IsClosed);
+        }
+
         private const string SyncEndpoint = "/sync";
         private const string QueryChannelsEndpoint = "/channels";
 
@@ -416,6 +541,61 @@ namespace StreamChat.Tests.StateSync.Unit
             => $"{{\"type\":\"message.new\",\"cid\":\"{cid}\",\"created_at\":\"{createdAt:O}\"," +
                $"\"message\":{{\"id\":\"{messageId}\",\"text\":\"hi\",\"created_at\":\"{createdAt:O}\"," +
                $"\"updated_at\":\"{createdAt:O}\",\"user\":{{\"id\":\"user-1\"}}}}}}";
+
+        private static string ThreadReplyJson(string cid, string parentId, string replyId)
+        {
+            var createdAt = new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero);
+            return $"{{\"type\":\"message.new\",\"cid\":\"{cid}\",\"created_at\":\"{createdAt:O}\"," +
+                   $"\"message\":{{\"id\":\"{replyId}\",\"parent_id\":\"{parentId}\",\"text\":\"reply\"," +
+                   $"\"created_at\":\"{createdAt:O}\",\"updated_at\":\"{createdAt:O}\"," +
+                   $"\"user\":{{\"id\":\"user-1\"}}}}}}";
+        }
+
+        private static string PresenceChangedJson(string userId, bool online)
+        {
+            var createdAt = new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero);
+            var onlineJson = online ? "true" : "false";
+            return $"{{\"type\":\"user.presence.changed\",\"created_at\":\"{createdAt:O}\"," +
+                   $"\"user\":{{\"id\":\"{userId}\",\"online\":{onlineJson}}}}}";
+        }
+
+        private static string PollClosedJson(string cid, string pollId)
+        {
+            var createdAt = new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero);
+            return $"{{\"type\":\"poll.closed\",\"cid\":\"{cid}\",\"created_at\":\"{createdAt:O}\"," +
+                   $"\"poll\":{{\"id\":\"{pollId}\",\"name\":\"q\",\"is_closed\":true,\"vote_count\":0," +
+                   $"\"voting_visibility\":\"public\"}}}}";
+        }
+
+        private IStreamThread TrackThread(string cid, string parentMessageId)
+            => _client.InternalCache.TryCreateOrUpdate(new ThreadStateInternalDTO
+            {
+                ParentMessageId = parentMessageId,
+                ChannelCid = cid,
+                ReplyCount = 0,
+                ParentMessage = new MessageInternalDTO
+                {
+                    Id = parentMessageId,
+                    Text = "parent",
+                    User = new UserObjectInternalDTO { Id = "user-1" },
+                },
+            });
+
+        private IStreamUser TrackUser(string userId, bool online)
+            => _client.InternalCache.TryCreateOrUpdate(new UserObjectInternalDTO
+            {
+                Id = userId,
+                Online = online,
+            });
+
+        private IStreamPoll TrackPoll(string pollId)
+            => _client.InternalCache.TryCreateOrUpdate(new PollResponseDataInternalDTO
+            {
+                Id = pollId,
+                Name = "q",
+                IsClosed = false,
+                VoteCount = 0,
+            });
 
         private void RespondWith(string endpointSuffix, string json)
         {

@@ -195,7 +195,10 @@ namespace StreamChat.Core.StatefulModels
             // and stream-chat-js (constructCustomDataObject collects non-reserved top-level fields).
             LoadAdditionalProperties(dto.AdditionalProperties);
 
-            Updated?.Invoke(this);
+            if (!IsSilentHistorySync)
+            {
+                Updated?.Invoke(this);
+            }
         }
 
         // ChannelStateResponse[Fields]InternalDTO carries threads as ThreadStateInternalDTO
@@ -259,7 +262,10 @@ namespace StreamChat.Core.StatefulModels
             // and stream-chat-js (constructCustomDataObject collects non-reserved top-level fields).
             LoadAdditionalProperties(dto.AdditionalProperties);
 
-            Updated?.Invoke(this);
+            if (!IsSilentHistorySync)
+            {
+                Updated?.Invoke(this);
+            }
         }
 
         void IUpdateableFrom2<ThreadResponseInternalDTO, StreamThread>.UpdateFromDto(
@@ -307,7 +313,10 @@ namespace StreamChat.Core.StatefulModels
             // and stream-chat-js (constructCustomDataObject collects non-reserved top-level fields).
             LoadAdditionalProperties(dto.AdditionalProperties);
 
-            Updated?.Invoke(this);
+            if (!IsSilentHistorySync)
+            {
+                Updated?.Invoke(this);
+            }
         }
 
         internal StreamThread(string uniqueId, ICacheRepository<StreamThread> repository,
@@ -332,7 +341,11 @@ namespace StreamChat.Core.StatefulModels
             var isInsert = !_latestReplies.Contains(streamReply);
             if (!isInsert)
             {
-                ReplyReceived?.Invoke(this, reply);
+                if (!IsSilentHistorySync)
+                {
+                    ReplyReceived?.Invoke(this, reply);
+                }
+
                 return;
             }
 
@@ -355,7 +368,10 @@ namespace StreamChat.Core.StatefulModels
             UpsertReplySenderAsParticipant(streamReply);
             IncrementUnreadForOtherReaders(streamReply);
 
-            ReplyReceived?.Invoke(this, reply);
+            if (!IsSilentHistorySync)
+            {
+                ReplyReceived?.Invoke(this, reply);
+            }
         }
 
         internal void HandleReplyDeleted(string messageId, bool isHardDelete)
