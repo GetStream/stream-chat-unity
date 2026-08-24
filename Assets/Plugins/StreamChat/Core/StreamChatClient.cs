@@ -53,8 +53,6 @@ namespace StreamChat.Core
     /// </summary>
     public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
 
-    //StreamTodo: Handle restoring state after lost connection
-
     public delegate void ChannelInviteHandler(IStreamChannel channel, IStreamUser invitee);
 
     /// <summary>
@@ -228,8 +226,7 @@ namespace StreamChat.Core
         {
             TryCancelWaitingForUserConnection();
 
-            // Ends the session, so the next Connected transition is a fresh login rather than a
-            // reconnect and must not run recovery or raise StateRecovered.
+            // End the session so the next Connected is a new login, not a reconnect.
             _hasConnectedBefore = false;
 
             return InternalLowLevelClient.DisconnectAsync(permanent: true);
@@ -937,15 +934,13 @@ namespace StreamChat.Core
         private readonly List<IStreamChannel> _watchedChannels = new List<IStreamChannel>();
 
         /// <summary>
-        /// Cids that were being watched when the connection dropped, most recently active first.
-        /// Reconnect recovery restores state and watches from this, not from
-        /// <see cref="_watchedChannels"/>, which is cleared on the disconnect.
+        /// Cids watched when the connection dropped, newest activity first.
+        /// Recovery uses this because <see cref="_watchedChannels"/> is cleared on disconnect.
         /// </summary>
         private readonly List<string> _recoveryChannelCids = new List<string>();
 
         /// <summary>
-        /// Cids the <c>/sync</c> response reported as inaccessible - deleted, or no longer readable by
-        /// the local user. Never re-queried again for the lifetime of the client.
+        /// Cids <c>/sync</c> reported as inaccessible. Never queried again for this client.
         /// </summary>
         private readonly HashSet<string> _inaccessibleCids = new HashSet<string>();
 
@@ -953,20 +948,17 @@ namespace StreamChat.Core
         private bool _hasConnectedBefore;
 
         /// <summary>
-        /// Recovering more channels than this would mean an unbounded number of sequential queries on
-        /// every reconnect, which invites rate limiting. Matches the <c>/sync</c> cid cap so both
-        /// halves of recovery cover the same set. JS and Android both cap lower, at 30.
+        /// Cap so reconnect does not run an unbounded number of queries.
+        /// Same cap as <c>/sync</c>. JS and Android cap at 30.
         /// </summary>
         internal const int MaxRecoveredChannels = StreamChatLowLevelClient.MaxSyncChannelCids;
 
         /// <summary>
-        /// <c>QueryChannelsAsync</c> asserts a limit of at most 30, so a longer recovery set has to be
-        /// chunked. Same chunk size as <see cref="WatchResultChannelsAsync"/>.
+        /// <c>QueryChannelsAsync</c> allows at most 30 channels per request.
         /// </summary>
         private const int MaxChannelsPerRecoveryQuery = 30;
 
-        // Ties are broken arbitrarily - List.Sort is unstable - which only matters for channels with
-        // an equal LastMessageAt, where there is no meaningful "more recently active" anyway.
+        // List.Sort is unstable. Ties only happen when LastMessageAt is equal.
         private static readonly Comparison<IStreamChannel> ByLastMessageAtDescending = (a, b)
             => (b.LastMessageAt ?? DateTimeOffset.MinValue).CompareTo(a.LastMessageAt ?? DateTimeOffset.MinValue);
 
@@ -1028,10 +1020,8 @@ namespace StreamChat.Core
             ChannelDeleted?.Invoke(channel.Cid, channel.Id, channel.Type);
         }
 
-        // Flip IsWatched=true and add to _watchedChannels. Call from every path that issued
-        // Watch=true to the server. Channels that land in the cache via non-watching paths
-        // (search hits, threads with Watch=false, ban-info / mute payloads) stay IsWatched=false.
-        // Idempotent: a no-op when the channel is already watched.
+        // Call from every path that sent Watch=true to the server.
+        // Search hits, threads with Watch=false, and similar cache-only paths stay unwatched.
         private void MarkChannelWatched(StreamChannel channel)
         {
             if (channel == null || channel.IsWatched)
@@ -1043,8 +1033,7 @@ namespace StreamChat.Core
             _watchedChannels.Add(channel);
         }
 
-        // Counterpart to MarkChannelWatched. Called from StreamChannel.StopWatchingAsync
-        // after the server confirms the unwatch. Idempotent.
+        // Called from StreamChannel.StopWatchingAsync after the server confirms.
         internal void InternalMarkChannelUnwatched(StreamChannel channel)
         {
             if (channel == null)
@@ -1052,8 +1041,8 @@ namespace StreamChat.Core
                 return;
             }
 
-            // Drop it from the recovery snapshot as well, or an unwatch performed while disconnected
-            // would be undone by the next reconnect re-watching it.
+            // Also remove it from the reconnect recovery list. If the user stopped watching
+            // while disconnected, recovery would otherwise start watching this channel again.
             _recoveryChannelCids.Remove(channel.Cid);
 
             if (!channel.IsWatched)
@@ -1163,40 +1152,19 @@ namespace StreamChat.Core
         }
 
         /// <summary>
-        /// Watches are bound to a websocket connection, and a reconnect always gets a new one, so a
-        /// reconnected client is watching nothing until something re-watches for it. Without this the
-        /// channels stay in local state but stop receiving events - the chat looks alive and silently
-        /// never updates again.
+        /// After reconnect the new websocket has no watches. Without this, channels stay
+        /// in local state but stop receiving events.
         ///
-        /// This holds no matter how briefly the socket was down. The handshake payload
-        /// (<c>ConnectPayload</c>) carries only the user and token plus
-        /// <c>server_determines_connection_id</c>; there is no session or resume token, so the client
-        /// cannot ask the server to continue a previous connection, and the server mints a fresh
-        /// <c>connection_id</c> that every subsequent request is then tagged with. Do not confuse this
-        /// with the server-side health check grace period: that governs when the server notices a
-        /// silently dropped socket, which affects presence and the cleanup of the stale watcher entry.
-        /// It does not hand the old connection's watches to the new one - if anything a fast reconnect
-        /// is the worse case, because for a while the channel counts you as a watcher twice while the
-        /// connection you are actually reading receives nothing.
-        ///
-        /// Runs after every reconnect, in this order:
-        ///
-        /// 1. <c>/sync</c> catch-up, best effort. This is what makes a short outage recover with no
-        ///    hole in the message list. It has to run first because a replayed <c>channel.truncated</c>
-        ///    wipes the local message list, and doing that after step 2 would discard the page step 2
-        ///    just fetched.
-        /// 2. Re-query and re-watch, unconditionally, whatever step 1 did. One query per 30 cids, with
-        ///    <c>State</c> and <c>Watch</c> set, so a single request both re-hydrates and re-watches.
+        /// 1. <c>/sync</c> catch-up (best effort). Must run first: a replayed <c>channel.truncated</c>
+        ///    would wipe messages fetched in step 2.
+        /// 2. Re-query and re-watch, even if step 1 failed or was skipped.
         /// 3. Raise <see cref="StateRecovered"/> once.
         ///
-        /// Steps 1 and 2 are individually fault-tolerant: a failure in one channel or one request must
-        /// not abandon the others, because this is the only recovery this reconnect gets.
+        /// A failure in one channel or request must not stop the others.
         /// </summary>
         private async Task RestoreStateLostDuringDisconnect()
         {
-            // A fresh login is not a recovery: there is no prior state to restore and no consumer
-            // expects a recovery signal for it. Anything left in the snapshot belongs to the previous
-            // session, and possibly to a different user, so drop it.
+            // First login is not a recovery. Clear any leftover snapshot from a previous session.
             if (!_hasConnectedBefore)
             {
                 _hasConnectedBefore = true;
@@ -1212,26 +1180,23 @@ namespace StreamChat.Core
 
             var generation = ++_recoveryGeneration;
 
-            // Pooled - never leaves this method and the steps below only read it. The two collections
-            // handed to StateRecovered are not pooled, because subscribers keep them for as long as
-            // they like.
-            using (new ListPoolScope<string>(out var recoverSet))
+            using (new ListPoolScope<string>(out var tempRecoverSet))
             {
-                FillRecoverySet(recoverSet);
+                FillRecoverySet(tempRecoverSet);
 
                 var refreshedChannels = new List<IStreamChannel>();
 
                 try
                 {
-                    if (recoverSet.Count > 0)
+                    if (tempRecoverSet.Count > 0)
                     {
-                        await TryCatchUpWithHistoryAsync(recoverSet, generation);
+                        await TryCatchUpWithHistoryAsync(tempRecoverSet, generation);
                         if (!IsRecoveryGenerationCurrent(generation))
                         {
                             return;
                         }
 
-                        await RehydrateAndRewatchChannelsAsync(recoverSet, generation, refreshedChannels);
+                        await RehydrateAndRewatchChannelsAsync(tempRecoverSet, generation, refreshedChannels);
                         if (!IsRecoveryGenerationCurrent(generation))
                         {
                             return;
@@ -1240,8 +1205,8 @@ namespace StreamChat.Core
                 }
                 catch (Exception e)
                 {
-                    // Defence in depth - every step already handles its own failures. Whatever happened,
-                    // the consumer still gets told that recovery finished and which channels are stale.
+                    // Each step already handles its own errors. Still raise StateRecovered so the
+                    // app knows recovery finished and which channels are stale.
                     _logs.Exception(e);
                 }
 
@@ -1252,18 +1217,18 @@ namespace StreamChat.Core
 
                 var unrecovered = new List<string>();
 
-                using (new HashSetPoolScope<string>(out var recovered))
+                using (new HashSetPoolScope<string>(out var tempRecovered))
                 {
                     for (var i = 0; i < refreshedChannels.Count; i++)
                     {
-                        recovered.Add(refreshedChannels[i].Cid);
+                        tempRecovered.Add(refreshedChannels[i].Cid);
                     }
 
-                    for (var i = 0; i < recoverSet.Count; i++)
+                    for (var i = 0; i < tempRecoverSet.Count; i++)
                     {
-                        if (!recovered.Contains(recoverSet[i]))
+                        if (!tempRecovered.Contains(tempRecoverSet[i]))
                         {
-                            unrecovered.Add(recoverSet[i]);
+                            unrecovered.Add(tempRecoverSet[i]);
                         }
                     }
                 }
@@ -1281,8 +1246,7 @@ namespace StreamChat.Core
         }
 
         /// <summary>
-        /// Copy the most recently active <see cref="MaxRecoveredChannels"/> cids from the snapshot
-        /// captured on the disconnect into <paramref name="recoverSet"/>.
+        /// Copy up to <see cref="MaxRecoveredChannels"/> cids from the disconnect snapshot.
         /// </summary>
         private void FillRecoverySet(List<string> recoverSet)
         {
@@ -1309,10 +1273,7 @@ namespace StreamChat.Core
             {
                 var response = await InternalLowLevelClient.TrySyncHistoryAsync(recoverSet);
 
-                // null means the catch-up was skipped: no sync point, or one older than the 30 days
-                // the server accepts. Both used to return before any recovery ran; now step 2 still
-                // runs, which is the whole point of making it unconditional. That is not the same as
-                // the server naming inaccessible cids - do not treat a skip as a deletion.
+                // No sync point, or older than 30 days. Step 2 still runs. This is not a deletion.
                 if (response == null)
                 {
                     return;
@@ -1325,10 +1286,8 @@ namespace StreamChat.Core
 
                 if (response.InaccessibleCids != null)
                 {
-                    // The server is telling us these will never come back. Recording them keeps the
-                    // re-query from asking about deleted channels and stops us reporting them as a
-                    // recovery failure every reconnect. Must run even when Events is empty - a
-                    // deleted channel can be the only thing /sync has to say.
+                    // These channels will never come back. Record them so we do not query them again.
+                    // Must run even when Events is empty.
                     foreach (var cid in response.InaccessibleCids)
                     {
                         _inaccessibleCids.Add(cid);
@@ -1351,11 +1310,7 @@ namespace StreamChat.Core
             }
             catch (StreamApiException ex) when (ex.IsInputError())
             {
-                // HTTP 400 / code 4, "too many events to sync". The server counts events summed across
-                // every requested cid against a ceiling of roughly 1000 and refuses the whole request,
-                // so this is the normal outcome of a long outage on busy channels, not an anomaly.
-                // The re-query below is the fallback and recovers the same state minus the events that
-                // did not fit in the latest page.
+                // Too many events to sync. The re-query below recovers state without those events.
                 _logs.Warning("The /sync catch-up was refused because too many events accumulated during the outage. " +
                               "Recovering channel state with a re-query instead. " + ex.Message);
             }
@@ -1368,17 +1323,11 @@ namespace StreamChat.Core
 
         /// <summary>
         /// Re-hydrate and re-watch in one request per <see cref="MaxChannelsPerRecoveryQuery"/> cids.
+        /// Unlike Android, we do not re-watch omitted cids one by one. This query is by cid,
+        /// so a missing cid is deleted or no longer readable. A get-or-create watch would
+        /// recreate a deleted channel. Those cids go to
+        /// <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/>.
         /// </summary>
-        /// <remarks>
-        /// Unlike Android, this does not follow up with a per-channel re-watch for cids the query did
-        /// not return. Android needs that because it recovers through the customer's own channel-list
-        /// queries, which need not cover every active cid; this queries the recovery set by cid, so it
-        /// is exhaustive by construction. A cid the query omits is one the server will not return at
-        /// all - deleted, or no longer readable - and the only per-channel watch primitive available
-        /// is get-or-create, which would recreate a channel that was deleted while we were offline.
-        /// Such cids are reported through
-        /// <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/> instead.
-        /// </remarks>
         private async Task RehydrateAndRewatchChannelsAsync(IReadOnlyList<string> recoverSet, int generation,
             List<IStreamChannel> refreshed)
         {
@@ -1391,43 +1340,38 @@ namespace StreamChat.Core
                     return;
                 }
 
-                // Released only once the query has completed: the filter holds this list and the
-                // request body is serialized from it.
-                using (new ListPoolScope<string>(out var chunk))
+                using (new ListPoolScope<string>(out var tempChunk))
                 {
                     var chunkEnd = Math.Min(i + MaxChannelsPerRecoveryQuery, recoverSet.Count);
                     for (var j = i; j < chunkEnd; j++)
                     {
                         if (!_inaccessibleCids.Contains(recoverSet[j]))
                         {
-                            chunk.Add(recoverSet[j]);
+                            tempChunk.Add(recoverSet[j]);
                         }
                     }
 
-                    if (chunk.Count == 0)
+                    if (tempChunk.Count == 0)
                     {
                         continue;
                     }
 
                     var filters = new IFieldFilterRule[]
                     {
-                        ChannelFilter.Cid.In(chunk),
+                        ChannelFilter.Cid.In(tempChunk),
                     };
 
                     QueryChannelsResponseInternalDTO response;
                     try
                     {
-                        // Fetch only. Public QueryChannelsAsync applies immediately (members/read/pinned
-                        // are replaced, watches marked). A request started on an old connection can still
-                        // succeed after a reconnect, so apply must wait for the generation check below.
-                        response = await FetchQueryChannelsResponseAsync(filters, sort, chunk.Count);
+                        // Fetch only. Apply after the generation check so a late response from an old
+                        // connection cannot overwrite newer members, read, or pinned messages.
+                        response = await FetchQueryChannelsResponseAsync(filters, sort, tempChunk.Count);
                     }
                     catch (Exception e)
                     {
-                        // One failed chunk (a rate limit part-way through a long watch list, a channel
-                        // torn down while offline) must not cost the remaining chunks their recovery -
-                        // there is no later retry this connection.
-                        _logs.Warning($"Recovery query failed for {chunk.Count} channel(s). Continuing with the rest. " +
+                        // Do not skip the rest. There is no later retry on this connection.
+                        _logs.Warning($"Recovery query failed for {tempChunk.Count} channel(s). Continuing with the rest. " +
                                       e.Message);
                         continue;
                     }
@@ -1451,8 +1395,7 @@ namespace StreamChat.Core
                         }
 
                         MarkChannelWatched(channel);
-                        // The query merge path goes through UpdateFromDto, which does not trim, so a
-                        // recovery merge can push Messages past MessageCacheWindow.MaxMessages.
+                        // Query merge does not trim, so Messages can exceed MessageCacheWindow.
                         channel.InternalTrimMessageCache();
                         refreshed.Add(channel);
                     }
@@ -1461,9 +1404,8 @@ namespace StreamChat.Core
         }
 
         /// <summary>
-        /// Same request as public <see cref="QueryChannelsAsync(IEnumerable{IFieldFilterRule}, ChannelSortObject, int, int)"/>
-        /// but does not touch <c>_cache</c> or <c>_watchedChannels</c>. Recovery uses this so a stale
-        /// in-flight response cannot overwrite newer state or mark watches for a dropped connection.
+        /// Same request as public QueryChannelsAsync, but does not update cache or watches.
+        /// A late response from an old connection must not overwrite newer state.
         /// </summary>
         private Task<QueryChannelsResponseInternalDTO> FetchQueryChannelsResponseAsync(
             IEnumerable<IFieldFilterRule> filters, ChannelSortObject sort, int limit, int offset = 0)
@@ -1498,16 +1440,12 @@ namespace StreamChat.Core
         private bool IsRecoveryGenerationCurrent(int generation) => generation == _recoveryGeneration;
 
         /// <summary>
-        /// Capture what was being watched when the connection dropped, then stop claiming those
-        /// watches: the server has dropped them, so <see cref="IStreamChannel.IsWatched"/> would
-        /// otherwise report watches that no longer exist. Recovery restores both from the snapshot.
+        /// Save watched cids, then mark them unwatched. The server already dropped the watches.
         /// </summary>
         private void SnapshotRecoverySetAndClearWatches()
         {
-            // A reconnect attempt that fails transitions Connecting -> Disconnected again, and by then
-            // the watch list is already empty. Overwriting the snapshot at that point would throw away
-            // the only record of what needs recovering, and the reconnect that eventually succeeds
-            // would restore nothing at all - which is exactly the flaky-mobile-network case.
+            // A failed reconnect also hits Disconnected with an empty watch list.
+            // Do not overwrite the snapshot, or the next success recovers nothing.
             if (_watchedChannels.Count == 0)
             {
                 return;
@@ -1515,14 +1453,14 @@ namespace StreamChat.Core
 
             _recoveryChannelCids.Clear();
 
-            using (new ListPoolScope<IStreamChannel>(out var ordered))
+            using (new ListPoolScope<IStreamChannel>(out var tempOrdered))
             {
-                ordered.AddRange(_watchedChannels);
-                ordered.Sort(ByLastMessageAtDescending);
+                tempOrdered.AddRange(_watchedChannels);
+                tempOrdered.Sort(ByLastMessageAtDescending);
 
-                for (var i = 0; i < ordered.Count; i++)
+                for (var i = 0; i < tempOrdered.Count; i++)
                 {
-                    _recoveryChannelCids.Add(ordered[i].Cid);
+                    _recoveryChannelCids.Add(tempOrdered[i].Cid);
                 }
             }
 
@@ -1540,10 +1478,8 @@ namespace StreamChat.Core
         {
             if (current == ConnectionState.Disconnected)
             {
-                // Supersede any recovery still in flight before its responses can land on top of the
-                // state the next recovery is about to fetch. Some channel fields (read state, members,
-                // pinned messages) are replaced wholesale by a query response rather than merged, so a
-                // late response is not merely redundant, it can overwrite newer state.
+                // Ignore in-flight recovery. A late query can replace members, read state,
+                // and pinned messages with older data.
                 _recoveryGeneration++;
 
                 if (InternalLowLevelClient.Config.StateRecoveryStrategy != StateRecoveryStrategy.Disabled)
@@ -2003,8 +1939,8 @@ namespace StreamChat.Core
             }
         }
 
-        // Who is currently watching is live presence, like typing: replaying it would leave watchers
-        // listed who left during the outage. The recovery query returns the authoritative watcher set.
+        // Watcher lists are live presence. Replaying them would show people who left during the outage.
+        // The recovery query returns the current watcher set.
         private void OnUserWatchingStop(UserWatchingStopEventInternalDTO eventDto)
         {
             if (IsApplyingHistorySync)
@@ -2065,9 +2001,8 @@ namespace StreamChat.Core
 
         private void OnTypingStopped(TypingStopEventInternalDTO eventDto)
         {
-            // Typing is live presence with no meaning in a history replay, and applying it is not
-            // merely redundant but wrong: a typing.start whose matching typing.stop fell outside the
-            // synced window would leave a user typing forever. Skipped entirely, state included.
+            // Typing is live presence. A typing.start without its matching typing.stop would leave
+            // a user typing forever. Skip the whole event, including state.
             if (IsApplyingHistorySync)
             {
                 return;

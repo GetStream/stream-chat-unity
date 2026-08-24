@@ -5,7 +5,7 @@ using StreamChat.Core.StatefulModels;
 namespace StreamChat.Core.Responses
 {
     /// <summary>
-    /// Payload for <see cref="IStreamChatClient.StateRecovered"/>.
+    /// Data for <see cref="IStreamChatClient.StateRecovered"/>.
     /// </summary>
     public sealed class StreamStateRecoveredEventArgs
     {
@@ -17,31 +17,27 @@ namespace StreamChat.Core.Responses
         }
 
         /// <summary>
-        /// Channels whose state was refreshed and whose watch was re-established. Their
-        /// <see cref="IStreamChannel.Messages"/> and other collections are up to date as of the
-        /// moment this event is raised.
+        /// Channels that were refreshed and are watched again.
+        /// Their <see cref="IStreamChannel.Messages"/> and other collections are up to date when this event is raised.
         ///
-        /// Note that the recovery query returns the channel's latest page of messages and merges it
-        /// into what was already loaded. If more messages arrived during the outage than fit in one
-        /// page, the list contains the pre-disconnect messages followed by the latest page with a
-        /// hole in between, and <see cref="IStreamChannel.LoadOlderMessagesAsync"/> cannot reach into
-        /// that hole because it pages back from the oldest loaded message.
+        /// Recovery adds the newest messages to what was already loaded.
+        /// If many messages arrived while you were disconnected, there can be a gap in the list.
+        /// <see cref="IStreamChannel.LoadOlderMessagesAsync"/> cannot fill that gap,
+        /// because it loads from the oldest loaded message.
         /// </summary>
         public IReadOnlyList<IStreamChannel> Channels { get; }
 
         /// <summary>
-        /// Channels that were being watched before the disconnect but could not be recovered - the
-        /// server no longer returns them (deleted, or the local user lost access while offline), or
-        /// every attempt to re-query them failed. Their local state is still stale and they are no
-        /// longer watched, so they will not receive realtime updates.
+        /// Channels that were watched before the disconnect but could not be recovered.
+        /// The server no longer returns them (deleted, or the user lost access), or the client could not refresh them.
+        /// Their local state is still stale and they are not watched.
         ///
-        /// Empty on a fully successful recovery. Use it to tear down or flag the corresponding UI
-        /// rather than leaving it silently frozen.
+        /// Empty when recovery fully succeeds. Use this to close or mark the related UI.
         /// </summary>
         public IReadOnlyList<string> UnrecoveredChannelCids { get; }
 
         /// <summary>
-        /// <c>true</c> when every channel that was being watched before the disconnect was recovered.
+        /// True when every watched channel from before the disconnect was recovered.
         /// </summary>
         public bool IsComplete => UnrecoveredChannelCids.Count == 0;
     }

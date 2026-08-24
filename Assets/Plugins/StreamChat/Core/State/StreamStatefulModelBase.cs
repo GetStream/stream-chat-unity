@@ -52,13 +52,13 @@ namespace StreamChat.Core.State
         protected ICacheRepository<TStatefulModel> Repository { get; }
 
         /// <summary>
-        /// True while a <c>/sync</c> history batch is being applied under
-        /// <see cref="Configs.StateRecoveryStrategy.BatchStateUpdate"/>. State mutations still run;
-        /// public per-event notifications must not, when their effect is observable in model state once
-        /// the batch finishes. Consumers observe <see cref="IStreamChatClient.StateRecovered"/> instead.
+        /// True while a <c>/sync</c> batch is applied with
+        /// <see cref="Configs.StateRecoveryStrategy.BatchStateUpdate"/>.
+        /// State still updates. Do not raise per-event callbacks when that change
+        /// is already visible in state. Use <see cref="IStreamChatClient.StateRecovered"/> instead.
         ///
-        /// Notifications carrying information the SDK cannot reconstruct from state - custom events,
-        /// channel deletion, local-user membership and invite notifications - are raised regardless.
+        /// Still raise callbacks that are not stored in state: custom events,
+        /// channel deleted, and local-user membership or invite notifications.
         /// </summary>
         protected bool IsSilentHistorySync => Client.IsApplyingHistorySync;
 

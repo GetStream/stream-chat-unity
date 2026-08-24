@@ -1063,18 +1063,14 @@ namespace StreamChat.Core.StatefulModels
                 MessageReceived?.Invoke(this, streamMessage);
             }
 
-            // Trim after MessageReceived so a message is never removed from cache before it is
-            // received. Trimming still runs during a silent history batch: it only ever removes the
-            // oldest contiguous prefix, which the batch is appending newer messages ahead of, and
-            // skipping it would let a batch push a windowed channel past its MaxMessages.
+            // Trim after MessageReceived so the callback sees the message first.
+            // Still trim during a silent batch, or a long /sync can exceed MaxMessages.
             TrimMessageCacheIfNeeded();
             return true;
         }
 
         /// <summary>
-        /// A query response merges through <c>UpdateFromDto</c>, which appends to
-        /// <see cref="Messages"/> without going through <see cref="InternalAppendOrUpdateMessage"/>
-        /// and therefore never trims. Reconnect recovery calls this after its merge.
+        /// Query merge appends messages and does not trim. Recovery calls this after merge.
         /// </summary>
         internal void InternalTrimMessageCache() => TrimMessageCacheIfNeeded();
 
@@ -1145,9 +1141,8 @@ namespace StreamChat.Core.StatefulModels
 
             var handler = MessagesRemovedFromCache;
 
-            // Not pooled - this is handed to subscribers, so the SDK does not control its lifetime.
-            // Skip the allocation during a silent history batch: the callback is suppressed and a
-            // 1000-event /sync can trim repeatedly.
+            // Not pooled: subscribers keep this list. Skip it during a silent batch
+            // (callback is not raised, and a long /sync can trim many times).
             var removed = (handler == null || IsSilentHistorySync) ? null : new List<IStreamMessage>(removeCount);
 
             using (new ListPoolScope<StreamMessage>(out var tempUntrackCandidates))
@@ -1173,9 +1168,8 @@ namespace StreamChat.Core.StatefulModels
                 Cache.Messages.RemoveMany(tempUntrackCandidates);
             }
 
-            // Raised after the pooled buffers are returned so subscribers can trim or send safely.
-            // BatchStateUpdate already rebuilt from Messages on StateRecovered. Firing this
-            // during the batch would only destroy old rows that the rebuild is about to replace.
+            // After pooled lists are returned, so handlers can allocate safely.
+            // Do not raise during BatchStateUpdate: StateRecovered already rebuilds from Messages.
             if (!IsSilentHistorySync)
             {
                 handler?.Invoke(this, removed);
@@ -1416,8 +1410,7 @@ namespace StreamChat.Core.StatefulModels
             var customEvent = new StreamCustomEvent(dto.Type, user, dto.CreatedAt,
                 new StreamCustomData(custom, Serializer));
 
-            // Deliberately not gated on IsSilentHistorySync: a custom event has no representation in
-            // channel state, so suppressing it would lose the payload with no way to recover it.
+            // Always raise. Custom events are not stored in channel state, so skipping them would lose the payload.
             CustomEventReceived?.Invoke(this, customEvent);
         }
 

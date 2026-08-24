@@ -38,10 +38,9 @@ namespace StreamChat.Core.Configs
         MessageCacheWindow DefaultMessageCacheWindow { get; set; }
 
         /// <summary>
-        /// How the client restores local state after the websocket reconnects. Defaults to
-        /// <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/>, which preserves the per-event
-        /// callback behaviour of earlier SDK versions. See <see cref="Configs.StateRecoveryStrategy"/>
-        /// for when to pick each option.
+        /// How the client restores local state after the websocket reconnects.
+        /// Default is <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/>.
+        /// See <see cref="Configs.StateRecoveryStrategy"/> for the other options.
         /// </summary>
         StateRecoveryStrategy StateRecoveryStrategy { get; set; }
     }

@@ -34,23 +34,20 @@ namespace StreamChat.Core
         event Action Disconnected;
 
         /// <summary>
-        /// Raised once after reconnect recovery finishes, on every path: full success, partial
-        /// success, and a reconnect where there was nothing to recover. Not raised on the initial
-        /// login, and not raised when
-        /// <see cref="Configs.IStreamClientConfig.StateRecoveryStrategy"/> is
+        /// Raised once when reconnect recovery is done.
+        /// This includes full success, partial success, and cases with nothing to recover.
+        /// Not raised on the first login.
+        /// Not raised when <see cref="Configs.IStreamClientConfig.StateRecoveryStrategy"/> is
         /// <see cref="Configs.StateRecoveryStrategy.Disabled"/>.
         ///
-        /// When it fires, the channels in
-        /// <see cref="StreamStateRecoveredEventArgs.Channels"/> have fresh state and live watches
-        /// again. Anything in <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/> is
-        /// still stale and no longer watched.
+        /// Channels in <see cref="StreamStateRecoveredEventArgs.Channels"/> have fresh state and are watched again.
+        /// Cids in <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/> are still stale and not watched.
         ///
-        /// This is the signal to rebuild from state after an outage. It is required rather than
-        /// merely convenient under
-        /// <see cref="Configs.StateRecoveryStrategy.BatchStateUpdate"/>, where the per-event callbacks
-        /// are suppressed during recovery, and it is worth handling under
-        /// <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/> too, because the re-query that
-        /// follows the event replay merges channel state without raising per-message callbacks.
+        /// Use this to rebuild your UI from channel state after a disconnect.
+        /// You need this for <see cref="Configs.StateRecoveryStrategy.BatchStateUpdate"/>,
+        /// because per-event callbacks do not fire during recovery.
+        /// It is also useful for <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/>,
+        /// because some state updates after reconnect do not raise per-message callbacks.
         /// </summary>
         event StateRecoveredHandler StateRecovered;
 
@@ -151,10 +148,10 @@ namespace StreamChat.Core
         /// channel to know its state.
         /// </para>
         /// <para>
-        /// Emptied when the connection drops, because the server drops every watch with it, and
-        /// repopulated by reconnect recovery. If you enumerate this to decide what to restore
-        /// yourself, read it before the disconnect or use
-        /// <see cref="Configs.StateRecoveryStrategy.Disabled"/>, which leaves it untouched.
+        /// This list is cleared when the connection drops, because the server drops every watch.
+        /// Recovery fills it again.
+        /// If you read this list to restore watches yourself, do it before the disconnect,
+        /// or use <see cref="Configs.StateRecoveryStrategy.Disabled"/> so the list is not cleared.
         /// </para>
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
