@@ -182,6 +182,70 @@ namespace StreamChat.Tests.StateSync.Unit
         }
 
         [Test]
+        public void when_history_event_is_parsed_object_expect_applied_like_json_string()
+        {
+            var json = MessageNewJson("msg-1", NewestCreatedAt);
+            var parsed = _serializer.DeserializeObject(json);
+
+            var received = 0;
+            _lowLevelClient.MessageReceived += _ => received++;
+
+            var fromObject = _lowLevelClient.ApplyHistoryEvents(new List<object> { parsed });
+            var fromString = CreateClient().ApplyHistoryEvents(new List<object> { json });
+
+            Assert.AreEqual(0, received, "Parsed /sync objects must take the silent path, same as JSON strings.");
+            Assert.AreEqual(0, fromObject.FailedEventCount);
+            Assert.AreEqual(fromString.MaxAppliedCreatedAt, fromObject.MaxAppliedCreatedAt,
+                "JObject /sync events must advance last_sync_at the same way JSON strings do.");
+            Assert.AreEqual(NewestCreatedAt, fromObject.MaxAppliedCreatedAt);
+        }
+
+        [Test]
+        public void when_history_custom_event_is_parsed_object_expect_delivered()
+        {
+            var received = new List<string>();
+            _lowLevelClient.CustomEventReceived += e => received.Add(e.Type);
+
+            var parsed = _serializer.DeserializeObject(CustomEventJson("game.state", NewestCreatedAt));
+            _lowLevelClient.ApplyHistoryEvents(new List<object> { parsed });
+
+            Assert.AreEqual(new[] { "game.state" }, received.ToArray());
+        }
+
+        [Test]
+        public void when_history_replay_parsed_object_expect_public_message_received()
+        {
+            var received = 0;
+            _lowLevelClient.MessageReceived += _ => received++;
+
+            var parsed = _serializer.DeserializeObject(MessageNewJson("msg-1", NewestCreatedAt));
+            _lowLevelClient.ReplayHistoryEvents(new List<object> { parsed });
+
+            Assert.AreEqual(1, received,
+                "ReplayEvents must raise public callbacks for parsed /sync objects, same as JSON strings.");
+        }
+
+        [Test]
+        public void when_history_batch_contains_malformed_parsed_object_expect_remaining_events_still_applied()
+        {
+            var client = CreateClient();
+            var newest = NewestCreatedAt;
+            var malformed = _serializer.DeserializeObject(
+                $"{{\"type\":\"message.new\",\"cid\":\"messaging:test\",\"created_at\":\"{newest.AddMinutes(-1):O}\",\"message\":\"not-an-object\"}}");
+
+            var result = client.ApplyHistoryEvents(new List<object>
+            {
+                MessageNewJson("msg-1", newest.AddMinutes(-10)),
+                malformed,
+                MessageNewJson("msg-3", newest.AddMinutes(-5)),
+            });
+
+            Assert.AreEqual(1, result.FailedEventCount);
+            Assert.AreEqual(newest.AddMinutes(-5), result.MaxAppliedCreatedAt);
+            Assert.AreEqual(newest.AddMinutes(-5), GetLastEventReceivedAt(client));
+        }
+
+        [Test]
         public void when_health_check_arrives_on_live_socket_expect_liveness_stamped_before_handlers()
         {
             var client = CreateClientWithMessages(HealthCheckJson());

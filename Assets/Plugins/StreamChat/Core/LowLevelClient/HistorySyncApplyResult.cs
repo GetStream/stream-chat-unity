@@ -9,7 +9,7 @@ namespace StreamChat.Core.LowLevelClient
     {
         /// <summary>
         /// <c>created_at</c> of the newest event that applied, or <c>null</c>.
-        /// The <c>/sync</c> watermark advances to this.
+        /// The <c>/sync</c> <c>last_sync_at</c> cursor advances to this.
         /// </summary>
         public DateTimeOffset? MaxAppliedCreatedAt { get; set; }
 

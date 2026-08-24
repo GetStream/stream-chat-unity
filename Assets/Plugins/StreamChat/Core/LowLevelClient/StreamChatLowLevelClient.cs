@@ -515,7 +515,7 @@ namespace StreamChat.Core.LowLevelClient
             foreach (var e in events)
             {
                 // Isolated in the handler so one bad event does not stop the rest.
-                HandleNewWebsocketMessage(SerializeHistoryEvent(e));
+                HandleNewWebsocketMessage(e);
             }
         }
 
@@ -541,12 +541,12 @@ namespace StreamChat.Core.LowLevelClient
                 {
                     try
                     {
-                        HandleNewWebsocketMessage(SerializeHistoryEvent(e));
+                        HandleNewWebsocketMessage(e);
                     }
                     catch (Exception ex)
                     {
-                        // Do not abort the batch. The watermark only moves to events that applied,
-                        // so a failed event is retried on the next reconnect.
+                        // Do not abort the batch. The /sync last_sync_at cursor only moves to
+                        // events that applied, so a failed event is retried on the next reconnect.
                         result.FailedEventCount++;
                         _logs.Exception(ex);
                     }
@@ -574,9 +574,10 @@ namespace StreamChat.Core.LowLevelClient
 
         private const string HistorySyncWatermarkSource = "history.sync";
 
-        // Advance the watermark once at the end, to the newest applied event.
+        // Track the newest created_at applied in this batch.
+        // _lastEventReceivedAt (the /sync last_sync_at cursor) is advanced once at the end.
         // Advancing per event would skip a failed event on the next reconnect.
-        private void RecordHistoryWatermark(DateTimeOffset createdAt)
+        private void TrackMaxAppliedCreatedAt(DateTimeOffset createdAt)
         {
             if (createdAt == DateTimeOffset.MinValue)
             {
@@ -587,16 +588,6 @@ namespace StreamChat.Core.LowLevelClient
             {
                 _historyMaxAppliedCreatedAt = createdAt;
             }
-        }
-
-        private string SerializeHistoryEvent(object e)
-        {
-            if (e is string serialized)
-            {
-                return serialized;
-            }
-
-            return _serializer.Serialize(e);
         }
 
         public void Dispose()
@@ -693,8 +684,8 @@ namespace StreamChat.Core.LowLevelClient
         private readonly IStreamClientConfig _config;
         private readonly ReconnectScheduler _reconnectScheduler;
 
-        private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
-            new Dictionary<string, Action<string>>();
+        private readonly Dictionary<string, Action<object>> _eventKeyToHandler =
+            new Dictionary<string, Action<object>>();
 
         private readonly object _websocketConnectionFailedFlagLock = new object();
         private readonly object _websocketDisconnectedFlagLock = new object();
@@ -1102,7 +1093,7 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            _eventKeyToHandler.Add(key, serializedContent =>
+            _eventKeyToHandler.Add(key, payload =>
             {
                 try
                 {
@@ -1110,15 +1101,15 @@ namespace StreamChat.Core.LowLevelClient
                     var ignoreKeys = new[] { WSEventType.HealthCheck };
                     if (!ignoreKeys.Contains(key))
                     {
-                        _logs.Warning("WS event received KEY: " + key + " CONTENT: " + serializedContent);
+                        _logs.Warning("WS event received KEY: " + key + " CONTENT: " + payload);
                     }
 #endif
-                    var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
+                    var eventObj = DeserializeEvent<TDto, TEvent>(payload, out var dto);
                     postprocess?.Invoke(dto);
 
                     if (_isApplyingHistoryEvents)
                     {
-                        RecordHistoryWatermark(eventObj.CreatedAt);
+                        TrackMaxAppliedCreatedAt(eventObj.CreatedAt);
                     }
                     else
                     {
@@ -1145,17 +1136,10 @@ namespace StreamChat.Core.LowLevelClient
             });
         }
 
-        private TEvent DeserializeEvent<TDto, TEvent>(string content, out TDto dto)
+        private TEvent DeserializeEvent<TDto, TEvent>(object payload, out TDto dto)
             where TEvent : ILoadableFrom<TDto, TEvent>, new()
         {
-            try
-            {
-                dto = _serializer.Deserialize<TDto>(content);
-            }
-            catch (Exception e)
-            {
-                throw new StreamDeserializationException(content, typeof(TDto), e);
-            }
+            dto = DeserializePayload<TDto>(payload);
 
             var response = new TEvent();
             response.LoadFromDto(dto);
@@ -1163,24 +1147,108 @@ namespace StreamChat.Core.LowLevelClient
             return response;
         }
 
+        private TDto DeserializePayload<TDto>(object payload)
+        {
+            if (payload is string content)
+            {
+                try
+                {
+                    return _serializer.Deserialize<TDto>(content);
+                }
+                catch (Exception e)
+                {
+                    throw new StreamDeserializationException(content, typeof(TDto), e);
+                }
+            }
+
+            try
+            {
+                var converted = _serializer.TryConvertTo<TDto>(payload);
+                if (converted != null)
+                {
+                    return converted;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new StreamDeserializationException(PayloadToLog(payload), typeof(TDto), e);
+            }
+
+            // Unknown object shape. Same as the old serialize-then-deserialize path.
+            try
+            {
+                return _serializer.Deserialize<TDto>(_serializer.Serialize(payload));
+            }
+            catch (Exception e)
+            {
+                throw new StreamDeserializationException(PayloadToLog(payload), typeof(TDto), e);
+            }
+        }
+
+        private void HandleNewWebsocketMessage(object payload, bool isLiveEvent = false)
+        {
+            if (payload is string json)
+            {
+                HandleNewWebsocketMessage(json, isLiveEvent);
+                return;
+            }
+
+            if (payload == null)
+            {
+                HandleNewWebsocketMessage(_serializer.Serialize(payload), isLiveEvent);
+                return;
+            }
+
+            WebsocketEventEnvelopePeek peek;
+            try
+            {
+                peek = _serializer.TryConvertTo<WebsocketEventEnvelopePeek>(payload);
+            }
+            catch (Exception)
+            {
+                HandleNewWebsocketMessage(_serializer.Serialize(payload), isLiveEvent);
+                return;
+            }
+
+            if (peek == null || (peek.Error == null && string.IsNullOrEmpty(peek.Type)))
+            {
+                HandleNewWebsocketMessage(_serializer.Serialize(payload), isLiveEvent);
+                return;
+            }
+
+            DispatchWebsocketPayload(payload, peek.Error, peek.Type, isLiveEvent);
+        }
+
         private void HandleNewWebsocketMessage(string msg, bool isLiveEvent = false)
         {
             const string ErrorKey = "error";
 
-            if (_serializer.TryPeekValue<APIError>(msg, ErrorKey, out var apiError))
+            APIError apiError = null;
+            if (_serializer.TryPeekValue<APIError>(msg, ErrorKey, out var peekedError))
+            {
+                apiError = peekedError;
+            }
+
+            const string TypeKey = "type";
+
+            string type = null;
+            if (apiError == null && !_serializer.TryPeekValue<string>(msg, TypeKey, out type))
+            {
+                _logs.Error($"Failed to find `{TypeKey}` in msg: " + msg);
+                return;
+            }
+
+            DispatchWebsocketPayload(msg, apiError, type, isLiveEvent);
+        }
+
+        private void DispatchWebsocketPayload(object payload, APIError apiError, string type, bool isLiveEvent)
+        {
+            if (apiError != null)
             {
                 _errorSb.Length = 0;
                 apiError.AppendFullLog(_errorSb);
 
                 _logs.Error($"{nameof(APIError)} returned: {_errorSb}");
-                return;
-            }
-
-            const string TypeKey = "type";
-
-            if (!_serializer.TryPeekValue<string>(msg, TypeKey, out var type))
-            {
-                _logs.Error($"Failed to find `{TypeKey}` in msg: " + msg);
                 return;
             }
 
@@ -1200,37 +1268,36 @@ namespace StreamChat.Core.LowLevelClient
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
-                if (TryHandleCustomChannelEvent(msg, type))
+                if (TryHandleCustomChannelEvent(payload, type))
                 {
                     return;
                 }
 
                 if (_config.LogLevel.IsDebugEnabled())
                 {
-                    _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
+                    _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + payload);
                 }
 
                 return;
             }
 
-            handler(msg);
+            handler(payload);
         }
 
-        private bool TryHandleCustomChannelEvent(string serializedContent, string eventType)
+        private bool TryHandleCustomChannelEvent(object payload, string eventType)
         {
-            if (!_serializer.TryPeekValue<string>(serializedContent, "cid", out var cid)
-                || string.IsNullOrEmpty(cid))
+            if (!TryGetEventCid(payload, out var cid) || string.IsNullOrEmpty(cid))
             {
                 return false;
             }
 
             try
             {
-                var dto = _serializer.Deserialize<CustomEventInternalDTO>(serializedContent);
+                var dto = DeserializePayload<CustomEventInternalDTO>(payload);
 
                 if (_isApplyingHistoryEvents)
                 {
-                    RecordHistoryWatermark(dto.CreatedAt);
+                    TrackMaxAppliedCreatedAt(dto.CreatedAt);
                 }
                 else
                 {
@@ -1251,6 +1318,45 @@ namespace StreamChat.Core.LowLevelClient
                 _logs.Exception(e);
                 return false;
             }
+        }
+
+        private bool TryGetEventCid(object payload, out string cid)
+        {
+            if (payload is string json)
+            {
+                return _serializer.TryPeekValue(json, "cid", out cid);
+            }
+
+            try
+            {
+                var peek = _serializer.TryConvertTo<WebsocketEventEnvelopePeek>(payload);
+                cid = peek?.Cid;
+                return !string.IsNullOrEmpty(cid);
+            }
+            catch (Exception)
+            {
+                var json = _serializer.Serialize(payload);
+                return _serializer.TryPeekValue(json, "cid", out cid);
+            }
+        }
+
+        private static string PayloadToLog(object payload)
+            => payload as string ?? payload?.ToString() ?? string.Empty;
+
+        /// <summary>
+        /// Enough of a websocket /sync event to dispatch: <c>type</c>, <c>cid</c>, and <c>error</c>.
+        /// Used so history events can be applied from <c>JObject</c> without a string round-trip.
+        /// </summary>
+        private class WebsocketEventEnvelopePeek
+        {
+            [Newtonsoft.Json.JsonProperty("type")]
+            public string Type { get; set; }
+
+            [Newtonsoft.Json.JsonProperty("cid")]
+            public string Cid { get; set; }
+
+            [Newtonsoft.Json.JsonProperty("error")]
+            public APIError Error { get; set; }
         }
 
         private void UpdateHealthCheck()

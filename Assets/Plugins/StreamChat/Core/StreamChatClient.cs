@@ -1180,23 +1180,23 @@ namespace StreamChat.Core
 
             var generation = ++_recoveryGeneration;
 
-            using (new ListPoolScope<string>(out var tempRecoverSet))
+            using (new ListPoolScope<string>(out var tempRecoveryChannelCids))
             {
-                FillRecoverySet(tempRecoverSet);
+                FillRecoveryChannelCids(tempRecoveryChannelCids);
 
                 var refreshedChannels = new List<IStreamChannel>();
 
                 try
                 {
-                    if (tempRecoverSet.Count > 0)
+                    if (tempRecoveryChannelCids.Count > 0)
                     {
-                        await TryCatchUpWithHistoryAsync(tempRecoverSet, generation);
+                        await TryCatchUpWithHistoryAsync(tempRecoveryChannelCids, generation);
                         if (!IsRecoveryGenerationCurrent(generation))
                         {
                             return;
                         }
 
-                        await RehydrateAndRewatchChannelsAsync(tempRecoverSet, generation, refreshedChannels);
+                        await RehydrateAndRewatchChannelsAsync(tempRecoveryChannelCids, generation, refreshedChannels);
                         if (!IsRecoveryGenerationCurrent(generation))
                         {
                             return;
@@ -1224,11 +1224,11 @@ namespace StreamChat.Core
                         tempRecovered.Add(refreshedChannels[i].Cid);
                     }
 
-                    for (var i = 0; i < tempRecoverSet.Count; i++)
+                    for (var i = 0; i < tempRecoveryChannelCids.Count; i++)
                     {
-                        if (!tempRecovered.Contains(tempRecoverSet[i]))
+                        if (!tempRecovered.Contains(tempRecoveryChannelCids[i]))
                         {
-                            unrecovered.Add(tempRecoverSet[i]);
+                            unrecovered.Add(tempRecoveryChannelCids[i]);
                         }
                     }
                 }
@@ -1248,7 +1248,7 @@ namespace StreamChat.Core
         /// <summary>
         /// Copy up to <see cref="MaxRecoveredChannels"/> cids from the disconnect snapshot.
         /// </summary>
-        private void FillRecoverySet(List<string> recoverSet)
+        private void FillRecoveryChannelCids(List<string> recoveryChannelCids)
         {
             if (_recoveryChannelCids.Count > MaxRecoveredChannels)
             {
@@ -1263,15 +1263,15 @@ namespace StreamChat.Core
             var count = Math.Min(_recoveryChannelCids.Count, MaxRecoveredChannels);
             for (var i = 0; i < count; i++)
             {
-                recoverSet.Add(_recoveryChannelCids[i]);
+                recoveryChannelCids.Add(_recoveryChannelCids[i]);
             }
         }
 
-        private async Task TryCatchUpWithHistoryAsync(IReadOnlyList<string> recoverSet, int generation)
+        private async Task TryCatchUpWithHistoryAsync(IReadOnlyList<string> recoveryChannelCids, int generation)
         {
             try
             {
-                var response = await InternalLowLevelClient.TrySyncHistoryAsync(recoverSet);
+                var response = await InternalLowLevelClient.TrySyncHistoryAsync(recoveryChannelCids);
 
                 // No sync point, or older than 30 days. Step 2 still runs. This is not a deletion.
                 if (response == null)
@@ -1328,12 +1328,12 @@ namespace StreamChat.Core
         /// recreate a deleted channel. Those cids go to
         /// <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/>.
         /// </summary>
-        private async Task RehydrateAndRewatchChannelsAsync(IReadOnlyList<string> recoverSet, int generation,
+        private async Task RehydrateAndRewatchChannelsAsync(IReadOnlyList<string> recoveryChannelCids, int generation,
             List<IStreamChannel> refreshed)
         {
             var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
 
-            for (var i = 0; i < recoverSet.Count; i += MaxChannelsPerRecoveryQuery)
+            for (var i = 0; i < recoveryChannelCids.Count; i += MaxChannelsPerRecoveryQuery)
             {
                 if (!IsRecoveryGenerationCurrent(generation))
                 {
@@ -1342,12 +1342,12 @@ namespace StreamChat.Core
 
                 using (new ListPoolScope<string>(out var tempChunk))
                 {
-                    var chunkEnd = Math.Min(i + MaxChannelsPerRecoveryQuery, recoverSet.Count);
+                    var chunkEnd = Math.Min(i + MaxChannelsPerRecoveryQuery, recoveryChannelCids.Count);
                     for (var j = i; j < chunkEnd; j++)
                     {
-                        if (!_inaccessibleCids.Contains(recoverSet[j]))
+                        if (!_inaccessibleCids.Contains(recoveryChannelCids[j]))
                         {
-                            tempChunk.Add(recoverSet[j]);
+                            tempChunk.Add(recoveryChannelCids[j]);
                         }
                     }
 
