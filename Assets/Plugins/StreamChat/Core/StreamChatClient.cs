@@ -296,28 +296,7 @@ namespace StreamChat.Core
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
             StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
 
-            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
-            var requestBodyDto = new QueryChannelsRequestInternalDTO
-            {
-                FilterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value),
-                Limit = limit,
-                MemberLimit = null,
-                MessageLimit = null,
-                Offset = offset,
-                Presence = true,
-
-                /*
-                 * StreamTodo: Allowing to sort query can potentially lead to mixed sorting in WatchedChannels
-                 * But there seems no other choice because its too limiting to force only a global sorting for channels
-                 * e.g. user may want to show channels in multiple ways with different sorting which would not work with global only sorting
-                 */
-                Sort = sort?.ToSortParamRequestList(),
-                State = true,
-                Watch = true,
-            };
-
-            var channelsResponseDto
-                = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            var channelsResponseDto = await FetchQueryChannelsResponseAsync(filters, sort, limit, offset);
             if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
             {
                 return Enumerable.Empty<StreamChannel>();
@@ -342,28 +321,8 @@ namespace StreamChat.Core
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
             StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
 
-            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
-            var requestBodyDto = new QueryChannelsRequestInternalDTO
-            {
-                FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value),
-                Limit = limit,
-                MemberLimit = null,
-                MessageLimit = null,
-                Offset = offset,
-                Presence = true,
-
-                /*
-                 * StreamTodo: Allowing to sort query can potentially lead to mixed sorting in WatchedChannels
-                 * But there seems no other choice because its too limiting to force only a global sorting for channels
-                 * e.g. user may want to show channels in multiple ways with different sorting which would not work with global only sorting
-                 */
-                Sort = sort?.ToSortParamRequestList(),
-                State = true,
-                Watch = true,
-            };
-
-            var channelsResponseDto
-                = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            var channelsResponseDto = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(
+                CreateQueryChannelsRequest(filters, sort, limit, offset));
             if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
             {
                 return Enumerable.Empty<StreamChannel>();
@@ -1448,10 +1407,13 @@ namespace StreamChat.Core
                         ChannelFilter.Cid.In(chunk),
                     };
 
-                    IEnumerable<IStreamChannel> channels;
+                    QueryChannelsResponseInternalDTO response;
                     try
                     {
-                        channels = await QueryChannelsAsync(filters, sort, limit: chunk.Count);
+                        // Fetch only. Public QueryChannelsAsync applies immediately (members/read/pinned
+                        // are replaced, watches marked). A request started on an old connection can still
+                        // succeed after a reconnect, so apply must wait for the generation check below.
+                        response = await FetchQueryChannelsResponseAsync(filters, sort, chunk.Count);
                     }
                     catch (Exception e)
                     {
@@ -1468,16 +1430,63 @@ namespace StreamChat.Core
                         return;
                     }
 
-                    foreach (var channel in channels)
+                    if (response?.Channels == null)
                     {
+                        continue;
+                    }
+
+                    foreach (var channelDto in response.Channels)
+                    {
+                        var channel = _cache.TryCreateOrUpdate(channelDto);
+                        if (channel == null)
+                        {
+                            continue;
+                        }
+
+                        MarkChannelWatched(channel);
                         // The query merge path goes through UpdateFromDto, which does not trim, so a
                         // recovery merge can push Messages past MessageCacheWindow.MaxMessages.
-                        ((StreamChannel)channel).InternalTrimMessageCache();
+                        channel.InternalTrimMessageCache();
                         refreshed.Add(channel);
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// Same request as public <see cref="QueryChannelsAsync(IEnumerable{IFieldFilterRule}, ChannelSortObject, int, int)"/>
+        /// but does not touch <c>_cache</c> or <c>_watchedChannels</c>. Recovery uses this so a stale
+        /// in-flight response cannot overwrite newer state or mark watches for a dropped connection.
+        /// </summary>
+        private Task<QueryChannelsResponseInternalDTO> FetchQueryChannelsResponseAsync(
+            IEnumerable<IFieldFilterRule> filters, ChannelSortObject sort, int limit, int offset = 0)
+        {
+            var filterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value);
+            return InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(
+                CreateQueryChannelsRequest(filterConditions, sort, limit, offset));
+        }
+
+        //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
+        /*
+         * StreamTodo: Allowing to sort query can potentially lead to mixed sorting in WatchedChannels
+         * But there seems no other choice because its too limiting to force only a global sorting for channels
+         * e.g. user may want to show channels in multiple ways with different sorting which would not work with global only sorting
+         */
+        private static QueryChannelsRequestInternalDTO CreateQueryChannelsRequest(
+            IDictionary<string, object> filterConditions, ChannelSortObject sort, int limit, int offset)
+            => new QueryChannelsRequestInternalDTO
+            {
+                FilterConditions = filterConditions as Dictionary<string, object>
+                    ?? filterConditions?.ToDictionary(x => x.Key, x => x.Value),
+                Limit = limit,
+                MemberLimit = null,
+                MessageLimit = null,
+                Offset = offset,
+                Presence = true,
+                Sort = sort?.ToSortParamRequestList(),
+                State = true,
+                Watch = true,
+            };
 
         private bool IsRecoveryGenerationCurrent(int generation) => generation == _recoveryGeneration;
 

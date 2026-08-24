@@ -1,9 +1,11 @@
 #if STREAM_TESTS_ENABLED
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using UnityEngine.TestTools;
 using NSubstitute;
 using NUnit.Framework;
 using StreamChat.Core;
@@ -252,6 +254,77 @@ namespace StreamChat.Tests.StateSync.Unit
             Assert.AreEqual(new[] { "messaging:b" }, RecoverySnapshot());
         }
 
+        [Test]
+        public void when_recovery_query_returns_channel_expect_watch_restored_and_state_recovered()
+        {
+            Connect();
+            var channel = WatchChannel("messaging:a");
+
+            RespondWith(QueryChannelsEndpoint, QueryChannelsJson("messaging:a", "restored"));
+
+            DropConnection();
+            Reconnect();
+
+            Assert.IsTrue(channel.IsWatched);
+            Assert.AreEqual(1, _client.WatchedChannels.Count);
+            Assert.AreSame(channel, _client.WatchedChannels.Single());
+            Assert.AreEqual("restored", channel.Name);
+            Assert.AreEqual(1, _recoveredEvents.Count);
+            Assert.AreSame(channel, _recoveredEvents[0].Channels.Single());
+            Assert.IsTrue(_recoveredEvents[0].IsComplete);
+        }
+
+        [UnityTest]
+        public IEnumerator when_stale_recovery_query_completes_after_newer_recovery_expect_stale_result_not_applied()
+        {
+            Connect();
+            var channel = WatchChannel("messaging:a");
+
+            var staleQuery = new TaskCompletionSource<HttpResponse>();
+            var currentQuery = new TaskCompletionSource<HttpResponse>();
+            HoldQueryChannelsResponses(staleQuery.Task, currentQuery.Task);
+
+            DropConnection();
+            Reconnect();
+
+            Assert.AreEqual(0, _recoveredEvents.Count,
+                "The first recovery must still be waiting on its query.");
+            Assert.IsFalse(channel.IsWatched);
+            Assert.AreEqual(0, _client.WatchedChannels.Count);
+
+            // Increments generation. Snapshot is kept because watches were already cleared.
+            DropConnection();
+            Reconnect();
+
+            Assert.AreEqual(0, _recoveredEvents.Count);
+
+            currentQuery.SetResult(QueryChannelsHttpResponse("messaging:a", "fresh-B"));
+            yield return WaitUntil(() => channel.Name == "fresh-B",
+                "Current-generation recovery did not apply the fresh query payload.");
+
+            Assert.IsTrue(channel.IsWatched);
+            Assert.AreEqual(1, _client.WatchedChannels.Count);
+            Assert.AreSame(channel, _client.WatchedChannels.Single());
+            Assert.AreEqual(1, _recoveredEvents.Count);
+            Assert.AreSame(channel, _recoveredEvents[0].Channels.Single());
+            Assert.IsTrue(_recoveredEvents[0].IsComplete);
+
+            staleQuery.SetResult(QueryChannelsHttpResponse("messaging:a", "stale-A"));
+            // Drain posted continuations so a missing generation gate would have applied by now.
+            for (var i = 0; i < 5; i++)
+            {
+                Update();
+                yield return null;
+            }
+
+            Assert.AreEqual("fresh-B", channel.Name,
+                "A late query from a superseded recovery must not replace channel state.");
+            Assert.IsTrue(channel.IsWatched);
+            Assert.AreEqual(1, _client.WatchedChannels.Count);
+            Assert.AreEqual(1, _recoveredEvents.Count,
+                "The stale recovery must not raise StateRecovered after a newer one already did.");
+        }
+
         private const string SyncEndpoint = "/sync";
         private const string QueryChannelsEndpoint = "/channels";
 
@@ -261,6 +334,41 @@ namespace StreamChat.Tests.StateSync.Unit
                 .SendHttpRequestAsync(Arg.Is(HttpMethodType.Post),
                     Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith(endpointSuffix)), Arg.Any<object>())
                 .Returns(new HttpResponse(true, 200, json, null, null));
+        }
+
+        private void HoldQueryChannelsResponses(params Task<HttpResponse>[] responses)
+        {
+            var queue = new Queue<Task<HttpResponse>>(responses);
+            _mockHttpClient
+                .SendHttpRequestAsync(Arg.Is(HttpMethodType.Post),
+                    Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith(QueryChannelsEndpoint)), Arg.Any<object>())
+                .Returns(_ => queue.Dequeue());
+        }
+
+        private static HttpResponse QueryChannelsHttpResponse(string cid, string name)
+            => new HttpResponse(true, 200, QueryChannelsJson(cid, name), null, null);
+
+        private static string QueryChannelsJson(string cid, string name)
+        {
+            var separatorIndex = cid.IndexOf(':');
+            var type = cid.Substring(0, separatorIndex);
+            var id = cid.Substring(separatorIndex + 1);
+            return "{\"channels\":[{\"channel\":{" +
+                   $"\"cid\":\"{cid}\",\"id\":\"{id}\",\"type\":\"{type}\",\"name\":\"{name}\"" +
+                   "},\"messages\":[],\"members\":[]}]}";
+        }
+
+        private IEnumerator WaitUntil(Func<bool> condition, string message, int maxFrames = 30)
+        {
+            var frames = 0;
+            while (!condition() && frames < maxFrames)
+            {
+                Update();
+                yield return null;
+                frames++;
+            }
+
+            Assert.IsTrue(condition(), message);
         }
 
         private void AssertQueryChannelsCallCount(int expected)
