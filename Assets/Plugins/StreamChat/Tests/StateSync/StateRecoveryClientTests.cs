@@ -519,6 +519,82 @@ namespace StreamChat.Tests.StateSync.Unit
             Assert.IsTrue(poll.IsClosed);
         }
 
+        [Test]
+        public void when_silent_recovery_syncs_message_new_expect_channel_message_received_not_raised()
+        {
+            _config.StateRecoveryStrategy = StateRecoveryStrategy.BatchStateUpdate;
+
+            Connect();
+            var channel = WatchChannel("messaging:a");
+            RespondWith(QueryChannelsEndpoint, QueryChannelsJson("messaging:a", "a"));
+
+            var receivedCount = 0;
+            channel.MessageReceived += (_, __) => receivedCount++;
+
+            ReconnectWithSync(SyncEventsJson(MessageNewJson("messaging:a", "msg-offline",
+                new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero))));
+
+            Assert.AreEqual(0, receivedCount,
+                "BatchStateUpdate must not fire IStreamChannel.MessageReceived; rebuild on StateRecovered.");
+            Assert.AreEqual(1, channel.Messages.Count);
+            Assert.AreEqual("msg-offline", channel.Messages[0].Id);
+            Assert.AreEqual(1, _recoveredEvents.Count);
+        }
+
+        [Test]
+        public void when_replay_recovery_syncs_message_new_expect_channel_message_received_raised()
+        {
+            Connect();
+            var channel = WatchChannel("messaging:a");
+            RespondWith(QueryChannelsEndpoint, QueryChannelsJson("messaging:a", "a"));
+
+            var receivedCount = 0;
+            channel.MessageReceived += (_, __) => receivedCount++;
+
+            ReconnectWithSync(SyncEventsJson(MessageNewJson("messaging:a", "msg-offline",
+                new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero))));
+
+            Assert.AreEqual(1, receivedCount,
+                "ReplayEvents is the default and must keep raising IStreamChannel.MessageReceived for back-compat.");
+            Assert.AreEqual(1, channel.Messages.Count);
+            Assert.AreEqual("msg-offline", channel.Messages[0].Id);
+            Assert.AreEqual(1, _recoveredEvents.Count);
+        }
+
+        [Test]
+        public void when_silent_history_batch_contains_custom_event_expect_channel_custom_event_received()
+        {
+            Connect();
+            var channel = WatchChannel("messaging:a");
+
+            string receivedType = null;
+            channel.CustomEventReceived += (_, evt) => receivedType = evt.Type;
+
+            _client.InternalLowLevelClient.ApplyHistoryEvents(new[]
+            {
+                CustomEventJson("messaging:a", "game.state"),
+            });
+
+            Assert.AreEqual("game.state", receivedType,
+                "Custom events have no state representation, so ApplyHistoryEvents must still deliver them.");
+        }
+
+        [Test]
+        public void when_recovery_query_sent_expect_watch_and_state_true()
+        {
+            Connect();
+            WatchChannel("messaging:a");
+
+            DropConnection();
+            Reconnect();
+
+            _mockHttpClient.Received().SendHttpRequestAsync(
+                Arg.Is(HttpMethodType.Post),
+                Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith(QueryChannelsEndpoint)),
+                Arg.Is<object>(body => RequestHasJsonBool(body, "watch", true)
+                                       && RequestHasJsonBool(body, "state", true)));
+        }
+
         private const string SyncEndpoint = "/sync";
         private const string QueryChannelsEndpoint = "/channels";
 
@@ -565,6 +641,30 @@ namespace StreamChat.Tests.StateSync.Unit
             return $"{{\"type\":\"poll.closed\",\"cid\":\"{cid}\",\"created_at\":\"{createdAt:O}\"," +
                    $"\"poll\":{{\"id\":\"{pollId}\",\"name\":\"q\",\"is_closed\":true,\"vote_count\":0," +
                    $"\"voting_visibility\":\"public\"}}}}";
+        }
+
+        private static string CustomEventJson(string cid, string type)
+        {
+            var createdAt = new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero);
+            return $"{{\"type\":\"{type}\",\"cid\":\"{cid}\",\"created_at\":\"{createdAt:O}\"," +
+                   "\"user\":{\"id\":\"user-1\"}}";
+        }
+
+        private static string SyncEventsJson(params string[] events)
+            => "{\"events\":[" + string.Join(",", events) + "]}";
+
+        private void ReconnectWithSync(string syncJson)
+        {
+            var now = new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero);
+            _mockTimeService.Now.Returns(now);
+
+            DropConnection();
+            // Health checks in these tests carry no created_at, so disconnect would otherwise leave
+            // no sync point and skip /sync entirely. Seed one after the drop so the copy on
+            // Disconnected cannot wipe it.
+            SetDisconnectionLastEventReceivedAt(_client.InternalLowLevelClient, now.AddHours(-1));
+            RespondWith(SyncEndpoint, syncJson);
+            Reconnect();
         }
 
         private IStreamThread TrackThread(string cid, string parentMessageId)
@@ -736,6 +836,13 @@ namespace StreamChat.Tests.StateSync.Unit
         {
             var json = requestBody as string ?? requestBody?.ToString() ?? string.Empty;
             return json.IndexOf(value, StringComparison.Ordinal) >= 0;
+        }
+
+        private static bool RequestHasJsonBool(object requestBody, string property, bool value)
+        {
+            var json = requestBody as string ?? requestBody?.ToString() ?? string.Empty;
+            var needle = "\"" + property + "\":" + (value ? "true" : "false");
+            return json.IndexOf(needle, StringComparison.Ordinal) >= 0;
         }
 
         private const string HealthCheckJson = "{\"connection_id\":\"fakeId\",\"type\":\"health.check\"}";
