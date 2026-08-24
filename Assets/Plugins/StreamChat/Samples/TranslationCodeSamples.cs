@@ -55,6 +55,23 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
+        /// https://getstream.io/chat/docs/unity/translation/?language=unity
+        /// </summary>
+        public async Task TranslateAMessage()
+        {
+            var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "channel-id");
+            var message = await channel.SendNewMessageAsync("Hello, world!");
+
+// Translate into French (ISO language code). The translation is stored on the
+// message, and every client watching the channel receives a message.updated event
+            await message.TranslateAsync("fr");
+
+// Translations are available from I18n under the "{language}_text" key, alongside
+// a "language" key naming the detected source language
+            var frenchText = message.I18n["fr_text"];
+        }
+
+        /// <summary>
         /// https://getstream.io/chat/docs/unity/translation/?language=unity#set-user-language
         /// </summary>
         public async Task SetUserLanguage()

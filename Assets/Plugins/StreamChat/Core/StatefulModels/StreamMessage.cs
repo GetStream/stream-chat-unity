@@ -168,6 +168,18 @@ namespace StreamChat.Core.StatefulModels
             await Client.RefreshChannelState(Cid);
         }
 
+        public async Task TranslateAsync(string language)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(language, nameof(language));
+
+            var response = await LowLevelClient.InternalMessageApi.TranslateMessageAsync(Id,
+                new TranslateMessageRequestInternalDTO
+                {
+                    Language = language,
+                });
+            Cache.TryCreateOrUpdate(response.Message);
+        }
+
         public async Task SendReactionAsync(string type, int score = 1, bool enforceUnique = false,
             bool skipMobilePushNotifications = false)
         {

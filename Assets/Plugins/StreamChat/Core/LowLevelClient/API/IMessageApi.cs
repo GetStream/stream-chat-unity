@@ -40,6 +40,13 @@ namespace StreamChat.Core.LowLevelClient.API
         Task<MessageResponse> DeleteMessageAsync(string messageId, bool hard);
 
         /// <summary>
+        /// <para>Translates a message's text into the target language. The translation is stored on the message
+        /// (in <see cref="Models.Message.I18n"/>) and Stream emits message.updated to all clients watching the channel.</para>
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/translation/?language=unity</remarks>
+        Task<MessageResponse> TranslateMessageAsync(string messageId, TranslateMessageRequest translateMessageRequest);
+
+        /// <summary>
         /// <para>Sends a new reaction to a given message.</para>
         /// </summary>
         /// <remarks>https://getstream.io/chat/docs/unity/send_reaction/?language=unity</remarks>
