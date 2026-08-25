@@ -98,30 +98,31 @@ namespace StreamChat.Tests.StateSync.Unit
             DropConnection();
             Reconnect();
 
-            // The whole point of #227/#232: the re-query is what re-establishes the watches, so it has
-            // to run whether or not the /sync catch-up did anything. Here it was skipped outright,
-            // because the health check carried no created_at so there is no sync point.
+            // /sync is skipped here (no last_sync_at). Recovery must still re-query so the
+            // new socket watches the same channels again.
             AssertQueryChannelsCallCount(1);
             Assert.AreEqual(1, _recoveredEvents.Count);
+            _mockHttpClient.Received().SendHttpRequestAsync(
+                Arg.Is(HttpMethodType.Post),
+                Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith(QueryChannelsEndpoint)),
+                Arg.Is<object>(body => RequestHasJsonBool(body, "watch", true)
+                                       && RequestHasJsonBool(body, "state", true)));
         }
 
         [Test]
-        public void when_connection_drops_expect_watches_released_and_snapshot_taken()
+        public void when_connection_drops_expect_watches_released()
         {
             Connect();
             var channel = WatchChannel("messaging:a");
 
             DropConnection();
 
-            // The server dropped the watch, so continuing to report it would be a lie - and would make
-            // IStreamChannel.WatchAsync a silent no-op for a channel that is not actually watched.
             Assert.IsFalse(channel.IsWatched);
             Assert.AreEqual(0, _client.WatchedChannels.Count);
-            Assert.AreEqual(new[] { "messaging:a" }, RecoverySnapshot());
         }
 
         [Test]
-        public void when_reconnect_attempt_fails_expect_recovery_snapshot_preserved()
+        public void when_reconnect_attempt_fails_expect_channels_still_recovered()
         {
             Connect();
             WatchChannel("messaging:a");
@@ -130,14 +131,16 @@ namespace StreamChat.Tests.StateSync.Unit
             DropConnection();
             FailReconnectAttempt();
             FailReconnectAttempt();
-
-            // A failed attempt transitions Connecting -> Disconnected with an already-empty watch list.
-            // Re-snapshotting there would discard the only record of what needs recovering, and the
-            // attempt that eventually succeeds would restore nothing - the flaky-mobile-network case.
-            Assert.AreEqual(new[] { "messaging:a", "messaging:b" }, RecoverySnapshot().OrderBy(_ => _).ToArray());
-
             Reconnect();
+
+            // Failed Connecting -> Disconnected must not forget the channels that were
+            // watched before the outage. The attempt that succeeds still recovers them.
             AssertQueryChannelsCallCount(1);
+            _mockHttpClient.Received().SendHttpRequestAsync(
+                Arg.Is(HttpMethodType.Post),
+                Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith(QueryChannelsEndpoint)),
+                Arg.Is<object>(body => RequestBodyContains(body, "messaging:a")
+                                       && RequestBodyContains(body, "messaging:b")));
         }
 
         [Test]
@@ -149,8 +152,6 @@ namespace StreamChat.Tests.StateSync.Unit
             DropConnection();
             Reconnect();
 
-            // The mocked query returns no channels, which is what the server does for a channel that
-            // was deleted or that the local user lost access to while offline.
             Assert.AreEqual(1, _recoveredEvents.Count);
             Assert.AreEqual(0, _recoveredEvents[0].Channels.Count);
             Assert.AreEqual(new[] { "messaging:a" }, _recoveredEvents[0].UnrecoveredChannelCids.ToArray());
@@ -181,10 +182,10 @@ namespace StreamChat.Tests.StateSync.Unit
             DropConnection();
             Reconnect();
 
-            // 40 cids is two chunks of 30 and 10. There is no later retry within a connection, so a
-            // failed chunk must not cost the remaining chunks their recovery.
             Assert.AreEqual(2, callCount);
             Assert.AreEqual(1, _recoveredEvents.Count);
+            Assert.AreEqual(40, _recoveredEvents[0].UnrecoveredChannelCids.Count);
+            Assert.IsFalse(_recoveredEvents[0].IsComplete);
         }
 
         [Test]
@@ -199,8 +200,6 @@ namespace StreamChat.Tests.StateSync.Unit
             DropConnection();
             Reconnect();
 
-            // Capped at 100, chunked by 30 -> 4 requests. Uncapped this would be 5, and would keep
-            // growing with the watch list on every single reconnect.
             AssertQueryChannelsCallCount(4);
         }
 
@@ -217,9 +216,6 @@ namespace StreamChat.Tests.StateSync.Unit
 
             AssertQueryChannelsCallCount(0);
             Assert.AreEqual(0, _recoveredEvents.Count);
-
-            // Disabled means the SDK does nothing, so WatchedChannels stays the record of what the
-            // consumer was watching and is theirs to recover from.
             Assert.IsTrue(channel.IsWatched);
             Assert.AreEqual(1, _client.WatchedChannels.Count);
         }
@@ -235,8 +231,6 @@ namespace StreamChat.Tests.StateSync.Unit
 
             Connect();
 
-            // A new login must not recover, or re-watch, channels belonging to the session that ended -
-            // possibly for a different user.
             AssertQueryChannelsCallCount(0);
             Assert.AreEqual(0, _recoveredEvents.Count);
         }
@@ -252,7 +246,11 @@ namespace StreamChat.Tests.StateSync.Unit
             InvokeMarkChannelUnwatched(channel);
             Reconnect();
 
-            Assert.AreEqual(new[] { "messaging:b" }, RecoverySnapshot());
+            _mockHttpClient.Received(1).SendHttpRequestAsync(
+                Arg.Is(HttpMethodType.Post),
+                Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith(QueryChannelsEndpoint)),
+                Arg.Is<object>(body => RequestBodyContains(body, "messaging:b")
+                                       && !RequestBodyContains(body, "messaging:a")));
         }
 
         [Test]
@@ -266,9 +264,6 @@ namespace StreamChat.Tests.StateSync.Unit
             _mockTimeService.Now.Returns(now);
 
             DropConnection();
-            // Health checks in these tests carry no created_at, so disconnect would otherwise leave
-            // no sync point and skip /sync entirely. Seed one after the drop so the copy on
-            // Disconnected cannot wipe it.
             SetDisconnectionLastEventReceivedAt(_client.InternalLowLevelClient, now.AddHours(-1));
 
             RespondWith(SyncEndpoint, "{\"events\":[],\"inaccessible_cids\":[\"messaging:gone\"]}");
@@ -327,7 +322,6 @@ namespace StreamChat.Tests.StateSync.Unit
             Assert.IsFalse(channel.IsWatched);
             Assert.AreEqual(0, _client.WatchedChannels.Count);
 
-            // Increments generation. Snapshot is kept because watches were already cleared.
             DropConnection();
             Reconnect();
 
@@ -345,7 +339,6 @@ namespace StreamChat.Tests.StateSync.Unit
             Assert.IsTrue(_recoveredEvents[0].IsComplete);
 
             staleQuery.SetResult(QueryChannelsHttpResponse("messaging:a", "stale-A"));
-            // Drain posted continuations so a missing generation gate would have applied by now.
             for (var i = 0; i < 5; i++)
             {
                 Update();
@@ -372,10 +365,8 @@ namespace StreamChat.Tests.StateSync.Unit
 
             _client.InternalLowLevelClient.ApplyHistoryEvents(MessageNewEvents("messaging:a", count: 7));
 
-            Assert.AreEqual(0, removedCount,
-                "BatchStateUpdate must not fire MessagesRemovedFromCache; the UI rebuilds on StateRecovered.");
-            Assert.AreEqual(SmallWindow.MaxMessages - SmallWindow.DiscardBatchSize, channel.Messages.Count,
-                "Trim must still run during a silent batch so a 1000-event /sync cannot blow past MaxMessages.");
+            Assert.AreEqual(0, removedCount);
+            Assert.AreEqual(SmallWindow.MaxMessages - SmallWindow.DiscardBatchSize, channel.Messages.Count);
         }
 
         [Test]
@@ -390,8 +381,7 @@ namespace StreamChat.Tests.StateSync.Unit
 
             _client.InternalLowLevelClient.ReplayHistoryEvents(MessageNewEvents("messaging:a", count: 7));
 
-            Assert.AreEqual(1, removedCount,
-                "ReplayEvents is the default and must keep raising MessagesRemovedFromCache for back-compat.");
+            Assert.AreEqual(1, removedCount);
             Assert.AreEqual(SmallWindow.MaxMessages - SmallWindow.DiscardBatchSize, channel.Messages.Count);
         }
 
@@ -410,8 +400,7 @@ namespace StreamChat.Tests.StateSync.Unit
                 ThreadReplyJson("messaging:a", "parent-1", "reply-1"),
             });
 
-            Assert.AreEqual(0, replyCount,
-                "BatchStateUpdate must not fire ReplyReceived; the UI rebuilds on StateRecovered.");
+            Assert.AreEqual(0, replyCount);
             Assert.AreEqual(1, thread.LatestReplies.Count);
             Assert.AreEqual("reply-1", thread.LatestReplies[0].Id);
         }
@@ -431,8 +420,7 @@ namespace StreamChat.Tests.StateSync.Unit
                 ThreadReplyJson("messaging:a", "parent-1", "reply-1"),
             });
 
-            Assert.AreEqual(1, replyCount,
-                "ReplayEvents is the default and must keep raising ReplyReceived for back-compat.");
+            Assert.AreEqual(1, replyCount);
             Assert.AreEqual(1, thread.LatestReplies.Count);
             Assert.AreEqual("reply-1", thread.LatestReplies[0].Id);
         }
@@ -451,8 +439,7 @@ namespace StreamChat.Tests.StateSync.Unit
                 PresenceChangedJson("other-user", online: true),
             });
 
-            Assert.AreEqual(0, presenceCount,
-                "BatchStateUpdate must not fire PresenceChanged; the UI rebuilds on StateRecovered.");
+            Assert.AreEqual(0, presenceCount);
             Assert.IsTrue(user.Online);
         }
 
@@ -470,8 +457,7 @@ namespace StreamChat.Tests.StateSync.Unit
                 PresenceChangedJson("other-user", online: true),
             });
 
-            Assert.AreEqual(1, presenceCount,
-                "ReplayEvents is the default and must keep raising PresenceChanged for back-compat.");
+            Assert.AreEqual(1, presenceCount);
             Assert.IsTrue(user.Online);
         }
 
@@ -492,10 +478,8 @@ namespace StreamChat.Tests.StateSync.Unit
                 PollClosedJson("messaging:a", "poll-1"),
             });
 
-            Assert.AreEqual(0, closedCount,
-                "BatchStateUpdate must not fire Closed; the UI rebuilds on StateRecovered.");
-            Assert.AreEqual(0, updatedCount,
-                "BatchStateUpdate must not fire Updated during a silent poll DTO apply.");
+            Assert.AreEqual(0, closedCount);
+            Assert.AreEqual(0, updatedCount);
             Assert.IsTrue(poll.IsClosed);
         }
 
@@ -514,8 +498,7 @@ namespace StreamChat.Tests.StateSync.Unit
                 PollClosedJson("messaging:a", "poll-1"),
             });
 
-            Assert.AreEqual(1, closedCount,
-                "ReplayEvents is the default and must keep raising Closed for back-compat.");
+            Assert.AreEqual(1, closedCount);
             Assert.IsTrue(poll.IsClosed);
         }
 
@@ -534,8 +517,7 @@ namespace StreamChat.Tests.StateSync.Unit
             ReconnectWithSync(SyncEventsJson(MessageNewJson("messaging:a", "msg-offline",
                 new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero))));
 
-            Assert.AreEqual(0, receivedCount,
-                "BatchStateUpdate must not fire IStreamChannel.MessageReceived; rebuild on StateRecovered.");
+            Assert.AreEqual(0, receivedCount);
             Assert.AreEqual(1, channel.Messages.Count);
             Assert.AreEqual("msg-offline", channel.Messages[0].Id);
             Assert.AreEqual(1, _recoveredEvents.Count);
@@ -554,45 +536,27 @@ namespace StreamChat.Tests.StateSync.Unit
             ReconnectWithSync(SyncEventsJson(MessageNewJson("messaging:a", "msg-offline",
                 new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero))));
 
-            Assert.AreEqual(1, receivedCount,
-                "ReplayEvents is the default and must keep raising IStreamChannel.MessageReceived for back-compat.");
+            Assert.AreEqual(1, receivedCount);
             Assert.AreEqual(1, channel.Messages.Count);
             Assert.AreEqual("msg-offline", channel.Messages[0].Id);
             Assert.AreEqual(1, _recoveredEvents.Count);
         }
 
         [Test]
-        public void when_silent_history_batch_contains_custom_event_expect_channel_custom_event_received()
+        public void when_silent_recovery_syncs_custom_event_expect_channel_custom_event_received()
         {
+            _config.StateRecoveryStrategy = StateRecoveryStrategy.BatchStateUpdate;
+
             Connect();
             var channel = WatchChannel("messaging:a");
+            RespondWith(QueryChannelsEndpoint, QueryChannelsJson("messaging:a", "a"));
 
             string receivedType = null;
             channel.CustomEventReceived += (_, evt) => receivedType = evt.Type;
 
-            _client.InternalLowLevelClient.ApplyHistoryEvents(new[]
-            {
-                CustomEventJson("messaging:a", "game.state"),
-            });
+            ReconnectWithSync(SyncEventsJson(CustomEventJson("messaging:a", "game.state")));
 
-            Assert.AreEqual("game.state", receivedType,
-                "Custom events have no state representation, so ApplyHistoryEvents must still deliver them.");
-        }
-
-        [Test]
-        public void when_recovery_query_sent_expect_watch_and_state_true()
-        {
-            Connect();
-            WatchChannel("messaging:a");
-
-            DropConnection();
-            Reconnect();
-
-            _mockHttpClient.Received().SendHttpRequestAsync(
-                Arg.Is(HttpMethodType.Post),
-                Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith(QueryChannelsEndpoint)),
-                Arg.Is<object>(body => RequestHasJsonBool(body, "watch", true)
-                                       && RequestHasJsonBool(body, "state", true)));
+            Assert.AreEqual("game.state", receivedType);
         }
 
         private const string SyncEndpoint = "/sync";
@@ -659,9 +623,6 @@ namespace StreamChat.Tests.StateSync.Unit
             _mockTimeService.Now.Returns(now);
 
             DropConnection();
-            // Health checks in these tests carry no created_at, so disconnect would otherwise leave
-            // no sync point and skip /sync entirely. Seed one after the drop so the copy on
-            // Disconnected cannot wipe it.
             SetDisconnectionLastEventReceivedAt(_client.InternalLowLevelClient, now.AddHours(-1));
             RespondWith(SyncEndpoint, syncJson);
             Reconnect();
@@ -814,14 +775,6 @@ namespace StreamChat.Tests.StateSync.Unit
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(method, $"Expected {methodName} to exist.");
             method.Invoke(_client, new[] { argument });
-        }
-
-        private string[] RecoverySnapshot()
-        {
-            var field = typeof(StreamChatClient).GetField("_recoveryChannelCids",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.IsNotNull(field, "Expected _recoveryChannelCids to exist.");
-            return ((List<string>)field.GetValue(_client)).ToArray();
         }
 
         private static void SetDisconnectionLastEventReceivedAt(StreamChatLowLevelClient client, DateTimeOffset value)

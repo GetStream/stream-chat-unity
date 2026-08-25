@@ -1273,7 +1273,9 @@ namespace StreamChat.Core
             {
                 var response = await InternalLowLevelClient.TrySyncHistoryAsync(recoveryChannelCids);
 
-                // No sync point, or older than 30 days. Step 2 still runs. This is not a deletion.
+                // null = we never called /sync (no _lastEventReceivedAt yet, or the gap is older than 30 days).
+                // Channels are still valid; RehydrateAndRewatchChannelsAsync recovers them.
+                // Contrast inaccessible_cids below: those are gone and must not be queried.
                 if (response == null)
                 {
                     return;

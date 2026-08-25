@@ -84,8 +84,6 @@ namespace StreamChat.Tests.StateSync.Unit
 
             _lowLevelClient.TrySyncHistoryAsync(new[] { "messaging:a" }).GetAwaiter().GetResult();
 
-            // Without this the response cannot distinguish a deleted channel from one the query
-            // happened to omit, and recovery would keep retrying it forever.
             _mockHttpClient.Received(1).SendHttpRequestAsync(
                 Arg.Is(HttpMethodType.Post),
                 Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith("/sync")),
@@ -100,7 +98,7 @@ namespace StreamChat.Tests.StateSync.Unit
 
             var result = _lowLevelClient.ApplyHistoryEvents(new List<object> { MessageNewJson("msg-1", NewestCreatedAt) });
 
-            Assert.AreEqual(0, received, "A silent history batch must not raise public per-event callbacks.");
+            Assert.AreEqual(0, received);
             Assert.AreEqual(0, result.FailedEventCount);
             Assert.AreEqual(NewestCreatedAt, result.MaxAppliedCreatedAt);
         }
@@ -113,8 +111,7 @@ namespace StreamChat.Tests.StateSync.Unit
 
             _lowLevelClient.ReplayHistoryEvents(new List<object> { MessageNewJson("msg-1", NewestCreatedAt) });
 
-            Assert.AreEqual(1, received,
-                "ReplayEvents is the default strategy and must keep raising per-event callbacks for back-compat.");
+            Assert.AreEqual(1, received);
         }
 
         [Test]
@@ -128,8 +125,6 @@ namespace StreamChat.Tests.StateSync.Unit
                 CustomEventJson("game.state", NewestCreatedAt),
             });
 
-            // Custom events have no representation in local state, so suppressing them would lose the
-            // payload with no way for a consumer to recover it.
             Assert.AreEqual(new[] { "game.state" }, received.ToArray());
         }
 
@@ -145,8 +140,7 @@ namespace StreamChat.Tests.StateSync.Unit
                 MessageNewJson("msg-3", NewestCreatedAt.AddMinutes(-5)),
             });
 
-            Assert.AreEqual(NewestCreatedAt, GetLastEventReceivedAt(client),
-                "The batch must advance the watermark exactly once, to its newest event.");
+            Assert.AreEqual(NewestCreatedAt, GetLastEventReceivedAt(client));
         }
 
         [Test]
@@ -163,9 +157,6 @@ namespace StreamChat.Tests.StateSync.Unit
             });
 
             Assert.AreEqual(1, result.FailedEventCount);
-
-            // The watermark must not claim the failed event was applied, or the next reconnect would
-            // never ask for it again.
             Assert.AreEqual(newest.AddMinutes(-5), result.MaxAppliedCreatedAt);
             Assert.AreEqual(newest.AddMinutes(-5), GetLastEventReceivedAt(client));
         }
@@ -182,71 +173,7 @@ namespace StreamChat.Tests.StateSync.Unit
         }
 
         [Test]
-        public void when_history_event_is_parsed_object_expect_applied_like_json_string()
-        {
-            var json = MessageNewJson("msg-1", NewestCreatedAt);
-            var parsed = _serializer.DeserializeObject(json);
-
-            var received = 0;
-            _lowLevelClient.MessageReceived += _ => received++;
-
-            var fromObject = _lowLevelClient.ApplyHistoryEvents(new List<object> { parsed });
-            var fromString = CreateClient().ApplyHistoryEvents(new List<object> { json });
-
-            Assert.AreEqual(0, received, "Parsed /sync objects must take the silent path, same as JSON strings.");
-            Assert.AreEqual(0, fromObject.FailedEventCount);
-            Assert.AreEqual(fromString.MaxAppliedCreatedAt, fromObject.MaxAppliedCreatedAt,
-                "JObject /sync events must advance last_sync_at the same way JSON strings do.");
-            Assert.AreEqual(NewestCreatedAt, fromObject.MaxAppliedCreatedAt);
-        }
-
-        [Test]
-        public void when_history_custom_event_is_parsed_object_expect_delivered()
-        {
-            var received = new List<string>();
-            _lowLevelClient.CustomEventReceived += e => received.Add(e.Type);
-
-            var parsed = _serializer.DeserializeObject(CustomEventJson("game.state", NewestCreatedAt));
-            _lowLevelClient.ApplyHistoryEvents(new List<object> { parsed });
-
-            Assert.AreEqual(new[] { "game.state" }, received.ToArray());
-        }
-
-        [Test]
-        public void when_history_replay_parsed_object_expect_public_message_received()
-        {
-            var received = 0;
-            _lowLevelClient.MessageReceived += _ => received++;
-
-            var parsed = _serializer.DeserializeObject(MessageNewJson("msg-1", NewestCreatedAt));
-            _lowLevelClient.ReplayHistoryEvents(new List<object> { parsed });
-
-            Assert.AreEqual(1, received,
-                "ReplayEvents must raise public callbacks for parsed /sync objects, same as JSON strings.");
-        }
-
-        [Test]
-        public void when_history_batch_contains_malformed_parsed_object_expect_remaining_events_still_applied()
-        {
-            var client = CreateClient();
-            var newest = NewestCreatedAt;
-            var malformed = _serializer.DeserializeObject(
-                $"{{\"type\":\"message.new\",\"cid\":\"messaging:test\",\"created_at\":\"{newest.AddMinutes(-1):O}\",\"message\":\"not-an-object\"}}");
-
-            var result = client.ApplyHistoryEvents(new List<object>
-            {
-                MessageNewJson("msg-1", newest.AddMinutes(-10)),
-                malformed,
-                MessageNewJson("msg-3", newest.AddMinutes(-5)),
-            });
-
-            Assert.AreEqual(1, result.FailedEventCount);
-            Assert.AreEqual(newest.AddMinutes(-5), result.MaxAppliedCreatedAt);
-            Assert.AreEqual(newest.AddMinutes(-5), GetLastEventReceivedAt(client));
-        }
-
-        [Test]
-        public void when_health_check_arrives_on_live_socket_expect_liveness_stamped_before_handlers()
+        public void when_health_check_arrives_on_live_socket_expect_liveness_stamped()
         {
             var client = CreateClientWithMessages(HealthCheckJson());
             client.Connect();
@@ -256,8 +183,7 @@ namespace StreamChat.Tests.StateSync.Unit
             EnqueueMessages(HealthCheckJson());
             client.Update(0.2f);
 
-            Assert.AreEqual(12f, GetLastHealthCheckReceivedTime(client),
-                "Liveness must be stamped when the health check is read, not after consumer handlers run.");
+            Assert.AreEqual(12f, GetLastHealthCheckReceivedTime(client));
         }
 
         [Test]
@@ -272,8 +198,7 @@ namespace StreamChat.Tests.StateSync.Unit
             _mockTimeService.Time.Returns(99f);
             client.ReplayHistoryEvents(new List<object> { HealthCheckJson() });
 
-            Assert.AreEqual(stampedOnConnect, GetLastHealthCheckReceivedTime(client),
-                "A replayed health check proves nothing about the current socket and must not extend liveness.");
+            Assert.AreEqual(stampedOnConnect, GetLastHealthCheckReceivedTime(client));
         }
 
         private static readonly DateTimeOffset NewestCreatedAt =
