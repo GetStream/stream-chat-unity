@@ -367,6 +367,7 @@ namespace StreamChat.Core.LowLevelClient
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
 
+            _reconnectScheduler.Start();
             TryCancelWaitingForUserConnection();
 
             //StreamTodo: hidden dependency on SetUser being called
@@ -524,6 +525,7 @@ namespace StreamChat.Core.LowLevelClient
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
 
+            _reconnectScheduler.Start();
             _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
             SetPartialConnectionCredentials(apiKey, userId);
 
