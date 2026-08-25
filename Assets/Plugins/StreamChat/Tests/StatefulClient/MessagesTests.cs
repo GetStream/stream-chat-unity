@@ -63,6 +63,23 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(new string[] { "Yoga", "Climbing" }, messageInChannel.CustomData.Get<string[]>("Sports"));
         }
 
+        // Requires the auto-translation feature to be enabled for the app the tests run against
+        [UnityTest]
+        public IEnumerator When_message_translate_expect_translation_in_i18n()
+            => ConnectAndExecute(When_message_translate_expect_translation_in_i18n_Async);
+
+        private async Task When_message_translate_expect_translation_in_i18n_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var sentMessage = await channel.SendNewMessageAsync("Hello, world!");
+
+            await sentMessage.TranslateAsync("fr");
+            await WaitWhileFalseAsync(() => sentMessage.I18n.ContainsKey("fr_text"));
+
+            Assert.IsFalse(string.IsNullOrEmpty(sentMessage.I18n["fr_text"]));
+        }
+
         [UnityTest]
         public IEnumerator When_Update_message_expect_message_changed()
             => ConnectAndExecute(When_Update_message_expect_message_changed_Async);

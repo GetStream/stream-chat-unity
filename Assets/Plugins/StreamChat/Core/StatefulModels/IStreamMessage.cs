@@ -234,6 +234,19 @@ namespace StreamChat.Core.StatefulModels
         Task UnpinAsync();
 
         /// <summary>
+        /// <para>Translate this message's text into the given language.</para>
+        ///
+        /// The translation is stored on the message and available from <see cref="I18n"/> under the
+        /// <c>{language}_text</c> key (e.g. "en_text" for English), alongside a <c>language</c> key
+        /// naming the detected source language. Stream notifies every client watching the channel
+        /// that the message was updated. Requires the auto-translation feature to be enabled for
+        /// your app.
+        /// </summary>
+        /// <param name="language">Target language as an ISO language code, e.g. "en"</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/translation/?language=unity</remarks>
+        Task TranslateAsync(string language);
+
+        /// <summary>
         /// Add reaction to this message
         /// You can view reactions with:
         /// - <see cref="IStreamMessage.ReactionScores"/>,

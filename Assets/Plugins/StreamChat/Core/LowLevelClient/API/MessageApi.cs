@@ -41,6 +41,12 @@ namespace StreamChat.Core.LowLevelClient.API
             return dto.ToDomain<MessageResponseInternalDTO, MessageResponse>();
         }
 
+        public async Task<MessageResponse> TranslateMessageAsync(string messageId, TranslateMessageRequest translateMessageRequest)
+        {
+            var dto = await _internalMessageApi.TranslateMessageAsync(messageId, translateMessageRequest.TrySaveToDto());
+            return dto.ToDomain<MessageResponseInternalDTO, MessageResponse>();
+        }
+
         public async Task<ReactionResponse> SendReactionAsync(string messageId, SendReactionRequest sendReactionRequest)
         {
             var dto = await _internalMessageApi.SendReactionAsync(messageId, sendReactionRequest.TrySaveToDto());

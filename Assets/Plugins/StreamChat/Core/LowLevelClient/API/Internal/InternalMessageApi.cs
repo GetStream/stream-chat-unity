@@ -44,6 +44,12 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             return Delete<MessageResponseInternalDTO>(endpoint, parameters);
         }
 
+        public Task<MessageResponseInternalDTO> TranslateMessageAsync(string messageId, TranslateMessageRequestInternalDTO translateMessageRequest)
+        {
+            var endpoint = MessageEndpoints.TranslateMessage(messageId);
+            return Post<TranslateMessageRequestInternalDTO, MessageResponseInternalDTO>(endpoint, translateMessageRequest);
+        }
+
         public Task<SendReactionResponseInternalDTO> SendReactionAsync(string messageId, SendReactionRequestInternalDTO sendReactionRequest)
         {
             var endpoint = MessageEndpoints.SendReaction(messageId);
