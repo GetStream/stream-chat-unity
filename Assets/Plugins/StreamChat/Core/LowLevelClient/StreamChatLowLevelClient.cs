@@ -1335,8 +1335,8 @@ namespace StreamChat.Core.LowLevelClient
             }
             catch (Exception)
             {
-                var json = _serializer.Serialize(payload);
-                return _serializer.TryPeekValue(json, "cid", out cid);
+                var serialized = _serializer.Serialize(payload);
+                return _serializer.TryPeekValue(serialized, "cid", out cid);
             }
         }
 
