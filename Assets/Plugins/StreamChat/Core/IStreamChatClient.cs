@@ -342,7 +342,29 @@ namespace StreamChat.Core
         /// <param name="timeoutMinutes">Optional timeout. Without timeout users will stay muted indefinitely</param>
         Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default);
 
+        /// <summary>
+        /// Disconnect the local user and stop automatic reconnects. The next connect is a fresh login,
+        /// not a reconnect recovery. Use <see cref="PauseConnectionAsync"/> to drop the WebSocket
+        /// without ending the session.
+        /// </summary>
         Task DisconnectUserAsync();
+
+        /// <summary>
+        /// Temporarily drop the chat connection without logging the user out.
+        /// Call <see cref="DisconnectUserAsync"/> to sign off. Resume with
+        /// <see cref="ResumeConnectionAsync"/>. If
+        /// <see cref="Configs.IStreamClientConfig.DisconnectOnApplicationPause"/> is enabled,
+        /// <see cref="StreamChatClient.CreateDefaultClient"/> already does this when the app
+        /// backgrounds and returns.
+        /// </summary>
+        Task PauseConnectionAsync();
+
+        /// <summary>
+        /// Reconnect after <see cref="PauseConnectionAsync"/> or after the app was backgrounded.
+        /// No-op if already connected or connecting. This is not login — use
+        /// <see cref="ConnectUserAsync"/> to sign in.
+        /// </summary>
+        Task ResumeConnectionAsync();
 
         bool IsLocalUser(IStreamUser messageUser);
 

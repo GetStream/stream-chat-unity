@@ -36,5 +36,20 @@ namespace StreamChat.Core.Configs
         /// Does not change server history. See <see cref="StatefulModels.IStreamChannel.MessageCacheWindow"/>.
         /// </summary>
         MessageCacheWindow DefaultMessageCacheWindow { get; set; }
+
+        /// <summary>
+        /// When the app goes to the background, temporarily drop the chat connection without logging
+        /// the user out. When the app returns to the foreground, reconnect and recover missed state.
+        /// Defaults to <c>true</c>. Set to <c>false</c> to keep the connection alive while backgrounded.
+        ///
+        /// In the Unity Editor this has no effect — pausing play mode or unfocusing the Game view
+        /// would otherwise disconnect constantly. A warning is logged once.
+        ///
+        /// Applies when you create the client with <see cref="StreamChatClient.CreateDefaultClient"/>.
+        /// If you drive the client yourself (you call Update each frame), pause and resume with
+        /// <see cref="IStreamChatClient.PauseConnectionAsync"/> /
+        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/> instead.
+        /// </summary>
+        bool DisconnectOnApplicationPause { get; set; }
     }
 }

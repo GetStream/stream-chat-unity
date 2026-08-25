@@ -24,5 +24,12 @@ namespace StreamChat.Libs.ChatInstanceRunner
         /// E.g. for Unity call when MonoBehaviour.Update is called by the engine or call from coroutine.
         /// </summary>
         void Update();
+
+        /// <summary>
+        /// Call when the application is paused or resumed (for Unity:
+        /// <c>MonoBehaviour.OnApplicationPause</c>). If you call <see cref="Update"/> yourself,
+        /// use this or <c>PauseConnectionAsync</c> / <c>ResumeConnectionAsync</c> on background / foreground.
+        /// </summary>
+        void OnApplicationPause(bool isPaused);
     }
 }

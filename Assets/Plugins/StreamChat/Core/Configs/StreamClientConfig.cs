@@ -12,5 +12,7 @@
         public bool OptimisticMessageInsert { get; set; } = true;
 
         public MessageCacheWindow DefaultMessageCacheWindow { get; set; } = null;
+
+        public bool DisconnectOnApplicationPause { get; set; } = true;
     }
 }

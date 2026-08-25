@@ -29,8 +29,6 @@ namespace StreamChat.Libs.ChatInstanceRunner
                 StartCoroutine(UpdateCoroutine());
             }
 
-            private IStreamChatClientEventsListener _streamChatInstance;
-            
             // Called by Unity
             private void Awake()
             {
@@ -60,6 +58,31 @@ namespace StreamChat.Libs.ChatInstanceRunner
                 }
             }
 
+            // Called by Unity. Also fired with false when the player starts.
+            private void OnApplicationPause(bool pauseStatus)
+            {
+                if (_streamChatInstance == null)
+                {
+                    return;
+                }
+
+#if UNITY_EDITOR
+                // Play-mode pause / unfocus must not drop the socket, even if
+                // DisconnectOnApplicationPause is true (including the player default).
+                if (pauseStatus && !_loggedEditorPauseIgnored)
+                {
+                    _loggedEditorPauseIgnored = true;
+                    Debug.LogWarning(
+                        "DisconnectOnApplicationPause is ignored in the Unity Editor so play-mode pause / unfocus " +
+                        "does not drop the socket. Call PauseConnectionAsync / ResumeConnectionAsync to test that path.");
+                }
+
+                return;
+#else
+                _streamChatInstance.OnApplicationPause(pauseStatus);
+#endif
+            }
+
             private void OnStreamChatInstanceDisposed()
             {
                 if (_streamChatInstance == null)
@@ -77,6 +100,8 @@ namespace StreamChat.Libs.ChatInstanceRunner
                 Destroy(gameObject);
             }
 
+            private IStreamChatClientEventsListener _streamChatInstance;
+            private bool _loggedEditorPauseIgnored;
         }
     }
 }

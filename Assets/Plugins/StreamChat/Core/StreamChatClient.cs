@@ -222,7 +222,29 @@ namespace StreamChat.Core
         public Task DisconnectUserAsync()
         {
             TryCancelWaitingForUserConnection();
-            return InternalLowLevelClient.DisconnectAsync(permanent: true);
+            return InternalLowLevelClient.DisconnectAsync(DisconnectCause.UserLogout);
+        }
+
+        public Task PauseConnectionAsync()
+        {
+            if (ConnectionState == ConnectionState.Disconnected || ConnectionState == ConnectionState.Closing)
+            {
+                return Task.CompletedTask;
+            }
+
+            TryCancelWaitingForUserConnection();
+            return InternalLowLevelClient.DisconnectAsync(DisconnectCause.ConnectionReleased);
+        }
+
+        public Task ResumeConnectionAsync()
+        {
+            if (IsConnected || IsConnecting)
+            {
+                return Task.CompletedTask;
+            }
+
+            InternalLowLevelClient.Connect();
+            return Task.CompletedTask;
         }
 
         public async Task<StreamCurrentUnreadCounts> GetLatestUnreadCountsAsync()
@@ -882,6 +904,28 @@ namespace StreamChat.Core
 
         void IStreamChatClientEventsListener.Update() => InternalLowLevelClient.Update(_timeService.DeltaTime);
 
+        void IStreamChatClientEventsListener.OnApplicationPause(bool isPaused)
+        {
+            if (InternalLowLevelClient == null || !InternalLowLevelClient.Config.DisconnectOnApplicationPause)
+            {
+                return;
+            }
+
+            if (isPaused)
+            {
+                if (ConnectionState == ConnectionState.Disconnected || ConnectionState == ConnectionState.Closing)
+                {
+                    return;
+                }
+
+                TryCancelWaitingForUserConnection();
+                InternalLowLevelClient.DisconnectAsync(DisconnectCause.ApplicationPause).LogIfFailed(_logs);
+                return;
+            }
+
+            TryResumeConnectionAfterApplicationResume();
+        }
+
         internal StreamChatLowLevelClient InternalLowLevelClient { get; }
 
         internal ICache InternalCache => _cache;
@@ -1063,6 +1107,31 @@ namespace StreamChat.Core
                 _logs.Info($"Try Cancel {_connectUserTaskSource}");
 #endif
                 _connectUserTaskSource.TrySetCanceled();
+            }
+        }
+
+        private void TryResumeConnectionAfterApplicationResume()
+        {
+            if (IsConnected || IsConnecting)
+            {
+                return;
+            }
+
+            if (!ConnectionState.IsValidToConnect())
+            {
+                return;
+            }
+
+            try
+            {
+                InternalLowLevelClient.Connect();
+            }
+            catch (StreamMissingAuthCredentialsException)
+            {
+                // Unity sends OnApplicationPause(false) on launch, before ConnectUserAsync.
+            }
+            catch (InvalidOperationException)
+            {
             }
         }
 
