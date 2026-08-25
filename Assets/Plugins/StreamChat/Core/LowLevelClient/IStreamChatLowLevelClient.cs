@@ -103,6 +103,11 @@ namespace StreamChat.Core.LowLevelClient
         [Obsolete("Use DisconnectAsync(DisconnectCause). true maps to UserLogout, false to ConnectionReleased.")]
         Task DisconnectAsync(bool permanent);
 
+        /// <summary>
+        /// Fetch missed events via <c>/sync</c> and apply them. The returned task completes when
+        /// those events have been processed, which may span several <see cref="Update"/> calls
+        /// after a large catch-up. Keep calling <see cref="Update"/> while awaiting.
+        /// </summary>
         Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids);
 
         /// <summary>

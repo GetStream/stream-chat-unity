@@ -218,6 +218,8 @@ namespace StreamChat.Core.LowLevelClient
                 if (value == ConnectionState.Disconnected)
                 {
                     _disconnectionLastEventReceivedAt = _lastEventReceivedAt;
+                    ClearPendingHistoryEvents();
+                    _heldLiveMessage = null;
                     RaiseDisconnected();
                 }
             }
@@ -430,13 +432,7 @@ namespace StreamChat.Core.LowLevelClient
 
             _websocketClient.Update();
 
-            while (_websocketClient.TryDequeueMessage(out var msg))
-            {
-#if STREAM_DEBUG_ENABLED
-                _logs.Info(_authCredentials.UserId + " WS message: " + msg);
-#endif
-                HandleNewWebsocketMessage(msg);
-            }
+            DrainPendingEvents();
         }
 
         public bool IsLocalUser(User user) => user.Id == _authCredentials.UserId;
@@ -469,8 +465,9 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            //StreamTodo: according to Android SDK there's an error if there are > 1000 events 
+            //StreamTodo: according to Android SDK there's an error if there are > 1000 events
 
+            var generation = _historyDrainGeneration;
             var response = await ChannelApi.SyncAsync(new SyncRequest
             {
                 ChannelCids = channelCids.ToList(),
@@ -478,24 +475,24 @@ namespace StreamChat.Core.LowLevelClient
                 Watch = true,
             });
 
-            if (response.Events.Count == 0)
+            if (generation != _historyDrainGeneration)
             {
                 return;
             }
 
-            foreach (var e in response.Events)
+            if (response.Events == null || response.Events.Count == 0)
             {
-                // StreamTodo: check if we can not serialized this again. Investigate adding a custom EventsJsonConverter that would populate the list as serialized strings
-                var serializedMsg = _serializer.Serialize(e);
-
-                //StreamTodo: try block?
-                HandleNewWebsocketMessage(serializedMsg);
+                return;
             }
+
+            await EnqueueHistoryEvents(response.Events);
         }
 
         public void Dispose()
         {
             ConnectionState = ConnectionState.Closing;
+            ClearPendingHistoryEvents();
+            _heldLiveMessage = null;
 
             _reconnectScheduler.Dispose();
 
@@ -527,6 +524,18 @@ namespace StreamChat.Core.LowLevelClient
         internal IStreamClientConfig Config => _config;
 
         internal DisconnectCause LastDisconnectCause { get; private set; }
+
+        /// <summary>
+        /// Per-frame time budget for applying live WS + /sync history events. Tests may lower this.
+        /// </summary>
+        internal int EventDrainTimeBudgetMs { get; set; } = 3;
+
+        /// <summary>
+        /// Secondary bound so a batch of cheap events cannot still dump a huge list in one frame.
+        /// </summary>
+        internal int EventDrainCountCap { get; set; } = 64;
+
+        internal IElapsedStopwatch EventDrainStopwatch { get; set; } = new DiagnosticsElapsedStopwatch();
 
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
@@ -574,6 +583,7 @@ namespace StreamChat.Core.LowLevelClient
 
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
+        private const int EventDrainHealthGrace = 8;
 
         // For WebGL there is a slight delay when sending therefore we send HC event a bit sooner just in case
         private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime - 1;
@@ -595,6 +605,8 @@ namespace StreamChat.Core.LowLevelClient
 
         private readonly object _websocketConnectionFailedFlagLock = new object();
         private readonly object _websocketDisconnectedFlagLock = new object();
+        private readonly object _pendingHistoryEventsLock = new object();
+        private readonly Queue<object> _pendingHistoryEvents = new Queue<object>();
 
         /// <summary>
         /// Every <see cref="ConnectionState"/> write must happen on this thread
@@ -627,6 +639,10 @@ namespace StreamChat.Core.LowLevelClient
         /// The last value of <see cref="_lastEventReceivedAt"/> when the client disconnected. Use this value when calling /sync endpoint
         /// </summary>
         private DateTimeOffset? _disconnectionLastEventReceivedAt;
+
+        private string _heldLiveMessage;
+        private TaskCompletionSource<bool> _historyDrainTcs;
+        private int _historyDrainGeneration;
 
         private async Task RefreshAuthTokenFromProvider()
         {
@@ -1036,6 +1052,168 @@ namespace StreamChat.Core.LowLevelClient
             response.LoadFromDto(dto);
 
             return response;
+        }
+
+        private void DrainPendingEvents()
+        {
+            EventDrainStopwatch.Restart();
+            var processed = 0;
+            var countCap = EventDrainCountCap;
+            var timeBudgetMs = EventDrainTimeBudgetMs;
+
+            bool BudgetExhausted()
+                => processed > 0 && (processed >= countCap ||
+                                     EventDrainStopwatch.ElapsedMilliseconds >= timeBudgetMs);
+
+            while (true)
+            {
+                if (HasPendingHistoryEvents())
+                {
+                    if (BudgetExhausted())
+                    {
+                        break;
+                    }
+
+                    if (!TryDequeueHistoryEvent(out var historyEvent))
+                    {
+                        continue;
+                    }
+
+                    ProcessHistoryEvent(historyEvent);
+                    processed++;
+                    TryCompleteHistoryDrainIfIdle();
+                    continue;
+                }
+
+                if (!TryTakeLiveMessage(out var liveMsg))
+                {
+                    break;
+                }
+
+#if STREAM_DEBUG_ENABLED
+                _logs.Info(_authCredentials.UserId + " WS message: " + liveMsg);
+#endif
+
+                var isHealth = IsHealthCheckMessage(liveMsg);
+                var hardStop = processed >= countCap + EventDrainHealthGrace;
+                if (hardStop || (BudgetExhausted() && !isHealth))
+                {
+                    _heldLiveMessage = liveMsg;
+                    break;
+                }
+
+                HandleNewWebsocketMessage(liveMsg);
+                processed++;
+            }
+
+            TryCompleteHistoryDrainIfIdle();
+        }
+
+        private bool TryTakeLiveMessage(out string msg)
+        {
+            if (_heldLiveMessage != null)
+            {
+                msg = _heldLiveMessage;
+                _heldLiveMessage = null;
+                return true;
+            }
+
+            return _websocketClient.TryDequeueMessage(out msg);
+        }
+
+        private bool IsHealthCheckMessage(string msg)
+        {
+            if (string.IsNullOrEmpty(msg))
+            {
+                return false;
+            }
+
+            try
+            {
+                return _serializer.TryPeekValue<string>(msg, "type", out var type)
+                       && type == WSEventType.HealthCheck;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private Task EnqueueHistoryEvents(IEnumerable<object> events)
+        {
+            lock (_pendingHistoryEventsLock)
+            {
+                foreach (var e in events)
+                {
+                    _pendingHistoryEvents.Enqueue(e);
+                }
+
+                if (_historyDrainTcs == null || _historyDrainTcs.Task.IsCompleted)
+                {
+                    _historyDrainTcs = new TaskCompletionSource<bool>(
+                        TaskCreationOptions.RunContinuationsAsynchronously);
+                }
+
+                return _historyDrainTcs.Task;
+            }
+        }
+
+        private bool HasPendingHistoryEvents()
+        {
+            lock (_pendingHistoryEventsLock)
+            {
+                return _pendingHistoryEvents.Count > 0;
+            }
+        }
+
+        private bool TryDequeueHistoryEvent(out object historyEvent)
+        {
+            lock (_pendingHistoryEventsLock)
+            {
+                if (_pendingHistoryEvents.Count == 0)
+                {
+                    historyEvent = null;
+                    return false;
+                }
+
+                historyEvent = _pendingHistoryEvents.Dequeue();
+                return true;
+            }
+        }
+
+        private void ProcessHistoryEvent(object historyEvent)
+        {
+            if (historyEvent == null)
+            {
+                return;
+            }
+
+            var serializedMsg = historyEvent as string ?? _serializer.Serialize(historyEvent);
+            HandleNewWebsocketMessage(serializedMsg);
+        }
+
+        private void TryCompleteHistoryDrainIfIdle()
+        {
+            lock (_pendingHistoryEventsLock)
+            {
+                if (_pendingHistoryEvents.Count > 0 || _historyDrainTcs == null)
+                {
+                    return;
+                }
+
+                _historyDrainTcs.TrySetResult(true);
+            }
+        }
+
+        private void ClearPendingHistoryEvents()
+        {
+            lock (_pendingHistoryEventsLock)
+            {
+                _historyDrainGeneration++;
+                _pendingHistoryEvents.Clear();
+                _historyDrainTcs?.TrySetResult(true);
+                _historyDrainTcs = null;
+            }
         }
 
         private void HandleNewWebsocketMessage(string msg)
