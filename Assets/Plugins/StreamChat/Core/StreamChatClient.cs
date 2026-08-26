@@ -53,8 +53,6 @@ namespace StreamChat.Core
     /// </summary>
     public delegate void ChannelDeleteHandler(string channelCid, string channelId, ChannelType channelType);
 
-    //StreamTodo: Handle restoring state after lost connection
-
     public delegate void ChannelInviteHandler(IStreamChannel channel, IStreamUser invitee);
 
     /// <summary>
@@ -66,6 +64,9 @@ namespace StreamChat.Core
     /// Member removed from the channel handler
     /// </summary>
     public delegate void ChannelMemberRemovedHandler(IStreamChannel channel, IStreamChannelMember member);
+
+    /// <inheritdoc cref="IStreamChatClient.StateRecovered"/>
+    public delegate void StateRecoveredHandler(StreamStateRecoveredEventArgs eventArgs);
 
     /// <inheritdoc cref="IStreamChatClient"/>
     public sealed class StreamChatClient : IStreamChatClient
@@ -89,6 +90,8 @@ namespace StreamChat.Core
 
         public event StreamThreadChangeHandler ThreadTracked;
         public event StreamThreadChangeHandler ThreadUntracked;
+
+        public event StateRecoveredHandler StateRecovered;
 
         public const int QueryUsersLimitMaxValue = 30;
         public const int QueryUsersOffsetMaxValue = 1000;
@@ -222,6 +225,10 @@ namespace StreamChat.Core
         public Task DisconnectUserAsync()
         {
             TryCancelWaitingForUserConnection();
+
+            // End the session so the next Connected is a new login, not a reconnect.
+            _hasConnectedBefore = false;
+
             return InternalLowLevelClient.DisconnectAsync(permanent: true);
         }
 
@@ -286,28 +293,7 @@ namespace StreamChat.Core
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
             StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
 
-            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
-            var requestBodyDto = new QueryChannelsRequestInternalDTO
-            {
-                FilterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value),
-                Limit = limit,
-                MemberLimit = null,
-                MessageLimit = null,
-                Offset = offset,
-                Presence = true,
-
-                /*
-                 * StreamTodo: Allowing to sort query can potentially lead to mixed sorting in WatchedChannels
-                 * But there seems no other choice because its too limiting to force only a global sorting for channels
-                 * e.g. user may want to show channels in multiple ways with different sorting which would not work with global only sorting
-                 */
-                Sort = sort?.ToSortParamRequestList(),
-                State = true,
-                Watch = true,
-            };
-
-            var channelsResponseDto
-                = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            var channelsResponseDto = await FetchQueryChannelsResponseAsync(filters, sort, limit, offset);
             if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
             {
                 return Enumerable.Empty<StreamChannel>();
@@ -332,28 +318,8 @@ namespace StreamChat.Core
             StreamAsserts.AssertWithinRange(limit, 0, 30, nameof(limit));
             StreamAsserts.AssertGreaterThanOrEqualZero(offset, nameof(offset));
 
-            //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
-            var requestBodyDto = new QueryChannelsRequestInternalDTO
-            {
-                FilterConditions = filters?.ToDictionary(x => x.Key, x => x.Value),
-                Limit = limit,
-                MemberLimit = null,
-                MessageLimit = null,
-                Offset = offset,
-                Presence = true,
-
-                /*
-                 * StreamTodo: Allowing to sort query can potentially lead to mixed sorting in WatchedChannels
-                 * But there seems no other choice because its too limiting to force only a global sorting for channels
-                 * e.g. user may want to show channels in multiple ways with different sorting which would not work with global only sorting
-                 */
-                Sort = sort?.ToSortParamRequestList(),
-                State = true,
-                Watch = true,
-            };
-
-            var channelsResponseDto
-                = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(requestBodyDto);
+            var channelsResponseDto = await InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(
+                CreateQueryChannelsRequest(filters, sort, limit, offset));
             if (channelsResponseDto.Channels == null || channelsResponseDto.Channels.Count == 0)
             {
                 return Enumerable.Empty<StreamChannel>();
@@ -967,6 +933,38 @@ namespace StreamChat.Core
         private readonly StreamPollsApi _pollsApi;
         private readonly List<IStreamChannel> _watchedChannels = new List<IStreamChannel>();
 
+        /// <summary>
+        /// Cids watched when the connection dropped, newest activity first.
+        /// Recovery uses this because <see cref="_watchedChannels"/> is cleared on disconnect.
+        /// </summary>
+        private readonly List<string> _recoveryChannelCids = new List<string>();
+
+        /// <summary>
+        /// Cids <c>/sync</c> reported as inaccessible. Never queried again for this client.
+        /// </summary>
+        private readonly HashSet<string> _inaccessibleCids = new HashSet<string>();
+
+        private int _recoveryGeneration;
+        private bool _hasConnectedBefore;
+
+        /// <summary>
+        /// Cap so reconnect does not run an unbounded number of queries.
+        /// Same cap as <c>/sync</c>. JS and Android cap at 30.
+        /// </summary>
+        internal const int MaxRecoveredChannels = StreamChatLowLevelClient.MaxSyncChannelCids;
+
+        /// <summary>
+        /// <c>QueryChannelsAsync</c> allows at most 30 channels per request.
+        /// </summary>
+        private const int MaxChannelsPerRecoveryQuery = 30;
+
+        // List.Sort is unstable. Ties only happen when LastMessageAt is equal.
+        private static readonly Comparison<IStreamChannel> ByLastMessageAtDescending = (a, b)
+            => (b.LastMessageAt ?? DateTimeOffset.MinValue).CompareTo(a.LastMessageAt ?? DateTimeOffset.MinValue);
+
+        /// <inheritdoc cref="StreamChatLowLevelClient.IsApplyingHistoryEvents"/>
+        internal bool IsApplyingHistorySync => InternalLowLevelClient.IsApplyingHistoryEvents;
+
         private TaskCompletionSource<IStreamLocalUserData> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
         private CancellationTokenSource _connectUserCancellationTokenSource;
@@ -1022,10 +1020,8 @@ namespace StreamChat.Core
             ChannelDeleted?.Invoke(channel.Cid, channel.Id, channel.Type);
         }
 
-        // Flip IsWatched=true and add to _watchedChannels. Call from every path that issued
-        // Watch=true to the server. Channels that land in the cache via non-watching paths
-        // (search hits, threads with Watch=false, ban-info / mute payloads) stay IsWatched=false.
-        // Idempotent: a no-op when the channel is already watched.
+        // Call from every path that sent Watch=true to the server.
+        // Search hits, threads with Watch=false, and similar cache-only paths stay unwatched.
         private void MarkChannelWatched(StreamChannel channel)
         {
             if (channel == null || channel.IsWatched)
@@ -1037,11 +1033,19 @@ namespace StreamChat.Core
             _watchedChannels.Add(channel);
         }
 
-        // Counterpart to MarkChannelWatched. Called from StreamChannel.StopWatchingAsync
-        // after the server confirms the unwatch. Idempotent.
+        // Called from StreamChannel.StopWatchingAsync after the server confirms.
         internal void InternalMarkChannelUnwatched(StreamChannel channel)
         {
-            if (channel == null || !channel.IsWatched)
+            if (channel == null)
+            {
+                return;
+            }
+
+            // Also remove it from the reconnect recovery list. If the user stopped watching
+            // while disconnected, recovery would otherwise start watching this channel again.
+            _recoveryChannelCids.Remove(channel.Cid);
+
+            if (!channel.IsWatched)
             {
                 return;
             }
@@ -1050,7 +1054,11 @@ namespace StreamChat.Core
             _watchedChannels.Remove(channel);
         }
 
-        private void OnChannelLeftCache(StreamChannel channel) => _watchedChannels.Remove(channel);
+        private void OnChannelLeftCache(StreamChannel channel)
+        {
+            _watchedChannels.Remove(channel);
+            _recoveryChannelCids.Remove(channel.Cid);
+        }
 
         private void TryCancelWaitingForUserConnection()
         {
@@ -1143,20 +1151,347 @@ namespace StreamChat.Core
             RestoreStateLostDuringDisconnect().LogIfFailed();
         }
 
-        private Task RestoreStateLostDuringDisconnect()
+        /// <summary>
+        /// After reconnect the new websocket has no watches. Without this, channels stay
+        /// in local state but stop receiving events.
+        ///
+        /// 1. <c>/sync</c> catch-up (best effort). Must run first: a replayed <c>channel.truncated</c>
+        ///    would wipe messages fetched in step 2.
+        /// 2. Re-query and re-watch, even if step 1 failed or was skipped.
+        /// 3. Raise <see cref="StateRecovered"/> once.
+        ///
+        /// A failure in one channel or request must not stop the others.
+        /// </summary>
+        private async Task RestoreStateLostDuringDisconnect()
         {
-            if (!WatchedChannels.Any())
+            // First login is not a recovery. Clear any leftover snapshot from a previous session.
+            if (!_hasConnectedBefore)
             {
-                return Task.CompletedTask;
+                _hasConnectedBefore = true;
+                _recoveryChannelCids.Clear();
+                _inaccessibleCids.Clear();
+                return;
             }
 
-            return LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(WatchedChannels.Select(c => c.Cid));
+            if (InternalLowLevelClient.Config.StateRecoveryStrategy == StateRecoveryStrategy.Disabled)
+            {
+                return;
+            }
+
+            var generation = ++_recoveryGeneration;
+
+            using (new ListPoolScope<string>(out var tempRecoveryChannelCids))
+            {
+                FillRecoveryChannelCids(tempRecoveryChannelCids);
+
+                var refreshedChannels = new List<IStreamChannel>();
+
+                try
+                {
+                    if (tempRecoveryChannelCids.Count > 0)
+                    {
+                        await TryCatchUpWithHistoryAsync(tempRecoveryChannelCids, generation);
+                        if (!IsRecoveryGenerationCurrent(generation))
+                        {
+                            return;
+                        }
+
+                        await RehydrateAndRewatchChannelsAsync(tempRecoveryChannelCids, generation, refreshedChannels);
+                        if (!IsRecoveryGenerationCurrent(generation))
+                        {
+                            return;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    // Each step already handles its own errors. Still raise StateRecovered so the
+                    // app knows recovery finished and which channels are stale.
+                    _logs.Exception(e);
+                }
+
+                if (!IsRecoveryGenerationCurrent(generation))
+                {
+                    return;
+                }
+
+                var unrecovered = new List<string>();
+
+                using (new HashSetPoolScope<string>(out var tempRecovered))
+                {
+                    for (var i = 0; i < refreshedChannels.Count; i++)
+                    {
+                        tempRecovered.Add(refreshedChannels[i].Cid);
+                    }
+
+                    for (var i = 0; i < tempRecoveryChannelCids.Count; i++)
+                    {
+                        if (!tempRecovered.Contains(tempRecoveryChannelCids[i]))
+                        {
+                            unrecovered.Add(tempRecoveryChannelCids[i]);
+                        }
+                    }
+                }
+
+                if (unrecovered.Count > 0)
+                {
+                    _logs.Warning(
+                        $"Reconnect recovery could not restore {unrecovered.Count} channel(s): {string.Join(", ", unrecovered)}. " +
+                        "Their local state is stale and they are no longer watched. See " +
+                        nameof(StreamStateRecoveredEventArgs) + "." + nameof(StreamStateRecoveredEventArgs.UnrecoveredChannelCids));
+                }
+
+                StateRecovered?.Invoke(new StreamStateRecoveredEventArgs(refreshedChannels, unrecovered));
+            }
+        }
+
+        /// <summary>
+        /// Copy up to <see cref="MaxRecoveredChannels"/> cids from the disconnect snapshot.
+        /// </summary>
+        private void FillRecoveryChannelCids(List<string> recoveryChannelCids)
+        {
+            if (_recoveryChannelCids.Count > MaxRecoveredChannels)
+            {
+                _logs.Warning(
+                    $"{_recoveryChannelCids.Count} channels were being watched when the connection dropped, but reconnect " +
+                    $"recovery restores at most {MaxRecoveredChannels}. The {MaxRecoveredChannels} most recently active are " +
+                    "recovered; the rest keep stale state and are not re-watched. Watch fewer channels concurrently, or set " +
+                    nameof(IStreamClientConfig) + "." + nameof(IStreamClientConfig.StateRecoveryStrategy) + " to " +
+                    nameof(StateRecoveryStrategy.Disabled) + " and recover them yourself.");
+            }
+
+            var count = Math.Min(_recoveryChannelCids.Count, MaxRecoveredChannels);
+            for (var i = 0; i < count; i++)
+            {
+                recoveryChannelCids.Add(_recoveryChannelCids[i]);
+            }
+        }
+
+        private async Task TryCatchUpWithHistoryAsync(IReadOnlyList<string> recoveryChannelCids, int generation)
+        {
+            try
+            {
+                var response = await InternalLowLevelClient.TrySyncHistoryAsync(recoveryChannelCids);
+
+                // null = we never called /sync (no _lastEventReceivedAt yet, or the gap is older than 30 days).
+                // Channels are still valid; RehydrateAndRewatchChannelsAsync recovers them.
+                // Contrast inaccessible_cids below: those are gone and must not be queried.
+                if (response == null)
+                {
+                    return;
+                }
+
+                if (!IsRecoveryGenerationCurrent(generation))
+                {
+                    return;
+                }
+
+                if (response.InaccessibleCids != null)
+                {
+                    // These channels will never come back. Record them so we do not query them again.
+                    // Must run even when Events is empty.
+                    foreach (var cid in response.InaccessibleCids)
+                    {
+                        _inaccessibleCids.Add(cid);
+                    }
+                }
+
+                if (response.Events == null || response.Events.Count == 0)
+                {
+                    return;
+                }
+
+                if (InternalLowLevelClient.Config.StateRecoveryStrategy == StateRecoveryStrategy.BatchStateUpdate)
+                {
+                    InternalLowLevelClient.ApplyHistoryEvents(response.Events);
+                }
+                else
+                {
+                    InternalLowLevelClient.ReplayHistoryEvents(response.Events);
+                }
+            }
+            catch (StreamApiException ex) when (ex.IsInputError())
+            {
+                // Too many events to sync. The re-query below recovers state without those events.
+                _logs.Warning("The /sync catch-up was refused because too many events accumulated during the outage. " +
+                              "Recovering channel state with a re-query instead. " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logs.Warning("The /sync catch-up failed. Recovering channel state with a re-query instead. " +
+                              ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Re-hydrate and re-watch in one request per <see cref="MaxChannelsPerRecoveryQuery"/> cids.
+        /// Unlike Android, we do not re-watch omitted cids one by one. This query is by cid,
+        /// so a missing cid is deleted or no longer readable. A get-or-create watch would
+        /// recreate a deleted channel. Those cids go to
+        /// <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/>.
+        /// </summary>
+        private async Task RehydrateAndRewatchChannelsAsync(IReadOnlyList<string> recoveryChannelCids, int generation,
+            List<IStreamChannel> refreshed)
+        {
+            var sort = ChannelSort.OrderByDescending(ChannelSortFieldName.LastMessageAt);
+
+            for (var i = 0; i < recoveryChannelCids.Count; i += MaxChannelsPerRecoveryQuery)
+            {
+                if (!IsRecoveryGenerationCurrent(generation))
+                {
+                    return;
+                }
+
+                using (new ListPoolScope<string>(out var tempChunk))
+                {
+                    var chunkEnd = Math.Min(i + MaxChannelsPerRecoveryQuery, recoveryChannelCids.Count);
+                    for (var j = i; j < chunkEnd; j++)
+                    {
+                        if (!_inaccessibleCids.Contains(recoveryChannelCids[j]))
+                        {
+                            tempChunk.Add(recoveryChannelCids[j]);
+                        }
+                    }
+
+                    if (tempChunk.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var filters = new IFieldFilterRule[]
+                    {
+                        ChannelFilter.Cid.In(tempChunk),
+                    };
+
+                    QueryChannelsResponseInternalDTO response;
+                    try
+                    {
+                        // Fetch only. Apply after the generation check so a late response from an old
+                        // connection cannot overwrite newer members, read, or pinned messages.
+                        response = await FetchQueryChannelsResponseAsync(filters, sort, tempChunk.Count);
+                    }
+                    catch (Exception e)
+                    {
+                        // Do not skip the rest. There is no later retry on this connection.
+                        _logs.Warning($"Recovery query failed for {tempChunk.Count} channel(s). Continuing with the rest. " +
+                                      e.Message);
+                        continue;
+                    }
+
+                    if (!IsRecoveryGenerationCurrent(generation))
+                    {
+                        return;
+                    }
+
+                    if (response?.Channels == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var channelDto in response.Channels)
+                    {
+                        var channel = _cache.TryCreateOrUpdate(channelDto);
+                        if (channel == null)
+                        {
+                            continue;
+                        }
+
+                        MarkChannelWatched(channel);
+                        // Query merge does not trim, so Messages can exceed MessageCacheWindow.
+                        channel.InternalTrimMessageCache();
+                        refreshed.Add(channel);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Same request as public QueryChannelsAsync, but does not update cache or watches.
+        /// A late response from an old connection must not overwrite newer state.
+        /// </summary>
+        private Task<QueryChannelsResponseInternalDTO> FetchQueryChannelsResponseAsync(
+            IEnumerable<IFieldFilterRule> filters, ChannelSortObject sort, int limit, int offset = 0)
+        {
+            var filterConditions = filters?.Select(_ => _.GenerateFilterEntry()).ToDictionary(x => x.Key, x => x.Value);
+            return InternalLowLevelClient.InternalChannelApi.QueryChannelsAsync(
+                CreateQueryChannelsRequest(filterConditions, sort, limit, offset));
+        }
+
+        //StreamTodo: Perhaps MessageLimit and MemberLimit should be configurable
+        /*
+         * StreamTodo: Allowing to sort query can potentially lead to mixed sorting in WatchedChannels
+         * But there seems no other choice because its too limiting to force only a global sorting for channels
+         * e.g. user may want to show channels in multiple ways with different sorting which would not work with global only sorting
+         */
+        private static QueryChannelsRequestInternalDTO CreateQueryChannelsRequest(
+            IDictionary<string, object> filterConditions, ChannelSortObject sort, int limit, int offset)
+            => new QueryChannelsRequestInternalDTO
+            {
+                FilterConditions = filterConditions as Dictionary<string, object>
+                    ?? filterConditions?.ToDictionary(x => x.Key, x => x.Value),
+                Limit = limit,
+                MemberLimit = null,
+                MessageLimit = null,
+                Offset = offset,
+                Presence = true,
+                Sort = sort?.ToSortParamRequestList(),
+                State = true,
+                Watch = true,
+            };
+
+        private bool IsRecoveryGenerationCurrent(int generation) => generation == _recoveryGeneration;
+
+        /// <summary>
+        /// Save watched cids, then mark them unwatched. The server already dropped the watches.
+        /// </summary>
+        private void SnapshotRecoverySetAndClearWatches()
+        {
+            // A failed reconnect also hits Disconnected with an empty watch list.
+            // Do not overwrite the snapshot, or the next success recovers nothing.
+            if (_watchedChannels.Count == 0)
+            {
+                return;
+            }
+
+            _recoveryChannelCids.Clear();
+
+            using (new ListPoolScope<IStreamChannel>(out var tempOrdered))
+            {
+                tempOrdered.AddRange(_watchedChannels);
+                tempOrdered.Sort(ByLastMessageAtDescending);
+
+                for (var i = 0; i < tempOrdered.Count; i++)
+                {
+                    _recoveryChannelCids.Add(tempOrdered[i].Cid);
+                }
+            }
+
+            for (var i = 0; i < _watchedChannels.Count; i++)
+            {
+                ((StreamChannel)_watchedChannels[i]).IsWatched = false;
+            }
+
+            _watchedChannels.Clear();
         }
 
         private void OnDisconnected() => Disconnected?.Invoke();
 
         private void OnConnectionStateChanged(ConnectionState previous, ConnectionState current)
-            => ConnectionStateChanged?.Invoke(previous, current);
+        {
+            if (current == ConnectionState.Disconnected)
+            {
+                // Ignore in-flight recovery. A late query can replace members, read state,
+                // and pinned messages with older data.
+                _recoveryGeneration++;
+
+                if (InternalLowLevelClient.Config.StateRecoveryStrategy != StateRecoveryStrategy.Disabled)
+                {
+                    SnapshotRecoverySetAndClearWatches();
+                }
+            }
+
+            ConnectionStateChanged?.Invoke(previous, current);
+        }
 
         private void OnMessageDeleted(MessageDeletedEventInternalDTO eventMessageDeleted)
         {
@@ -1606,16 +1941,29 @@ namespace StreamChat.Core
             }
         }
 
+        // Watcher lists are live presence. Replaying them would show people who left during the outage.
+        // The recovery query returns the current watcher set.
         private void OnUserWatchingStop(UserWatchingStopEventInternalDTO eventDto)
         {
+            if (IsApplyingHistorySync)
+            {
+                return;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleUserWatchingStop(eventDto);
             }
         }
 
+        /// <inheritdoc cref="OnUserWatchingStop"/>
         private void OnUserWatchingStart(UserWatchingStartEventInternalDTO eventDto)
         {
+            if (IsApplyingHistorySync)
+            {
+                return;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleUserWatchingStartEvent(eventDto);
@@ -1655,14 +2003,27 @@ namespace StreamChat.Core
 
         private void OnTypingStopped(TypingStopEventInternalDTO eventDto)
         {
+            // Typing is live presence. A typing.start without its matching typing.stop would leave
+            // a user typing forever. Skip the whole event, including state.
+            if (IsApplyingHistorySync)
+            {
+                return;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleTypingStopped(eventDto);
             }
         }
 
+        /// <inheritdoc cref="OnTypingStopped"/>
         private void OnTypingStarted(TypingStartEventInternalDTO eventDto)
         {
+            if (IsApplyingHistorySync)
+            {
+                return;
+            }
+
             if (_cache.Channels.TryGet(eventDto.Cid, out var streamChannel))
             {
                 streamChannel.InternalHandleTypingStarted(eventDto);

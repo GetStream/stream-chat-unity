@@ -36,5 +36,12 @@ namespace StreamChat.Core.Configs
         /// Does not change server history. See <see cref="StatefulModels.IStreamChannel.MessageCacheWindow"/>.
         /// </summary>
         MessageCacheWindow DefaultMessageCacheWindow { get; set; }
+
+        /// <summary>
+        /// How the client restores local state after the websocket reconnects.
+        /// Default is <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/>.
+        /// See <see cref="Configs.StateRecoveryStrategy"/> for the other options.
+        /// </summary>
+        StateRecoveryStrategy StateRecoveryStrategy { get; set; }
     }
 }
