@@ -55,7 +55,7 @@ namespace StreamChat.Core.StatefulModels
 
                 _isClosed = value;
 
-                if (value == true)
+                if (value && !IsSilentHistorySync)
                 {
                     Closed?.Invoke(this);
                 }
@@ -275,7 +275,10 @@ namespace StreamChat.Core.StatefulModels
 
             LoadAdditionalProperties(dto.Custom);
 
-            Updated?.Invoke(this);
+            if (!IsSilentHistorySync)
+            {
+                Updated?.Invoke(this);
+            }
         }
 
         internal void HandlePollClosedEvent(PollClosedEventInternalDTO dto)
@@ -292,7 +295,7 @@ namespace StreamChat.Core.StatefulModels
         {
             this.TryUpdateFromDto(dto.Poll, Cache);
 
-            if (dto.PollVote != null)
+            if (dto.PollVote != null && !IsSilentHistorySync)
             {
                 var vote = new StreamPollVote().TryLoadFromDto<PollVoteResponseDataInternalDTO, StreamPollVote>(dto.PollVote, Cache);
                 VoteCasted?.Invoke(this, vote);
@@ -303,7 +306,7 @@ namespace StreamChat.Core.StatefulModels
         {
             this.TryUpdateFromDto(dto.Poll, Cache);
 
-            if (dto.PollVote != null)
+            if (dto.PollVote != null && !IsSilentHistorySync)
             {
                 var vote = new StreamPollVote().TryLoadFromDto<PollVoteResponseDataInternalDTO, StreamPollVote>(dto.PollVote, Cache);
                 VoteChanged?.Invoke(this, vote);
@@ -314,7 +317,7 @@ namespace StreamChat.Core.StatefulModels
         {
             this.TryUpdateFromDto(dto.Poll, Cache);
 
-            if (dto.PollVote != null)
+            if (dto.PollVote != null && !IsSilentHistorySync)
             {
                 var vote = new StreamPollVote().TryLoadFromDto<PollVoteResponseDataInternalDTO, StreamPollVote>(dto.PollVote, Cache);
                 VoteRemoved?.Invoke(this, vote);
