@@ -14,5 +14,7 @@
         public MessageCacheWindow DefaultMessageCacheWindow { get; set; } = null;
 
         public bool DisconnectOnApplicationPause { get; set; } = true;
+
+        public StateRecoveryStrategy StateRecoveryStrategy { get; set; } = Configs.StateRecoveryStrategy.ReplayEvents;
     }
 }

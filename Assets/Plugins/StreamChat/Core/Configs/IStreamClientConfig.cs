@@ -51,5 +51,12 @@ namespace StreamChat.Core.Configs
         /// <see cref="IStreamChatClient.ResumeConnectionAsync"/> instead.
         /// </summary>
         bool DisconnectOnApplicationPause { get; set; }
+
+        /// <summary>
+        /// How the client restores local state after the websocket reconnects.
+        /// Default is <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/>.
+        /// See <see cref="Configs.StateRecoveryStrategy"/> for the other options.
+        /// </summary>
+        StateRecoveryStrategy StateRecoveryStrategy { get; set; }
     }
 }
