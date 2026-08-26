@@ -90,6 +90,54 @@ namespace StreamChat.Tests.LowLevelClient
             Assert.AreEqual(10, _timeScheduler.NextReconnectTime.Value);
         }
 
+        [Test]
+        public void when_stopped_expect_disconnect_does_not_schedule_reconnect()
+        {
+            _mockTimeService.Time.Returns(10);
+
+            _timeScheduler.Stop();
+            SetDisconnectedState();
+
+            Assert.AreEqual(float.MaxValue, _timeScheduler.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_stopped_then_started_expect_disconnect_schedules_reconnect()
+        {
+            _mockTimeService.Time.Returns(10);
+
+            _timeScheduler.Stop();
+            _timeScheduler.Start();
+            SetDisconnectedState();
+
+            Assert.AreEqual(10, _timeScheduler.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_stopped_expect_network_available_does_not_schedule_reconnect()
+        {
+            _mockTimeService.Time.Returns(10);
+            _clientMock.ConnectionState.Returns(ConnectionState.Disconnected);
+
+            _timeScheduler.Stop();
+            _mockNetworkMonitor.NetworkAvailabilityChanged += Raise.Event<NetworkAvailabilityChangedEventHandler>(true);
+
+            Assert.AreEqual(float.MaxValue, _timeScheduler.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_stopped_then_started_expect_network_available_schedules_reconnect()
+        {
+            _mockTimeService.Time.Returns(10);
+            _clientMock.ConnectionState.Returns(ConnectionState.Disconnected);
+
+            _timeScheduler.Stop();
+            _timeScheduler.Start();
+            _mockNetworkMonitor.NetworkAvailabilityChanged += Raise.Event<NetworkAvailabilityChangedEventHandler>(true);
+
+            Assert.AreEqual(10, _timeScheduler.NextReconnectTime.Value);
+        }
+
         private IStreamChatLowLevelClient _client;
         private IStreamChatLowLevelClient _clientMock;
         private ReconnectScheduler _timeScheduler;
