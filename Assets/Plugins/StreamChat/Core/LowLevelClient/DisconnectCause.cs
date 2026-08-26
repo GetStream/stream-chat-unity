@@ -18,21 +18,17 @@ namespace StreamChat.Core.LowLevelClient
         Unknown = 0,
 
         /// <summary>
-        /// <see cref="IStreamChatClient.DisconnectUserAsync"/>. SDK login state is cleared;
-        /// automatic reconnects stop until the next <see cref="IStreamChatClient.ConnectUserAsync"/>.
+        /// <see cref="IStreamChatClient.DisconnectUserAsync"/>.
         /// </summary>
         UserLogout,
 
         /// <summary>
-        /// Intentional WebSocket close via <see cref="IStreamChatClient.PauseConnectionAsync"/>.
-        /// Local credentials and client state are kept; automatic reconnects stay disabled until
-        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/>.
+        /// <see cref="IStreamChatClient.PauseConnectionAsync"/>.
         /// </summary>
         ConnectionReleased,
 
         /// <summary>
-        /// The app was backgrounded. The WebSocket is closed and the user appears offline on the
-        /// server; the client reconnects when the app returns to the foreground.
+        /// The app was backgrounded.
         /// </summary>
         ApplicationPause,
 

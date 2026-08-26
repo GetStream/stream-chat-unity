@@ -38,10 +38,10 @@ namespace StreamChat.Core.Configs
         MessageCacheWindow DefaultMessageCacheWindow { get; set; }
 
         /// <summary>
-        /// When the app goes to the background, close the WebSocket. Other users see this user
-        /// as offline while disconnected. When the app returns to the foreground, the client
-        /// reconnects with the existing credentials and recovers missed state.
-        /// Defaults to <c>true</c>. Set to <c>false</c> to keep the WebSocket open while backgrounded.
+        /// When the app goes to the background, temporarily disconnect the user (they appear
+        /// offline). When the app returns to the foreground, reconnect and catch up on what
+        /// was missed. Defaults to <c>true</c>. Set to <c>false</c> to stay connected while
+        /// backgrounded.
         ///
         /// In the Unity Editor this has no effect — pausing play mode or unfocusing the Game view
         /// would otherwise disconnect constantly. A warning is logged once.

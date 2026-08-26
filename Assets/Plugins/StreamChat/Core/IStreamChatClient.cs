@@ -367,30 +367,29 @@ namespace StreamChat.Core
         Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default);
 
         /// <summary>
-        /// End the SDK login for this client and stop automatic reconnects. The next
-        /// <see cref="ConnectUserAsync"/> is a fresh sign-in, not reconnect recovery.
-        /// Use <see cref="PauseConnectionAsync"/> to close the WebSocket while keeping
-        /// credentials for a later <see cref="ResumeConnectionAsync"/>.
+        /// Sign the user out of this client. Use when the user logs out or switches accounts.
+        /// The next <see cref="ConnectUserAsync"/> starts from scratch and does not catch up
+        /// on messages or channels from before the disconnect. For a temporary disconnect
+        /// where you want chat to pick up where it left off, use
+        /// <see cref="PauseConnectionAsync"/> and <see cref="ResumeConnectionAsync"/> instead.
         /// </summary>
         Task DisconnectUserAsync();
 
         /// <summary>
-        /// Close the WebSocket deliberately. Other participants see this user as offline
-        /// while disconnected — the same as any dropped connection from the server's perspective.
-        /// Local auth credentials and in-memory client state are kept so
-        /// <see cref="ResumeConnectionAsync"/> can reconnect without calling
-        /// <see cref="ConnectUserAsync"/> again. Automatic reconnects are disabled until resume.
-        /// If <see cref="Configs.IStreamClientConfig.DisconnectOnApplicationPause"/> is enabled,
-        /// <see cref="StreamChatClient.CreateDefaultClient"/> already closes the socket on
-        /// background and reconnects on foreground.
+        /// Temporarily disconnect the user. Other participants see them as offline.
+        /// Use when the app backgrounds, or any short break where you plan to reconnect soon
+        /// and want the client to catch up on what was missed while disconnected.
+        /// Call <see cref="ResumeConnectionAsync"/> to reconnect. Automatic reconnects are
+        /// disabled until then. If <see cref="Configs.IStreamClientConfig.DisconnectOnApplicationPause"/>
+        /// is enabled, <see cref="StreamChatClient.CreateDefaultClient"/> does this automatically
+        /// on background and foreground.
         /// </summary>
         Task PauseConnectionAsync();
 
         /// <summary>
         /// Reconnect after <see cref="PauseConnectionAsync"/> or after the app was backgrounded.
-        /// Uses existing credentials; state recovery runs after the connection is restored.
-        /// No-op if already connected or connecting. For the initial sign-in, use
-        /// <see cref="ConnectUserAsync"/>.
+        /// The client catches up on what was missed while disconnected. No-op if already
+        /// connected or connecting. For the first sign-in, use <see cref="ConnectUserAsync"/>.
         /// </summary>
         Task ResumeConnectionAsync();
 
