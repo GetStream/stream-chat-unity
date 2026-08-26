@@ -57,9 +57,9 @@ namespace StreamChat.Tests.StateSync.Integration
 
             var expectedMessageIds = new string[] { message.Id, message2.Id };
 
-            // Wait for sync request to complete
-            await WaitWhileFalseAsync(()
-                => expectedMessageIds.All(otherClientChannel.Messages.Select(m => m.Id).Contains));
+            await WaitWhileFalseAsync(
+                () => expectedMessageIds.All(otherClientChannel.Messages.Select(m => m.Id).Contains),
+                description: "reconnected client to receive missed messages");
 
             // Messages should now be present on the second client with no duplicates
             Assert.IsNotNull(otherClientChannel.Messages.Single(m => m.Id == message.Id));
@@ -117,8 +117,8 @@ namespace StreamChat.Tests.StateSync.Integration
             // Reconnect other client
             await GetConnectedOtherClientAsync();
 
-            // Wait for sync request to complete
-            await WaitWhileTrueAsync(() => otherClientChannel.Messages.All(m => m.Id != message.Id));
+            await WaitWhileTrueAsync(() => otherClientChannel.Messages.All(m => m.Id != message.Id),
+                description: "reconnected client to receive missed messages");
 
             // Messages should now be present on the second client with no duplicates
             var otherClientMessage1 = otherClientChannel.Messages.Single(m => m.Id == message.Id);
@@ -186,8 +186,8 @@ namespace StreamChat.Tests.StateSync.Integration
             var otherClientMessageAfterReconnect = await otherClientChannel.SendNewMessageAsync("AFTER #1");
             var otherClientMessageAfterReconnect2 = await otherClientChannel.SendNewMessageAsync("AFTER #2");
 
-            // Wait for sync request to complete
-            await WaitWhileFalseAsync(() => otherClientChannel.Messages.Count == 5);
+            await WaitWhileFalseAsync(() => otherClientChannel.Messages.Count == 5,
+                description: "reconnected client to receive missed + locally sent messages");
 
             // Assert correct number of messages
             Assert.AreEqual(5, otherClientChannel.Messages.Count);

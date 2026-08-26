@@ -115,6 +115,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters = new IFieldFilterRule[]
             {
+                ChannelFilter.Cid.In(allChannels),
                 ChannelFilter.CreatedById.EqualsTo(Client.LocalUserData.User),
             };
 
@@ -139,6 +140,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters = new IFieldFilterRule[]
             {
+                ChannelFilter.Cid.In(channel1, channel2, channel3),
                 ChannelFilter.Muted.EqualsTo(true),
             };
 
@@ -172,6 +174,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters2 = new IFieldFilterRule[]
             {
+                ChannelFilter.Cid.In(channel1, channel2, channel3),
                 ChannelFilter.MemberUserName.Autocomplete("Dani"),
             };
 
@@ -199,6 +202,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters = new IFieldFilterRule[]
             {
+                ChannelFilter.Cid.In(channel1, channel2, channel3),
                 ChannelFilter.MembersCount.EqualsTo(3),
             };
 
@@ -224,6 +228,7 @@ namespace StreamChat.Tests.StatefulClient
 
             var filters = new IFieldFilterRule[]
             {
+                ChannelFilter.Cid.In(allChannels),
                 ChannelFilter.CreatedAt.GreaterThanOrEquals(DateTime.UtcNow.AddMinutes(-5)),
             };
 

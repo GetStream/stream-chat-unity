@@ -57,6 +57,9 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 });
 
         private const int InvalidAuthTokenErrorCode = 40;
+#if STREAM_TESTS_ENABLED
+        private const int TransientSystemErrorMaxAttempts = 5;
+#endif
 
         private readonly IHttpClient _httpClient;
         private readonly ISerializer _serializer;
@@ -172,6 +175,16 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                     return await HandleRateLimit<TResponse>(httpMethod, endpoint, requestBody, queryParameters, attempt,
                         httpResponse);
                 }
+
+                if (IsTransientSystemError(apiError) && attempt < TransientSystemErrorMaxAttempts)
+                {
+                    var delaySeconds = GetTransientSystemErrorBackoffSeconds(attempt);
+                    _logs.Warning(
+                        $"API CLIENT, TESTS MODE, HTTP 500 \"{apiError.Message}\" - retry in {delaySeconds}s " +
+                        $"(attempt {attempt + 1}/{TransientSystemErrorMaxAttempts})");
+                    await Task.Delay(delaySeconds * 1000);
+                    return await HttpRequest<TResponse>(httpMethod, endpoint, requestBody, queryParameters, ++attempt);
+                }
 #endif
 
                 if (apiError.Code != InvalidAuthTokenErrorCode)
@@ -243,6 +256,15 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         private static bool IsRequestBodyRequiredByHttpMethod(HttpMethodType httpMethod)
             => httpMethod == HttpMethodType.Post || httpMethod == HttpMethodType.Put ||
                httpMethod == HttpMethodType.Patch;
+
+#if STREAM_TESTS_ENABLED
+        private static bool IsTransientSystemError(APIErrorInternalDTO apiError)
+            => apiError.Code == StreamApiException.InternalSystemErrorStreamCode &&
+               apiError.StatusCode == StreamApiException.InternalSystemErrorHttpStatusCode;
+
+        private static int GetTransientSystemErrorBackoffSeconds(int attempt)
+            => (int)Math.Min(16, Math.Pow(2, attempt));
+#endif
 
         private void LogFutureRequestIfDebug(Uri uri, string endpoint, HttpMethodType httpMethod, string request = null)
         {

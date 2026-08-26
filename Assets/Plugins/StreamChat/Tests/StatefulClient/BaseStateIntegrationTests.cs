@@ -112,6 +112,27 @@ namespace StreamChat.Tests.StatefulClient
         protected Task<StreamChatClient> GetConnectedOtherClientAsync()
             => StreamTestClients.Instance.ConnectOtherStateClientAsync();
 
+        /// <summary>
+        /// Timeout for <see cref="WaitWhileTrueAsync"/> / <see cref="WaitWhileFalseAsync"/>.
+        /// Those helpers only inspect local client state (for example waiting until a websocket
+        /// event updates a channel after a REST call). They do not send HTTP, so they do not
+        /// need the long rate-limit budget used by <see cref="ApiCallWaitSeconds"/>.
+        /// </summary>
+        protected const int WebsocketEventWaitSeconds = 60;
+
+        /// <summary>
+        /// Timeout for <see cref="TryAsync"/>, which repeats a Stream API call until a condition
+        /// holds. Several CI jobs share one Stream app, so a 429 can pause a single request for
+        /// a minute or more. Keep this large so jobs wait each other out instead of failing.
+        /// </summary>
+        protected const int ApiCallWaitSeconds = 1000;
+
+        /// <summary>
+        /// Timeout for HTTP 500 retries (e.g. "query channels timed out"). Short on purpose:
+        /// this is a transient backend error, not a rate-limit collision between CI jobs.
+        /// </summary>
+        protected const int TransientApiErrorWaitSeconds = 60;
+
         //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible
         /// <summary>
         /// Use this if state update depends on receiving WS event that might come after the REST call was completed.
@@ -122,7 +143,7 @@ namespace StreamChat.Tests.StatefulClient
         /// and timeout messages, so a hanging test can be diagnosed from logs alone without grepping line numbers.
         /// </param>
         protected static Task WaitWhileTrueAsync(Func<bool> condition,
-            int maxSeconds = 1000,
+            int maxSeconds = WebsocketEventWaitSeconds,
             string description = null,
             [CallerMemberName] string callerMember = null,
             [CallerFilePath] string callerFile = null,
@@ -131,7 +152,7 @@ namespace StreamChat.Tests.StatefulClient
                 callerFile, callerLine);
 
         protected static Task WaitWhileFalseAsync(Func<bool> condition,
-            int maxSeconds = 1000,
+            int maxSeconds = WebsocketEventWaitSeconds,
             string description = null,
             [CallerMemberName] string callerMember = null,
             [CallerFilePath] string callerFile = null,
@@ -148,10 +169,12 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         /// <summary>
-        /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxSeconds"/>
+        /// Repeat <paramref name="task"/> until <paramref name="successCondition"/> holds.
+        /// Rate-limit (429) retries use <see cref="ApiCallWaitSeconds"/> and a long backoff.
+        /// HTTP 500 retries use <see cref="TransientApiErrorWaitSeconds"/>.
         /// </summary>
         protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition,
-            int maxSeconds = 1000,
+            int maxSeconds = ApiCallWaitSeconds,
             string description = null,
             [CallerMemberName] string callerMember = null,
             [CallerFilePath] string callerFile = null,
@@ -164,7 +187,33 @@ namespace StreamChat.Tests.StatefulClient
 
             for (int i = 0; i < int.MaxValue; i++)
             {
-                var response = await task();
+                T response;
+                try
+                {
+                    response = await task();
+                }
+                catch (StreamApiException e) when (e.IsRateLimitExceededError())
+                {
+                    if (sw.Elapsed.TotalSeconds > ApiCallWaitSeconds)
+                    {
+                        throw new TimeoutException($"Timeout while waiting for {label}", e);
+                    }
+
+                    progress.MaybeLog(sw.Elapsed);
+                    await Task.Delay(RateLimitBackoffMs(i));
+                    continue;
+                }
+                catch (StreamApiException e) when (e.IsInternalSystemError())
+                {
+                    if (sw.Elapsed.TotalSeconds > TransientApiErrorWaitSeconds)
+                    {
+                        throw new TimeoutException($"Timeout while waiting for {label}", e);
+                    }
+
+                    progress.MaybeLog(sw.Elapsed);
+                    await Task.Delay(TransientErrorBackoffMs(i));
+                    continue;
+                }
 
                 if (successCondition(response))
                 {
@@ -177,9 +226,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
 
                 progress.MaybeLog(sw.Elapsed);
-
-                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
-                await Task.Delay(delay);
+                await Task.Delay(BackoffDelayMs(i));
             }
 
             throw new TimeoutException($"Timeout while waiting for {label}");
@@ -208,13 +255,21 @@ namespace StreamChat.Tests.StatefulClient
                 }
 
                 progress.MaybeLog(sw.Elapsed);
-
-                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
-                await Task.Delay(delay);
+                await Task.Delay(BackoffDelayMs(i));
             }
 
             throw new TimeoutException($"Timeout while waiting for {label}");
         }
+
+        private static int BackoffDelayMs(int attempt)
+            => (int)Math.Min(100 * 1000, Math.Pow(2, attempt + 9));
+
+        // Matches InternalApiClientBase test-mode 429 backoff (61s, then 81s, 101s, …).
+        private static int RateLimitBackoffMs(int attempt)
+            => (61 + attempt * 20) * 1000;
+
+        private static int TransientErrorBackoffMs(int attempt)
+            => (int)Math.Min(16 * 1000, Math.Pow(2, attempt) * 1000);
 
         private static string BuildWaitLabel(string description, string callerMember, string callerFile, int callerLine)
         {
@@ -281,11 +336,12 @@ namespace StreamChat.Tests.StatefulClient
         private static async Task ConnectAndExecuteAsync(Func<Task> test)
         {
             await StreamTestClients.Instance.ConnectStateClientAsync();
-            const int maxAttempts = 7;
+            const int maxTransientAttempts = 7;
+            const int maxRateLimitAttempts = 20;
             var currentAttempt = 0;
             var completed = false;
             var exceptions = new List<Exception>();
-            while (maxAttempts > currentAttempt)
+            while (true)
             {
                 currentAttempt++;
                 try
@@ -299,8 +355,23 @@ namespace StreamChat.Tests.StatefulClient
                     exceptions.Add(e);
                     if (e.IsRateLimitExceededError())
                     {
-                        var seconds = (int)Math.Max(1, Math.Min(60, Math.Pow(2, currentAttempt)));
-                        await Task.Delay(1000 * seconds);
+                        if (currentAttempt >= maxRateLimitAttempts)
+                        {
+                            break;
+                        }
+
+                        await Task.Delay(RateLimitBackoffMs(currentAttempt - 1));
+                        continue;
+                    }
+
+                    if (e.IsInternalSystemError())
+                    {
+                        if (currentAttempt >= maxTransientAttempts)
+                        {
+                            break;
+                        }
+
+                        await Task.Delay(TransientErrorBackoffMs(currentAttempt - 1));
                         continue;
                     }
 

@@ -514,7 +514,7 @@ namespace StreamChat.Tests.StatefulClient
             var channel = await CreateUniqueTempChannelAsync();
             var channel2 = await CreateUniqueTempChannelAsync();
 
-            var channels = await Client.QueryChannelsAsync();
+            var channels = await Client.QueryChannelsAsync(limit: 10);
             Assert.NotNull(channels);
             Assert.AreNotEqual(0, channels.Count());
         }
