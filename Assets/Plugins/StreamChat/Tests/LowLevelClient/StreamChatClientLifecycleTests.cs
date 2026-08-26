@@ -52,7 +52,7 @@ namespace StreamChat.Tests.LowLevelClient
         }
 
         [Test]
-        public void when_pause_connection_expect_disconnected_and_scheduler_armed()
+        public void when_pause_connection_expect_disconnected_and_scheduler_stopped()
         {
             var client = CreateConnectedClient();
             _mockTimeService.Time.Returns(10);
@@ -61,8 +61,7 @@ namespace StreamChat.Tests.LowLevelClient
 
             Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
             Assert.AreEqual(DisconnectCause.ConnectionReleased, client.InternalLowLevelClient.LastDisconnectCause);
-            Assert.AreEqual(10, client.NextReconnectTime.Value);
-            Assert.AreNotEqual((double)float.MaxValue, client.NextReconnectTime.Value);
+            Assert.AreEqual(float.MaxValue, client.NextReconnectTime.Value);
         }
 
         [Test]
@@ -79,7 +78,7 @@ namespace StreamChat.Tests.LowLevelClient
         }
 
         [Test]
-        public void when_pause_connection_then_update_expect_reconnect()
+        public void when_pause_connection_then_update_expect_no_reconnect()
         {
             var client = CreateConnectedClient();
             _mockTimeService.Time.Returns(10);
@@ -87,7 +86,8 @@ namespace StreamChat.Tests.LowLevelClient
             client.PauseConnectionAsync().GetAwaiter().GetResult();
             ((IStreamChatClientEventsListener)client).Update();
 
-            _mockWebsocketClient.ReceivedWithAnyArgs(2).ConnectAsync(default);
+            Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
+            _mockWebsocketClient.ReceivedWithAnyArgs(1).ConnectAsync(default);
         }
 
         [Test]
@@ -149,6 +149,36 @@ namespace StreamChat.Tests.LowLevelClient
 
             Assert.DoesNotThrow(() => ((IStreamChatClientEventsListener)client).OnApplicationPause(false));
             _mockWebsocketClient.DidNotReceiveWithAnyArgs().ConnectAsync(default);
+        }
+
+        [Test]
+        public void when_disconnect_user_then_application_pause_and_resume_expect_no_reconnect()
+        {
+            var client = CreateConnectedClient();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectUserAsync().GetAwaiter().GetResult();
+            ((IStreamChatClientEventsListener)client).OnApplicationPause(true);
+            ((IStreamChatClientEventsListener)client).OnApplicationPause(false);
+            ((IStreamChatClientEventsListener)client).Update();
+
+            Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
+            Assert.AreEqual(DisconnectCause.UserLogout, client.InternalLowLevelClient.LastDisconnectCause);
+            _mockWebsocketClient.ReceivedWithAnyArgs(1).ConnectAsync(default);
+        }
+
+        [Test]
+        public void when_pause_connection_then_application_resume_expect_no_reconnect()
+        {
+            var client = CreateConnectedClient();
+            _mockTimeService.Time.Returns(10);
+
+            client.PauseConnectionAsync().GetAwaiter().GetResult();
+            ((IStreamChatClientEventsListener)client).OnApplicationPause(false);
+            ((IStreamChatClientEventsListener)client).Update();
+
+            Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
+            _mockWebsocketClient.ReceivedWithAnyArgs(1).ConnectAsync(default);
         }
 
         [Test]

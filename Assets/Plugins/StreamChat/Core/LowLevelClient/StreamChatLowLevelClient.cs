@@ -635,6 +635,8 @@ namespace StreamChat.Core.LowLevelClient
 
         internal DisconnectCause LastDisconnectCause { get; private set; }
 
+        internal void StopReconnectScheduler() => _reconnectScheduler.Stop();
+
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
         {

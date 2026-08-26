@@ -240,6 +240,9 @@ namespace StreamChat.Core
             }
 
             TryCancelWaitingForUserConnection();
+            // Stop before DisconnectAsync so fire-and-forget Pause cannot race Update() reconnecting.
+            // Do not Stop for every ConnectionReleased: token-refresh uses DisconnectAsync() and waits to reconnect.
+            InternalLowLevelClient.StopReconnectScheduler();
             return InternalLowLevelClient.DisconnectAsync(DisconnectCause.ConnectionReleased);
         }
 
@@ -1120,6 +1123,13 @@ namespace StreamChat.Core
 
         private void TryResumeConnectionAfterApplicationResume()
         {
+            // Only reopen a socket we closed for backgrounding. After DisconnectUserAsync the
+            // credentials are still set, so Connect() would silently log the previous user back in.
+            if (InternalLowLevelClient.LastDisconnectCause != DisconnectCause.ApplicationPause)
+            {
+                return;
+            }
+
             if (IsConnected || IsConnecting)
             {
                 return;

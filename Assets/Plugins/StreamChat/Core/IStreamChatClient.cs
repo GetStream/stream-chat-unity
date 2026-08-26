@@ -375,11 +375,11 @@ namespace StreamChat.Core
 
         /// <summary>
         /// Temporarily drop the chat connection without logging the user out.
-        /// Call <see cref="DisconnectUserAsync"/> to sign off. Resume with
-        /// <see cref="ResumeConnectionAsync"/>. If
-        /// <see cref="Configs.IStreamClientConfig.DisconnectOnApplicationPause"/> is enabled,
-        /// <see cref="StreamChatClient.CreateDefaultClient"/> already does this when the app
-        /// backgrounds and returns.
+        /// Stops automatic reconnects; the socket stays down until
+        /// <see cref="ResumeConnectionAsync"/>. Call <see cref="DisconnectUserAsync"/> to sign off.
+        /// If <see cref="Configs.IStreamClientConfig.DisconnectOnApplicationPause"/> is enabled,
+        /// <see cref="StreamChatClient.CreateDefaultClient"/> already pauses on background and
+        /// resumes on foreground.
         /// </summary>
         Task PauseConnectionAsync();
 

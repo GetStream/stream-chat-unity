@@ -23,8 +23,9 @@ namespace StreamChat.Core.LowLevelClient
         UserLogout,
 
         /// <summary>
-        /// <see cref="IStreamChatClient.PauseConnectionAsync"/>. User session is kept; reconnect with
-        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/> (the scheduler also stays armed).
+        /// Requested close that keeps the user session.
+        /// <see cref="IStreamChatClient.PauseConnectionAsync"/> uses this cause and stops automatic
+        /// reconnects until <see cref="IStreamChatClient.ResumeConnectionAsync"/>.
         /// </summary>
         ConnectionReleased,
 
