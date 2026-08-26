@@ -1126,7 +1126,7 @@ namespace StreamChat.Core
         private void TryResumeConnectionAfterApplicationResume()
         {
             // Only reopen a socket we closed for backgrounding. After DisconnectUserAsync the
-            // credentials are still set, so Connect() would silently log the previous user back in.
+            // credentials are still set, so Connect() would reconnect without a new ConnectUserAsync.
             if (InternalLowLevelClient.LastDisconnectCause != DisconnectCause.ApplicationPause)
             {
                 return;

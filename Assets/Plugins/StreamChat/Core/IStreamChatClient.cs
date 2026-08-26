@@ -367,26 +367,30 @@ namespace StreamChat.Core
         Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default);
 
         /// <summary>
-        /// Disconnect the local user and stop automatic reconnects. The next connect is a fresh login,
-        /// not a reconnect recovery. Use <see cref="PauseConnectionAsync"/> to drop the WebSocket
-        /// without ending the session.
+        /// End the SDK login for this client and stop automatic reconnects. The next
+        /// <see cref="ConnectUserAsync"/> is a fresh sign-in, not reconnect recovery.
+        /// Use <see cref="PauseConnectionAsync"/> to close the WebSocket while keeping
+        /// credentials for a later <see cref="ResumeConnectionAsync"/>.
         /// </summary>
         Task DisconnectUserAsync();
 
         /// <summary>
-        /// Temporarily drop the chat connection without logging the user out.
-        /// Stops automatic reconnects; the socket stays down until
-        /// <see cref="ResumeConnectionAsync"/>. Call <see cref="DisconnectUserAsync"/> to sign off.
+        /// Close the WebSocket deliberately. Other participants see this user as offline
+        /// while disconnected — the same as any dropped connection from the server's perspective.
+        /// Local auth credentials and in-memory client state are kept so
+        /// <see cref="ResumeConnectionAsync"/> can reconnect without calling
+        /// <see cref="ConnectUserAsync"/> again. Automatic reconnects are disabled until resume.
         /// If <see cref="Configs.IStreamClientConfig.DisconnectOnApplicationPause"/> is enabled,
-        /// <see cref="StreamChatClient.CreateDefaultClient"/> already pauses on background and
-        /// resumes on foreground.
+        /// <see cref="StreamChatClient.CreateDefaultClient"/> already closes the socket on
+        /// background and reconnects on foreground.
         /// </summary>
         Task PauseConnectionAsync();
 
         /// <summary>
         /// Reconnect after <see cref="PauseConnectionAsync"/> or after the app was backgrounded.
-        /// No-op if already connected or connecting. This is not login — use
-        /// <see cref="ConnectUserAsync"/> to sign in.
+        /// Uses existing credentials; state recovery runs after the connection is restored.
+        /// No-op if already connected or connecting. For the initial sign-in, use
+        /// <see cref="ConnectUserAsync"/>.
         /// </summary>
         Task ResumeConnectionAsync();
 

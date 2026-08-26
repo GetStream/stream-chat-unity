@@ -38,17 +38,18 @@ namespace StreamChat.Core.Configs
         MessageCacheWindow DefaultMessageCacheWindow { get; set; }
 
         /// <summary>
-        /// When the app goes to the background, temporarily drop the chat connection without logging
-        /// the user out. When the app returns to the foreground, reconnect and recover missed state.
-        /// Defaults to <c>true</c>. Set to <c>false</c> to keep the connection alive while backgrounded.
+        /// When the app goes to the background, close the WebSocket. Other users see this user
+        /// as offline while disconnected. When the app returns to the foreground, the client
+        /// reconnects with the existing credentials and recovers missed state.
+        /// Defaults to <c>true</c>. Set to <c>false</c> to keep the WebSocket open while backgrounded.
         ///
         /// In the Unity Editor this has no effect — pausing play mode or unfocusing the Game view
         /// would otherwise disconnect constantly. A warning is logged once.
         ///
         /// Applies when you create the client with <see cref="StreamChatClient.CreateDefaultClient"/>.
-        /// If you drive the client yourself (you call Update each frame), pause and resume with
+        /// If you drive the client yourself (you call Update each frame), close and reopen with
         /// <see cref="IStreamChatClient.PauseConnectionAsync"/> /
-        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/> instead.
+        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/> on background / foreground.
         /// </summary>
         bool DisconnectOnApplicationPause { get; set; }
 

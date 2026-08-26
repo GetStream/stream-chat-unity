@@ -3,7 +3,8 @@ namespace StreamChat.Core.LowLevelClient
     /// <summary>
     /// Why the WebSocket was closed. Used by
     /// <see cref="IStreamChatLowLevelClient.DisconnectAsync(DisconnectCause)"/> to decide whether the
-    /// reconnect scheduler stays armed. Logout stops auto-reconnect; every other cause leaves it running.
+    /// reconnect scheduler stays armed. <see cref="UserLogout"/> stops auto-reconnect; other causes
+    /// may leave it running depending on the high-level API that initiated the close.
     ///
     /// Stateful clients should call <see cref="IStreamChatClient.DisconnectUserAsync"/>,
     /// <see cref="IStreamChatClient.PauseConnectionAsync"/>, or
@@ -17,20 +18,21 @@ namespace StreamChat.Core.LowLevelClient
         Unknown = 0,
 
         /// <summary>
-        /// <see cref="IStreamChatClient.DisconnectUserAsync"/>. Session ended; the scheduler is stopped
-        /// until the next <see cref="IStreamChatClient.ConnectUserAsync"/>.
+        /// <see cref="IStreamChatClient.DisconnectUserAsync"/>. SDK login state is cleared;
+        /// automatic reconnects stop until the next <see cref="IStreamChatClient.ConnectUserAsync"/>.
         /// </summary>
         UserLogout,
 
         /// <summary>
-        /// Requested close that keeps the user session.
-        /// <see cref="IStreamChatClient.PauseConnectionAsync"/> uses this cause and stops automatic
-        /// reconnects until <see cref="IStreamChatClient.ResumeConnectionAsync"/>.
+        /// Intentional WebSocket close via <see cref="IStreamChatClient.PauseConnectionAsync"/>.
+        /// Local credentials and client state are kept; automatic reconnects stay disabled until
+        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/>.
         /// </summary>
         ConnectionReleased,
 
         /// <summary>
-        /// The app was backgrounded. Session is kept; reconnects when the app returns to the foreground.
+        /// The app was backgrounded. The WebSocket is closed and the user appears offline on the
+        /// server; the client reconnects when the app returns to the foreground.
         /// </summary>
         ApplicationPause,
 
