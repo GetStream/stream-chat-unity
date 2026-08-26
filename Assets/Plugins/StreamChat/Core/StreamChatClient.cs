@@ -888,6 +888,8 @@ namespace StreamChat.Core
                 }
 
                 TryCancelWaitingForUserConnection();
+                // Stop before DisconnectAsync so Update() cannot reconnect while backgrounded.
+                InternalLowLevelClient.StopReconnectScheduler();
                 InternalLowLevelClient.DisconnectAsync(DisconnectCause.ApplicationPause).LogIfFailed(_logs);
                 return;
             }

@@ -115,7 +115,20 @@ namespace StreamChat.Tests.LowLevelClient
 
             Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
             Assert.AreEqual(DisconnectCause.ApplicationPause, client.InternalLowLevelClient.LastDisconnectCause);
-            Assert.AreNotEqual((double)float.MaxValue, client.NextReconnectTime.Value);
+            Assert.AreEqual(float.MaxValue, client.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_application_paused_then_update_expect_no_reconnect()
+        {
+            var client = CreateConnectedClient();
+            _mockTimeService.Time.Returns(10);
+
+            ((IStreamChatClientEventsListener)client).OnApplicationPause(true);
+            ((IStreamChatClientEventsListener)client).Update();
+
+            Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
+            _mockWebsocketClient.ReceivedWithAnyArgs(1).ConnectAsync(default);
         }
 
         [Test]
