@@ -67,6 +67,13 @@ namespace StreamChat.Tests.StateSync.Unit
             _client = (StreamChatClient)StreamChatClient.CreateClientWithCustomDependencies(_mockWebsocketClient,
                 _mockHttpClient, new NewtonsoftJsonSerializer(), _mockTimeService, _mockNetworkMonitor,
                 _mockApplicationInfo, _mockLogs, _config);
+
+            // These tests sequence connection state transitions by hand. The default strategy
+            // spends its first 5 attempts reconnecting instantly, and because ITimeService is
+            // mocked to a constant time, a dropped connection would be picked up by the very
+            // same Update() that processed the drop - leaving no observable Disconnected state.
+            _client.InternalLowLevelClient.SetReconnectStrategySettings(ReconnectStrategy.Never,
+                exponentialMinInterval: null, exponentialMaxInterval: null, constantInterval: null);
         }
 
         [TearDown]

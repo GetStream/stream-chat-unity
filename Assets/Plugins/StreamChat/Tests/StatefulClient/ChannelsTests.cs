@@ -135,7 +135,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
             var mutes = await TryAsync(() => Task.FromResult(Client.LocalUserData.ChannelMutes),
-                mutes => mutes.FirstOrDefault(m => m.Channel == channel) != null);
+                result => result.FirstOrDefault(m => m.Channel == channel) != null);
             var channelMute = mutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNotNull(channelMute);
             Assert.AreEqual(true, channel.Muted);

@@ -140,6 +140,9 @@ jobs:
           name: Runtime_Test_Results_IL2CPP
           path: artifacts
 
+      - name: Verify runtime tests actually ran
+        run: bash .github/workflows/scripts/assert-tests-ran.sh artifacts/playmode-results.xml
+
       - name: Notify Slack if failed
         uses: voxmedia/github-action-slack-notify-build@v1
         if: always() && failure()
@@ -282,16 +285,9 @@ jobs:
         timeout-minutes: 40
         continue-on-error: true
 
-      # Unity 2021+ entitlement licensing aborts reactivation if a previous
-      # (timed-out) editor left an invalid ULF on the shared /root volume.
-      - name: Clear stale Unity license before retry 2
+      - name: Reset Unity state before retry 2
         if: steps.run_tests_1.outcome == 'failure'
-        run: |
-          HOME_DIR="${RUNNER_TEMP}/_github_home"
-          echo "Removing stale Unity license files under ${HOME_DIR}"
-          sudo find "${HOME_DIR}" -iname '*.ulf' -delete -print || true
-          sudo rm -rf "${HOME_DIR}/.config/unity3d/Unity/licenses" \
-                      "${HOME_DIR}/.local/share/unity3d/Unity" || true
+        run: bash .github/workflows/scripts/reset-unity-state.sh
 
       - name: Run Tests (Attempt 2)
         id: run_tests_2
@@ -309,14 +305,9 @@ jobs:
         timeout-minutes: 50
         continue-on-error: true
 
-      - name: Clear stale Unity license before retry 3
+      - name: Reset Unity state before retry 3
         if: steps.run_tests_2.outcome == 'failure'
-        run: |
-          HOME_DIR="${RUNNER_TEMP}/_github_home"
-          echo "Removing stale Unity license files under ${HOME_DIR}"
-          sudo find "${HOME_DIR}" -iname '*.ulf' -delete -print || true
-          sudo rm -rf "${HOME_DIR}/.config/unity3d/Unity/licenses" \
-                      "${HOME_DIR}/.local/share/unity3d/Unity" || true
+        run: bash .github/workflows/scripts/reset-unity-state.sh
 
       - name: Run Tests (Attempt 3)
         id: run_tests_3
@@ -339,6 +330,9 @@ jobs:
         with:
           name: Test_Results_${{ env.RUNNER_ID }}
           path: artifacts
+
+      - name: Verify tests actually ran
+        run: bash .github/workflows/scripts/assert-tests-ran.sh artifacts/editmode-results.xml
 
       - name: Free Disk space
         uses: jlumbroso/free-disk-space@v1.2.0

@@ -94,8 +94,8 @@ namespace StreamChat.Tests.StatefulClient
             };
 
             var channels = (await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
-                channels => channels.Contains(channel1) && !channels.Contains(channel2) &&
-                            !channels.Contains(channel3))).ToArray();
+                result => result.Contains(channel1) && !result.Contains(channel2) &&
+                          !result.Contains(channel3))).ToArray();
             
             Assert.Contains(channel1, channels);
             Assert.IsNull(channels.FirstOrDefault(c => c == channel2));
@@ -119,7 +119,7 @@ namespace StreamChat.Tests.StatefulClient
             };
 
             var channels = (await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
-                channels => allChannels.All(channels.Contains))).ToArray();
+                result => allChannels.All(result.Contains))).ToArray();
             Assert.Contains(channel1, channels);
             Assert.Contains(channel2, channels);
             Assert.Contains(channel3, channels);
@@ -203,7 +203,7 @@ namespace StreamChat.Tests.StatefulClient
             };
 
             var channels = (await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
-                channels => channels.All(c => c.MemberCount == 3))).ToArray();
+                result => result.All(c => c.MemberCount == 3))).ToArray();
             Assert.IsNull(channels.FirstOrDefault(c => c == channel1));
             Assert.Contains(channel2, channels);
             Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
@@ -228,7 +228,7 @@ namespace StreamChat.Tests.StatefulClient
             };
 
             var channels = await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
-                channels => allChannels.All(channels.Contains));
+                result => allChannels.All(result.Contains));
             Assert.IsTrue(allChannels.All(channels.Contains));
         }
 

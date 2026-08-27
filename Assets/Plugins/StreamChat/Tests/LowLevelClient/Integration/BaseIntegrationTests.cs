@@ -31,12 +31,21 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         }
 
         [OneTimeTearDown]
-        public async void OneTimeTearDown()
+        public void OneTimeTearDown()
         {
             Debug.Log("------------ TearDown");
 
-            await DeleteTempChannelsAsync();
-            await StreamTestClients.Instance.RemoveLockAsync(this);
+            // NUnit rejects `async void` with `ArgumentException: 'async void' methods are not
+            // supported`, so the cleanup never ran and the fixture's lock was never released -
+            // which in turn kept StreamTestClients from disposing its clients after the run.
+            // `async Task` is not an option either: NUnit blocks the main thread on the returned
+            // task while awaits post their continuations back to that same thread. Running the
+            // cleanup on the thread pool detaches it from Unity's SynchronizationContext.
+            Task.Run(async () =>
+            {
+                await DeleteTempChannelsAsync();
+                await StreamTestClients.Instance.RemoveLockAsync(this);
+            }).GetAwaiter().GetResult();
         }
 
         protected static IStreamChatLowLevelClient LowLevelClient => StreamTestClients.Instance.LowLevelClient;
