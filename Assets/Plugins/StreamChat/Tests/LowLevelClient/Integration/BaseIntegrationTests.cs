@@ -123,7 +123,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                     }
 
                     // upstream request timeout - often received when running tests via docker
-                    if (streamApiException.Code == 504)
+                    if (streamApiException.Code == 504 || streamApiException.IsInternalSystemError())
                     {
                         continue;
                     }
@@ -284,7 +284,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 catch (StreamApiException e)
                 {
                     exceptions.Add(e);
-                    if (e.IsRateLimitExceededError())
+                    if (e.IsRateLimitExceededError() || e.IsInternalSystemError())
                     {
                         var seconds = (int)Math.Max(1, Math.Min(60, Math.Pow(2, currentAttempt)));
                         await Task.Delay(1000 * seconds);

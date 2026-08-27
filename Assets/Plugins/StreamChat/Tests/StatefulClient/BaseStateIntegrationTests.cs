@@ -164,7 +164,24 @@ namespace StreamChat.Tests.StatefulClient
 
             for (int i = 0; i < int.MaxValue; i++)
             {
-                var response = await task();
+                T response;
+                try
+                {
+                    response = await task();
+                }
+                catch (StreamApiException e)
+                {
+                    if (!(e.IsRateLimitExceededError() || e.IsInternalSystemError()) ||
+                        sw.Elapsed.TotalSeconds > maxSeconds)
+                    {
+                        throw;
+                    }
+
+                    progress.MaybeLog(sw.Elapsed);
+                    var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
+                    await Task.Delay(delay);
+                    continue;
+                }
 
                 if (successCondition(response))
                 {
@@ -178,8 +195,8 @@ namespace StreamChat.Tests.StatefulClient
 
                 progress.MaybeLog(sw.Elapsed);
 
-                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
-                await Task.Delay(delay);
+                var delayMs = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
+                await Task.Delay(delayMs);
             }
 
             throw new TimeoutException($"Timeout while waiting for {label}");
@@ -297,7 +314,7 @@ namespace StreamChat.Tests.StatefulClient
                 catch (StreamApiException e)
                 {
                     exceptions.Add(e);
-                    if (e.IsRateLimitExceededError())
+                    if (e.IsRateLimitExceededError() || e.IsInternalSystemError())
                     {
                         var seconds = (int)Math.Max(1, Math.Min(60, Math.Pow(2, currentAttempt)));
                         await Task.Delay(1000 * seconds);

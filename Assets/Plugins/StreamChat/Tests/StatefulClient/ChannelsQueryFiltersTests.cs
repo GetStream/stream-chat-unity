@@ -113,8 +113,11 @@ namespace StreamChat.Tests.StatefulClient
             var channel3 = await CreateUniqueTempChannelAsync();
             var allChannels = new[] { channel1, channel2, channel3 };
 
+            // AND cid IN (...) so this does not scan leftover channels on the shared test app
+            // (unbounded created_by_id queries time out with HTTP 500 "query channels timed out").
             var filters = new IFieldFilterRule[]
             {
+                ChannelFilter.Cid.In(allChannels),
                 ChannelFilter.CreatedById.EqualsTo(Client.LocalUserData.User),
             };
 
@@ -197,13 +200,16 @@ namespace StreamChat.Tests.StatefulClient
             await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, userDaniel);
             await channel2.AddMembersAsync(hideHistory: default, optionalMessage: default, userJonathan);
 
+            // AND cid IN (...) so this does not scan leftover channels on the shared test app
+            // (unbounded member_count queries time out with HTTP 500 "query channels timed out").
             var filters = new IFieldFilterRule[]
             {
+                ChannelFilter.Cid.In(channel1, channel2, channel3),
                 ChannelFilter.MembersCount.EqualsTo(3),
             };
 
             var channels = (await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
-                result => result.All(c => c.MemberCount == 3))).ToArray();
+                result => result.Contains(channel2) && result.All(c => c.MemberCount == 3))).ToArray();
             Assert.IsNull(channels.FirstOrDefault(c => c == channel1));
             Assert.Contains(channel2, channels);
             Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
