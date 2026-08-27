@@ -1290,8 +1290,7 @@ namespace StreamChat.Core.LowLevelClient
 
                 if (_historyDrainTcs == null || _historyDrainTcs.Task.IsCompleted)
                 {
-                    _historyDrainTcs = new TaskCompletionSource<bool>(
-                        TaskCreationOptions.RunContinuationsAsynchronously);
+                    _historyDrainTcs = new TaskCompletionSource<bool>();
                 }
 
                 return _historyDrainTcs.Task;
@@ -1333,6 +1332,7 @@ namespace StreamChat.Core.LowLevelClient
 
         private void TryCompleteHistoryDrainIfIdle()
         {
+            TaskCompletionSource<bool> tcs;
             lock (_pendingHistoryEventsLock)
             {
                 if (_pendingHistoryEvents.Count > 0 || _historyDrainTcs == null)
@@ -1340,19 +1340,26 @@ namespace StreamChat.Core.LowLevelClient
                     return;
                 }
 
-                _historyDrainTcs.TrySetResult(true);
+                tcs = _historyDrainTcs;
+                _historyDrainTcs = null;
             }
+
+            // Outside the lock so FetchAndProcess resumes on this Update, not a later scheduler tick.
+            tcs.TrySetResult(true);
         }
 
         private void ClearPendingHistoryEvents()
         {
+            TaskCompletionSource<bool> tcs;
             lock (_pendingHistoryEventsLock)
             {
                 _historyDrainGeneration++;
                 _pendingHistoryEvents.Clear();
-                _historyDrainTcs?.TrySetResult(true);
+                tcs = _historyDrainTcs;
                 _historyDrainTcs = null;
             }
+
+            tcs?.TrySetResult(true);
         }
 
         private TDto DeserializePayload<TDto>(object payload)
