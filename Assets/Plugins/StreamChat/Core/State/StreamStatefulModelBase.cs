@@ -51,6 +51,17 @@ namespace StreamChat.Core.State
         protected ICache Cache { get; }
         protected ICacheRepository<TStatefulModel> Repository { get; }
 
+        /// <summary>
+        /// True while a <c>/sync</c> batch is applied with
+        /// <see cref="Configs.StateRecoveryStrategy.BatchStateUpdate"/>.
+        /// State still updates. Do not raise per-event callbacks when that change
+        /// is already visible in state. Use <see cref="IStreamChatClient.StateRecovered"/> instead.
+        ///
+        /// Still raise callbacks that are not stored in state: custom events,
+        /// channel deleted, and local-user membership or invite notifications.
+        /// </summary>
+        protected bool IsSilentHistorySync => Client.IsApplyingHistorySync;
+
         protected void LoadAdditionalProperties(Dictionary<string, object> additionalProperties)
         {
             //StreamTodo: investigate if there's a case we don't want to clear here

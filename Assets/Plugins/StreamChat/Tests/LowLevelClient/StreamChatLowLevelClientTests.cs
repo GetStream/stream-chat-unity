@@ -378,7 +378,9 @@ namespace StreamChat.Tests.LowLevelClient
 
             client.DisconnectAsync(DisconnectCause.ConnectionReleased).GetAwaiter().GetResult();
 
-            Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
+            // Arming the scheduler moves the client on from Disconnected to WaitToReconnect,
+            // so Disconnected is never the state an observer settles on here.
+            Assert.AreEqual(ConnectionState.WaitToReconnect, client.ConnectionState);
             Assert.AreEqual(DisconnectCause.ConnectionReleased, client.LastDisconnectCause);
             Assert.AreEqual(10, client.NextReconnectTime.Value);
         }
@@ -431,7 +433,7 @@ namespace StreamChat.Tests.LowLevelClient
             _mockTimeService.Time.Returns(31);
             client.Update(0.2f);
 
-            Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
+            Assert.AreEqual(ConnectionState.WaitToReconnect, client.ConnectionState);
             Assert.AreEqual(DisconnectCause.HealthTimeout, client.LastDisconnectCause);
             Assert.AreNotEqual((double)float.MaxValue, client.NextReconnectTime.Value);
         }

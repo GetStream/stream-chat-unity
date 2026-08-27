@@ -48,7 +48,7 @@ namespace StreamChat.Core.StatefulModels
                 var prev = _online;
                 _online = value;
 
-                if (prev != value)
+                if (prev != value && !IsSilentHistorySync)
                 {
                     PresenceChanged?.Invoke(this, Online, LastActive);
                 }

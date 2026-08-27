@@ -38,18 +38,26 @@ namespace StreamChat.Core.Configs
         MessageCacheWindow DefaultMessageCacheWindow { get; set; }
 
         /// <summary>
-        /// When the app goes to the background, temporarily drop the chat connection without logging
-        /// the user out. When the app returns to the foreground, reconnect and recover missed state.
-        /// Defaults to <c>true</c>. Set to <c>false</c> to keep the connection alive while backgrounded.
+        /// When the app goes to the background, temporarily disconnect the user (they appear
+        /// offline). When the app returns to the foreground, reconnect and catch up on what
+        /// was missed. Defaults to <c>true</c>. Set to <c>false</c> to stay connected while
+        /// backgrounded.
         ///
         /// In the Unity Editor this has no effect — pausing play mode or unfocusing the Game view
         /// would otherwise disconnect constantly. A warning is logged once.
         ///
         /// Applies when you create the client with <see cref="StreamChatClient.CreateDefaultClient"/>.
-        /// If you drive the client yourself (you call Update each frame), pause and resume with
+        /// If you drive the client yourself (you call Update each frame), close and reopen with
         /// <see cref="IStreamChatClient.PauseConnectionAsync"/> /
-        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/> instead.
+        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/> on background / foreground.
         /// </summary>
         bool DisconnectOnApplicationPause { get; set; }
+
+        /// <summary>
+        /// How the client restores local state after the websocket reconnects.
+        /// Default is <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/>.
+        /// See <see cref="Configs.StateRecoveryStrategy"/> for the other options.
+        /// </summary>
+        StateRecoveryStrategy StateRecoveryStrategy { get; set; }
     }
 }
