@@ -9,6 +9,15 @@ on:
   schedule:
     - cron: "0 0 * * *"  # run daily at midnight (UTC)
 
+# Cancel superseded runs on the same ref (e.g. rapid PR pushes) so queued matrix
+# jobs don't stack up against the org's concurrent-runner limit. The event name is
+# part of the group because the nightly schedule runs on the default branch ref and
+# would otherwise cancel (or be cancelled by) a push run on that same branch.
+# Only PR runs are cancelled; push and schedule runs are always allowed to finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   actions: write
   contents: read
@@ -39,9 +48,9 @@ jobs:
           rm -rf Assets/Plugins/StreamChat/Samples
 
       # The repo intentionally does not track Packages/manifest.json so the
-      # legacy Unity 2020/2021 build job can fall back to its image's default
-      # manifest. The IL2CPP runtime test job runs on Unity 6000.0 and must
-      # pin its own packages (notably com.unity.test-framework for NUnit).
+      # versioned build jobs can fall back to each image's default manifest.
+      # The IL2CPP runtime test job runs on Unity 6000.0 and must pin its own
+      # packages (notably com.unity.test-framework for NUnit).
       - name: Install runtime-tests Packages/manifest.json
         run: |
           mkdir -p Packages
@@ -143,30 +152,44 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
 
   build:
+    name: build (${{ matrix.unity_version }}, ${{ matrix.target_platform }}, ${{ matrix.dotnet_version }}, ${{ matrix.compiler }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # Testing every version x platform x dotnet_version x compiler combination
+      # would explode the job count. Instead we pick a representative subset that
+      # keeps similar coverage with far fewer jobs: one android + one iOS config
+      # per Unity version, arranged so every platform/dotnet/compiler value is still
+      # exercised across the matrix.
+      # Patch releases must be public LTS builds from the Unity archive, not Extended
+      # LTS (xLTS) patches that require Industry/Enterprise licenses in CI.
+      # dataset_index must be unique per row and within 0-15 (test data set count).
       matrix:
-        target_platform: [android, ios]
-        unity_version: [2020, 2021]
-        dotnet_version: [NET_4_x, STANDARD_2_x]
-        compiler: [mono, il2cpp]
+        include:
+          - { unity_version: "2019.4", target_platform: android, dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 0,  image: "unityci/editor:ubuntu-2019.4.40f1-android-3.2.2" }
+          - { unity_version: "2019.4", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 1,  image: "unityci/editor:ubuntu-2019.4.40f1-ios-3.2.2" }
+          - { unity_version: "2020.3", target_platform: android, dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 2,  image: "unityci/editor:ubuntu-2020.3.40f1-android-3.1.0" }
+          - { unity_version: "2020.3", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 3,  image: "unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0" }
+          - { unity_version: "2021.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 4,  image: "unityci/editor:ubuntu-2021.3.36f1-android-3.1.0" }
+          - { unity_version: "2021.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 5,  image: "unityci/editor:ubuntu-2021.3.36f1-ios-3.1.0" }
+          - { unity_version: "2022.3", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 6,  image: "unityci/editor:ubuntu-2022.3.62f2-android-3.2.2" }
+          - { unity_version: "2022.3", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 7,  image: "unityci/editor:ubuntu-2022.3.62f2-ios-3.2.2" }
+          - { unity_version: "2023.2", target_platform: android, dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 8,  image: "unityci/editor:ubuntu-2023.2.20f1-android-3.2.2" }
+          - { unity_version: "2023.2", target_platform: ios,     dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 9,  image: "unityci/editor:ubuntu-2023.2.20f1-ios-3.2.2" }
+          - { unity_version: "6000.0", target_platform: android, dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 10, image: "unityci/editor:ubuntu-6000.0.63f1-android-3.2.2" }
+          - { unity_version: "6000.0", target_platform: ios,     dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 11, image: "unityci/editor:ubuntu-6000.0.63f1-ios-3.2.2" }
+          - { unity_version: "6000.1", target_platform: android, dotnet_version: NET_4_x,      compiler: mono,   dataset_index: 12, image: "unityci/editor:ubuntu-6000.1.17f1-android-3.2.2" }
+          - { unity_version: "6000.1", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: il2cpp, dataset_index: 13, image: "unityci/editor:ubuntu-6000.1.17f1-ios-3.2.2" }
+          - { unity_version: "6000.2", target_platform: android, dotnet_version: NET_4_x,      compiler: il2cpp, dataset_index: 14, image: "unityci/editor:ubuntu-6000.2.12f1-android-3.2.2" }
+          - { unity_version: "6000.2", target_platform: ios,     dotnet_version: STANDARD_2_x, compiler: mono,   dataset_index: 15, image: "unityci/editor:ubuntu-6000.2.12f1-ios-3.2.2" }
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Calculate Sequential Index
-        id: calculate-index
+      - name: Set Test Data Set Index
         run: |
-          target_index=$([[ "${{ matrix.target_platform }}" == 'android' ]] && echo '0' || echo '1')
-          unity_index=$([[ "${{ matrix.unity_version }}" == '2020' ]] && echo '0' || echo '1')
-          dotnet_index=$([[ "${{ matrix.dotnet_version }}" == 'NET_4_x' ]] && echo '0' || echo '1')
-          compiler_index=$([[ "${{ matrix.compiler }}" == 'mono' ]] && echo '0' || echo '1')
-          
-          index=$((target_index * 1 + unity_index * 2 + dotnet_index * 4 + compiler_index * 8))
-          
-          echo "SEQUENTIAL_INDEX=$index" >> $GITHUB_ENV
+          echo "SEQUENTIAL_INDEX=${{ matrix.dataset_index }}" >> $GITHUB_ENV
 
       - name: Print Sequential Index
         run: |
@@ -183,7 +206,7 @@ jobs:
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update
-      
+
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: brew update
@@ -201,29 +224,7 @@ jobs:
       - name: Determine Docker Image
         id: dockerImageSelector
         run: |
-          if [ "${{ matrix.unity_version }}" == '2020' ]; then
-            if [ "${{ matrix.target_platform }}" == 'android' ]; then
-              TAG='unityci/editor:ubuntu-2020.3.40f1-android-3.1.0'
-            elif [ "${{ matrix.target_platform }}" == 'ios' ]; then
-              TAG='unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0'
-            else
-              echo "Unsupported platform"
-              exit 1
-            fi
-          elif [ "${{ matrix.unity_version }}" == '2021' ]; then
-            if [ "${{ matrix.target_platform }}" == 'android' ]; then
-              TAG='unityci/editor:ubuntu-2021.3.36f1-android-3.1.0'
-            elif [ "${{ matrix.target_platform }}" == 'ios' ]; then
-              TAG='unityci/editor:ubuntu-2021.3.36f1-ios-3.1.0'
-            else
-              echo "Unsupported platform"
-              exit 1
-            fi
-          else
-            echo "Unsupported Unity version"
-            exit 1
-          fi
-          echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+          echo "DOCKER_TAG=${{ matrix.image }}" >> $GITHUB_ENV
 
       - name: Echo Docker Image
         run: |
@@ -232,7 +233,7 @@ jobs:
       - name: Determine Build Name
         run: |
           RUNNER_ID="${{ matrix.unity_version }}_${{ matrix.target_platform }}_${{ matrix.compiler }}_${{ matrix.dotnet_version }}"
-          
+
           if [ "${{ matrix.target_platform }}" == "android" ]; then
             BUILD_NAME="${RUNNER_ID}.apk"
           elif [ "${{ matrix.target_platform }}" == "ios" ]; then
@@ -241,10 +242,21 @@ jobs:
             echo "Unsupported platform"
             exit 1
           fi
-          
+
           echo "RUNNER_ID=$RUNNER_ID" >> $GITHUB_ENV
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
-      
+
+      # Without a manifest, Unity 2019.4 resolves com.unity.textmeshpro@3.0.9 (via ugui),
+      # whose editor scripts reference VersionControlSettings — unavailable in 2019.4.
+      # The manifest must also restate the built-in modules the default manifest would
+      # have provided, since a module missing from the manifest is a disabled module.
+      - name: Install 2019.4 Packages/manifest.json
+        if: matrix.unity_version == '2019.4'
+        run: |
+          mkdir -p Packages
+          cp .github/workflows/manifests/build-2019.4.manifest.json Packages/manifest.json
+          rm -f Packages/packages-lock.json
+
       - name: Enable Tests
         uses: game-ci/unity-builder@v4
         env:
@@ -255,6 +267,7 @@ jobs:
           buildMethod: StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag
           customImage: ${{ env.DOCKER_TAG }}
 
+      # StreamChat.Tests is Editor-only, so playmode always reports 0 tests.
       - name: Run Tests (Attempt 1)
         id: run_tests_1
         uses: game-ci/unity-test-runner@v4
@@ -263,10 +276,22 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          testMode: editmode
           customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
           customImage: ${{ env.DOCKER_TAG }}
         timeout-minutes: 40
         continue-on-error: true
+
+      # Unity 2021+ entitlement licensing aborts reactivation if a previous
+      # (timed-out) editor left an invalid ULF on the shared /root volume.
+      - name: Clear stale Unity license before retry 2
+        if: steps.run_tests_1.outcome == 'failure'
+        run: |
+          HOME_DIR="${RUNNER_TEMP}/_github_home"
+          echo "Removing stale Unity license files under ${HOME_DIR}"
+          sudo find "${HOME_DIR}" -iname '*.ulf' -delete -print || true
+          sudo rm -rf "${HOME_DIR}/.config/unity3d/Unity/licenses" \
+                      "${HOME_DIR}/.local/share/unity3d/Unity" || true
 
       - name: Run Tests (Attempt 2)
         id: run_tests_2
@@ -277,10 +302,20 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          testMode: editmode
           customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
           customImage: ${{ env.DOCKER_TAG }}
         timeout-minutes: 50
         continue-on-error: true
+
+      - name: Clear stale Unity license before retry 3
+        if: steps.run_tests_2.outcome == 'failure'
+        run: |
+          HOME_DIR="${RUNNER_TEMP}/_github_home"
+          echo "Removing stale Unity license files under ${HOME_DIR}"
+          sudo find "${HOME_DIR}" -iname '*.ulf' -delete -print || true
+          sudo rm -rf "${HOME_DIR}/.config/unity3d/Unity/licenses" \
+                      "${HOME_DIR}/.local/share/unity3d/Unity" || true
 
       - name: Run Tests (Attempt 3)
         id: run_tests_3
@@ -291,40 +326,14 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
-          customImage: ${{ env.DOCKER_TAG }}
-        timeout-minutes: 60
-        continue-on-error: true
-
-      - name: Run Tests (Attempt 4)
-        id: run_tests_4
-        if: steps.run_tests_3.outcome == 'failure'
-        uses: game-ci/unity-test-runner@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
-          customImage: ${{ env.DOCKER_TAG }}
-        timeout-minutes: 60
-        continue-on-error: true
-
-      - name: Run Tests (Attempt 5)
-        id: run_tests_5
-        if: steps.run_tests_4.outcome == 'failure'
-        uses: game-ci/unity-test-runner@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
+          testMode: editmode
           customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
           customImage: ${{ env.DOCKER_TAG }}
         timeout-minutes: 60
 
       - name: Upload Test Results as Artifact
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: Test_Results_${{ env.RUNNER_ID }}
           path: artifacts
@@ -366,4 +375,3 @@ jobs:
           status: FAILED
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-
