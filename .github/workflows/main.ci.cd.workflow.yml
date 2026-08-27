@@ -352,7 +352,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
-          customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/${{ env.BUILD_NAME }}
+          customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath SampleAppBuild/${{ env.BUILD_NAME }}
           customImage: ${{ env.DOCKER_TAG }}
           allowDirtyBuild: true #Needed because the import process may update ProjectSettings
 
@@ -360,7 +360,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Build_${{ env.BUILD_NAME }}
-          path: $(pwd)/SampleAppBuild/${{ env.BUILD_NAME }}
+          path: ${{ github.workspace }}/SampleAppBuild/${{ env.BUILD_NAME }}
 
       - name: Notify Slack if failed
         uses: voxmedia/github-action-slack-notify-build@v1
