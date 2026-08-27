@@ -47,13 +47,12 @@ jobs:
           rm -rf Assets/Plugins/StreamChat/SampleProject
           rm -rf Assets/Plugins/StreamChat/Samples
 
-      # The repo intentionally does not track Packages/manifest.json so the
-      # versioned build jobs can fall back to each image's default manifest.
-      # The IL2CPP runtime test job runs on Unity 6000.0 and must pin its own
-      # packages (notably com.unity.test-framework for NUnit).
+      # This job strips SampleProject and runs on Unity 6000.0, so it replaces the tracked
+      # Packages/manifest.json with a trimmed one pinning com.unity.test-framework 1.6.0
+      # for NUnit. Overwriting a tracked file is why the Unity steps below need
+      # allowDirtyBuild.
       - name: Install runtime-tests Packages/manifest.json
         run: |
-          mkdir -p Packages
           cp .github/workflows/manifests/runtime-tests.manifest.json Packages/manifest.json
           rm -f Packages/packages-lock.json
 
@@ -246,14 +245,13 @@ jobs:
           echo "RUNNER_ID=$RUNNER_ID" >> $GITHUB_ENV
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
 
-      # Without a manifest, Unity 2019.4 resolves com.unity.textmeshpro@3.0.9 (via ugui),
-      # whose editor scripts reference VersionControlSettings — unavailable in 2019.4.
-      # The manifest must also restate the built-in modules the default manifest would
-      # have provided, since a module missing from the manifest is a disabled module.
+      # The tracked Packages/manifest.json pins com.unity.textmeshpro@3.0.9, whose editor
+      # scripts reference VersionControlSettings — a 2020.1+ API. Swap in the same package
+      # set with TMP downgraded to the 2.1.x line that 2019.4 supports. This overwrites a
+      # tracked file, so every Unity step below needs allowDirtyBuild.
       - name: Install 2019.4 Packages/manifest.json
         if: matrix.unity_version == '2019.4'
         run: |
-          mkdir -p Packages
           cp .github/workflows/manifests/build-2019.4.manifest.json Packages/manifest.json
           rm -f Packages/packages-lock.json
 
@@ -266,6 +264,7 @@ jobs:
         with:
           buildMethod: StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag
           customImage: ${{ env.DOCKER_TAG }}
+          allowDirtyBuild: true
 
       # StreamChat.Tests is Editor-only, so playmode always reports 0 tests.
       - name: Run Tests (Attempt 1)
@@ -279,6 +278,7 @@ jobs:
           testMode: editmode
           customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
           customImage: ${{ env.DOCKER_TAG }}
+          allowDirtyBuild: true
         timeout-minutes: 40
         continue-on-error: true
 
@@ -305,6 +305,7 @@ jobs:
           testMode: editmode
           customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
           customImage: ${{ env.DOCKER_TAG }}
+          allowDirtyBuild: true
         timeout-minutes: 50
         continue-on-error: true
 
@@ -329,6 +330,7 @@ jobs:
           testMode: editmode
           customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
           customImage: ${{ env.DOCKER_TAG }}
+          allowDirtyBuild: true
         timeout-minutes: 60
 
       - name: Upload Test Results as Artifact
