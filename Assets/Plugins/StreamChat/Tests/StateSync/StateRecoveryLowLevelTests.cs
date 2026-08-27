@@ -87,7 +87,7 @@ namespace StreamChat.Tests.StateSync.Unit
             _mockHttpClient.Received(1).SendHttpRequestAsync(
                 Arg.Is(HttpMethodType.Post),
                 Arg.Is<Uri>(uri => uri.AbsolutePath.EndsWith("/sync")),
-                Arg.Is<object>(body => GetBoolMember(body, "WithInaccessibleCids") == true));
+                Arg.Is<object>(body => RequestHasJsonBool(body, "with_inaccessible_cids", true)));
         }
 
         [Test]
@@ -218,25 +218,35 @@ namespace StreamChat.Tests.StateSync.Unit
         private static string HealthCheckJson()
             => "{\"connection_id\":\"fakeId\",\"type\":\"health.check\"}";
 
+        // The client hands the http layer an already serialized json string, so the body has to
+        // be inspected as text rather than reflected over as a request DTO.
         private static int CountSyncCids(object requestBody)
         {
-            var list = GetMember(requestBody, "ChannelCids") as System.Collections.IList;
-            return list?.Count ?? -1;
-        }
+            var json = requestBody as string ?? requestBody?.ToString() ?? string.Empty;
 
-        private static bool? GetBoolMember(object requestBody, string name) => GetMember(requestBody, name) as bool?;
-
-        private static object GetMember(object requestBody, string name)
-        {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
-            var property = requestBody.GetType().GetProperty(name, flags);
-            if (property != null)
+            const string arrayStart = "\"channel_cids\":[";
+            var start = json.IndexOf(arrayStart, StringComparison.Ordinal);
+            if (start < 0)
             {
-                return property.GetValue(requestBody);
+                return -1;
             }
 
-            return requestBody.GetType().GetField(name, flags)?.GetValue(requestBody);
+            start += arrayStart.Length;
+            var end = json.IndexOf(']', start);
+            if (end < 0)
+            {
+                return -1;
+            }
+
+            var contents = json.Substring(start, end - start);
+            return contents.Length == 0 ? 0 : contents.Split(',').Length;
+        }
+
+        private static bool RequestHasJsonBool(object requestBody, string property, bool value)
+        {
+            var json = requestBody as string ?? requestBody?.ToString() ?? string.Empty;
+            var needle = "\"" + property + "\":" + (value ? "true" : "false");
+            return json.IndexOf(needle, StringComparison.Ordinal) >= 0;
         }
 
         private static void SetDisconnectionLastEventReceivedAt(StreamChatLowLevelClient client, DateTimeOffset value)
