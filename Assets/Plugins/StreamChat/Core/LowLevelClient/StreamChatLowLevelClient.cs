@@ -392,18 +392,27 @@ namespace StreamChat.Core.LowLevelClient
             _httpClient.SetDefaultAuthenticationHeader(authCredentials.UserToken);
         }
 
-        public async Task DisconnectAsync(bool permanent = false)
+        public async Task DisconnectAsync(DisconnectCause cause = DisconnectCause.ConnectionReleased)
         {
             TryCancelWaitingForUserConnection();
-            //StreamTodo: remove this, this cannot be used when internal disconnect due to expired token. Perhaps we should allow user to Suspend() and Unsupend() the client reconnection
+            LastDisconnectCause = cause;
 
-            if (permanent)
+            if (cause == DisconnectCause.UserLogout)
             {
                 _reconnectScheduler.Stop();
             }
 
-            await _websocketClient.DisconnectAsync(WebSocketCloseStatus.NormalClosure, "User called Disconnect");
+            var closeStatus = cause == DisconnectCause.HealthTimeout
+                ? WebSocketCloseStatus.InternalServerError
+                : WebSocketCloseStatus.NormalClosure;
+            var closeMessage = GetDisconnectCloseMessage(cause);
+
+            await _websocketClient.DisconnectAsync(closeStatus, closeMessage);
         }
+
+        [Obsolete("Use DisconnectAsync(DisconnectCause). true maps to UserLogout, false to ConnectionReleased.")]
+        public Task DisconnectAsync(bool permanent)
+            => DisconnectAsync(permanent ? DisconnectCause.UserLogout : DisconnectCause.ConnectionReleased);
 
         public void Update(float deltaTime)
         {
@@ -623,6 +632,10 @@ namespace StreamChat.Core.LowLevelClient
         internal IInternalThreadsApi InternalThreadsApi { get; }
 
         internal IStreamClientConfig Config => _config;
+
+        internal DisconnectCause LastDisconnectCause { get; private set; }
+
+        internal void StopReconnectScheduler() => _reconnectScheduler.Stop();
 
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
@@ -1378,10 +1391,7 @@ namespace StreamChat.Core.LowLevelClient
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
                 _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, resetting connection");
-                _websocketClient
-                    .DisconnectAsync(WebSocketCloseStatus.InternalServerError,
-                        $"Health check was not received since: {timeSinceLastHealthCheck}")
-                    .ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
+                DisconnectAsync(DisconnectCause.HealthTimeout).LogIfFailed(_logs);
             }
         }
 
@@ -1511,6 +1521,23 @@ namespace StreamChat.Core.LowLevelClient
 
             _logs.Info(_logSb.ToString());
             _logSb.Clear();
+        }
+
+        private static string GetDisconnectCloseMessage(DisconnectCause cause)
+        {
+            switch (cause)
+            {
+                case DisconnectCause.UserLogout:
+                    return "User logged out";
+                case DisconnectCause.ApplicationPause:
+                    return "Application paused";
+                case DisconnectCause.HealthTimeout:
+                    return "Health check timeout";
+                case DisconnectCause.Network:
+                    return "Network unavailable";
+                default:
+                    return "User called Disconnect";
+            }
         }
     }
 }

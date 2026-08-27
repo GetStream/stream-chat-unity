@@ -369,6 +369,89 @@ namespace StreamChat.Tests.LowLevelClient
             Assert.AreEqual(createdAt, GetLastEventReceivedAt(client));
         }
 
+        [Test]
+        public void when_disconnect_with_connection_released_expect_scheduler_armed()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.ConnectionReleased).GetAwaiter().GetResult();
+
+            // Arming the scheduler moves the client on from Disconnected to WaitToReconnect,
+            // so Disconnected is never the state an observer settles on here.
+            Assert.AreEqual(ConnectionState.WaitToReconnect, client.ConnectionState);
+            Assert.AreEqual(DisconnectCause.ConnectionReleased, client.LastDisconnectCause);
+            Assert.AreEqual(10, client.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_disconnect_with_user_logout_expect_scheduler_stopped()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.UserLogout).GetAwaiter().GetResult();
+
+            Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
+            Assert.AreEqual(DisconnectCause.UserLogout, client.LastDisconnectCause);
+            Assert.AreEqual(float.MaxValue, client.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_temporary_disconnect_expect_update_reconnects()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.ConnectionReleased).GetAwaiter().GetResult();
+            client.Update(deltaTime: 0.2f);
+
+            _mockWebsocketClient.ReceivedWithAnyArgs(2).ConnectAsync(default);
+        }
+
+        [Test]
+        public void when_logout_disconnect_expect_update_does_not_reconnect()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.UserLogout).GetAwaiter().GetResult();
+            client.Update(deltaTime: 0.2f);
+
+            _mockWebsocketClient.ReceivedWithAnyArgs(1).ConnectAsync(default);
+        }
+
+        [Test]
+        public void when_health_timeout_expect_disconnect_cause_health_timeout_and_scheduler_armed()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(31);
+            client.Update(0.2f);
+
+            Assert.AreEqual(ConnectionState.WaitToReconnect, client.ConnectionState);
+            Assert.AreEqual(DisconnectCause.HealthTimeout, client.LastDisconnectCause);
+            Assert.AreNotEqual((double)float.MaxValue, client.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_logout_then_connect_expect_scheduler_rearmed()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.UserLogout).GetAwaiter().GetResult();
+            client.Connect();
+
+            Assert.AreEqual(ConnectionState.Connecting, client.ConnectionState);
+            _mockWebsocketClient.ReceivedWithAnyArgs(2).ConnectAsync(default);
+        }
+
         private readonly List<IDisposable> _resourcesToDispose = new List<IDisposable>();
 
         private IStreamChatLowLevelClient _lowLevelClient;
@@ -416,6 +499,12 @@ namespace StreamChat.Tests.LowLevelClient
             });
 
             return client;
+        }
+
+        private void SetupDisconnectRaisesDisconnected()
+        {
+            _mockWebsocketClient.When(_ => _.DisconnectAsync(Arg.Any<WebSocketCloseStatus>(), Arg.Any<string>()))
+                .Do(_ => { _mockWebsocketClient.Disconnected += Raise.Event<Action>(); });
         }
 
         private static DateTimeOffset? GetLastEventReceivedAt(StreamChatLowLevelClient client)
