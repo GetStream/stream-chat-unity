@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
+using System.Reflection;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -226,6 +227,122 @@ namespace StreamChat.Tests.LowLevelClient
             Assert.AreEqual(new[] { "h1" }, received.ToArray());
         }
 
+        [Test]
+        public void when_health_timeout_elapses_during_history_drain_expect_connection_stays()
+        {
+            var client = CreateConnectedClient();
+            client.EventDrainCountCap = 1;
+            client.EventDrainTimeBudgetMs = 10_000;
+            SetupDisconnectRaisesDisconnected();
+
+            EnqueueHistory(client, Message("h1"), Message("h2"), Message("h3"), Message("h4"), Message("h5"));
+            client.Update(0.1f);
+            Assert.AreEqual(ConnectionState.Connected, client.ConnectionState);
+
+            _mockTimeService.Time.Returns(31f);
+            client.Update(0.1f);
+
+            Assert.AreEqual(ConnectionState.Connected, client.ConnectionState);
+        }
+
+        [Test]
+        public void when_history_drain_exceeds_max_stall_expect_health_timeout_fires()
+        {
+            var client = CreateConnectedClient();
+            client.EventDrainCountCap = 1;
+            client.EventDrainTimeBudgetMs = 10_000;
+            SetupDisconnectRaisesDisconnected();
+
+            EnqueueHistory(client, Message("h1"), Message("h2"), Message("h3"), Message("h4"), Message("h5"));
+            client.Update(0.1f);
+
+            _mockTimeService.Time.Returns(StreamChatLowLevelClient.EventDrainMaxStallSeconds + 1f);
+            client.Update(0.1f);
+
+            Assert.AreNotEqual(ConnectionState.Connected, client.ConnectionState);
+        }
+
+        [Test]
+        public void when_disconnect_with_held_live_message_expect_it_is_still_delivered()
+        {
+            var client = CreateConnectedClient();
+            client.EventDrainCountCap = 1;
+            client.EventDrainTimeBudgetMs = 10_000;
+            SetupDisconnectRaisesDisconnected();
+
+            var received = new List<string>();
+            client.MessageReceived += e => received.Add(e.Message.Id);
+
+            EnqueueLiveMessages(Message("m1"), Message("m2"));
+            client.Update(0.1f);
+            Assert.AreEqual(new[] { "m1" }, received.ToArray());
+
+            client.DisconnectAsync(DisconnectCause.ConnectionReleased).GetAwaiter().GetResult();
+            client.Update(0.1f);
+
+            Assert.AreEqual(new[] { "m1", "m2" }, received.ToArray());
+        }
+
+        [Test]
+        public void when_silent_batch_spans_updates_expect_watermark_advances_once_at_end()
+        {
+            var client = CreateConnectedClient();
+            client.EventDrainCountCap = 1;
+            client.EventDrainTimeBudgetMs = 10_000;
+
+            var t0 = new DateTimeOffset(2026, 8, 10, 12, 0, 0, TimeSpan.Zero);
+            var t1 = t0.AddMinutes(1);
+            var t2 = t0.AddMinutes(2);
+
+            var received = 0;
+            client.MessageReceived += _ => received++;
+
+            var drain = client.EnqueueHistoryEventsForBatchApply(new object[]
+            {
+                Message("m1", t0),
+                Message("m2", t2),
+                Message("m3", t1),
+            });
+
+            client.Update(0.1f);
+            Assert.AreEqual(0, received);
+            Assert.IsNull(GetLastEventReceivedAt(client));
+            Assert.IsFalse(drain.IsCompleted);
+
+            client.Update(0.1f);
+            Assert.AreEqual(0, received);
+            Assert.IsNull(GetLastEventReceivedAt(client));
+            Assert.IsFalse(drain.IsCompleted);
+
+            client.Update(0.1f);
+            Assert.AreEqual(0, received);
+            Assert.AreEqual(t2, GetLastEventReceivedAt(client));
+            Assert.IsTrue(drain.IsCompleted);
+        }
+
+        [Test]
+        public void when_held_live_then_history_enqueued_expect_history_before_held()
+        {
+            var client = CreateConnectedClient();
+            client.EventDrainCountCap = 1;
+            client.EventDrainTimeBudgetMs = 10_000;
+
+            var received = new List<string>();
+            client.MessageReceived += e => received.Add(e.Message.Id);
+
+            EnqueueLiveMessages(Message("l1"), Message("l2"));
+            client.Update(0.1f);
+            Assert.AreEqual(new[] { "l1" }, received.ToArray());
+
+            EnqueueHistory(client, Message("h1"));
+            client.Update(0.1f);
+
+            Assert.AreEqual(new[] { "l1", "h1" }, received.ToArray());
+
+            client.Update(0.1f);
+            Assert.AreEqual(new[] { "l1", "h1", "l2" }, received.ToArray());
+        }
+
         private readonly List<IDisposable> _resourcesToDispose = new List<IDisposable>();
 
         private AuthCredentials _authCredentials;
@@ -249,6 +366,11 @@ namespace StreamChat.Tests.LowLevelClient
             client.Update(0.2f);
             Assert.AreEqual(ConnectionState.Connected, client.ConnectionState);
             return client;
+        }
+
+        private void EnqueueHistory(StreamChatLowLevelClient client, params object[] events)
+        {
+            client.EnqueueHistoryEventsForReplay(events);
         }
 
         private void EnqueueLiveMessages(params string[] messages)
@@ -283,13 +405,25 @@ namespace StreamChat.Tests.LowLevelClient
         private static void SetDisconnectionWatermark(StreamChatLowLevelClient client, DateTimeOffset value)
         {
             var field = typeof(StreamChatLowLevelClient).GetField("_disconnectionLastEventReceivedAt",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(field);
             field.SetValue(client, (DateTimeOffset?)value);
         }
 
+        private static DateTimeOffset? GetLastEventReceivedAt(StreamChatLowLevelClient client)
+        {
+            var field = typeof(StreamChatLowLevelClient).GetField("_lastEventReceivedAt",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(field);
+            return (DateTimeOffset?)field.GetValue(client);
+        }
+
         private static string Message(string id)
             => $"{{\"type\":\"message.new\",\"cid\":\"messaging:test\",\"message\":{{\"id\":\"{id}\",\"text\":\"{id}\",\"type\":\"regular\"}}}}";
+
+        private static string Message(string id, DateTimeOffset createdAt)
+            => $"{{\"type\":\"message.new\",\"cid\":\"messaging:test\",\"created_at\":\"{createdAt:O}\"," +
+               $"\"message\":{{\"id\":\"{id}\",\"text\":\"{id}\",\"type\":\"regular\",\"created_at\":\"{createdAt:O}\"}}}}";
 
         private static string MessageEventJson(string id) => Message(id);
 

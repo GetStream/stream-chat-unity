@@ -218,7 +218,10 @@ namespace StreamChat.Core.LowLevelClient
                 {
                     _disconnectionLastEventReceivedAt = _lastEventReceivedAt;
                     ClearPendingHistoryEvents();
-                    _heldLiveMessage = null;
+
+                    // _heldLiveMessage is deliberately NOT cleared. IWebsocketClient's receive queue
+                    // survives the disconnect, so dropping just the one message we happened to hold
+                    // would punch a hole in an otherwise intact sequence.
                     RaiseDisconnected();
                 }
             }
@@ -461,7 +464,7 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            await EnqueueHistoryEvents(response.Events);
+            await EnqueueHistoryEventsForReplay(response.Events);
         }
 
         /// <summary>
@@ -549,6 +552,8 @@ namespace StreamChat.Core.LowLevelClient
                 return result;
             }
 
+            // Main-thread only. Must not interleave with the paced silent-batch drain:
+            // both share _isApplyingHistoryEvents and _historyMaxAppliedCreatedAt.
             _isApplyingHistoryEvents = true;
             _historyMaxAppliedCreatedAt = null;
 
@@ -705,6 +710,14 @@ namespace StreamChat.Core.LowLevelClient
         private const string DefaultStreamAuthType = "jwt";
         private const int HealthCheckMaxWaitingTime = 30;
         private const int EventDrainHealthGrace = 8;
+        private const int ReceiveBacklogWarningThreshold = 500;
+
+        /// <summary>
+        /// How long a paced /sync drain may block live <c>health.check</c> before the receive-side
+        /// timeout is allowed to fire. Shorter reintroduces a reconnect loop; longer delays
+        /// detecting a genuinely dead socket.
+        /// </summary>
+        internal const float EventDrainMaxStallSeconds = 120f;
 
         // For WebGL there is a slight delay when sending therefore we send HC event a bit sooner just in case
         private const int HealthCheckSendInterval = HealthCheckMaxWaitingTime - 1;
@@ -727,7 +740,7 @@ namespace StreamChat.Core.LowLevelClient
         private readonly object _websocketConnectionFailedFlagLock = new object();
         private readonly object _websocketDisconnectedFlagLock = new object();
         private readonly object _pendingHistoryEventsLock = new object();
-        private readonly Queue<object> _pendingHistoryEvents = new Queue<object>();
+        private readonly Queue<PendingHistoryEvent> _pendingHistoryEvents = new Queue<PendingHistoryEvent>();
 
         /// <summary>
         /// Every <see cref="ConnectionState"/> write must happen on this thread
@@ -766,6 +779,8 @@ namespace StreamChat.Core.LowLevelClient
         private int _historyDrainGeneration;
         private bool _isApplyingHistoryEvents;
         private DateTimeOffset? _historyMaxAppliedCreatedAt;
+        private float? _historyDrainStartedAt;
+        private bool _receiveBacklogWarningArmed = true;
 
         private async Task RefreshAuthTokenFromProvider()
         {
@@ -1140,8 +1155,7 @@ namespace StreamChat.Core.LowLevelClient
                 try
                 {
 #if STREAM_DEBUG_ENABLED
-                    var ignoreKeys = new[] { WSEventType.HealthCheck };
-                    if (!ignoreKeys.Contains(key))
+                    if (key != WSEventType.HealthCheck)
                     {
                         _logs.Warning("WS event received KEY: " + key + " CONTENT: " + payload);
                     }
@@ -1229,9 +1243,11 @@ namespace StreamChat.Core.LowLevelClient
                 _logs.Info(_authCredentials.UserId + " WS message: " + liveMsg);
 #endif
 
-                var isHealth = IsHealthCheckMessage(liveMsg);
                 var hardStop = processed >= countCap + EventDrainHealthGrace;
-                if (hardStop || (BudgetExhausted() && !isHealth))
+
+                // IsHealthCheckMessage does a full JObject.Parse, so only pay for it when the
+                // budget is actually spent and we need to decide whether to make an exception.
+                if (hardStop || (BudgetExhausted() && !IsHealthCheckMessage(liveMsg)))
                 {
                     _heldLiveMessage = liveMsg;
                     break;
@@ -1242,6 +1258,7 @@ namespace StreamChat.Core.LowLevelClient
             }
 
             TryCompleteHistoryDrainIfIdle();
+            WarnOnStalledPump();
         }
 
         private bool TryTakeLiveMessage(out string msg)
@@ -1275,6 +1292,35 @@ namespace StreamChat.Core.LowLevelClient
         }
 
         internal Task EnqueueHistoryEvents(IEnumerable<object> events)
+            => EnqueueHistoryEventsForReplay(events);
+
+        /// <summary>
+        /// Queue /sync history events to be replayed as normal events across several Update calls.
+        /// The returned task completes when the last one has been handled.
+        /// </summary>
+        internal Task EnqueueHistoryEventsForReplay(IEnumerable<object> events)
+            => EnqueueHistoryEvents(events, silentBatch: false);
+
+        /// <summary>
+        /// Queue /sync history events to be applied to local state without per-event public callbacks,
+        /// across several Update calls. The /sync watermark advances once, when the whole batch drains.
+        /// </summary>
+        internal Task EnqueueHistoryEventsForBatchApply(IEnumerable<object> events)
+            => EnqueueHistoryEvents(events, silentBatch: true);
+
+        private readonly struct PendingHistoryEvent
+        {
+            public PendingHistoryEvent(object payload, bool silentBatch)
+            {
+                Payload = payload;
+                SilentBatch = silentBatch;
+            }
+
+            public readonly object Payload;
+            public readonly bool SilentBatch;
+        }
+
+        private Task EnqueueHistoryEvents(IEnumerable<object> events, bool silentBatch)
         {
             if (events == null)
             {
@@ -1285,11 +1331,21 @@ namespace StreamChat.Core.LowLevelClient
             {
                 foreach (var e in events)
                 {
-                    _pendingHistoryEvents.Enqueue(e);
+                    _pendingHistoryEvents.Enqueue(new PendingHistoryEvent(e, silentBatch));
+                }
+
+                if (_pendingHistoryEvents.Count == 0)
+                {
+                    return Task.CompletedTask;
                 }
 
                 if (_historyDrainTcs == null || _historyDrainTcs.Task.IsCompleted)
                 {
+                    // TrySetResult is called outside this lock. Do not add
+                    // RunContinuationsAsynchronously: RestoreStateLostDuringDisconnect awaits this
+                    // task and must continue on the same Update so the re-query starts only after
+                    // history has been applied. An inline continuation cannot deadlock because we
+                    // already released the lock.
                     _historyDrainTcs = new TaskCompletionSource<bool>();
                 }
 
@@ -1305,13 +1361,13 @@ namespace StreamChat.Core.LowLevelClient
             }
         }
 
-        private bool TryDequeueHistoryEvent(out object historyEvent)
+        private bool TryDequeueHistoryEvent(out PendingHistoryEvent historyEvent)
         {
             lock (_pendingHistoryEventsLock)
             {
                 if (_pendingHistoryEvents.Count == 0)
                 {
-                    historyEvent = null;
+                    historyEvent = default;
                     return false;
                 }
 
@@ -1320,14 +1376,43 @@ namespace StreamChat.Core.LowLevelClient
             }
         }
 
-        private void ProcessHistoryEvent(object historyEvent)
+        private void ProcessHistoryEvent(PendingHistoryEvent pending)
         {
-            if (historyEvent == null)
+            if (pending.Payload == null)
             {
                 return;
             }
 
-            HandleNewWebsocketMessage(historyEvent);
+            if (!pending.SilentBatch)
+            {
+                try
+                {
+                    HandleNewWebsocketMessage(pending.Payload);
+                }
+                catch (Exception e)
+                {
+                    // A malformed /sync event must not throw out of Update.
+                    _logs.Exception(e);
+                }
+
+                return;
+            }
+
+            _isApplyingHistoryEvents = true;
+            try
+            {
+                HandleNewWebsocketMessage(pending.Payload);
+            }
+            catch (Exception e)
+            {
+                // Do not abort the batch. The /sync last_sync_at cursor only moves to events that
+                // applied, so a failed event is retried on the next reconnect.
+                _logs.Exception(e);
+            }
+            finally
+            {
+                _isApplyingHistoryEvents = false;
+            }
         }
 
         private void TryCompleteHistoryDrainIfIdle()
@@ -1344,7 +1429,17 @@ namespace StreamChat.Core.LowLevelClient
                 _historyDrainTcs = null;
             }
 
-            // Outside the lock so FetchAndProcess resumes on this Update, not a later scheduler tick.
+            // End of a silent batch: advance the /sync cursor exactly once, to the newest event
+            // that actually applied. Mirrors the finally block in ApplyHistoryEvents.
+            if (_historyMaxAppliedCreatedAt.HasValue)
+            {
+                TryAdvanceLastEventReceivedAt(_historyMaxAppliedCreatedAt.Value, HistorySyncWatermarkSource);
+            }
+
+            _historyMaxAppliedCreatedAt = null;
+
+            // Outside the lock so FetchAndProcess / recovery resumes on this Update, not a later
+            // scheduler tick.
             tcs.TrySetResult(true);
         }
 
@@ -1359,7 +1454,38 @@ namespace StreamChat.Core.LowLevelClient
                 _historyDrainTcs = null;
             }
 
+            // A partially applied, abandoned batch must not later advance the cursor past events
+            // that were dropped.
+            _historyMaxAppliedCreatedAt = null;
+            _historyDrainStartedAt = null;
+
             tcs?.TrySetResult(true);
+        }
+
+        private void WarnOnStalledPump()
+        {
+            int pendingHistory;
+            lock (_pendingHistoryEventsLock)
+            {
+                pendingHistory = _pendingHistoryEvents.Count;
+            }
+
+            var backlog = pendingHistory + (_heldLiveMessage != null ? 1 : 0);
+            if (backlog > ReceiveBacklogWarningThreshold)
+            {
+                if (_receiveBacklogWarningArmed)
+                {
+                    _receiveBacklogWarningArmed = false;
+                    _logs.Warning(
+                        $"{pendingHistory} chat events are still waiting to be applied. They are being paced across " +
+                        $"frames ({EventDrainTimeBudgetMs}ms per Update). Nothing is dropped, but your event handlers " +
+                        "may be too expensive, or Update is not being called often enough.");
+                }
+
+                return;
+            }
+
+            _receiveBacklogWarningArmed = true;
         }
 
         private TDto DeserializePayload<TDto>(object payload)
@@ -1585,6 +1711,39 @@ namespace StreamChat.Core.LowLevelClient
             if (timeSinceLastHealthCheckSent > HealthCheckSendInterval)
             {
                 PingHealthCheck();
+            }
+
+            // A paced history drain blocks live messages, including health.check, so the receive
+            // timestamp cannot advance while it runs. Timing out here would clear the queue and
+            // make the next /sync re-fetch the same events - a loop that never catches up. Pings
+            // still go out above, so the server keeps the socket open. Bounded by
+            // EventDrainMaxStallSeconds so a genuinely dead socket is still detected.
+            if (HasPendingHistoryEvents())
+            {
+                if (!_historyDrainStartedAt.HasValue)
+                {
+                    _historyDrainStartedAt = _timeService.Time;
+                }
+
+                if (_timeService.Time - _historyDrainStartedAt.Value < EventDrainMaxStallSeconds)
+                {
+                    _lastHealthCheckReceivedTime = _timeService.Time;
+                    return;
+                }
+
+                _logs.Warning(
+                    $"The /sync catch-up has been draining for more than {EventDrainMaxStallSeconds}s and is " +
+                    "still behind. Letting the health-check timeout apply. Your event handlers are likely too " +
+                    "expensive for the per-frame budget.");
+
+                // We have been stamping _lastHealthCheckReceivedTime every frame to hold the
+                // timeout off. Expire it so the check below fires this frame instead of waiting
+                // another HealthCheckMaxWaitingTime after we stop stamping.
+                _lastHealthCheckReceivedTime = _timeService.Time - HealthCheckMaxWaitingTime - 1f;
+            }
+            else
+            {
+                _historyDrainStartedAt = null;
             }
 
             var timeSinceLastHealthCheck = _timeService.Time - _lastHealthCheckReceivedTime;
