@@ -218,9 +218,35 @@ namespace StreamChat.Core.StatefulModels
         Task HardDeleteAsync();
 
         /// <summary>
-        /// Update message text or other parameters
+        /// Partially update this message. Only the listed fields change; everything else is kept.
+        /// For a full overwrite that replaces omitted fields, use
+        /// <see cref="UpdateOverwriteAsync"/>.
         /// </summary>
-        Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest); //StreamTodo: rename to UpdateOverwriteAsync
+        /// <param name="setFields">Fields to set (message fields or custom data). Nested
+        /// paths like "details.status" are allowed.</param>
+        /// <param name="unsetFields">Field names to remove.</param>
+        /// <param name="skipEnrichUrl">If true, do not scrape URLs in the text for link
+        /// attachments.</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/send-message/?language=unity#partial-update</remarks>
+        Task UpdatePartialAsync(
+            IDictionary<string, object> setFields = null,
+            IEnumerable<string> unsetFields = null,
+            bool? skipEnrichUrl = null);
+
+        /// <summary>
+        /// Fully overwrite this message. Any data present on the message and not included
+        /// in the request is deleted. To change only some fields, use
+        /// <see cref="UpdatePartialAsync"/>.
+        /// </summary>
+        Task UpdateOverwriteAsync(StreamUpdateMessageRequest streamUpdateMessageRequest);
+
+        /// <summary>
+        /// Fully overwrite this message. Any data present on the message and not included
+        /// in the request is deleted. To change only some fields, use
+        /// <see cref="UpdatePartialAsync"/>.
+        /// </summary>
+        [Obsolete("Renamed to UpdateOverwriteAsync. This overload will be removed in a future release.")]
+        Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest);
 
         /// <summary>
         /// Pin this message to a channel with optional expiration date

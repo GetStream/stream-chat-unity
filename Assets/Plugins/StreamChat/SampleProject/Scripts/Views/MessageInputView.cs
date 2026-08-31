@@ -190,7 +190,7 @@ namespace StreamChat.SampleProject.Views
 
                 case Mode.Edit:
 
-                    _currentEditMessage.UpdateAsync(new StreamUpdateMessageRequest
+                    _currentEditMessage.UpdateOverwriteAsync(new StreamUpdateMessageRequest
                     {
                         Text = _messageInput.text
                     }).LogExceptionsOnFailed();

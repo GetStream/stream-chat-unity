@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
@@ -116,19 +117,51 @@ namespace StreamChat.Core.StatefulModels
         //Do not update message from response, the WS event might have been processed and we would overwrite it with an old state
         public Task HardDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: true);
 
-        public async Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
+        public async Task UpdatePartialAsync(
+            IDictionary<string, object> setFields = null,
+            IEnumerable<string> unsetFields = null,
+            bool? skipEnrichUrl = null)
+        {
+            var hasSet = setFields != null && setFields.Any();
+            var hasUnset = unsetFields != null && unsetFields.Any();
+            if (!hasSet && !hasUnset)
+            {
+                throw new ArgumentException(
+                    $"{nameof(setFields)} and {nameof(unsetFields)} cannot both be empty");
+            }
+
+            var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(
+                Id,
+                new UpdateMessagePartialRequestInternalDTO
+                {
+                    Set = hasSet ? setFields.ToDictionary(p => p.Key, p => p.Value) : null,
+                    Unset = hasUnset ? unsetFields.ToList() : null,
+                    SkipEnrichUrl = skipEnrichUrl,
+                });
+
+            if (response?.Message != null)
+            {
+                Cache.TryCreateOrUpdate(response.Message);
+            }
+        }
+
+        public async Task UpdateOverwriteAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
         {
             if (streamUpdateMessageRequest == null)
             {
                 throw new ArgumentNullException(nameof(streamUpdateMessageRequest));
             }
-            
+
             var requestDto = streamUpdateMessageRequest.TrySaveToDto();
             requestDto.Message.Id = Id;
 
             var response = await LowLevelClient.InternalMessageApi.UpdateMessageAsync(requestDto);
             Cache.TryCreateOrUpdate(response.Message);
         }
+
+        [Obsolete("Renamed to UpdateOverwriteAsync. This overload will be removed in a future release.")]
+        public Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
+            => UpdateOverwriteAsync(streamUpdateMessageRequest);
 
         public async Task PinAsync(DateTime? expiresAt = null)
         {
