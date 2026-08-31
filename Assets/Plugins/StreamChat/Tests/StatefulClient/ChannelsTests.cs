@@ -341,6 +341,109 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
+        public IEnumerator When_partial_update_channel_with_typed_request_expect_custom_data_merged()
+            => ConnectAndExecute(When_partial_update_channel_with_typed_request_expect_custom_data_merged_Async);
+
+        private async Task When_partial_update_channel_with_typed_request_expect_custom_data_merged_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest
+            {
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "owned_dogs", 5 },
+                    { "breakfast", new[] { "donuts" } },
+                },
+            });
+
+            await WaitWhileFalseAsync(
+                () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey));
+
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest
+            {
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "owned_dogs", 7 },
+                },
+            });
+
+            Assert.AreEqual(7, channel.CustomData.Get<int>("owned_dogs"));
+            Assert.Contains("donuts", channel.CustomData.Get<List<string>>("breakfast"));
+        }
+
+        [UnityTest]
+        public IEnumerator When_partial_update_channel_typed_request_without_custom_data_expect_custom_data_kept()
+            => ConnectAndExecute(
+                When_partial_update_channel_typed_request_without_custom_data_expect_custom_data_kept_Async);
+
+        private async Task When_partial_update_channel_typed_request_without_custom_data_expect_custom_data_kept_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest
+            {
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "owned_dogs", 5 },
+                },
+            });
+
+            await WaitWhileFalseAsync(() => channel.CustomData.ContainsKey("owned_dogs"));
+
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest
+            {
+                Frozen = true,
+            });
+
+            Assert.IsTrue(channel.Frozen);
+            Assert.AreEqual(5, channel.CustomData.Get<int>("owned_dogs"));
+        }
+
+        [UnityTest]
+        public IEnumerator When_partial_update_channel_typed_request_unset_expect_other_keys_remain()
+            => ConnectAndExecute(When_partial_update_channel_typed_request_unset_expect_other_keys_remain_Async);
+
+        private async Task When_partial_update_channel_typed_request_unset_expect_other_keys_remain_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest
+            {
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "owned_dogs", 5 },
+                    { "breakfast", new[] { "donuts" } },
+                },
+            });
+
+            await WaitWhileFalseAsync(
+                () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey));
+
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest
+            {
+                Unset = new[] { "owned_dogs" },
+            });
+
+            Assert.IsFalse(channel.CustomData.ContainsKey("owned_dogs"));
+            Assert.Contains("donuts", channel.CustomData.Get<List<string>>("breakfast"));
+        }
+
+        [UnityTest]
+        public IEnumerator When_partial_update_channel_typed_request_empty_expect_throws()
+            => ConnectAndExecute(When_partial_update_channel_typed_request_empty_expect_throws_Async);
+
+        private async Task When_partial_update_channel_typed_request_empty_expect_throws_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            await AssertThrowsAsync<ArgumentNullException>(
+                () => channel.UpdatePartialAsync((StreamUpdateChannelPartialRequest)null));
+            await AssertThrowsAsync<ArgumentException>(
+                () => channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest()));
+        }
+
+        [UnityTest]
         public IEnumerator When_update_overwrite_channel_with_full_data_expect_no_change()
             => ConnectAndExecute(When_update_overwrite_channel_with_full_data_expect_no_change_Async);
 
@@ -888,6 +991,26 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsTrue(received.CustomData.TryGet<int>("level", out var level));
             Assert.AreEqual(3, level);
             Assert.AreEqual(MainThreadId, threadId);
+        }
+
+        private static async Task AssertThrowsAsync<TException>(Func<Task> action) where TException : Exception
+        {
+            try
+            {
+                await action();
+            }
+            catch (TException)
+            {
+                return;
+            }
+            catch (Exception e)
+            {
+                Assert.Fail("Expected " + typeof(TException).Name + " but caught " + e.GetType().Name +
+                            ": " + e.Message);
+                return;
+            }
+
+            Assert.Fail("Expected " + typeof(TException).Name + " but no exception was thrown");
         }
     }
 }

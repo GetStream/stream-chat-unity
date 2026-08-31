@@ -409,12 +409,21 @@ namespace StreamChat.Core.StatefulModels
         Task UpdateOverwriteAsync(StreamUpdateOverwriteChannelRequest updateOverwriteRequest);
 
         /// <summary>
-        /// Update channel in a partial mode. You can selectively set and unset fields of the channel
-        /// If you want to completely overwrite the channel use the <see cref="IStreamChannel.UpdateOverwriteAsync"/>
+        /// Update channel in a partial mode. You can selectively set and unset fields of the channel.
+        /// Nested paths and raw wire keys are allowed. Null or empty unused side is omitted.
+        /// If you want to completely overwrite the channel use the <see cref="IStreamChannel.UpdateOverwriteAsync"/>.
+        /// For typed fields, use <see cref="UpdatePartialAsync(StreamUpdateChannelPartialRequest)"/>.
         /// </summary>
-        /// StreamTodo: this should be more high level, maybe use enum with predefined field names?
         Task UpdatePartialAsync(IDictionary<string, object> setFields = null,
             IEnumerable<string> unsetFields = null);
+
+        /// <summary>
+        /// Partially update this channel using typed fields. Null properties are omitted and left
+        /// unchanged. Custom data is merged; omitting <see cref="StreamUpdateChannelPartialRequest.CustomData"/>
+        /// does not wipe existing keys (unlike <see cref="UpdateOverwriteAsync"/>).
+        /// For wire-level nested paths or a raw <c>set</c> map, use the dictionary overload.
+        /// </summary>
+        Task UpdatePartialAsync(StreamUpdateChannelPartialRequest request);
 
         /// <summary>
         /// Upload file to the Stream CDN. Returned file URL can be used as a message attachment.

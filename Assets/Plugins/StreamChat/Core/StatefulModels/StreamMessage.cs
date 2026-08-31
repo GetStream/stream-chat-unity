@@ -145,6 +145,20 @@ namespace StreamChat.Core.StatefulModels
             }
         }
 
+        public Task UpdatePartialAsync(StreamUpdateMessagePartialRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var set = request.ToSetDictionary();
+            return UpdatePartialAsync(
+                set.Count > 0 ? set : null,
+                request.Unset,
+                request.SkipEnrichUrl);
+        }
+
         public async Task UpdateOverwriteAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
         {
             if (streamUpdateMessageRequest == null)

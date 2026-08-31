@@ -132,14 +132,20 @@ namespace StreamChat.Samples
                 ChannelType.Messaging, channelId: "my-channel-id");
             var message = await channel.SendNewMessageAsync("Hello");
 
-            await message.UpdatePartialAsync(setFields: new Dictionary<string, object>
+            await message.UpdatePartialAsync(new StreamUpdateMessagePartialRequest
             {
-                { "text", "Updated text" },
-                { "details.status", "complete" },
-                { "color", "green" },
+                Text = "Updated text",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "details.status", "complete" },
+                    { "color", "green" },
+                },
             });
 
-            await message.UpdatePartialAsync(unsetFields: new[] { "color" });
+            await message.UpdatePartialAsync(new StreamUpdateMessagePartialRequest
+            {
+                Unset = new[] { "color" },
+            });
         }
 
         /// <summary>

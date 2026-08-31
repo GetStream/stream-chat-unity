@@ -234,6 +234,15 @@ namespace StreamChat.Core.StatefulModels
             bool? skipEnrichUrl = null);
 
         /// <summary>
+        /// Partially update this message using typed fields. Null properties are omitted and left
+        /// unchanged. Custom data is merged; omitting <see cref="StreamUpdateMessagePartialRequest.CustomData"/>
+        /// does not wipe existing keys (unlike <see cref="UpdateOverwriteAsync"/>).
+        /// For wire-level nested paths or a raw <c>set</c> map, use the dictionary overload.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/send-message/?language=unity#partial-update</remarks>
+        Task UpdatePartialAsync(StreamUpdateMessagePartialRequest request);
+
+        /// <summary>
         /// Fully overwrite this message. Any data present on the message and not included
         /// in the request is deleted. To change only some fields, use
         /// <see cref="UpdatePartialAsync"/>.

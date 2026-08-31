@@ -352,30 +352,35 @@ namespace StreamChat.Core.StatefulModels
         public async Task UpdatePartialAsync(IDictionary<string, object> setFields = null,
             IEnumerable<string> unsetFields = null)
         {
-            if (setFields == null && unsetFields == null)
+            var hasSet = setFields != null && setFields.Any();
+            var hasUnset = unsetFields != null && unsetFields.Any();
+            if (!hasSet && !hasUnset)
             {
-                throw new ArgumentNullException(
-                    $"{nameof(setFields)} and {nameof(unsetFields)} cannot be both null");
-            }
-
-            if (unsetFields != null && !unsetFields.Any())
-            {
-                throw new ArgumentException($"{nameof(unsetFields)} cannot be empty");
-            }
-
-            if (setFields != null && !setFields.Any())
-            {
-                throw new ArgumentException($"{nameof(setFields)} cannot be empty");
+                throw new ArgumentException(
+                    $"{nameof(setFields)} and {nameof(unsetFields)} cannot both be empty");
             }
 
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
                 new UpdateChannelPartialRequestInternalDTO
                 {
-                    Set = setFields?.ToDictionary(p => p.Key, p => p.Value),
-                    Unset = unsetFields?.ToList(),
+                    Set = hasSet ? setFields.ToDictionary(p => p.Key, p => p.Value) : null,
+                    Unset = hasUnset ? unsetFields.ToList() : null,
                 });
 
             Cache.TryCreateOrUpdate(response.Channel);
+        }
+
+        public Task UpdatePartialAsync(StreamUpdateChannelPartialRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var set = request.ToSetDictionary();
+            return UpdatePartialAsync(
+                set.Count > 0 ? set : null,
+                request.Unset);
         }
 
         public async Task<StreamFileUploadResponse> UploadFileAsync(byte[] fileContent, string fileName)

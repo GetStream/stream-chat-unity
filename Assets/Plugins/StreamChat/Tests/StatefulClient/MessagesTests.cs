@@ -166,6 +166,109 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         [UnityTest]
+        public IEnumerator When_partial_update_with_typed_request_expect_text_and_custom_data_merged()
+            => ConnectAndExecute(When_partial_update_with_typed_request_expect_text_and_custom_data_merged_Async);
+
+        private async Task When_partial_update_with_typed_request_expect_text_and_custom_data_merged_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var sentMessage = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = "original-text",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "color", "green" },
+                    { "priority", 3 },
+                }
+            });
+
+            await sentMessage.UpdatePartialAsync(new StreamUpdateMessagePartialRequest
+            {
+                Text = "typed-partial-text",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "color", "blue" },
+                },
+            });
+
+            Assert.AreEqual("typed-partial-text", sentMessage.Text);
+            Assert.AreEqual("blue", sentMessage.CustomData.Get<string>("color"));
+            Assert.AreEqual(3, sentMessage.CustomData.Get<int>("priority"));
+        }
+
+        [UnityTest]
+        public IEnumerator When_partial_update_typed_request_without_custom_data_expect_custom_data_kept()
+            => ConnectAndExecute(When_partial_update_typed_request_without_custom_data_expect_custom_data_kept_Async);
+
+        private async Task When_partial_update_typed_request_without_custom_data_expect_custom_data_kept_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var sentMessage = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = "with-custom",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "color", "green" },
+                    { "priority", 3 },
+                }
+            });
+
+            await sentMessage.UpdatePartialAsync(new StreamUpdateMessagePartialRequest
+            {
+                Text = "text-only",
+            });
+
+            Assert.AreEqual("text-only", sentMessage.Text);
+            Assert.AreEqual("green", sentMessage.CustomData.Get<string>("color"));
+            Assert.AreEqual(3, sentMessage.CustomData.Get<int>("priority"));
+        }
+
+        [UnityTest]
+        public IEnumerator When_partial_update_typed_request_unset_expect_other_keys_remain()
+            => ConnectAndExecute(When_partial_update_typed_request_unset_expect_other_keys_remain_Async);
+
+        private async Task When_partial_update_typed_request_unset_expect_other_keys_remain_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+
+            var sentMessage = await channel.SendNewMessageAsync(new StreamSendMessageRequest
+            {
+                Text = "with-custom",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "color", "green" },
+                    { "priority", 3 },
+                }
+            });
+
+            await sentMessage.UpdatePartialAsync(new StreamUpdateMessagePartialRequest
+            {
+                Unset = new[] { "color" },
+            });
+
+            Assert.IsFalse(sentMessage.CustomData.ContainsKey("color"));
+            Assert.AreEqual(3, sentMessage.CustomData.Get<int>("priority"));
+            Assert.AreEqual("with-custom", sentMessage.Text);
+        }
+
+        [UnityTest]
+        public IEnumerator When_partial_update_typed_request_empty_expect_throws()
+            => ConnectAndExecute(When_partial_update_typed_request_empty_expect_throws_Async);
+
+        private async Task When_partial_update_typed_request_empty_expect_throws_Async()
+        {
+            var channel = await CreateUniqueTempChannelAsync();
+            var sentMessage = await channel.SendNewMessageAsync("validation");
+
+            await AssertThrowsAsync<ArgumentNullException>(
+                () => sentMessage.UpdatePartialAsync((StreamUpdateMessagePartialRequest)null));
+            await AssertThrowsAsync<ArgumentException>(
+                () => sentMessage.UpdatePartialAsync(new StreamUpdateMessagePartialRequest()));
+        }
+
+        [UnityTest]
         public IEnumerator When_partial_update_unset_custom_data_expect_other_keys_remain()
             => ConnectAndExecute(When_partial_update_unset_custom_data_expect_other_keys_remain_Async);
 
