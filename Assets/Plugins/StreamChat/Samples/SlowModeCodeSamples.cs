@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core;
+using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using UnityEngine;
 
@@ -21,22 +22,13 @@ namespace StreamChat.Samples
 // `cooldown` field, in seconds, with a partial channel update
 
 // Enable slow mode with a 1s cooldown
-            await channel.UpdatePartialAsync(new Dictionary<string, object>
-            {
-                { "cooldown", 1 }
-            });
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest { Cooldown = 1 });
 
 // Increase cooldown to 30s
-            await channel.UpdatePartialAsync(new Dictionary<string, object>
-            {
-                { "cooldown", 30 }
-            });
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest { Cooldown = 30 });
 
 // Disable slow mode by setting the cooldown back to 0
-            await channel.UpdatePartialAsync(new Dictionary<string, object>
-            {
-                { "cooldown", 0 }
-            });
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest { Cooldown = 0 });
 
 // Read the current cooldown. Null or 0 means slow mode is off
             Debug.Log(channel.Cooldown);

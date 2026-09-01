@@ -111,7 +111,9 @@ namespace StreamChat.Samples
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId: "my-channel-id");
             var message = await channel.SendNewMessageAsync("Hello, world!");
 
-            await message.UpdateAsync(new StreamUpdateMessageRequest
+            // Full overwrite: any field present on the message and not included here is deleted,
+            // including custom data. To change only some fields, use UpdatePartialAsync.
+            await message.UpdateOverwriteAsync(new StreamUpdateMessageRequest
             {
                 Text = "Updated message text",
                 CustomData = new StreamCustomDataRequest
@@ -122,11 +124,28 @@ namespace StreamChat.Samples
         }
 
         /// <summary>
-        /// https://getstream.io/chat/docs/unity/send_message/?language=unity#partial-update
+        /// https://getstream.io/chat/docs/unity/send-message/?language=unity#partial-update
         /// </summary>
         public async Task PartialUpdate()
         {
-            await Task.CompletedTask;
+            var channel = await Client.GetOrCreateChannelWithIdAsync(
+                ChannelType.Messaging, channelId: "my-channel-id");
+            var message = await channel.SendNewMessageAsync("Hello");
+
+            await message.UpdatePartialAsync(new StreamUpdateMessagePartialRequest
+            {
+                Text = "Updated text",
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "details.status", "complete" },
+                    { "color", "green" },
+                },
+            });
+
+            await message.UpdatePartialAsync(new StreamUpdateMessagePartialRequest
+            {
+                Unset = new[] { "color" },
+            });
         }
 
         /// <summary>

@@ -69,6 +69,23 @@ namespace StreamChat.Samples.LowLevelClient.ClientDocs
             });
         }
 
+        public async Task UpdateMessagePartial()
+        {
+            await _lowLevelClient.MessageApi.UpdateMessagePartialAsync("message-id-1", new UpdateMessagePartialRequest
+            {
+                Set = new Dictionary<string, object>
+                {
+                    { "text", "Updated text" },
+                    { "details.status", "complete" },
+                }
+            });
+
+            await _lowLevelClient.MessageApi.UpdateMessagePartialAsync("message-id-1", new UpdateMessagePartialRequest
+            {
+                Unset = new List<string> { "color" }
+            });
+        }
+
         public async Task DeleteMessage()
         {
             var messageResponse = await _lowLevelClient.MessageApi.DeleteMessageAsync(messageId: "message-id-1", hard: false);

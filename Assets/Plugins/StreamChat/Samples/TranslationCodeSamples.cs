@@ -40,10 +40,10 @@ namespace StreamChat.Samples
             var channel = await Client.GetOrCreateChannelWithIdAsync(ChannelType.Messaging, "channel-id");
 
 // Enable auto-translation for a single channel
-            await channel.UpdatePartialAsync(new Dictionary<string, object>
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest
             {
-                { "auto_translation_enabled", true },
-                { "auto_translation_language", "en" }
+                AutoTranslationEnabled = true,
+                AutoTranslationLanguage = "en",
             });
 
 // Read the current settings back from the channel

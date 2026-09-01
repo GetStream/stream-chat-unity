@@ -200,10 +200,41 @@ namespace StreamChat.Tests.StatefulClient
             const string UpdatedText = "pinned-after-cache-removal";
 
             var messageOnOther = otherChannel.Messages.Single(m => m.Id == first.Id);
-            await messageOnOther.UpdateAsync(new StreamUpdateMessageRequest { Text = UpdatedText });
+            await messageOnOther.UpdateOverwriteAsync(new StreamUpdateMessageRequest { Text = UpdatedText });
 
             await WaitWhileFalseAsync(() => pinned.Text == UpdatedText,
                 description: "pinned message instance to receive message.updated after cache removal");
+        }
+
+        [UnityTest]
+        public IEnumerator When_pinned_message_removed_from_cache_expect_partial_updates_still_applied()
+            => ConnectAndExecute(When_pinned_message_removed_from_cache_expect_partial_updates_still_applied_Async);
+
+        private async Task When_pinned_message_removed_from_cache_expect_partial_updates_still_applied_Async()
+        {
+            var otherClient = await GetConnectedOtherClientAsync();
+            var channel = await CreateUniqueTempChannelAsync();
+            var otherChannel = await otherClient.GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
+            channel.OverrideMessageCacheWindow(SmallWindow);
+
+            var first = await channel.SendNewMessageAsync($"msg-0-{Guid.NewGuid()}");
+            await first.PinAsync();
+            await WaitWhileFalseAsync(() => channel.PinnedMessages.Any(m => m.Id == first.Id),
+                description: "pinned message to appear in PinnedMessages");
+
+            await SendMessagesAsync(channel, 6);
+
+            var pinned = channel.PinnedMessages.Single(m => m.Id == first.Id);
+            const string UpdatedText = "pinned-partial-after-cache-removal";
+
+            var messageOnOther = otherChannel.Messages.Single(m => m.Id == first.Id);
+            await messageOnOther.UpdatePartialAsync(setFields: new Dictionary<string, object>
+            {
+                { "text", UpdatedText },
+            });
+
+            await WaitWhileFalseAsync(() => pinned.Text == UpdatedText,
+                description: "pinned message instance to receive message.updated after partial update");
         }
 
         [UnityTest]
