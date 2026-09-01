@@ -1,3 +1,29 @@
+v5.8.0:
+Features:
+* Add IStreamChatClient.PauseConnectionAsync / ResumeConnectionAsync for temporary disconnects such as app backgrounding. Reconnecting catches up from where chat left off; automatic reconnects remain disabled until ResumeConnectionAsync. Use DisconnectUserAsync / ConnectUserAsync for logout or switching users—the next connection starts fresh and does not catch up.
+* Add IStreamClientConfig.DisconnectOnApplicationPause (true by default). Behavior change: player builds using StreamChatClient.CreateDefaultClient now temporarily disconnect when backgrounded, then reconnect and catch up on foreground. Set to false to stay connected. Application pausing is ignored in the Unity Editor for a smoother development experience.
+* Add IStreamClientConfig.StateRecoveryStrategy to control reconnect recovery:
+ReplayEvents (default): replay missed events through normal callbacks and restore channel watches.
+BatchStateUpdate: restore channel state without replaying most per-event callbacks, then fire IStreamChatClient.StateRecovered once. A few event types still fire; see docs for details.
+Disabled: no automatic recovery. Restore channels yourself using QueryChannelsAsync by cid; WatchAsync will no-op because local watch state is preserved.
+* Add IStreamChatClient.StateRecovered, fired once after reconnect state recovery finishes. Use it to rebuild or refresh UI after BatchStateUpdate recovery.
+* Add configurable local message cache limits for high-volume channels. IStreamClientConfig.DefaultMessageCacheWindow controls the default, with per-channel overrides available. The default remains unlimited for backward compatibility. MessageCacheWindow.Recommended provides sensible limits for livestream-style rooms, and MessagesRemovedFromCache lets UI react when old messages are trimmed.
+* Add message translation. IStreamMessage.TranslateAsync(language) translates a message into the requested language and stores the translation on the message. Requires Stream auto-translation to be enabled.
+* Add IStreamMessage.UpdatePartialAsync to update selected message fields, custom data, or nested fields without overwriting the rest of the message. A typed StreamUpdateMessagePartialRequest overload and raw dictionary set/unset overload are available.
+* Add typed IStreamChannel.UpdatePartialAsync(StreamUpdateChannelPartialRequest), matching message partial updates. Typed fields and custom data can be updated without overwriting unrelated channel data. The dictionary overload remains available.
+
+Deprecated:
+* IStreamMessage.UpdateAsync → UpdateOverwriteAsync to clearly distinguish full overwrite from partial updates. The old method remains as an [Obsolete] wrapper.
+
+Fixes:
+* Reconnect recovery now restores channel state and watches even when /sync fails or is refused. Inaccessible channels are skipped, and recovery restores up to the 100 most recently active channels. WatchedChannels is cleared and rebuilt during normal recovery; with StateRecoveryStrategy.Disabled, its local state is preserved even though server watches are dropped.
+* Fix the 30-day reconnect /sync staleness check calculating age backwards, which caused stale LastSyncAt values to still be sent.
+* Advance the /sync last_sync_at watermark only when newer events arrive. Replayed older events no longer move it backwards.
+* DisconnectUserAsync no longer permanently disables automatic reconnects. A later ConnectUserAsync on the same client instance restores normal reconnect behavior.
+* Returning from the background after DisconnectUserAsync no longer reconnects the previous user.
+* WebSocket disconnect state changes are now raised on the Unity main thread. A throwing ConnectionStateChanged / Disconnected subscriber also no longer prevents other subscribers or reconnect scheduling from receiving the transition.
+* Add the X-Stream-Client header to WebSocket connection requests so Unity SDK connections are categorized correctly.
+
 v5.7.0:
 Features:
 
