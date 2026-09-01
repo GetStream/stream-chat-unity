@@ -34,6 +34,24 @@ namespace StreamChat.Core
         event Action Disconnected;
 
         /// <summary>
+        /// Raised once when reconnect recovery is done.
+        /// This includes full success, partial success, and cases with nothing to recover.
+        /// Not raised on the first login.
+        /// Not raised when <see cref="Configs.IStreamClientConfig.StateRecoveryStrategy"/> is
+        /// <see cref="Configs.StateRecoveryStrategy.Disabled"/>.
+        ///
+        /// Channels in <see cref="StreamStateRecoveredEventArgs.Channels"/> have fresh state and are watched again.
+        /// Cids in <see cref="StreamStateRecoveredEventArgs.UnrecoveredChannelCids"/> are still stale and not watched.
+        ///
+        /// Use this to rebuild your UI from channel state after a disconnect.
+        /// You need this for <see cref="Configs.StateRecoveryStrategy.BatchStateUpdate"/>,
+        /// because per-event callbacks do not fire during recovery.
+        /// It is also useful for <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/>,
+        /// because some state updates after reconnect do not raise per-message callbacks.
+        /// </summary>
+        event StateRecoveredHandler StateRecovered;
+
+        /// <summary>
         /// Event fired when connection state with Stream Chat server has changed
         /// </summary>
         event ConnectionChangeHandler ConnectionStateChanged;
@@ -128,6 +146,12 @@ namespace StreamChat.Core
         /// stop with <see cref="IStreamChannel.StopWatchingAsync"/>. Channels returned by other
         /// methods may not be watched - check <see cref="IStreamChannel.IsWatched"/> on a specific
         /// channel to know its state.
+        /// </para>
+        /// <para>
+        /// This list is cleared when the connection drops, because the server drops every watch.
+        /// Recovery fills it again.
+        /// If you read this list to restore watches yourself, do it before the disconnect,
+        /// or use <see cref="Configs.StateRecoveryStrategy.Disabled"/> so the list is not cleared.
         /// </para>
         /// </summary>
         IReadOnlyList<IStreamChannel> WatchedChannels { get; }
@@ -342,7 +366,32 @@ namespace StreamChat.Core
         /// <param name="timeoutMinutes">Optional timeout. Without timeout users will stay muted indefinitely</param>
         Task MuteMultipleUsersAsync(IEnumerable<IStreamUser> users, int? timeoutMinutes = default);
 
+        /// <summary>
+        /// Sign the user out of this client. Use when the user logs out or switches accounts.
+        /// The next <see cref="ConnectUserAsync"/> starts from scratch and does not catch up
+        /// on messages or channels from before the disconnect. For a temporary disconnect
+        /// where you want chat to pick up where it left off, use
+        /// <see cref="PauseConnectionAsync"/> and <see cref="ResumeConnectionAsync"/> instead.
+        /// </summary>
         Task DisconnectUserAsync();
+
+        /// <summary>
+        /// Temporarily disconnect the user. Other participants see them as offline.
+        /// Use when the app backgrounds, or any short break where you plan to reconnect soon
+        /// and want the client to catch up on what was missed while disconnected.
+        /// Call <see cref="ResumeConnectionAsync"/> to reconnect. Automatic reconnects are
+        /// disabled until then. If <see cref="Configs.IStreamClientConfig.DisconnectOnApplicationPause"/>
+        /// is enabled, <see cref="StreamChatClient.CreateDefaultClient"/> does this automatically
+        /// on background and foreground.
+        /// </summary>
+        Task PauseConnectionAsync();
+
+        /// <summary>
+        /// Reconnect after <see cref="PauseConnectionAsync"/> or after the app was backgrounded.
+        /// The client catches up on what was missed while disconnected. No-op if already
+        /// connected or connecting. For the first sign-in, use <see cref="ConnectUserAsync"/>.
+        /// </summary>
+        Task ResumeConnectionAsync();
 
         bool IsLocalUser(IStreamUser messageUser);
 

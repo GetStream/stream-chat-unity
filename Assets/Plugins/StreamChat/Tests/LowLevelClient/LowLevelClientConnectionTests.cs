@@ -76,27 +76,27 @@ namespace StreamChat.Tests.LowLevelClient
 
             await ConnectAsync();
             Assert.AreEqual(ConnectionState.Connected, _lowLevelClient.ConnectionState);
-            await _lowLevelClient.DisconnectAsync(permanent: true);
+            await _lowLevelClient.DisconnectAsync(DisconnectCause.UserLogout);
             Assert.AreEqual(ConnectionState.Disconnected, _lowLevelClient.ConnectionState);
 
             await ConnectAsync();
             Assert.AreEqual(ConnectionState.Connected, _lowLevelClient.ConnectionState);
-            await _lowLevelClient.DisconnectAsync(permanent: true);
+            await _lowLevelClient.DisconnectAsync(DisconnectCause.UserLogout);
             Assert.AreEqual(ConnectionState.Disconnected, _lowLevelClient.ConnectionState);
             
             await ConnectAsync();
             Assert.AreEqual(ConnectionState.Connected, _lowLevelClient.ConnectionState);
-            await _lowLevelClient.DisconnectAsync(permanent: true);
+            await _lowLevelClient.DisconnectAsync(DisconnectCause.UserLogout);
             Assert.AreEqual(ConnectionState.Disconnected, _lowLevelClient.ConnectionState);
             
             await ConnectAsync();
             Assert.AreEqual(ConnectionState.Connected, _lowLevelClient.ConnectionState);
-            await _lowLevelClient.DisconnectAsync(permanent: true);
+            await _lowLevelClient.DisconnectAsync(DisconnectCause.UserLogout);
             Assert.AreEqual(ConnectionState.Disconnected, _lowLevelClient.ConnectionState);
             
             await ConnectAsync();
             Assert.AreEqual(ConnectionState.Connected, _lowLevelClient.ConnectionState);
-            await _lowLevelClient.DisconnectAsync(permanent: true);
+            await _lowLevelClient.DisconnectAsync(DisconnectCause.UserLogout);
             Assert.AreEqual(ConnectionState.Disconnected, _lowLevelClient.ConnectionState);
         }
 
@@ -116,7 +116,7 @@ namespace StreamChat.Tests.LowLevelClient
         //
         //     //await Task.Delay(500); // With this delay the Null ref will not occur
         //
-        //     await _lowLevelClient.DisconnectAsync(permanent: true);
+        //     await _lowLevelClient.DisconnectAsync(DisconnectCause.UserLogout);
         //     Assert.AreEqual(ConnectionState.Disconnected, _lowLevelClient.ConnectionState);
         // }
         

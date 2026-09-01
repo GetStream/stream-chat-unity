@@ -28,5 +28,36 @@ namespace StreamChat.Core.Configs
         /// ordering matters more than instant local feedback (e.g. a shared, broadcast-ordered feed).
         /// </summary>
         bool OptimisticMessageInsert { get; set; }
+
+        /// <summary>
+        /// Default local message cache limit for all channels. <c>null</c> (default) = unlimited.
+        /// Use <see cref="MessageCacheWindow.Recommended"/> for livestream-style channels.
+        /// Per-channel overrides: <see cref="StatefulModels.IStreamChannel.OverrideMessageCacheWindow"/>.
+        /// Does not change server history. See <see cref="StatefulModels.IStreamChannel.MessageCacheWindow"/>.
+        /// </summary>
+        MessageCacheWindow DefaultMessageCacheWindow { get; set; }
+
+        /// <summary>
+        /// When the app goes to the background, temporarily disconnect the user (they appear
+        /// offline). When the app returns to the foreground, reconnect and catch up on what
+        /// was missed. Defaults to <c>true</c>. Set to <c>false</c> to stay connected while
+        /// backgrounded.
+        ///
+        /// In the Unity Editor this has no effect — pausing play mode or unfocusing the Game view
+        /// would otherwise disconnect constantly. A warning is logged once.
+        ///
+        /// Applies when you create the client with <see cref="StreamChatClient.CreateDefaultClient"/>.
+        /// If you drive the client yourself (you call Update each frame), close and reopen with
+        /// <see cref="IStreamChatClient.PauseConnectionAsync"/> /
+        /// <see cref="IStreamChatClient.ResumeConnectionAsync"/> on background / foreground.
+        /// </summary>
+        bool DisconnectOnApplicationPause { get; set; }
+
+        /// <summary>
+        /// How the client restores local state after the websocket reconnects.
+        /// Default is <see cref="Configs.StateRecoveryStrategy.ReplayEvents"/>.
+        /// See <see cref="Configs.StateRecoveryStrategy"/> for the other options.
+        /// </summary>
+        StateRecoveryStrategy StateRecoveryStrategy { get; set; }
     }
 }

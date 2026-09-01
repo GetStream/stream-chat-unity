@@ -16,6 +16,8 @@ namespace StreamChat.Core.LowLevelClient.API
 
         public static string DeleteMessage(string messageId) => $"/messages/{messageId}";
 
+        public static string TranslateMessage(string messageId) => $"/messages/{messageId}/translate";
+
         public static string SendReaction(string messageId) => $"/messages/{messageId}/reaction";
 
         public static string DeleteReaction(string messageId, string reactionType)

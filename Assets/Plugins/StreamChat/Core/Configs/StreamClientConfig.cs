@@ -10,5 +10,11 @@
         public StreamLogLevel LogLevel { get; set; } = StreamLogLevel.FailureOnly;
 
         public bool OptimisticMessageInsert { get; set; } = true;
+
+        public MessageCacheWindow DefaultMessageCacheWindow { get; set; } = null;
+
+        public bool DisconnectOnApplicationPause { get; set; } = true;
+
+        public StateRecoveryStrategy StateRecoveryStrategy { get; set; } = Configs.StateRecoveryStrategy.ReplayEvents;
     }
 }

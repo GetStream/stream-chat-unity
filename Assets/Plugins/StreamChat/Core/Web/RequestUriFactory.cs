@@ -15,11 +15,12 @@ namespace StreamChat.Core.Web
     internal class RequestUriFactory : IRequestUriFactory
     {
         public RequestUriFactory(IAuthProvider authProvider, IStreamChatLowLevelClient connectionProvider,
-            ISerializer serializer)
+            ISerializer serializer, string streamClientHeader)
         {
             _authProvider = authProvider ?? throw new ArgumentNullException(nameof(authProvider));
             _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _streamClientHeader = streamClientHeader ?? throw new ArgumentNullException(nameof(streamClientHeader));
         }
 
         public Uri CreateConnectionUri()
@@ -43,6 +44,7 @@ namespace StreamChat.Core.Web
                 { "api_key", _authProvider.ApiKey },
                 { "authorization", _authProvider.UserToken },
                 { "stream-auth-type", _authProvider.StreamAuthType },
+                { "X-Stream-Client", Uri.EscapeDataString(_streamClientHeader) },
             };
 
             var uriBuilder = new UriBuilder(_connectionProvider.ServerUri)
@@ -69,6 +71,7 @@ namespace StreamChat.Core.Web
         private readonly IAuthProvider _authProvider;
         private readonly ISerializer _serializer;
         private readonly IStreamChatLowLevelClient _connectionProvider;
+        private readonly string _streamClientHeader;
 
         private Dictionary<string, string> GetDefaultParameters() =>
             new Dictionary<string, string>

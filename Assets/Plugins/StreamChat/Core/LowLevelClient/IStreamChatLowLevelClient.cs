@@ -89,7 +89,19 @@ namespace StreamChat.Core.LowLevelClient
 
         void ConnectUser(AuthCredentials userAuthCredentials);
 
-        Task DisconnectAsync(bool permanent = false);
+        /// <summary>
+        /// Close the WebSocket. Pass <see cref="DisconnectCause.UserLogout"/> to stop automatic reconnects;
+        /// every other cause leaves the scheduler armed.
+        /// </summary>
+        Task DisconnectAsync(DisconnectCause cause = DisconnectCause.ConnectionReleased);
+
+        /// <summary>
+        /// Close the WebSocket. <paramref name="permanent"/> <c>true</c> maps to
+        /// <see cref="DisconnectCause.UserLogout"/>; <c>false</c> maps to
+        /// <see cref="DisconnectCause.ConnectionReleased"/>.
+        /// </summary>
+        [Obsolete("Use DisconnectAsync(DisconnectCause). true maps to UserLogout, false to ConnectionReleased.")]
+        Task DisconnectAsync(bool permanent);
 
         Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids);
 

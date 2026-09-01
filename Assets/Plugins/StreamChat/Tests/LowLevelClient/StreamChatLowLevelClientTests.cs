@@ -1,7 +1,10 @@
 ﻿#if STREAM_TESTS_ENABLED
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.WebSockets;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -157,6 +160,76 @@ namespace StreamChat.Tests.LowLevelClient
         }
 
         [Test]
+        public void when_stream_client_created_expect_http_tracking_headers()
+        {
+            var mockHttpClient = Substitute.For<IHttpClient>();
+            var mockApplicationInfo = Substitute.For<IApplicationInfo>();
+            ConfigureApplicationInfo(mockApplicationInfo);
+
+            var client = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, mockHttpClient,
+                _mockSerializer, _mockTimeService, _mockNetworkMonitor, mockApplicationInfo, _mockLogs,
+                _mockStreamClientConfig);
+            _resourcesToDispose.Add(client);
+
+            var expectedHeader = BuildExpectedStreamClientHeader(mockApplicationInfo);
+
+            mockHttpClient.Received().AddDefaultCustomHeader("stream-auth-type", "jwt");
+            mockHttpClient.Received().AddDefaultCustomHeader("X-Stream-Client", expectedHeader);
+        }
+
+        [Test]
+        public void when_stream_client_connects_expect_websocket_connect_url_includes_client_tracking()
+        {
+            var mockWebsocketClient = Substitute.For<IWebsocketClient>();
+            var mockApplicationInfo = Substitute.For<IApplicationInfo>();
+            ConfigureApplicationInfo(mockApplicationInfo);
+
+            _mockSerializer.Serialize(Arg.Any<object>()).Returns("{\"user_id\":\"user123\"}");
+
+            var client = new StreamChatLowLevelClient(_authCredentials, mockWebsocketClient, _mockHttpClient,
+                _mockSerializer, _mockTimeService, _mockNetworkMonitor, mockApplicationInfo, _mockLogs,
+                _mockStreamClientConfig);
+            _resourcesToDispose.Add(client);
+
+            var expectedHeader = BuildExpectedStreamClientHeader(mockApplicationInfo);
+            Uri capturedUri = null;
+            mockWebsocketClient.ConnectAsync(Arg.Do<Uri>(uri => capturedUri = uri)).Returns(Task.CompletedTask);
+
+            client.Connect();
+
+            Assert.NotNull(capturedUri);
+            Assert.That(capturedUri.Query, Does.Contain("X-Stream-Client="));
+
+            var queryParam = capturedUri.Query.TrimStart('?')
+                .Split('&')
+                .First(p => p.StartsWith("X-Stream-Client="));
+            var actualHeader = Uri.UnescapeDataString(queryParam.Substring("X-Stream-Client=".Length));
+
+            Assert.AreEqual(expectedHeader, actualHeader);
+        }
+
+        private static void ConfigureApplicationInfo(IApplicationInfo applicationInfo)
+        {
+            applicationInfo.OperatingSystem.Returns("Windows 10");
+            applicationInfo.Platform.Returns("StandaloneWindows64");
+            applicationInfo.Engine.Returns("Unity");
+            applicationInfo.EngineVersion.Returns("2022.3.0f1");
+            applicationInfo.ScreenSize.Returns("1920x1080");
+            applicationInfo.MemorySize.Returns(8192);
+            applicationInfo.GraphicsMemorySize.Returns(4096);
+        }
+
+        private static string BuildExpectedStreamClientHeader(IApplicationInfo applicationInfo)
+            => $"stream-chat-unity-client-{StreamChatLowLevelClient.SDKVersion}|" +
+               $"os={applicationInfo.OperatingSystem}|" +
+               $"platform={applicationInfo.Platform}|" +
+               $"engine={applicationInfo.Engine}|" +
+               $"engine_version={applicationInfo.EngineVersion}|" +
+               $"screen_size={applicationInfo.ScreenSize}|" +
+               $"memory_size={applicationInfo.MemorySize}|" +
+               $"graphics_memory_size={applicationInfo.GraphicsMemorySize}";
+
+        [Test]
         public void when_stream_client_created_expect_disconnected_state()
         {
             Assert.IsTrue(_lowLevelClient.ConnectionState == ConnectionState.Disconnected);
@@ -221,6 +294,164 @@ namespace StreamChat.Tests.LowLevelClient
             Assert.IsFalse(client.ConnectionState == ConnectionState.Connected);
         }
 
+        [Test]
+        public void when_websocket_disconnected_raised_from_background_thread_expect_it_handled_on_main_thread_in_update()
+        {
+            var client = CreateConnectedClient();
+
+            var disconnectedCount = 0;
+            var disconnectedThreadId = 0;
+            client.Disconnected += () =>
+            {
+                disconnectedCount++;
+                disconnectedThreadId = Thread.CurrentThread.ManagedThreadId;
+            };
+
+            Task.Run(() => _mockWebsocketClient.Disconnected += Raise.Event<Action>()).Wait();
+
+            Assert.AreEqual(0, disconnectedCount,
+                "Disconnected must not be raised from the thread that closed the websocket");
+            Assert.IsTrue(client.ConnectionState == ConnectionState.Connected);
+
+            client.Update(deltaTime: 0.2f);
+
+            Assert.AreEqual(1, disconnectedCount);
+            Assert.AreEqual(Thread.CurrentThread.ManagedThreadId, disconnectedThreadId);
+        }
+
+        [Test]
+        public void when_websocket_disconnected_raised_from_main_thread_expect_it_handled_immediately()
+        {
+            var client = CreateConnectedClient();
+
+            var disconnectedCount = 0;
+            client.Disconnected += () => disconnectedCount++;
+
+            _mockWebsocketClient.Disconnected += Raise.Event<Action>();
+
+            // Awaiting DisconnectAsync must keep guaranteeing that the client is no longer connected
+            Assert.AreEqual(1, disconnectedCount);
+            Assert.IsFalse(client.ConnectionState == ConnectionState.Connected);
+        }
+
+        [Test]
+        public void when_connection_state_changed_subscriber_throws_expect_remaining_subscribers_notified()
+        {
+            var client = CreateConnectedClient(Substitute.For<ILogs>());
+
+            var lastStateSeenByLateSubscriber = ConnectionState.Connected;
+            client.ConnectionStateChanged += (previous, current) => throw new Exception("Subscriber failed");
+            client.ConnectionStateChanged += (previous, current) => lastStateSeenByLateSubscriber = current;
+
+            _mockWebsocketClient.Disconnected += Raise.Event<Action>();
+
+            Assert.AreNotEqual(ConnectionState.Connected, lastStateSeenByLateSubscriber);
+        }
+
+        [Test]
+        public void when_event_without_created_at_expect_last_event_watermark_not_set()
+        {
+            var client = CreateConnectedClient();
+
+            Assert.IsNull(GetLastEventReceivedAt(client));
+        }
+
+        [Test]
+        public void when_event_with_created_at_expect_last_event_watermark_set()
+        {
+            var createdAt = new DateTimeOffset(2026, 8, 18, 13, 58, 59, TimeSpan.Zero);
+            var client = CreateClientWithMessages(logs: null,
+                $"{{\"connection_id\":\"fakeId\", \"type\":\"health.check\", \"created_at\":\"{createdAt:O}\"}}");
+
+            client.Connect();
+            client.Update(deltaTime: 0.2f);
+
+            Assert.AreEqual(createdAt, GetLastEventReceivedAt(client));
+        }
+
+        [Test]
+        public void when_disconnect_with_connection_released_expect_scheduler_armed()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.ConnectionReleased).GetAwaiter().GetResult();
+
+            // Arming the scheduler moves the client on from Disconnected to WaitToReconnect,
+            // so Disconnected is never the state an observer settles on here.
+            Assert.AreEqual(ConnectionState.WaitToReconnect, client.ConnectionState);
+            Assert.AreEqual(DisconnectCause.ConnectionReleased, client.LastDisconnectCause);
+            Assert.AreEqual(10, client.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_disconnect_with_user_logout_expect_scheduler_stopped()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.UserLogout).GetAwaiter().GetResult();
+
+            Assert.AreEqual(ConnectionState.Disconnected, client.ConnectionState);
+            Assert.AreEqual(DisconnectCause.UserLogout, client.LastDisconnectCause);
+            Assert.AreEqual(float.MaxValue, client.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_temporary_disconnect_expect_update_reconnects()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.ConnectionReleased).GetAwaiter().GetResult();
+            client.Update(deltaTime: 0.2f);
+
+            _mockWebsocketClient.ReceivedWithAnyArgs(2).ConnectAsync(default);
+        }
+
+        [Test]
+        public void when_logout_disconnect_expect_update_does_not_reconnect()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.UserLogout).GetAwaiter().GetResult();
+            client.Update(deltaTime: 0.2f);
+
+            _mockWebsocketClient.ReceivedWithAnyArgs(1).ConnectAsync(default);
+        }
+
+        [Test]
+        public void when_health_timeout_expect_disconnect_cause_health_timeout_and_scheduler_armed()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(31);
+            client.Update(0.2f);
+
+            Assert.AreEqual(ConnectionState.WaitToReconnect, client.ConnectionState);
+            Assert.AreEqual(DisconnectCause.HealthTimeout, client.LastDisconnectCause);
+            Assert.AreNotEqual((double)float.MaxValue, client.NextReconnectTime.Value);
+        }
+
+        [Test]
+        public void when_logout_then_connect_expect_scheduler_rearmed()
+        {
+            var client = CreateConnectedClient();
+            SetupDisconnectRaisesDisconnected();
+            _mockTimeService.Time.Returns(10);
+
+            client.DisconnectAsync(DisconnectCause.UserLogout).GetAwaiter().GetResult();
+            client.Connect();
+
+            Assert.AreEqual(ConnectionState.Connecting, client.ConnectionState);
+            _mockWebsocketClient.ReceivedWithAnyArgs(2).ConnectAsync(default);
+        }
+
         private readonly List<IDisposable> _resourcesToDispose = new List<IDisposable>();
 
         private IStreamChatLowLevelClient _lowLevelClient;
@@ -234,6 +465,55 @@ namespace StreamChat.Tests.LowLevelClient
         private INetworkMonitor _mockNetworkMonitor;
         private IHttpClient _mockHttpClient;
         private IStreamClientConfig _mockStreamClientConfig;
+
+        private StreamChatLowLevelClient CreateConnectedClient(ILogs logs = null)
+        {
+            var client = CreateClientWithMessages(logs, "{\"connection_id\":\"fakeId\", \"type\":\"health.check\"}");
+            client.Connect();
+            client.Update(deltaTime: 0.2f);
+
+            Assert.IsTrue(client.ConnectionState == ConnectionState.Connected);
+
+            return client;
+        }
+
+        private StreamChatLowLevelClient CreateClientWithMessages(ILogs logs, params string[] websocketMessages)
+        {
+            var client = new StreamChatLowLevelClient(_authCredentials, _mockWebsocketClient, _mockHttpClient,
+                new NewtonsoftJsonSerializer(), _mockTimeService, _mockNetworkMonitor, _mockApplicationInfo,
+                logs ?? _mockLogs, _mockStreamClientConfig);
+            _resourcesToDispose.Add(client);
+
+            _mockWebsocketClient.ConnectAsync(Arg.Any<Uri>()).Returns(Task.CompletedTask);
+
+            var messages = new Queue<string>(websocketMessages);
+            _mockWebsocketClient.TryDequeueMessage(out Arg.Any<string>()).Returns(arg =>
+            {
+                if (messages.Count == 0)
+                {
+                    return false;
+                }
+
+                arg[0] = messages.Dequeue();
+                return true;
+            });
+
+            return client;
+        }
+
+        private void SetupDisconnectRaisesDisconnected()
+        {
+            _mockWebsocketClient.When(_ => _.DisconnectAsync(Arg.Any<WebSocketCloseStatus>(), Arg.Any<string>()))
+                .Do(_ => { _mockWebsocketClient.Disconnected += Raise.Event<Action>(); });
+        }
+
+        private static DateTimeOffset? GetLastEventReceivedAt(StreamChatLowLevelClient client)
+        {
+            var field = typeof(StreamChatLowLevelClient).GetField("_lastEventReceivedAt",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(field, "Expected _lastEventReceivedAt field to exist.");
+            return (DateTimeOffset?)field.GetValue(client);
+        }
     }
 }
 #endif

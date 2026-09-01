@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using StreamChat.Core.Models;
 using StreamChat.Core.Requests;
 using StreamChat.Core.Responses;
+using StreamChat.Core.Configs;
 
 namespace StreamChat.Core.StatefulModels
 {
@@ -28,6 +29,12 @@ namespace StreamChat.Core.StatefulModels
         /// Event fired when a <see cref="IStreamMessage"/> was deleted from this channel
         /// </summary>
         event StreamMessageDeleteHandler MessageDeleted;
+
+        /// <summary>
+        /// Fired when old messages are removed from the local cache to save memory. This is not a server
+        /// delete — use <see cref="MessageDeleted"/> for that. Remove your UI rows here. Oldest first.
+        /// </summary>
+        event StreamChannelMessagesHandler MessagesRemovedFromCache;
 
         /// <summary>
         /// Event fired when a new <see cref="StreamReaction"/> was added to <see cref="IStreamMessage"/>
@@ -312,9 +319,86 @@ namespace StreamChat.Core.StatefulModels
 
         /// <summary>
         /// Load next portion of older messages. Older messages will be prepended to the <see cref="Messages"/> list.
-        /// Note that loading older messages does NOT trigger the <see cref="MessageReceived"/> event
+        /// Note that loading older messages does NOT trigger the <see cref="MessageReceived"/> event.
+        /// <para>Calling this pauses cache trimming (see <see cref="IsMessageCacheTrimmingPaused"/>) so the
+        /// loaded page is not removed while the user reads it. If
+        /// <see cref="IsMessageCacheHistoryLimitReached"/> is <c>true</c> this returns without loading
+        /// anything - stop showing your "load more" affordance and prompt the user to jump back to the newest
+        /// messages, which is where <see cref="ResumeMessageCacheTrimming"/> belongs.</para>
         /// </summary>
         Task LoadOlderMessagesAsync();
+
+        /// <summary>
+        /// <c>true</c> when this client's local cache for this channel has reached
+        /// <see cref="Configs.MessageCacheWindow.MaxHistoryMessages"/> and
+        /// <see cref="LoadOlderMessagesAsync"/> will therefore load nothing. Always <c>false</c> when
+        /// <see cref="MessageCacheWindow"/> is <c>null</c>.
+        /// <para>This says nothing about the server: the channel's history is intact and untouched, this
+        /// device has simply cached as much of it as it is allowed to.
+        /// <see cref="ResumeMessageCacheTrimming"/> clears it.</para>
+        /// <para>Check this before offering "load more" so the user is not left waiting on a call that
+        /// cannot return anything.</para>
+        /// </summary>
+        bool IsMessageCacheHistoryLimitReached { get; }
+
+        /// <summary>
+        /// Active cache limit for this channel. <c>null</c> = unlimited (default).
+        /// Once <see cref="Messages"/> exceeds <see cref="Configs.MessageCacheWindow.MaxMessages"/> the oldest
+        /// messages are removed from <see cref="Messages"/> and the cache. Server history is unchanged —
+        /// <see cref="LoadOlderMessagesAsync"/> can reload them. Pinned messages and open threads may
+        /// stay in the cache. <see cref="MessageReceived"/> always fires before
+        /// <see cref="MessagesRemovedFromCache"/> for the same message.
+        /// <para>Nothing is ever removed while <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.</para>
+        /// </summary>
+        Configs.MessageCacheWindow MessageCacheWindow { get; }
+
+        /// <summary>
+        /// <c>true</c> if this channel has its own limit via <see cref="OverrideMessageCacheWindow"/>.
+        /// When <c>true</c>, <see cref="MessageCacheWindow"/> returns that override — even when it is
+        /// <c>null</c> (unlimited for this channel only). When <c>false</c>, the channel uses
+        /// <see cref="Configs.IStreamClientConfig.DefaultMessageCacheWindow"/>.
+        /// </summary>
+        bool HasMessageCacheWindowOverride { get; }
+
+        /// <summary>
+        /// Set a cache limit for this channel only. Pass <c>null</c> for unlimited on this channel.
+        /// Trims immediately unless <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.
+        /// </summary>
+        void OverrideMessageCacheWindow(Configs.MessageCacheWindow window);
+
+        /// <summary>
+        /// Remove the per-channel limit and use <see cref="Configs.IStreamClientConfig.DefaultMessageCacheWindow"/> again.
+        /// Trims immediately unless <see cref="IsMessageCacheTrimmingPaused"/> is <c>true</c>.
+        /// </summary>
+        void ClearMessageCacheWindowOverride();
+
+        /// <summary>
+        /// Whether cache trimming is currently suspended for this channel.
+        /// <see cref="LoadOlderMessagesAsync"/> sets this automatically, because a trim removes the oldest
+        /// messages - exactly the history it just paged in.
+        /// <para>While <c>true</c>, no message is ever removed. Growth is bounded instead:
+        /// <see cref="LoadOlderMessagesAsync"/> stops loading once
+        /// <see cref="IsMessageCacheHistoryLimitReached"/> is <c>true</c>. Incoming live messages are still
+        /// appended, so a channel that is never resumed keeps growing - the SDK logs a warning once when it
+        /// crosses that limit.</para>
+        /// </summary>
+        bool IsMessageCacheTrimmingPaused { get; }
+
+        /// <summary>
+        /// Suspend cache trimming so no message is removed while the user reads history (e.g. while they
+        /// scroll back). <see cref="LoadOlderMessagesAsync"/> does this for you. Always pair it with
+        /// <see cref="ResumeMessageCacheTrimming"/>; see <see cref="IsMessageCacheTrimmingPaused"/> for what
+        /// bounds memory in the meantime.
+        /// </summary>
+        void PauseMessageCacheTrimming();
+
+        /// <summary>
+        /// Resume trimming against <see cref="Configs.MessageCacheWindow.MaxMessages"/> and remove excess
+        /// messages now. Call this when the user returns to the newest messages. This is the only thing that
+        /// releases history paged in by <see cref="LoadOlderMessagesAsync"/>, and the only thing that lets it
+        /// load more history again once <see cref="IsMessageCacheHistoryLimitReached"/> is <c>true</c>.
+        /// </summary>
+        void ResumeMessageCacheTrimming();
 
         /// <summary>
         /// Update channel in a complete overwrite mode.
@@ -325,12 +409,21 @@ namespace StreamChat.Core.StatefulModels
         Task UpdateOverwriteAsync(StreamUpdateOverwriteChannelRequest updateOverwriteRequest);
 
         /// <summary>
-        /// Update channel in a partial mode. You can selectively set and unset fields of the channel
-        /// If you want to completely overwrite the channel use the <see cref="IStreamChannel.UpdateOverwriteAsync"/>
+        /// Update channel in a partial mode. You can selectively set and unset fields of the channel.
+        /// Nested paths and raw wire keys are allowed. Null or empty unused side is omitted.
+        /// If you want to completely overwrite the channel use the <see cref="IStreamChannel.UpdateOverwriteAsync"/>.
+        /// For typed fields, use <see cref="UpdatePartialAsync(StreamUpdateChannelPartialRequest)"/>.
         /// </summary>
-        /// StreamTodo: this should be more high level, maybe use enum with predefined field names?
         Task UpdatePartialAsync(IDictionary<string, object> setFields = null,
             IEnumerable<string> unsetFields = null);
+
+        /// <summary>
+        /// Partially update this channel using typed fields. Null properties are omitted and left
+        /// unchanged. Custom data is merged; omitting <see cref="StreamUpdateChannelPartialRequest.CustomData"/>
+        /// does not wipe existing keys (unlike <see cref="UpdateOverwriteAsync"/>).
+        /// For wire-level nested paths or a raw <c>set</c> map, use the dictionary overload.
+        /// </summary>
+        Task UpdatePartialAsync(StreamUpdateChannelPartialRequest request);
 
         /// <summary>
         /// Upload file to the Stream CDN. Returned file URL can be used as a message attachment.

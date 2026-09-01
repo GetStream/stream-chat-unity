@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
+using StreamChat.Core.Configs;
 using StreamChat.Core.InternalDTO.Events;
 using StreamChat.Core.InternalDTO.Models;
 using StreamChat.Core.InternalDTO.Requests;
@@ -20,6 +21,8 @@ namespace StreamChat.Core.StatefulModels
     public delegate void StreamChannelMuteHandler(IStreamChannel channel, bool isMuted);
 
     public delegate void StreamChannelMessageHandler(IStreamChannel channel, IStreamMessage message);
+
+    public delegate void StreamChannelMessagesHandler(IStreamChannel channel, IReadOnlyList<IStreamMessage> messages);
 
     public delegate void StreamMessageDeleteHandler(IStreamChannel channel, IStreamMessage message, bool isHardDelete);
 
@@ -49,6 +52,8 @@ namespace StreamChat.Core.StatefulModels
         public event StreamChannelMessageHandler MessageUpdated;
 
         public event StreamMessageDeleteHandler MessageDeleted;
+
+        public event StreamChannelMessagesHandler MessagesRemovedFromCache;
 
         public event StreamMessageReactionHandler ReactionAdded;
 
@@ -111,7 +116,7 @@ namespace StreamChat.Core.StatefulModels
             get => _hidden;
             internal set
             {
-                if (TrySet(ref _hidden, value))
+                if (TrySet(ref _hidden, value) && !IsSilentHistorySync)
                 {
                     VisibilityChanged?.Invoke(this, Hidden);
                 }
@@ -143,7 +148,10 @@ namespace StreamChat.Core.StatefulModels
                 }
 
                 _muted = value;
-                MuteChanged?.Invoke(this, value);
+                if (!IsSilentHistorySync)
+                {
+                    MuteChanged?.Invoke(this, value);
+                }
             }
         }
 
@@ -244,26 +252,91 @@ namespace StreamChat.Core.StatefulModels
 
         public async Task LoadOlderMessagesAsync()
         {
-            var oldestMessage = _messages.OrderBy(_ => _.CreatedAt).FirstOrDefault();
-
-            var request = new ChannelGetOrCreateRequestInternalDTO
+            // Refusing to page in more history is the only way to bound a paused channel without
+            // deleting data: a trim removes the oldest messages, which is precisely the history that
+            // was paged in for the user to read.
+            if (IsMessageCacheHistoryLimitReached)
             {
-                //StreamTodo: presence could be optional in config
-                Presence = true,
-                State = true,
-                Watch = true,
-            };
-
-            if (oldestMessage != null)
-            {
-                request.Messages = new MessagePaginationParamsRequestInternalDTO
-                {
-                    IdLt = oldestMessage.Id,
-                };
+                WarnAboutMaxHistoryMessagesOnce(MessageCacheWindow);
+                return;
             }
 
-            var response = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(Type, Id, request);
-            Cache.TryCreateOrUpdate(response);
+            var wasTrimmingPaused = _isMessageCacheTrimmingPaused;
+
+            // Pause before the request so live messages cannot trim the page being loaded.
+            PauseMessageCacheTrimming();
+
+            try
+            {
+                var oldestMessage = _messages.OrderBy(_ => _.CreatedAt).FirstOrDefault();
+
+                var request = new ChannelGetOrCreateRequestInternalDTO
+                {
+                    //StreamTodo: presence could be optional in config
+                    Presence = true,
+                    State = true,
+                    Watch = true,
+                };
+
+                if (oldestMessage != null)
+                {
+                    request.Messages = new MessagePaginationParamsRequestInternalDTO
+                    {
+                        IdLt = oldestMessage.Id,
+                    };
+                }
+
+                var response = await LowLevelClient.InternalChannelApi.GetOrCreateChannelAsync(Type, Id, request);
+                Cache.TryCreateOrUpdate(response);
+            }
+            catch
+            {
+                // Nothing was paged in, so don't leave trimming suppressed for the rest of the session.
+                _isMessageCacheTrimmingPaused = wasTrimmingPaused;
+                TrimMessageCacheIfNeeded();
+                throw;
+            }
+        }
+
+        public MessageCacheWindow MessageCacheWindow
+            => _hasMessageCacheWindowOverride ? _messageCacheWindowOverride : LowLevelClient.Config.DefaultMessageCacheWindow;
+
+        public bool HasMessageCacheWindowOverride => _hasMessageCacheWindowOverride;
+
+        public bool IsMessageCacheHistoryLimitReached
+        {
+            get
+            {
+                var window = MessageCacheWindow;
+                return window != null && _messages.Count >= window.MaxHistoryMessages;
+            }
+        }
+
+        public void OverrideMessageCacheWindow(MessageCacheWindow window)
+        {
+            _messageCacheWindowOverride = window;
+            _hasMessageCacheWindowOverride = true;
+            _hasWarnedAboutMaxHistoryMessages = false;
+            TrimMessageCacheIfNeeded();
+        }
+
+        public void ClearMessageCacheWindowOverride()
+        {
+            _messageCacheWindowOverride = null;
+            _hasMessageCacheWindowOverride = false;
+            _hasWarnedAboutMaxHistoryMessages = false;
+            TrimMessageCacheIfNeeded();
+        }
+
+        public bool IsMessageCacheTrimmingPaused => _isMessageCacheTrimmingPaused;
+
+        public void PauseMessageCacheTrimming() => _isMessageCacheTrimmingPaused = true;
+
+        public void ResumeMessageCacheTrimming()
+        {
+            _isMessageCacheTrimmingPaused = false;
+            _hasWarnedAboutMaxHistoryMessages = false;
+            TrimMessageCacheIfNeeded();
         }
 
         public async Task UpdateOverwriteAsync(StreamUpdateOverwriteChannelRequest updateOverwriteRequest)
@@ -279,30 +352,35 @@ namespace StreamChat.Core.StatefulModels
         public async Task UpdatePartialAsync(IDictionary<string, object> setFields = null,
             IEnumerable<string> unsetFields = null)
         {
-            if (setFields == null && unsetFields == null)
+            var hasSet = setFields != null && setFields.Any();
+            var hasUnset = unsetFields != null && unsetFields.Any();
+            if (!hasSet && !hasUnset)
             {
-                throw new ArgumentNullException(
-                    $"{nameof(setFields)} and {nameof(unsetFields)} cannot be both null");
-            }
-
-            if (unsetFields != null && !unsetFields.Any())
-            {
-                throw new ArgumentException($"{nameof(unsetFields)} cannot be empty");
-            }
-
-            if (setFields != null && !setFields.Any())
-            {
-                throw new ArgumentException($"{nameof(setFields)} cannot be empty");
+                throw new ArgumentException(
+                    $"{nameof(setFields)} and {nameof(unsetFields)} cannot both be empty");
             }
 
             var response = await LowLevelClient.InternalChannelApi.UpdateChannelPartialAsync(Type, Id,
                 new UpdateChannelPartialRequestInternalDTO
                 {
-                    Set = setFields?.ToDictionary(p => p.Key, p => p.Value),
-                    Unset = unsetFields?.ToList(),
+                    Set = hasSet ? setFields.ToDictionary(p => p.Key, p => p.Value) : null,
+                    Unset = hasUnset ? unsetFields.ToList() : null,
                 });
 
             Cache.TryCreateOrUpdate(response.Channel);
+        }
+
+        public Task UpdatePartialAsync(StreamUpdateChannelPartialRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var set = request.ToSetDictionary();
+            return UpdatePartialAsync(
+                set.Count > 0 ? set : null,
+                request.Unset);
         }
 
         public async Task<StreamFileUploadResponse> UploadFileAsync(byte[] fileContent, string fileName)
@@ -803,7 +881,10 @@ namespace StreamChat.Core.StatefulModels
             }
 
             message.TryUpdateFromDto<MessageInternalDTO, StreamMessage>(dto.Message, Cache);
-            MessageUpdated?.Invoke(this, message);
+            if (!IsSilentHistorySync)
+            {
+                MessageUpdated?.Invoke(this, message);
+            }
         }
 
         internal void HandleMessageDeletedEvent(MessageDeletedEventInternalDTO dto)
@@ -828,7 +909,10 @@ namespace StreamChat.Core.StatefulModels
                 message.InternalHandleSoftDelete();
             }
 
-            MessageDeleted?.Invoke(this, message, isHardDelete);
+            if (!IsSilentHistorySync)
+            {
+                MessageDeleted?.Invoke(this, message, isHardDelete);
+            }
         }
 
         internal void HandleChannelUpdatedEvent(ChannelUpdatedEventInternalDTO eventDto)
@@ -838,7 +922,10 @@ namespace StreamChat.Core.StatefulModels
             
             UpdateChannelFieldsFromDtoOverwrite(eventDto.Channel, Cache);
             MemberCount = eventDto.ChannelMemberCount;
-            Updated?.Invoke(this);
+            if (!IsSilentHistorySync)
+            {
+                Updated?.Invoke(this);
+            }
         }
 
         internal void HandleChannelTruncatedEvent(ChannelTruncatedEventInternalDTO eventDto)
@@ -863,8 +950,11 @@ namespace StreamChat.Core.StatefulModels
             }
 
             _members.Add(member);
-            MemberAdded?.Invoke(this, member);
-            MembersChanged?.Invoke(this, member, OperationType.Added);
+            if (!IsSilentHistorySync)
+            {
+                MemberAdded?.Invoke(this, member);
+                MembersChanged?.Invoke(this, member, OperationType.Added);
+            }
         }
 
         internal void InternalRemoveMember(StreamChannelMember member)
@@ -875,8 +965,11 @@ namespace StreamChat.Core.StatefulModels
             }
 
             _members.Remove(member);
-            MemberRemoved?.Invoke(this, member);
-            MembersChanged?.Invoke(this, member, OperationType.Removed);
+            if (!IsSilentHistorySync)
+            {
+                MemberRemoved?.Invoke(this, member);
+                MembersChanged?.Invoke(this, member, OperationType.Removed);
+            }
         }
 
         internal void InternalUpdateMember(StreamChannelMember member)
@@ -886,8 +979,11 @@ namespace StreamChat.Core.StatefulModels
                 _members.Add(member);
             }
 
-            MemberUpdated?.Invoke(this, member);
-            MembersChanged?.Invoke(this, member, OperationType.Updated);
+            if (!IsSilentHistorySync)
+            {
+                MemberUpdated?.Invoke(this, member);
+                MembersChanged?.Invoke(this, member, OperationType.Updated);
+            }
         }
 
         protected override StreamChannel Self => this;
@@ -905,6 +1001,11 @@ namespace StreamChat.Core.StatefulModels
         private readonly List<StreamRead> _read = new List<StreamRead>();
         private readonly List<string> _ownCapabilities = new List<string>();
         private readonly List<StreamPendingMessage> _pendingMessages = new List<StreamPendingMessage>();
+
+        private MessageCacheWindow _messageCacheWindowOverride;
+        private bool _hasMessageCacheWindowOverride;
+        private bool _isMessageCacheTrimmingPaused;
+        private bool _hasWarnedAboutMaxHistoryMessages;
 
         private bool _muted;
         private bool _hidden;
@@ -962,34 +1063,38 @@ namespace StreamChat.Core.StatefulModels
                 _messages.Sort(MessageCreatedAtComparer.Instance);
             }
 
-            MessageReceived?.Invoke(this, streamMessage);
+            if (!IsSilentHistorySync)
+            {
+                MessageReceived?.Invoke(this, streamMessage);
+            }
+
+            // Trim after MessageReceived so the callback sees the message first.
+            // Still trim during a silent batch, or a long /sync can exceed MaxMessages.
+            TrimMessageCacheIfNeeded();
             return true;
         }
+
+        /// <summary>
+        /// Query merge appends messages and does not trim. Recovery calls this after merge.
+        /// </summary>
+        internal void InternalTrimMessageCache() => TrimMessageCacheIfNeeded();
 
         //StreamTodo: This deleteBeforeCreatedAt date is the date of event, it does not equal the passed TruncatedAt
         //Therefore the only way to detect partial truncate in the past would be to query the history
         private void InternalTruncateMessages(DateTimeOffset? deleteBeforeCreatedAt = null,
             MessageInternalDTO systemMessageDto = null)
         {
-            if (deleteBeforeCreatedAt.HasValue)
+            for (int i = _messages.Count - 1; i >= 0; i--)
             {
-                for (int i = _messages.Count - 1; i >= 0; i--)
+                var msg = _messages[i];
+                if (deleteBeforeCreatedAt.HasValue && msg.CreatedAt >= deleteBeforeCreatedAt)
                 {
-                    var msg = _messages[i];
-                    if (msg.CreatedAt < deleteBeforeCreatedAt)
-                    {
-                        _messages.RemoveAt(i);
-                        Cache.Messages.Remove(msg);
-                    }
+                    continue;
                 }
-            }
-            else
-            {
-                for (int i = _messages.Count - 1; i >= 0; i--)
-                {
-                    _messages.RemoveAt(i);
-                    Cache.Messages.Remove(_messages[i]);
-                }
+
+                _messages.RemoveAt(i);
+                _pinnedMessages.Remove(msg);
+                Cache.Messages.Remove(msg);
             }
 
             if (systemMessageDto != null)
@@ -997,7 +1102,138 @@ namespace StreamChat.Core.StatefulModels
                 InternalAppendOrUpdateMessage(systemMessageDto, out _);
             }
 
-            Truncated?.Invoke(this);
+            if (!IsSilentHistorySync)
+            {
+                Truncated?.Invoke(this);
+            }
+        }
+
+        private void TrimMessageCacheIfNeeded()
+        {
+            var window = MessageCacheWindow;
+            if (window == null)
+            {
+                return;
+            }
+
+            // Trimming always removes the oldest messages, which while paused is exactly the history
+            // LoadOlderMessagesAsync paged in for the user to read. Removing it would also move the IdLt
+            // anchor forward, so the next page load would re-fetch what was just removed. Paused therefore
+            // means "remove nothing"; growth is bounded by refusing to page in more history past
+            // MaxHistoryMessages instead.
+            if (_isMessageCacheTrimmingPaused)
+            {
+                if (_messages.Count >= window.MaxHistoryMessages)
+                {
+                    WarnAboutMaxHistoryMessagesOnce(window);
+                }
+
+                return;
+            }
+
+            if (_messages.Count <= window.MaxMessages)
+            {
+                return;
+            }
+
+            if (!AreMessagesSortedByCreatedAt())
+            {
+                SortMessagesByCreatedAt();
+            }
+
+            var targetCount = window.MaxMessages - window.DiscardBatchSize;
+            var removeCount = _messages.Count - targetCount;
+
+            var handler = MessagesRemovedFromCache;
+
+            // Not pooled: subscribers keep this list. Skip it during a silent batch
+            // (callback is not raised, and a long /sync can trim many times).
+            var removed = (handler == null || IsSilentHistorySync) ? null : new List<IStreamMessage>(removeCount);
+
+            using (new ListPoolScope<StreamMessage>(out var tempUntrackCandidates))
+            using (new HashSetPoolScope<string>(out var tempPinnedMessageIds))
+            {
+                for (var i = 0; i < _pinnedMessages.Count; i++)
+                {
+                    tempPinnedMessageIds.Add(_pinnedMessages[i].Id);
+                }
+
+                for (var i = 0; i < removeCount; i++)
+                {
+                    var message = _messages[i];
+                    removed?.Add(message);
+
+                    if (!IsRetainedByOtherState(message, tempPinnedMessageIds))
+                    {
+                        tempUntrackCandidates.Add(message);
+                    }
+                }
+
+                _messages.RemoveRange(0, removeCount);
+                Cache.Messages.RemoveMany(tempUntrackCandidates);
+            }
+
+            // After pooled lists are returned, so handlers can allocate safely.
+            // Do not raise during BatchStateUpdate: StateRecovered already rebuilds from Messages.
+            if (!IsSilentHistorySync)
+            {
+                handler?.Invoke(this, removed);
+            }
+        }
+
+        // Live messages are still appended while paused, so a channel that is never resumed keeps
+        // growing. Only the app knows whether the user is still reading history, so the SDK reports it
+        // once per pause rather than guessing and discarding the user's scroll position.
+        private void WarnAboutMaxHistoryMessagesOnce(MessageCacheWindow window)
+        {
+            if (_hasWarnedAboutMaxHistoryMessages)
+            {
+                return;
+            }
+
+            _hasWarnedAboutMaxHistoryMessages = true;
+
+            Logs.Warning(
+                $"Channel `{Cid}` holds {_messages.Count} messages in the local cache, reaching "
+                + $"{nameof(window.MaxHistoryMessages)} ({window.MaxHistoryMessages}). "
+                + $"{nameof(LoadOlderMessagesAsync)} will not load more history until "
+                + $"{nameof(ResumeMessageCacheTrimming)}() is called. Messages are never removed while cache "
+                + "trimming is paused, so incoming messages keep growing this channel until then - resume once "
+                + "the user is back at the newest messages.");
+        }
+
+        // Keep in cache when pinned or referenced by a tracked thread.
+        private bool IsRetainedByOtherState(StreamMessage message, HashSet<string> pinnedMessageIds)
+        {
+            if (pinnedMessageIds.Contains(message.Id))
+            {
+                return true;
+            }
+
+            if (Cache.Threads.TryGet(message.Id, out _))
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrEmpty(message.ParentId) && Cache.Threads.TryGet(message.ParentId, out _))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool AreMessagesSortedByCreatedAt()
+        {
+            for (var i = 1; i < _messages.Count; i++)
+            {
+                if (_messages[i].CreatedAt < _messages[i - 1].CreatedAt)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private void UpdateChannelFieldsFromDto(ChannelResponseInternalDTO dto, ICache cache)
@@ -1103,7 +1339,10 @@ namespace StreamChat.Core.StatefulModels
             {
                 WatcherCount += 1;
                 _watchers.Add(user);
-                WatcherAdded?.Invoke(this, user);
+                if (!IsSilentHistorySync)
+                {
+                    WatcherAdded?.Invoke(this, user);
+                }
             }
         }
 
@@ -1120,7 +1359,11 @@ namespace StreamChat.Core.StatefulModels
                 {
                     var user = Cache.TryCreateOrUpdate(eventDto.User, out var wasCreated);
                     _watchers.RemoveAt(i);
-                    WatcherRemoved?.Invoke(this, user);
+                    if (!IsSilentHistorySync)
+                    {
+                        WatcherRemoved?.Invoke(this, user);
+                    }
+
                     return;
                 }
             }
@@ -1137,8 +1380,12 @@ namespace StreamChat.Core.StatefulModels
                 if (_typingUsers[i].Id == eventDto.User.Id)
                 {
                     _typingUsers.RemoveAt(i);
-                    UserStoppedTyping?.Invoke(this, user);
-                    TypingUsersChanged?.Invoke(this);
+                    if (!IsSilentHistorySync)
+                    {
+                        UserStoppedTyping?.Invoke(this, user);
+                        TypingUsersChanged?.Invoke(this);
+                    }
+
                     return;
                 }
             }
@@ -1153,8 +1400,11 @@ namespace StreamChat.Core.StatefulModels
             if (!_typingUsers.ContainsNoAlloc(user))
             {
                 _typingUsers.Add(user);
-                UserStartedTyping?.Invoke(this, user);
-                TypingUsersChanged?.Invoke(this);
+                if (!IsSilentHistorySync)
+                {
+                    UserStartedTyping?.Invoke(this, user);
+                    TypingUsersChanged?.Invoke(this);
+                }
             }
         }
 
@@ -1179,17 +1429,33 @@ namespace StreamChat.Core.StatefulModels
             var customEvent = new StreamCustomEvent(dto.Type, user, dto.CreatedAt,
                 new StreamCustomData(custom, Serializer));
 
+            // Always raise. Custom events are not stored in channel state, so skipping them would lose the payload.
             CustomEventReceived?.Invoke(this, customEvent);
         }
 
         internal void InternalNotifyReactionReceived(StreamMessage message, StreamReaction reaction)
-            => ReactionAdded?.Invoke(this, message, reaction);
+        {
+            if (!IsSilentHistorySync)
+            {
+                ReactionAdded?.Invoke(this, message, reaction);
+            }
+        }
 
         internal void InternalNotifyReactionUpdated(StreamMessage message, StreamReaction reaction)
-            => ReactionUpdated?.Invoke(this, message, reaction);
+        {
+            if (!IsSilentHistorySync)
+            {
+                ReactionUpdated?.Invoke(this, message, reaction);
+            }
+        }
 
         public void InternalNotifyReactionDeleted(StreamMessage message, StreamReaction reaction)
-            => ReactionRemoved?.Invoke(this, message, reaction);
+        {
+            if (!IsSilentHistorySync)
+            {
+                ReactionRemoved?.Invoke(this, message, reaction);
+            }
+        }
 
         //StreamTodo: implement some timeout for typing users in case we dont' receive, this could be configurable
         private readonly List<IStreamUser> _typingUsers = new List<IStreamUser>();

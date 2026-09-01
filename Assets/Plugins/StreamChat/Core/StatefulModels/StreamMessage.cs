@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using StreamChat.Core.Helpers;
 using StreamChat.Core.InternalDTO.Events;
@@ -116,19 +117,65 @@ namespace StreamChat.Core.StatefulModels
         //Do not update message from response, the WS event might have been processed and we would overwrite it with an old state
         public Task HardDeleteAsync() => LowLevelClient.InternalMessageApi.DeleteMessageAsync(Id, hard: true);
 
-        public async Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
+        public async Task UpdatePartialAsync(
+            IDictionary<string, object> setFields = null,
+            IEnumerable<string> unsetFields = null,
+            bool? skipEnrichUrl = null)
+        {
+            var hasSet = setFields != null && setFields.Any();
+            var hasUnset = unsetFields != null && unsetFields.Any();
+            if (!hasSet && !hasUnset)
+            {
+                throw new ArgumentException(
+                    $"{nameof(setFields)} and {nameof(unsetFields)} cannot both be empty");
+            }
+
+            var response = await LowLevelClient.InternalMessageApi.UpdateMessagePartialAsync(
+                Id,
+                new UpdateMessagePartialRequestInternalDTO
+                {
+                    Set = hasSet ? setFields.ToDictionary(p => p.Key, p => p.Value) : null,
+                    Unset = hasUnset ? unsetFields.ToList() : null,
+                    SkipEnrichUrl = skipEnrichUrl,
+                });
+
+            if (response?.Message != null)
+            {
+                Cache.TryCreateOrUpdate(response.Message);
+            }
+        }
+
+        public Task UpdatePartialAsync(StreamUpdateMessagePartialRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var set = request.ToSetDictionary();
+            return UpdatePartialAsync(
+                set.Count > 0 ? set : null,
+                request.Unset,
+                request.SkipEnrichUrl);
+        }
+
+        public async Task UpdateOverwriteAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
         {
             if (streamUpdateMessageRequest == null)
             {
                 throw new ArgumentNullException(nameof(streamUpdateMessageRequest));
             }
-            
+
             var requestDto = streamUpdateMessageRequest.TrySaveToDto();
             requestDto.Message.Id = Id;
 
             var response = await LowLevelClient.InternalMessageApi.UpdateMessageAsync(requestDto);
             Cache.TryCreateOrUpdate(response.Message);
         }
+
+        [Obsolete("Renamed to UpdateOverwriteAsync. This overload will be removed in a future release.")]
+        public Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest)
+            => UpdateOverwriteAsync(streamUpdateMessageRequest);
 
         public async Task PinAsync(DateTime? expiresAt = null)
         {
@@ -166,6 +213,18 @@ namespace StreamChat.Core.StatefulModels
 
             //StreamTodo: is this needed? How are other users notified about message pin?
             await Client.RefreshChannelState(Cid);
+        }
+
+        public async Task TranslateAsync(string language)
+        {
+            StreamAsserts.AssertNotNullOrEmpty(language, nameof(language));
+
+            var response = await LowLevelClient.InternalMessageApi.TranslateMessageAsync(Id,
+                new TranslateMessageRequestInternalDTO
+                {
+                    Language = language,
+                });
+            Cache.TryCreateOrUpdate(response.Message);
         }
 
         public async Task SendReactionAsync(string type, int score = 1, bool enforceUnique = false,
@@ -409,7 +468,10 @@ namespace StreamChat.Core.StatefulModels
 
             //StreamTodo: verify if this how we should update the message + what about events for customer to get notified
             Cache.TryCreateOrUpdate(eventDto.Message);
-            ReactionAdded?.Invoke(channel, this, reaction);
+            if (!IsSilentHistorySync)
+            {
+                ReactionAdded?.Invoke(channel, this, reaction);
+            }
         }
 
         internal void HandleReactionUpdatedEvent(ReactionUpdatedEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
@@ -422,7 +484,10 @@ namespace StreamChat.Core.StatefulModels
             eventDto.Message.OwnReactions = null;
 
             Cache.TryCreateOrUpdate(eventDto.Message);
-            ReactionUpdated?.Invoke(channel, this, reaction);
+            if (!IsSilentHistorySync)
+            {
+                ReactionUpdated?.Invoke(channel, this, reaction);
+            }
         }
 
         internal void HandleReactionDeletedEvent(ReactionDeletedEventInternalDTO eventDto, StreamChannel channel, StreamReaction reaction)
@@ -435,7 +500,10 @@ namespace StreamChat.Core.StatefulModels
             eventDto.Message.OwnReactions = null;
 
             Cache.TryCreateOrUpdate(eventDto.Message);
-            ReactionRemoved?.Invoke(channel, this, reaction);
+            if (!IsSilentHistorySync)
+            {
+                ReactionRemoved?.Invoke(channel, this, reaction);
+            }
         }
 
         protected override StreamMessage Self => this;

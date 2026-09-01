@@ -104,6 +104,12 @@ namespace StreamChat.Core.LowLevelClient
             _isStopped = true;
         }
 
+        public void Start()
+        {
+            _isStopped = false;
+            NextReconnectTime = default;
+        }
+
         //StreamTodo: connection info could be split to separate interface
         private readonly IStreamChatLowLevelClient _client;
         private readonly ITimeService _timeService;

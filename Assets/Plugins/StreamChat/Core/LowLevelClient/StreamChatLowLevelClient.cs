@@ -28,6 +28,7 @@ using StreamChat.Libs.Websockets;
 using StreamChat.Core.LowLevelClient.Requests;
 using System.Linq;
 using StreamChat.Core.Helpers;
+using Thread = System.Threading.Thread;
 
 #if STREAM_TESTS_ENABLED || STREAM_RUNTIME_TESTS_ENABLED
 using System.Runtime.CompilerServices;
@@ -212,12 +213,12 @@ namespace StreamChat.Core.LowLevelClient
                 _logs.Warning($"Connection state changed from: {previous} to: {value}");
 #endif
 
-                ConnectionStateChanged?.Invoke(previous, _connectionState);
+                RaiseConnectionStateChanged(previous, _connectionState);
 
                 if (value == ConnectionState.Disconnected)
                 {
                     _disconnectionLastEventReceivedAt = _lastEventReceivedAt;
-                    Disconnected?.Invoke();
+                    RaiseDisconnected();
                 }
             }
         }
@@ -233,7 +234,7 @@ namespace StreamChat.Core.LowLevelClient
         /// <summary>
         /// SDK Version number
         /// </summary>
-        public static readonly Version SDKVersion = new Version(5, 6, 0);
+        public static readonly Version SDKVersion = new Version(5, 7, 0);
 
         /// <summary>
         /// Use this method to create the main client instance or use StreamChatClient constructor to create a client instance with custom dependencies
@@ -297,6 +298,8 @@ namespace StreamChat.Core.LowLevelClient
             IHttpClient httpClient, ISerializer serializer, ITimeService timeService, INetworkMonitor networkMonitor,
             IApplicationInfo applicationInfo, ILogs logs, IStreamClientConfig config)
         {
+            _mainThreadId = Thread.CurrentThread.ManagedThreadId;
+
             _authCredentials = authCredentials;
             _websocketClient = websocketClient ?? throw new ArgumentNullException(nameof(websocketClient));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -309,11 +312,12 @@ namespace StreamChat.Core.LowLevelClient
 
             _logs.Prefix = "[Stream Chat] ";
 
-            _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer);
+            var streamClientHeader = BuildStreamClientHeader(applicationInfo);
+            _requestUriFactory = new RequestUriFactory(authProvider: this, connectionProvider: this, _serializer,
+                streamClientHeader);
 
             _httpClient.AddDefaultCustomHeader("stream-auth-type", DefaultStreamAuthType);
-            var header = BuildStreamClientHeader(applicationInfo);
-            _httpClient.AddDefaultCustomHeader("X-Stream-Client", header);
+            _httpClient.AddDefaultCustomHeader("X-Stream-Client", streamClientHeader);
 
             _websocketClient.ConnectionFailed += OnWebsocketsConnectionFailed;
             _websocketClient.Disconnected += OnWebsocketDisconnected;
@@ -363,6 +367,7 @@ namespace StreamChat.Core.LowLevelClient
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
 
+            _reconnectScheduler.Start();
             TryCancelWaitingForUserConnection();
 
             //StreamTodo: hidden dependency on SetUser being called
@@ -387,18 +392,27 @@ namespace StreamChat.Core.LowLevelClient
             _httpClient.SetDefaultAuthenticationHeader(authCredentials.UserToken);
         }
 
-        public async Task DisconnectAsync(bool permanent = false)
+        public async Task DisconnectAsync(DisconnectCause cause = DisconnectCause.ConnectionReleased)
         {
             TryCancelWaitingForUserConnection();
-            //StreamTodo: remove this, this cannot be used when internal disconnect due to expired token. Perhaps we should allow user to Suspend() and Unsupend() the client reconnection
+            LastDisconnectCause = cause;
 
-            if (permanent)
+            if (cause == DisconnectCause.UserLogout)
             {
                 _reconnectScheduler.Stop();
             }
 
-            await _websocketClient.DisconnectAsync(WebSocketCloseStatus.NormalClosure, "User called Disconnect");
+            var closeStatus = cause == DisconnectCause.HealthTimeout
+                ? WebSocketCloseStatus.InternalServerError
+                : WebSocketCloseStatus.NormalClosure;
+            var closeMessage = GetDisconnectCloseMessage(cause);
+
+            await _websocketClient.DisconnectAsync(closeStatus, closeMessage);
         }
+
+        [Obsolete("Use DisconnectAsync(DisconnectCause). true maps to UserLogout, false to ConnectionReleased.")]
+        public Task DisconnectAsync(bool permanent)
+            => DisconnectAsync(permanent ? DisconnectCause.UserLogout : DisconnectCause.ConnectionReleased);
 
         public void Update(float deltaTime)
         {
@@ -409,6 +423,7 @@ namespace StreamChat.Core.LowLevelClient
 #endif
 
             TryHandleWebsocketsConnectionFailed();
+            TryHandleWebsocketDisconnected();
             TryToReconnect();
 
             UpdateHealthCheck();
@@ -420,7 +435,7 @@ namespace StreamChat.Core.LowLevelClient
 #if STREAM_DEBUG_ENABLED
                 _logs.Info(_authCredentials.UserId + " WS message: " + msg);
 #endif
-                HandleNewWebsocketMessage(msg);
+                HandleNewWebsocketMessage(msg, isLiveEvent: true);
             }
         }
 
@@ -438,43 +453,150 @@ namespace StreamChat.Core.LowLevelClient
 
         public async Task FetchAndProcessEventsSinceLastReceivedEvent(IEnumerable<string> channelCids)
         {
-            if (!channelCids.Any() || !_disconnectionLastEventReceivedAt.HasValue)
+            var response = await TrySyncHistoryAsync(channelCids);
+            ReplayHistoryEvents(response?.Events);
+        }
+
+        /// <summary>
+        /// <c>/sync</c> counts events across all requested cids. The server rejects the request
+        /// at about 1000 events. Fewer cids makes success more likely. Matches Swift and Android (100).
+        /// </summary>
+        internal const int MaxSyncChannelCids = 100;
+
+        /// <summary>
+        /// Best-effort <c>/sync</c> for up to <see cref="MaxSyncChannelCids"/> channels.
+        /// Returns <c>null</c> when there is no sync point, or when it is older than 30 days.
+        /// </summary>
+        internal async Task<Responses.SyncResponse> TrySyncHistoryAsync(IEnumerable<string> channelCids)
+        {
+            if (channelCids == null || !_disconnectionLastEventReceivedAt.HasValue)
             {
-                return;
+                return null;
             }
 
             var lastEventReceivedAt = _disconnectionLastEventReceivedAt.Value;
 
-            var currentServerTime = DateTimeOffset.UtcNow.ToOffset(lastEventReceivedAt.Offset);
+            if ((_timeService.Now - lastEventReceivedAt).TotalDays > 30)
+            {
+                return null;
+            }
 
-            // Check if less than 30 days
-            var diff = lastEventReceivedAt - _timeService.Now;
-            if (diff.TotalDays > 30)
+            using (new ListPoolScope<string>(out var tempCids))
+            {
+                foreach (var cid in channelCids)
+                {
+                    if (tempCids.Count == MaxSyncChannelCids)
+                    {
+                        break;
+                    }
+
+                    tempCids.Add(cid);
+                }
+
+                if (tempCids.Count == 0)
+                {
+                    return null;
+                }
+
+                return await ChannelApi.SyncAsync(new SyncRequest
+                {
+                    ChannelCids = tempCids,
+                    LastSyncAt = lastEventReceivedAt,
+                    Watch = true,
+
+                    // Lets recovery skip channels the server will never return again
+                    // (deleted, or the user lost access while offline).
+                    WithInaccessibleCids = true,
+                });
+            }
+        }
+
+        /// <summary>
+        /// Replay history events as live events, so public callbacks fire the same way.
+        /// Used by <see cref="StateRecoveryStrategy.ReplayEvents"/>.
+        /// </summary>
+        internal void ReplayHistoryEvents(IEnumerable<object> events)
+        {
+            if (events == null)
             {
                 return;
             }
 
-            //StreamTodo: according to Android SDK there's an error if there are > 1000 events 
-
-            var response = await ChannelApi.SyncAsync(new SyncRequest
+            foreach (var e in events)
             {
-                ChannelCids = channelCids.ToList(),
-                LastSyncAt = lastEventReceivedAt,
-                Watch = true,
-            });
+                // Isolated in the handler so one bad event does not stop the rest.
+                HandleNewWebsocketMessage(e);
+            }
+        }
 
-            if (response.Events.Count == 0)
+        /// <summary>
+        /// Apply history events to local state without raising per-event public callbacks.
+        /// Used by <see cref="StateRecoveryStrategy.BatchStateUpdate"/>.
+        /// Matches Android <c>isFromHistorySync</c> and Swift <c>postNotifications: false</c>.
+        /// </summary>
+        internal HistorySyncApplyResult ApplyHistoryEvents(IEnumerable<object> events)
+        {
+            var result = new HistorySyncApplyResult();
+            if (events == null)
+            {
+                return result;
+            }
+
+            _isApplyingHistoryEvents = true;
+            _historyMaxAppliedCreatedAt = null;
+
+            try
+            {
+                foreach (var e in events)
+                {
+                    try
+                    {
+                        HandleNewWebsocketMessage(e);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Do not abort the batch. The /sync last_sync_at cursor only moves to
+                        // events that applied, so a failed event is retried on the next reconnect.
+                        result.FailedEventCount++;
+                        _logs.Exception(ex);
+                    }
+                }
+            }
+            finally
+            {
+                result.MaxAppliedCreatedAt = _historyMaxAppliedCreatedAt;
+                _historyMaxAppliedCreatedAt = null;
+                _isApplyingHistoryEvents = false;
+
+                if (result.MaxAppliedCreatedAt.HasValue)
+                {
+                    TryAdvanceLastEventReceivedAt(result.MaxAppliedCreatedAt.Value, HistorySyncWatermarkSource);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// True while <see cref="ApplyHistoryEvents"/> is running.
+        /// </summary>
+        internal bool IsApplyingHistoryEvents => _isApplyingHistoryEvents;
+
+        private const string HistorySyncWatermarkSource = "history.sync";
+
+        // Track the newest created_at applied in this batch.
+        // _lastEventReceivedAt (the /sync last_sync_at cursor) is advanced once at the end.
+        // Advancing per event would skip a failed event on the next reconnect.
+        private void TrackMaxAppliedCreatedAt(DateTimeOffset createdAt)
+        {
+            if (createdAt == DateTimeOffset.MinValue)
             {
                 return;
             }
 
-            foreach (var e in response.Events)
+            if (!_historyMaxAppliedCreatedAt.HasValue || createdAt > _historyMaxAppliedCreatedAt.Value)
             {
-                // StreamTodo: check if we can not serialized this again. Investigate adding a custom EventsJsonConverter that would populate the list as serialized strings
-                var serializedMsg = _serializer.Serialize(e);
-
-                //StreamTodo: try block?
-                HandleNewWebsocketMessage(serializedMsg);
+                _historyMaxAppliedCreatedAt = createdAt;
             }
         }
 
@@ -511,6 +633,10 @@ namespace StreamChat.Core.LowLevelClient
 
         internal IStreamClientConfig Config => _config;
 
+        internal DisconnectCause LastDisconnectCause { get; private set; }
+
+        internal void StopReconnectScheduler() => _reconnectScheduler.Stop();
+
         internal async Task<OwnUserInternalDTO> ConnectUserAsync(string apiKey, string userId,
             ITokenProvider tokenProvider, CancellationToken cancellationToken = default)
         {
@@ -519,6 +645,7 @@ namespace StreamChat.Core.LowLevelClient
                 throw new InvalidOperationException("Attempted to connect, but client is in state: " + ConnectionState);
             }
 
+            _reconnectScheduler.Start();
             _tokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
             SetPartialConnectionCredentials(apiKey, userId);
 
@@ -572,10 +699,16 @@ namespace StreamChat.Core.LowLevelClient
         private readonly IStreamClientConfig _config;
         private readonly ReconnectScheduler _reconnectScheduler;
 
-        private readonly Dictionary<string, Action<string>> _eventKeyToHandler =
-            new Dictionary<string, Action<string>>();
+        private readonly Dictionary<string, Action<object>> _eventKeyToHandler =
+            new Dictionary<string, Action<object>>();
 
         private readonly object _websocketConnectionFailedFlagLock = new object();
+        private readonly object _websocketDisconnectedFlagLock = new object();
+
+        /// <summary>
+        /// Every <see cref="ConnectionState"/> write must happen on this thread
+        /// </summary>
+        private readonly int _mainThreadId;
 
         private TaskCompletionSource<OwnUserInternalDTO> _connectUserTaskSource;
         private CancellationToken _connectUserCancellationToken;
@@ -591,6 +724,7 @@ namespace StreamChat.Core.LowLevelClient
         private bool _updateCallReceived;
 
         private bool _websocketConnectionFailed;
+        private bool _websocketDisconnected;
         private ITokenProvider _tokenProvider;
 
         /// <summary>
@@ -602,6 +736,9 @@ namespace StreamChat.Core.LowLevelClient
         /// The last value of <see cref="_lastEventReceivedAt"/> when the client disconnected. Use this value when calling /sync endpoint
         /// </summary>
         private DateTimeOffset? _disconnectionLastEventReceivedAt;
+
+        private bool _isApplyingHistoryEvents;
+        private DateTimeOffset? _historyMaxAppliedCreatedAt;
 
         private async Task RefreshAuthTokenFromProvider()
         {
@@ -645,12 +782,93 @@ namespace StreamChat.Core.LowLevelClient
             }
         }
 
+        /// <summary>
+        /// This event can be called by a background thread and we must propagate it on the main thread
+        /// Otherwise any call to Unity API would result in Exception. Unity API can only be called from the main thread
+        /// </summary>
         private void OnWebsocketDisconnected()
         {
 #if STREAM_DEBUG_ENABLED
             _logs.Warning("Websocket Disconnected");
 #endif
+
+            if (Thread.CurrentThread.ManagedThreadId == _mainThreadId)
+            {
+                ConnectionState = ConnectionState.Disconnected;
+                return;
+            }
+
+            lock (_websocketDisconnectedFlagLock)
+            {
+                _websocketDisconnected = true;
+            }
+        }
+
+        private void TryHandleWebsocketDisconnected()
+        {
+            lock (_websocketDisconnectedFlagLock)
+            {
+                if (!_websocketDisconnected)
+                {
+                    return;
+                }
+
+                _websocketDisconnected = false;
+            }
+
+            if (ConnectionState == ConnectionState.Closing)
+            {
+                return;
+            }
+
             ConnectionState = ConnectionState.Disconnected;
+        }
+
+        /// <summary>
+        /// Subscribers are invoked one by one so that a throwing handler cannot stop the remaining ones -
+        /// including the internal reconnect scheduling - from observing the transition
+        /// </summary>
+        private void RaiseConnectionStateChanged(ConnectionState previous, ConnectionState current)
+        {
+            var handler = ConnectionStateChanged;
+            if (handler == null)
+            {
+                return;
+            }
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((ConnectionStateChangeHandler)subscriber)(previous, current);
+                }
+                catch (Exception e)
+                {
+                    _logs.Exception(e);
+                }
+            }
+        }
+
+        /// <inheritdoc cref="RaiseConnectionStateChanged"/>
+        private void RaiseDisconnected()
+        {
+            var handler = Disconnected;
+            if (handler == null)
+            {
+                return;
+            }
+
+            foreach (var subscriber in handler.GetInvocationList())
+            {
+                try
+                {
+                    ((Action)subscriber)();
+                }
+                catch (Exception e)
+                {
+                    _logs.Exception(e);
+                }
+            }
         }
 
         /// <summary>
@@ -890,7 +1108,7 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            _eventKeyToHandler.Add(key, serializedContent =>
+            _eventKeyToHandler.Add(key, payload =>
             {
                 try
                 {
@@ -898,33 +1116,45 @@ namespace StreamChat.Core.LowLevelClient
                     var ignoreKeys = new[] { WSEventType.HealthCheck };
                     if (!ignoreKeys.Contains(key))
                     {
-                        _logs.Warning("WS event received KEY: " + key + " CONTENT: " + serializedContent);
+                        _logs.Warning("WS event received KEY: " + key + " CONTENT: " + payload);
                     }
 #endif
-                    var eventObj = DeserializeEvent<TDto, TEvent>(serializedContent, out var dto);
+                    var eventObj = DeserializeEvent<TDto, TEvent>(payload, out var dto);
                     postprocess?.Invoke(dto);
-                    _lastEventReceivedAt = eventObj.CreatedAt;
-                    handler?.Invoke(eventObj, dto);
+
+                    if (_isApplyingHistoryEvents)
+                    {
+                        TrackMaxAppliedCreatedAt(eventObj.CreatedAt);
+                    }
+                    else
+                    {
+                        TryAdvanceLastEventReceivedAt(eventObj.CreatedAt, key);
+
+                        // The low-level client has no state to read after a silent batch.
+                        // Skip its public callbacks so they match BatchStateUpdate.
+                        handler?.Invoke(eventObj, dto);
+                    }
+
+                    // Updates local state even when public callbacks are skipped.
                     internalHandler?.Invoke(dto);
                 }
                 catch (Exception e)
                 {
                     _logs.Exception(e);
+
+                    // ApplyHistoryEvents counts failures and needs the throw. Live events stay isolated here.
+                    if (_isApplyingHistoryEvents)
+                    {
+                        throw;
+                    }
                 }
             });
         }
 
-        private TEvent DeserializeEvent<TDto, TEvent>(string content, out TDto dto)
+        private TEvent DeserializeEvent<TDto, TEvent>(object payload, out TDto dto)
             where TEvent : ILoadableFrom<TDto, TEvent>, new()
         {
-            try
-            {
-                dto = _serializer.Deserialize<TDto>(content);
-            }
-            catch (Exception e)
-            {
-                throw new StreamDeserializationException(content, typeof(TDto), e);
-            }
+            dto = DeserializePayload<TDto>(payload);
 
             var response = new TEvent();
             response.LoadFromDto(dto);
@@ -932,11 +1162,103 @@ namespace StreamChat.Core.LowLevelClient
             return response;
         }
 
-        private void HandleNewWebsocketMessage(string msg)
+        private TDto DeserializePayload<TDto>(object payload)
+        {
+            if (payload is string content)
+            {
+                try
+                {
+                    return _serializer.Deserialize<TDto>(content);
+                }
+                catch (Exception e)
+                {
+                    throw new StreamDeserializationException(content, typeof(TDto), e);
+                }
+            }
+
+            try
+            {
+                var converted = _serializer.TryConvertTo<TDto>(payload);
+                if (converted != null)
+                {
+                    return converted;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new StreamDeserializationException(PayloadToLog(payload), typeof(TDto), e);
+            }
+
+            // Unknown object shape. Same as the old serialize-then-deserialize path.
+            try
+            {
+                return _serializer.Deserialize<TDto>(_serializer.Serialize(payload));
+            }
+            catch (Exception e)
+            {
+                throw new StreamDeserializationException(PayloadToLog(payload), typeof(TDto), e);
+            }
+        }
+
+        private void HandleNewWebsocketMessage(object payload, bool isLiveEvent = false)
+        {
+            if (payload is string json)
+            {
+                HandleNewWebsocketMessage(json, isLiveEvent);
+                return;
+            }
+
+            if (payload == null)
+            {
+                HandleNewWebsocketMessage(_serializer.Serialize(payload), isLiveEvent);
+                return;
+            }
+
+            WebsocketEventEnvelopePeek peek;
+            try
+            {
+                peek = _serializer.TryConvertTo<WebsocketEventEnvelopePeek>(payload);
+            }
+            catch (Exception)
+            {
+                HandleNewWebsocketMessage(_serializer.Serialize(payload), isLiveEvent);
+                return;
+            }
+
+            if (peek == null || (peek.Error == null && string.IsNullOrEmpty(peek.Type)))
+            {
+                HandleNewWebsocketMessage(_serializer.Serialize(payload), isLiveEvent);
+                return;
+            }
+
+            DispatchWebsocketPayload(payload, peek.Error, peek.Type, isLiveEvent);
+        }
+
+        private void HandleNewWebsocketMessage(string msg, bool isLiveEvent = false)
         {
             const string ErrorKey = "error";
 
-            if (_serializer.TryPeekValue<APIError>(msg, ErrorKey, out var apiError))
+            APIError apiError = null;
+            if (_serializer.TryPeekValue<APIError>(msg, ErrorKey, out var peekedError))
+            {
+                apiError = peekedError;
+            }
+
+            const string TypeKey = "type";
+
+            string type = null;
+            if (apiError == null && !_serializer.TryPeekValue<string>(msg, TypeKey, out type))
+            {
+                _logs.Error($"Failed to find `{TypeKey}` in msg: " + msg);
+                return;
+            }
+
+            DispatchWebsocketPayload(msg, apiError, type, isLiveEvent);
+        }
+
+        private void DispatchWebsocketPayload(object payload, APIError apiError, string type, bool isLiveEvent)
+        {
+            if (apiError != null)
             {
                 _errorSb.Length = 0;
                 apiError.AppendFullLog(_errorSb);
@@ -945,15 +1267,15 @@ namespace StreamChat.Core.LowLevelClient
                 return;
             }
 
-            const string TypeKey = "type";
-
-            if (!_serializer.TryPeekValue<string>(msg, TypeKey, out var type))
+            // Stamp here, not in the health-check handler. That handler runs after other
+            // callbacks; a slow one can miss the timeout and drop the connection.
+            // Only live socket events count. A /sync replay does not prove the socket is alive.
+            if (isLiveEvent && type == WSEventType.HealthCheck)
             {
-                _logs.Error($"Failed to find `{TypeKey}` in msg: " + msg);
-                return;
+                _lastHealthCheckReceivedTime = _timeService.Time;
             }
 
-            if (EventReceived != null)
+            if (EventReceived != null && !_isApplyingHistoryEvents)
             {
                 var time = DateTime.Now.TimeOfDay.ToString(@"hh\:mm\:ss");
                 EventReceived.Invoke($"{time} - Event received: <b>{type}</b>");
@@ -961,35 +1283,45 @@ namespace StreamChat.Core.LowLevelClient
 
             if (!_eventKeyToHandler.TryGetValue(type, out var handler))
             {
-                if (TryHandleCustomChannelEvent(msg))
+                if (TryHandleCustomChannelEvent(payload, type))
                 {
                     return;
                 }
 
                 if (_config.LogLevel.IsDebugEnabled())
                 {
-                    _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + msg);
+                    _logs.Warning($"No message handler registered for `{type}`. Message not handled: " + payload);
                 }
 
                 return;
             }
 
-            handler(msg);
+            handler(payload);
         }
 
-        private bool TryHandleCustomChannelEvent(string serializedContent)
+        private bool TryHandleCustomChannelEvent(object payload, string eventType)
         {
-            if (!_serializer.TryPeekValue<string>(serializedContent, "cid", out var cid)
-                || string.IsNullOrEmpty(cid))
+            if (!TryGetEventCid(payload, out var cid) || string.IsNullOrEmpty(cid))
             {
                 return false;
             }
 
             try
             {
-                var dto = _serializer.Deserialize<CustomEventInternalDTO>(serializedContent);
-                _lastEventReceivedAt = dto.CreatedAt;
+                var dto = DeserializePayload<CustomEventInternalDTO>(payload);
 
+                if (_isApplyingHistoryEvents)
+                {
+                    TrackMaxAppliedCreatedAt(dto.CreatedAt);
+                }
+                else
+                {
+                    TryAdvanceLastEventReceivedAt(dto.CreatedAt, eventType);
+                }
+
+                // Always raise. Custom events are not stored in channel state, so skipping them
+                // would lose the payload. JS, Swift, and Android drop custom events from /sync;
+                // an app that ports between SDKs must not rely on receiving them.
                 var evt = new EventCustom();
                 ((ILoadableFrom<CustomEventInternalDTO, EventCustom>)evt).LoadFromDto(dto);
                 CustomEventReceived?.Invoke(evt);
@@ -1001,6 +1333,45 @@ namespace StreamChat.Core.LowLevelClient
                 _logs.Exception(e);
                 return false;
             }
+        }
+
+        private bool TryGetEventCid(object payload, out string cid)
+        {
+            if (payload is string json)
+            {
+                return _serializer.TryPeekValue(json, "cid", out cid);
+            }
+
+            try
+            {
+                var peek = _serializer.TryConvertTo<WebsocketEventEnvelopePeek>(payload);
+                cid = peek?.Cid;
+                return !string.IsNullOrEmpty(cid);
+            }
+            catch (Exception)
+            {
+                var serialized = _serializer.Serialize(payload);
+                return _serializer.TryPeekValue(serialized, "cid", out cid);
+            }
+        }
+
+        private static string PayloadToLog(object payload)
+            => payload as string ?? payload?.ToString() ?? string.Empty;
+
+        /// <summary>
+        /// Enough of a websocket /sync event to dispatch: <c>type</c>, <c>cid</c>, and <c>error</c>.
+        /// Used so history events can be applied from <c>JObject</c> without a string round-trip.
+        /// </summary>
+        private class WebsocketEventEnvelopePeek
+        {
+            [Newtonsoft.Json.JsonProperty("type")]
+            public string Type { get; set; }
+
+            [Newtonsoft.Json.JsonProperty("cid")]
+            public string Cid { get; set; }
+
+            [Newtonsoft.Json.JsonProperty("error")]
+            public APIError Error { get; set; }
         }
 
         private void UpdateHealthCheck()
@@ -1020,10 +1391,7 @@ namespace StreamChat.Core.LowLevelClient
             if (timeSinceLastHealthCheck > HealthCheckMaxWaitingTime)
             {
                 _logs.Warning($"Health check was not received since: {timeSinceLastHealthCheck}, resetting connection");
-                _websocketClient
-                    .DisconnectAsync(WebSocketCloseStatus.InternalServerError,
-                        $"Health check was not received since: {timeSinceLastHealthCheck}")
-                    .ContinueWith(_ => _logs.Exception(_.Exception), TaskContinuationOptions.OnlyOnFaulted);
+                DisconnectAsync(DisconnectCause.HealthTimeout).LogIfFailed(_logs);
             }
         }
 
@@ -1040,11 +1408,28 @@ namespace StreamChat.Core.LowLevelClient
 
         private void HandleHealthCheckEvent(EventHealthCheck healthCheckEvent, HealthCheckEventInternalDTO dto)
         {
-            _lastHealthCheckReceivedTime = _timeService.Time;
-
             if (ConnectionState == ConnectionState.Connecting)
             {
                 OnConnectionConfirmed(healthCheckEvent, dto);
+            }
+        }
+
+        private void TryAdvanceLastEventReceivedAt(DateTimeOffset createdAt, string eventType)
+        {
+            if (createdAt == DateTimeOffset.MinValue)
+            {
+                if (_config.LogLevel.IsDebugEnabled())
+                {
+                    _logs.Warning(
+                        $"WebSocket event `{eventType}` has no valid `created_at`; the /sync watermark was not advanced.");
+                }
+
+                return;
+            }
+
+            if (!_lastEventReceivedAt.HasValue || createdAt > _lastEventReceivedAt.Value)
+            {
+                _lastEventReceivedAt = createdAt;
             }
         }
 
@@ -1136,6 +1521,23 @@ namespace StreamChat.Core.LowLevelClient
 
             _logs.Info(_logSb.ToString());
             _logSb.Clear();
+        }
+
+        private static string GetDisconnectCloseMessage(DisconnectCause cause)
+        {
+            switch (cause)
+            {
+                case DisconnectCause.UserLogout:
+                    return "User logged out";
+                case DisconnectCause.ApplicationPause:
+                    return "Application paused";
+                case DisconnectCause.HealthTimeout:
+                    return "Health check timeout";
+                case DisconnectCause.Network:
+                    return "Network unavailable";
+                default:
+                    return "User called Disconnect";
+            }
         }
     }
 }

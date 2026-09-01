@@ -64,5 +64,11 @@ namespace StreamChat.Core.State.Caches
             where TType : class, TTrackedObject, IStreamStatefulModel, IUpdateableFrom5<TDto, TType>;
 
         void Remove(TTrackedObject trackedObject);
+
+        /// <summary>
+        /// Removes multiple tracked objects in a single pass. Prefer this over calling
+        /// <see cref="Remove"/> in a loop - removing N objects one by one is O(N * repository size).
+        /// </summary>
+        void RemoveMany(IReadOnlyList<TTrackedObject> trackedObjects);
     }
 }

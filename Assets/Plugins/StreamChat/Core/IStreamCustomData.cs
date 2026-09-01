@@ -10,7 +10,8 @@ namespace StreamChat.Core
     /// - <see cref="IStreamUser"/><br/>
     /// - <see cref="StreamChannelMember"/><br/>
     /// If you want to have images or files as custom data, upload them using <see cref="IStreamChannel.UploadFileAsync"/> and <see cref="IStreamChannel.UploadImageAsync"/> and put only file URL as a custom data
-    /// You can set custom data by using <see cref="IStreamChannel.UpdatePartialAsync"/> or <see cref="IStreamChannel.UpdateOverwriteAsync"/>
+    /// You can set custom data by using <see cref="IStreamChannel.UpdatePartialAsync"/> or <see cref="IStreamChannel.UpdateOverwriteAsync"/>,
+    /// and on messages with <see cref="IStreamMessage.UpdatePartialAsync"/> or <see cref="IStreamMessage.UpdateOverwriteAsync"/>
     /// </summary>
     /// <remarks>https://getstream.io/chat/docs/unity/creating_channels/?language=unity</remarks>
     public interface IStreamCustomData

@@ -257,17 +257,15 @@ namespace StreamChat.Samples
                 }
             };
 
-            var setFields = new Dictionary<string, object>();
-
-            // Set custom values
-            setFields.Add("frags", 5);
-            // Set custom arrays
-            setFields.Add("items", new[] { "sword", "shield" });
-            // Set custom class objects
-            setFields.Add("clan_info", setClanInfo);
-
-            // Send data
-            await channel.UpdatePartialAsync(setFields);
+            await channel.UpdatePartialAsync(new StreamUpdateChannelPartialRequest
+            {
+                CustomData = new StreamCustomDataRequest
+                {
+                    { "frags", 5 },
+                    { "items", new[] { "sword", "shield" } },
+                    { "clan_info", setClanInfo },
+                },
+            });
 
             // Data is now available via CustomData property
             var frags = channel.CustomData.Get<int>("frags");

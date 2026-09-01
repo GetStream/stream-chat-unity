@@ -56,6 +56,8 @@ namespace StreamChat.Core.Helpers
 
         public void RemoveAt(int index) => _internalList.RemoveAt(index);
 
+        public void RemoveRange(int index, int count) => _internalList.RemoveRange(index, count);
+
         public T this[int index]
         {
             get => _internalList[index];

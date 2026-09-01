@@ -24,9 +24,11 @@ namespace StreamChat.Tests.StatefulClient
         private readonly List<string> _tempPollIds = new List<string>();
 
         [OneTimeTearDown]
-        public async void TearDown()
+        public void TearDown()
         {
-            await DeleteTempPollsAsync();
+            // See BaseStateIntegrationTests.OneTimeTearDown for why this cannot be
+            // `async void` (NUnit rejects it) nor `async Task` (deadlocks on Unity's context).
+            Task.Run(async () => await DeleteTempPollsAsync()).GetAwaiter().GetResult();
         }
 
         private async Task DeleteTempPollsAsync()

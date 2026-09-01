@@ -1,0 +1,2 @@
+# CI scripts run inside Linux containers, so they must never be checked out with CRLF.
+*.sh text eol=lf

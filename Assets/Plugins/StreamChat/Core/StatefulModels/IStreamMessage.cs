@@ -218,9 +218,44 @@ namespace StreamChat.Core.StatefulModels
         Task HardDeleteAsync();
 
         /// <summary>
-        /// Update message text or other parameters
+        /// Partially update this message. Only the listed fields change; everything else is kept.
+        /// For a full overwrite that replaces omitted fields, use
+        /// <see cref="UpdateOverwriteAsync"/>.
         /// </summary>
-        Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest); //StreamTodo: rename to UpdateOverwriteAsync
+        /// <param name="setFields">Fields to set (message fields or custom data). Nested
+        /// paths like "details.status" are allowed.</param>
+        /// <param name="unsetFields">Field names to remove.</param>
+        /// <param name="skipEnrichUrl">If true, do not scrape URLs in the text for link
+        /// attachments.</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/send-message/?language=unity#partial-update</remarks>
+        Task UpdatePartialAsync(
+            IDictionary<string, object> setFields = null,
+            IEnumerable<string> unsetFields = null,
+            bool? skipEnrichUrl = null);
+
+        /// <summary>
+        /// Partially update this message using typed fields. Null properties are omitted and left
+        /// unchanged. Custom data is merged; omitting <see cref="StreamUpdateMessagePartialRequest.CustomData"/>
+        /// does not wipe existing keys (unlike <see cref="UpdateOverwriteAsync"/>).
+        /// For wire-level nested paths or a raw <c>set</c> map, use the dictionary overload.
+        /// </summary>
+        /// <remarks>https://getstream.io/chat/docs/unity/send-message/?language=unity#partial-update</remarks>
+        Task UpdatePartialAsync(StreamUpdateMessagePartialRequest request);
+
+        /// <summary>
+        /// Fully overwrite this message. Any data present on the message and not included
+        /// in the request is deleted. To change only some fields, use
+        /// <see cref="UpdatePartialAsync"/>.
+        /// </summary>
+        Task UpdateOverwriteAsync(StreamUpdateMessageRequest streamUpdateMessageRequest);
+
+        /// <summary>
+        /// Fully overwrite this message. Any data present on the message and not included
+        /// in the request is deleted. To change only some fields, use
+        /// <see cref="UpdatePartialAsync"/>.
+        /// </summary>
+        [Obsolete("Renamed to UpdateOverwriteAsync. This overload will be removed in a future release.")]
+        Task UpdateAsync(StreamUpdateMessageRequest streamUpdateMessageRequest);
 
         /// <summary>
         /// Pin this message to a channel with optional expiration date
@@ -232,6 +267,19 @@ namespace StreamChat.Core.StatefulModels
         /// Unpin this message from its channel
         /// </summary>
         Task UnpinAsync();
+
+        /// <summary>
+        /// <para>Translate this message's text into the given language.</para>
+        ///
+        /// The translation is stored on the message and available from <see cref="I18n"/> under the
+        /// <c>{language}_text</c> key (e.g. "en_text" for English), alongside a <c>language</c> key
+        /// naming the detected source language. Stream notifies every client watching the channel
+        /// that the message was updated. Requires the auto-translation feature to be enabled for
+        /// your app.
+        /// </summary>
+        /// <param name="language">Target language as an ISO language code, e.g. "en"</param>
+        /// <remarks>https://getstream.io/chat/docs/unity/translation/?language=unity</remarks>
+        Task TranslateAsync(string language);
 
         /// <summary>
         /// Add reaction to this message
