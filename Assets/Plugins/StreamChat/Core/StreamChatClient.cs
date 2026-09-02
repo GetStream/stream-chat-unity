@@ -1237,7 +1237,9 @@ namespace StreamChat.Core
         /// in local state but stop receiving events.
         ///
         /// 1. <c>/sync</c> catch-up (best effort). Must run first: a replayed <c>channel.truncated</c>
-        ///    would wipe messages fetched in step 2.
+        ///    would wipe messages fetched in step 2. A large catch-up is paced across Update
+        ///    calls; this method awaits that drain, so step 2 does not start until it finishes.
+        ///    <see cref="StateRecovered"/> may therefore fire seconds after <see cref="Connected"/>.
         /// 2. Re-query and re-watch, even if step 1 failed or was skipped.
         /// 3. Raise <see cref="StateRecovered"/> once.
         ///
@@ -1384,11 +1386,11 @@ namespace StreamChat.Core
 
                 if (InternalLowLevelClient.Config.StateRecoveryStrategy == StateRecoveryStrategy.BatchStateUpdate)
                 {
-                    InternalLowLevelClient.ApplyHistoryEvents(response.Events);
+                    await InternalLowLevelClient.EnqueueHistoryEventsForBatchApply(response.Events);
                 }
                 else
                 {
-                    InternalLowLevelClient.ReplayHistoryEvents(response.Events);
+                    await InternalLowLevelClient.EnqueueHistoryEventsForReplay(response.Events);
                 }
             }
             catch (StreamApiException ex) when (ex.IsInputError())
