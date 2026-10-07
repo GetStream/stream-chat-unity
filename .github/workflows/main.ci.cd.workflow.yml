@@ -119,8 +119,14 @@ jobs:
           echo "=== Remaining test assembly files ==="
           find Assets/Plugins/StreamChat/Tests -type f -name "*.cs" -o -name "*.asmdef" | sort
 
+      # unity-builder@v4 still resolves to v4.8.2 (pre-CLI). cliVersion is not an input there.
+      # unity-test-runner@v4 was moved to v4.4.0 on 2026-09-09 (thin wrapper around game-ci/cli).
+      # That path fails Personal .ulf activation ("Machine bindings don't match") and then
+      # errors creating a check run ("Resource not accessible by integration").
+      # Test steps are pinned to v4.3.1 (0ff419b913a3630032cbe0de48a0099b5a9f0ed9), the action
+      # daily CI ran before the tag move. v4.3.1 has no cliVersion input.
       - name: Run runtime tests in IL2CPP player
-        uses: game-ci/unity-test-runner@v4
+        uses: game-ci/unity-test-runner@v4.3.1
         id: runtime_tests
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -270,9 +276,11 @@ jobs:
           allowDirtyBuild: true
 
       # StreamChat.Tests is Editor-only, so playmode always reports 0 tests.
+      # unity-test-runner@v4 (now v4.4.0) fails Personal .ulf activation and check-run
+      # creation. Pinned to v4.3.1; see the runtime-tests job comment.
       - name: Run Tests (Attempt 1)
         id: run_tests_1
-        uses: game-ci/unity-test-runner@v4
+        uses: game-ci/unity-test-runner@v4.3.1
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -292,7 +300,7 @@ jobs:
       - name: Run Tests (Attempt 2)
         id: run_tests_2
         if: steps.run_tests_1.outcome == 'failure'
-        uses: game-ci/unity-test-runner@v4
+        uses: game-ci/unity-test-runner@v4.3.1
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -312,7 +320,7 @@ jobs:
       - name: Run Tests (Attempt 3)
         id: run_tests_3
         if: steps.run_tests_2.outcome == 'failure'
-        uses: game-ci/unity-test-runner@v4
+        uses: game-ci/unity-test-runner@v4.3.1
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
