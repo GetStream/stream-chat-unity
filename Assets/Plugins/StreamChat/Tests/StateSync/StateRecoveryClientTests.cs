@@ -550,6 +550,95 @@ namespace StreamChat.Tests.StateSync.Unit
         }
 
         [Test]
+        public void when_replay_recovery_syncs_many_events_expect_they_span_updates()
+        {
+            _client.InternalLowLevelClient.EventDrainCountCap = 2;
+            _client.InternalLowLevelClient.EventDrainTimeBudgetMs = 10_000;
+
+            Connect();
+            var channel = WatchChannel("messaging:a");
+            RespondWith(QueryChannelsEndpoint, QueryChannelsJson("messaging:a", "a"));
+
+            var received = 0;
+            channel.MessageReceived += (_, __) => received++;
+
+            ReconnectWithSync(ManySyncMessages("messaging:a", count: 5));
+
+            Assert.AreEqual(1, received, "Health check consumes one slot of the cap; only one history event fits.");
+            AssertQueryChannelsCallCount(0);
+            Assert.AreEqual(0, _recoveredEvents.Count);
+
+            Update();
+            Assert.AreEqual(3, received);
+            AssertQueryChannelsCallCount(0);
+            Assert.AreEqual(0, _recoveredEvents.Count);
+
+            Update();
+            Assert.AreEqual(5, received);
+            AssertQueryChannelsCallCount(1);
+            Assert.AreEqual(1, _recoveredEvents.Count);
+        }
+
+        [Test]
+        public void when_silent_recovery_syncs_many_events_expect_they_span_updates_without_callbacks()
+        {
+            _config.StateRecoveryStrategy = StateRecoveryStrategy.BatchStateUpdate;
+            _client.InternalLowLevelClient.EventDrainCountCap = 2;
+            _client.InternalLowLevelClient.EventDrainTimeBudgetMs = 10_000;
+
+            Connect();
+            var channel = WatchChannel("messaging:a");
+            RespondWith(QueryChannelsEndpoint, QueryChannelsJson("messaging:a", "a"));
+
+            var received = 0;
+            channel.MessageReceived += (_, __) => received++;
+
+            ReconnectWithSync(ManySyncMessages("messaging:a", count: 5));
+
+            Assert.AreEqual(0, received);
+            Assert.AreEqual(1, channel.Messages.Count);
+            AssertQueryChannelsCallCount(0);
+            Assert.AreEqual(0, _recoveredEvents.Count);
+            Assert.IsNull(GetLastEventReceivedAt(_client.InternalLowLevelClient));
+
+            Update();
+            Assert.AreEqual(0, received);
+            Assert.AreEqual(3, channel.Messages.Count);
+            AssertQueryChannelsCallCount(0);
+            Assert.IsNull(GetLastEventReceivedAt(_client.InternalLowLevelClient));
+
+            Update();
+            Assert.AreEqual(0, received);
+            Assert.AreEqual(5, channel.Messages.Count);
+            AssertQueryChannelsCallCount(1);
+            Assert.AreEqual(1, _recoveredEvents.Count);
+            Assert.AreEqual(new DateTimeOffset(2026, 8, 24, 12, 0, 4, TimeSpan.Zero),
+                GetLastEventReceivedAt(_client.InternalLowLevelClient));
+        }
+
+        [Test]
+        public void when_disconnect_mid_paced_recovery_expect_no_state_recovered()
+        {
+            _client.InternalLowLevelClient.EventDrainCountCap = 1;
+            _client.InternalLowLevelClient.EventDrainTimeBudgetMs = 10_000;
+
+            Connect();
+            WatchChannel("messaging:a");
+            RespondWith(QueryChannelsEndpoint, QueryChannelsJson("messaging:a", "a"));
+
+            ReconnectWithSync(ManySyncMessages("messaging:a", count: 5));
+            Assert.AreEqual(0, _recoveredEvents.Count);
+            AssertQueryChannelsCallCount(0);
+
+            DropConnection();
+            Update();
+            Update();
+
+            Assert.AreEqual(0, _recoveredEvents.Count);
+            AssertQueryChannelsCallCount(0);
+        }
+
+        [Test]
         public void when_silent_recovery_syncs_custom_event_expect_channel_custom_event_received()
         {
             _config.StateRecoveryStrategy = StateRecoveryStrategy.BatchStateUpdate;
@@ -623,6 +712,26 @@ namespace StreamChat.Tests.StateSync.Unit
 
         private static string SyncEventsJson(params string[] events)
             => "{\"events\":[" + string.Join(",", events) + "]}";
+
+        private static string ManySyncMessages(string cid, int count)
+        {
+            var start = new DateTimeOffset(2026, 8, 24, 12, 0, 0, TimeSpan.Zero);
+            var events = new string[count];
+            for (var i = 0; i < count; i++)
+            {
+                events[i] = MessageNewJson(cid, $"msg-{i}", start.AddSeconds(i));
+            }
+
+            return SyncEventsJson(events);
+        }
+
+        private static DateTimeOffset? GetLastEventReceivedAt(StreamChatLowLevelClient client)
+        {
+            var field = typeof(StreamChatLowLevelClient).GetField("_lastEventReceivedAt",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(field, "Expected _lastEventReceivedAt to exist.");
+            return (DateTimeOffset?)field.GetValue(client);
+        }
 
         private void ReconnectWithSync(string syncJson)
         {
