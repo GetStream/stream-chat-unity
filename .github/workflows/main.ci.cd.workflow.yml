@@ -59,7 +59,7 @@ jobs:
       - name: Prepare project for IL2CPP runtime tests
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_EMAIL: ${{ vars.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
@@ -130,7 +130,7 @@ jobs:
         id: runtime_tests
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_EMAIL: ${{ vars.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           testMode: playmode
@@ -267,7 +267,7 @@ jobs:
       - name: Enable Tests
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_EMAIL: ${{ vars.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
@@ -283,7 +283,7 @@ jobs:
         uses: game-ci/unity-test-runner@v4.3.1
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_EMAIL: ${{ vars.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           testMode: editmode
@@ -303,7 +303,7 @@ jobs:
         uses: game-ci/unity-test-runner@v4.3.1
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_EMAIL: ${{ vars.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           testMode: editmode
@@ -323,7 +323,7 @@ jobs:
         uses: game-ci/unity-test-runner@v4.3.1
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_EMAIL: ${{ vars.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           testMode: editmode
@@ -352,10 +352,36 @@ jobs:
         run: |
           git diff
 
-      - name: Build Sample Project
+      # UnityLinker sometimes exits 139 (SIGSEGV) while stripping managed code, with the
+      # same inputs that succeed on another runner. Seen on Unity 6000.1 Android Mono
+      # (Library/Bee/artifacts/Android/ManagedStripped). Editmode tests above already
+      # passed, so only the player build is repeated.
+      - name: Build Sample Project (Attempt 1)
+        id: build_sample_1
+        uses: game-ci/unity-builder@v4
+        continue-on-error: true
+        env:
+          UNITY_EMAIL: ${{ vars.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
+          customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath SampleAppBuild/${{ env.BUILD_NAME }}
+          customImage: ${{ env.DOCKER_TAG }}
+          allowDirtyBuild: true #Needed because the import process may update ProjectSettings
+
+      - name: Reset Unity state before build retry
+        if: steps.build_sample_1.outcome == 'failure'
+        run: |
+          bash .github/workflows/scripts/reset-unity-state.sh
+          rm -rf Library/Bee/artifacts/Android
+          rm -f Library/Bee/artifacts/unitylinker_*
+
+      - name: Build Sample Project (Attempt 2)
+        if: steps.build_sample_1.outcome == 'failure'
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_EMAIL: ${{ vars.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:

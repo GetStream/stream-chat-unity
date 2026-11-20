@@ -47,7 +47,8 @@ namespace StreamChat.Tests.StatefulClient
                 messagesReceivedOnOtherClient.Add(eventMessageNew);
             };
             
-            var offensiveMessage = await channel.SendNewMessageAsync("I shall kidnap your hamster!");
+            // Phrase from Stream's NLP THREAT examples, so it hits the Threat rule rather than another harm set to No Action.
+            var offensiveMessage = await channel.SendNewMessageAsync("I'll break your worthless jaw anytime, anywhere.");
             
             // Author should believe the message was sent
             Assert.IsTrue(channel.Messages.Contains(offensiveMessage));
