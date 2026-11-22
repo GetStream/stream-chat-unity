@@ -1,6 +1,7 @@
 #if STREAM_TESTS_ENABLED
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using StreamChat.Core.Configs;
@@ -115,8 +116,7 @@ namespace StreamChat.Tests.StateSync.Unit
             SetDisconnectionLastEventReceivedAt(now.AddHours(-1));
             StubSyncResponseWithMessageEvent(now.AddHours(-1));
 
-            _lowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(new[] { TestChannelCid }).GetAwaiter()
-                .GetResult();
+            FetchAndPumpUntilDone();
 
             Assert.AreEqual(now, GetLastEventReceivedAt());
         }
@@ -132,8 +132,7 @@ namespace StreamChat.Tests.StateSync.Unit
             SetDisconnectionLastEventReceivedAt(now.AddHours(-2));
             StubSyncResponseWithMessageEvent(replayedEventCreatedAt);
 
-            _lowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(new[] { TestChannelCid }).GetAwaiter()
-                .GetResult();
+            FetchAndPumpUntilDone();
 
             Assert.AreEqual(replayedEventCreatedAt, GetLastEventReceivedAt());
         }
@@ -176,6 +175,20 @@ namespace StreamChat.Tests.StateSync.Unit
 
         private DateTimeOffset? GetLastEventReceivedAt()
             => (DateTimeOffset?)GetPrivateField("_lastEventReceivedAt").GetValue(_lowLevelClient);
+
+        private void FetchAndPumpUntilDone()
+        {
+            var task = _lowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(new[] { TestChannelCid });
+            var frames = 0;
+            while (!task.IsCompleted && frames < 1000)
+            {
+                _lowLevelClient.Update(0.1f);
+                frames++;
+            }
+
+            Assert.IsTrue(task.IsCompleted, "FetchAndProcessEventsSinceLastReceivedEvent did not finish after Update pumping.");
+            task.GetAwaiter().GetResult();
+        }
 
         private static FieldInfo GetPrivateField(string name)
         {
