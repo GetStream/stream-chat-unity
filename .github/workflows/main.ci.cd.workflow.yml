@@ -26,7 +26,7 @@ permissions:
 jobs:
   runtime-tests:
     name: Runtime Tests (IL2CPP)
-    runs-on: ubuntu-latest
+    runs-on: { group: github-public-amd64 }
     env:
       RUNTIME_TEST_IMAGE: 'unityci/editor:ubuntu-6000.0.63f1-linux-il2cpp-3.2.2'
 
@@ -161,7 +161,7 @@ jobs:
 
   build:
     name: build (${{ matrix.unity_version }}, ${{ matrix.target_platform }}, ${{ matrix.dotnet_version }}, ${{ matrix.compiler }})
-    runs-on: ubuntu-latest
+    runs-on: { group: github-public-amd64 }
     strategy:
       fail-fast: false
       # Testing every version x platform x dotnet_version x compiler combination
