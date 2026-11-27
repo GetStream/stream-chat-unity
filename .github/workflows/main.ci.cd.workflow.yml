@@ -26,13 +26,21 @@ permissions:
 jobs:
   runtime-tests:
     name: Runtime Tests (IL2CPP)
-    runs-on: { group: github-public-amd64 }
+    runs-on: ubuntu-latest
     env:
       RUNTIME_TEST_IMAGE: 'unityci/editor:ubuntu-6000.0.63f1-linux-il2cpp-3.2.2'
 
     steps:
+      # Anonymous checkout: the org IP allow list refuses only signed-in requests, and this job
+      # makes no other GitHub call, so it runs on a free standard runner.
       - name: Checkout repository
-        uses: actions/checkout@v4
+        run: |
+          git init -q .
+          git fetch -q --depth=1 --no-tags "https://github.com/$REPOSITORY" "$SHA"
+          git checkout -q FETCH_HEAD
+        env:
+          REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
 
       - name: Install Git
         run: git config --global --add safe.directory /github/workspace
@@ -161,7 +169,7 @@ jobs:
 
   build:
     name: build (${{ matrix.unity_version }}, ${{ matrix.target_platform }}, ${{ matrix.dotnet_version }}, ${{ matrix.compiler }})
-    runs-on: { group: github-public-amd64 }
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       # Testing every version x platform x dotnet_version x compiler combination
@@ -193,7 +201,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        run: |
+          git init -q .
+          git fetch -q --depth=1 --no-tags "https://github.com/$REPOSITORY" "$SHA"
+          git checkout -q FETCH_HEAD
+        env:
+          REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
 
       - name: Set Test Data Set Index
         run: |
